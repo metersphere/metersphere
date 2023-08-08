@@ -226,7 +226,7 @@ public class OrganizationControllerTests extends BaseTest {
         organizationMemberRequest.setProjectIds(Arrays.asList("sys_org_projectId2", "sys_org_projectId3"));
         this.requestPost(ORGANIZATION_PROJECT_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
-        listByKeyWord("testUserOne", "sys_default_organization_3", true, InternalUserRole.PROJECT_MEMBER.getValue(), "sys_org_projectId2", false, null, null);
+        listByKeyWord("testUserOne", "sys_default_organization_3", false, InternalUserRole.PROJECT_MEMBER.getValue(), "sys_org_projectId2", false, null, null);
     }
 
     @Test
@@ -491,8 +491,6 @@ public class OrganizationControllerTests extends BaseTest {
             Assertions.assertNotNull(orgUserExtend.getUserRoleIdNameMap());
             List<String> userRoleIds = orgUserExtend.getUserRoleIdNameMap().stream().map(IdNameStructureDTO::getId).toList();
             Assertions.assertTrue(userRoleIds.contains(userRoleId));
-            List<String> userRoleNames = orgUserExtend.getUserRoleIdNameMap().stream().map(IdNameStructureDTO::getName).toList();
-            Assertions.assertTrue(userRoleNames.contains(userRoleId) || userRoleNames.contains("项目成员"));
 
             if (StringUtils.isNotBlank(projectId)) {
                 Assertions.assertNotNull(orgUserExtend.getProjectIdNameMap());

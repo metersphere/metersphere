@@ -72,6 +72,7 @@ public class OrganizationService {
 
     /**
      * 分页获取系统下组织列表
+     *
      * @param organizationRequest 请求参数
      * @return 组织集合
      */
@@ -82,6 +83,7 @@ public class OrganizationService {
 
     /**
      * 获取系统下组织下拉选项
+     *
      * @return 组织下拉选项集合
      */
     public List<OptionDTO> listAll() {
@@ -91,6 +93,7 @@ public class OrganizationService {
 
     /**
      * 分页获取组织成员列表
+     *
      * @param request 请求参数
      * @return 组织成员集合
      */
@@ -136,8 +139,9 @@ public class OrganizationService {
 
     /**
      * 系统-组织-添加成员
+     *
      * @param organizationMemberRequest 请求参数
-     * @param createUserId 创建人ID
+     * @param createUserId              创建人ID
      */
     public void addMemberBySystem(OrganizationMemberRequest organizationMemberRequest, String createUserId) {
         List<LogDTO> logs = new ArrayList<>();
@@ -154,6 +158,7 @@ public class OrganizationService {
 
     /**
      * 组织添加成员公共方法(N个组织添加N个成员)
+     *
      * @param batchRequest 请求参数 [organizationIds 组织集合, memberIds 成员集合]
      * @param createUserId 创建人ID
      */
@@ -189,8 +194,9 @@ public class OrganizationService {
 
     /**
      * 删除组织成员
+     *
      * @param organizationId 组织ID
-     * @param userId 成员ID
+     * @param userId         成员ID
      */
     public void removeMember(String organizationId, String userId) {
         List<LogDTO> logs = new ArrayList<>();
@@ -214,6 +220,7 @@ public class OrganizationService {
 
     /**
      * 获取系统默认组织
+     *
      * @return 组织信息
      */
     public OrganizationDTO getDefault() {
@@ -228,6 +235,7 @@ public class OrganizationService {
 
     /**
      * 组织级别获取组织成员
+     *
      * @param organizationRequest 请求参数
      * @return 组织成员集合
      */
@@ -254,28 +262,31 @@ public class OrganizationService {
         Map<String, List<IdNameStructureDTO>> userIdprojectIdMap = new HashMap<>();
         Map<String, Set<String>> userIdRoleIdMap = new HashMap<>();
         for (UserRoleRelation userRoleRelationsByUser : userRoleRelationsByUsers) {
-            String projectId = userRoleRelationsByUser.getSourceId();
+            String sourceId = userRoleRelationsByUser.getSourceId();
             String roleId = userRoleRelationsByUser.getRoleId();
             String userId = userRoleRelationsByUser.getUserId();
             List<IdNameStructureDTO> pIdNameList = userIdprojectIdMap.get(userId);
             if (CollectionUtils.isEmpty(pIdNameList)) {
                 pIdNameList = new ArrayList<>();
             }
-            String projectName = projectIdNameMap.get(projectId);
+            String projectName = projectIdNameMap.get(sourceId);
             if (StringUtils.isNotBlank(projectName)) {
                 IdNameStructureDTO idNameStructureDTO = new IdNameStructureDTO();
-                idNameStructureDTO.setId(projectId);
+                idNameStructureDTO.setId(sourceId);
                 idNameStructureDTO.setName(projectName);
                 pIdNameList.add(idNameStructureDTO);
             }
             userIdprojectIdMap.put(userId, pIdNameList);
 
-            Set<String> roleIds = userIdRoleIdMap.get(userId);
-            if (CollectionUtils.isEmpty(roleIds)) {
-                roleIds = new HashSet<>();
+            //只显示组织级别的用户组
+            if (StringUtils.equals(sourceId, organizationId)) {
+                Set<String> roleIds = userIdRoleIdMap.get(userId);
+                if (CollectionUtils.isEmpty(roleIds)) {
+                    roleIds = new HashSet<>();
+                }
+                roleIds.add(roleId);
+                userIdRoleIdMap.put(userId, roleIds);
             }
-            roleIds.add(roleId);
-            userIdRoleIdMap.put(userId, roleIds);
         }
         for (OrgUserExtend orgUserExtend : orgUserExtends) {
             List<IdNameStructureDTO> projectList = userIdprojectIdMap.get(orgUserExtend.getId());
@@ -345,7 +356,7 @@ public class OrganizationService {
         operationLogService.batchAdd(logDTOList);
     }
 
-    private static void setLog(LogDTO dto,  String path,  List<LogDTO> logDTOList,  Object originalValue) {
+    private static void setLog(LogDTO dto, String path, List<LogDTO> logDTOList, Object originalValue) {
         dto.setPath(path);
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(originalValue));
@@ -354,8 +365,9 @@ public class OrganizationService {
 
     /**
      * 添加组织成员至用户组
+     *
      * @param organizationMemberExtendRequest 请求参数
-     * @param userId 创建人ID
+     * @param userId                          创建人ID
      */
     public void addMemberRole(OrganizationMemberExtendRequest organizationMemberExtendRequest, String userId) {
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
@@ -380,7 +392,7 @@ public class OrganizationService {
             projectIds.forEach(projectId -> {
                 //过滤已存在的关系
                 UserRoleRelationExample example = new UserRoleRelationExample();
-                example.createCriteria().andSourceIdEqualTo(projectId).andUserIdEqualTo(memberId).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
+                example.createCriteria().andSourceIdEqualTo(projectId).andUserIdEqualTo(memberId);
                 List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
                 if (CollectionUtils.isEmpty(userRoleRelations)) {
                     UserRoleRelation userRoleRelation = buildUserRoleRelation(userId, memberId, projectId, InternalUserRole.PROJECT_MEMBER.getValue());
@@ -394,7 +406,7 @@ public class OrganizationService {
                             OperationLogType.ADD.name(),
                             OperationLogModule.PROJECT_PROJECT_MEMBER,
                             "");
-                    setLog(dto, "/organization/project/add-member",  logDTOList,  userRoleRelation);
+                    setLog(dto, "/organization/project/add-member", logDTOList, userRoleRelation);
                 }
             });
         });
@@ -407,6 +419,7 @@ public class OrganizationService {
 
     /**
      * 删除组织用户日志
+     *
      * @return 日志内容
      */
     public List<LogDTO> batchDelLog(String organizationId, String userId) {
@@ -468,8 +481,9 @@ public class OrganizationService {
 
     /**
      * 更新用户
+     *
      * @param organizationMemberUpdateRequest 请求参数
-     * @param createUserId 创建人ID
+     * @param createUserId                    创建人ID
      */
     public void updateMember(OrganizationMemberUpdateRequest organizationMemberUpdateRequest, String createUserId) {
         String organizationId = organizationMemberUpdateRequest.getOrganizationId();
@@ -587,12 +601,13 @@ public class OrganizationService {
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.ORGANIZATION_MEMBER,
                     "成员");
-            setLog(dto, path,  logDTOList, userRoleRelation);
+            setLog(dto, path, logDTOList, userRoleRelation);
         });
     }
 
     /**
      * 获取当前组织下的所有项目
+     *
      * @param organizationId 组织ID
      * @return 项目列表
      */
@@ -614,6 +629,7 @@ public class OrganizationService {
 
     /**
      * 获取当前组织下的所有自定义用户组以及组织级别的用户组
+     *
      * @param organizationId 组织ID
      * @return 用户组列表
      */
@@ -640,6 +656,7 @@ public class OrganizationService {
 
     /**
      * 获取不在当前组织的所有用户
+     *
      * @param organizationId 组织ID
      * @return 用户列表
      */
@@ -667,6 +684,7 @@ public class OrganizationService {
 
     /**
      * 检查组织是否存在
+     *
      * @param organizationIds 组织ID集合
      */
     private void checkOrgExistByIds(List<String> organizationIds) {
@@ -679,6 +697,7 @@ public class OrganizationService {
 
     /**
      * 检查组织是否存在
+     *
      * @param organizationId 组织ID
      */
     private void checkOrgExistById(String organizationId) {
@@ -690,7 +709,8 @@ public class OrganizationService {
 
     /**
      * 检查组织级别的用户组是否存在
-     * @param userRoleIds 用户组ID集合
+     *
+     * @param userRoleIds    用户组ID集合
      * @param organizationId 组织ID
      * @return 用户组集合
      */
@@ -708,6 +728,7 @@ public class OrganizationService {
 
     /**
      * 检查用户是否存在
+     *
      * @param memberIds 成员ID集合
      * @return 用户集合
      */
@@ -723,7 +744,8 @@ public class OrganizationService {
 
     /**
      * 检查项目是否存在
-     * @param projectIds 项目ID集合
+     *
+     * @param projectIds     项目ID集合
      * @param organizationId 组织ID
      * @return 项目集合
      */
@@ -739,6 +761,7 @@ public class OrganizationService {
 
     /**
      * 处理组织管理员信息
+     *
      * @param organizationDTOS 组织集合
      * @return 组织列表
      */
@@ -755,14 +778,15 @@ public class OrganizationService {
 
     /**
      * 设置操作日志
+     *
      * @param organizationId 组织ID
-     * @param createUser 创建人
-     * @param type 操作类型
-     * @param content 操作内容
-     * @param path 请求路径
-     * @param originalValue 原始值
-     * @param modifiedValue 修改值
-     * @param logs 日志集合
+     * @param createUser     创建人
+     * @param type           操作类型
+     * @param content        操作内容
+     * @param path           请求路径
+     * @param originalValue  原始值
+     * @param modifiedValue  修改值
+     * @param logs           日志集合
      */
     private void setLog(String organizationId, String createUser, String type, String content, String path, Object originalValue, Object modifiedValue, List<LogDTO> logs) {
         LogDTO dto = new LogDTO(
