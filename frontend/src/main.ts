@@ -29,7 +29,6 @@ async function bootstrap() {
   app.use(router);
   app.use(directive);
   app.use(FormCreate);
-
   app.mount('#app');
 }
 
