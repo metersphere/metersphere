@@ -249,9 +249,6 @@ export default {
           if (this.formInline.sideTheme) {
             localStorage.setItem("sideTheme", this.formInline.sideTheme);
           }
-          if (this.formInline.logo) {
-            this.shortcutIcon();
-          }
           this.setAsideTheme();
           this.$success(this.$t('commons.save_success'));
           window.location.reload();
@@ -370,19 +367,9 @@ export default {
             this.formInline.css = response.data[8].paramValue;
             this.cssList.push({name: response.data[8].fileName, db: true});
           }
-          if (response.data[0].paramValue) {
-            this.shortcutIcon();
-          }
           this.setAsideTheme();
 
         })
-    },
-    shortcutIcon() {
-      let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-      link.type = 'image/x-icon';
-      link.rel = 'shortcut icon';
-      link.href = '/display/file/logo';
-      document.getElementsByTagName('head')[0].appendChild(link);
     },
     cancel() {
       this.showEdit = true;
