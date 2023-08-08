@@ -171,6 +171,7 @@
 import { getApiCaseById } from '@/api/api-test-case';
 import { getApiDocument } from '@/api/definition';
 import { getUUID } from 'metersphere-frontend/src/utils';
+import {isSafeNumber, parse} from "lossless-json";
 
 export default {
   name: 'MsDocumentBody',
@@ -319,6 +320,9 @@ export default {
       resolveArr.forEach((item) => {
         item.hasChildren = item.children && item.children.length > 0;
         item.children = [];
+        if (typeof item.expectedOutcome === 'string') {
+          item.expectedOutcome = this.removeNumberFunctionFromString(item.expectedOutcome);
+        }
         // 此处深拷贝，以防各个item的idList混乱
         item.idList = JSON.parse(JSON.stringify(idCopy));
         item.parentId = item.idList[item.idList.length - 1];
@@ -357,10 +361,21 @@ export default {
         }
       });
     },
+    parseAndValidateNumber(value) {
+      if (!isSafeNumber(value) || Number(value).toString().length < value.length) {
+        // 大数、超长小数、科学计数法、小数位全为 0 等情况下，JS 精度丢失，所以需要用字符串存储
+        return `Number(${value.toString()})`;
+      }
+      return Number(value);
+    },
+    removeNumberFunctionFromString(string) {
+      const regex = /"?Number\(([\d.e+-]+)\)"?/g;
+      return string.replace(regex, '$1');
+    },
     getAPI(id) {
       getApiDocument(id ? id : this.apiId, this.document.type).then((response) => {
         if (response.data) {
-          this.tableDataList(response.data);
+          this.tableDataList(parse(response.data, undefined, this.parseAndValidateNumber));
         }
       });
     },

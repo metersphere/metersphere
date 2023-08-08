@@ -3,8 +3,6 @@ package io.metersphere.commons.utils;
 import com.google.gson.*;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.commons.constants.PropertyConstant;
-import io.metersphere.commons.utils.EnumPropertyUtil;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -129,7 +127,7 @@ public class JSONSchemaToDocumentUtil {
                 if (object.has(PropertyConstant.MOCK) && object.get(PropertyConstant.MOCK).getAsJsonObject() != null
                         && StringUtils.isNotEmpty(object.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString())) {
                     try {
-                        value = object.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsNumber();
+                        value = object.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsBigDecimal();
                     } catch (Exception e) {
                         value = ScriptEngineUtils.buildFunctionCallString(object.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString());
                     }

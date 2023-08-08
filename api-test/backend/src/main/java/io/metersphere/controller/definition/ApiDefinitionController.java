@@ -20,6 +20,7 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONToDocumentUtil;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -63,7 +64,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/list/week/{projectId}/{versionId}/{goPage}/{pageSize}")
-    @RequiresPermissions(value= {PermissionConstants.PROJECT_API_DEFINITION_READ, PermissionConstants.PROJECT_API_HOME}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEFINITION_READ, PermissionConstants.PROJECT_API_HOME}, logical = Logical.OR)
     public Pager<List<ApiDefinitionResult>> weekList(@PathVariable String projectId, @PathVariable String versionId, @PathVariable int goPage, @PathVariable int pageSize) {
         if (StringUtils.equalsIgnoreCase(versionId, "default")) {
             versionId = null;
@@ -102,7 +103,7 @@ public class ApiDefinitionController {
 
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
-    @RequiresPermissions(value= {PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API, PermissionConstants.PROJECT_API_DEFINITION_READ_COPY_API}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API, PermissionConstants.PROJECT_API_DEFINITION_READ_COPY_API}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CREATE, subject = "接口定义通知")
     public ApiDefinitionResult create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
@@ -348,8 +349,9 @@ public class ApiDefinitionController {
     }
 
     @GetMapping("/document/{id}/{type}")
-    public List<DocumentElement> getDocument(@PathVariable String id, @PathVariable String type) {
-        return apiDefinitionService.getDocument(id, type);
+    public String getDocument(@PathVariable String id, @PathVariable String type) {
+        List<DocumentElement> document = apiDefinitionService.getDocument(id, type);
+        return JSON.toJSONString(document);
     }
 
     @PostMapping("/generator")
