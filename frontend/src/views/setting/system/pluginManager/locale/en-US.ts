@@ -99,4 +99,7 @@ export default {
   'system.resourcePool.usePerformance': 'Performance test',
   'system.resourcePool.useAPI': 'API test',
   'system.resourcePool.useUI': ' UI test',
+  'system.plugin.all': 'All',
+  'system.plugin.apiTest': 'API Test',
+  'system.plugin.proMangement': 'Project Management',
 };

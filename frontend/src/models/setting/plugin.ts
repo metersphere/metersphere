@@ -46,7 +46,6 @@ export type PluginItem = Partial<{
   scenario: string; // 应用场景
   organizations: OrganizationsItemList; // 组织列表
   pluginForms: PluginForms[]; // 插件步骤
-  expand?: any;
 }>;
 // 插件管理列表
 export type PluginList = PluginItem[];

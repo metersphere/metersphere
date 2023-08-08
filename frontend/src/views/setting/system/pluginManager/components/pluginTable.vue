@@ -7,14 +7,16 @@
       </a-col>
       <a-col :span="5" :offset="9">
         <a-select v-model="searchKeys.scene">
-          <a-option v-for="item of sceneList" :key-="item.value" :value="item.value">{{ item.label }}</a-option>
+          <a-option v-for="item of sceneList" :key="item.value" :value="item.value">{{ t(item.label) }}</a-option>
         </a-select>
       </a-col>
       <a-col :span="5">
         <a-input-search
           v-model="searchKeys.name"
+          :max-length="250"
           :placeholder="t('system.plugin.searchPlugin')"
           @search="searchHanlder"
+          @press-enter="searchHanlder"
         ></a-input-search>
       </a-col>
     </a-row>
@@ -31,7 +33,7 @@
       <template #columns>
         <a-table-column fixed="left" :title="t('system.plugin.tableColunmName')">
           <template #cell="{ record }">
-            {{ record.name }} <span class="text-[--color-text-4]">({{ record.pluginForms.length }})</span>
+            {{ record.name }} <span class="text-[--color-text-4]">({{ (record.pluginForms || []).length }})</span>
           </template>
         </a-table-column>
         <a-table-column :title="t('system.plugin.tableColunmDescription')" data-index="description" />
@@ -63,11 +65,11 @@
               {{ org.name }}
             </a-tag>
             <a-tag
-              v-show="record.organizations.length > 2"
+              v-show="(record.organizations || []).length > 2"
               class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
               bordered
             >
-              +{{ record.organizations.length - 2 }}
+              +{{ (record.organizations || []).length - 2 }}
             </a-tag>
           </template>
         </a-table-column>
@@ -93,16 +95,16 @@
             <MsButton v-if="record.enable" @click="disableHandler(record)">{{
               t('system.plugin.tableDisable')
             }}</MsButton>
-            <MsButton v-else>{{ t('system.plugin.tableEnable') }}</MsButton>
+            <MsButton v-else @click="enableHandler(record)">{{ t('system.plugin.tableEnable') }}</MsButton>
             <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
           </template>
         </a-table-column>
       </template>
       <template #expand-icon="{ record, expanded }">
-        <span v-if="record.pluginForms.length && !expanded" class="collapsebtn"
+        <span v-if="(record.pluginForms || []).length && !expanded" class="collapsebtn"
           ><icon-plus :style="{ 'font-size': '12px' }"
         /></span>
-        <span v-else-if="record.pluginForms.length && expanded" class="expand"
+        <span v-else-if="(record.pluginForms || []).length && expanded" class="expand"
           ><icon-minus class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }"
         /></span>
       </template>
@@ -111,18 +113,29 @@
       >{{ t('system.plugin.totalNum') }}<span class="mx-2">{{ totalNum }}</span
       >{{ t('system.plugin.dataList') }}</div
     >
-    <UploadModel :visible="uploadVisible" @cancel="uploadVisible = false" @success="okHandler" @brash="loadData()" />
-    <UpdatePluginModal ref="updateModalRef" v-model:visible="updateVisible" @success="loadData()" />
-    <scriptDetailDrawer v-model:visible="showDrawer" :value="detailYaml" :config="config" />
+    <UploadModel
+      v-model:visible="uploadVisible"
+      :originize-list="originizeList"
+      @success="okHandler"
+      @brash="loadData()"
+    />
+    <UpdatePluginModal
+      ref="updateModalRef"
+      v-model:visible="updateVisible"
+      :originize-list="originizeList"
+      @success="loadData()"
+    />
+    <scriptDetailDrawer v-model:visible="showDrawer" :value="detailYaml" :config="config" :read-only="true" />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, reactive, h } from 'vue';
+  import { ref, onBeforeMount, reactive, h } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { getPluginList, deletePluginReq, updatePlugin, getScriptDetail } from '@/api/modules/setting/pluginManger';
+  import { getAllOrgList } from '@/api/modules/setting/orgnization';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import UploadModel from './uploadModel.vue';
   import UpdatePluginModal from './updatePluginModal.vue';
@@ -130,9 +143,16 @@
   import scriptDetailDrawer from './scriptDetailDrawer.vue';
   import { useCommandComponent } from '@/hooks/useCommandComponent';
   import useModal from '@/hooks/useModal';
-  import { Message, TableData } from '@arco-design/web-vue';
+  import { Message, TableData, SelectOptionData } from '@arco-design/web-vue';
   import useVisit from '@/hooks/useVisit';
-  import type { PluginForms, PluginList, PluginItem, Options, DrawerConfig } from '@/models/setting/plugin';
+  import type {
+    PluginForms,
+    PluginList,
+    PluginItem,
+    Options,
+    DrawerConfig,
+    UpdatePluginModel,
+  } from '@/models/setting/plugin';
   import dayjs from 'dayjs';
   import TableExpand from './tableExpand.vue';
 
@@ -166,15 +186,15 @@
   const { openModal } = useModal();
   const sceneList = ref([
     {
-      label: '全部',
+      label: 'system.plugin.all',
       value: '',
     },
     {
-      label: '接口测试',
+      label: 'system.plugin.apiTest',
       value: 'API',
     },
     {
-      label: '项目管理',
+      label: 'system.plugin.proMangement',
       value: 'PLATFORM',
     },
   ]);
@@ -189,7 +209,8 @@
     try {
       const result = await getPluginList();
       data.value = result;
-      totalNum.value = result.length;
+      filterData.value = result;
+      totalNum.value = (result || []).length;
     } catch (error) {
       console.log(error);
       data.value = [];
@@ -217,10 +238,8 @@
           deletePluginReq(record.id);
           Message.success(t('system.plugin.deletePluginSuccess'));
           loadData();
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
         }
       },
       hideCancel: false,
@@ -273,26 +292,41 @@
       },
       onBeforeOk: async () => {
         try {
-          await updatePlugin({ enable: !record.enable });
+          const params: UpdatePluginModel = {
+            id: record.id,
+            enable: !record.enable,
+          };
+          await updatePlugin(params);
           Message.success(t('system.plugin.disablePluginSuccess'));
           loadData();
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
         }
       },
       hideCancel: false,
     });
   };
+  const enableHandler = async (record: PluginItem) => {
+    try {
+      const params: UpdatePluginModel = {
+        id: record.id,
+        enable: !record.enable,
+      };
+      await updatePlugin(params);
+      Message.success(t('system.plugin.disablePluginSuccess'));
+      loadData();
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const detailScript = async (record: PluginItem, item: PluginForms) => {
     showDrawer.value = true;
     config.value = {
-      pluginId: record.pluginId as string,
+      pluginId: record.id as string,
       title: item.name,
     };
     try {
-      const result = await getScriptDetail(record.pluginId as string, item.id);
+      const result = await getScriptDetail(record.id as string, item.id);
       detailYaml.value = result || '';
     } catch (error) {
       console.log(error);
@@ -303,167 +337,25 @@
     width: 54,
     expandedRowRender: (record: TableData) => {
       if (record.pluginForms && record.pluginForms.length > 0) {
-        return h(TableExpand, { record, onMessageEvent: (recordItem, item) => detailScript(recordItem, item) });
+        return h(
+          TableExpand,
+          {
+            record,
+            onMessageEvent: (recordItem: PluginItem, item: PluginForms) => detailScript(recordItem, item),
+          },
+          null
+        );
       }
     },
   });
   const handleExpand = (rowKey: string | number) => {
     Object.assign(expandedRowKeys, [rowKey]);
   };
-  onMounted(() => {
-    data.value = [
-      {
-        id: 'string1',
-        name: '插件一',
-        pluginId: 'string',
-        fileName: 'string',
-        createTime: 0,
-        updateTime: 3084234,
-        createUser: '创建人',
-        enable: true,
-        global: true,
-        xpack: true,
-        description: 'string',
-        scenario: 'API',
-        pluginForms: [
-          {
-            id: '111',
-            name: '步骤一',
-          },
-          {
-            id: '222',
-            name: '步骤二',
-          },
-          {
-            id: '333',
-            name: '步骤三',
-          },
-          {
-            id: '444',
-            name: '步骤四',
-          },
-          {
-            id: '555',
-            name: '步骤五',
-          },
-          {
-            id: '666',
-            name: '步骤六',
-          },
-        ],
-        organizations: [
-          {
-            id: 'string',
-            num: 0,
-            name: 'string',
-          },
-        ],
-      },
-      {
-        id: 'string2',
-        name: '插件二',
-        pluginId: 'string',
-        fileName: 'string',
-        createTime: 0,
-        updateTime: 3084234,
-        createUser: '创建人',
-        enable: true,
-        global: true,
-        xpack: true,
-        description: 'string',
-        scenario: 'PLATFORM',
-        pluginForms: [],
-        organizations: [
-          {
-            id: 'string',
-            num: 0,
-            name: 'string',
-          },
-        ],
-      },
-      {
-        id: 'string3',
-        name: '插件3',
-        pluginId: 'string',
-        fileName: 'string',
-        createTime: 0,
-        updateTime: 3084234,
-        createUser: '创建人',
-        enable: true,
-        global: true,
-        xpack: true,
-        description: 'string',
-        scenario: 'PLATFORM',
-        pluginForms: [
-          {
-            id: '111',
-            name: '步骤一',
-          },
-        ],
-        organizations: [
-          {
-            id: 'string',
-            num: 0,
-            name: 'string',
-          },
-        ],
-      },
-      {
-        id: 'string4',
-        name: '插件4',
-        pluginId: 'string',
-        fileName: 'string',
-        createTime: 0,
-        updateTime: 3084234,
-        createUser: '创建人',
-        enable: true,
-        global: true,
-        xpack: true,
-        description: 'string',
-        scenario: 'API',
-        pluginForms: [
-          {
-            id: '111',
-            name: '步骤一',
-          },
-          {
-            id: '222',
-            name: '步骤二',
-          },
-        ],
-        organizations: [
-          {
-            id: 'string',
-            num: 0,
-            name: 'string',
-          },
-        ],
-      },
-      {
-        id: 'string5',
-        name: '插件5',
-        pluginId: 'string',
-        fileName: 'string',
-        createTime: 0,
-        updateTime: 3084234,
-        createUser: '创建人',
-        enable: true,
-        global: true,
-        xpack: true,
-        description: 'string',
-        scenario: 'PLATFORM',
-        pluginForms: [],
-        organizations: [
-          {
-            id: 'string',
-            num: 0,
-            name: 'string',
-          },
-        ],
-      },
-    ];
+
+  const originizeList = ref<SelectOptionData>([]);
+  onBeforeMount(async () => {
     loadData();
-    filterData.value = [...data.value];
+    originizeList.value = await getAllOrgList();
   });
 </script>
 
