@@ -3,6 +3,7 @@ package io.metersphere.api.exec.generator;
 
 import com.google.gson.*;
 import io.metersphere.commons.constants.PropertyConstant;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -13,6 +14,8 @@ import org.springframework.util.NumberUtils;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -220,7 +223,7 @@ public class JSONSchemaBuilder {
         });
     }
 
-    private static void formatItems(JsonObject itemsObject, JSONArray array, Map<String, String> map) {
+    public static void formatItems(JsonObject itemsObject, JSONArray array, Map<String, String> map) {
         String type = StringUtils.EMPTY;
         if (itemsObject.has(PropertyConstant.TYPE)) {
             type = itemsObject.get(PropertyConstant.TYPE).getAsString();
@@ -279,9 +282,12 @@ public class JSONSchemaBuilder {
         analyzeSchema(jsonSchema, root, map);
         // 格式化返回
         if (root.opt(PropertyConstant.MS_OBJECT) != null) {
-            return root.get(PropertyConstant.MS_OBJECT).toString();
+            JSONArray jsonArray = (JSONArray) root.get(PropertyConstant.MS_OBJECT);
+            List<String> list = new LinkedList<>();
+            JSONSchemaParser.toJsonString(jsonArray, list);
+            return list.toString();
         }
-        return root.toString();
+        return JSON.toJSONString(root.toMap());
     }
 
     public static String generator(String jsonSchema) {
