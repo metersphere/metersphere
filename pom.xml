@@ -30,7 +30,7 @@
         <pagehelper.version>5.3.3</pagehelper.version>
         <metersphere-jmeter-functions.version>1.5</metersphere-jmeter-functions.version>
         <quartz-starter.version>1.0.7</quartz-starter.version>
-        <redisson-starter.version>3.23.1</redisson-starter.version>
+        <redisson-starter.version>3.23.2</redisson-starter.version>
         <guice.version>5.1.0</guice.version>
         <mybatis-starter.version>3.0.2</mybatis-starter.version>
         <reflections.version>0.10.2</reflections.version>
@@ -75,8 +75,8 @@
         <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <kubernetes-client.version>6.5.1</kubernetes-client.version>
-        <jgit.version>6.5.0.202303070854-r</jgit.version>
+        <kubernetes-client.version>6.8.0</kubernetes-client.version>
+        <jgit.version>6.6.0.202305301015-r</jgit.version>
         <curator.version>5.4.0</curator.version>
         <graalvmjs.version>22.3.1</graalvmjs.version>
         <embedded.version>3.0.0-RC7</embedded.version>
