@@ -4,6 +4,7 @@ import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserRoleService;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.dto.UserRoleOption;
@@ -104,7 +105,7 @@ public class GlobalUserRoleService extends BaseUserRoleService {
     public void checkRoleIsGlobalAndHaveMember(@Valid @NotEmpty List<String> roleIdList, boolean isSystem) {
         List<String> globalRoleList = extUserRoleMapper.selectGlobalRoleList(roleIdList, isSystem);
         if (globalRoleList.size() != roleIdList.size()) {
-            throw new MSException("role.not.global");
+            throw new MSException(Translator.get("role.not.global"));
         }
     }
 

@@ -104,7 +104,7 @@ public abstract class BaseTest {
         return new AuthInfo(sessionId, csrfToken);
     }
 
-    private MockHttpServletRequestBuilder getPostRequestBuilder(String url, Object param, Object... uriVariables) {
+    protected MockHttpServletRequestBuilder getPostRequestBuilder(String url, Object param, Object... uriVariables) {
         return MockMvcRequestBuilders.post(getBasePath() + url, uriVariables)
                 .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken())
@@ -112,7 +112,7 @@ public abstract class BaseTest {
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
-    private MockHttpServletRequestBuilder getRequestBuilder(String url, Object... uriVariables) {
+    protected MockHttpServletRequestBuilder getRequestBuilder(String url, Object... uriVariables) {
         return MockMvcRequestBuilders.get(getBasePath() + url, uriVariables)
                 .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken());

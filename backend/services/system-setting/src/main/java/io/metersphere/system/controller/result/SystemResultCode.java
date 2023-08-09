@@ -14,6 +14,7 @@ public enum SystemResultCode implements IResultCode {
     GLOBAL_USER_ROLE_EXIST(101002, "global_user_role_exist_error"),
     GLOBAL_USER_ROLE_RELATION_SYSTEM_PERMISSION(101003, "global_user_role_relation_system_permission_error"),
     GLOBAL_USER_ROLE_LIMIT(101004, "global_user_role_limit_error"),
+    SERVICE_INTEGRATION_EXIST(101005, "service_integration_exist_error"),
     /**
      * 获取/编辑组织自定义用户组，如果非组织自定义用户组，会返回该响应码
      */

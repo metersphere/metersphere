@@ -13,8 +13,10 @@ import io.metersphere.system.service.PluginService;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -74,5 +76,17 @@ public class PluginController {
     @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_READ)
     public String getScript(@PathVariable String pluginId, @PathVariable String scriptId) {
         return pluginService.getScript(pluginId, scriptId);
+    }
+
+    @GetMapping("/image/{pluginId}")
+    public void getPluginImg(
+            @Schema(title = "插件ID", requiredMode = Schema.RequiredMode.REQUIRED)
+            @PathVariable("pluginId")
+            String pluginId,
+            @Schema(title = "图片路径", requiredMode = Schema.RequiredMode.REQUIRED)
+            @RequestParam("imagePath")
+            String imagePath,
+            HttpServletResponse response) {
+        // todo
     }
 }

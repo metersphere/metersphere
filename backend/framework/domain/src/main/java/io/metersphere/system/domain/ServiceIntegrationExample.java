@@ -174,73 +174,133 @@ public class ServiceIntegrationExample {
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIsNull() {
-            addCriterion("platform is null");
+        public Criteria andPluginIdIsNull() {
+            addCriterion("plugin_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIsNotNull() {
-            addCriterion("platform is not null");
+        public Criteria andPluginIdIsNotNull() {
+            addCriterion("plugin_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformEqualTo(String value) {
-            addCriterion("platform =", value, "platform");
+        public Criteria andPluginIdEqualTo(String value) {
+            addCriterion("plugin_id =", value, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformNotEqualTo(String value) {
-            addCriterion("platform <>", value, "platform");
+        public Criteria andPluginIdNotEqualTo(String value) {
+            addCriterion("plugin_id <>", value, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformGreaterThan(String value) {
-            addCriterion("platform >", value, "platform");
+        public Criteria andPluginIdGreaterThan(String value) {
+            addCriterion("plugin_id >", value, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformGreaterThanOrEqualTo(String value) {
-            addCriterion("platform >=", value, "platform");
+        public Criteria andPluginIdGreaterThanOrEqualTo(String value) {
+            addCriterion("plugin_id >=", value, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformLessThan(String value) {
-            addCriterion("platform <", value, "platform");
+        public Criteria andPluginIdLessThan(String value) {
+            addCriterion("plugin_id <", value, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformLessThanOrEqualTo(String value) {
-            addCriterion("platform <=", value, "platform");
+        public Criteria andPluginIdLessThanOrEqualTo(String value) {
+            addCriterion("plugin_id <=", value, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformLike(String value) {
-            addCriterion("platform like", value, "platform");
+        public Criteria andPluginIdLike(String value) {
+            addCriterion("plugin_id like", value, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformNotLike(String value) {
-            addCriterion("platform not like", value, "platform");
+        public Criteria andPluginIdNotLike(String value) {
+            addCriterion("plugin_id not like", value, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIn(List<String> values) {
-            addCriterion("platform in", values, "platform");
+        public Criteria andPluginIdIn(List<String> values) {
+            addCriterion("plugin_id in", values, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformNotIn(List<String> values) {
-            addCriterion("platform not in", values, "platform");
+        public Criteria andPluginIdNotIn(List<String> values) {
+            addCriterion("plugin_id not in", values, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformBetween(String value1, String value2) {
-            addCriterion("platform between", value1, value2, "platform");
+        public Criteria andPluginIdBetween(String value1, String value2) {
+            addCriterion("plugin_id between", value1, value2, "pluginId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformNotBetween(String value1, String value2) {
-            addCriterion("platform not between", value1, value2, "platform");
+        public Criteria andPluginIdNotBetween(String value1, String value2) {
+            addCriterion("plugin_id not between", value1, value2, "pluginId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableIsNull() {
+            addCriterion("`enable` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableIsNotNull() {
+            addCriterion("`enable` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableEqualTo(Boolean value) {
+            addCriterion("`enable` =", value, "enable");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableNotEqualTo(Boolean value) {
+            addCriterion("`enable` <>", value, "enable");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableGreaterThan(Boolean value) {
+            addCriterion("`enable` >", value, "enable");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("`enable` >=", value, "enable");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableLessThan(Boolean value) {
+            addCriterion("`enable` <", value, "enable");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableLessThanOrEqualTo(Boolean value) {
+            addCriterion("`enable` <=", value, "enable");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableIn(List<Boolean> values) {
+            addCriterion("`enable` in", values, "enable");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableNotIn(List<Boolean> values) {
+            addCriterion("`enable` not in", values, "enable");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableBetween(Boolean value1, Boolean value2) {
+            addCriterion("`enable` between", value1, value2, "enable");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("`enable` not between", value1, value2, "enable");
             return (Criteria) this;
         }
 
