@@ -23,7 +23,7 @@
       </el-row>
       <el-row
         class="select-time"
-        v-if="report.envGroupName || report.projectEnvMap"
+        v-if="report.envGroupName || (report.projectEnvMap && JSON.stringify(report.projectEnvMap) !== '{}')"
         style="display: inline-block"
       >
         <div>
@@ -56,6 +56,21 @@
             </div>
           </div>
         </div>
+      </el-row>
+      <el-row
+        class="select-time"
+        v-else
+        style="display: inline-block"
+      >
+        <div style="float: left">
+          {{ $t("commons.environment") + ":" }}
+        </div>
+        <div style="float: right">
+          <div style="margin-left: 42px">
+            {{ $t('test_track.report.case_env') }}
+          </div>
+        </div>
+
       </el-row>
       <el-row type="flex" justify="space-between" class="select-time">
         <el-col :span="8">
