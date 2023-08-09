@@ -65,14 +65,19 @@
     margin-top: 16px;
   }
 }
-.ms-modal-weak {
+.ms-usemodal {
+  .arco-modal-body {
+    @apply p-0;
+  }
+}
+.ms-usemodal-weak {
   .arco-modal-footer {
     .arco-btn:first-child {
       color: var(--color-text-1) !important;
     }
   }
 }
-.ms-modal-warning {
+.ms-usemodal-warning {
   .arco-modal-title-icon {
     .arco-icon {
       color: rgb(var(--danger-6));
@@ -93,12 +98,27 @@
   }
 }
 .ms-modal-medium {
-  width: 680px;
+  .arco-modal {
+    width: 680px;
+  }
 }
 .ms-modal-large {
-  width: 960px;
+  .arco-modal {
+    width: 960px;
+  }
 }
 .ms-modal-small {
+  .arco-modal {
+    width: 480px;
+  }
+}
+.ms-usemodal-medium {
+  width: 680px;
+}
+.ms-usemodal-large {
+  width: 960px;
+}
+.ms-usemodal-small {
   width: 480px;
 }
 
