@@ -80,6 +80,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -1750,15 +1751,29 @@ public class TestPlanService {
             }
             issuesService.calculateReportByIssueList(testPlanCaseReportResultDTO.getIssueList(), report);
 
+            DecimalFormat rateFormat = new DecimalFormat("#0.00");
+            rateFormat.setMinimumFractionDigits(2);
+            rateFormat.setMaximumFractionDigits(2);
+
             if (report.getExecuteCount() != 0 && report.getCaseCount() != null) {
-                report.setExecuteRate(report.getExecuteCount() * 0.1 * 10 / report.getCaseCount());
+                double executeRate = Double.parseDouble(rateFormat.format((double) report.getExecuteCount() / (double) report.getCaseCount()));
+                if (executeRate == 1 && report.getExecuteCount() < report.getCaseCount()) {
+                    report.setExecuteRate(0.99);
+                } else {
+                    report.setExecuteRate(executeRate);
+                }
             } else {
-                report.setExecuteRate(0.0);
+                report.setExecuteRate(0.00);
             }
             if (report.getPassCount() != 0 && report.getCaseCount() != null) {
-                report.setPassRate(report.getPassCount() * 0.1 * 10 / report.getCaseCount());
+                double passRate = Double.parseDouble(rateFormat.format((double) report.getPassCount() / (double) report.getCaseCount()));
+                if (passRate == 1 && report.getPassCount() < report.getCaseCount()) {
+                    report.setPassRate(0.99);
+                } else {
+                    report.setPassRate(passRate);
+                }
             } else {
-                report.setPassRate(0.0);
+                report.setPassRate(0.00);
             }
 
             report.setName(testPlan.getName());
