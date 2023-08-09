@@ -73,7 +73,7 @@ public class DocumentUtils {
         String type = object.getClass().getName().substring(object.getClass().getName().lastIndexOf(".") + 1);
         if (StringUtils.equalsIgnoreCase("Integer", type)) {
             return type.toLowerCase();
-        } else if (StringUtils.equalsAnyIgnoreCase(type, "integer", "float", "long", "double")) {
+        } else if (StringUtils.equalsAnyIgnoreCase(type, "integer", "float", "long", "double", "short", "byte", "bigdecimal", "biginteger")) {
             return "number";
         } else if (StringUtils.indexOfAny(type, "Array", "List") != -1) {
             return "array";
