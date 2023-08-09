@@ -29,6 +29,7 @@ export default {
     'menu.settings.system': '系统',
     'menu.settings.organization': '组织',
     'menu.settings.organization.member': '成员',
+    'menu.settings.organization.serviceIntegration': '服务集成',
     'menu.settings.system.user': '用户',
     'menu.settings.system.usergroup': '用户组',
     'menu.settings.system.pluginmanger': '插件管理',
