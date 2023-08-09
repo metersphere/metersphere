@@ -46,7 +46,7 @@
             @create="create"
             @setLatest="setLatest"
             @del="del" />
-          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s" v-prevent-re-click
+          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s" :disabled="disableSaveBtn" v-prevent-re-click
                      v-permission="[
                        'PROJECT_API_DEFINITION:READ+EDIT_API',
                        'PROJECT_API_DEFINITION:READ+CREATE_API',
@@ -172,6 +172,7 @@ export default {
       createNewVersionVisible: false,
       latestVersionId: '',
       hasLatest: false,
+      disableSaveBtn: false
     };
   },
   created: function () {

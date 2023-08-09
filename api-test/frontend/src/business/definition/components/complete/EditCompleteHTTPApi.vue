@@ -49,6 +49,7 @@
             v-if="!isXpack || !apiSyncRuleRelation.showUpdateRule"
             type="primary"
             size="small"
+            :disabled="disableSaveBtn"
             @click="saveApi"
             v-prevent-re-click
             title="ctrl + s"
@@ -313,6 +314,7 @@ export default {
       citedScenarioCount: 0,
       latestVersionId: '',
       hasLatest: false,
+      disableSaveBtn: false,
     };
   },
   props: {
