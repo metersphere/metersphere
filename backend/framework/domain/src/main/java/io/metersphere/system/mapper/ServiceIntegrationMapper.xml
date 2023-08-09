@@ -3,7 +3,8 @@
 <mapper namespace="io.metersphere.system.mapper.ServiceIntegrationMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.ServiceIntegration">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="platform" jdbcType="VARCHAR" property="platform" />
+    <result column="plugin_id" jdbcType="VARCHAR" property="pluginId" />
+    <result column="enable" jdbcType="BIT" property="enable" />
     <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.ServiceIntegration">
@@ -68,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, platform, organization_id
+    id, plugin_id, `enable`, organization_id
   </sql>
   <sql id="Blob_Column_List">
     configuration
@@ -122,10 +123,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.ServiceIntegration">
-    insert into service_integration (id, platform, organization_id, 
-      configuration)
-    values (#{id,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, 
-      #{configuration,jdbcType=LONGVARBINARY})
+    insert into service_integration (id, plugin_id, `enable`, 
+      organization_id, configuration)
+    values (#{id,jdbcType=VARCHAR}, #{pluginId,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, 
+      #{organizationId,jdbcType=VARCHAR}, #{configuration,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.ServiceIntegration">
     insert into service_integration
@@ -133,8 +134,11 @@
       <if test="id != null">
         id,
       </if>
-      <if test="platform != null">
-        platform,
+      <if test="pluginId != null">
+        plugin_id,
+      </if>
+      <if test="enable != null">
+        `enable`,
       </if>
       <if test="organizationId != null">
         organization_id,
@@ -147,8 +151,11 @@
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="platform != null">
-        #{platform,jdbcType=VARCHAR},
+      <if test="pluginId != null">
+        #{pluginId,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
       </if>
       <if test="organizationId != null">
         #{organizationId,jdbcType=VARCHAR},
@@ -170,8 +177,11 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.platform != null">
-        platform = #{record.platform,jdbcType=VARCHAR},
+      <if test="record.pluginId != null">
+        plugin_id = #{record.pluginId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
       </if>
       <if test="record.organizationId != null">
         organization_id = #{record.organizationId,jdbcType=VARCHAR},
@@ -187,7 +197,8 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update service_integration
     set id = #{record.id,jdbcType=VARCHAR},
-      platform = #{record.platform,jdbcType=VARCHAR},
+      plugin_id = #{record.pluginId,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT},
       organization_id = #{record.organizationId,jdbcType=VARCHAR},
       configuration = #{record.configuration,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
@@ -197,7 +208,8 @@
   <update id="updateByExample" parameterType="map">
     update service_integration
     set id = #{record.id,jdbcType=VARCHAR},
-      platform = #{record.platform,jdbcType=VARCHAR},
+      plugin_id = #{record.pluginId,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT},
       organization_id = #{record.organizationId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -206,8 +218,11 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.ServiceIntegration">
     update service_integration
     <set>
-      <if test="platform != null">
-        platform = #{platform,jdbcType=VARCHAR},
+      <if test="pluginId != null">
+        plugin_id = #{pluginId,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
       </if>
       <if test="organizationId != null">
         organization_id = #{organizationId,jdbcType=VARCHAR},
@@ -220,24 +235,27 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.ServiceIntegration">
     update service_integration
-    set platform = #{platform,jdbcType=VARCHAR},
+    set plugin_id = #{pluginId,jdbcType=VARCHAR},
+      `enable` = #{enable,jdbcType=BIT},
       organization_id = #{organizationId,jdbcType=VARCHAR},
       configuration = #{configuration,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.ServiceIntegration">
     update service_integration
-    set platform = #{platform,jdbcType=VARCHAR},
+    set plugin_id = #{pluginId,jdbcType=VARCHAR},
+      `enable` = #{enable,jdbcType=BIT},
       organization_id = #{organizationId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into service_integration
-    (id, platform, organization_id, configuration)
+    (id, plugin_id, `enable`, organization_id, configuration)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.platform,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, 
-        #{item.configuration,jdbcType=LONGVARBINARY})
+      (#{item.id,jdbcType=VARCHAR}, #{item.pluginId,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}, 
+        #{item.organizationId,jdbcType=VARCHAR}, #{item.configuration,jdbcType=LONGVARBINARY}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -253,8 +271,11 @@
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
         </if>
-        <if test="'platform'.toString() == column.value">
-          #{item.platform,jdbcType=VARCHAR}
+        <if test="'plugin_id'.toString() == column.value">
+          #{item.pluginId,jdbcType=VARCHAR}
+        </if>
+        <if test="'enable'.toString() == column.value">
+          #{item.enable,jdbcType=BIT}
         </if>
         <if test="'organization_id'.toString() == column.value">
           #{item.organizationId,jdbcType=VARCHAR}

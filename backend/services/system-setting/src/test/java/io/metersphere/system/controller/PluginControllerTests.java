@@ -24,9 +24,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.MultiValueMap;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static io.metersphere.system.controller.result.SystemResultCode.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author jianxing
@@ -38,6 +42,7 @@ import static io.metersphere.system.controller.result.SystemResultCode.*;
 public class PluginControllerTests extends BaseTest {
     private static final String BASE_PATH = "/plugin/";
     private static final String SCRIPT_GET = "script/get/{0}/{1}";
+    private static final String PLUGIN_IMAGE = "/image/{0}?imagePath={1}";
     @Resource
     private PluginMapper pluginMapper;
     @Resource
@@ -253,6 +258,14 @@ public class PluginControllerTests extends BaseTest {
 
     @Test
     @Order(5)
+    public void getPluginImg() throws Exception {
+        // @@请求成功
+        mockMvc.perform(getRequestBuilder(PLUGIN_IMAGE, "pluginId", "/static/jira.jpg"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(6)
     public void delete() throws Exception {
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addPlugin.getId());

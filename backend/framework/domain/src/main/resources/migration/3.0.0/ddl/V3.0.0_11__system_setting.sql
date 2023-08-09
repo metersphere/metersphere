@@ -215,17 +215,18 @@ CREATE INDEX idx_type ON schedule (`type`);
 
 CREATE TABLE IF NOT EXISTS service_integration
 (
-    `id`              VARCHAR(50) NOT NULL COMMENT '',
-    `platform`        VARCHAR(50) NOT NULL COMMENT '平台',
-    `configuration`   BLOB        NOT NULL COMMENT '',
-    `organization_id` VARCHAR(50) COMMENT '组织ID',
+    `id`              VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `plugin_id`       VARCHAR(50) NOT NULL   COMMENT '插件的ID' ,
+    `enable`          BIT NOT NULL  DEFAULT 1 COMMENT '是否启用' ,
+    `configuration`   BLOB NOT NULL   COMMENT '配置内容' ,
+    `organization_id` VARCHAR(50) NOT NULL   COMMENT '组织ID' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '服务集成';
 
 
-CREATE INDEX idx_workspace_id ON service_integration (`organization_id`);
+CREATE INDEX idx_organization_id ON service_integration (`organization_id`);
 
 CREATE TABLE IF NOT EXISTS system_parameter
 (

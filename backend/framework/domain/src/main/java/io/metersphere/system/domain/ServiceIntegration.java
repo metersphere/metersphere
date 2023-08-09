@@ -10,20 +10,25 @@ import lombok.Data;
 
 @Data
 public class ServiceIntegration implements Serializable {
-    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{service_integration.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{service_integration.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "平台", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{service_integration.platform.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{service_integration.platform.length_range}", groups = {Created.class, Updated.class})
-    private String platform;
+    @Schema(title = "插件的ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{service_integration.plugin_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{service_integration.plugin_id.length_range}", groups = {Created.class, Updated.class})
+    private String pluginId;
 
-    @Schema(title = "组织ID")
+    @Schema(title = "是否启用")
+    private Boolean enable;
+
+    @Schema(title = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{service_integration.organization_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{service_integration.organization_id.length_range}", groups = {Created.class, Updated.class})
     private String organizationId;
 
-    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "配置内容", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{service_integration.configuration.not_blank}", groups = {Created.class})
     private byte[] configuration;
 
@@ -31,7 +36,8 @@ public class ServiceIntegration implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        platform("platform", "platform", "VARCHAR", false),
+        pluginId("plugin_id", "pluginId", "VARCHAR", false),
+        enable("enable", "enable", "BIT", true),
         organizationId("organization_id", "organizationId", "VARCHAR", false),
         configuration("configuration", "configuration", "LONGVARBINARY", false);
 
