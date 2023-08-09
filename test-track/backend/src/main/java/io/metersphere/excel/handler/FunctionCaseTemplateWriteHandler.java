@@ -34,6 +34,8 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
     private Integer priorityIndex;
     private Integer tagIndex;
     private Integer statusIndex;
+    private Integer stepDescIndex;
+    private Integer stepResultIndex;
     private Integer stepModelIndex;
 
     private Sheet sheet;
@@ -61,6 +63,10 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
                     tagIndex = index;
                 } else if (TestCaseImportFiled.STATUS.containsHead(head)) {
                     statusIndex = index;
+                } else if (TestCaseImportFiled.STEP_DESC.containsHead(head)) {
+                    stepDescIndex = index;
+                } else if (TestCaseImportFiled.STEP_RESULT.containsHead(head)) {
+                    stepResultIndex = index;
                 } else if (TestCaseImportFiled.STEP_MODEL.containsHead(head)) {
                     stepModelIndex = index;
                 }
@@ -83,6 +89,8 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
             setComment(moduleIndex, Translator.get("module_created_automatically"));
             setComment(maintainerIndex, Translator.get("please_input_project_member"));
             setComment(tagIndex, Translator.get("tag_tip_pattern"));
+            setComment(stepDescIndex, Translator.get("step_desc_tip"));
+            setComment(stepResultIndex, Translator.get("step_result_tip"));
             setComment(stepModelIndex, Translator.get("step_model_tip"));
 
             List<String> list = new ArrayList<>();

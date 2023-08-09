@@ -20,10 +20,10 @@ public enum TestCaseImportFiled {
     MODULE("module","所属模块", "所屬模塊", "Module", TestCaseExcelData::getNodePath),
     TAGS("tags","标签", "標簽", "Tag", TestCaseImportFiled::parseTags),
     PREREQUISITE("prerequisite","前置条件", "前置條件", "Prerequisite", TestCaseExcelData::getPrerequisite),
-    REMARK("remark","备注", "備註", "Remark", TestCaseExcelData::getRemark),
     STEP_DESC("stepDesc","步骤描述", "步驟描述", "Step description", TestCaseExcelData::getStepDesc),
     STEP_RESULT("stepResult","预期结果", "預期結果", "Step result", TestCaseExcelData::getStepResult),
     STEP_MODEL("stepModel","编辑模式", "編輯模式", "Edit Model", TestCaseExcelData::getStepModel),
+    REMARK("remark","备注", "備註", "Remark", TestCaseExcelData::getRemark),
     STATUS("status","用例状态", "用例狀態", "Case status", TestCaseExcelData::getStatus),
     MAINTAINER("maintainer","责任人", "責任人", "Maintainer", TestCaseExcelData::getMaintainer),
     PRIORITY("priority","用例等级", "用例等級", "Priority", TestCaseExcelData::getPriority);

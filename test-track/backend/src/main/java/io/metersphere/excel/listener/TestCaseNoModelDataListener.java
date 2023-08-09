@@ -685,41 +685,61 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         }
     }
 
+    /**
+     * 解析合并步骤描述, 预期结果单元格数据
+     * @param data Excel数据
+     * @return 步骤JSON-String
+     */
     public String getSteps(TestCaseExcelData data) {
-        List jsonArray = new ArrayList<>();
+        List<Map<String, Object>> steps = new ArrayList<>();
 
-        // 如果是合并单元格，则组合多条单元格的数据
-        if (CollectionUtils.isNotEmpty(data.getMergeStepDesc())
-                || CollectionUtils.isNotEmpty(data.getMergeStepResult())) {
+        if (CollectionUtils.isNotEmpty(data.getMergeStepDesc()) || CollectionUtils.isNotEmpty(data.getMergeStepResult())) {
+            // 如果是合并单元格，则组合多条单元格的数据
             for (int i = 0; i < data.getMergeStepDesc().size(); i++) {
-                Map<String, Object> step = new LinkedHashMap<>();
-                step.put("num", i + 1);
-                step.put("desc", Optional.ofNullable(data.getMergeStepDesc().get(i)).orElse(StringUtils.EMPTY));
-                step.put("result", Optional.ofNullable(data.getMergeStepResult().get(i)).orElse(StringUtils.EMPTY));
-                jsonArray.add(step);
+                List<Map<String, Object>> rowSteps = getSingleRowSteps(data.getMergeStepDesc().get(i), data.getMergeStepResult().get(i), steps.size());
+                steps.addAll(rowSteps);
             }
-            return JSON.toJSONString(jsonArray);
+        } else {
+            // 如果不是合并单元格，则直接解析单元格数据
+            steps.addAll(getSingleRowSteps(data.getStepDesc(), data.getStepResult(), steps.size()));
         }
+        return JSON.toJSONString(steps);
+    }
+
+    /**
+     * 解析单行步骤描述, 预期结果数据
+     * @param cellDesc 步骤描述
+     * @param cellResult 预期结果
+     * @param startStepIndex 步骤开始序号
+     * @return 步骤JSON-String
+     */
+    private List<Map<String, Object>> getSingleRowSteps(String cellDesc, String cellResult, Integer startStepIndex) {
+        List<Map<String, Object>> steps = new ArrayList<>();
 
         List<String> stepDescList = new ArrayList<>();
         List<String> stepResList = new ArrayList<>();
-
-        Set<Integer> rowNums = new HashSet<>();
-        if (data.getStepDesc() != null) {
-            String[] stepDesc = data.getStepDesc().split("\r|\n|\r\n");
+        if (StringUtils.isNotEmpty(cellDesc)) {
+            // 根据[1], [2]...分割步骤描述, 开头空字符去掉, 末尾保留
+            String[] stepDesc = cellDesc.split("\\[\\d+]", -1);
+            if (StringUtils.isEmpty(stepDesc[0])) {
+                stepDesc = Arrays.copyOfRange(stepDesc, 1, stepDesc.length);
+            }
 
             int rowIndex = 1;
             for (String row : stepDesc) {
                 RowInfo rowInfo = this.parseIndexInRow(row, rowIndex);
                 stepDescList.add(rowInfo.rowInfo);
-                rowNums.add(rowIndex++);
             }
         } else {
             stepDescList.add(StringUtils.EMPTY);
         }
 
-        if (data.getStepResult() != null) {
-            String[] stepRes = data.getStepResult().split("\r|\n|\r\n");
+        if (StringUtils.isNotEmpty(cellResult)) {
+            // 根据[1], [2]...分割步骤描述, 开头空字符去掉, 末尾保留
+            String[] stepRes = cellResult.split("\\[\\d+]", -1);
+            if (StringUtils.isEmpty(stepRes[0])) {
+                stepRes = Arrays.copyOfRange(stepRes, 1, stepRes.length);
+            }
             int lastStepIndex = 1;
             for (String row : stepRes) {
                 RowInfo rowInfo = this.parseIndexInRow(row, lastStepIndex);
@@ -731,13 +751,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             stepResList.add(StringUtils.EMPTY);
         }
 
-        int index = stepDescList.size() > stepResList.size() ? stepDescList.size() : stepResList.size();
-
+        int index = Math.max(stepDescList.size(), stepResList.size());
         for (int i = 0; i < index; i++) {
-
             // 保持插入顺序，判断用例是否有相同的steps
             Map<String, Object> step = new LinkedHashMap<>();
-            step.put("num", i + 1);
+            step.put("num", startStepIndex + i + 1);
             if (i < stepDescList.size()) {
                 step.put("desc", stepDescList.get(i));
             } else {
@@ -750,9 +768,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 step.put("result", StringUtils.EMPTY);
             }
 
-            jsonArray.add(step);
+            steps.add(step);
         }
-        return JSON.toJSONString(jsonArray);
+        return steps;
     }
 
     private RowInfo parseIndexInRow(String row, int rowIndex) {
