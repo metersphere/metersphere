@@ -122,6 +122,16 @@ const Setting: AppRouteRecordRaw = {
             isTopMenu: true,
           },
         },
+        {
+          path: 'serviceIntegration',
+          name: 'settingOrganizationService',
+          component: () => import('@/views/setting/organization/serviceIntegration/index.vue'),
+          meta: {
+            locale: 'menu.settings.organization.serviceIntegration',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
       ],
     },
   ],
