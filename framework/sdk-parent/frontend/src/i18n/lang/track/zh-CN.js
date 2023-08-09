@@ -603,6 +603,7 @@ export default {
     passing_rate_tip: "执行通过用例/所有用例 * 100%",
     content: "目录",
     report_summary: "报告总结",
+    case_env: "默认环境（用例保存的环境）",
     analysis_functional: "功能用例统计分析",
     analysis_api: "接口用例统计分析",
     analysis_ui: "UI 用例统计分析",

@@ -1242,55 +1242,40 @@ public class TestPlanReportService {
             } else {
                 Map<String, List<String>> requestEnvMap = new HashMap<>();
                 if (MapUtils.isEmpty(runInfoDTO.getRequestEnvMap())) {
-                    if (MapUtils.isNotEmpty(runInfoDTO.getApiCaseRunInfo())) {
-                        for (Map<String, String> map : runInfoDTO.getApiCaseRunInfo().values()) {
-                            requestEnvMap = TestPlanReportUtil.mergeEnvironmentMap(requestEnvMap, map);
-                        }
-                    }
-                    if (MapUtils.isNotEmpty(runInfoDTO.getScenarioRunInfo())) {
-                        for (Map<String, List<String>> map : runInfoDTO.getScenarioRunInfo().values()) {
-                            requestEnvMap = TestPlanReportUtil.mergeProjectEnvMap(requestEnvMap, map);
-                        }
-                    }
-                    if (MapUtils.isNotEmpty(runInfoDTO.getUiScenarioRunInfo())) {
-                        for (Map<String, List<String>> map : runInfoDTO.getUiScenarioRunInfo().values()) {
-                            requestEnvMap = TestPlanReportUtil.mergeProjectEnvMap(requestEnvMap, map);
-                        }
-                    }
+                    testPlanReportDTO.setProjectEnvMap(requestEnvMap);
                 } else {
                     requestEnvMap = runInfoDTO.getRequestEnvMap();
-                }
-
-                Map<String, List<String>> projectEnvMap = new HashMap<>();
-                for (Map.Entry<String, List<String>> entry : requestEnvMap.entrySet()) {
-                    String projectId = entry.getKey();
-                    List<String> envIdList = entry.getValue();
-                    Project project = baseProjectService.getProjectById(projectId);
-                    String projectName = project == null ? null : project.getName();
-                    if (StringUtils.isNotEmpty(projectName)) {
-                        List<String> envNameList = new ArrayList<>();
-                        for (String envId : envIdList) {
-                            String envName = apiTestEnvironmentService.selectNameById(envId);
-                            if (StringUtils.isNoneBlank(envName)) {
-                                envNameList.add(envName);
+                    Map<String, List<String>> projectEnvMap = new HashMap<>();
+                    for (Map.Entry<String, List<String>> entry : requestEnvMap.entrySet()) {
+                        String projectId = entry.getKey();
+                        List<String> envIdList = entry.getValue();
+                        Project project = baseProjectService.getProjectById(projectId);
+                        String projectName = project == null ? null : project.getName();
+                        if (StringUtils.isNotEmpty(projectName)) {
+                            List<String> envNameList = new ArrayList<>();
+                            for (String envId : envIdList) {
+                                String envName = apiTestEnvironmentService.selectNameById(envId);
+                                if (StringUtils.isNoneBlank(envName)) {
+                                    envNameList.add(envName);
+                                }
+                            }
+                            //考虑到存在不同工作空间下有相同名称的项目，这里还是要检查一下项目名称是否已被记录
+                            if (projectEnvMap.containsKey(projectName)) {
+                                envNameList.forEach(envName -> {
+                                    if (!projectEnvMap.get(projectName).contains(envName)) {
+                                        projectEnvMap.get(projectName).add(envName);
+                                    }
+                                });
+                            } else {
+                                projectEnvMap.put(projectName, new ArrayList<>() {{
+                                    this.addAll(envNameList);
+                                }});
                             }
                         }
-                        //考虑到存在不同工作空间下有相同名称的项目，这里还是要检查一下项目名称是否已被记录
-                        if (projectEnvMap.containsKey(projectName)) {
-                            envNameList.forEach(envName -> {
-                                if (!projectEnvMap.get(projectName).contains(envName)) {
-                                    projectEnvMap.get(projectName).add(envName);
-                                }
-                            });
-                        } else {
-                            projectEnvMap.put(projectName, new ArrayList<>() {{
-                                this.addAll(envNameList);
-                            }});
-                        }
                     }
-                }
-                if (MapUtils.isNotEmpty(projectEnvMap)) {
-                    testPlanReportDTO.setProjectEnvMap(projectEnvMap);
+                    if (MapUtils.isNotEmpty(projectEnvMap)) {
+                        testPlanReportDTO.setProjectEnvMap(projectEnvMap);
+                    }
                 }
             }
             //运行模式

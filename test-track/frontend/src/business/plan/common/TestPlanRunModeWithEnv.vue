@@ -210,7 +210,7 @@ export default {
         resourcePoolId: null,
         envMap: new Map(),
         environmentGroupId: "",
-        environmentType: ENV_TYPE.DEFAULT,
+        environmentType: ENV_TYPE.JSON,
         retryEnable: false,
         retryNum: 1,
         browser: "CHROME",
@@ -271,10 +271,8 @@ export default {
         this.runConfig = JSON.parse(runModeConfig);
         if (!this.runConfig.envMap || JSON.stringify(this.runConfig.envMap) === "{}") {
           this.isEnvSaved = false;
-          this.runConfig.environmentType = ENV_TYPE.DEFAULT;
         } else {
           this.isEnvSaved = true;
-          this.runConfig.environmentType = ENV_TYPE.JSON;
         }
         this.runConfig.envMap = new Map();
         this.runConfig.testPlanDefaultEnvMap = {};
@@ -283,9 +281,8 @@ export default {
             this.runConfig.onSampleError === true;
       } else {
         this.isEnvSaved = false;
-        //没保存过运行配置的测试计划，运行环境类型为default
-        this.runConfig.environmentType = ENV_TYPE.DEFAULT;
       }
+      this.runConfig.environmentType = ENV_TYPE.JSON;
       this.runModeVisible = true;
       this.testType = testType;
       this.getResourcePools();

@@ -602,6 +602,7 @@ export default {
     passing_rate_tip: "執行通過用例/所有用例 * 100%",
     content: "目錄",
     report_summary: "報告總結",
+    case_env: "默認環境（用例保存的環境）",
     analysis_functional: "功能用例統計分析",
     analysis_api: "接口用例統計分析",
     analysis_ui: "UI 用例統計分析",

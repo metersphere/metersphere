@@ -636,6 +636,7 @@ export default {
     passing_rate_tip: "Execute passed use cases/all use cases * 100%",
     content: "Content",
     report_summary: "Summary",
+    case_env: "Default environment(by cases)",
     analysis_functional: "Analysis Functional",
     analysis_api: "Analysis Api",
     analysis_ui: "Analysis Ui",
