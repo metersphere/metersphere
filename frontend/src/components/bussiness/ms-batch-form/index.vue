@@ -50,7 +50,7 @@
                   'cursor-pointer',
                   'items-center',
                   'justify-center',
-                  'text-[var(--color-text-brand)]',
+                  'text-[var(--color-text-4)]',
                   i === 0 ? 'mt-[36px]' : 'mt-[5px]',
                 ]"
                 @click="removeField(i)"

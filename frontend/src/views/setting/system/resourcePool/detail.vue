@@ -209,6 +209,7 @@
           field="testResourceDTO.ip"
           class="form-item"
           :rules="[{ required: true, message: t('system.resourcePool.testResourceDTO.ipRequired') }]"
+          asterisk-position="end"
         >
           <a-input
             v-model:model-value="form.testResourceDTO.ip"
@@ -224,6 +225,7 @@
           field="testResourceDTO.token"
           class="form-item"
           :rules="[{ required: true, message: t('system.resourcePool.testResourceDTO.tokenRequired') }]"
+          asterisk-position="end"
         >
           <a-input
             v-model:model-value="form.testResourceDTO.token"
@@ -236,6 +238,7 @@
           field="testResourceDTO.nameSpaces"
           class="form-item"
           :rules="[{ required: true, message: t('system.resourcePool.testResourceDTO.nameSpacesRequired') }]"
+          asterisk-position="end"
         >
           <a-input
             v-model:model-value="form.testResourceDTO.nameSpaces"
@@ -259,6 +262,7 @@
           field="testResourceDTO.deployName"
           class="form-item"
           :rules="[{ required: true, message: t('system.resourcePool.testResourceDTO.deployNameRequired') }]"
+          asterisk-position="end"
         >
           <a-input
             v-model:model-value="form.testResourceDTO.deployName"

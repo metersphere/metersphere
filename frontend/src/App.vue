@@ -54,6 +54,8 @@
           },
         ]);
         setLocalStorage('isInitUrl', 'true'); // 设置已经初始化过 url，避免重复初始化
+      } else {
+        setLocalStorage('isInitUrl', 'true'); // 设置已经初始化过 url，避免重复初始化
       }
     } catch (error) {
       console.log(error);
