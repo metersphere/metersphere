@@ -20,7 +20,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/fonts/**", "anon");
         filterChainDefinitionMap.put("/display/info", "anon");
         filterChainDefinitionMap.put("/favicon.ico", "anon");
-        filterChainDefinitionMap.put("/display/file/**", "anon");
+        filterChainDefinitionMap.put("/base-display/**", "anon");
         filterChainDefinitionMap.put("/jmeter/download/**", "anon");
         filterChainDefinitionMap.put("/jmeter/ping", "anon");
         filterChainDefinitionMap.put("/jmeter/ready/**", "anon");
