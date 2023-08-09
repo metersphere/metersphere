@@ -22,6 +22,7 @@ export default {
   'organization.service.configured': 'Configured',
   'organization.service.methodOfAuthentication': 'Method of authentication',
   'organization.service.edit': 'Edit',
+  'organization.service.reset': 'Reset',
   'organization.service.unconfiguredTip': 'Not configured yet. Configure and open on the edit page',
   'organization.service.batchActionAddUsergroup': 'Add to usergroup',
   'organization.service.tableEnable': 'Enabled',

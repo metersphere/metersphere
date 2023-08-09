@@ -18,6 +18,7 @@ export default {
   'organization.service.configured': '已配置',
   'organization.service.methodOfAuthentication': '认证方式',
   'organization.service.edit': '编辑',
+  'organization.service.reset': '重置',
   'organization.service.unconfiguredTip': '暂未配置，可在编辑页配置并开启',
   'organization.service.batchActionAddUsergroup': '添加至用户组',
   'organization.service.tableEnable': '正常',
