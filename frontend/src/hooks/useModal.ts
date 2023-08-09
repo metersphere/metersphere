@@ -25,9 +25,10 @@ export default function useModal() {
         cancelButtonProps: {
           type: options.mode === 'weak' ? 'text' : 'secondary',
         },
+        simple: false,
         ...options,
         titleAlign: 'start',
-        modalClass: `ms-modal-${options.mode || 'default'} ms-modal-${options.size || 'medium'} ms-modal-${
+        modalClass: `ms-modal-${options.mode || 'default'} ms-modal-${options.size || 'small'} ms-modal-${
           options.type
         }`,
       }),

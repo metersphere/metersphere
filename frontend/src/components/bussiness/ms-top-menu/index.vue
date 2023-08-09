@@ -33,6 +33,9 @@
     () => appStore.getCurrentTopMenu?.name,
     (val) => {
       activeMenus.value = [val || ''];
+    },
+    {
+      immediate: true,
     }
   );
 

@@ -28,7 +28,7 @@
 
   const { t } = useI18n();
 
-  const activeTab = ref('authConfig');
+  const activeTab = ref('baseConfig');
   const isInitedPageConfig = ref(activeTab.value === 'pageConfig');
   const isInitedAuthConfig = ref(activeTab.value === 'authConfig');
 
