@@ -59,6 +59,14 @@
                   <a-button type="outline" class="arco-btn-outline--secondary" size="mini" @click="editHanlder(item)">{{
                     t('organization.service.edit')
                   }}</a-button>
+                  <a-button
+                    v-if="item.isConfig"
+                    type="outline"
+                    class="arco-btn-outline--secondary"
+                    size="mini"
+                    @click="resetHanlder(item)"
+                    >{{ t('organization.service.reset') }}</a-button
+                  >
                 </a-space>
                 <span>
                   <a-tooltip v-if="!item.isConfig" :content="t('organization.service.unconfiguredTip')" position="br">
@@ -155,6 +163,8 @@
   const editHanlder = (item: any) => {
     serviceVisible.value = true;
   };
+  const resetHanlder = (item: any) => {};
+
   onMounted(() => {
     setTimeout(() => {
       const result = JSON.stringify([
