@@ -17,11 +17,14 @@ import io.metersphere.request.MetricRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -82,8 +85,18 @@ public class MetricQueryService {
         String start = df.format(startTime / 1000.0);
         String end = df.format(endTime / 1000.0);
         try {
-            Map response = restTemplate.getForObject(prometheusHost + "/api/v1/query_range?query={promQL}&start={start}&end={end}&step={step}", Map.class, promQL, start, end, step);
-            LogUtil.info(prometheusHost + "/api/v1/query_range?query={" + promQL + "}&start={" + start + "}&end{" + end + "}&step={" + step + "}");
+            LogUtil.debug(prometheusHost + "/api/v1/query_range?query=" + promQL + "&start=" + start + "&end" + end + "&step=" + step);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/x-www-form-urlencoded");
+            // 设置请求参数
+            MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
+            postParameters.add("query", promQL);
+            postParameters.add("start", start);
+            postParameters.add("end", end);
+            postParameters.add("step", step);
+            HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(postParameters, headers);
+
+            Map response = restTemplate.postForObject(prometheusHost + "/api/v1/query_range", httpEntity, Map.class);
             metricData = handleResult(seriesName, response, instance);
         } catch (Exception e) {
             LogUtil.error("query prometheus metric fail.");
