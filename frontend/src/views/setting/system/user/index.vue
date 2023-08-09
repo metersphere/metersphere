@@ -861,14 +861,14 @@
   const importSuccessCount = ref(0);
   const importFailCount = ref(0);
   const importErrorFileUrl = ref('');
-  const importResult = ref<'success' | 'allFail' | 'fail'>('success');
+  const importResult = ref<'success' | 'allFail' | 'fail'>('allFail');
   const importResultTitle = ref(t('system.user.importSuccessTitle'));
 
   function showImportModal() {
     importVisible.value = true;
     importFailCount.value = 0;
     importSuccessCount.value = 0;
-    importResult.value = 'success';
+    importResult.value = 'allFail';
   }
 
   function cancelImport() {
