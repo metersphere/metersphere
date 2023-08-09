@@ -362,7 +362,9 @@ export default {
       if (data.response) {
         this.parseResponseStructureDefaultKeyValue(data.response);
       }
+      this.setProtocolBtn(true);
       updateDefinition(this.reqUrl, null, bodyFiles, data).then((response) => {
+        this.setProtocolBtn(false);
         this.$success(this.$t('commons.save_success'));
         this.reqUrl = '/api/definition/update';
         this.currentApi.isCopy = false;
@@ -378,6 +380,22 @@ export default {
       });
       this.responseCount = 0;
       this.count = 0;
+    },
+    setProtocolBtn(disable) {
+      switch (this.currentProtocol) {
+        case Request.TYPES.SQL:
+          this.$refs.sqlApi.disableSaveBtn = disable;
+          break;
+        case Request.TYPES.DUBBO:
+          this.$refs.dubboApi.disableSaveBtn = disable;
+          break;
+        case Request.TYPES.TCP:
+          this.$refs.tcpApi.disableSaveBtn = disable;
+          break;
+        default:
+          this.$refs.httpApi.disableSaveBtn = disable;
+          break;
+      }
     },
     parseResponseStructureDefaultKeyValue(response) {
       if (response.headers && response.headers.length === 1) {
