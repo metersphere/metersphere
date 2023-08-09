@@ -64,7 +64,6 @@
   );
 
   const handleCancel = () => {
-    fApi.value.resetFields();
     detailVisible.value = false;
   };
   const submit = () => {

@@ -73,14 +73,14 @@
       </div>
     </div>
   </MsCard>
-  <ShowModal v-model:visible="serviceVisible" :rule="createRules" />
+  <ConfigModal v-model:visible="serviceVisible" :rule="createRules" />
 </template>
 
 <script setup lang="ts">
   import { ref, onMounted, reactive } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import ShowModal from './showModal.vue';
+  import ConfigModal from './conifgModal.vue';
 
   const { t } = useI18n();
 

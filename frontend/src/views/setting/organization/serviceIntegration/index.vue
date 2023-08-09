@@ -7,8 +7,8 @@
             <span v-if="active" class="text-[rgb(var(--primary-6))]">{{ t('organization.service.packUp') }}</span>
             <span v-else class="text-[rgb(var(--primary-6))]">{{ t('organization.service.expand') }}</span>
           </template>
-          <div class="mt-[16px] flex w-[100%] flex-row justify-between text-sm font-normal">
-            <div v-for="(item, index) in cardContent" :key="index" class="item" :class="`ms-item-${index}`">
+          <div class="flex w-[100%] flex-row justify-between text-sm font-normal">
+            <div v-for="(item, index) in cardContent" :key="item.id" class="item" :class="`ms-item-${index}`">
               <span>
                 <svg-icon width="64px" height="46px" :name="item.icon" />
               </span>
@@ -51,6 +51,7 @@
   const { t } = useI18n();
   const cardContent = ref([
     {
+      id: '1001',
       icon: 'configplugin',
       title: 'organization.service.downloadPluginOrDev',
       skipTitle: [
@@ -67,6 +68,7 @@
       description: 'organization.service.description',
     },
     {
+      id: '1002',
       icon: 'downloadplugin',
       title: 'organization.service.configPlugin',
       skipTitle: [
