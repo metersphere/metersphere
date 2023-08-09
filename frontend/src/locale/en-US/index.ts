@@ -29,6 +29,7 @@ export default {
     'menu.settings.system': 'System',
     'menu.settings.organization': 'Organization',
     'menu.settings.organization.member': 'Member',
+    'menu.settings.organization.serviceIntegration': 'Service Integration',
     'menu.settings.system.usergroup': 'User Group',
     'menu.settings.system.pluginmanger': 'Plugin Manger',
     'menu.settings.system.user': 'User',
