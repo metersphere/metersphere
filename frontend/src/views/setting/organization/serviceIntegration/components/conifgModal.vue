@@ -23,9 +23,9 @@
           </a-tooltip>
         </div>
         <a-space>
-          <a-button type="secondary" @click="handleCancel">取消</a-button>
-          <a-button type="outline">测试链接</a-button>
-          <a-button type="primary" @click="saveHandler">确定</a-button>
+          <a-button type="secondary" @click="handleCancel">{{ t('organization.service.Cancel') }}</a-button>
+          <a-button type="outline">{{ t('organization.service.testLink') }}</a-button>
+          <a-button type="primary" @click="saveHandler">{{ t('organization.service.Confirm') }}</a-button>
         </a-space>
       </div>
     </template>
