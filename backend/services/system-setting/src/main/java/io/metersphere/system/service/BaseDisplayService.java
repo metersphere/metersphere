@@ -8,6 +8,7 @@ import io.metersphere.system.domain.SystemParameter;
 import io.metersphere.system.mapper.SystemParameterMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -62,6 +63,11 @@ public class BaseDisplayService {
                     break;
             }
         }
+        String[] split = systemParameter.getParamValue().split("[.\n]");
+        if (StringUtils.equalsAnyIgnoreCase("svg", split[split.length - 1])) {
+            contentType = MediaType.valueOf("image/svg+xml");
+        }
+
         return ResponseEntity.ok()
                 .contentType(contentType)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")

@@ -4,6 +4,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.BasePageRequest;
+import io.metersphere.sdk.ldap.service.LdapService;
+import io.metersphere.sdk.ldap.vo.LdapLoginRequest;
+import io.metersphere.sdk.ldap.vo.LdapRequest;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
@@ -17,6 +20,7 @@ import io.metersphere.system.service.AuthSourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
@@ -27,9 +31,13 @@ import java.util.List;
 @Tag(name = "认证设置")
 @RestController
 @RequestMapping("/system/authsource")
+@Data
 public class AuthSourceController {
     @Resource
     private AuthSourceService authSourceService;
+
+    @Resource
+    private LdapService ldapService;
 
     @PostMapping("/list")
     @Operation(summary = "认证设置列表查询")
@@ -76,7 +84,21 @@ public class AuthSourceController {
     @Operation(summary = "更新状态")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request.getId())", msClass = AuthSourceLogService.class)
-    public AuthSource updateStatus(@Validated @RequestBody AuthSourceStatusRequest request ) {
+    public AuthSource updateStatus(@Validated @RequestBody AuthSourceStatusRequest request) {
         return authSourceService.updateStatus(request.getId(), request.getEnable());
+    }
+
+
+    @PostMapping("/ldap/test-connect")
+    @Operation(summary = "ladp测试连接")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
+    public void ldapTestConnect(@Validated @RequestBody LdapRequest request) {
+        ldapService.testConnect(request);
+    }
+
+    @PostMapping("/ldap/test-login")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
+    public void testLogin(@RequestBody LdapLoginRequest request) {
+        ldapService.testLogin(request);
     }
 }
