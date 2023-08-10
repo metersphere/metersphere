@@ -340,11 +340,18 @@ public class TestResourcePoolService {
         if (testResourcePool == null) {
             throw new MSException(Translator.get("test_resource_pool_not_exists"));
         }
+        testResourcePool.setUpdateTime(System.currentTimeMillis());
         if (testResourcePool.getEnable()) {
             testResourcePool.setEnable(false);
         } else {
             testResourcePool.setEnable(true);
         }
+        TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(testResourcePoolId);
+        byte[] configuration = testResourcePoolBlob.getConfiguration();
+        String testResourceDTOStr = new String(configuration);
+        TestResourceDTO testResourceDTO = JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
+        checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
+        checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
     }
 }

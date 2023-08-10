@@ -585,7 +585,7 @@ public class OrganizationService {
         List<String> userRoleInDBInOrgIds = userRoleMap.values().stream().map(UserRole::getId).collect(Collectors.toList());
         //删除旧的关系
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
-        userRoleRelationExample.createCriteria().andUserIdEqualTo(memberId).andRoleIdIn(userRoleInDBInOrgIds);
+        userRoleRelationExample.createCriteria().andUserIdEqualTo(memberId).andSourceIdEqualTo(organizationId);
         userRoleRelationMapper.deleteByExample(userRoleRelationExample);
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         userRoleInDBInOrgIds.forEach(userRoleId -> {
