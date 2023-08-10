@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!--    {{ JSON.stringify(eventData) }}-->
     <el-radio-group
       v-model="radio"
       style="width: 100%"

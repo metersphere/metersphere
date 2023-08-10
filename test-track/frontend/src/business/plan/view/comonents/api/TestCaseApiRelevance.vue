@@ -123,6 +123,13 @@ export default {
     projectId() {
       this.getVersionOptions();
     },
+    isApiListEnable() {
+      if (this.isApiListEnable) {
+        this.$nextTick(() => {
+          this.refresh();
+        });
+      }
+    }
   },
   mounted() {
     this.getVersionOptions();

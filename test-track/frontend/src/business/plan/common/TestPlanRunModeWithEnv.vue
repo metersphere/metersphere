@@ -267,20 +267,22 @@ export default {
   methods: {
     open(testType, runModeConfig) {
       this.defaultEnvMap = {};
-      if (runModeConfig) {
-        this.runConfig = JSON.parse(runModeConfig);
-        if (!this.runConfig.envMap || JSON.stringify(this.runConfig.envMap) === "{}") {
-          this.isEnvSaved = false;
+      if (this.type === 'plan') {
+        if (runModeConfig) {
+          this.runConfig = JSON.parse(runModeConfig);
+          if (!this.runConfig.envMap || JSON.stringify(this.runConfig.envMap) === "{}") {
+            this.isEnvSaved = false;
+          } else {
+            this.isEnvSaved = true;
+          }
+          this.runConfig.envMap = new Map();
+          this.runConfig.testPlanDefaultEnvMap = {};
+          this.runConfig.onSampleError =
+              this.runConfig.onSampleError === "true" ||
+              this.runConfig.onSampleError === true;
         } else {
-          this.isEnvSaved = true;
+          this.isEnvSaved = false;
         }
-        this.runConfig.envMap = new Map();
-        this.runConfig.testPlanDefaultEnvMap = {};
-        this.runConfig.onSampleError =
-            this.runConfig.onSampleError === "true" ||
-            this.runConfig.onSampleError === true;
-      } else {
-        this.isEnvSaved = false;
       }
       this.runConfig.environmentType = ENV_TYPE.JSON;
       this.runModeVisible = true;
@@ -401,24 +403,17 @@ export default {
           let data = res.data;
           if (data) {
             this.projectEnvListMap = data;
-            for (let d in data) {
-              this.projectIds.add(d);
-            }
           }
-          if (this.projectIds.size === 0) {
-            param = {id: this.planId};
-            getPlanCaseProjectIds(param).then((res) => {
-              let data = res.data;
-              if (data) {
-                for (let i = 0; i < data.length; i++) {
-                  this.projectIds.add(data[i]);
-                }
+          param = {id: this.planId};
+          getPlanCaseProjectIds(param).then((res) => {
+            let data = res.data;
+            if (data) {
+              for (let i = 0; i < data.length; i++) {
+                this.projectIds.add(data[i]);
               }
-              this.$refs.envSelectPopover.open();
-            });
-          } else {
+            }
             this.$refs.envSelectPopover.open();
-          }
+          });
         });
       }
     },

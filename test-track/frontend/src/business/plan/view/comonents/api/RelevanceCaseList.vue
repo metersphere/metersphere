@@ -7,13 +7,6 @@
       <template>
         <slot name="version"></slot>
       </template>
-
-      <ms-environment-select
-        :project-id="projectId"
-        :is-read-only="isReadOnly"
-        @setEnvironment="setEnvironment"
-        ref="msEnvironmentSelect"
-      />
       <ms-search
         :condition.sync="condition"
         v-if="clearOver"
@@ -132,6 +125,20 @@
         :page-size.sync="pageSize"
         :total="total"
       />
+      <div>
+        <el-radio-group v-model="envType" style="float: left;margin-top: 8px;">
+          <el-radio label="default">{{ $t("api_test.environment.default_environment") }}</el-radio>
+          <el-radio label="newEnv">{{ $t("api_test.environment.choose_new_environment") }}</el-radio>
+        </el-radio-group>
+        <ms-environment-select
+            :project-id="projectId"
+            :is-read-only="isReadOnly"
+            @setEnvironment="setEnvironment"
+            ref="msEnvironmentSelect"
+            v-if="envType==='newEnv'"
+            style="float: left;margin-left: 16px"
+        />
+      </div>
     </api-list-container>
   </div>
 </template>
@@ -141,23 +148,16 @@ import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import {
-  API_METHOD_COLOUR,
-  CASE_PRIORITY,
-} from "metersphere-frontend/src/model/JsonData";
+import {API_METHOD_COLOUR, CASE_PRIORITY,} from "metersphere-frontend/src/model/JsonData";
 import MsEnvironmentSelect from "metersphere-frontend/src/components/environment/snippet/ext/MsEnvironmentSelect";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
-import { TEST_PLAN_RELEVANCE_API_CASE_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
+import {TEST_PLAN_RELEVANCE_API_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
 import ApiListContainer from "@/business/plan/view/comonents/api/ApiListContainer";
-import {
-  buildBatchParam,
-  hasLicense,
-  isProjectVersionEnable,
-} from "@/business/utils/sdk-utils";
+import {buildBatchParam, hasLicense, isProjectVersionEnable,} from "@/business/utils/sdk-utils";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
-import { apiDefinitionGet } from "@/api/remote/api/api-definition";
-import { testPlanApiCaseRelevanceList } from "@/api/remote/plan/test-plan-api-case";
+import {apiDefinitionGet} from "@/api/remote/api/api-definition";
+import {testPlanApiCaseRelevanceList} from "@/api/remote/plan/test-plan-api-case";
 
 export default {
   name: "RelevanceCaseList",
@@ -177,6 +177,7 @@ export default {
       condition: {
         components: TEST_PLAN_RELEVANCE_API_CASE_CONFIGS,
       },
+      envType: 'default',
       selectCase: {},
       loading: false,
       moduleId: "",
