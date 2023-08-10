@@ -301,7 +301,10 @@ export default {
   activated() {
     if (this.$route.params.dataSelectRange) {
       this.dataSelectRange = this.$route.params.dataSelectRange;
+    } else {
+      this.dataSelectRange = "";
     }
+    console.log(this.dataSelectRange);
     this.loading = true;
     this.$nextTick(() => {
       // 解决错位问题
@@ -469,6 +472,8 @@ export default {
         this.page.condition.unClosedTestPlanIssue = true;
       } else if (this.dataSelectRange === 'AllRelatedTestPlan') {
         this.page.condition.allTestPlanIssue = true;
+      } else {
+        this.page.condition = {};
       }
       this.page.condition.projectId = this.projectId;
       this.page.condition.workspaceId = this.workspaceId;
