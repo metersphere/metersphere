@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.metersphere.sdk.controller.handler.result.CommonResultCode.FILE_NAME_ILLEGAL;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -260,8 +261,10 @@ public class PluginControllerTests extends BaseTest {
     @Order(5)
     public void getPluginImg() throws Exception {
         // @@请求成功
-        mockMvc.perform(getRequestBuilder(PLUGIN_IMAGE, "pluginId", "/static/jira.jpg"))
+        mockMvc.perform(getRequestBuilder(PLUGIN_IMAGE, anotherAddPlugin.getId(), "/static/jira.jpg"))
                 .andExpect(status().isOk());
+
+        assertErrorCode( this.requestGet(PLUGIN_IMAGE, anotherAddPlugin.getId(), "/static/jira.doc"), FILE_NAME_ILLEGAL);
     }
 
     @Test
@@ -274,6 +277,7 @@ public class PluginControllerTests extends BaseTest {
         Assertions.assertNull(plugin);
         Assertions.assertEquals(new ArrayList<>(0), getOrgIdsByPlugId(addPlugin.getId()));
         Assertions.assertEquals(new ArrayList<>(0), getScriptIdsByPlugId(addPlugin.getId()));
+        this.requestGetWithOk(DEFAULT_DELETE, anotherAddPlugin.getId());
 
         // @@校验日志
         checkLog(addPlugin.getId(), OperationLogType.DELETE);

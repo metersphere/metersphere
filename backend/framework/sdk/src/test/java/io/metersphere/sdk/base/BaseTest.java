@@ -40,6 +40,8 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
@@ -232,18 +234,22 @@ public abstract class BaseTest {
     }
 
     protected <T> T getResultData(MvcResult mvcResult, Class<T> clazz) throws Exception {
-        Object data = JSON.parseMap(mvcResult.getResponse().getContentAsString()).get("data");
+        Object data = parseResponse(mvcResult).get("data");
         return JSON.parseObject(JSON.toJSONString(data), clazz);
     }
 
     protected <T> T getResultMessageDetail(MvcResult mvcResult, Class<T> clazz) throws Exception {
-        Object data = JSON.parseMap(mvcResult.getResponse().getContentAsString()).get("messageDetail");
+        Object data = parseResponse(mvcResult).get("messageDetail");
         return JSON.parseObject(JSON.toJSONString(data), clazz);
     }
 
     protected <T> List<T> getResultDataArray(MvcResult mvcResult, Class<T> clazz) throws Exception {
-        Object data = JSON.parseMap(mvcResult.getResponse().getContentAsString()).get("data");
+        Object data = parseResponse(mvcResult).get("data");
         return JSON.parseArray(JSON.toJSONString(data), clazz);
+    }
+
+    private static Map parseResponse(MvcResult mvcResult) throws UnsupportedEncodingException {
+        return JSON.parseMap(mvcResult.getResponse().getContentAsString(Charset.defaultCharset()));
     }
 
     /**
@@ -258,7 +264,7 @@ public abstract class BaseTest {
     }
 
     protected <T> Pager<List<T>> getPageResult(MvcResult mvcResult, Class<T> clazz) throws Exception {
-        Map<String, Object> pagerResult = (Map<String, Object>) JSON.parseMap(mvcResult.getResponse().getContentAsString()).get("data");
+        Map<String, Object> pagerResult = (Map<String, Object>) parseResponse(mvcResult).get("data");
         List<T> list = JSON.parseArray(JSON.toJSONString(pagerResult.get("list")), clazz);
         Pager pager = new Pager();
         pager.setPageSize(Long.valueOf(pagerResult.get("pageSize").toString()));

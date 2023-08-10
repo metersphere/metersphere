@@ -9,10 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author jianxing.chen
@@ -23,6 +20,14 @@ public class PluginManager {
      * 自定义类加载器
      */
     protected Map<String, PluginClassLoader> classLoaderMap = new HashMap<>();
+
+    /**
+     * 缓存查找过的类
+     * 内层 map
+     * key 未接口的类
+     * value 为实现类
+     */
+    protected Map<String, Map<Class, Class>> implClassCache = new HashMap<>();
 
     public PluginClassLoader getClassLoader(String pluginId) {
         return classLoaderMap.get(pluginId);
@@ -48,6 +53,7 @@ public class PluginManager {
 
     public void deletePlugin(String id) {
         classLoaderMap.remove(id);
+        implClassCache.remove(id);
     }
 
     /**
@@ -70,40 +76,52 @@ public class PluginManager {
      * 获取接口的单一实现类
      */
     public <T> Class<T> getImplClass(String pluginId, Class<T> superClazz) {
-        PluginClassLoader classLoader = classLoaderMap.get(pluginId);
+        PluginClassLoader classLoader = getPluginClassLoader(pluginId);
+        Map<Class, Class> classes = implClassCache.get(pluginId);
+        if (classes == null) {
+            classes = new HashMap<>();
+            implClassCache.put(pluginId, classes);
+        }
+        if (classes.get(superClazz) != null) {
+            return classes.get(superClazz);
+        }
         LinkedHashSet<Class<T>> result = new LinkedHashSet<>();
         Set<Class> clazzSet = classLoader.getClazzSet();
         for (Class item : clazzSet) {
             if (isImplClazz(superClazz, item) && !result.contains(item)) {
+                classes.put(superClazz, item);
                 return item;
             }
         }
         return null;
     }
 
+    private PluginClassLoader getPluginClassLoader(String pluginId) {
+        PluginClassLoader classLoader = classLoaderMap.get(pluginId);
+        if (classLoader == null) {
+            throw new MSException("插件未加载");
+        }
+        return classLoader;
+    }
+
     /**
      * 获取指定接口最后一次加载的实现类实例
      */
     public <T> T getImplInstance(String pluginId, Class<T> superClazz) {
-        try {
-            Class<T> clazz = getImplClass(pluginId, superClazz);
-            if (clazz == null) {
-                throw new MSException("未找到插件实现类");
-            }
-            return clazz.getConstructor().newInstance();
-        } catch (InvocationTargetException e) {
-            LogUtils.error(e);
-            throw new MSException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getTargetException().getMessage());
-        } catch (Exception e) {
-            LogUtils.error(e);
-            throw new MSException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getMessage());
-        }
+       return this.getImplInstance(pluginId, superClazz, null);
     }
 
     public <T> T getImplInstance(String pluginId, Class<T> superClazz, Object param) {
         try {
             Class<T> clazz = getImplClass(pluginId, superClazz);
-            return clazz.getConstructor(param.getClass()).newInstance(param);
+            if (clazz == null) {
+                throw new MSException(CommonResultCode.PLUGIN_GET_INSTANCE);
+            }
+            if (param == null) {
+                return clazz.getConstructor().newInstance();
+            } else {
+                return clazz.getConstructor(param.getClass()).newInstance(param);
+            }
         } catch (InvocationTargetException e) {
             LogUtils.error(e.getTargetException());
             throw new MSException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getTargetException().getMessage());

@@ -20,7 +20,7 @@ public class ServiceIntegrationDTO implements Serializable {
     private String title;
 
     @Schema(description =  "插件描述")
-    private String describe;
+    private String description;
 
     @Schema(description =  "是否启用")
     private Boolean enable;
