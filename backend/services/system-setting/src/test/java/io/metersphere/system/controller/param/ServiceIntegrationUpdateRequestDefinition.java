@@ -14,7 +14,7 @@ import java.util.Map;
 public class ServiceIntegrationUpdateRequestDefinition {
     @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(groups = {Updated.class})
-    @Size(min = 1, max = 50, groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, groups = {Updated.class})
     private String id;
 
     @Schema(description =  "插件的ID", requiredMode = Schema.RequiredMode.REQUIRED)

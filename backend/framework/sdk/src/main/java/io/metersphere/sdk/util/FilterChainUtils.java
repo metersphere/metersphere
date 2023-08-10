@@ -55,7 +55,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/websocket/**", "csrf");
 
         // 获取插件中的图片
-        filterChainDefinitionMap.put("/platform/plugin/image/**", "anon");
+        filterChainDefinitionMap.put("/plugin/image/**", "anon");
 
         return filterChainDefinitionMap;
     }

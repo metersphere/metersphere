@@ -8,7 +8,6 @@
         <groupId>io.metersphere</groupId>
         <artifactId>framework</artifactId>
         <version>${revision}</version>
-
     </parent>
 
     <groupId>io.metersphere</groupId>
@@ -25,29 +24,4 @@
         <module>metersphere-api-plugin-sdk</module>
         <module>metersphere-platform-plugin-sdk</module>
     </modules>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_core</artifactId>
-            <version>${jmeter.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>jorphan</artifactId>
-            <version>${jmeter.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-    </dependencies>
 </project>

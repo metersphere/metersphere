@@ -28,7 +28,7 @@ public class PluginUpdateRequest {
     private Boolean global;
 
     @Schema(description =  "插件描述")
-    @Size(min = 1, max = 500, message = "{plugin.scenario.length_range}", groups = {Created.class, Updated.class})
+    @Size(max = 500, message = "{plugin.scenario.length_range}", groups = {Created.class, Updated.class})
     private String description;
 
     @Schema(hidden = true)

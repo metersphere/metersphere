@@ -8,5 +8,6 @@ import lombok.Setter;
 public class PlatformRequest {
     private String integrationConfig;
     private String organizationId;
-    private String userPlatformInfo;
+    private String userAccountConfig;
+    private String pluginId;
 }

@@ -1,12 +1,14 @@
 
 package io.metersphere.system.request;
+
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -17,7 +19,7 @@ public class ServiceIntegrationUpdateRequest implements Serializable {
 
     @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{service_integration.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{service_integration.id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{service_integration.id.length_range}", groups = {Updated.class})
     private String id;
 
     @Schema(description =  "插件的ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -34,6 +36,6 @@ public class ServiceIntegrationUpdateRequest implements Serializable {
     private String organizationId;
 
     @Schema(description =  "配置的表单键值对", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{service_integration.configuration.not_blank}", groups = {Created.class})
-    private Map<String, String> configuration;
+    @NotEmpty(message = "{service_integration.configuration.not_blank}", groups = {Created.class})
+    private Map<String, Object> configuration;
 }
