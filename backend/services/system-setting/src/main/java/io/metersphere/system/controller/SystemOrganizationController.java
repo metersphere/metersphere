@@ -5,12 +5,14 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.ProjectDTO;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.OrganizationMemberRequest;
+import io.metersphere.system.request.OrganizationProjectRequest;
 import io.metersphere.system.request.OrganizationRequest;
 import io.metersphere.system.request.ProjectRequest;
 import io.metersphere.system.service.OrganizationService;
@@ -94,9 +96,11 @@ public class SystemOrganizationController {
     @PostMapping("/list-project")
     @Operation(summary = "获取组织下的项目列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public Pager<List<ProjectDTO>> listProject(@Validated @RequestBody ProjectRequest request) {
+    public Pager<List<ProjectDTO>> listProject(@Validated @RequestBody OrganizationProjectRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, systemProjectService.getProjectList(request));
+        ProjectRequest projectRequest = new ProjectRequest();
+        BeanUtils.copyBean(projectRequest, request);
+        return PageUtils.setPageInfo(page, systemProjectService.getProjectList(projectRequest));
     }
 }

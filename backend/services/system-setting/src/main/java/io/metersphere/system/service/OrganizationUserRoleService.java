@@ -40,10 +40,6 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     ExtUserRoleMapper extUserRoleMapper;
     @Resource
     UserRoleRelationMapper userRoleRelationMapper;
-    @Resource
-    UserRolePermissionMapper userRolePermissionMapper;
-    @Resource
-    ExtUserRoleRelationMapper extUserRoleRelationMapper;
 
     public List<UserRole> list(String organizationId) {
         UserRoleExample example = new UserRoleExample();

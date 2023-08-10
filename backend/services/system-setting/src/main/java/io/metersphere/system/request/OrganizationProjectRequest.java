@@ -10,10 +10,8 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class OrganizationProjectRequest extends BasePageRequest {
-    @Schema(description =  "组织id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.organization_id.not_blank}")
     @Size(min = 1, max = 50, message = "{project.organization_id.length_range}")
     private String organizationId;
-    @Schema(description =  "项目ID")
-    private String projectId;
 }
