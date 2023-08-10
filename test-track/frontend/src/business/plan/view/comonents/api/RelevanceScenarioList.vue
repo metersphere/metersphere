@@ -1,21 +1,5 @@
 <template>
   <div v-loading="result.loading">
-    <env-group-popover
-      :env-map="projectEnvMap"
-      :project-ids="projectIds"
-      @setProjectEnvMap="setProjectEnvMap"
-      :environment-type.sync="environmentType"
-      :group-id="envGroupId"
-      :is-scenario="false"
-      @setEnvGroup="setEnvGroup"
-      :show-config-button-with-out-permission="
-        showConfigButtonWithOutPermission
-      "
-      :project-list="projectList"
-      ref="envPopover"
-      class="env-popover"
-    />
-
     <mx-version-select
       v-xpack
       :project-id="projectId"
@@ -162,6 +146,27 @@
       :page-size.sync="pageSize"
       :total="total"
     />
+    <div>
+      <el-radio-group v-model="envType" style="float: left;margin-top: 18px;">
+        <el-radio label="default">{{ $t("api_test.environment.default_environment") }}</el-radio>
+        <el-radio label="newEnv">{{ $t("api_test.environment.choose_new_environment") }}</el-radio>
+      </el-radio-group>
+      <env-group-popover
+          :env-map="projectEnvMap"
+          :project-ids="projectIds"
+          @setProjectEnvMap="setProjectEnvMap"
+          :environment-type.sync="environmentType"
+          :group-id="envGroupId"
+          :is-scenario="false"
+          @setEnvGroup="setEnvGroup"
+          :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
+          :project-list="projectList"
+          ref="envPopover"
+          class="env-popover"
+          v-if="envType==='newEnv'"
+          style="float: left;margin-left: 16px"
+      />
+    </div>
   </div>
 </template>
 
@@ -172,21 +177,15 @@ import MsTag from "metersphere-frontend/src/components/MsTag"; // import MsApiRe
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
-import { TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
-import { ENV_TYPE } from "metersphere-frontend/src/utils/constants";
+import {TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
-import {
-  getOwnerProjects,
-  getVersionFilters,
-} from "@/business/utils/sdk-utils";
+import {getOwnerProjects, getVersionFilters,} from "@/business/utils/sdk-utils";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
-import { getProjectApplicationConfig } from "@/api/project-application";
-import { getApiScenarioEnvByProjectId } from "@/api/remote/api/api-automation";
-import {
-  scenarioRelevanceList,
-  scenarioRelevanceProjectIds,
-} from "@/api/remote/plan/test-plan-scenario";
+import {getProjectApplicationConfig} from "@/api/project-application";
+import {getApiScenarioEnvByProjectId} from "@/api/remote/api/api-automation";
+import {scenarioRelevanceList, scenarioRelevanceProjectIds,} from "@/api/remote/plan/test-plan-scenario";
 import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
 import ApiReportStatus from "@/business/plan/view/comonents/report/detail/api/ApiReportStatus";
 import MsApiReportStatus from "@/business/plan/view/comonents/report/detail/api/ApiReportStatus";
@@ -225,6 +224,7 @@ export default {
       condition: {
         components: TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS,
       },
+      envType: 'default',
       currentScenario: {},
       schedule: {},
       tableData: [],
