@@ -5,18 +5,26 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
+import io.metersphere.sdk.ldap.service.LdapService;
+import io.metersphere.sdk.ldap.vo.LdapLoginRequest;
+import io.metersphere.sdk.ldap.vo.LdapRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.request.AuthSourceRequest;
 import io.metersphere.system.request.AuthSourceStatusRequest;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -50,13 +58,22 @@ public class AuthSourceControllerTests extends BaseTest {
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
+    public static final String LDAP_TEST_CONNECT = "/system/authsource/ldap/test-connect";
+
+    public static final String LDAP_TEST_LOGIN = "/system/authsource/ldap/test-login";
+
+    @Mock
+    private LdapService ldapService;
+    @Resource
+    AuthSourceController authSourceController;
+
     @Test
     @Order(1)
     public void testAddSource() throws Exception {
         AuthSourceRequest authSource = new AuthSourceRequest();
         authSource.setName("测试CAS");
         authSource.setType("CAS");
-        this.requestPost(AUTH_SOURCE_ADD, authSource,ERROR_REQUEST_MATCHER);
+        this.requestPost(AUTH_SOURCE_ADD, authSource, ERROR_REQUEST_MATCHER);
         authSource.setConfiguration("123");
         this.requestPost(AUTH_SOURCE_ADD, authSource);
 
@@ -179,5 +196,47 @@ public class AuthSourceControllerTests extends BaseTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(resultMatcher).andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+
+    @Test
+    @Order(11)
+    public void testLdapConnectMock() throws Exception {
+        authSourceController.setLdapService(ldapService);
+        LdapRequest ldapRequest = getRequest("ldaps://127.1.1.1", "cn=admin,dc=example,dc=org", "admin");
+        Mockito.doNothing().when(ldapService).testConnect(ldapRequest);
+        this.requestPostAndReturn(LDAP_TEST_CONNECT, ldapRequest);
+    }
+
+    @Test
+    @Order(12)
+    public void testLdapLoginMock() throws Exception {
+        authSourceController.setLdapService(ldapService);
+        LdapLoginRequest loginRequest = getLoginRequest("ldap://127.1.1.1", "cn=admin,dc=example,dc=org", "admin", "cn=admin,dc=example,dc=org", "(|(uid={0})(mail={0}))", "{\"username\":\"uid\",\"name\":\"cn\",\"email\":\"mail\"}", "admin", "admin");
+        DirContextOperations operations = new DirContextAdapter();
+        Mockito.when(ldapService.testLogin(loginRequest)).thenReturn(operations);
+        this.requestPostAndReturn(LDAP_TEST_LOGIN, loginRequest);
+    }
+
+    private LdapLoginRequest getLoginRequest(String ldapUrl, String ldapDn, String ldapPassword, String ldapUserOu, String ldapUserFilter, String ldapUserMapping, String username, String password) {
+        LdapLoginRequest loginRequest = new LdapLoginRequest();
+        loginRequest.setLdapUrl(ldapUrl);
+        loginRequest.setLdapDn(ldapDn);
+        loginRequest.setLdapPassword(ldapPassword);
+        loginRequest.setLdapUserOu(ldapUserOu);
+        loginRequest.setLdapUserFilter(ldapUserFilter);
+        loginRequest.setLdapUserMapping(ldapUserMapping);
+        loginRequest.setUsername(username);
+        loginRequest.setPassword(password);
+        return loginRequest;
+    }
+
+
+    private LdapRequest getRequest(String ldapUrl, String ldapDn, String ldapPassword) {
+        LdapRequest ldapRequest = new LdapRequest();
+        ldapRequest.setLdapUrl(ldapUrl);
+        ldapRequest.setLadpDn(ldapDn);
+        ldapRequest.setLadpPassword(ldapPassword);
+        return ldapRequest;
     }
 }
