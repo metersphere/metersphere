@@ -83,12 +83,15 @@ export default {
           this.pathName = '/track/plan/all';
         } else if (to.path.indexOf("/track/case") >= 0) {
           this.pathName = '/track/case/all?projectId=' + this.getProjectId();
+        } else if (to.path.indexOf("/track/issue") >= 0) {
+          this.pathName = '/track/issue'
         } else if(to.path.indexOf("/track/home") >= 0) {
           // 默认跳转到首页
           for (let menu of this.menus) {
             if (hasPermission(menu.permission)) {
               // 如果有首页的权限则不处理
               if(menu.path.indexOf("/track/home") >= 0) {
+                this.pathName = menu.path;
                 break;
               } else {
                 // 否则跳转到第一个有权限的页面

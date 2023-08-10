@@ -135,9 +135,14 @@ export default {
           );
           break;
         case "issue":
-          home = this.$router.resolve(
-            "/track/issue/" + uuid + "/" + dataType + "/" + selectType
-          );
+          home = this.$router.resolve({
+            name: "issueManagement",
+            params: {
+              id: uuid,
+              projectId: dataType,
+              dataSelectRange: selectType,
+            }
+          });
       }
       if (home) {
         window.open(home.href, "_blank");
