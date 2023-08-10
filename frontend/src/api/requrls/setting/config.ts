@@ -25,10 +25,10 @@ export const GetAuthDetailUrl = '/system/authsource/get';
 // 删除认证源
 export const DeleteAuthUrl = '/system/authsource/delete';
 // 获取系统主页左上角图片
-export const GetTitleImgUrl = `${import.meta.env.VITE_API_BASE_URL}/display/get/title`;
+export const GetTitleImgUrl = `${import.meta.env.VITE_API_BASE_URL}/base-display/get/logo-platform`;
 // 获取登录 logo
-export const GetLoginLogoUrl = `${import.meta.env.VITE_API_BASE_URL}/display/get/loginLogo`;
+export const GetLoginLogoUrl = `${import.meta.env.VITE_API_BASE_URL}/base-display/get/login-logo`;
 // 获取登录大图
-export const GetLoginImageUrl = `${import.meta.env.VITE_API_BASE_URL}/display/get/loginImage`;
+export const GetLoginImageUrl = `${import.meta.env.VITE_API_BASE_URL}/base-display/get/login-image`;
 // 获取平台标签图标
-export const GetPlatformIconUrl = `${import.meta.env.VITE_API_BASE_URL}/display/get/icon`;
+export const GetPlatformIconUrl = `${import.meta.env.VITE_API_BASE_URL}/base-display/get/icon`;

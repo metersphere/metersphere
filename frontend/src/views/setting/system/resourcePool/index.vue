@@ -17,16 +17,6 @@
       <template #name="{ record }">
         <a-button type="text" @click="showPoolDetail(record)">{{ record.name }}</a-button>
       </template>
-      <template #enable="{ record }">
-        <div v-if="record.enable" class="flex items-center">
-          <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-          {{ t('system.resourcePool.tableEnable') }}
-        </div>
-        <div v-else class="flex items-center text-[var(--color-text-4)]">
-          <icon-stop class="mr-[2px]" />
-          {{ t('system.resourcePool.tableDisable') }}
-        </div>
-      </template>
       <template #action="{ record }">
         <MsButton @click="editPool(record)">{{ t('system.resourcePool.editPool') }}</MsButton>
         <MsButton v-if="record.enable" @click="disabledPool(record)">{{
@@ -78,6 +68,7 @@
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { useTableStore } from '@/store';
+  import { characterLimit } from '@/utils';
 
   import type { Description } from '@/components/pure/ms-description/index.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -186,7 +177,7 @@
   function disabledPool(record: any) {
     openModal({
       type: 'warning',
-      title: t('system.resourcePool.disablePoolTip', { name: record.name }),
+      title: t('system.resourcePool.disablePoolTip', { name: characterLimit(record.name) }),
       content: t('system.resourcePool.disablePoolContent'),
       okText: t('system.resourcePool.disablePoolConfirm'),
       cancelText: t('system.resourcePool.disablePoolCancel'),
@@ -223,7 +214,7 @@
   function deletePool(record: any) {
     openModal({
       type: 'warning',
-      title: t('system.resourcePool.deletePoolTip', { name: record.name }),
+      title: t('system.resourcePool.deletePoolTip', { name: characterLimit(record.name) }),
       content: t('system.resourcePool.deletePoolContentUsed'),
       okText: t('system.resourcePool.deletePoolConfirm'),
       cancelText: t('system.resourcePool.deletePoolCancel'),

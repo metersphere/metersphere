@@ -77,7 +77,7 @@
   }>();
 
   const innerLogo = computed(() => {
-    return props.isPreview ? props.logo : GetLoginLogoUrl;
+    return props.isPreview && props.logo ? props.logo : GetLoginLogoUrl;
   });
 
   const innerSlogan = computed(() => {

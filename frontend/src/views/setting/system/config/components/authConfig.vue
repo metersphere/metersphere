@@ -10,16 +10,6 @@
         <template #name="{ record }">
           <a-button type="text" @click="openAuthDetail(record)">{{ record.name }}</a-button>
         </template>
-        <template #enable="{ record }">
-          <div v-if="record.enable" class="flex items-center">
-            <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-            {{ t('system.config.auth.enable') }}
-          </div>
-          <div v-else class="flex items-center text-[var(--color-text-4)]">
-            <icon-stop class="mr-[2px]" />
-            {{ t('system.config.auth.disable') }}
-          </div>
-        </template>
         <template #action="{ record }">
           <MsButton @click="editAuth(record)">{{ t('system.config.auth.edit') }}</MsButton>
           <MsButton v-if="record.enable" @click="disabledAuth(record)">
@@ -511,6 +501,7 @@
   } from '@/api/modules/setting/config';
   import MsFormItemSub from '@/components/bussiness/ms-form-item-sub/index.vue';
   import { scrollIntoView } from '@/utils/dom';
+  import { characterLimit } from '@/utils';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -587,7 +578,7 @@
   async function enableAuth(record: any) {
     openModal({
       type: 'info',
-      title: t('system.config.auth.enableTipTitle', { name: record.name }),
+      title: t('system.config.auth.enableTipTitle', { name: characterLimit(record.name) }),
       content: t('system.config.auth.enableTipContent'),
       okText: t('system.config.auth.enableConfirm'),
       cancelText: t('system.config.auth.cancel'),
@@ -624,7 +615,7 @@
   function disabledAuth(record: any) {
     openModal({
       type: 'info',
-      title: t('system.config.auth.disableTipTitle', { name: record.name }),
+      title: t('system.config.auth.disableTipTitle', { name: characterLimit(record.name) }),
       content: t('system.config.auth.disableTipContent'),
       okText: t('system.config.auth.disableConfirm'),
       cancelText: t('system.config.auth.cancel'),
@@ -661,7 +652,7 @@
   function delAuth(record: any) {
     openModal({
       type: 'warning',
-      title: t('system.config.auth.deleteTipTitle', { name: record.name }),
+      title: t('system.config.auth.deleteTipTitle', { name: characterLimit(record.name) }),
       content: t('system.config.auth.deleteTipContent'),
       okText: t('system.config.auth.deleteConfirm'),
       cancelText: t('system.config.auth.cancel'),

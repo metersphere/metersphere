@@ -89,16 +89,6 @@
           </a-select>
         </a-tooltip>
       </template>
-      <template #enable="{ record }">
-        <div v-if="record.enable" class="flex items-center">
-          <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-          {{ t('organization.member.tableEnable') }}
-        </div>
-        <div v-else class="flex items-center text-[var(--color-text-4)]">
-          <icon-stop class="mr-[2px]" />
-          {{ t('organization.member.tableDisable') }}
-        </div>
-      </template>
       <template #action="{ record }">
         <MsButton @click="addOrEditMember('edit', record)">{{ t('organization.member.edit') }}</MsButton>
         <MsButton @click="deleteMember(record)">{{ t('organization.member.remove') }}</MsButton>
@@ -155,6 +145,7 @@
     LinkItem,
     BatchAddProjectModel,
   } from '@/models/setting/member';
+  import { characterLimit } from '@/utils';
 
   const tableStore = useTableStore();
   const { t } = useI18n();
@@ -265,7 +256,7 @@
   const deleteMember = (record: MemberItem) => {
     openModal({
       type: 'warning',
-      title: t('organization.member.deleteMemberTip', { name: record.name }),
+      title: t('organization.member.deleteMemberTip', { name: characterLimit(record.name) }),
       content: '',
       okText: t('organization.member.deleteMemberConfirm'),
       cancelText: t('organization.member.deleteMemberCancel'),
