@@ -390,6 +390,8 @@ export default defineComponent({
         return null;
       }
 
+      if (props.total === 0) return null;
+
       return (
         <div class={cls.value}>
           {props.showTotal && (

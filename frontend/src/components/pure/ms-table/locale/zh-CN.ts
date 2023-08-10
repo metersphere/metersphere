@@ -2,6 +2,8 @@ export default {
   msTable: {
     current: '全选当前页',
     all: '全选所有页',
+    enable: '启用',
+    disable: '禁用',
     batch: {
       title: '批量操作',
       selected: '已选择 {count} 项',

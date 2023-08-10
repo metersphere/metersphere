@@ -2,7 +2,7 @@
   <div class="usergroup-auth-table">
     <a-table
       :span-method="dataSpanMethod"
-      :scroll="{ y: '860px', x: '800px' }"
+      :scroll="{ y: '500px', x: '800px' }"
       :data="tableData"
       :loading="loading"
       :bordered="{ wrapper: true, cell: true }"
@@ -286,6 +286,7 @@
 <style scoped lang="less">
   .usergroup-auth-table {
     position: relative;
+    min-height: calc(100vh - 230px);
     :deep(.arco-table-container) {
       border-top: 1px solid var(--color-text-n8) !important;
       border-right: 1px solid var(--color-text-n8) !important;

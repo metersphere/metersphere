@@ -18,6 +18,14 @@ const msTableStore = defineStore('msTable', {
     initColumn(tableKey: string, column: MsTableColumn, mode: TableOpenDetailMode) {
       if (!this.selectorColumnMap.has(tableKey)) {
         const tmpMap = this.selectorColumnMap;
+        column.forEach((item) => {
+          if (item.showInTable === undefined) {
+            item.showInTable = true;
+          }
+          if (item.showDrag === undefined) {
+            item.showDrag = false;
+          }
+        });
         tmpMap.set(tableKey, { mode, column });
         this.selectorColumnMap = tmpMap;
       }

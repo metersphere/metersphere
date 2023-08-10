@@ -59,7 +59,7 @@
 
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(postUserByUserGroup, {
     tableKey: TableKeyEnum.USERGROUPUSER,
-    scroll: { y: 'auto', x: '600px' },
+    scroll: { x: '600px' },
     selectable: true,
     noDisable: true,
   });

@@ -33,6 +33,8 @@ export interface MsTableProps {
   scroll?: {
     x?: number | string;
     y?: number | string;
+    maxHeight?: number | string;
+    minWidth?: number | string;
   };
   // 表格是否可拖拽
   enableDrag?: boolean;
@@ -63,9 +65,9 @@ export interface MsTableProps {
   pageSimple?: boolean;
   // 编辑的key，默认为name
   editKey?: string;
-  [key: string]: any;
   // 是否展示禁用的行
   noDisable?: boolean;
+  [key: string]: any;
 }
 
 export interface MsTableSelectAll {
