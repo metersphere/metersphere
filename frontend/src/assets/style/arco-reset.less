@@ -41,19 +41,25 @@
 
   padding: 24px;
   .arco-modal-header {
-    @apply h-auto border-b-0 p-0;
+    @apply h-auto items-baseline border-b-0 p-0;
 
     margin-bottom: 16px;
     .arco-modal-title {
-      @apply flex items-center font-semibold;
+      @apply flex items-baseline font-semibold;
 
+      max-width: calc(100% - 16px);
       font-size: 14px;
       .arco-modal-title-icon {
-        @apply flex items-center;
+        @apply relative;
+
+        top: 3px;
         .arco-icon {
           font-size: 20px;
         }
       }
+    }
+    .arco-modal-close-btn {
+      @apply ml-0;
     }
   }
   .arco-modal-body {
@@ -176,6 +182,9 @@
 .arco-input-wrapper,
 .arco-textarea-wrapper,
 .arco-input-tag,
+.arco-picker,
+.arco-select-view,
+.arco-select-view-single,
 .arco-select {
   border: 1px solid var(--color-text-input-border);
   background-color: var(--color-text-fff) !important;

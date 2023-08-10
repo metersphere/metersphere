@@ -38,6 +38,7 @@ export default {
     'menu.settings.system.resourcePoolDetail': 'Add resource pool',
     'menu.settings.system.resourcePoolEdit': 'Edit resource pool',
     'menu.settings.system.parameter': 'System parameter',
+    'menu.settings.system.log': 'Log',
     'navbar.action.locale': 'Switch to English',
     ...sys,
     ...localeSettings,

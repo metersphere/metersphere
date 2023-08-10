@@ -48,30 +48,20 @@
             <a-tag
               v-for="org of record.userRoleList.slice(0, 2)"
               :key="org.id"
-              class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+              :class="['mr-[4px]', 'bg-transparent', record.enable ? 'enableTag' : 'disableTag']"
               bordered
             >
               {{ org.name }}
             </a-tag>
             <a-tag
               v-show="record.organizationList.length > 2"
-              class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+              :class="['mr-[4px]', 'bg-transparent', record.enable ? 'enableTag' : 'disableTag']"
               bordered
             >
               +{{ record.organizationList.length - 2 }}
             </a-tag>
           </div>
         </a-tooltip>
-      </template>
-      <template #enable="{ record }">
-        <div v-if="record.enable" class="flex items-center">
-          <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-          {{ t('system.user.tableEnable') }}
-        </div>
-        <div v-else class="flex items-center text-[var(--color-text-4)]">
-          <icon-stop class="mr-[2px]" />
-          {{ t('system.user.tableDisable') }}
-        </div>
       </template>
       <template #action="{ record }">
         <template v-if="!record.enable">
@@ -243,13 +233,14 @@
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { useTableStore } from '@/store';
+  import MsCard from '@/components/pure/ms-card/index.vue';
+  import { characterLimit } from '@/utils';
 
   import type { FormInstance, ValidatedError, FileItem } from '@arco-design/web-vue';
   import type { MsTableColumn, BatchActionParams } from '@/components/pure/ms-table/type';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { SimpleUserInfo, SystemRole, UserListItem } from '@/models/setting/user';
   import type { FormItemModel, MsBatchFormInstance } from '@/components/bussiness/ms-batch-form/types';
-  import MsCard from '@/components/pure/ms-card/index.vue';
 
   const { t } = useI18n();
 
@@ -326,7 +317,7 @@
    * 重置密码
    */
   function resetPassword(record: any, isbatch?: boolean) {
-    let title = t('system.user.resetPswTip', { name: record?.name });
+    let title = t('system.user.resetPswTip', { name: characterLimit(record?.name) });
     let userIdList = [record?.id];
     if (isbatch) {
       title = t('system.user.batchResetPswTip', { count: tableSelected.value.length });
@@ -357,7 +348,7 @@
    * 禁用用户
    */
   function disabledUser(record: any, isbatch?: boolean) {
-    let title = t('system.user.disableUserTip', { name: record?.name });
+    let title = t('system.user.disableUserTip', { name: characterLimit(record?.name) });
     let userIdList = [record?.id];
     if (isbatch) {
       title = t('system.user.batchDisableUserTip', { count: tableSelected.value.length });
@@ -402,7 +393,7 @@
    * 启用用户
    */
   function enableUser(record: any, isbatch?: boolean) {
-    let title = t('system.user.enableUserTip', { name: record?.name });
+    let title = t('system.user.enableUserTip', { name: characterLimit(record?.name) });
     let userIdList = [record?.id];
     if (isbatch) {
       title = t('system.user.batchEnableUserTip', { count: tableSelected.value.length });
@@ -444,7 +435,7 @@
    * 删除用户
    */
   function deleteUser(record: any, isbatch?: boolean) {
-    let title = t('system.user.deleteUserTip', { name: record?.name });
+    let title = t('system.user.deleteUserTip', { name: characterLimit(record?.name) });
     let userIdList = [record?.id];
     if (isbatch) {
       title = t('system.user.batchDeleteUserTip', { count: tableSelected.value.length });
@@ -936,4 +927,13 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .disableTag {
+    border-color: rgb(var(--primary-3));
+    color: rgb(var(--primary-3));
+  }
+  .enableTag {
+    border-color: rgb(var(--primary-5));
+    color: rgb(var(--primary-5));
+  }
+</style>

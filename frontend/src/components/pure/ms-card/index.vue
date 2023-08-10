@@ -19,7 +19,7 @@
           class="pr-[5px]"
           :style="{
             overflow: 'auto',
-            width: `calc(100vw - ${menuWidth}px - 48px)`,
+            width: `calc(100vw - ${menuWidth}px - 58px)`,
             height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight}px)`,
           }"
         >

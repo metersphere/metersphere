@@ -50,7 +50,7 @@
                   {{ t('system.user.tableEnable') }}
                 </div>
                 <div v-else class="flex items-center text-[var(--color-text-4)]">
-                  <icon-stop class="mr-[2px]" />
+                  <MsIcon type="icon-icon_disable" class="mr-[2px]" />
                   {{ t('system.user.tableDisable') }}
                 </div>
               </template>
@@ -118,6 +118,7 @@
   import MsPagination from '@/components/pure/ms-pagination/index';
   import type { TableData } from '@arco-design/web-vue';
   import ColumnSelector from './columnSelector.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   const batchleft = ref('10px');
   const { t } = useI18n();

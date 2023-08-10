@@ -97,7 +97,7 @@
   const route = useRoute();
   const permission = usePermission();
 
-  const innerLogo = computed(() => (props.isPreview ? innerProps.value.logo : GetTitleImgUrl));
+  const innerLogo = computed(() => (props.isPreview && innerProps.value.logo ? innerProps.value.logo : GetTitleImgUrl));
   const innerName = computed(() => (props.isPreview ? innerProps.value.name : appStore.pageConfig.platformName));
 
   const navbarHeight = `56px`;

@@ -71,6 +71,7 @@
   import popconfirm from './popconfirm.vue';
   import useUserGroupStore from '@/store/modules/setting/usergroup';
   import { getUserGroupList, updateOrAddUserGroup, deleteUserGroup } from '@/api/modules/setting/usergroup';
+  import { characterLimit } from '@/utils';
 
   const { t } = useI18n();
 
@@ -156,7 +157,7 @@
     } else {
       openModal({
         type: 'warning',
-        title: t('system.userGroup.isDeleteUserGroup', { name: store.currentName }),
+        title: t('system.userGroup.isDeleteUserGroup', { name: characterLimit(store.currentName) }),
         content: t('system.userGroup.beforeDeleteUserGroup'),
         okText: t('system.userGroup.confirmDelete'),
         cancelText: t('system.userGroup.cancel'),

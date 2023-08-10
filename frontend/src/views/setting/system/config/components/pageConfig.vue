@@ -60,8 +60,12 @@
             </div>
             <!-- 登录页预览实际渲染 DOM，按三种屏幕尺寸缩放 -->
             <div :class="['page-preview', isLoginPageFullscreen ? 'full-preview' : 'normal-preview']">
-              <banner :banner="pageConfig.loginImage[0]?.url || defaultBanner" is-preview />
-              <loginForm :slogan="pageConfig.slogan" :logo="pageConfig.loginLogo[0]?.url" is-preview />
+              <banner :banner="pageConfig.loginImage[0]?.url || defaultLoginImage" is-preview />
+              <loginForm
+                :slogan="pageConfig.slogan"
+                :logo="pageConfig.loginLogo[0]?.url || defaultLoginLogo"
+                is-preview
+              />
             </div>
           </div>
           <div class="config-form">
@@ -213,7 +217,7 @@
               ]"
             >
               <defaultLayout
-                :logo="pageConfig.logoPlatform[0]?.url"
+                :logo="pageConfig.logoPlatform[0]?.url || defaultPlatformLogo"
                 :name="pageConfig.platformName"
                 class="overflow-hidden"
                 is-preview
@@ -319,7 +323,9 @@
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
-  const defaultBanner = `${import.meta.env.BASE_URL}images/login-banner.jpg`;
+  const defaultLoginImage = `${import.meta.env.BASE_URL}images/login-banner.jpg`;
+  const defaultLoginLogo = `${import.meta.env.BASE_URL}images/login-logo.svg`;
+  const defaultPlatformLogo = `${import.meta.env.BASE_URL}images/MS-full-logo.svg`;
   const { t } = useI18n();
   const { currentLocale } = useLocale();
   const appStore = useAppStore();

@@ -165,6 +165,7 @@
   } from '@/models/setting/plugin';
   import dayjs from 'dayjs';
   import TableExpand from './tableExpand.vue';
+  import { characterLimit } from '@/utils';
 
   const { t } = useI18n();
   const visitedKey = 'doNotShowAgain';
@@ -236,7 +237,7 @@
   function deletePlugin(record: any) {
     openModal({
       type: 'warning',
-      title: t('system.plugin.deletePluginTip', { name: record.name }),
+      title: t('system.plugin.deletePluginTip', { name: characterLimit(record.name) }),
       content: '',
       okText: t('system.plugin.deletePluginConfirm'),
       cancelText: t('system.plugin.pluginCancel'),
@@ -293,7 +294,7 @@
   const disableHandler = (record: PluginItem) => {
     openModal({
       type: 'info',
-      title: t('system.plugin.disablePluginTip', { name: record.name }),
+      title: t('system.plugin.disablePluginTip', { name: characterLimit(record.name) }),
       content: t('system.plugin.disablePluginContent'),
       okText: t('system.plugin.disablePluginConfirm'),
       cancelText: t('system.plugin.pluginCancel'),
