@@ -2,7 +2,7 @@ package io.metersphere.sdk.base.param;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * @author jianxing
@@ -14,6 +14,15 @@ public class NotEmptyParamGenerator extends ParamGenerator {
      */
     @Override
     public Object invalidGenerate(Annotation annotation, Field field) {
-        return new ArrayList<>(0);
+        if (field.getType().equals(List.class)) {
+            return new ArrayList<>(0);
+        }
+        if (field.getType().equals(Set.class)) {
+            return new HashSet<>(0);
+        }
+        if (field.getType().equals(Map.class)) {
+            return new HashMap<>(0);
+        }
+        throw new RuntimeException("不支持该类型");
     }
 }

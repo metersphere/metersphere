@@ -1,15 +1,19 @@
 package io.metersphere.sdk.service;
 
+import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
 import io.metersphere.plugin.sdk.api.MsPlugin;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.plugin.loader.PluginClassLoader;
 import io.metersphere.sdk.plugin.loader.PluginManager;
 import io.metersphere.sdk.plugin.storage.MsStorageStrategy;
 import io.metersphere.sdk.plugin.storage.StorageStrategy;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.PluginExample;
+import io.metersphere.system.domain.PluginScript;
 import io.metersphere.system.mapper.PluginMapper;
+import io.metersphere.system.mapper.PluginScriptMapper;
 import jakarta.annotation.Resource;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
@@ -21,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author jianxing
@@ -33,6 +39,8 @@ public class PluginLoadService {
 
     @Resource
     private PluginMapper pluginMapper;
+    @Resource
+    private PluginScriptMapper pluginScriptMapper;
 
     /**
      * 上传插件到 minio
@@ -178,6 +186,28 @@ public class PluginLoadService {
         return pluginManager.getImplInstance(id, MsPlugin.class);
     }
 
+    public <T> T getImplInstance(String pluginId, Class<T> superClazz, Object param) {
+        return pluginManager.getImplInstance(pluginId, superClazz, param);
+    }
+
+    public <T> T getImplInstance(String pluginId, Class<T> superClazz) {
+        return pluginManager.getImplInstance(pluginId, superClazz);
+    }
+
+    public List<AbstractPlatformPlugin> getPlatformPluginInstanceList() {
+        return getImplInstanceList(AbstractPlatformPlugin.class);
+    }
+
+    public AbstractPlatformPlugin getPlatformPluginInstance(String pluginId) {
+        return getImplInstance(pluginId, AbstractPlatformPlugin.class);
+    }
+
+    public <T> List<T> getImplInstanceList(Class<T> clazz, Object... initArgs) {
+        return pluginManager.getClassLoaderMap().keySet().stream()
+                .map(pluginId -> pluginManager.getImplInstance(pluginId, clazz, initArgs)
+        ).collect(Collectors.toList());
+    }
+
     public boolean hasPluginKey(String currentPluginId, String pluginKey) {
         for (String pluginId : pluginManager.getClassLoaderMap().keySet()) {
             MsPlugin msPlugin = getMsPluginInstance(pluginId);
@@ -186,5 +216,18 @@ public class PluginLoadService {
             }
         }
         return false;
+    }
+
+    public InputStream getResourceAsStream(String pluginId, String name) {
+        return pluginManager.getClassLoaderMap().get(pluginId).getResourceAsStream(name);
+    }
+
+    public Map getPluginScriptConfig(String pluginId, String scriptId) {
+        PluginScript pluginScript = pluginScriptMapper.selectByPrimaryKey(pluginId, scriptId);
+        return JSON.parseMap(new String(pluginScript.getScript()));
+    }
+
+    public Object getPluginScriptContent(String pluginId, String scriptId) {
+        return getPluginScriptConfig(pluginId, scriptId).get("script");
     }
 }

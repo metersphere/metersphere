@@ -18,6 +18,20 @@
             <artifactId>metersphere-plugin-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <!--  默认的http请求工具 restTemplate  -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>

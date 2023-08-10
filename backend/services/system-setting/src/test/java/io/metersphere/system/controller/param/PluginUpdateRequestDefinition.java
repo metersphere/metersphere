@@ -16,6 +16,6 @@ public class PluginUpdateRequestDefinition {
     @Size(min = 1, max = 255, groups = {Created.class, Updated.class})
     private String name;
 
-    @Size(min = 1, max = 500, groups = {Created.class, Updated.class})
+    @Size(max = 500, groups = {Created.class, Updated.class})
     private String description;
 }

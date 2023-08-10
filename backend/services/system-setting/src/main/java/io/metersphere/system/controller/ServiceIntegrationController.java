@@ -14,12 +14,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author : jianxing
@@ -32,6 +33,7 @@ public class ServiceIntegrationController {
 
     @Resource
     private ServiceIntegrationService serviceIntegrationService;
+
     @GetMapping("/list/{organizationId}")
     @Operation(summary = "获取服务集成列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_READ)
@@ -59,24 +61,27 @@ public class ServiceIntegrationController {
     @Operation(summary = "删除服务集成")
     @RequiresPermissions(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ServiceIntegrationLogService.class)
-    public String delete(@PathVariable String id) {
-        return serviceIntegrationService.delete(id);
+    public void delete(@PathVariable String id) {
+        serviceIntegrationService.delete(id);
     }
 
-    @PostMapping("/validate")
+    @PostMapping("/validate/{pluginId}")
     @Operation(summary = "校验服务集成信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_UPDATE)
-    public boolean validate(@Validated({Updated.class}) @RequestBody
-                                @Schema(description =  "配置的表单键值对", requiredMode = Schema.RequiredMode.REQUIRED)
-                                Map<String, String> serviceIntegrationInfo) {
-        return serviceIntegrationService.validate(serviceIntegrationInfo);
+    public void validate(@PathVariable String pluginId,
+                         @Validated({Updated.class})
+                         @RequestBody
+                         @NotEmpty
+                         @Schema(description = "配置的表单键值对", requiredMode = Schema.RequiredMode.REQUIRED)
+                         HashMap<String, String> serviceIntegrationInfo) {
+        serviceIntegrationService.validate(pluginId, serviceIntegrationInfo);
     }
 
     @GetMapping("/validate/{id}")
     @Operation(summary = "校验服务集成信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_UPDATE)
-    public boolean validate(@PathVariable String id) {
-        return serviceIntegrationService.validate(id);
+    public void validate(@PathVariable String id) {
+        serviceIntegrationService.validate(id);
     }
 
     @GetMapping("/script/{pluginId}")

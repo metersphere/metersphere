@@ -4,6 +4,7 @@ package io.metersphere.system.service;
 import io.metersphere.plugin.sdk.api.MsPlugin;
 import io.metersphere.sdk.constants.KafkaPluginTopicType;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
+import io.metersphere.sdk.controller.handler.result.CommonResultCode;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.PluginLoadService;
@@ -15,6 +16,7 @@ import io.metersphere.system.mapper.ExtPluginMapper;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.request.PluginUpdateRequest;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,10 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.*;
 
 import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_EXIST;
 import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_TYPE_EXIST;
@@ -138,8 +140,9 @@ public class PluginService {
     }
 
     /**
-     *  通知其他节点加载插件
-     *  这里需要传一下 fileName，事务未提交，查询不到文件名
+     * 通知其他节点加载插件
+     * 这里需要传一下 fileName，事务未提交，查询不到文件名
+     *
      * @param pluginId
      * @param fileName
      */
@@ -149,7 +152,8 @@ public class PluginService {
     }
 
     /**
-     *  通知其他节点卸载插件
+     * 通知其他节点卸载插件
+     *
      * @param pluginId
      */
     public void notifiedPluginDelete(String pluginId) {
@@ -200,5 +204,35 @@ public class PluginService {
 
     public String getScript(String pluginId, String scriptId) {
         return pluginScriptService.get(pluginId, scriptId);
+    }
+
+    public void getPluginImg(String pluginId, String filePath, HttpServletResponse response) throws IOException {
+        validateImageFileName(filePath);
+        InputStream inputStream = pluginLoadService.getResourceAsStream(pluginId, filePath);
+        writeImage(filePath, inputStream, response);
+    }
+
+    public void validateImageFileName(String filename) {
+        Set<String> imgSuffix = new HashSet<>() {{
+            add("jpg");
+            add("png");
+            add("gif");
+            add("jpeg");
+        }};
+        if (!imgSuffix.contains(StringUtils.substringAfterLast(filename, "."))) {
+            throw new MSException(CommonResultCode.FILE_NAME_ILLEGAL);
+        }
+    }
+
+    public void writeImage(String filePath, InputStream in, HttpServletResponse response) throws IOException {
+        response.setContentType("image/" + StringUtils.substringAfterLast(filePath, "."));
+        try (OutputStream out = response.getOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                response.getOutputStream().write(buffer, 0, bytesRead);
+            }
+            out.flush();
+        }
     }
 }

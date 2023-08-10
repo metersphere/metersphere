@@ -13,7 +13,10 @@ public enum CommonResultCode implements IResultCode {
      * 调用获取全局用户组接口，如果操作的是内置的用户组，会返回该响应码
      */
     INTERNAL_USER_ROLE_PERMISSION(101003, "internal_user_role_permission_error"),
-    USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION(100004, "user_role_relation_remove_admin_user_permission_error");
+    USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION(100004, "user_role_relation_remove_admin_user_permission_error"),
+    FILE_NAME_ILLEGAL(100005, "file_name_illegal_error"),
+    PLUGIN_ENABLE(100006, "plugin_enable_error"),
+    PLUGIN_PERMISSION(100007, "plugin_permission_error");
 
     private int code;
     private String message;
