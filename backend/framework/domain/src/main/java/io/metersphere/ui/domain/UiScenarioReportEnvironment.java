@@ -10,15 +10,15 @@ import lombok.Data;
 
 @Data
 public class UiScenarioReportEnvironment implements Serializable {
-    @Schema(title = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_scenario_report_environment.report_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_report_environment.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
-    @Schema(title = "项目ID")
+    @Schema(description =  "项目ID")
     private String projectId;
 
-    @Schema(title = "环境ID")
+    @Schema(description =  "环境ID")
     private String environmentId;
 
     private static final long serialVersionUID = 1L;

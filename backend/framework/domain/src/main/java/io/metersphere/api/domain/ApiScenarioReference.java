@@ -8,31 +8,31 @@ import lombok.Data;
 
 @Data
 public class ApiScenarioReference implements Serializable {
-    @Schema(title = "引用关系pk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "引用关系pk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_reference.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_scenario_reference.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_reference.api_scenario_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_reference.api_scenario_id.length_range}", groups = {Created.class, Updated.class})
     private String apiScenarioId;
 
-    @Schema(title = "创建时间")
+    @Schema(description =  "创建时间")
     private Long createTime;
 
-    @Schema(title = "创建人")
+    @Schema(description =  "创建人")
     private String createUser;
 
-    @Schema(title = "引用步骤fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "引用步骤fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_reference.reference_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_reference.reference_id.length_range}", groups = {Created.class, Updated.class})
     private String referenceId;
 
-    @Schema(title = "引用步骤类型/REF/COPY")
+    @Schema(description =  "引用步骤类型/REF/COPY")
     private String referenceType;
 
-    @Schema(title = "步骤类型/CASE/API")
+    @Schema(description =  "步骤类型/CASE/API")
     private String dataType;
 
     private static final long serialVersionUID = 1L;

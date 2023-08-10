@@ -6,10 +6,10 @@ import lombok.Data;
 @Data
 public class OrgIdNameDTO {
 
-    @Schema(title = "关联的组织id")
+    @Schema(description =  "关联的组织id")
     private String id;
 
-    @Schema(title = "关联的组织名称")
+    @Schema(description =  "关联的组织名称")
     private String name;
 
 }

@@ -8,31 +8,31 @@ import lombok.Data;
 
 @Data
 public class EnvironmentGroup implements Serializable {
-    @Schema(title = "环境组id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "环境组id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment_group.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{environment_group.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "环境组名", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "环境组名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment_group.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{environment_group.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "所属组织", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "所属组织", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment_group.organization_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{environment_group.organization_id.length_range}", groups = {Created.class, Updated.class})
     private String organizationId;
 
-    @Schema(title = "环境组描述")
+    @Schema(description =  "环境组描述")
     private String description;
 
-    @Schema(title = "创建人")
+    @Schema(description =  "创建人")
     private String createUser;
 
-    @Schema(title = "创建时间")
+    @Schema(description =  "创建时间")
     private Long createTime;
 
-    @Schema(title = "更新时间")
+    @Schema(description =  "更新时间")
     private Long updateTime;
 
     private static final long serialVersionUID = 1L;

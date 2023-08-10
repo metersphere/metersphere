@@ -14,17 +14,17 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class OrganizationUserRoleMemberEditRequest implements Serializable {
 
-    @Schema(title = "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role.id.not_blank}")
     @Size(min = 1, max = 50, message = "{user_role.id.length_range}")
     private String userRoleId;
 
-    @Schema(title = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{organization.id.not_blank}")
     @Size(min = 1, max = 50, message = "{organization.id.length_range}")
     private String organizationId;
 
-    @Schema(title = "成员ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "成员ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{user.id.not_blank}")
     private List<String> userIds;
 }

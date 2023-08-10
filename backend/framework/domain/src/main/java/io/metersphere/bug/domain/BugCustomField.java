@@ -8,20 +8,20 @@ import lombok.Data;
 
 @Data
 public class BugCustomField implements Serializable {
-    @Schema(title = "资源ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "资源ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug_custom_field.bug_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{bug_custom_field.bug_id.length_range}", groups = {Created.class, Updated.class})
     private String bugId;
 
-    @Schema(title = "字段ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "字段ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug_custom_field.field_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{bug_custom_field.field_id.length_range}", groups = {Created.class, Updated.class})
     private String fieldId;
 
-    @Schema(title = "字段值")
+    @Schema(description =  "字段值")
     private String value;
 
-    @Schema(title = "文本类型字段值")
+    @Schema(description =  "文本类型字段值")
     private byte[] textValue;
 
     private static final long serialVersionUID = 1L;

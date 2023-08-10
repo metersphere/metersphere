@@ -10,51 +10,51 @@ import lombok.Data;
 
 @Data
 public class CustomField implements Serializable {
-    @Schema(title = "自定义字段ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "自定义字段ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{custom_field.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "自定义字段名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "自定义字段名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{custom_field.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "使用场景", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "使用场景", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field.scene.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 30, message = "{custom_field.scene.length_range}", groups = {Created.class, Updated.class})
     private String scene;
 
-    @Schema(title = "自定义字段类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "自定义字段类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 30, message = "{custom_field.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
-    @Schema(title = "自定义字段备注")
+    @Schema(description =  "自定义字段备注")
     private String remark;
 
-    @Schema(title = "是否是系统字段")
+    @Schema(description =  "是否是系统字段")
     private Boolean system;
 
-    @Schema(title = "是否是全局字段")
+    @Schema(description =  "是否是全局字段")
     private Boolean global;
 
-    @Schema(title = "创建时间")
+    @Schema(description =  "创建时间")
     private Long createTime;
 
-    @Schema(title = "更新时间")
+    @Schema(description =  "更新时间")
     private Long updateTime;
 
-    @Schema(title = "创建人")
+    @Schema(description =  "创建人")
     private String createUser;
 
-    @Schema(title = "项目ID")
+    @Schema(description =  "项目ID")
     private String projectId;
 
-    @Schema(title = "是否关联第三方")
+    @Schema(description =  "是否关联第三方")
     private Boolean thirdPart;
 
-    @Schema(title = "自定义字段选项")
+    @Schema(description =  "自定义字段选项")
     private String options;
 
     private static final long serialVersionUID = 1L;

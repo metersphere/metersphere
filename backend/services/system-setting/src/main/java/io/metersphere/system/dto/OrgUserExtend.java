@@ -14,9 +14,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class OrgUserExtend extends User {
 
-    @Schema(title = "项目ID名称集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目ID名称集合", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<IdNameStructureDTO> projectIdNameMap;;
 
-    @Schema(title = "用户组ID名称集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户组ID名称集合", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<IdNameStructureDTO> userRoleIdNameMap;
 }

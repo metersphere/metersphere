@@ -11,16 +11,16 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class OrganizationUserRoleMemberRequest extends BasePageRequest {
 
-    @Schema(title = "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role.id.not_blank}")
     @Size(min = 1, max = 50, message = "{user_role.id.length_range}")
     private String userRoleId;
 
-    @Schema(title = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{organization.id.not_blank}")
     @Size(min = 1, max = 50, message = "{organization.id.length_range}")
     private String organizationId;
 
-    @Schema(title = "搜索关键字")
+    @Schema(description =  "搜索关键字")
     private String userKeyWord;
 }

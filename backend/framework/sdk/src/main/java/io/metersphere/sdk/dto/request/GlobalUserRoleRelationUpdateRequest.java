@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 public class GlobalUserRoleRelationUpdateRequest {
 
-    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{user_role_relation.user_id.not_blank}", groups = {Created.class, Updated.class})
     @Valid
     private List<
@@ -26,7 +26,7 @@ public class GlobalUserRoleRelationUpdateRequest {
                     String
             > userIds;
 
-    @Schema(title = "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.role_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user_role_relation.role_id.length_range}", groups = {Created.class, Updated.class})
     private String roleId;

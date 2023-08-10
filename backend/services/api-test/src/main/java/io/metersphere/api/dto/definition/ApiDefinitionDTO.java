@@ -8,12 +8,12 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ApiDefinitionDTO extends ApiDefinition {
-    @Schema(title = "请求内容")
+    @Schema(description =  "请求内容")
     private byte[] request;
 
-    @Schema(title = "响应内容")
+    @Schema(description =  "响应内容")
     private byte[] response;
 
-    @Schema(title = "备注")
+    @Schema(description =  "备注")
     private byte[] remark;
 }

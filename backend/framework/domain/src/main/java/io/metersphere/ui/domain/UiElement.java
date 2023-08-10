@@ -10,69 +10,69 @@ import lombok.Data;
 
 @Data
 public class UiElement implements Serializable {
-    @Schema(title = "元素id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "元素id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_element.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{ui_element.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "元素num")
+    @Schema(description =  "元素num")
     private Integer num;
 
-    @Schema(title = "元素所属模块id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "元素所属模块id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_element.module_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_element.module_id.length_range}", groups = {Created.class, Updated.class})
     private String moduleId;
 
-    @Schema(title = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_element.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_element.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_element.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{ui_element.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "定位类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "定位类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_element.location_type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 30, message = "{ui_element.location_type.length_range}", groups = {Created.class, Updated.class})
     private String locationType;
 
-    @Schema(title = "元素定位", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "元素定位", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_element.location.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 300, message = "{ui_element.location.length_range}", groups = {Created.class, Updated.class})
     private String location;
 
-    @Schema(title = "创建人")
+    @Schema(description =  "创建人")
     private String createUser;
 
-    @Schema(title = "更新人")
+    @Schema(description =  "更新人")
     private String updateUser;
 
-    @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_element.version_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_element.version_id.length_range}", groups = {Created.class, Updated.class})
     private String versionId;
 
-    @Schema(title = "指向初始版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "指向初始版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_element.ref_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_element.ref_id.length_range}", groups = {Created.class, Updated.class})
     private String refId;
 
-    @Schema(title = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{ui_element.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
-    @Schema(title = "是否为最新版本 0:否，1:是")
+    @Schema(description =  "是否为最新版本 0:否，1:是")
     private Boolean latest;
 
-    @Schema(title = "元素描述")
+    @Schema(description =  "元素描述")
     private String description;
 
-    @Schema(title = "创建时间")
+    @Schema(description =  "创建时间")
     private Long createTime;
 
-    @Schema(title = "更新时间")
+    @Schema(description =  "更新时间")
     private Long updateTime;
 
     private static final long serialVersionUID = 1L;

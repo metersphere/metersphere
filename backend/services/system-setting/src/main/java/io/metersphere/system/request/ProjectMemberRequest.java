@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ProjectMemberRequest extends BasePageRequest {
-    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.id.not_blank}")
     private String projectId;
 

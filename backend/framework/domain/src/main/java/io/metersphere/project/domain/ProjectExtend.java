@@ -10,42 +10,42 @@ import lombok.Data;
 
 @Data
 public class ProjectExtend implements Serializable {
-    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_extend.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{project_extend.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "")
+    @Schema(description =  "")
     private String tapdId;
 
-    @Schema(title = "")
+    @Schema(description =  "")
     private String jiraKey;
 
-    @Schema(title = "")
+    @Schema(description =  "")
     private String zentaoId;
 
-    @Schema(title = "")
+    @Schema(description =  "")
     private String azureDevopsId;
 
-    @Schema(title = "用例模版ID")
+    @Schema(description =  "用例模版ID")
     private String caseTemplateId;
 
-    @Schema(title = "azure 过滤需求的 parent workItem ID")
+    @Schema(description =  "azure 过滤需求的 parent workItem ID")
     private String azureFilterId;
 
-    @Schema(title = "项目使用哪个平台的模板")
+    @Schema(description =  "项目使用哪个平台的模板")
     private String platform;
 
-    @Schema(title = "是否使用第三方平台缺陷模板")
+    @Schema(description =  "是否使用第三方平台缺陷模板")
     private Boolean thirdPartTemplate;
 
-    @Schema(title = "是否开启版本管理")
+    @Schema(description =  "是否开启版本管理")
     private Boolean versionEnable;
 
-    @Schema(title = "")
+    @Schema(description =  "")
     private String issueConfig;
 
-    @Schema(title = "")
+    @Schema(description =  "")
     private String apiTemplateId;
 
     private static final long serialVersionUID = 1L;

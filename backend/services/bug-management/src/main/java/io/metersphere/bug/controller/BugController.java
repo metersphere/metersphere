@@ -15,7 +15,7 @@ import java.util.List;
  * @author : jianxing
  * @date : 2023-5-17
  */
-@Schema(title = "缺陷")
+@Schema(description =  "缺陷")
 @RestController
 @RequestMapping("/bug")
 public class BugController {

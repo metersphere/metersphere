@@ -12,11 +12,11 @@ import java.util.TreeMap;
 @Getter
 @Setter
 public class UserImportResponse {
-    @Schema(title = "导入数量")
+    @Schema(description =  "导入数量")
     private int importCount;
-    @Schema(title = "成功数量")
+    @Schema(description =  "成功数量")
     private int successCount;
-    @Schema(title = "报错信息")
+    @Schema(description =  "报错信息")
     private TreeMap<Integer, String> errorMessages = new TreeMap<>();
 
     public void generateResponse(ExcelParseDTO<UserExcelRowDTO> excelParseDTO) {

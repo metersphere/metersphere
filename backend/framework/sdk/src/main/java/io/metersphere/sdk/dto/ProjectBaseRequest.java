@@ -12,19 +12,19 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class ProjectBaseRequest {
 
-    @Schema(title = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.organization_id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{project.organization_id.length_range}", groups = {Created.class, Updated.class})
     private String organizationId;
 
-    @Schema(title = "项目名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.name.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{project.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "项目描述")
+    @Schema(description =  "项目描述")
     private String description;
 
-    @Schema(title = "是否启用")
+    @Schema(description =  "是否启用")
     private Boolean enable;
 }

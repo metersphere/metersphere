@@ -11,46 +11,46 @@ import java.io.Serializable;
 
 @Data
 public class TestPlanReport implements Serializable {
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_report.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{test_plan_report.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_report.test_plan_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_report.test_plan_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanId;
 
-    @Schema(title = "报告名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "报告名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_report.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{test_plan_report.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "创建人")
+    @Schema(description =  "创建人")
     private String createUser;
 
-    @Schema(title = "创建时间")
+    @Schema(description =  "创建时间")
     private Long createTime;
 
-    @Schema(title = "修改人")
+    @Schema(description =  "修改人")
     private String updateUser;
 
-    @Schema(title = "更新时间")
+    @Schema(description =  "更新时间")
     private Long updateTime;
 
-    @Schema(title = "开始时间")
+    @Schema(description =  "开始时间")
     private Long startTime;
 
-    @Schema(title = "结束时间")
+    @Schema(description =  "结束时间")
     private Long endTime;
 
-    @Schema(title = "用例数量")
+    @Schema(description =  "用例数量")
     private Long caseCount;
 
-    @Schema(title = "执行率")
+    @Schema(description =  "执行率")
     private Double executeRate;
 
-    @Schema(title = "通过率")
+    @Schema(description =  "通过率")
     private Double passRate;
 
     private static final long serialVersionUID = 1L;

@@ -10,38 +10,38 @@ import lombok.Data;
 
 @Data
 public class UiScenarioModule implements Serializable {
-    @Schema(title = "模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_scenario_module.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_module.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_scenario_module.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_module.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(title = "模块名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "模块名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_scenario_module.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{ui_scenario_module.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "父级ID")
+    @Schema(description =  "父级ID")
     private String parentId;
 
-    @Schema(title = "模块等级")
+    @Schema(description =  "模块等级")
     private Integer level;
 
-    @Schema(title = "创建时间")
+    @Schema(description =  "创建时间")
     private Long createTime;
 
-    @Schema(title = "更新时间")
+    @Schema(description =  "更新时间")
     private Long updateTime;
 
-    @Schema(title = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{ui_scenario_module.pos.not_blank}", groups = {Created.class})
     private Double pos;
 
-    @Schema(title = "创建人")
+    @Schema(description =  "创建人")
     private String createUser;
 
     private static final long serialVersionUID = 1L;

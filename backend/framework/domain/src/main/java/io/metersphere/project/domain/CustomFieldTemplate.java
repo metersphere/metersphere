@@ -10,39 +10,39 @@ import lombok.Data;
 
 @Data
 public class CustomFieldTemplate implements Serializable {
-    @Schema(title = "自定义模版ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "自定义模版ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field_template.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{custom_field_template.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "自定义字段ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "自定义字段ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field_template.field_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{custom_field_template.field_id.length_range}", groups = {Created.class, Updated.class})
     private String fieldId;
 
-    @Schema(title = "模版ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "模版ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field_template.template_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{custom_field_template.template_id.length_range}", groups = {Created.class, Updated.class})
     private String templateId;
 
-    @Schema(title = "使用场景", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "使用场景", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field_template.scene.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 30, message = "{custom_field_template.scene.length_range}", groups = {Created.class, Updated.class})
     private String scene;
 
-    @Schema(title = "是否必填")
+    @Schema(description =  "是否必填")
     private Boolean required;
 
-    @Schema(title = "排序字段")
+    @Schema(description =  "排序字段")
     private Integer pos;
 
-    @Schema(title = "自定义数据")
+    @Schema(description =  "自定义数据")
     private String customData;
 
-    @Schema(title = "自定义表头")
+    @Schema(description =  "自定义表头")
     private String key;
 
-    @Schema(title = "默认值")
+    @Schema(description =  "默认值")
     private byte[] defaultValue;
 
     private static final long serialVersionUID = 1L;

@@ -10,9 +10,9 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 public class AuthSourceStatusRequest implements Serializable {
     private static final long serialVersionUID = 1L;
-    @Schema(title = "是否禁用")
+    @Schema(description =  "是否禁用")
     private Boolean enable;
 
-    @Schema(title = "id")
+    @Schema(description =  "id")
     private String id;
 }

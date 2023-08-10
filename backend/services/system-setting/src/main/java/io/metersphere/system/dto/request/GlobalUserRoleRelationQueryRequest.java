@@ -14,6 +14,6 @@ import io.metersphere.sdk.dto.BasePageRequest;
 @Setter
 public class GlobalUserRoleRelationQueryRequest extends BasePageRequest {
     @NotBlank
-    @Schema(title = "用户组ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String roleId;
 }

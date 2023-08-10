@@ -14,7 +14,7 @@ public class OrganizationMemberBatchRequest extends OrganizationMemberRequest{
     /**
      * 组织ID集合
      */
-    @Schema(title = "组织ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{organization.id.not_blank}")
     private List<String> organizationIds;
 }

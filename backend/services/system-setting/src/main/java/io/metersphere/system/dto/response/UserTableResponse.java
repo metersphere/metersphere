@@ -13,8 +13,8 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class UserTableResponse extends User {
-    @Schema(title = "用户所属组织")
+    @Schema(description =  "用户所属组织")
     private List<Organization> organizationList = new ArrayList<>();
-    @Schema(title = "用户所属用户组")
+    @Schema(description =  "用户所属用户组")
     private List<UserRole> userRoleList = new ArrayList<>();
 }

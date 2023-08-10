@@ -8,42 +8,42 @@ import lombok.Data;
 
 @Data
 public class ApiScenarioModule implements Serializable {
-    @Schema(title = "场景模块pk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "场景模块pk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_module.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_scenario_module.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "模块名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "模块名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_module.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{api_scenario_module.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "模块级别", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "模块级别", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_scenario_module.level.not_blank}", groups = {Created.class})
     private Integer level;
 
-    @Schema(title = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "排序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_scenario_module.pos.not_blank}", groups = {Created.class})
     private Integer pos;
 
-    @Schema(title = "创建时间")
+    @Schema(description =  "创建时间")
     private Long createTime;
 
-    @Schema(title = "更新时间")
+    @Schema(description =  "更新时间")
     private Long updateTime;
 
-    @Schema(title = "更新人")
+    @Schema(description =  "更新人")
     private String updateUser;
 
-    @Schema(title = "创建人")
+    @Schema(description =  "创建人")
     private String createUser;
 
-    @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_module.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_module.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(title = "父级fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "父级fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_module.parent_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_module.parent_id.length_range}", groups = {Created.class, Updated.class})
     private String parentId;

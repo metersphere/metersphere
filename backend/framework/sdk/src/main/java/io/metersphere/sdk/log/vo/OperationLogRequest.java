@@ -16,34 +16,34 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class OperationLogRequest extends BasePageRequest {
 
-    @Schema(title = "操作人")
+    @Schema(description =  "操作人")
     private String operUser;
 
 
-    @Schema(title = "开始日期")
+    @Schema(description =  "开始日期")
     @NotNull(message = "{start_time_is_null}")
     private Long startTime;
-    @Schema(title = "结束日期")
+    @Schema(description =  "结束日期")
     @NotNull(message = "{end_time_is_null}")
     private Long endTime;
 
-    @Schema(title = "项目id")
+    @Schema(description =  "项目id")
     private List<String> projectIds;
 
-    @Schema(title = "组织id")
+    @Schema(description =  "组织id")
     private List<String> organizationIds;
 
-    @Schema(title = "操作类型")
+    @Schema(description =  "操作类型")
     private String type;
 
 
-    @Schema(title = "操作对象")
+    @Schema(description =  "操作对象")
     private String module;
 
-    @Schema(title = "名称")
+    @Schema(description =  "名称")
     private String content;
 
-    @Schema(title = "级别 系统|组织|项目")
+    @Schema(description =  "级别 系统|组织|项目")
     @EnumValue(enumClass = UserRoleType.class, groups = {Created.class, Updated.class})
     private String level;
 

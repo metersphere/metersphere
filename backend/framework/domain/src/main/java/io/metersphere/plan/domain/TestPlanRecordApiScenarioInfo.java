@@ -11,22 +11,22 @@ import java.io.Serializable;
 
 @Data
 public class TestPlanRecordApiScenarioInfo implements Serializable {
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_record_api_scenario_info.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{test_plan_record_api_scenario_info.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "测试计划执行记录ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "测试计划执行记录ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_record_api_scenario_info.test_plan_execute_record_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_record_api_scenario_info.test_plan_execute_record_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanExecuteRecordId;
 
-    @Schema(title = "测试计划接口场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "测试计划接口场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_record_api_scenario_info.test_plan_api_scenario_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_record_api_scenario_info.test_plan_api_scenario_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanApiScenarioId;
 
-    @Schema(title = "报告ID;报告ID(预生成）", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "报告ID;报告ID(预生成）", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_record_api_scenario_info.report_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_record_api_scenario_info.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;

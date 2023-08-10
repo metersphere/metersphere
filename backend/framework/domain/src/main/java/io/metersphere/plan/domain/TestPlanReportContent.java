@@ -11,20 +11,20 @@ import java.io.Serializable;
 
 @Data
 public class TestPlanReportContent implements Serializable {
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_report_content.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{test_plan_report_content.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "测试计划报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "测试计划报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_report_content.test_plan_report_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_report_content.test_plan_report_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanReportId;
 
-    @Schema(title = "总结")
+    @Schema(description =  "总结")
     private String summary;
 
-    @Schema(title = "报告内容")
+    @Schema(description =  "报告内容")
     private byte[] content;
 
     private static final long serialVersionUID = 1L;
