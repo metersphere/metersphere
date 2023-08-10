@@ -18,9 +18,9 @@ public class UserDTO extends User {
     private List<UserRoleRelation> userRoleRelations = new ArrayList<>();
     private List<UserRoleResourceDTO> userRolePermissions = new ArrayList<>();
 
-    @Schema(title = "其他平台对接信息", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description =  "其他平台对接信息", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private byte[] platformInfo;
 
-    @Schema(title = "UI本地调试地址", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description =  "UI本地调试地址", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String seleniumServer;
 }

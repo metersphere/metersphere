@@ -8,18 +8,18 @@ import lombok.Data;
 
 @Data
 public class EnvironmentGroupProject implements Serializable {
-    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment_group_project.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{environment_group_project.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "环境组id")
+    @Schema(description =  "环境组id")
     private String environmentGroupId;
 
-    @Schema(title = "环境ID")
+    @Schema(description =  "环境ID")
     private String environmentId;
 
-    @Schema(title = "项目id")
+    @Schema(description =  "项目id")
     private String projectId;
 
     private static final long serialVersionUID = 1L;

@@ -8,8 +8,8 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ProjectRequest extends BasePageRequest {
-    @Schema(title = "组织id")
+    @Schema(description =  "组织id")
     private String organizationId;
-    @Schema(title = "项目ID")
+    @Schema(description =  "项目ID")
     private String projectId;
 }

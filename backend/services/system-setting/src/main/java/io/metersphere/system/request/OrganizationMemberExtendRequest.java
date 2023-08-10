@@ -18,7 +18,7 @@ public class OrganizationMemberExtendRequest extends OrganizationMemberRequest {
     /**
      * 用户组ID集合
      */
-    @Schema(title = "用户组ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户组ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{userGroupId.id.not_null}")
     private List<String> userRoleIds;
 }

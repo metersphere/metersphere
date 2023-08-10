@@ -15,7 +15,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UserEditRequest extends UserCreateInfo {
-    @Schema(title = "用户组", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户组", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(groups = {Created.class, Updated.class}, message = "{user_role.id.not_blank}")
     List<@Valid @NotBlank(message = "{user_role.id.not_blank}", groups = {Created.class, Updated.class}) String> userRoleIdList;
 }

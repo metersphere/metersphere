@@ -80,10 +80,10 @@ public class PluginController {
 
     @GetMapping("/image/{pluginId}")
     public void getPluginImg(
-            @Schema(title = "插件ID", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Schema(description =  "插件ID", requiredMode = Schema.RequiredMode.REQUIRED)
             @PathVariable("pluginId")
             String pluginId,
-            @Schema(title = "图片路径", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Schema(description =  "图片路径", requiredMode = Schema.RequiredMode.REQUIRED)
             @RequestParam("imagePath")
             String imagePath,
             HttpServletResponse response) {

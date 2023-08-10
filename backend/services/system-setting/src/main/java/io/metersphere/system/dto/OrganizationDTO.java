@@ -22,25 +22,25 @@ public class OrganizationDTO extends Organization {
     /**
      * 成员数量
      */
-    @Schema(title = "成员数量")
+    @Schema(description =  "成员数量")
     private Integer memberCount;
 
     /**
      * 项目数量
      */
-    @Schema(title = "项目数量" )
+    @Schema(description =  "项目数量" )
     private Integer projectCount;
 
     /**
      * 列表组织管理员集合
      */
-    @Schema(title = "列表组织管理员集合")
+    @Schema(description =  "列表组织管理员集合")
     private List<User> orgAdmins;
 
     /**
      * 组织管理员ID集合(新增, 编辑), 必填
      */
-    @Schema(title = "组织管理员ID集合")
+    @Schema(description =  "组织管理员ID集合")
     @NotEmpty(groups = {Created.class, Updated.class}, message = "{member.id.not_empty}")
     private List<String> memberIds;
 }

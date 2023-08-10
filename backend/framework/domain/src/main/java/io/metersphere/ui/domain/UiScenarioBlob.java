@@ -10,15 +10,15 @@ import lombok.Data;
 
 @Data
 public class UiScenarioBlob implements Serializable {
-    @Schema(title = "场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_scenario_blob.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_blob.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "场景定义")
+    @Schema(description =  "场景定义")
     private byte[] scenarioDefinition;
 
-    @Schema(title = "环境")
+    @Schema(description =  "环境")
     private byte[] environmentJson;
 
     private static final long serialVersionUID = 1L;

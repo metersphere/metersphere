@@ -10,47 +10,47 @@ import lombok.Data;
 
 @Data
 public class OperationLog implements Serializable {
-    @Schema(title = "主键", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "主键", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_log.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{operation_log.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_log.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{operation_log.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(title = "组织id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_log.organization_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{operation_log.organization_id.length_range}", groups = {Created.class, Updated.class})
     private String organizationId;
 
-    @Schema(title = "操作时间")
+    @Schema(description =  "操作时间")
     private Long createTime;
 
-    @Schema(title = "操作人")
+    @Schema(description =  "操作人")
     private String createUser;
 
-    @Schema(title = "资源id")
+    @Schema(description =  "资源id")
     private String sourceId;
 
-    @Schema(title = "操作方法", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "操作方法", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_log.method.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{operation_log.method.length_range}", groups = {Created.class, Updated.class})
     private String method;
 
-    @Schema(title = "操作类型/add/update/delete", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "操作类型/add/update/delete", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_log.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{operation_log.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
-    @Schema(title = "操作模块/api/case/scenario/ui")
+    @Schema(description =  "操作模块/api/case/scenario/ui")
     private String module;
 
-    @Schema(title = "操作详情")
+    @Schema(description =  "操作详情")
     private String content;
 
-    @Schema(title = "操作路径")
+    @Schema(description =  "操作路径")
     private String path;
 
     private static final long serialVersionUID = 1L;

@@ -15,11 +15,11 @@ import java.util.List;
  */
 @Data
 public class PermissionSettingUpdateRequest {
-    @Schema(title = "用户组ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
     private String userRoleId;
     @NotNull
-    @Schema(title = "菜单下的权限列表", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "菜单下的权限列表", requiredMode = Schema.RequiredMode.REQUIRED)
     @Valid
     private List<PermissionUpdateRequest> permissions;
 
@@ -28,9 +28,9 @@ public class PermissionSettingUpdateRequest {
     @AllArgsConstructor
     public static class PermissionUpdateRequest {
         @NotBlank
-        @Schema(title = "权限ID", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description =  "权限ID", requiredMode = Schema.RequiredMode.REQUIRED)
         private String id;
-        @Schema(title = "是否启用该权限", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description =  "是否启用该权限", requiredMode = Schema.RequiredMode.REQUIRED)
         private Boolean enable = false;
     }
 }

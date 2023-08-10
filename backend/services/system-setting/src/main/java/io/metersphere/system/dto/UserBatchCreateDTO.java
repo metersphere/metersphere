@@ -13,11 +13,11 @@ import java.util.List;
 @Data
 public class UserBatchCreateDTO {
 
-    @Schema(title = "用户信息集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户信息集合", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(groups = {Created.class, Updated.class}, message = "{user.info.not_empty}")
     List<@Valid UserCreateInfo> userInfoList;
 
-    @Schema(title = "用户组", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户组", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(groups = {Created.class, Updated.class}, message = "{user_role.id.not_blank}")
     List<@Valid @NotBlank(message = "{user_role.id.not_blank}", groups = {Created.class, Updated.class}) String> userRoleIdList;
 

@@ -8,21 +8,21 @@ import lombok.Data;
 
 @Data
 public class ApiEnvironmentConfig implements Serializable {
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_environment_config.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_environment_config.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "创建时间")
+    @Schema(description =  "创建时间")
     private Long createTime;
 
-    @Schema(title = "修改时间")
+    @Schema(description =  "修改时间")
     private Long updateTime;
 
-    @Schema(title = "用户fk")
+    @Schema(description =  "用户fk")
     private String createUser;
 
-    @Schema(title = "环境fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "环境fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_environment_config.environment_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_environment_config.environment_id.length_range}", groups = {Created.class, Updated.class})
     private String environmentId;

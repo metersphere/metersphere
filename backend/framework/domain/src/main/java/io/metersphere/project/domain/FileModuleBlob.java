@@ -10,21 +10,21 @@ import lombok.Data;
 
 @Data
 public class FileModuleBlob implements Serializable {
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_module_blob.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{file_module_blob.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "存储库路径")
+    @Schema(description =  "存储库路径")
     private String repositoryPath;
 
-    @Schema(title = "存储库Token")
+    @Schema(description =  "存储库Token")
     private String repositoryUserName;
 
-    @Schema(title = "存储库Token")
+    @Schema(description =  "存储库Token")
     private String repositoryToken;
 
-    @Schema(title = "存储库描述")
+    @Schema(description =  "存储库描述")
     private byte[] repositoryDesc;
 
     private static final long serialVersionUID = 1L;

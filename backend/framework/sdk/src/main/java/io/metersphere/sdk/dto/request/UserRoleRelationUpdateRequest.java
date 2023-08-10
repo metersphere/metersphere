@@ -19,7 +19,7 @@ public class UserRoleRelationUpdateRequest extends GlobalUserRoleRelationUpdateR
      * 全局用户组列表不支持给非系统级别的用户组添加用户
      * 所以 GlobalUserRoleRelationUpdateRequest 参数不需要 sourceId
      */
-    @Schema(title = "组织或项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织或项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.source_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user_role_relation.source_id.length_range}", groups = {Created.class, Updated.class})
     private String sourceId;

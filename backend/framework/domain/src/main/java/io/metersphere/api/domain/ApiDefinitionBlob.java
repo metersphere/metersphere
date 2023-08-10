@@ -10,18 +10,18 @@ import lombok.Data;
 
 @Data
 public class ApiDefinitionBlob implements Serializable {
-    @Schema(title = "接口fk/ 一对一关系", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "接口fk/ 一对一关系", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_blob.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_definition_blob.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "请求内容")
+    @Schema(description =  "请求内容")
     private byte[] request;
 
-    @Schema(title = "响应内容")
+    @Schema(description =  "响应内容")
     private byte[] response;
 
-    @Schema(title = "备注")
+    @Schema(description =  "备注")
     private byte[] remark;
 
     private static final long serialVersionUID = 1L;

@@ -10,27 +10,27 @@ import lombok.Data;
 
 @Data
 public class UiScenarioVariable implements Serializable {
-    @Schema(title = "场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_scenario_variable.resource_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_variable.resource_id.length_range}", groups = {Created.class, Updated.class})
     private String resourceId;
 
-    @Schema(title = "变量类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "变量类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_scenario_variable.type.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 100, message = "{ui_scenario_variable.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
-    @Schema(title = "变量值", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "变量值", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_scenario_variable.value.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 1000, message = "{ui_scenario_variable.value.length_range}", groups = {Created.class, Updated.class})
     private String value;
 
-    @Schema(title = "变量名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "变量名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_scenario_variable.name.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{ui_scenario_variable.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "描述")
+    @Schema(description =  "描述")
     private String description;
 
     private static final long serialVersionUID = 1L;

@@ -10,57 +10,57 @@ import lombok.Data;
 
 @Data
 public class User implements Serializable {
-    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{user.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "用户邮箱", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户邮箱", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.email.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{user.email.length_range}", groups = {Created.class, Updated.class})
     private String email;
 
-    @Schema(title = "用户密码")
+    @Schema(description =  "用户密码")
     private String password;
 
-    @Schema(title = "是否启用")
+    @Schema(description =  "是否启用")
     private Boolean enable;
 
-    @Schema(title = "创建时间")
+    @Schema(description =  "创建时间")
     private Long createTime;
 
-    @Schema(title = "更新时间")
+    @Schema(description =  "更新时间")
     private Long updateTime;
 
-    @Schema(title = "语言")
+    @Schema(description =  "语言")
     private String language;
 
-    @Schema(title = "当前组织ID")
+    @Schema(description =  "当前组织ID")
     private String lastOrganizationId;
 
-    @Schema(title = "手机号")
+    @Schema(description =  "手机号")
     private String phone;
 
-    @Schema(title = "来源：LOCAL OIDC CAS OAUTH2", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "来源：LOCAL OIDC CAS OAUTH2", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.source.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user.source.length_range}", groups = {Created.class, Updated.class})
     private String source;
 
-    @Schema(title = "当前项目ID")
+    @Schema(description =  "当前项目ID")
     private String lastProjectId;
 
-    @Schema(title = "创建人")
+    @Schema(description =  "创建人")
     private String createUser;
 
-    @Schema(title = "修改人")
+    @Schema(description =  "修改人")
     private String updateUser;
 
-    @Schema(title = "是否删除")
+    @Schema(description =  "是否删除")
     private Boolean deleted;
 
     private static final long serialVersionUID = 1L;

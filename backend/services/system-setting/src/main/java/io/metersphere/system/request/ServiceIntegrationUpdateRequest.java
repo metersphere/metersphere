@@ -15,25 +15,25 @@ public class ServiceIntegrationUpdateRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{service_integration.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{service_integration.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "插件的ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "插件的ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{service_integration.plugin_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{service_integration.plugin_id.length_range}", groups = {Created.class, Updated.class})
     private String pluginId;
 
-    @Schema(title = "是否启用")
+    @Schema(description =  "是否启用")
     private Boolean enable;
 
-    @Schema(title = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{service_integration.organization_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{service_integration.organization_id.length_range}", groups = {Created.class, Updated.class})
     private String organizationId;
 
-    @Schema(title = "配置的表单键值对", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "配置的表单键值对", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{service_integration.configuration.not_blank}", groups = {Created.class})
     private Map<String, String> configuration;
 }

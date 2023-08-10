@@ -10,20 +10,20 @@ import lombok.Data;
 
 @Data
 public class PluginScript implements Serializable {
-    @Schema(title = "插件的ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "插件的ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{plugin_script.plugin_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{plugin_script.plugin_id.length_range}", groups = {Created.class, Updated.class})
     private String pluginId;
 
-    @Schema(title = "插件中对应表单配置的ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "插件中对应表单配置的ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{plugin_script.script_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{plugin_script.script_id.length_range}", groups = {Created.class, Updated.class})
     private String scriptId;
 
-    @Schema(title = "插件中对应表单配置的名称")
+    @Schema(description =  "插件中对应表单配置的名称")
     private String name;
 
-    @Schema(title = "脚本内容")
+    @Schema(description =  "脚本内容")
     private byte[] script;
 
     private static final long serialVersionUID = 1L;

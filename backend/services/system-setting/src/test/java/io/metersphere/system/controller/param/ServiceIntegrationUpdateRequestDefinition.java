@@ -12,22 +12,22 @@ import java.util.Map;
 
 @Data
 public class ServiceIntegrationUpdateRequestDefinition {
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(groups = {Updated.class})
     @Size(min = 1, max = 50, groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "插件的ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "插件的ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(groups = {Created.class})
     @Size(min = 1, max = 50, groups = {Created.class, Updated.class})
     private String pluginId;
 
-    @Schema(title = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(groups = {Created.class})
     @Size(min = 1, max = 50, groups = {Created.class, Updated.class})
     private String organizationId;
 
-    @Schema(title = "配置内容", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "配置内容", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(groups = {Created.class})
     private Map<String, String> configuration;
 }

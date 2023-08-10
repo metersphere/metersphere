@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 public class ProjectAddMemberBatchRequest extends ProjectAddMemberRequest{
-    @Schema(title = "项目ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.id.not_blank}")
     private List<String> projectIds;
 

@@ -8,12 +8,12 @@ import lombok.Data;
 
 @Data
 public class ApiTestCaseBlob implements Serializable {
-    @Schema(title = "接口用例pk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "接口用例pk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_test_case_blob.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_test_case_blob.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "请求内容")
+    @Schema(description =  "请求内容")
     private byte[] request;
 
     private static final long serialVersionUID = 1L;

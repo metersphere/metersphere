@@ -19,14 +19,14 @@ public class OrganizationMemberRequest implements Serializable {
     /**
      * 组织ID
      */
-    @Schema(title = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{organization.id.not_blank}")
     private String organizationId;
 
     /**
      * 成员ID集合
      */
-    @Schema(title = "成员ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "成员ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{user.id.not_blank}")
     private List<String> memberIds;
 }

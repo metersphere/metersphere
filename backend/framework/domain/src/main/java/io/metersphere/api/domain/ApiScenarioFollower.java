@@ -8,12 +8,12 @@ import lombok.Data;
 
 @Data
 public class ApiScenarioFollower implements Serializable {
-    @Schema(title = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_follower.api_scenario_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_follower.api_scenario_id.length_range}", groups = {Created.class, Updated.class})
     private String apiScenarioId;
 
-    @Schema(title = "关注人/用户fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "关注人/用户fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_follower.user_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_follower.user_id.length_range}", groups = {Created.class, Updated.class})
     private String userId;

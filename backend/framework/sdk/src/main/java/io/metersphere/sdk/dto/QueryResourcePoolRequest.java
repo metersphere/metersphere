@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class QueryResourcePoolRequest extends BasePageRequest {
-    @Schema(title = "是否禁用")
+    @Schema(description =  "是否禁用")
     private Boolean enable;
 }

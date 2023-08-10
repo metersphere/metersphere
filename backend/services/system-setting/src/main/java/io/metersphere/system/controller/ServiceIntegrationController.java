@@ -67,7 +67,7 @@ public class ServiceIntegrationController {
     @Operation(summary = "校验服务集成信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_UPDATE)
     public boolean validate(@Validated({Updated.class}) @RequestBody
-                                @Schema(title = "配置的表单键值对", requiredMode = Schema.RequiredMode.REQUIRED)
+                                @Schema(description =  "配置的表单键值对", requiredMode = Schema.RequiredMode.REQUIRED)
                                 Map<String, String> serviceIntegrationInfo) {
         return serviceIntegrationService.validate(serviceIntegrationInfo);
     }

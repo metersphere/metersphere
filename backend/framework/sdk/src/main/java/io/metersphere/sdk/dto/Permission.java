@@ -10,17 +10,17 @@ import java.io.Serializable;
  * @author jianxing
  */
 @Data
-@Schema(title = "权限信息")
+@Schema(description =  "权限信息")
 public class Permission implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Schema(title = "权限ID")
+    @Schema(description =  "权限ID")
     private String id;
-    @Schema(title = "权限名称")
+    @Schema(description =  "权限名称")
     private String name;
-    @Schema(title = "是否启用该权限")
+    @Schema(description =  "是否启用该权限")
     private Boolean enable = false;
-    @Schema(title = "是否是企业权限")
+    @Schema(description =  "是否是企业权限")
     private Boolean license = false;
 }

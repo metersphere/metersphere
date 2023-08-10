@@ -10,38 +10,38 @@ import lombok.Data;
 
 @Data
 public class UiCustomVariable implements Serializable {
-    @Schema(title = "指令ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "指令ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_custom_variable.resource_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_custom_variable.resource_id.length_range}", groups = {Created.class, Updated.class})
     private String resourceId;
 
-    @Schema(title = "变量类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "变量类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_custom_variable.type.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 100, message = "{ui_custom_variable.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
-    @Schema(title = "变量值", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "变量值", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_custom_variable.value.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 1000, message = "{ui_custom_variable.value.length_range}", groups = {Created.class, Updated.class})
     private String value;
 
-    @Schema(title = "变量名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "变量名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_custom_variable.name.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{ui_custom_variable.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "描述")
+    @Schema(description =  "描述")
     private String description;
 
-    @Schema(title = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{ui_custom_variable.deleted.not_blank}", groups = {Created.class, Updated.class})
     private Boolean deleted;
 
-    @Schema(title = "是否是出参", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "是否是出参", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{ui_custom_variable.out_put.not_blank}", groups = {Created.class, Updated.class})
     private Boolean outPut;
 
-    @Schema(title = "启用禁用")
+    @Schema(description =  "启用禁用")
     @NotNull(message = "{ui_custom_variable.enable.not_blank}", groups = {Created.class, Updated.class})
     private Boolean enable;
 

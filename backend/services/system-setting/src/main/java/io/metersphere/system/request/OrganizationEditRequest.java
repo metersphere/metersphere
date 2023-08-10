@@ -15,17 +15,17 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class OrganizationEditRequest implements Serializable {
 
-    @Schema(title = "组织ID")
+    @Schema(description =  "组织ID")
     private String id;
 
-    @Schema(title = "组织名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{organization.name.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 100, message = "{organization.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "描述")
+    @Schema(description =  "描述")
     private String description;
 
-    @Schema(title = "成员ID集合")
+    @Schema(description =  "成员ID集合")
     private List<String> memberIds;
 }

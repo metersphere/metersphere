@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 public class UserBatchProcessRequest {
-    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{user.not.empty}")
     List<String> userIdList = new ArrayList<>();
 }

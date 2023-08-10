@@ -13,10 +13,10 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class UpdateProjectRequest extends ProjectBaseRequest {
 
-    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{project.id.length_range}", groups = {Updated.class})
     private String id;
-    @Schema(title = "成员数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description =  "成员数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<String> userIds;
 }

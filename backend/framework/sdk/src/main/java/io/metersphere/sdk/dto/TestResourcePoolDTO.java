@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 public class TestResourcePoolDTO extends TestResourcePool {
     private TestResourceDTO testResourceDTO;
 
-    @Schema(title = "资源池是否在使用中")
+    @Schema(description =  "资源池是否在使用中")
     private Boolean inUsed;
 
 }

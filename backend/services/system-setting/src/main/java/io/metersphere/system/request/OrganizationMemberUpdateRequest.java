@@ -16,21 +16,21 @@ public class OrganizationMemberUpdateRequest implements Serializable {
     /**
      * 组织ID
      */
-    @Schema(title = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{organization.id.not_blank}")
     private String organizationId;
 
     /**
      * 成员ID
      */
-    @Schema(title = "成员ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "成员ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{organization.member.not_blank}")
     private String memberId;
 
     /**
      * 用户组ID集合
      */
-    @Schema(title = "用户组ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "用户组ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{userGroupId.id.not_null}")
     private List<String> userRoleIds;
 
@@ -38,6 +38,6 @@ public class OrganizationMemberUpdateRequest implements Serializable {
     /**
      * 项目ID集合
      */
-    @Schema(title = "项目ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "项目ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<String> projectIds;
 }

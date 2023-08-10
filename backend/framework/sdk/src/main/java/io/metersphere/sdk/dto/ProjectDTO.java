@@ -11,10 +11,10 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ProjectDTO extends Project {
-    @Schema(title = "项目成员数量", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description =  "项目成员数量", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String number;
-    @Schema(title = "所属组织", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description =  "所属组织", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String organizationName;
-    @Schema(title = "管理员", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description =  "管理员", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<User> adminList;
 }

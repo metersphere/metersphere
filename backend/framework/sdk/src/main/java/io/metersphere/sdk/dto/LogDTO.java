@@ -10,10 +10,10 @@ import java.util.UUID;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class LogDTO extends OperationLog {
-    @Schema(title = "变更前内容")
+    @Schema(description =  "变更前内容")
     private byte[] originalValue;
 
-    @Schema(title = "变更后内容")
+    @Schema(description =  "变更后内容")
     private byte[] modifiedValue;
 
     public LogDTO() {

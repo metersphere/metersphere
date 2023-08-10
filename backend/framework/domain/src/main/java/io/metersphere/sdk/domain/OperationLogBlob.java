@@ -11,15 +11,15 @@ import java.io.Serializable;
 
 @Data
 public class OperationLogBlob implements Serializable {
-    @Schema(title = "主键", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "主键", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_log_blob.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{operation_log_blob.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "变更前内容")
+    @Schema(description =  "变更前内容")
     private byte[] originalValue;
 
-    @Schema(title = "变更后内容")
+    @Schema(description =  "变更后内容")
     private byte[] modifiedValue;
 
     private static final long serialVersionUID = 1L;
