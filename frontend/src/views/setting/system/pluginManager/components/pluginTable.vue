@@ -56,23 +56,27 @@
                 record.scenario === 'API' ? t('system.plugin.secneApi') : t('system.plugin.secneProManger')
               }}</template>
             </a-table-column>
-            <a-table-column :title="t('system.user.tableColunmOrg')">
+            <a-table-column :title="t('system.user.tableColunmOrg')" :width="300">
               <template #cell="{ record }">
-                <a-tag
-                  v-for="org of record.organizations"
-                  :key="org.id"
-                  class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-                  bordered
-                >
-                  {{ org.name }}
-                </a-tag>
-                <a-tag
-                  v-show="(record.organizations || []).length > 2"
-                  class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-                  bordered
-                >
-                  +{{ (record.organizations || []).length - 2 }}
-                </a-tag>
+                <a-tooltip :content="(record.organizations||[]).map((e: any) => e.name).join(',')">
+                  <span>
+                    <a-tag
+                      v-for="org of (record.organizations || []).slice(0, 3)"
+                      :key="org.id"
+                      class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+                      bordered
+                    >
+                      {{ org.name }}
+                    </a-tag>
+                    <a-tag
+                      v-if="(record.organizations || []).length > 3"
+                      class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+                      bordered
+                    >
+                      +{{ (record.organizations || []).length - 3 }}
+                    </a-tag>
+                  </span>
+                </a-tooltip>
               </template>
             </a-table-column>
             <a-table-column :title="t('system.plugin.tableColunmDescription')" data-index="fileName" />

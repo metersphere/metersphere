@@ -13,7 +13,7 @@ export default {
   'organization.service.description': '下载需要集成的第三方项目管理平台插件；也可以自行开发相关项目管理平台插件',
   'organization.service.configDescription': '已下载或已开发的插件需上传至插件管理，上传后，可在当前页进行配置',
   'organization.service.jumpPlugin': '跳转至插件管理',
-  'organization.service.testLink': '测试链接',
+  'organization.service.testLink': '测试连接',
   'organization.service.unconfigured': '未配置',
   'organization.service.configured': '已配置',
   'organization.service.methodOfAuthentication': '认证方式',
