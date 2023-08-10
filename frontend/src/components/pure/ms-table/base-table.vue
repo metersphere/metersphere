@@ -1,7 +1,7 @@
 <template>
   <div class="ms-base-tale">
     <select-all
-      v-if="attrs.showSelectAll"
+      v-if="attrs.selectable && attrs.showSelectAll"
       class="custom-action"
       :total="selectTotal"
       :current="selectCurrent"
@@ -15,7 +15,7 @@
     >
       <template #columns>
         <a-table-column
-          v-for="(item, idx) in columns"
+          v-for="(item, idx) in currentColumns"
           :key="idx"
           :width="item.width"
           :align="item.align"
@@ -35,7 +35,7 @@
           :tooltip="item.tooltip"
         >
           <template #title>
-            <div v-if="attrs.showSetting && idx === columns.length - 1" class="column-selector">
+            <div v-if="attrs.showSetting && idx === currentColumns.length - 1" class="column-selector">
               <div class="title">{{ t(item.title as string) }}</div>
               <ColumnSelector :table-key="(attrs.tableKey as string)" @close="handleColumnSelectorClose" />
             </div>
@@ -45,14 +45,16 @@
           <template #cell="{ column, record, rowIndex }">
             <div class="flex flex-row items-center">
               <template v-if="item.dataIndex === SpecialColumnEnum.ENABLE">
-                <div v-if="record.enable" class="flex items-center">
-                  <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-                  {{ t('system.user.tableEnable') }}
-                </div>
-                <div v-else class="flex items-center text-[var(--color-text-4)]">
-                  <MsIcon type="icon-icon_disable" class="mr-[2px]" />
-                  {{ t('system.user.tableDisable') }}
-                </div>
+                <slot name="enable" v-bind="{ record }">
+                  <div v-if="record.enable" class="flex items-center">
+                    <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+                    {{ t('msTable.enable') }}
+                  </div>
+                  <div v-else class="flex items-center text-[var(--color-text-4)]">
+                    <MsIcon type="icon-icon_disable" class="mr-[2px]" />
+                    {{ t('msTable.disable') }}
+                  </div>
+                </slot>
               </template>
               <template v-else>
                 <a-input
@@ -124,12 +126,14 @@
   const { t } = useI18n();
   const tableStore = useTableStore();
   const appStore = useAppStore();
-  const columns = ref<MsTableColumn>([]);
+  const currentColumns = ref<MsTableColumn>([]);
 
   const props = defineProps<{
     selectedKeys?: (string | number)[];
     actionConfig?: BatchActionConfig;
     noDisable?: boolean;
+    showSetting?: boolean;
+    columns: MsTableColumn;
   }>();
   const emit = defineEmits<{
     (e: 'selectedChange', value: (string | number)[]): void;
@@ -160,7 +164,13 @@
   };
 
   const initColumn = () => {
-    columns.value = tableStore.getShowInTableColumns(attrs.tableKey as string);
+    let tmpArr: MsTableColumn = [];
+    if (props.showSetting) {
+      tmpArr = tableStore.getShowInTableColumns(attrs.tableKey as string);
+    } else {
+      tmpArr = props.columns;
+    }
+    currentColumns.value = tmpArr;
   };
   // 选择公共执行方法
   const selectionChange = (arr: (string | number)[], setCurrentSelect: boolean, isAll = false) => {

@@ -2,6 +2,8 @@ export default {
   msTable: {
     current: 'Select Current Page',
     all: 'Select All Pages',
+    enable: 'Enable',
+    disable: 'Disable',
     batch: {
       title: '批量操作',
       selected: '已选择 {count} 项',

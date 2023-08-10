@@ -16,23 +16,7 @@
           :label="t('system.userGroup.user')"
           :rules="[{ required: true, message: t('system.userGroup.pleaseSelectUser') }]"
         >
-          <a-select
-            v-model="form.name"
-            multiple
-            :virtual-list-props="{ height: 200 }"
-            :placeholder="t('system.userGroup.pleaseSelectUser')"
-            :options="userOptions"
-            :field-names="fieldNames"
-            @search="handleSearch"
-          >
-            <template #label="{ data }">
-              <span class="option-name"> {{ data.name }} </span>
-            </template>
-            <template #option="{ data }">
-              <span class="option-name"> {{ data.name }} </span>
-              <span class="option-email"> {{ `(${data.email})` }} </span>
-            </template>
-          </a-select>
+          <ms-user-selector v-model:value="form.name" />
         </a-form-item>
       </a-form>
     </div>
@@ -46,6 +30,7 @@
   import { useUserGroupStore } from '@/store';
   import { getUserList, addUserToUserGroup } from '@/api/modules/setting/usergroup';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import MsUserSelector from '@/components/bussiness/ms-user-selector/index.vue';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -58,8 +43,6 @@
     (e: 'cancel'): void;
     (e: 'submit', value: string[]): void;
   }>();
-
-  const fieldNames = { value: 'id', label: 'name' };
 
   const currentVisible = ref(props.visible);
   const loading = ref(false);
@@ -100,18 +83,6 @@
       await addUserToUserGroup({ roleId: store.currentId, userIds: form.name });
       return true;
     });
-  };
-
-  const handleSearch = (value: string) => {
-    if (value) {
-      loading.value = true;
-      window.setTimeout(() => {
-        userOptions.value = userOptions.value.filter((item) => item.name.includes(value));
-        loading.value = false;
-      }, 60);
-    } else {
-      userOptions.value = allOption.value;
-    }
   };
 
   onMounted(() => {

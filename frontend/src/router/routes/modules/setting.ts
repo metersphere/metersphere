@@ -43,6 +43,16 @@ const Setting: AppRouteRecordRaw = {
           },
         },
         {
+          path: 'organization-and-project',
+          name: 'settingSystemOrganization',
+          component: () => import('@/views/setting/system/organizationAndProject/index.vue'),
+          meta: {
+            locale: 'menu.settings.system.organizationAndProject',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
+        {
           path: 'resourcePool',
           name: 'settingSystemResourcePool',
           component: () => import('@/views/setting/system/resourcePool/index.vue'),

@@ -2,7 +2,7 @@
   <div class="ms-table-select-all items-center text-base">
     <a-checkbox v-model="checked" class="text-base" :indeterminate="indeterminate" @change="handleCheckChange" />
     <a-dropdown position="bl" @select="handleSelect">
-      <a-icon-down class="dropdown-icon ml-0.5" />
+      <MsIcon type="icon-icon_down_outlined" class="ml-0.5" />
       <template #content>
         <a-doption :value="SelectAllEnum.CURRENT">{{ t('msTable.current') }}</a-doption>
         <a-doption :value="SelectAllEnum.ALL">{{ t('msTable.all') }}</a-doption>
@@ -15,6 +15,7 @@
   import { ref, watchEffect } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { SelectAllEnum } from './type';
+  import MsIcon from '../ms-icon-font/index.vue';
 
   const { t } = useI18n();
 

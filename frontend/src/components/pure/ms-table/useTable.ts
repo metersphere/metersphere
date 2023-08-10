@@ -20,7 +20,7 @@ export default function useTableProps(
   loadListFunc: (v: TableQueryParams) => Promise<any>,
   props?: Partial<MsTableProps>,
   // 数据处理的回调函数
-  callBack?: (item: TableData) => TableData,
+  dataTransform?: (item: TableData) => TableData,
   // 编辑操作的保存回调函数
   saveCallBack?: (item: TableData) => Promise<any>
 ) {
@@ -35,7 +35,7 @@ export default function useTableProps(
     bordered: true,
     showPagination: true,
     size: 'small',
-    scroll: { y: '860px', x: '1400px' },
+    scroll: { maxHeight: '600px', x: '1400px' },
     checkable: true,
     loading: true,
     data: [] as MsTableData,
@@ -166,8 +166,8 @@ export default function useTableProps(
         if (item.createTime) {
           item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
         }
-        if (callBack) {
-          item = callBack(item);
+        if (dataTransform) {
+          item = dataTransform(item);
         }
         return item;
       });

@@ -16,7 +16,7 @@
     </template>
     <div v-if="props.actionConfig.moreAction" class="relative top-[2px] ml-3 inline-block">
       <a-dropdown position="tr" @select="handleSelect">
-        <a-button type="outline"><a-icon-more /></a-button>
+        <a-button type="outline"><MsIcon type="icon-icon_more_outlined" /></a-button>
         <template #content>
           <template v-for="element in props.actionConfig.moreAction" :key="element.label">
             <a-divider v-if="element.isDivider" margin="0" />
@@ -34,6 +34,7 @@
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
   import { BatchActionConfig, BatchActionParams } from './type';
+  import MsIcon from '../ms-icon-font/index.vue';
 
   const { t } = useI18n();
   const props = defineProps<{

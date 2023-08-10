@@ -15,6 +15,7 @@ Object.keys(_Vmodules).forEach((key) => {
   if (!defaultModule) return;
   result = { ...result, ...defaultModule };
 });
+console.log('result', result);
 export default {
   message: {
     'menu.workplace': 'Workplace',
