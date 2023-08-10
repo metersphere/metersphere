@@ -527,7 +527,10 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Test
     @Order(21)
     void unableTestResourcePoolSuccess() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/104")
+        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob3", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
+        TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
+        String id = testResourcePoolRequest1.getId();
+        mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/"+id)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk())

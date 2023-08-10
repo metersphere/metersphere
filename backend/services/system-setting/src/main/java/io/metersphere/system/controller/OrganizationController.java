@@ -28,9 +28,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * @author song-cc-rock
+ * @author guoyuqi
  */
-@Tag(name = "组织")
+@Tag(name = "组织-成员")
 @RestController
 @RequestMapping("/organization")
 public class OrganizationController {
