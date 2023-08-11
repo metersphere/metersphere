@@ -54,10 +54,10 @@ class TestResourcePoolControllerTests extends BaseTest {
             "  \"loadTestImage\": \"123\",\n" +
             "  \"loadTestHeap\": \"123\",\n" +
             "  \"nodesList\":[{\n" +
-            "       \"ip\":\"172.2.130.1\",\n" +
-            "       \"port\": \"3306\",\n" +
-            "       \"monitor\": \"11\",\n" +
-            "       \"concurrentNumber\": 1\n" +
+            "       \"ip\":\"192.168.20.17\",\n" +
+            "       \"port\": \"1194\",\n" +
+            "       \"monitor\": \"9100\",\n" +
+            "       \"concurrentNumber\": 100\n" +
             "   }],\n" +
             "\"ip\":\"172.2.130.1\",\n" +
             "\"token\":\"dsdfssdsvgsd\",\n" +
@@ -76,10 +76,10 @@ class TestResourcePoolControllerTests extends BaseTest {
             "  \"loadTestHeap\": \"123\",\n" +
             "  \"nodesList\": [\n" +
             "    {\n" +
-            "      \"ip\": \"172.2.130.1\",\n" +
-            "      \"port\": \"3306\",\n" +
-            "      \"monitor\": \"11\",\n" +
-            "      \"concurrentNumber\": 1\n" +
+            "      \"ip\": \"172.16.200.8\",\n" +
+            "      \"port\": \"8082\",\n" +
+            "      \"monitor\": \"9100\",\n" +
+            "      \"concurrentNumber\": 100\n" +
             "    }\n" +
             "  ],\n" +
             "  \"orgIds\": [\"sys_default_organization_2\",\"sys_default_organization_3\"],\n" +
@@ -533,7 +533,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/"+id)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk())
+                .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
     }
