@@ -2,8 +2,8 @@
   <a-scrollbar
     :style="{
       'overflow': 'auto',
-      'min-height': '40px',
-      'max-height': '120px',
+      'min-height': '54px',
+      'max-height': '270px',
     }"
   >
     <div class="ms-scroll">
@@ -44,8 +44,8 @@
     padding: 0 !important;
   }
   .ms-self {
-    height: 40px;
-    line-height: 40px;
+    height: 54px;
+    line-height: 54px;
     border-bottom: 1px solid var(--color-text-n8);
     @apply flex items-center align-middle leading-6;
   }
