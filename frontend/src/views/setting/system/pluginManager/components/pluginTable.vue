@@ -25,7 +25,7 @@
         <a-table
           :data="filterData"
           :pagination="false"
-          :scroll="{ y: 500, x: 2400 }"
+          :scroll="{ y: 480, x: 2400 }"
           :expandable="expandable"
           :loading="loading"
           row-key="id"
@@ -33,7 +33,7 @@
           @expand="handleExpand"
         >
           <template #columns>
-            <a-table-column fixed="left" :title="t('system.plugin.tableColunmName')">
+            <a-table-column :width="300" fixed="left" :title="t('system.plugin.tableColunmName')" :ellipsis="true">
               <template #cell="{ record }">
                 {{ record.name }} <span class="text-[--color-text-4]">({{ (record.pluginForms || []).length }})</span>
               </template>
@@ -79,8 +79,18 @@
                 </a-tooltip>
               </template>
             </a-table-column>
-            <a-table-column :title="t('system.plugin.tableColunmDescription')" data-index="fileName" />
-            <a-table-column :title="t('system.plugin.tableColunmVersion')" data-index="pluginId" />
+            <a-table-column
+              :title="t('system.plugin.tableColunmDescription')"
+              data-index="fileName"
+              :width="300"
+              :ellipsis="true"
+            />
+            <a-table-column
+              :title="t('system.plugin.tableColunmVersion')"
+              data-index="pluginId"
+              :width="300"
+              :ellipsis="true"
+            />
             <a-table-column :title="t('system.plugin.tableColunmAuthorization')">
               <template #cell="{ record }">
                 <span>{{
@@ -89,7 +99,7 @@
               </template>
             </a-table-column>
             <a-table-column :title="t('system.plugin.tableColunmCreatedBy')" data-index="createUser" />
-            <a-table-column :title="t('system.plugin.tableColunmUpdateTime')">
+            <a-table-column :title="t('system.plugin.tableColunmUpdateTime')" :width="200">
               <template #cell="{ record }">
                 <span>{{ getTime(record.updateTime) }}</span>
               </template>
@@ -246,7 +256,7 @@
       },
       onBeforeOk: async () => {
         try {
-          deletePluginReq(record.id);
+          await deletePluginReq(record.id);
           Message.success(t('system.plugin.deletePluginSuccess'));
           loadData();
         } catch (error) {
@@ -373,6 +383,7 @@
 
 <style scoped lang="less">
   :deep(.arco-table-tr-expand .arco-table-td) {
+    padding: 0;
     background: none;
   }
   :deep(.arco-table-tr-expand .arco-table-cell) {
@@ -386,14 +397,20 @@
   :deep(.collapsebtn) {
     padding: 0 1px;
     border: 1px solid var(--color-text-4);
+    border-radius: 3px;
     @apply bg-white;
   }
   :deep(.expand) {
     padding: 0 1px;
     border: 1px solid rgb(var(--primary-5));
+    border-radius: 3px;
     @apply bg-white;
   }
   :deep(.arco-table-expand-btn) {
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+    border-radius: 3px;
     @apply bg-white;
   }
   .ms-footerNum {
@@ -404,5 +421,11 @@
   .ms-table-wrapper {
     height: calc(100vh - 236px);
     min-height: 400px;
+  }
+  :deep(.arco-table-tr .arco-table-td) {
+    height: 54px !important;
+  }
+  .ms-table-expand :deep(.arco-scrollbar-container + .arco-scrollbar-track-direction-vertical) {
+    left: 0 !important;
   }
 </style>
