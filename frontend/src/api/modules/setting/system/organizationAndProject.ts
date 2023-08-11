@@ -1,6 +1,7 @@
 import MSR from '@/api/http/index';
 import * as orgUrl from '@/api/requrls/setting/system/organizationAndProject';
 import { TableQueryParams } from '@/models/common';
+import { AddUserToOrgOrPorjectParams } from '@/models/setting/systemOrg';
 
 // 获取组织列表
 export function postOrgTable(data: TableQueryParams) {
@@ -20,4 +21,12 @@ export function postProjectTableByOrgId(data: TableQueryParams) {
 // 根据组织id获取用户列表
 export function postUserTableByOrgId(data: TableQueryParams) {
   return MSR.post({ url: orgUrl.postOrgMemberUrl, data });
+}
+// 给组织或项目添加成员
+export function addUserToOrgOrProject(data: AddUserToOrgOrPorjectParams) {
+  return MSR.post({ url: data.projectId ? orgUrl.postAddProjectMemberUrl : orgUrl.postAddOrgMemberUrl, data });
+}
+// 获取用户下拉选项
+export function getUserByOrganizationOrProject(sourceId: string) {
+  return MSR.get({ url: `${orgUrl.getUserByOrgOrProjectUrl}${sourceId}` });
 }

@@ -1,7 +1,7 @@
 <template>
   <MsDrawer
     :width="680"
-    :visible="props.visible"
+    :visible="currentVisible"
     unmount-on-close
     :footer="false"
     :title="t('system.organization.projectName', { name: props.currentName })"
@@ -39,9 +39,10 @@
   const { t } = useI18n();
   const props = defineProps<projectDrawerProps>();
   const emit = defineEmits<{
-    (e: 'update:visible', v: boolean): void;
+    (e: 'cancel', v: boolean): void;
   }>();
 
+  const currentVisible = ref(props.visible);
   const keyword = ref('');
 
   const projectColumn: MsTableColumn = [
@@ -81,7 +82,7 @@
   }
 
   const handleCancel = () => {
-    emit('update:visible', false);
+    emit('cancel', false);
   };
 
   const fetchData = async () => {
@@ -93,6 +94,12 @@
     (organizationId) => {
       setLoadListParams({ organizationId });
       fetchData();
+    }
+  );
+  watch(
+    () => props.visible,
+    (visible) => {
+      currentVisible.value = visible;
     }
   );
 </script>

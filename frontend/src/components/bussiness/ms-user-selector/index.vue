@@ -1,10 +1,10 @@
 <template>
   <a-select
-    :value="value"
+    v-model="currentValue"
     :disabled="props.disabled"
     multiple
     :virtual-list-props="{ height: 200 }"
-    :placeholder="props.placeholder ? t(props.placeholder) : t('common.pleaseSelect')"
+    :placeholder="props.placeholder ? t(props.placeholder) : t('common.pleaseSelectMember')"
     :options="userOptions"
     :field-names="fieldNames"
     @search="handleSearch"
@@ -22,40 +22,66 @@
 
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, watch } from 'vue';
   import { getUserList } from '@/api/modules/setting/usergroup';
+  import { getUserByOrganizationOrProject } from '@/api/modules/setting/system/organizationAndProject';
 
   export interface MsUserSelectorProps {
     value: string[];
     disabled?: boolean;
     placeholder?: string;
+    type?: 'organization' | 'usergroup';
+    sourceId?: string;
+    disabledKey?: 'disabled' | 'memberFlag' | 'adminFlag';
   }
 
   export interface UserItem {
     id: string;
     name: string;
     email: string;
+    disabled?: boolean;
+    memberFlag?: boolean;
+    adminFlag?: boolean;
   }
 
   const fieldNames = { value: 'id', label: 'name' };
   const { t } = useI18n();
-  const props = defineProps<MsUserSelectorProps>();
+  const props = withDefaults(defineProps<MsUserSelectorProps>(), {
+    disabled: false,
+    type: 'usergroup',
+    disabledKey: 'disabled',
+  });
   const emit = defineEmits<{
     (e: 'update:value', value: string[]): void;
   }>();
+  const currentValue = ref(props.value);
+
   const allOption = ref<UserItem[]>([]);
   const userOptions = ref<UserItem[]>([]);
 
   const initUserList = async () => {
-    const res = await getUserList();
-    allOption.value = res;
-    userOptions.value = res;
+    let res: UserItem[] = [];
+    if (props.type === 'organization') {
+      if (!props.sourceId) {
+        return;
+      }
+      res = await getUserByOrganizationOrProject(props.sourceId);
+    } else {
+      res = await getUserList();
+    }
+    res.forEach((item) => {
+      item.disabled = item[props.disabledKey];
+    });
+    allOption.value = [...res];
+    userOptions.value = [...res];
   };
 
   const handleSearch = (value: string) => {
     if (value) {
       window.setTimeout(() => {
-        userOptions.value = userOptions.value.filter((item) => item.name.includes(value));
+        userOptions.value = userOptions.value.filter(
+          (item) => item.name.includes(value) || currentValue.value.includes(item.id)
+        );
       }, 60);
     } else {
       userOptions.value = allOption.value;
@@ -69,4 +95,10 @@
   onMounted(() => {
     initUserList();
   });
+  watch(
+    () => props.value,
+    (value) => {
+      currentValue.value = value;
+    }
+  );
 </script>

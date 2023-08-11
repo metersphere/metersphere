@@ -1,7 +1,7 @@
 <template>
   <MsDrawer
     :width="680"
-    :visible="props.visible"
+    :visible="currentVisible"
     unmount-on-close
     :footer="false"
     :title="t('system.organization.addMember')"
@@ -20,9 +20,14 @@
           @press-enter="searchUser"
         ></a-input-search>
       </div>
-      <ms-base-table class="mt-[16px]" v-bind="propsRes" v-on="propsEvent" />
+      <ms-base-table class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
+        <template #operation="{ record }">
+          <ms-button @click="handleRemove(record)">{{ t('system.organization.remove') }}</ms-button>
+        </template>
+      </ms-base-table>
     </div>
   </MsDrawer>
+  <AddUserModal :organization-id="props.organizationId" :visible="userVisible" @cancel="handleHideUserModal" />
 </template>
 
 <script lang="ts" setup>
@@ -33,6 +38,9 @@
   import { watch, ref } from 'vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import AddUserModal from './addUserModal.vue';
+  import { TableData } from '@arco-design/web-vue';
+  import MsButton from '@/components/pure/ms-button/index.vue';
 
   export interface projectDrawerProps {
     visible: boolean;
@@ -41,32 +49,29 @@
   const { t } = useI18n();
   const props = defineProps<projectDrawerProps>();
   const emit = defineEmits<{
-    (e: 'update:visible', v: boolean): void;
+    (e: 'cancel'): void;
   }>();
+
+  const currentVisible = ref(props.visible);
+
+  const userVisible = ref(false);
 
   const keyword = ref('');
 
   const projectColumn: MsTableColumn = [
     {
-      title: 'system.organization.ID',
-      dataIndex: 'num',
-    },
-    {
-      title: 'system.project.name',
+      title: 'system.organization.userName',
       dataIndex: 'name',
     },
     {
-      title: 'system.organization.status',
-      dataIndex: 'enable',
+      title: 'system.organization.email',
+      dataIndex: 'email',
     },
     {
-      title: 'system.organization.creator',
-      dataIndex: 'createUser',
+      title: 'system.organization.phone',
+      dataIndex: 'phone',
     },
-    {
-      title: 'system.organization.createTime',
-      dataIndex: 'createTime',
-    },
+    { title: 'system.organization.operation', dataIndex: 'operation' },
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserTableByOrgId, {
@@ -84,7 +89,7 @@
   }
 
   const handleCancel = () => {
-    emit('update:visible', false);
+    emit('cancel');
   };
 
   const fetchData = async () => {
@@ -92,8 +97,17 @@
   };
 
   const handleAddMember = () => {
-    // TODO add member
-    emit('update:visible', false);
+    userVisible.value = true;
+  };
+
+  const handleHideUserModal = () => {
+    userVisible.value = false;
+  };
+
+  const handleRemove = (record: TableData) => {
+    // TODO: remove user
+    // eslint-disable-next-line no-console
+    console.log(record);
   };
 
   watch(
@@ -101,6 +115,12 @@
     (organizationId) => {
       setLoadListParams({ organizationId });
       fetchData();
+    }
+  );
+  watch(
+    () => props.visible,
+    (visible) => {
+      currentVisible.value = visible;
     }
   );
 </script>
