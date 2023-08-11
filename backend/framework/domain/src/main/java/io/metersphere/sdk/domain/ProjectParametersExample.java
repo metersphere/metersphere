@@ -3,14 +3,14 @@ package io.metersphere.sdk.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EnvironmentGroupExample {
+public class ProjectParametersExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public EnvironmentGroupExample() {
+    public ProjectParametersExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -174,76 +174,6 @@ public class EnvironmentGroupExample {
             return (Criteria) this;
         }
 
-        public Criteria andNameIsNull() {
-            addCriterion("`name` is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameIsNotNull() {
-            addCriterion("`name` is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameEqualTo(String value) {
-            addCriterion("`name` =", value, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameNotEqualTo(String value) {
-            addCriterion("`name` <>", value, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameGreaterThan(String value) {
-            addCriterion("`name` >", value, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameGreaterThanOrEqualTo(String value) {
-            addCriterion("`name` >=", value, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameLessThan(String value) {
-            addCriterion("`name` <", value, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameLessThanOrEqualTo(String value) {
-            addCriterion("`name` <=", value, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameLike(String value) {
-            addCriterion("`name` like", value, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameNotLike(String value) {
-            addCriterion("`name` not like", value, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameIn(List<String> values) {
-            addCriterion("`name` in", values, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameNotIn(List<String> values) {
-            addCriterion("`name` not in", values, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameBetween(String value1, String value2) {
-            addCriterion("`name` between", value1, value2, "name");
-            return (Criteria) this;
-        }
-
-        public Criteria andNameNotBetween(String value1, String value2) {
-            addCriterion("`name` not between", value1, value2, "name");
-            return (Criteria) this;
-        }
-
         public Criteria andProjectIdIsNull() {
             addCriterion("project_id is null");
             return (Criteria) this;
@@ -311,76 +241,6 @@ public class EnvironmentGroupExample {
 
         public Criteria andProjectIdNotBetween(String value1, String value2) {
             addCriterion("project_id not between", value1, value2, "projectId");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionIsNull() {
-            addCriterion("description is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionIsNotNull() {
-            addCriterion("description is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionEqualTo(String value) {
-            addCriterion("description =", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionNotEqualTo(String value) {
-            addCriterion("description <>", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionGreaterThan(String value) {
-            addCriterion("description >", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionGreaterThanOrEqualTo(String value) {
-            addCriterion("description >=", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionLessThan(String value) {
-            addCriterion("description <", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionLessThanOrEqualTo(String value) {
-            addCriterion("description <=", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionLike(String value) {
-            addCriterion("description like", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionNotLike(String value) {
-            addCriterion("description not like", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionIn(List<String> values) {
-            addCriterion("description in", values, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionNotIn(List<String> values) {
-            addCriterion("description not in", values, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionBetween(String value1, String value2) {
-            addCriterion("description between", value1, value2, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionNotBetween(String value1, String value2) {
-            addCriterion("description not between", value1, value2, "description");
             return (Criteria) this;
         }
 

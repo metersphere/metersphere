@@ -27,4 +27,8 @@ public interface EnvironmentGroupMapper {
     int updateByPrimaryKeySelective(EnvironmentGroup record);
 
     int updateByPrimaryKey(EnvironmentGroup record);
+
+    int batchInsert(@Param("list") List<EnvironmentGroup> list);
+
+    int batchInsertSelective(@Param("list") List<EnvironmentGroup> list, @Param("selective") EnvironmentGroup.Column ... selective);
 }

@@ -16,21 +16,19 @@ public interface EnvironmentMapper {
 
     int insertSelective(Environment record);
 
-    List<Environment> selectByExampleWithBLOBs(EnvironmentExample example);
-
     List<Environment> selectByExample(EnvironmentExample example);
 
     Environment selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") Environment record, @Param("example") EnvironmentExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") Environment record, @Param("example") EnvironmentExample example);
-
     int updateByExample(@Param("record") Environment record, @Param("example") EnvironmentExample example);
 
     int updateByPrimaryKeySelective(Environment record);
 
-    int updateByPrimaryKeyWithBLOBs(Environment record);
-
     int updateByPrimaryKey(Environment record);
+
+    int batchInsert(@Param("list") List<Environment> list);
+
+    int batchInsertSelective(@Param("list") List<Environment> list, @Param("selective") Environment.Column ... selective);
 }

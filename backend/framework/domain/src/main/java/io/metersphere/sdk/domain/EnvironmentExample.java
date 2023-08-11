@@ -314,276 +314,6 @@ public class EnvironmentExample {
             return (Criteria) this;
         }
 
-        public Criteria andProtocolIsNull() {
-            addCriterion("protocol is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolIsNotNull() {
-            addCriterion("protocol is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolEqualTo(String value) {
-            addCriterion("protocol =", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolNotEqualTo(String value) {
-            addCriterion("protocol <>", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolGreaterThan(String value) {
-            addCriterion("protocol >", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolGreaterThanOrEqualTo(String value) {
-            addCriterion("protocol >=", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolLessThan(String value) {
-            addCriterion("protocol <", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolLessThanOrEqualTo(String value) {
-            addCriterion("protocol <=", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolLike(String value) {
-            addCriterion("protocol like", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolNotLike(String value) {
-            addCriterion("protocol not like", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolIn(List<String> values) {
-            addCriterion("protocol in", values, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolNotIn(List<String> values) {
-            addCriterion("protocol not in", values, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolBetween(String value1, String value2) {
-            addCriterion("protocol between", value1, value2, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolNotBetween(String value1, String value2) {
-            addCriterion("protocol not between", value1, value2, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketIsNull() {
-            addCriterion("socket is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketIsNotNull() {
-            addCriterion("socket is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketEqualTo(String value) {
-            addCriterion("socket =", value, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketNotEqualTo(String value) {
-            addCriterion("socket <>", value, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketGreaterThan(String value) {
-            addCriterion("socket >", value, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketGreaterThanOrEqualTo(String value) {
-            addCriterion("socket >=", value, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketLessThan(String value) {
-            addCriterion("socket <", value, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketLessThanOrEqualTo(String value) {
-            addCriterion("socket <=", value, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketLike(String value) {
-            addCriterion("socket like", value, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketNotLike(String value) {
-            addCriterion("socket not like", value, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketIn(List<String> values) {
-            addCriterion("socket in", values, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketNotIn(List<String> values) {
-            addCriterion("socket not in", values, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketBetween(String value1, String value2) {
-            addCriterion("socket between", value1, value2, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andSocketNotBetween(String value1, String value2) {
-            addCriterion("socket not between", value1, value2, "socket");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainIsNull() {
-            addCriterion("`domain` is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainIsNotNull() {
-            addCriterion("`domain` is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainEqualTo(String value) {
-            addCriterion("`domain` =", value, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainNotEqualTo(String value) {
-            addCriterion("`domain` <>", value, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainGreaterThan(String value) {
-            addCriterion("`domain` >", value, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainGreaterThanOrEqualTo(String value) {
-            addCriterion("`domain` >=", value, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainLessThan(String value) {
-            addCriterion("`domain` <", value, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainLessThanOrEqualTo(String value) {
-            addCriterion("`domain` <=", value, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainLike(String value) {
-            addCriterion("`domain` like", value, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainNotLike(String value) {
-            addCriterion("`domain` not like", value, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainIn(List<String> values) {
-            addCriterion("`domain` in", values, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainNotIn(List<String> values) {
-            addCriterion("`domain` not in", values, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainBetween(String value1, String value2) {
-            addCriterion("`domain` between", value1, value2, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andDomainNotBetween(String value1, String value2) {
-            addCriterion("`domain` not between", value1, value2, "domain");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortIsNull() {
-            addCriterion("port is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortIsNotNull() {
-            addCriterion("port is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortEqualTo(Integer value) {
-            addCriterion("port =", value, "port");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortNotEqualTo(Integer value) {
-            addCriterion("port <>", value, "port");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortGreaterThan(Integer value) {
-            addCriterion("port >", value, "port");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortGreaterThanOrEqualTo(Integer value) {
-            addCriterion("port >=", value, "port");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortLessThan(Integer value) {
-            addCriterion("port <", value, "port");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortLessThanOrEqualTo(Integer value) {
-            addCriterion("port <=", value, "port");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortIn(List<Integer> values) {
-            addCriterion("port in", values, "port");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortNotIn(List<Integer> values) {
-            addCriterion("port not in", values, "port");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortBetween(Integer value1, Integer value2) {
-            addCriterion("port between", value1, value2, "port");
-            return (Criteria) this;
-        }
-
-        public Criteria andPortNotBetween(Integer value1, Integer value2) {
-            addCriterion("port not between", value1, value2, "port");
-            return (Criteria) this;
-        }
-
         public Criteria andCreateUserIsNull() {
             addCriterion("create_user is null");
             return (Criteria) this;
@@ -651,6 +381,76 @@ public class EnvironmentExample {
 
         public Criteria andCreateUserNotBetween(String value1, String value2) {
             addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNull() {
+            addCriterion("update_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNotNull() {
+            addCriterion("update_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserEqualTo(String value) {
+            addCriterion("update_user =", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotEqualTo(String value) {
+            addCriterion("update_user <>", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThan(String value) {
+            addCriterion("update_user >", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("update_user >=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThan(String value) {
+            addCriterion("update_user <", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThanOrEqualTo(String value) {
+            addCriterion("update_user <=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLike(String value) {
+            addCriterion("update_user like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotLike(String value) {
+            addCriterion("update_user not like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIn(List<String> values) {
+            addCriterion("update_user in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotIn(List<String> values) {
+            addCriterion("update_user not in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserBetween(String value1, String value2) {
+            addCriterion("update_user between", value1, value2, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotBetween(String value1, String value2) {
+            addCriterion("update_user not between", value1, value2, "updateUser");
             return (Criteria) this;
         }
 
