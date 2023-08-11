@@ -235,6 +235,7 @@ public class TestPlanTestCaseService {
     }
 
     public void editTestCaseBath(TestPlanCaseBatchRequest request) {
+        ServiceUtils.buildCombineTagsToSupportMultiple(request.getCondition());
         TestPlanTestCaseExample testPlanTestCaseExample = getBatchExample(request);
         TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
         if (BooleanUtils.isFalse(request.isModifyExecutor()) && StringUtils.isNotBlank(SessionUtils.getUserId())) {
@@ -353,6 +354,7 @@ public class TestPlanTestCaseService {
     }
 
     public void deleteTestCaseBath(TestPlanCaseBatchRequest request) {
+        ServiceUtils.buildCombineTagsToSupportMultiple(request.getCondition());
         TestPlanTestCaseExample example = getBatchExample(request);
         testPlanTestCaseMapper.deleteByExample(example);
     }
