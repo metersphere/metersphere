@@ -112,7 +112,7 @@
               <monitor-card :report="report"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_config')">
-              <ms-test-configuration :test="test" :report-id="reportId"/>
+              <ms-test-configuration v-if="active===6 || active === '6'" :test="test" :report-id="reportId"/>
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -157,7 +157,15 @@ import MonitorCard from "./components/MonitorCard";
 import MsTestConfiguration from "./components/TestConfiguration";
 import {generateShareInfoWithExpired, getShareRedirectUrl} from "@/api/share";
 import ProjectEnvironmentDialog from "./components/ProjectEnvironmentDialog";
-import {downloadZip, getProjectApplication, getReport, getReportTime, getTestProInfo, initReportSocket, stopTest} from "@/api/report";
+import {
+  downloadZip,
+  getProjectApplication,
+  getReport,
+  getReportTime,
+  getTestProInfo,
+  initReportSocket,
+  stopTest
+} from "@/api/report";
 import {getTest, runTest} from "@/api/performance";
 
 

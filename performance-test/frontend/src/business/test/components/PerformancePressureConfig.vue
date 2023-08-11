@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="result.loading" v-if="loadIsOver" class="pressure-config-container">
+  <div v-loading="result.loading" class="pressure-config-container">
     <el-row>
       <el-col>
         <el-form :inline="true" :disabled="isReadOnly">
@@ -320,7 +320,6 @@ export default {
       step: 0,
       rpsLimit: 0,
       rpsLimitEnable: false,
-      loadIsOver: true,
       options: {},
       resourcePool: null,
       setPoolNull: false,
@@ -413,7 +412,7 @@ export default {
           });
     },
     getLoadConfig() {
-      this.loadIsOver = false;
+      this.result.loading = true;
       getLoadConfig(this.testId, this.reportId, this.isShare)
           .then(response => {
             let data = JSON.parse(response.data);
@@ -514,7 +513,7 @@ export default {
             this.resourcePoolChange();
             this.calculateTotalChart();
           }).finally(() => {
-        this.loadIsOver = true;
+        this.result.loading = false;
       });
     },
     getJmxContent() {
