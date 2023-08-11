@@ -5,9 +5,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.metersphere.plugin.sdk.util.PluginLogUtils;
 import lombok.Data;
 import org.apache.jmeter.save.SaveService;
-import org.apache.jorphan.collections.ListedHashTree;
+import org.apache.jorphan.collections.HashTree;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +17,9 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class TestElementDTO implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     // 组件类型
     private String type;
 
@@ -35,51 +39,41 @@ public abstract class TestElementDTO implements Serializable {
     private boolean enable;
 
     // 子组件
-    private LinkedList<TestElementDTO> hashTree;
+    private LinkedList<TestElementDTO> children;
 
     // 父类
     private TestElementDTO parent;
 
     /**
      * 自组件重新这个方法
-     *
-     * @param tree
-     * @param hashTree
-     * @param config
      */
-    public void toHashTree(ListedHashTree tree, List<TestElementDTO> hashTree, BaseConfigDTO config) {
-        if (hashTree != null && hashTree.size() > 0) {
-            for (TestElementDTO el : hashTree) {
-                el.toHashTree(tree, el.hashTree, config);
+    public void toHashTree(HashTree tree, List<TestElementDTO> children, BaseConfigDTO config) {
+        if (children != null && !children.isEmpty()) {
+            for (TestElementDTO el : children) {
+                el.toHashTree(tree, el.children, config);
             }
         }
     }
 
     /**
      * 转换JMX
-     *
-     * @param hashTree
-     * @return
      */
-    public String getJmx(ListedHashTree hashTree) {
+    public String getJmx(HashTree children) {
         try (ByteArrayOutputStream bas = new ByteArrayOutputStream()) {
-            SaveService.saveTree(hashTree, bas);
+            SaveService.saveTree(children, bas);
             return bas.toString();
         } catch (Exception e) {
-            PluginLogUtils.error("ListedHashTree error, can't log jmx scenarioDefinition");
+            PluginLogUtils.error("HashTree error, can't log jmx scenarioDefinition");
         }
         return null;
     }
 
     /**
      * 生成hashTree
-     *
-     * @param config
-     * @return
      */
-    public ListedHashTree generateHashTree(BaseConfigDTO config) {
-        ListedHashTree listedHashTree = new ListedHashTree();
-        this.toHashTree(listedHashTree, this.hashTree, config);
+    public HashTree generateHashTree(BaseConfigDTO config) {
+        HashTree listedHashTree = new HashTree();
+        this.toHashTree(listedHashTree, this.children, config);
         return listedHashTree;
     }
 
