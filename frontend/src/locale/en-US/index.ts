@@ -32,6 +32,7 @@ export default {
     'menu.settings.organization.member': 'Member',
     'menu.settings.organization.serviceIntegration': 'Service Integration',
     'menu.settings.system.usergroup': 'User Group',
+    'menu.settings.system.authorizedManagement': 'Authorized Management',
     'menu.settings.system.pluginmanger': 'Plugin Manger',
     'menu.settings.system.user': 'User',
     'menu.settings.system.organizationAndProject': 'Org & Project',

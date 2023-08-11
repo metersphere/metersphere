@@ -18,7 +18,7 @@
             <div class="ms-upload-main-text">
               {{ t(props.mainText || 'ms.upload.importModalDragtext') }}
             </div>
-            <div class="ms-upload-sub-text">
+            <div v-if="showSubText" class="ms-upload-sub-text">
               {{
                 t(props.subText || 'ms.upload.importModalFileTip', {
                   type: UploadAcceptEnum[props.accept],
@@ -55,6 +55,7 @@
   type UploadProps = Partial<{
     mainText: string; // 主要文案
     subText: string; // 次要文案
+    showSubText: boolean; // 是否显示次要文案
     class: string;
     multiple: boolean;
     imagePreview: boolean;
@@ -68,7 +69,9 @@
     fileList: FileItem[];
   };
 
-  const props = defineProps<UploadProps>();
+  const props = withDefaults(defineProps<UploadProps>(), {
+    showSubText: true,
+  });
   const emit = defineEmits(['update:fileList']);
 
   const defaultMaxSize = 50;
@@ -101,6 +104,7 @@
     xmind: 'icon-icon_file-xmind_colorful1',
     image: 'icon-icon_file-image_colorful1',
     jar: 'icon-icon_file-jar_colorful',
+    none: 'icon-icon_file-text_colorful1',
   };
 
   async function beforeUpload(file: File) {

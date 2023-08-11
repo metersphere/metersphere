@@ -90,6 +90,16 @@ const Setting: AppRouteRecordRaw = {
           },
         },
         {
+          path: 'authorizedmanagement',
+          name: 'settingSystemAuthorizedManagement',
+          component: () => import('@/views/setting/system/authorizedManagement/index.vue'),
+          meta: {
+            locale: 'menu.settings.system.authorizedManagement',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
+        {
           path: 'pluginmanger',
           name: 'settingSystemPluginManger',
           component: () => import('@/views/setting/system/pluginManager/index.vue'),

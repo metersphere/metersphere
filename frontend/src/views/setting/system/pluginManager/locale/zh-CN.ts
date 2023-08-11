@@ -60,7 +60,7 @@ export default {
   'system.plugin.disablePluginSuccess': '禁用成功',
   'system.plugin.disablePluginContent': '项目无法与该平台集成且该平台默认模版不可用，谨慎操作！',
   'system.plugin.alertDescribe':
-    'MeterSphereV2.10LTS版本支持DevOps、API导入、请求、项目管理、协议类型的插件，具体支持插件请',
+    'MeterSphereV2.10LTS 版本支持 DevOps、API 导入、请求、项目管理、协议类型的插件，具体支持插件请',
   'system.plugin.viewTable': '查看表格',
   'system.plugin.downAddress': '更多开源插件，请在此下载',
   'system.plugin.goDownload': '去下载',
