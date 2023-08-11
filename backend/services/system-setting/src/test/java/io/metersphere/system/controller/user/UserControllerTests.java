@@ -5,7 +5,6 @@ import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.ExcelParseDTO;
 import io.metersphere.sdk.dto.UserDTO;
-import io.metersphere.sdk.dto.request.GlobalUserRoleRelationBatchRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CodingUtil;
@@ -17,9 +16,10 @@ import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.UserRoleOption;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
-import io.metersphere.system.dto.request.UserBatchProcessRequest;
+import io.metersphere.system.dto.request.UserBaseBatchRequest;
 import io.metersphere.system.dto.request.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.UserEditRequest;
+import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
 import io.metersphere.system.dto.response.UserBatchProcessResponse;
 import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserTableResponse;
@@ -469,12 +469,12 @@ public class UserControllerTests extends BaseTest {
         //单独修改状态
         UserCreateInfo userInfo = USER_LIST.get(0);
         UserChangeEnableRequest userChangeEnableRequest = new UserChangeEnableRequest();
-        userChangeEnableRequest.setUserIdList(new ArrayList<>() {{
+        userChangeEnableRequest.setUserIds(new ArrayList<>() {{
             this.add(userInfo.getId());
         }});
         userChangeEnableRequest.setEnable(false);
         this.requestPost(userRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, status().isOk());
-        for (String item : userChangeEnableRequest.getUserIdList()) {
+        for (String item : userChangeEnableRequest.getUserIds()) {
             checkLog(item, OperationLogType.UPDATE);
         }
 
@@ -491,7 +491,7 @@ public class UserControllerTests extends BaseTest {
         userChangeEnableRequest.setEnable(false);
         this.requestPost(userRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, BAD_REQUEST_MATCHER);
         //含有非法用户
-        userChangeEnableRequest.setUserIdList(new ArrayList<>() {{
+        userChangeEnableRequest.setUserIds(new ArrayList<>() {{
             this.add("BCDEDIT");
         }});
         this.requestPost(userRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, ERROR_REQUEST_MATCHER);
@@ -584,21 +584,69 @@ public class UserControllerTests extends BaseTest {
     @Order(8)
     public void testUserResetPasswordSuccess() throws Exception {
         this.checkUserList();
-        String userId = USER_LIST.get(0).getId();
-        String userEmail = USER_LIST.get(0).getEmail();
-        //重置普通用户密码
-        this.resetPasswordAndCheck(userId, userEmail);
-        this.checkLog(userId, OperationLogType.UPDATE);
         //重置admin的密码
-        this.resetPasswordAndCheck("admin", "metersphere");
-        this.checkLog(userId, OperationLogType.UPDATE);
+        {
+            UserBaseBatchRequest request = new UserBaseBatchRequest();
+            request.setUserIds(Collections.singletonList("admin"));
+            userRequestUtils.parseObjectFromMvcResult(
+                    this.requestPostAndReturn(userRequestUtils.URL_USER_RESET_PASSWORD, request),
+                    UserBatchProcessResponse.class
+            );
+            //检查数据库
+            UserExample userExample = new UserExample();
+            userExample.createCriteria().andIdEqualTo("admin").andPasswordEqualTo(CodingUtil.md5("metersphere"));
+            Assertions.assertEquals(1, userMapper.countByExample(userExample));
+            this.checkLog("admin", OperationLogType.UPDATE);
+        }
+        //重置普通用户密码
+        {
+            User paramUser = new User();
+            String userId = USER_LIST.get(0).getId();
+            paramUser.setId(userId);
+            paramUser.setPassword("I can't say any dirty words");
+            Assertions.assertEquals(1, userMapper.updateByPrimaryKeySelective(paramUser));
+            UserBaseBatchRequest request = new UserBaseBatchRequest();
+            request.setUserIds(Collections.singletonList(userId));
+            UserBatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(
+                    this.requestPostAndReturn(userRequestUtils.URL_USER_RESET_PASSWORD, request),
+                    UserBatchProcessResponse.class
+            );
+            List<User> userList = userService.selectByIdList(response.getProcessedIds());
+            for (User checkUser : userList) {
+                UserExample userExample = new UserExample();
+                userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtil.md5(checkUser.getEmail()));
+                Assertions.assertEquals(1, userMapper.countByExample(userExample));
+                this.checkLog(checkUser.getId(), OperationLogType.UPDATE);
+            }
+        }
+        //重置非Admin用户的密码
+        {
+            UserBaseBatchRequest request = new UserBaseBatchRequest();
+            request.setSkipIds(Collections.singletonList("admin"));
+            request.setSelectAll(true);
+            UserBatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(
+                    this.requestPostAndReturn(userRequestUtils.URL_USER_RESET_PASSWORD, request),
+                    UserBatchProcessResponse.class
+            );
+            List<User> userList = userService.selectByIdList(response.getProcessedIds());
+            for (User checkUser : userList) {
+                UserExample userExample = new UserExample();
+                userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtil.md5(checkUser.getEmail()));
+                Assertions.assertEquals(1, userMapper.countByExample(userExample));
+                this.checkLog(checkUser.getId(), OperationLogType.UPDATE);
+            }
+        }
     }
 
     @Test
     @Order(8)
     public void testUserResetPasswordError() throws Exception {
         //用户不存在
-        userRequestUtils.requestPostString(userRequestUtils.URL_USER_RESET_PASSWORD, "none user", ERROR_REQUEST_MATCHER);
+        {
+            UserBaseBatchRequest request = new UserBaseBatchRequest();
+            request.setUserIds(Collections.singletonList("none user"));
+            this.requestPostAndReturn(userRequestUtils.URL_USER_RESET_PASSWORD, request, ERROR_REQUEST_MATCHER);
+        }
     }
 
     @Test
@@ -610,7 +658,7 @@ public class UserControllerTests extends BaseTest {
         }
         List<UserCreateInfo> last50Users = USER_LIST.subList(USER_LIST.size() - 50, USER_LIST.size());
         //测试添加角色权限。 预期数据：每个用户都会增加对应的权限
-        GlobalUserRoleRelationBatchRequest request = new GlobalUserRoleRelationBatchRequest();
+        UserAndRoleBatchRequest request = new UserAndRoleBatchRequest();
         request.setUserIds(last50Users.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
         request.setRoleIds(USER_ROLE_LIST.stream().map(UserRoleOption::getId).collect(Collectors.toList()));
         userRequestUtils.requestPost(userRequestUtils.URL_USER_ROLE_RELATION, request, null);
@@ -646,23 +694,23 @@ public class UserControllerTests extends BaseTest {
         }
         List<UserCreateInfo> last50Users = USER_LIST.subList(USER_LIST.size() - 50, USER_LIST.size());
         // 用户ID为空
-        GlobalUserRoleRelationBatchRequest request = new GlobalUserRoleRelationBatchRequest();
+        UserAndRoleBatchRequest request = new UserAndRoleBatchRequest();
         request.setUserIds(new ArrayList<>());
         request.setRoleIds(USER_ROLE_LIST.stream().map(UserRoleOption::getId).collect(Collectors.toList()));
         userRequestUtils.requestPost(userRequestUtils.URL_USER_ROLE_RELATION, request, BAD_REQUEST_MATCHER);
         // 角色id为空
-        request = new GlobalUserRoleRelationBatchRequest();
+        request = new UserAndRoleBatchRequest();
         request.setUserIds(last50Users.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
         request.setRoleIds(new ArrayList<>());
         userRequestUtils.requestPost(userRequestUtils.URL_USER_ROLE_RELATION, request, BAD_REQUEST_MATCHER);
         // 用户ID含有不存在的
-        request = new GlobalUserRoleRelationBatchRequest();
+        request = new UserAndRoleBatchRequest();
         request.setUserIds(last50Users.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
         request.setRoleIds(USER_ROLE_LIST.stream().map(UserRoleOption::getId).collect(Collectors.toList()));
         request.getUserIds().add("none user");
         userRequestUtils.requestPost(userRequestUtils.URL_USER_ROLE_RELATION, request, ERROR_REQUEST_MATCHER);
         // 角色ID含有不存在的
-        request = new GlobalUserRoleRelationBatchRequest();
+        request = new UserAndRoleBatchRequest();
         request.setUserIds(last50Users.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
         request.setRoleIds(USER_ROLE_LIST.stream().map(UserRoleOption::getId).collect(Collectors.toList()));
         request.getRoleIds().add("none role");
@@ -674,25 +722,47 @@ public class UserControllerTests extends BaseTest {
     @Order(99)
     public void testUserDeleteSuccess() throws Exception {
         this.checkUserList();
-        //删除已存的所有用户
-        UserBatchProcessRequest request = new UserBatchProcessRequest();
-        request.setUserIdList(USER_LIST.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
-        UserBatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(userRequestUtils.URL_USER_DELETE, request), UserBatchProcessResponse.class);
-        Assertions.assertEquals(request.getUserIdList().size(), response.getTotalCount());
-        Assertions.assertEquals(request.getUserIdList().size(), response.getSuccessCount());
-        //检查数据库
-        UserExample example = new UserExample();
-        example.createCriteria().andIdIn(request.getUserIdList());
-        List<User> userList = userMapper.selectByExample(example);
-        for (User user : userList) {
-            Assertions.assertTrue(user.getDeleted());
+        //删除指定的用户
+        {
+            UserCreateInfo deleteUser = USER_LIST.get(0);
+            UserBaseBatchRequest request = new UserBaseBatchRequest();
+            request.setUserIds(Collections.singletonList(deleteUser.getId()));
+            UserBatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(userRequestUtils.URL_USER_DELETE, request), UserBatchProcessResponse.class);
+            Assertions.assertEquals(request.getUserIds().size(), response.getTotalCount());
+            Assertions.assertEquals(request.getUserIds().size(), response.getSuccessCount());
+            //检查数据库
+            UserExample example = new UserExample();
+            example.createCriteria().andIdIn(response.getProcessedIds());
+            List<User> userList = userMapper.selectByExample(example);
+            for (User user : userList) {
+                Assertions.assertTrue(user.getDeleted());
+            }
+            USER_LIST.remove(deleteUser);
         }
-        //记录已经删除了的用户，用于反例
-        DELETED_USER_ID_LIST.clear();
-        USER_LIST.clear();
-        DELETED_USER_ID_LIST.addAll(request.getUserIdList());
-        //检查删除了的用户，可以用其邮箱继续注册
-        this.testAddSuccess();
+
+        //删除已存的所有用户(不包括admin）
+        {
+            UserBaseBatchRequest request = new UserBaseBatchRequest();
+            request.setUserIds(USER_LIST.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
+            request.setSkipIds(Collections.singletonList("admin"));
+            UserBatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(userRequestUtils.URL_USER_DELETE, request), UserBatchProcessResponse.class);
+            Assertions.assertEquals(request.getUserIds().size(), response.getTotalCount());
+            Assertions.assertEquals(request.getUserIds().size(), response.getSuccessCount());
+            //检查数据库
+            UserExample example = new UserExample();
+            example.createCriteria().andIdIn(response.getProcessedIds());
+            List<User> userList = userMapper.selectByExample(example);
+            for (User user : userList) {
+                Assertions.assertTrue(user.getDeleted());
+            }
+
+            //记录已经删除了的用户，用于反例
+            DELETED_USER_ID_LIST.clear();
+            USER_LIST.clear();
+            DELETED_USER_ID_LIST.addAll(response.getProcessedIds());
+            //检查删除了的用户，可以用其邮箱继续注册
+            this.testAddSuccess();
+        }
     }
 
     //删除失败的方法要放在删除成功方法后面执行
@@ -700,16 +770,21 @@ public class UserControllerTests extends BaseTest {
     @Order(100)
     public void testUserDeleteError() throws Exception {
         //参数为空
-        UserBatchProcessRequest request = new UserBatchProcessRequest();
-        this.requestPost(userRequestUtils.URL_USER_DELETE, request, BAD_REQUEST_MATCHER);
-        //用户不存在
-        request.getUserIdList().add("123456789012345678901234");
+        UserBaseBatchRequest request = new UserBaseBatchRequest();
         this.requestPost(userRequestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
-        //用户已经被删除
+        //用户不存在
+        request.setUserIds(Collections.singletonList("none user"));
+        this.requestPost(userRequestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
+        //测试用户已经被删除的
         if (CollectionUtils.isEmpty(DELETED_USER_ID_LIST)) {
             this.testUserDeleteSuccess();
         }
-        request.setUserIdList(DELETED_USER_ID_LIST);
+        request.setUserIds(DELETED_USER_ID_LIST);
+        this.requestPost(userRequestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
+
+        //测试包含Admin用户
+        request = new UserBaseBatchRequest();
+        request.setSelectAll(true);
         this.requestPost(userRequestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
     }
 
@@ -752,20 +827,5 @@ public class UserControllerTests extends BaseTest {
             returnList.add(userDTO);
         }
         return returnList;
-    }
-
-    private void resetPasswordAndCheck(String userId, String userEmail) throws Exception {
-        User user = new User();
-        user.setId(userId);
-        user.setPassword("I can't say any dirty words");
-        Assertions.assertEquals(1, userMapper.updateByPrimaryKeySelective(user));
-
-        //调用重置密码的接口
-        userRequestUtils.requestPostString(userRequestUtils.URL_USER_RESET_PASSWORD, userId, status().isOk());
-        //检查数据库
-        UserExample example = new UserExample();
-        example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(userEmail));
-        Assertions.assertEquals(1, userMapper.countByExample(example));
-        checkLog(userId, OperationLogType.UPDATE);
     }
 }

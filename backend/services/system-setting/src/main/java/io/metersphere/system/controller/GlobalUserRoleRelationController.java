@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
-import io.metersphere.sdk.dto.request.GlobalUserRoleRelationBatchRequest;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -12,6 +11,7 @@ import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.dto.request.GlobalUserRoleRelationQueryRequest;
+import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
 import io.metersphere.system.service.GlobalUserRoleRelationLogService;
 import io.metersphere.system.service.GlobalUserRoleRelationService;
 import io.metersphere.validation.groups.Created;
@@ -54,11 +54,11 @@ public class GlobalUserRoleRelationController {
     }
 
     //用户管理页面，批量添加用户到多个用户组。 权限所属是用户管理的编辑页面权限
-    @PostMapping("/add/batch")
+    @PostMapping("/add/batch/user-role")
     @Operation(summary = "批量添加用户到多个用户组中")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     @Log(type = OperationLogType.ADD, expression = "#msClass.batchAddLog(#request)", msClass = GlobalUserRoleRelationLogService.class)
-    public void batchAdd(@Validated({Created.class}) @RequestBody GlobalUserRoleRelationBatchRequest request) {
+    public void batchAdd(@Validated({Created.class}) @RequestBody UserAndRoleBatchRequest request) {
         globalUserRoleRelationService.batchAdd(request, SessionUtils.getUserId());
     }
 

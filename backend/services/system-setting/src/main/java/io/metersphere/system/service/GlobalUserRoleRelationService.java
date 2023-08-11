@@ -1,7 +1,6 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
-import io.metersphere.sdk.dto.request.GlobalUserRoleRelationBatchRequest;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserRoleRelationService;
@@ -12,6 +11,8 @@ import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.request.GlobalUserRoleRelationQueryRequest;
+import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
+import io.metersphere.system.dto.response.UserBatchProcessResponse;
 import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -83,9 +84,11 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         return userRoleRelationMapper.selectByExample(example);
     }
 
-    public void batchAdd(@Validated({Created.class, Updated.class}) GlobalUserRoleRelationBatchRequest request, String operator) {
+    public UserBatchProcessResponse batchAdd(@Validated({Created.class, Updated.class}) UserAndRoleBatchRequest request, String operator) {
         //检查角色的合法性
         this.checkGlobalSystemUserRoleLegality(request.getRoleIds());
+        //获取本次处理的用户
+        request.setUserIds(userService.getBatchUserIds(request));
         //检查用户的合法性
         userService.checkUserLegality(request.getUserIds());
         List<UserRoleRelation> savedUserRoleRelation = this.selectByUserIdAndRuleId(request.getUserIds(), request.getRoleIds());
@@ -112,7 +115,11 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         if (CollectionUtils.isNotEmpty(saveList)) {
             userRoleRelationMapper.batchInsert(saveList);
         }
-
+        UserBatchProcessResponse response = new UserBatchProcessResponse();
+        response.setTotalCount(request.getUserIds().size());
+        response.setSuccessCount(saveList.size());
+        response.setProcessedIds(saveList.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()));
+        return response;
     }
 
     @Override

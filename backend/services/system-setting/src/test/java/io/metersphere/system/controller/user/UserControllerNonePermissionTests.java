@@ -1,11 +1,11 @@
 package io.metersphere.system.controller.user;
 
 import com.jayway.jsonpath.JsonPath;
-import io.metersphere.sdk.dto.request.GlobalUserRoleRelationBatchRequest;
 import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.UserRoleOption;
-import io.metersphere.system.dto.request.UserBatchProcessRequest;
+import io.metersphere.system.dto.request.UserBaseBatchRequest;
 import io.metersphere.system.dto.request.UserChangeEnableRequest;
+import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
 import io.metersphere.system.utils.user.UserParamUtils;
 import io.metersphere.system.utils.user.UserRequestUtils;
 import jakarta.annotation.Resource;
@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -84,7 +85,7 @@ public class UserControllerNonePermissionTests {
         //校验权限：启用/禁用用户
         UserChangeEnableRequest userChangeEnableRequest = new UserChangeEnableRequest();
         userChangeEnableRequest.setEnable(false);
-        userChangeEnableRequest.setUserIdList(new ArrayList<>() {{
+        userChangeEnableRequest.setUserIds(new ArrayList<>() {{
             this.add("testId");
         }});
         userRequestUtils.requestPost(userRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, CHECK_RESULT_MATHER);
@@ -95,17 +96,19 @@ public class UserControllerNonePermissionTests {
         MockMultipartFile file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserParamUtils.getFileBytes(filePath));
         userRequestUtils.requestFile(userRequestUtils.URL_USER_IMPORT, file, CHECK_RESULT_MATHER);
         //用户删除
-        UserBatchProcessRequest request = new UserBatchProcessRequest();
-        request.setUserIdList(new ArrayList<>() {{
+        UserBaseBatchRequest request = new UserBaseBatchRequest();
+        request.setUserIds(new ArrayList<>() {{
             this.add("testId");
         }});
         userRequestUtils.requestPost(userRequestUtils.URL_USER_DELETE, request, CHECK_RESULT_MATHER);
 
         //重置密码
-        userRequestUtils.requestPostString(userRequestUtils.URL_USER_RESET_PASSWORD, NONE_ROLE_USERNAME, CHECK_RESULT_MATHER);
+        request = new UserBaseBatchRequest();
+        request.setUserIds(Collections.singletonList("admin"));
+        userRequestUtils.requestPost(userRequestUtils.URL_USER_RESET_PASSWORD, request, CHECK_RESULT_MATHER);
 
         //添加用户到用户组
-        GlobalUserRoleRelationBatchRequest userRoleRelationRequest = new GlobalUserRoleRelationBatchRequest();
+        UserAndRoleBatchRequest userRoleRelationRequest = new UserAndRoleBatchRequest();
         userRoleRelationRequest.setUserIds(new ArrayList<>() {{
             this.add(NONE_ROLE_USERNAME);
         }});
