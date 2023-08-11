@@ -29,6 +29,7 @@ public class BaseDisplayService {
 
 
     public ResponseEntity<byte[]> getFile(String fileName) throws IOException {
+        MediaType contentType = MediaType.parseMediaType("application/octet-stream");
         byte[] bytes = null;
         SystemParameter systemParameter = systemParameterMapper.selectByPrimaryKey("ui." + fileName);
         if (systemParameter != null) {
@@ -41,31 +42,27 @@ public class BaseDisplayService {
             } catch (Exception e) {
                 throw new MSException("get file error");
             }
+            if (systemParameter.getParamValue().endsWith(".svg")) {
+                contentType = MediaType.valueOf("image/svg+xml");
+            }
         }
 
-        MediaType contentType = MediaType.parseMediaType("application/octet-stream");
         if (bytes == null) {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(getClass().getClassLoader());
             switch (fileName) {
-                case "icon":
-                    bytes = IOUtils.toByteArray(resolver.getResource("/static/favicon.ico").getInputStream());
-                    break;
-                case "logoPlatform":
+                case "icon" ->
+                        bytes = IOUtils.toByteArray(resolver.getResource("/static/favicon.ico").getInputStream());
+                case "logoPlatform" -> {
                     bytes = IOUtils.toByteArray(resolver.getResource("/static/images/MS-full-logo.svg").getInputStream());
                     contentType = MediaType.valueOf("image/svg+xml");
-                    break;
-                case "loginImage":
-                    bytes = IOUtils.toByteArray(resolver.getResource("/static/images/login-banner.jpg").getInputStream());
-                    break;
-                default:
+                }
+                case "loginImage" ->
+                        bytes = IOUtils.toByteArray(resolver.getResource("/static/images/login-banner.jpg").getInputStream());
+                default -> {
                     bytes = IOUtils.toByteArray(resolver.getResource("/static/images/login-logo.svg").getInputStream());
                     contentType = MediaType.valueOf("image/svg+xml");
-                    break;
+                }
             }
-        }
-        String[] split = systemParameter.getParamValue().split("[.\n]");
-        if (StringUtils.equalsAnyIgnoreCase("svg", split[split.length - 1])) {
-            contentType = MediaType.valueOf("image/svg+xml");
         }
 
         return ResponseEntity.ok()
