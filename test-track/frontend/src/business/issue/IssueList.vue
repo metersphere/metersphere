@@ -304,7 +304,6 @@ export default {
     } else {
       this.dataSelectRange = "";
     }
-    console.log(this.dataSelectRange);
     this.loading = true;
     this.$nextTick(() => {
       // 解决错位问题
@@ -473,7 +472,9 @@ export default {
       } else if (this.dataSelectRange === 'AllRelatedTestPlan') {
         this.page.condition.allTestPlanIssue = true;
       } else {
-        this.page.condition = {};
+        delete this.page.condition['thisWeekUnClosedTestPlanIssue'];
+        delete this.page.condition['unClosedTestPlanIssue'];
+        delete this.page.condition['allTestPlanIssue'];
       }
       this.page.condition.projectId = this.projectId;
       this.page.condition.workspaceId = this.workspaceId;
