@@ -1,0 +1,17 @@
+export default {
+  'system.authorized.customerName': 'Customer Name',
+  'system.authorized.authorizationTime': 'Authorization time',
+  'system.authorized.productName': 'Product Name',
+  'system.authorized.productionVersion': 'Production Version',
+  'system.authorized.authorizedVersion': 'The authorized version',
+  'system.authorized.authorizationsCount': 'Number of authorizations',
+  'system.authorized.authorizationStatus': 'Authorization status',
+  'system.authorized.authorityChecking': 'Authority Checking',
+  'system.authorized.valid': 'valid',
+  'system.authorized.invalid': 'invalid',
+  'system.authorized.failure': 'failure',
+  'system.authorized.authorization': 'Accredit',
+  'system.authorized.license': 'License',
+  'system.authorized.licenseCode': 'License Code',
+  'system.authorized.licenseSuccessTip': 'Authorized Successfully！',
+};
