@@ -29,7 +29,7 @@
         </el-tree>
       </div>
       <template v-slot:footer>
-        <ms-dialog-footer @cancel="close" @confirm="save" />
+        <ms-dialog-footer @cancel="close" @confirm="save" ref="footer"/>
       </template>
     </el-dialog>
   </div>
@@ -74,6 +74,7 @@ export default {
       this.moduleOptions = moduleOptions;
     },
     save() {
+      this.$refs.footer.disableSaveBtn = true;
       if (!this.currentKey) {
         this.$warning(this.$t('test_track.case.input_module'));
         return;
@@ -101,6 +102,7 @@ export default {
       this.filterText = '';
       this.dialogVisible = false;
       this.selectNode = {};
+      this.$refs.footer.disableSaveBtn = false;
     },
     filterNode(value, data) {
       if (!value) return true;
