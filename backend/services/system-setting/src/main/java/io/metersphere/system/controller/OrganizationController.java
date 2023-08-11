@@ -40,7 +40,7 @@ public class OrganizationController {
 
     @PostMapping("/member/list")
     @Operation(summary = "组织级别获取组织成员")
-    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_MEMBER_READ, PermissionConstants.SYSTEM_USER_READ}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_READ)
     public Pager<List<OrgUserExtend>> getMemberList(@Validated @RequestBody OrganizationRequest organizationRequest) {
         Page<Object> page = PageHelper.startPage(organizationRequest.getCurrent(), organizationRequest.getPageSize());
         return PageUtils.setPageInfo(page, organizationService.getMemberListByOrg(organizationRequest));
@@ -88,21 +88,21 @@ public class OrganizationController {
 
     @GetMapping("/project/list/{organizationId}")
     @Operation(summary = "获取当前组织下的所有项目")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     public List<IdNameStructureDTO> getProjectList(@PathVariable(value = "organizationId") String organizationId) {
         return organizationService.getProjectList(organizationId);
     }
 
     @GetMapping("/user/role/list/{organizationId}")
     @Operation(summary = "获取当前组织下的所有自定义用户组以及组织级别的用户组")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_READ)
     public List<IdNameStructureDTO> getUserRoleList(@PathVariable(value = "organizationId") String organizationId) {
         return organizationService.getUserRoleList(organizationId);
     }
 
     @GetMapping("/not-exist/user/list/{organizationId}")
     @Operation(summary = "获取不在当前组织的所有用户")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
     public List<IdNameStructureDTO> getUserList(@PathVariable(value = "organizationId") String organizationId) {
         return organizationService.getUserList(organizationId);
     }
