@@ -116,6 +116,18 @@
             "name": "permission.system_parameter_setting_auth.delete"
           }
         ]
+      },
+      {
+        "id": "SYSTEM_AUTHORIZATION_MANAGEMENT",
+        "name": "permission.system_auth",
+        "permissions": [
+          {
+            "id": "SYSTEM_AUTH:READ"
+          },
+          {
+            "id": "SYSTEM_AUTH:READ+UPDATE"
+          }
+        ]
       }
     ]
   },
@@ -177,6 +189,28 @@
             "id": "SYSTEM_SERVICE_INTEGRATION:READ+DELETE"
           }
         ]
+      },
+      {
+        "id": "ORGANIZATION_PROJECT",
+        "name": "permission.project.name",
+        "permissions": [
+          {
+            "id": "ORGANIZATION_PROJECT:READ"
+          },
+          {
+            "id": "ORGANIZATION_PROJECT:READ+ADD"
+          },
+          {
+            "id": "ORGANIZATION_PROJECT:READ+UPDATE"
+          },
+          {
+            "id": "ORGANIZATION_PROJECT:READ+DELETE"
+          },
+          {
+            "id": "ORGANIZATION_PROJECT:READ+RECOVER"
+          }
+        ]
+
       }
     ]
   }

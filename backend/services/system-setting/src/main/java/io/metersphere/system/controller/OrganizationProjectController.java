@@ -14,10 +14,10 @@ import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.dto.UserExtend;
+import io.metersphere.system.request.OrganizationProjectRequest;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
-import io.metersphere.system.request.OrganizationProjectRequest;
 import io.metersphere.system.service.OrganizationProjectLogService;
 import io.metersphere.system.service.OrganizationProjectService;
 import io.metersphere.validation.groups.Created;
@@ -29,7 +29,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -96,7 +95,7 @@ public class OrganizationProjectController {
     }
 
     @PostMapping("/member-list")
-    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     @Operation(summary = "获取项目下成员列表")
     public Pager<List<UserExtend>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
