@@ -3,14 +3,14 @@ package io.metersphere.sdk.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EnvironmentGroupProjectExample {
+public class EnvironmentGroupRelationExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public EnvironmentGroupProjectExample() {
+    public EnvironmentGroupRelationExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 

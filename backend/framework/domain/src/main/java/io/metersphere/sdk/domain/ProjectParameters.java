@@ -9,24 +9,16 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class EnvironmentGroup implements Serializable {
-    @Schema(description = "环境组id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{environment_group.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{environment_group.id.length_range}", groups = {Created.class, Updated.class})
+public class ProjectParameters implements Serializable {
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{project_parameters.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{project_parameters.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description = "环境组名", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{environment_group.name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{environment_group.name.length_range}", groups = {Created.class, Updated.class})
-    private String name;
-
-    @Schema(description = "所属项目id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{environment_group.project_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{environment_group.project_id.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{project_parameters.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{project_parameters.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
-
-    @Schema(description = "环境组描述")
-    private String description;
 
     @Schema(description = "创建人")
     private String createUser;
@@ -40,17 +32,19 @@ public class EnvironmentGroup implements Serializable {
     @Schema(description = "更新时间")
     private Long updateTime;
 
+    @Schema(description = "参数配置")
+    private byte[] parameters;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        name("name", "name", "VARCHAR", true),
         projectId("project_id", "projectId", "VARCHAR", false),
-        description("description", "description", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
-        updateTime("update_time", "updateTime", "BIGINT", false);
+        updateTime("update_time", "updateTime", "BIGINT", false),
+        parameters("parameters", "parameters", "LONGVARBINARY", true);
 
         private static final String BEGINNING_DELIMITER = "`";
 

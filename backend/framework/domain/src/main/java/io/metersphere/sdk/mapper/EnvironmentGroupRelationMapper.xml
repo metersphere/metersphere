@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.sdk.mapper.EnvironmentGroupProjectMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.EnvironmentGroupProject">
+<mapper namespace="io.metersphere.sdk.mapper.EnvironmentGroupRelationMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.EnvironmentGroupRelation">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="environment_group_id" jdbcType="VARCHAR" property="environmentGroupId" />
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
@@ -68,13 +68,13 @@
   <sql id="Base_Column_List">
     id, environment_group_id, environment_id, project_id
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.sdk.domain.EnvironmentGroupProjectExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.sdk.domain.EnvironmentGroupRelationExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from environment_group_project
+    from environment_group_relation
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -85,27 +85,27 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from environment_group_project
+    from environment_group_relation
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from environment_group_project
+    delete from environment_group_relation
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.sdk.domain.EnvironmentGroupProjectExample">
-    delete from environment_group_project
+  <delete id="deleteByExample" parameterType="io.metersphere.sdk.domain.EnvironmentGroupRelationExample">
+    delete from environment_group_relation
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.sdk.domain.EnvironmentGroupProject">
-    insert into environment_group_project (id, environment_group_id, environment_id, 
+  <insert id="insert" parameterType="io.metersphere.sdk.domain.EnvironmentGroupRelation">
+    insert into environment_group_relation (id, environment_group_id, environment_id, 
       project_id)
     values (#{id,jdbcType=VARCHAR}, #{environmentGroupId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.EnvironmentGroupProject">
-    insert into environment_group_project
+  <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.EnvironmentGroupRelation">
+    insert into environment_group_relation
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -135,14 +135,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.sdk.domain.EnvironmentGroupProjectExample" resultType="java.lang.Long">
-    select count(*) from environment_group_project
+  <select id="countByExample" parameterType="io.metersphere.sdk.domain.EnvironmentGroupRelationExample" resultType="java.lang.Long">
+    select count(*) from environment_group_relation
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update environment_group_project
+    update environment_group_relation
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -162,7 +162,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update environment_group_project
+    update environment_group_relation
     set id = #{record.id,jdbcType=VARCHAR},
       environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
@@ -171,8 +171,8 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.sdk.domain.EnvironmentGroupProject">
-    update environment_group_project
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.sdk.domain.EnvironmentGroupRelation">
+    update environment_group_relation
     <set>
       <if test="environmentGroupId != null">
         environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
@@ -186,11 +186,46 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.sdk.domain.EnvironmentGroupProject">
-    update environment_group_project
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.sdk.domain.EnvironmentGroupRelation">
+    update environment_group_relation
     set environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
       environment_id = #{environmentId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into environment_group_relation
+    (id, environment_group_id, environment_id, project_id)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.environmentGroupId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into environment_group_relation (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'environment_group_id'.toString() == column.value">
+          #{item.environmentGroupId,jdbcType=VARCHAR}
+        </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>
