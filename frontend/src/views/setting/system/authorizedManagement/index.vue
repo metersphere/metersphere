@@ -58,9 +58,7 @@
               >
             </li>
             <li>
-              <a class="text-[rgb(var(--primary-5))]" href="javascript:;" @click="authChecking">{{
-                t('system.authorized.authorityChecking')
-              }}</a>
+              <MsButton @click="authChecking">{{ t('system.authorized.authorityChecking') }}</MsButton>
             </li>
           </ul>
         </div>
@@ -95,6 +93,9 @@
               v-model="authorizedForm.licenseCode"
               class="mt-4"
               :placeholder="t('system.authorized.licenseCode')"
+              :auto-size="{
+                minRows: 3,
+              }"
               :rules="[{ required: true }]"
             ></a-textarea>
           </a-form-item>
@@ -112,6 +113,7 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
