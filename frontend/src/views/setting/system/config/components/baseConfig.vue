@@ -75,7 +75,7 @@
             :placeholder="t('system.config.baseInfo.pageUrlPlaceholder')"
             allow-clear
           ></a-input>
-          <MsFormItemSub :text="t('system.config.baseInfo.pageUrlSub', { url: defaulUrl })" @fill="fillDefaultUrl" />
+          <MsFormItemSub :text="t('system.config.baseInfo.pageUrlSub', { url: defaultUrl })" @fill="fillDefaultUrl" />
         </a-form-item>
         <a-form-item :label="t('system.config.prometheus')" field="prometheusHost" asterisk-position="end">
           <a-input
@@ -85,7 +85,7 @@
             allow-clear
           ></a-input>
           <MsFormItemSub
-            :text="t('system.config.baseInfo.prometheusSub', { prometheus: defaulPrometheus })"
+            :text="t('system.config.baseInfo.prometheusSub', { prometheus: defaultPrometheus })"
             @fill="fillDefaultPrometheus"
           />
         </a-form-item>
@@ -219,15 +219,15 @@
   const baseInfoForm = ref({ ...baseInfo.value });
   const baseInfoDescs = ref<Description[]>([]);
   // 默认示例
-  const defaulUrl = 'https://metersphere.com';
-  const defaulPrometheus = 'http://ms-prometheus:9090';
+  const defaultUrl = 'https://metersphere.com';
+  const defaultPrometheus = 'http://ms-prometheus:9090';
 
   function fillDefaultUrl() {
-    baseInfoForm.value.url = defaulUrl;
+    baseInfoForm.value.url = defaultUrl;
   }
 
   function fillDefaultPrometheus() {
-    baseInfoForm.value.prometheusHost = defaulPrometheus;
+    baseInfoForm.value.prometheusHost = defaultPrometheus;
   }
 
   /**

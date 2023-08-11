@@ -110,7 +110,7 @@
         if (appStore.device === 'desktop') appStore.updateSettings({ menuCollapse: val });
       };
 
-      const personalMenusVisble = ref(false);
+      const personalMenusVisible = ref(false);
 
       const personalMenus = [
         {
@@ -136,12 +136,12 @@
       const personalInfoMenu = () => {
         return (
           <a-trigger
-            v-model:popup-visible={personalMenusVisble.value}
+            v-model:popup-visible={personalMenusVisible.value}
             trigger="click"
             unmount-on-close={false}
             popup-offset={4}
             position="right"
-            class={['arco-trigger-menu absolute', personalMenusVisble.value ? 'block' : 'hidden']}
+            class={['arco-trigger-menu absolute', personalMenusVisible.value ? 'block' : 'hidden']}
             v-slots={{
               content: () => (
                 <div class="arco-trigger-menu-inner">
@@ -163,7 +163,7 @@
                           } else if (e.route) {
                             goto(e.route);
                           }
-                          personalMenusVisble.value = false;
+                          personalMenusVisible.value = false;
                         }}
                       >
                         {e.icon}

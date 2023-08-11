@@ -23,7 +23,7 @@
       :action-config="tableBatchActions"
       v-on="propsEvent"
       @selected-change="handleTableSelect"
-      @batch-action="handelTableBatch"
+      @batch-action="handleTableBatch"
     >
       <template #organization="{ record }">
         <a-tooltip :content="record.organizationList.filter((e: any) => e).map((e: any) => e.name).join(',')">
@@ -246,41 +246,41 @@
 
   const columns: MsTableColumn = [
     {
-      title: 'system.user.tableColunmEmail',
+      title: 'system.user.tableColumnEmail',
       dataIndex: 'email',
       width: 200,
       showInTable: true,
     },
     {
-      title: 'system.user.tableColunmName',
+      title: 'system.user.tableColumnName',
       dataIndex: 'name',
       showInTable: true,
     },
     {
-      title: 'system.user.tableColunmPhone',
+      title: 'system.user.tableColumnPhone',
       dataIndex: 'phone',
       showInTable: true,
     },
     {
-      title: 'system.user.tableColunmOrg',
+      title: 'system.user.tableColumnOrg',
       slotName: 'organization',
       dataIndex: 'organizationList',
       showInTable: true,
     },
     {
-      title: 'system.user.tableColunmUsergroup',
+      title: 'system.user.tableColumnUsergroup',
       slotName: 'userRole',
       dataIndex: 'userRoleList',
       showInTable: true,
     },
     {
-      title: 'system.user.tableColunmStatus',
+      title: 'system.user.tableColumnStatus',
       slotName: 'enable',
       dataIndex: 'enable',
       showInTable: true,
     },
     {
-      title: 'system.user.tableColunmActions',
+      title: 'system.user.tableColumnActions',
       slotName: 'action',
       fixed: 'right',
       width: 120,
@@ -570,7 +570,7 @@
    * 处理表格选中后批量操作
    * @param event 批量操作事件对象
    */
-  function handelTableBatch(event: BatchActionParams) {
+  function handleTableBatch(event: BatchActionParams) {
     switch (event.eventTag) {
       case 'batchAddProject':
       case 'batchAddUsergroup':
@@ -623,7 +623,7 @@
   const loading = ref(false);
   const userFormMode = ref<UserModalMode>('create');
   const userFormRef = ref<FormInstance | null>(null);
-  const defaulUserForm = {
+  const defaultUserForm = {
     list: [
       {
         name: '',
@@ -633,7 +633,7 @@
     ],
     userGroup: [],
   };
-  const userForm = ref<UserForm>(cloneDeep(defaulUserForm));
+  const userForm = ref<UserForm>(cloneDeep(defaultUserForm));
   const userGroupOptions = ref();
 
   async function init() {
@@ -677,15 +677,6 @@
     if (mode === 'edit' && record) {
       userForm.value.list = [{ id: record.id, name: record.name, email: record.email, phone: record.phone }];
       userForm.value.userGroup = record.userRoleList.map((e) => e.id);
-    }
-  }
-
-  /**
-   * 处理用户表单弹窗关闭
-   */
-  function handleUserModalClose() {
-    if (userFormMode.value === 'edit') {
-      resetUserForm();
     }
   }
 
@@ -840,6 +831,14 @@
     });
   }
 
+  /**
+   * 处理用户表单弹窗关闭
+   */
+  function handleUserModalClose() {
+    resetUserForm();
+    batchFormRef.value?.resetForm();
+  }
+
   const inviteVisible = ref(false);
   function showEmailInviteModal() {
     inviteVisible.value = true;
@@ -866,9 +865,6 @@
     importVisible.value = false;
     importResultVisible.value = false;
     userImportFile.value = [];
-    if (importResult.value === 'success' || (importResult.value === 'fail' && importSuccessCount.value > 0)) {
-      loadList();
-    }
   }
 
   /**
@@ -879,12 +875,14 @@
     switch (importResult.value) {
       case 'success':
         importResultTitle.value = t('system.user.importSuccessTitle');
+        loadList();
         break;
       case 'allFail':
         importResultTitle.value = t('system.user.importAllfailTitle');
         break;
       case 'fail':
         importResultTitle.value = t('system.user.importFailTitle');
+        loadList();
         break;
       default:
         break;

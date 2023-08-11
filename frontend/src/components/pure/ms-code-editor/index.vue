@@ -16,7 +16,7 @@
 
 <script lang="ts">
   import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-  import { editorProps, CustomeTheme } from './types';
+  import { editorProps, CustomTheme } from './types';
   import './userWorker';
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
   import { useFullscreen } from '@vueuse/core';
@@ -35,8 +35,8 @@
 
       const init = () => {
         // 注册自定义主题
-        if (MsCodeEditorTheme[props.theme as CustomeTheme]) {
-          monaco.editor.defineTheme(props.theme, MsCodeEditorTheme[props.theme as CustomeTheme]);
+        if (MsCodeEditorTheme[props.theme as CustomTheme]) {
+          monaco.editor.defineTheme(props.theme, MsCodeEditorTheme[props.theme as CustomTheme]);
         }
         editor = monaco.editor.create(codeEditBox.value, {
           value: props.modelValue,

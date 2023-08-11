@@ -1,3 +1,4 @@
+import { Recordable } from '#/global';
 import { isObject } from './is';
 
 type TargetContext = '_self' | '_parent' | '_blank' | '_top';
@@ -145,4 +146,29 @@ export function characterLimit(str?: string): string {
     return str;
   }
   return `${str.slice(0, 20 - 3)}...`;
+}
+
+/**
+ * 递归计算树形数组的最大深度
+ * @param node 树形数组
+ * @param depth 深度
+ * @returns 最大深度
+ */
+export interface Node {
+  children?: Node[];
+  [key: string]: any;
+}
+
+export function calculateMaxDepth(arr?: Node[], depth = 0) {
+  if (!arr || arr.length === 0) {
+    return depth;
+  }
+
+  let maxDepth = depth;
+  Object.values(arr).forEach((item) => {
+    const childDepth = calculateMaxDepth(item.children, depth + 1);
+    maxDepth = Math.max(maxDepth, childDepth);
+  });
+
+  return maxDepth;
 }

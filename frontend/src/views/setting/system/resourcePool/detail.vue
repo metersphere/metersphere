@@ -60,7 +60,7 @@
           multiple
           allow-clear
         >
-          <a-option v-for="org of orgOptons" :key="org.id" :value="org.id">{{ org.name }}</a-option>
+          <a-option v-for="org of orgOptions" :key="org.id" :value="org.id">{{ org.name }}</a-option>
         </a-select>
       </a-form-item>
       <a-form-item
@@ -385,7 +385,7 @@
   };
   const form = ref({ ...defaultForm });
   const formRef = ref<FormInstance | null>(null);
-  const orgOptons = ref<SelectOptionData>([]);
+  const orgOptions = ref<SelectOptionData>([]);
   const useList = [
     {
       label: 'system.resourcePool.usePerformance',
@@ -403,7 +403,7 @@
   const defaultGrid = 'http://selenium-hub:4444';
 
   onBeforeMount(async () => {
-    orgOptons.value = await getAllOrgList();
+    orgOptions.value = await getAllOrgList();
   });
 
   async function initPoolInfo() {
@@ -553,7 +553,7 @@
   watchEffect(() => {
     const { nodesList } = form.value.testResourceDTO;
     let res = '';
-    for (let i = 0; i < nodesList.length; i++) {
+    for (let i = 0; i < nodesList?.length; i++) {
       const node = nodesList[i];
       // 按顺序拼接：ip、port、monitor、concurrentNumber
       if (Object.values(node).every((e) => e !== '')) {

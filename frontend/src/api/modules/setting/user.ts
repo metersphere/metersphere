@@ -14,7 +14,7 @@ import type {
   UserListItem,
   CreateUserParams,
   UpdateUserInfoParams,
-  UpdateUserStausParams,
+  UpdateUserStatusParams,
   DeleteUserParams,
   ImportUserParams,
   SystemRole,
@@ -39,7 +39,7 @@ export function updateUserInfo(data: UpdateUserInfoParams) {
 }
 
 // 更新用户启用/禁用状态
-export function toggleUserStatus(data: UpdateUserStausParams) {
+export function toggleUserStatus(data: UpdateUserStatusParams) {
   return MSR.post({ url: EnableUserUrl, data });
 }
 

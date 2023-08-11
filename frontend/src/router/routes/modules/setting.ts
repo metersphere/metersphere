@@ -53,6 +53,16 @@ const Setting: AppRouteRecordRaw = {
           },
         },
         {
+          path: 'parameter',
+          name: 'settingSystemParameter',
+          component: () => import('@/views/setting/system/config/index.vue'),
+          meta: {
+            locale: 'menu.settings.system.parameter',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
+        {
           path: 'resourcePool',
           name: 'settingSystemResourcePool',
           component: () => import('@/views/setting/system/resourcePool/index.vue'),
@@ -100,21 +110,21 @@ const Setting: AppRouteRecordRaw = {
           },
         },
         {
-          path: 'pluginmanger',
-          name: 'settingSystemPluginManger',
-          component: () => import('@/views/setting/system/pluginManager/index.vue'),
+          path: 'log',
+          name: 'settingSystemLog',
+          component: () => import('@/views/setting/system/log/index.vue'),
           meta: {
-            locale: 'menu.settings.system.pluginmanger',
+            locale: 'menu.settings.system.log',
             roles: ['*'],
             isTopMenu: true,
           },
         },
         {
-          path: 'parameter',
-          name: 'settingSystemParameter',
-          component: () => import('@/views/setting/system/config/index.vue'),
+          path: 'pluginmanger',
+          name: 'settingSystemPluginManger',
+          component: () => import('@/views/setting/system/pluginManager/index.vue'),
           meta: {
-            locale: 'menu.settings.system.parameter',
+            locale: 'menu.settings.system.pluginmanger',
             roles: ['*'],
             isTopMenu: true,
           },

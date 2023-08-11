@@ -97,7 +97,7 @@
     word: 'icon-icon_file-word_colorful1',
     pdf: 'icon-icon_file-pdf_colorful1',
     txt: 'icon-icon_file-text_colorful1',
-    vedio: 'icon-icon_file-vedio_colorful1',
+    video: 'icon-icon_file-vedio_colorful1',
     sql: 'icon-icon_file-sql_colorful1',
     csv: 'icon-icon_file-CSV_colorful1',
     zip: 'icon-a-icon_file-compressed_colorful1',

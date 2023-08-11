@@ -1,5 +1,5 @@
 // 请求返回结构
-export default interface CommonReponse<T> {
+export default interface CommonResponse<T> {
   code: number;
   message: string;
   messageDetail: string;

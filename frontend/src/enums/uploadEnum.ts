@@ -3,7 +3,7 @@ export enum UploadAcceptEnum {
   word = '.docx,.doc',
   pdf = '.pdf',
   txt = '.txt',
-  vedio = '.mp4',
+  video = '.mp4',
   sql = '.sql',
   csv = '.csv',
   zip = '.zip',

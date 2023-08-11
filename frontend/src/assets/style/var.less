@@ -159,3 +159,27 @@
     color: rgb(var(--primary-3)) !important;
   }
 }
+
+/** 滚动条 **/
+.ms-scroll-bar() {
+  &::-webkit-scrollbar {
+    @apply bg-transparent;
+
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    @apply hidden;
+
+    border-radius: var(--border-radius-medium);
+    background-color: var(--color-text-input-border);
+  }
+  &::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      @apply block;
+    }
+  }
+}

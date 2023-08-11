@@ -80,40 +80,40 @@
 
   const columns: MsTableColumn = [
     {
-      title: 'system.resourcePool.tableColunmName',
+      title: 'system.resourcePool.tableColumnName',
       slotName: 'name',
       dataIndex: 'name',
       width: 200,
       showInTable: true,
     },
     {
-      title: 'system.resourcePool.tableColunmStatus',
+      title: 'system.resourcePool.tableColumnStatus',
       slotName: 'enable',
       dataIndex: 'enable',
       showInTable: true,
     },
     {
-      title: 'system.resourcePool.tableColunmDescription',
+      title: 'system.resourcePool.tableColumnDescription',
       dataIndex: 'description',
       showInTable: true,
     },
     {
-      title: 'system.resourcePool.tableColunmType',
+      title: 'system.resourcePool.tableColumnType',
       dataIndex: 'type',
       showInTable: true,
     },
     {
-      title: 'system.resourcePool.tableColunmCreateTime',
+      title: 'system.resourcePool.tableColumnCreateTime',
       dataIndex: 'createTime',
       showInTable: true,
     },
     {
-      title: 'system.resourcePool.tableColunmUpdateTime',
+      title: 'system.resourcePool.tableColumnUpdateTime',
       dataIndex: 'updateTime',
       showInTable: true,
     },
     {
-      title: 'system.resourcePool.tableColunmActions',
+      title: 'system.resourcePool.tableColumnActions',
       slotName: 'action',
       fixed: 'right',
       width: 140,

@@ -79,7 +79,7 @@
   const target = ref<string[]>([]);
   const treeList = ref<TreeDataItem[]>([]);
 
-  function handelTableBatch(action: string) {
+  function handleTableBatch(action: string) {
     switch (action) {
       case 'batchAddProject':
         batchTitle.value = t('system.user.batchAddProject');
@@ -100,7 +100,7 @@
     () => props.visible,
     (val) => {
       if (val) {
-        handelTableBatch(props.action);
+        handleTableBatch(props.action);
       }
     },
     {
