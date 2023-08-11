@@ -1,5 +1,6 @@
-package io.metersphere.sdk.dto.request;
+package io.metersphere.system.dto.request.user;
 
+import io.metersphere.system.dto.request.UserBaseBatchRequest;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,20 +13,10 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class GlobalUserRoleRelationBatchRequest {
-
-    @Schema(description =  "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "{user_role_relation.user_id.not_blank}", groups = {Created.class, Updated.class})
-    @Valid
-    private List<
-            @NotBlank(message = "{user_role_relation.user_id.not_blank}", groups = {Created.class, Updated.class})
-            @Size(min = 1, max = 50, message = "{user_role_relation.user_id.length_range}", groups = {Created.class, Updated.class})
-                    String
-            > userIds;
+public class UserAndRoleBatchRequest extends UserBaseBatchRequest {
 
     @Schema(description =  "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{user_role_relation.role_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{user_role_relation.role_id.length_range}", groups = {Created.class, Updated.class})
     @Valid
     private List<
             @NotBlank(message = "{user_role_relation.role_id.not_blank}", groups = {Created.class, Updated.class})
@@ -33,4 +24,12 @@ public class GlobalUserRoleRelationBatchRequest {
                     String
             > roleIds;
 
+    @Schema(description = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotEmpty(message = "{user_role_relation.role_id.not_blank}", groups = {Created.class})
+    @Valid
+    private List<
+            @NotBlank(message = "{user_role_relation.user_id.not_blank}", groups = {Created.class, Updated.class})
+            @Size(min = 1, max = 50, message = "{user_role_relation.user_id.length_range}", groups = {Created.class, Updated.class})
+                    String
+            > userIds;
 }

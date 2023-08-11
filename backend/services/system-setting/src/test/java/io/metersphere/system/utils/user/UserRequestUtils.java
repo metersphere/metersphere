@@ -29,7 +29,7 @@ public class UserRequestUtils {
     public final String URL_USER_IMPORT = "/system/user/import";
     public final String URL_USER_DELETE = "/system/user/delete";
     public final String URL_USER_RESET_PASSWORD = "/system/user/reset/password";
-    public final String URL_USER_ROLE_RELATION = "/user/role/relation/global/add/batch";
+    public final String URL_USER_ROLE_RELATION = "/system/user/add/batch/user-role";
 
     private final MockMvc mockMvc;
     private final String sessionId;
@@ -65,17 +65,6 @@ public class UserRequestUtils {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(param))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(resultMatcher).andDo(print())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-    //参数是string
-    public void requestPostString(String url, String param, ResultMatcher resultMatcher) throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post(url)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(param)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(resultMatcher).andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));

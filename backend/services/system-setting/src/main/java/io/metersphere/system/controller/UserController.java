@@ -16,11 +16,15 @@ import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.dto.UserRoleOption;
+import io.metersphere.system.dto.request.UserBaseBatchRequest;
 import io.metersphere.system.dto.request.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.UserEditRequest;
+import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
 import io.metersphere.system.dto.response.UserBatchProcessResponse;
 import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserTableResponse;
+import io.metersphere.system.service.GlobalUserRoleRelationLogService;
+import io.metersphere.system.service.GlobalUserRoleRelationService;
 import io.metersphere.system.service.GlobalUserRoleService;
 import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Created;
@@ -45,17 +49,19 @@ public class UserController {
     private UserService userService;
     @Resource
     private GlobalUserRoleService globalUserRoleService;
+    @Resource
+    private GlobalUserRoleRelationService globalUserRoleRelationService;
 
     @GetMapping("/get/{email}")
     @Operation(summary = "通过email查找用户")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
     public UserDTO getUser(@PathVariable String email) {
         return userService.getUserDTOByEmail(email);
     }
 
     @GetMapping("/get/global/system/role")
     @Operation(summary = "查找系统级用户权限")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
     public List<UserRoleOption> getGlobalSystemRole() {
         return globalUserRoleService.getGlobalSystemRoleList();
     }
@@ -87,6 +93,7 @@ public class UserController {
     @PostMapping("/update/enable")
     @Operation(summary = "启用/禁用用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateLog(#request)", msClass = UserService.class)
     public UserBatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
         return userService.updateUserEnable(request, SessionUtils.getSessionId());
     }
@@ -100,10 +107,10 @@ public class UserController {
 
     @PostMapping("/delete")
     @Operation(summary = "删除用户")
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#userBatchProcessRequest)", msClass = UserService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#request)", msClass = UserService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
-    public UserBatchProcessResponse deleteUser(@Validated @RequestBody UserChangeEnableRequest userBatchProcessRequest) {
-        return userService.deleteUser(userBatchProcessRequest.getUserIdList());
+    public UserBatchProcessResponse deleteUser(@Validated @RequestBody UserBaseBatchRequest request) {
+        return userService.deleteUser(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/list")
@@ -116,10 +123,9 @@ public class UserController {
     @PostMapping("/reset/password")
     @Operation(summary = "重置用户密码")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.resetPasswordLog(#userId)", msClass = UserService.class)
-    public boolean resetPassword(@RequestBody String userId) {
-        userService.resetPassword(userId, SessionUtils.getUserId());
-        return true;
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.resetPasswordLog(#request)", msClass = UserService.class)
+    public UserBatchProcessResponse resetPassword(@Validated @RequestBody UserBaseBatchRequest request) {
+        return userService.resetPassword(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/get-option/{sourceId}")
@@ -128,5 +134,13 @@ public class UserController {
     @Parameter(name = "sourceId", description = "组织ID或项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public List<UserExtend> getMemberOption(@PathVariable String sourceId) {
         return userService.getMemberOption(sourceId);
+    }
+
+    @PostMapping("/add/batch/user-role")
+    @Operation(summary = "批量添加用户到多个用户组中")
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.batchAddLog(#request)", msClass = GlobalUserRoleRelationLogService.class)
+    public UserBatchProcessResponse batchAdd(@Validated({Created.class}) @RequestBody UserAndRoleBatchRequest request) {
+        return globalUserRoleRelationService.batchAdd(request, SessionUtils.getUserId());
     }
 }

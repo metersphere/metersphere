@@ -4,7 +4,6 @@ import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.UserDTO;
-import io.metersphere.sdk.dto.request.GlobalUserRoleRelationBatchRequest;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -13,6 +12,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
@@ -58,7 +58,7 @@ public class GlobalUserRoleRelationLogService {
         return dto;
     }
 
-    public List<LogDTO> batchAddLog(GlobalUserRoleRelationBatchRequest request) {
+    public List<LogDTO> batchAddLog(UserAndRoleBatchRequest request) {
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andIdIn(request.getRoleIds());
         List<UserRole> userRoles = userRoleMapper.selectByExample(example);

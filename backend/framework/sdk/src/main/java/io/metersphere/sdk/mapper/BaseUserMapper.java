@@ -22,10 +22,10 @@ public interface BaseUserMapper {
 
     List<User> selectUserIdByEmailList(@Param("emailList") List<String> emailList);
 
-    List<User> selectByKeyword(String keyword);
+    List<User> selectByKeyword(@Param("keyword") String keyword, @Param("selectId") boolean selectId);
 
     List<String> selectUnDeletedUserIdByIdList(@Param("idList") List<String> userIdList);
 
-    long deleteUser(String id);
+    long deleteUser(String id, String deleteUser, long deleteTime);
     List<OptionDTO> selectUserOptionByIds(List<String> userIds);
 }

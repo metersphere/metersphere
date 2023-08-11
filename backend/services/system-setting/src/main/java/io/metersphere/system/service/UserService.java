@@ -20,6 +20,7 @@ import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
+import io.metersphere.system.dto.request.UserBaseBatchRequest;
 import io.metersphere.system.dto.request.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.UserEditRequest;
 import io.metersphere.system.dto.response.UserBatchProcessResponse;
@@ -166,7 +167,7 @@ public class UserService {
 
     public List<UserTableResponse> list(BasePageRequest request) {
         List<UserTableResponse> returnList = new ArrayList<>();
-        List<User> userList = baseUserMapper.selectByKeyword(request.getKeyword());
+        List<User> userList = baseUserMapper.selectByKeyword(request.getKeyword(), false);
         List<String> userIdList = userList.stream().map(User::getId).collect(Collectors.toList());
         Map<String, UserTableResponse> roleAndOrganizationMap = userRoleRelationService.selectGlobalUserRoleAndOrganization(userIdList);
         for (User user : userList) {
@@ -197,24 +198,27 @@ public class UserService {
     }
 
     public UserBatchProcessResponse updateUserEnable(UserChangeEnableRequest request, String operator) {
-        this.checkUserInDb(request.getUserIdList());
-
+        request.setUserIds(this.getBatchUserIds(request));
+        this.checkUserInDb(request.getUserIds());
         UserBatchProcessResponse response = new UserBatchProcessResponse();
-        response.setTotalCount(request.getUserIdList().size());
-
+        response.setTotalCount(request.getUserIds().size());
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(
-                request.getUserIdList()
+                request.getUserIds()
         );
         User updateUser = new User();
         updateUser.setEnable(request.isEnable());
         updateUser.setUpdateUser(operator);
         updateUser.setUpdateTime(System.currentTimeMillis());
         response.setSuccessCount(userMapper.updateByExampleSelective(updateUser, userExample));
+        response.setProcessedIds(request.getUserIds());
         return response;
     }
 
-    private void checkUserInDb(@Valid @NotEmpty List<String> userIdList) {
+    private void checkUserInDb(List<String> userIdList) {
+        if (CollectionUtils.isEmpty(userIdList)) {
+            throw new MSException(Translator.get("user.not.exist"));
+        }
         List<String> userInDb = baseUserMapper.selectUnDeletedUserIdByIdList(userIdList);
         if (userIdList.size() != userInDb.size()) {
             throw new MSException(Translator.get("user.not.exist"));
@@ -238,15 +242,12 @@ public class UserService {
     public ExcelParseDTO<UserExcelRowDTO> getUserExcelParseDTO(MultipartFile excelFile) throws Exception {
         UserImportEventListener userImportEventListener = new UserImportEventListener();
         EasyExcelFactory.read(excelFile.getInputStream(), UserExcel.class, userImportEventListener).sheet().doRead();
-        ExcelParseDTO<UserExcelRowDTO> excelParseDTO = this.validateExcelUserInfo(userImportEventListener.getExcelParseDTO());
-        return excelParseDTO;
+        return this.validateExcelUserInfo(userImportEventListener.getExcelParseDTO());
     }
 
     /**
      * 校验excel导入的数据是否与数据库中的数据冲突
      *
-     * @param excelParseDTO
-     * @return
      */
     private ExcelParseDTO<UserExcelRowDTO> validateExcelUserInfo(@Valid @NotNull ExcelParseDTO<UserExcelRowDTO> excelParseDTO) {
         List<UserExcelRowDTO> prepareSaveList = excelParseDTO.getDataList();
@@ -282,27 +283,38 @@ public class UserService {
     }
 
 
-    public UserBatchProcessResponse deleteUser(@Valid @NotEmpty List<String> userIdList) {
+    public UserBatchProcessResponse deleteUser(@Valid UserBaseBatchRequest request, String operator) {
+        List<String> userIdList = this.getBatchUserIds(request);
         this.checkUserInDb(userIdList);
-
-        UserBatchProcessResponse response = new UserBatchProcessResponse();
-        response.setTotalCount(userIdList.size());
-
+        //检查是否含有Admin
+        this.checkAdminAndThrowException(userIdList);
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(userIdList);
         //更新删除标志位
-        response.setSuccessCount(this.deleteUserByList(userIdList));
+        UserBatchProcessResponse response = new UserBatchProcessResponse();
+        response.setTotalCount(userIdList.size());
+        response.setProcessedIds(userIdList);
+        response.setSuccessCount(this.deleteUserByList(userIdList, operator));
         //删除用户角色关系
         userRoleRelationService.deleteByUserIdList(userIdList);
         return response;
     }
 
-    private int deleteUserByList(List<String> updateUserList) {
+    private void checkAdminAndThrowException(List<String> userIdList) {
+        for (String userId : userIdList) {
+            if (userId.equals("admin")) {
+                throw new MSException(Translator.get("user.not.delete"));
+            }
+        }
+    }
+
+    private int deleteUserByList(List<String> updateUserList, String operator) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         BaseUserMapper batchDeleteMapper = sqlSession.getMapper(BaseUserMapper.class);
         int insertIndex = 0;
+        long deleteTime = System.currentTimeMillis();
         for (String userId : updateUserList) {
-            batchDeleteMapper.deleteUser(userId);
+            batchDeleteMapper.deleteUser(userId, operator, deleteTime);
             insertIndex++;
             if (insertIndex % 50 == 0) {
                 sqlSession.flushStatements();
@@ -323,8 +335,7 @@ public class UserService {
                     null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SYSTEM_USER,
-                    request.getName());
-
+                    JSON.toJSONString(user));
             dto.setPath("/update");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(user));
@@ -333,13 +344,40 @@ public class UserService {
         return null;
     }
 
-    public LogDTO resetPasswordLog(String userId) {
-        User user = userMapper.selectByPrimaryKey(userId);
-        if (user != null) {
+    public List<LogDTO> batchUpdateLog(UserBaseBatchRequest request) {
+        List<LogDTO> logDTOList = new ArrayList<>();
+        request.setUserIds(this.getBatchUserIds(request));
+        List<User> userList = this.selectByIdList(request.getUserIds());
+        for (User user : userList) {
             LogDTO dto = new LogDTO(
                     OperationLogConstants.SYSTEM,
                     OperationLogConstants.SYSTEM,
-                    userId,
+                    user.getId(),
+                    null,
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.SYSTEM_USER,
+                    JSON.toJSONString(user));
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(user));
+            logDTOList.add(dto);
+        }
+        return logDTOList;
+    }
+
+    /**
+     * @param request 批量重置密码  用于记录Log使用
+     */
+    public List<LogDTO> resetPasswordLog(UserBaseBatchRequest request) {
+        request.setUserIds(this.getBatchUserIds(request));
+        List<LogDTO> returnList = new ArrayList<>();
+        UserExample example = new UserExample();
+        example.createCriteria().andIdIn(request.getUserIds());
+        List<User> userList = userMapper.selectByExample(example);
+        for (User user : userList) {
+            LogDTO dto = new LogDTO(
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
+                    user.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SYSTEM_USER,
@@ -347,14 +385,14 @@ public class UserService {
             dto.setPath("/reset/password");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(user));
-            return dto;
+            returnList.add(dto);
         }
-        return null;
+        return returnList;
     }
 
-    public List<LogDTO> deleteLog(UserChangeEnableRequest request) {
+    public List<LogDTO> deleteLog(UserBaseBatchRequest request) {
         List<LogDTO> logDTOList = new ArrayList<>();
-        request.getUserIdList().forEach(item -> {
+        request.getUserIds().forEach(item -> {
             User user = userMapper.selectByPrimaryKey(item);
             if (user != null) {
 
@@ -386,21 +424,39 @@ public class UserService {
         return extUserMapper.getMemberOption(sourceId);
     }
 
-    public void resetPassword(String userId, String operator) {
-        User user = userMapper.selectByPrimaryKey(userId);
-        if (user == null) {
-            throw new MSException(Translator.get("user.not.exist"));
+    public UserBatchProcessResponse resetPassword(UserBaseBatchRequest request, String operator) {
+        request.setUserIds(this.getBatchUserIds(request));
+        this.checkUserInDb(request.getUserIds());
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        UserMapper batchUpdateMapper = sqlSession.getMapper(UserMapper.class);
+        int insertIndex = 0;
+        long updateTime = System.currentTimeMillis();
+        List<User> userList = this.selectByIdList(request.getUserIds());
+        for (User user : userList) {
+            User updateModel = new User();
+            updateModel.setId(user.getId());
+            if (StringUtils.equalsIgnoreCase("admin", user.getId())) {
+                updateModel.setPassword(CodingUtil.md5("metersphere"));
+            } else {
+                updateModel.setPassword(CodingUtil.md5(user.getEmail()));
+            }
+            updateModel.setUpdateTime(updateTime);
+            updateModel.setUpdateUser(operator);
+            batchUpdateMapper.updateByPrimaryKeySelective(updateModel);
+            insertIndex++;
+            if (insertIndex % 50 == 0) {
+                sqlSession.flushStatements();
+            }
         }
-        User updateModel = new User();
-        updateModel.setId(userId);
-        if (StringUtils.equalsIgnoreCase("admin", user.getId())) {
-            updateModel.setPassword(CodingUtil.md5("metersphere"));
-        } else {
-            updateModel.setPassword(CodingUtil.md5(user.getEmail()));
-        }
-        updateModel.setUpdateTime(System.currentTimeMillis());
-        updateModel.setUpdateUser(operator);
-        userMapper.updateByPrimaryKeySelective(updateModel);
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+
+        UserBatchProcessResponse response = new UserBatchProcessResponse();
+        response.setTotalCount(request.getUserIds().size());
+        response.setSuccessCount(request.getUserIds().size());
+        response.setProcessedIds(request.getUserIds());
+        return response;
     }
 
     public void checkUserLegality(List<String> userIds) {
@@ -408,6 +464,19 @@ public class UserService {
         example.createCriteria().andIdIn(userIds);
         if (userMapper.countByExample(example) != userIds.size()) {
             throw new MSException(Translator.get("user.id.not.exist"));
+        }
+    }
+
+    public List<String> getBatchUserIds(UserBaseBatchRequest request) {
+        if (request.isSelectAll()) {
+            List<User> userList = baseUserMapper.selectByKeyword(request.getCondition().getKeyword(), true);
+            List<String> userIdList = userList.stream().map(User::getId).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(request.getSkipIds())) {
+                userIdList.removeAll(request.getSkipIds());
+            }
+            return userIdList;
+        } else {
+            return request.getUserIds();
         }
     }
 }
