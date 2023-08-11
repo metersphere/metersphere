@@ -19,9 +19,6 @@ const msTableStore = defineStore('msTable', {
       if (!this.selectorColumnMap.has(tableKey)) {
         const tmpMap = this.selectorColumnMap;
         column.forEach((item) => {
-          if (item.showInTable === undefined) {
-            item.showInTable = true;
-          }
           if (item.showDrag === undefined) {
             item.showDrag = false;
           }
@@ -48,7 +45,7 @@ const msTableStore = defineStore('msTable', {
       if (this.selectorColumnMap.has(key)) {
         const tmpArr = this.selectorColumnMap.get(key)?.column || [];
         const nonSortableColumns = tmpArr.filter((item) => !item.showDrag);
-        const couldSortableColumns = tmpArr.filter((item) => item.showDrag);
+        const couldSortableColumns = tmpArr.filter((item) => !!item.showDrag);
         return { nonSort: nonSortableColumns, couldSort: couldSortableColumns };
       }
       return { nonSort: [], couldSort: [] };
@@ -59,7 +56,7 @@ const msTableStore = defineStore('msTable', {
     getShowInTableColumns(key: string): MsTableColumn {
       if (this.selectorColumnMap.has(key)) {
         const tmpArr = this.selectorColumnMap.get(key)?.column;
-        return tmpArr?.filter((item) => item.showInTable) || [];
+        return tmpArr?.filter((item) => !!item.showInTable) || [];
       }
       return [];
     },
