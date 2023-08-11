@@ -54,6 +54,9 @@ public class NodeResourcePoolService {
                 }
             }
             isValid = validateNode(testResourceNodeDTO);
+            if (!isValid) {
+                 break;
+            }
         }
         //校验节点
         List<ImmutablePair<String, String>> ipPort = nodesList.stream()

@@ -58,6 +58,9 @@ public class TestResourcePoolService {
         checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         checkUiConfig(testResourceDTO, testResourcePool);
+        if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
+            testResourceDTO.setNodesList(new ArrayList<>());
+        }
         String configuration = JSON.toJSONString(testResourceDTO);
         testResourcePoolBlob.setConfiguration(configuration.getBytes());
         buildTestPoolBaseInfo(testResourcePool, id);
@@ -98,7 +101,9 @@ public class TestResourcePoolService {
     private static void buildTestPoolBaseInfo(TestResourcePool testResourcePool, String id) {
         testResourcePool.setId(id);
         testResourcePool.setUpdateTime(System.currentTimeMillis());
-        testResourcePool.setEnable(true);
+        if (testResourcePool.getEnable() == null) {
+            testResourcePool.setEnable(true);
+        }
         testResourcePool.setDeleted(false);
     }
 
@@ -179,6 +184,9 @@ public class TestResourcePoolService {
         checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         checkUiConfig(testResourceDTO, testResourcePool);
+        if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
+            testResourceDTO.setNodesList(new ArrayList<>());
+        }
         String configuration = JSON.toJSONString(testResourceDTO);
         TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
         testResourcePoolBlob.setId(testResourcePool.getId());
@@ -254,6 +262,9 @@ public class TestResourcePoolService {
         byte[] configuration = testResourcePoolBlob.getConfiguration();
         String testResourceDTOStr = new String(configuration);
         TestResourceDTO testResourceDTO = JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
+        if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
+            testResourceDTO.setNodesList(new ArrayList<>());
+        }
         TestResourceReturnDTO testResourceReturnDTO = new TestResourceReturnDTO();
         BeanUtils.copyBean(testResourceReturnDTO, testResourceDTO);
         List<String> orgIds = testResourceDTO.getOrgIds();
@@ -341,17 +352,26 @@ public class TestResourcePoolService {
             throw new MSException(Translator.get("test_resource_pool_not_exists"));
         }
         testResourcePool.setUpdateTime(System.currentTimeMillis());
-        if (testResourcePool.getEnable()) {
+        Boolean enable = testResourcePool.getEnable();
+        if (!enable) {
+            TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(testResourcePoolId);
+            byte[] configuration = testResourcePoolBlob.getConfiguration();
+            String testResourceDTOStr = new String(configuration);
+            TestResourceDTO testResourceDTO = JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
+            boolean apiValidate = checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
+            if (! apiValidate) {
+                throw new MSException(Translator.get("test_resource_pool_is_valid_fail"));
+            }
+            boolean loadValidate = checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
+            if (! loadValidate) {
+                throw new MSException(Translator.get("test_resource_pool_is_valid_fail"));
+            }
+        }
+        if (enable) {
             testResourcePool.setEnable(false);
         } else {
             testResourcePool.setEnable(true);
         }
-        TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(testResourcePoolId);
-        byte[] configuration = testResourcePoolBlob.getConfiguration();
-        String testResourceDTOStr = new String(configuration);
-        TestResourceDTO testResourceDTO = JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
-        checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
-        checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
     }
 }
