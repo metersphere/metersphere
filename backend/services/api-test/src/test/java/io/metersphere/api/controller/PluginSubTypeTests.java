@@ -28,7 +28,7 @@ public class PluginSubTypeTests {
         MSJSR223Processor msjsr223Processor = new MSJSR223Processor();
         msjsr223Processor.setName("测试jsr223");
         msjsr223Processor.setJsrEnable(true);
-        msjsr223Processor.setHashTree(hashTree);
+        msjsr223Processor.setChildren(hashTree);
 
         String json = JSONUtils.toJSONString(msjsr223Processor);
         Assertions.assertNotNull(json);
