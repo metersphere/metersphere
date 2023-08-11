@@ -82,7 +82,7 @@ const useAppStore = defineStore('app', {
     getCurrentProjectId(state: AppState): string {
       return state.currentProjectId;
     },
-    getDefaulPageConfig(state: AppState): PageConfig {
+    getDefaultPageConfig(state: AppState): PageConfig {
       return {
         ...state.defaultThemeConfig,
         ...state.defaultLoginConfig,

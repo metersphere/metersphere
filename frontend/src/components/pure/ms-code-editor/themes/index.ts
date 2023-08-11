@@ -1,8 +1,8 @@
 import MSText from './MS-text';
 
-import type { CustomeTheme } from '../types';
+import type { CustomTheme } from '../types';
 
-const MsCodeEditorThemes: Record<CustomeTheme, any> = {
+const MsCodeEditorThemes: Record<CustomTheme, any> = {
   'MS-text': MSText,
 };
 

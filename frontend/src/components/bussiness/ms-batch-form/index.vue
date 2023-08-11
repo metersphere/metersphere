@@ -131,7 +131,7 @@
     msg?: string
   ) {
     if (value === '' || value === undefined) return;
-    // 遍历其他同 feild 名的输入框的值，检查是否与当前输入框的值重复
+    // 遍历其他同 field 名的输入框的值，检查是否与当前输入框的值重复
     for (let i = 0; i < form.value.list.length; i++) {
       if (i !== index && form.value.list[i][field].trim() === value) {
         callback(t(msg || ''));
@@ -178,9 +178,14 @@
     form.value.list.splice(i, 1);
   }
 
+  function resetForm() {
+    formRef.value?.resetFields();
+  }
+
   defineExpose({
     formValidate,
     getFormResult,
+    resetForm,
   });
 </script>
 

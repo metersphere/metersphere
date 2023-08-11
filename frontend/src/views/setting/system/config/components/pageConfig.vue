@@ -157,7 +157,7 @@
               ref="loginConfigFormRef"
               :model="pageConfig"
               layout="vertical"
-              :rules="{ slogan: [{ required: true, message: t('system.config.page.sloganRquired') }] }"
+              :rules="{ slogan: [{ required: true, message: t('system.config.page.sloganRequired') }] }"
             >
               <a-form-item
                 :label="t('system.config.page.slogan')"
@@ -259,7 +259,7 @@
               ref="platformConfigFormRef"
               :model="pageConfig"
               layout="vertical"
-              :rules="{ platformName: [{ required: true, message: t('system.config.page.platformNameRquired') }] }"
+              :rules="{ platformName: [{ required: true, message: t('system.config.page.platformNameRequired') }] }"
             >
               <a-form-item
                 :label="t('system.config.page.platformName')"
@@ -423,7 +423,7 @@
    * 全部重置
    */
   function resetAll() {
-    pageConfig.value = { ...appStore.getDefaulPageConfig };
+    pageConfig.value = { ...appStore.getDefaultPageConfig };
   }
 
   function makeParams() {

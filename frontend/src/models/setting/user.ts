@@ -71,7 +71,7 @@ export interface CreateUserParams {
   userInfoList: SimpleUserInfo[];
   userRoleIdList: string[];
 }
-export interface UpdateUserStausParams {
+export interface UpdateUserStatusParams {
   userIdList: string[];
   enable: boolean;
 }

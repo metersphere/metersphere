@@ -1,7 +1,7 @@
 import { PropType } from 'vue';
 
-export type CustomeTheme = 'MS-text';
-export type Theme = 'vs' | 'hc-black' | 'vs-dark' | CustomeTheme;
+export type CustomTheme = 'MS-text';
+export type Theme = 'vs' | 'hc-black' | 'vs-dark' | CustomTheme;
 export type FoldingStrategy = 'auto' | 'indentation';
 export type RenderLineHighlight = 'all' | 'line' | 'none' | 'gutter';
 export type Language =

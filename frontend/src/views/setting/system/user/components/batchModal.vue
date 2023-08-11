@@ -79,7 +79,7 @@
   const target = ref<string[]>([]);
   const batchModalMode = ref<'project' | 'usergroup' | 'organization'>('project');
 
-  function handelTableBatch(action: string) {
+  function handleTableBatch(action: string) {
     switch (action) {
       case 'batchAddProject':
         batchModalMode.value = 'project';
@@ -103,7 +103,7 @@
     () => props.visible,
     (val) => {
       if (val) {
-        handelTableBatch(props.action);
+        handleTableBatch(props.action);
       }
     },
     {

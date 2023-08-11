@@ -51,11 +51,11 @@
   const inviteVisible = ref(false);
   const inviteLoading = ref(false);
   const inviteFormRef = ref<FormInstance | null>(null);
-  const defaulInviteForm = {
+  const defaultInviteForm = {
     emails: [],
     userGroup: [],
   };
-  const emailForm = ref(cloneDeep(defaulInviteForm));
+  const emailForm = ref(cloneDeep(defaultInviteForm));
   const userGroupOptions = ref([
     {
       label: 'Beijing',
@@ -88,7 +88,7 @@
   function cancelInvite() {
     inviteVisible.value = false;
     inviteFormRef.value?.resetFields();
-    emailForm.value = cloneDeep(defaulInviteForm);
+    emailForm.value = cloneDeep(defaultInviteForm);
   }
 
   function emailInvite() {

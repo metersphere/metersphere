@@ -68,7 +68,7 @@ export default {
     'It is recommended to use the SVG format for the background image; the recommended size for vector graphics is 800*900, and the recommended size for bitmaps is 800*900; the size of the image only supports within 1 MB',
   'system.config.page.slogan': 'Slogan',
   'system.config.page.sloganPlaceholder': 'Please enter Slogan',
-  'system.config.page.sloganRquired': 'Slogan cannot be empty',
+  'system.config.page.sloganRequired': 'Slogan cannot be empty',
   'system.config.page.sloganTip': 'The slogan under the product logo',
   'system.config.page.title': 'Website name',
   'system.config.page.titlePlaceholder': 'Please enter a website name',
@@ -81,7 +81,7 @@ export default {
     'The logo displayed at the top of the platform page; it is recommended to use a transparent background image in SVG or PNG format, with a height of not less than 32px; the image size is only supported within 200 KB',
   'system.config.page.platformName': 'Platform name',
   'system.config.page.platformNamePlaceholder': 'Please enter a platform name',
-  'system.config.page.platformNameRquired': 'Platform name cannot be empty',
+  'system.config.page.platformNameRequired': 'Platform name cannot be empty',
   'system.config.page.platformNameTip':
     'The general product name of the whole site, the recommended number of words is 8',
   'system.config.page.helpDoc': 'Help document',

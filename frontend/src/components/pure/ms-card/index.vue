@@ -99,18 +99,18 @@
     return appStore.menuCollapse ? collapsedWidth : appStore.menuWidth;
   });
 
-  const _spcialHeight = props.hasBreadcrumb ? 31 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度31
+  const _specialHeight = props.hasBreadcrumb ? 31 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度31
 
   const cardOverHeight = computed(() => {
     if (props.simple) {
       // 简单模式没有标题、没有底部
-      return 136 + _spcialHeight;
+      return 136 + _specialHeight;
     }
     if (props.hideFooter) {
       // 隐藏底部
       return 192;
     }
-    return 246 + _spcialHeight;
+    return 246 + _specialHeight;
   });
 
   function back() {
