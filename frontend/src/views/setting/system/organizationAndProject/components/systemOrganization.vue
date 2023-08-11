@@ -149,7 +149,7 @@
       dataIndex: 'description',
     },
     {
-      title: 'system.organization.createUser',
+      title: 'system.organization.creator',
       dataIndex: 'createUser',
     },
     {

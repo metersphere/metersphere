@@ -14,10 +14,7 @@
           field="name"
           required
           :label="t('system.organization.organizationName')"
-          :rules="[
-            { required: true, message: t('system.organization.organizationNameRequired') },
-            { validator: validateName },
-          ]"
+          :rules="[{ required: true, message: t('system.organization.organizationNameRequired') }]"
         >
           <a-input v-model="form.name" :placeholder="t('system.organization.organizationNamePlaceholder')" />
         </a-form-item>
@@ -56,16 +53,6 @@
   });
 
   const currentVisible = ref(props.visible);
-
-  const validateName = (value: string, callback: (error?: string) => void) => {
-    if (value !== '') {
-      // const isExist = props.list.some((item) => item.name === value);
-      // if (isExist) {
-      //   callback(t('system.organization.userGroupNameIsExist', { name: value }));
-      // }
-      callback();
-    }
-  };
 
   watchEffect(() => {
     currentVisible.value = props.visible;

@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import useUserGroupStore from '@/store/modules/setting/usergroup';
@@ -48,6 +48,14 @@
 
   const store = useUserGroupStore();
   const couldShowUser = computed(() => store.userGroupInfo.currentType === 'SYSTEM');
+  watch(
+    () => couldShowUser,
+    (val) => {
+      if (!val) {
+        currentTable.value = 'auth';
+      }
+    }
+  );
 </script>
 
 <style lang="scss" scoped>

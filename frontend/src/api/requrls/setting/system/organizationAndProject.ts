@@ -11,7 +11,7 @@ export const postOrgMemberUrl = '/system/organization/list-member';
 // 添加组织
 export const postAddOrgUrl = '/system/organization/add';
 // 添加组织成员
-export const postAddOrgMemberUrl = '/system/organization/member/add';
+export const postAddOrgMemberUrl = '/system/organization/add-member';
 // 删除组织成员
 export const getDeleteOrgMemberUrl = '/system/organization/remove-member/';
 // 恢复组织
@@ -35,7 +35,7 @@ export const postProjectMemberUrl = '/system/project/member/list';
 // 添加项目
 export const postAddProjectUrl = '/system/project/add';
 // 添加项目成员
-export const postAddProjectMemberUrl = '/system/project/member/add';
+export const postAddProjectMemberUrl = '/system/project/add-member';
 // 撤销项目
 export const getRevokeProjectUrl = '/system/project/revoke/';
 // 移除项目成员
@@ -44,3 +44,5 @@ export const getDeleteProjectMemberUrl = '/system/project/remove-member/';
 export const getProjectInfoUrl = '/system/project/get/';
 // 删除项目
 export const getDeleteProjectUrl = '/system/project/delete/';
+// 系统-组织及项目，获取用户下拉选项
+export const getUserByOrgOrProjectUrl = '/system/user/get-option/';

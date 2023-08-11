@@ -22,6 +22,9 @@ const msTableStore = defineStore('msTable', {
           if (item.showDrag === undefined) {
             item.showDrag = false;
           }
+          if (item.showInTable === undefined) {
+            item.showInTable = true;
+          }
         });
         tmpMap.set(tableKey, { mode, column });
         this.selectorColumnMap = tmpMap;
@@ -56,7 +59,7 @@ const msTableStore = defineStore('msTable', {
     getShowInTableColumns(key: string): MsTableColumn {
       if (this.selectorColumnMap.has(key)) {
         const tmpArr = this.selectorColumnMap.get(key)?.column;
-        return tmpArr?.filter((item) => !!item.showInTable) || [];
+        return tmpArr?.filter((item) => item.showInTable) || [];
       }
       return [];
     },

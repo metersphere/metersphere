@@ -1,7 +1,9 @@
 <template>
   <a-modal
-    v-model:visible="currentVisible"
+    v-model="currentVisible"
+    class="ms-modal-form ms-modal-medium"
     width="680px"
+    text-align="start"
     :ok-text="t('system.userGroup.add')"
     unmount-on-close
     :ok-loading="loading"

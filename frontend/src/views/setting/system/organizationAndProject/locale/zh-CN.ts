@@ -6,6 +6,7 @@ export default {
   'system.organization.edit': '编辑',
   'system.organization.save': '保存',
   'system.organization.end': '结束',
+  'system.organization.remove': '移除',
   'system.organization.addMember': '添加成员',
   'system.organization.addMemberPlaceholder': '请选择成员',
   'system.organization.addMemberRequired': '请选择成员',
@@ -32,4 +33,7 @@ export default {
   'system.organization.projectCount': '项目({count})',
   'system.organization.projectName': '项目({name})',
   'system.project.name': '项目名称',
+  'system.organization.userName': '姓名',
+  'system.organization.email': '邮箱',
+  'system.organization.phone': '手机',
 };

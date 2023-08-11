@@ -1,6 +1,7 @@
 import dayjsLocale from 'dayjs/locale/en';
 import localeSettings from './settings';
 import sys from './sys';
+import common from './common';
 
 const _Cmodules: any = import.meta.glob('../../components/**/locale/en-US.ts', { eager: true });
 const _Vmodules: any = import.meta.glob('../../views/**/locale/en-US.ts', { eager: true });
@@ -15,7 +16,7 @@ Object.keys(_Vmodules).forEach((key) => {
   if (!defaultModule) return;
   result = { ...result, ...defaultModule };
 });
-console.log('result', result);
+
 export default {
   message: {
     'menu.workplace': 'Workplace',
@@ -45,6 +46,7 @@ export default {
     ...sys,
     ...localeSettings,
     ...result,
+    ...common,
   },
   dayjsLocale,
   dayjsLocaleName: 'en-US',
