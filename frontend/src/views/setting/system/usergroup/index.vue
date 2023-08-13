@@ -12,7 +12,7 @@
         <div class="flex flex-row items-center justify-between">
           <div class="title">{{ store.userGroupInfo.currentName }}</div>
           <div class="flex items-center">
-            <a-input class="w-[240px]" :placeholder="t('system.userGroup.searchPlacehoder')">
+            <a-input class="w-[240px]" :placeholder="t('system.userGroup.searchPlaceholder')">
               <template #prefix>
                 <icon-search />
               </template>

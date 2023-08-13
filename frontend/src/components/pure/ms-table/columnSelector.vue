@@ -35,7 +35,7 @@
       <div class="flex-col">
         <div v-for="(item, idx) in nonSortColumn" :key="item.dataIndex" class="column-item">
           <div>{{ t(item.title as string) }}</div>
-          <a-switch size="small" :model-value="item.showInTable" @change="handleFisrtColumnChange(idx)" />
+          <a-switch size="small" :model-value="item.showInTable" @change="handleFirstColumnChange(idx)" />
         </div>
       </div>
       <a-divider orientation="center" class="non-sort">{{ t('msTable.columnSetting.nonSort') }}</a-divider>
@@ -109,7 +109,7 @@
     loadColumn(props.tableKey);
   };
 
-  const handleFisrtColumnChange = (idx: number) => {
+  const handleFirstColumnChange = (idx: number) => {
     const item = nonSortColumn.value[idx];
     item.showInTable = !item.showInTable;
     hasChange.value = true;

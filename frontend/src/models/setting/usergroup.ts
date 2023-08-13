@@ -50,7 +50,7 @@ export interface UserGroupPermissionItem {
 export type AuthScopeType = 'SYSTEM' | 'PROJECT' | 'ORGANIZATION';
 
 // 用户组对应的权限配置
-export interface UserGroupAuthSeting {
+export interface UserGroupAuthSetting {
   // 菜单项ID
   id: AuthScopeType;
   // 菜单所属类型
@@ -64,7 +64,7 @@ export interface UserGroupAuthSeting {
   // 菜单下的权限列表
   permissions?: UserGroupPermissionItem[];
   // 子菜单
-  children?: UserGroupAuthSeting[];
+  children?: UserGroupAuthSetting[];
 }
 
 // 权限表格DataItem

@@ -12,16 +12,16 @@
   import MsIcon from '../ms-icon-font/index.vue';
 
   defineOptions({
-    name: 'PageItemElipsis',
+    name: 'PageItemEllipsis',
   });
 
-  export interface PageItemElipsisProps {
+  export interface PageItemEllipsisProps {
     current: number;
     step: number;
     pages: number;
   }
 
-  const props = withDefaults(defineProps<PageItemElipsisProps>(), {
+  const props = withDefaults(defineProps<PageItemEllipsisProps>(), {
     step: 5,
   });
   const emit = defineEmits<{

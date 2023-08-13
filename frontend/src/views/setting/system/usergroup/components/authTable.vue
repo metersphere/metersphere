@@ -55,7 +55,7 @@
   import { type TableColumnData, type TableData } from '@arco-design/web-vue';
   import useUserGroupStore from '@/store/modules/setting/usergroup';
   import { getGlobalUSetting, saveGlobalUSetting } from '@/api/modules/setting/usergroup';
-  import { UserGroupAuthSeting, AuthTableItem, type AuthScopeType, SavePermissions } from '@/models/setting/usergroup';
+  import { UserGroupAuthSetting, AuthTableItem, type AuthScopeType, SavePermissions } from '@/models/setting/usergroup';
   import MsButton from '@/components/pure/ms-button/index.vue';
 
   export declare type OperationName = 'selection-checkbox' | 'selection-radio' | 'expand' | 'drag-handle';
@@ -116,7 +116,7 @@
    * @param type
    * @param idx
    */
-  const makeData = (item: UserGroupAuthSeting, type: AuthScopeType) => {
+  const makeData = (item: UserGroupAuthSetting, type: AuthScopeType) => {
     const result: AuthTableItem[] = [];
     item.children?.forEach((child, index) => {
       const perChecked =
@@ -143,7 +143,7 @@
     return result;
   };
 
-  const transformData = (data: UserGroupAuthSeting[]) => {
+  const transformData = (data: UserGroupAuthSetting[]) => {
     const result: AuthTableItem[] = [];
     data.forEach((item) => {
       if (item.type === 'SYSTEM') {

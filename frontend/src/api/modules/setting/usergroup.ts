@@ -12,7 +12,7 @@ import {
   addUserToUserGroupUrl,
 } from '@/api/requrls/setting/usergroup';
 import { TableQueryParams, CommonList } from '@/models/common';
-import { UserGroupItem, UserGroupAuthSeting, SaveGlobalUSettingData, UserTableItem } from '@/models/setting/usergroup';
+import { UserGroupItem, UserGroupAuthSetting, SaveGlobalUSettingData, UserTableItem } from '@/models/setting/usergroup';
 
 export function updateOrAddUserGroup(data: Partial<UserGroupItem>) {
   return MSR.post<UserGroupItem>({
@@ -41,11 +41,11 @@ export function getUsergroupInfo(id: string) {
 }
 
 export function getGlobalUSetting(id: string) {
-  return MSR.get<UserGroupAuthSeting[]>({ url: `${getGlobalUSettingUrl}${id}` });
+  return MSR.get<UserGroupAuthSetting[]>({ url: `${getGlobalUSettingUrl}${id}` });
 }
 
 export function saveGlobalUSetting(data: SaveGlobalUSettingData) {
-  return MSR.post<UserGroupAuthSeting[]>({ url: editGlobalUSettingUrl, data });
+  return MSR.post<UserGroupAuthSetting[]>({ url: editGlobalUSettingUrl, data });
 }
 
 export function postUserByUserGroup(data: TableQueryParams) {
