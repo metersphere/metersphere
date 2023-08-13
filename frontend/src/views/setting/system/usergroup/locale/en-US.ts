@@ -33,7 +33,7 @@ export default {
       userIsNotNone: 'User is not none',
       confirm: 'Confirm',
       global: 'Global',
-      searchPlacehoder: 'Search by ID/Name',
+      searchPlaceholder: 'Search by ID/Name',
       SYSTEM: '系统',
       PROJECT: '项目',
       ORGANIZATION: '组织',

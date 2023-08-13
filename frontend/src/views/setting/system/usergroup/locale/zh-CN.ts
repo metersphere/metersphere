@@ -33,7 +33,7 @@ export default {
       pleaseInputUserGroupName: '请输入用户组名称，且不与其他用户组名称重复',
       userGroupNameIsExist: `用户组{name}已存在`,
       pleaseSelectAuthScope: '请选择用户组所属的权限范围',
-      searchPlacehoder: '通过ID/名称搜索',
+      searchPlaceholder: '通过ID/名称搜索',
       SYSTEM: '系统',
       PROJECT: '项目',
       ORGANIZATION: '组织',
