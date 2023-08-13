@@ -19,6 +19,8 @@ export interface MsTableColumnData extends TableColumnData {
   // 是否可编辑
   editable?: boolean;
 }
+
+export type MsTableErrorStatus = boolean | 'error' | 'empty';
 // 表格属性
 export interface MsTableProps {
   // 表格key, 用于存储表格列配置
@@ -67,6 +69,10 @@ export interface MsTableProps {
   editKey?: string;
   // 是否展示禁用的行
   noDisable?: boolean;
+  // 表格的错误状态，默认为false
+  tableErrorStatus?: MsTableErrorStatus;
+  // debug模式，开启后会打印表格所有state
+  debug?: boolean;
   [key: string]: any;
 }
 

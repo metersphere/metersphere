@@ -79,6 +79,11 @@
           </template>
         </a-table-column>
       </template>
+      <template #empty>
+        <div class="flex h-[20px] flex-col items-center justify-center">
+          <span class="text-[14px] text-[var(--color-text-4)]">{{ t('msTable.empty') }}</span>
+        </div>
+      </template>
     </a-table>
     <div
       class="flex h-[64px] w-[100%] flex-row flex-nowrap items-center justify-end px-0 py-4"

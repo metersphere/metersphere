@@ -7,7 +7,9 @@ import { TableQueryParams } from '@/models/common';
 import { useAppStore } from '@/store';
 
 import type { TableData } from '@arco-design/web-vue';
-import { type MsTableProps, type MsTableData, type MsTableColumn, SpecialColumnEnum } from './type';
+import { type MsTableProps, type MsTableData, type MsTableColumn, SpecialColumnEnum, MsTableErrorStatus } from './type';
+import { set } from 'nprogress';
+import debug from '@/utils/env';
 
 export interface Pagination {
   current: number;
@@ -37,7 +39,7 @@ export default function useTableProps(
     size: 'small',
     scroll: { maxHeight: '600px', x: '1400px' },
     checkable: true,
-    loading: true,
+    loading: false,
     data: [] as MsTableData,
     columns: [] as MsTableColumn,
     rowKey: 'id',
@@ -52,6 +54,9 @@ export default function useTableProps(
     pageSimple: false,
     // 编辑的key
     editKey: SpecialColumnEnum.NAME,
+    // 表格的错误状态
+    tableErrorStatus: false,
+    debug: false,
     ...props,
   };
 
@@ -106,6 +111,11 @@ export default function useTableProps(
     propsRes.value.loading = status;
   };
 
+  // 设置表格错误状态
+  const setTableErrorStatus = (status: MsTableErrorStatus) => {
+    propsRes.value.tableErrorStatus = status;
+  };
+
   /**
    * 分页设置
    * @param current //当前页数
@@ -120,9 +130,7 @@ export default function useTableProps(
   const setPagination = ({ current, total }: SetPaginationPrams) => {
     if (propsRes.value.msPagination && typeof propsRes.value.msPagination === 'object') {
       propsRes.value.msPagination.current = current;
-      if (total) {
-        propsRes.value.msPagination.total = total;
-      }
+      propsRes.value.msPagination.total = total || 0;
     }
   };
 
@@ -171,14 +179,18 @@ export default function useTableProps(
         }
         return item;
       });
+      if (data.total === 0) {
+        setTableErrorStatus('empty');
+      } else {
+        setTableErrorStatus(false);
+      }
       setPagination({ current: data.current, total: data.total });
       return data;
     } catch (err) {
-      // eslint-disable-next-line no-console
-      // TODO 表格异常放到solt的empty
-      console.log(err);
+      setTableErrorStatus('error');
     } finally {
       setLoading(false);
+      if (propsRes.value.debug) console.info(propsRes.value);
     }
   };
 
