@@ -29,7 +29,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { useTableStore } from '@/store';
-  import { ref, reactive, watchEffect } from 'vue';
+  import { ref, reactive, watchEffect, watch } from 'vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { postOrgTable } from '@/api/modules/setting/system/organizationAndProject';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -172,20 +172,24 @@
     scroll: { y: 'auto', x: '1300px' },
     selectable: false,
     noDisable: false,
+    debug: true,
     size: 'default',
   });
 
   const fetchData = async () => {
+    setKeyword(props.keyword);
     await loadList();
   };
 
   const handleAddUserModalCancel = () => {
     userVisible.value = false;
   };
-  watchEffect(() => {
-    setKeyword(props.keyword);
-    fetchData();
-  });
+  watch(
+    () => props.keyword,
+    () => {
+      fetchData();
+    }
+  );
 </script>
 
 <style lang="scss" scoped>

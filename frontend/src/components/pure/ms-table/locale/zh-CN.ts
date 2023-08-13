@@ -31,5 +31,9 @@ export default {
     modify: '修改{name}',
     nameIsNotNull: 'Name cannot be empty',
     nameIsExist: '已有 {name}, 请更改',
+    empty: '无内容',
+    loading: '加载中, 请稍后',
+    errorStatus: '载入数据失败，请',
+    retry: '重试',
   },
 };
