@@ -2318,6 +2318,18 @@ public class TestPlanService {
         return projectIds.stream().distinct().collect(Collectors.toList());
     }
 
+    public List<String> getRelevanceProjectIdsByCaseType(String planId, String caseType) {
+        if (StringUtils.equalsIgnoreCase(caseType, "apiCase")) {
+            return planTestPlanApiCaseService.getApiCaseProjectIds(planId);
+        } else if (StringUtils.equalsIgnoreCase(caseType, "apiScenario")) {
+            return planTestPlanScenarioCaseService.getApiScenarioProjectIds(planId);
+        } else if (StringUtils.equalsIgnoreCase(caseType, "uiScenario") && DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
+            return planTestPlanUiScenarioCaseService.getUiScenarioProjectIds(planId);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     public TestPlanReportDataStruct buildOldVersionTestPlanReport(TestPlanReport
                                                                           testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContent) {
         TestPlanWithBLOBs testPlanWithBLOBs = this.testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());

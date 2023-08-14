@@ -1,6 +1,6 @@
-import { get, post, socket } from "metersphere-frontend/src/plugins/request";
-import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
-import { buildListPagePath } from "@/api/base-network";
+import {get, post, socket} from "metersphere-frontend/src/plugins/request";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {buildListPagePath} from "@/api/base-network";
 
 const BASE_URL = "/test/plan/";
 
@@ -381,6 +381,11 @@ export function getPlanCaseEnv(param) {
 
 export function getPlanCaseProjectIds(param) {
   return post(BASE_URL + "case/relevance/project/ids", param);
+}
+
+
+export function getProjectIdsByPlanIdAndCaseType(planId, caseType) {
+    return get(BASE_URL + `case/relevance/project/id/${planId}/${caseType}`);
 }
 
 export function run(testId, reportId) {

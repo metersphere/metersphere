@@ -265,6 +265,12 @@ public class TestPlanController {
         return testPlanService.getRelevanceProjectIds(plan.getId());
     }
 
+    @GetMapping("/case/relevance/project/id/{testPlanId}/{caseType}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
+    public List<String> getRelevanceProjectIds(@PathVariable String testPlanId, @PathVariable String caseType) {
+        return testPlanService.getRelevanceProjectIdsByCaseType(testPlanId, caseType);
+    }
+
 
     @PostMapping("/edit/run/config")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN)

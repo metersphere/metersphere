@@ -66,7 +66,7 @@
               class="mode-row"
               v-if="
               testType === 'API' &&
-              (haveOtherExecCase && !haveUICase)
+              (haveOtherExecCase)
             "
           >
             <span>{{ $t("run_mode.run_with_resource_pool") }}: </span>
@@ -171,7 +171,12 @@ import {getCurrentProjectID, getOwnerProjects,} from "@/business/utils/sdk-utils
 import {getQuotaValidResourcePools} from "@/api/remote/resource-pool";
 import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
 import {getApiCaseEnv} from "@/api/remote/plan/test-plan-api-case";
-import {getApiScenarioEnv, getPlanCaseEnv, getPlanCaseProjectIds,} from "@/api/remote/plan/test-plan";
+import {
+  getApiScenarioEnv,
+  getPlanCaseEnv,
+  getPlanCaseProjectIds,
+  getProjectIdsByPlanIdAndCaseType,
+} from "@/api/remote/plan/test-plan";
 import EnvGroupWithOption from "../env/EnvGroupWithOption";
 import EnvironmentGroup from "@/business/plan/env/EnvironmentGroupList";
 import EnvSelectPopover from "@/business/plan/env/EnvSelectPopover";
@@ -379,11 +384,16 @@ export default {
           let data = res.data;
           if (data) {
             this.projectEnvListMap = data;
-            for (let d in data) {
-              this.projectIds.add(d);
-            }
           }
+          getProjectIdsByPlanIdAndCaseType(this.planId, 'apiCase').then((res) => {
+            let data = res.data;
+            if (data) {
+              for (let i = 0; i < data.length; i++) {
+                this.projectIds.add(data[i]);
+              }
+            }
           this.$refs.envSelectPopover.open();
+          });
         });
       } else if (this.type === "apiScenario") {
         param = this.planCaseIds;
@@ -391,11 +401,16 @@ export default {
           let data = res.data;
           if (data) {
             this.projectEnvListMap = data;
-            for (let d in data) {
-              this.projectIds.add(d);
-            }
           }
-          this.$refs.envSelectPopover.open();
+          getProjectIdsByPlanIdAndCaseType(this.planId, 'apiScenario').then((res) => {
+            let data = res.data;
+            if (data) {
+              for (let i = 0; i < data.length; i++) {
+                this.projectIds.add(data[i]);
+              }
+            }
+            this.$refs.envSelectPopover.open();
+          });
         });
       } else if (this.type === "plan") {
         param = {id: this.planId};
