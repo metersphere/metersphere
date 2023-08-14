@@ -89,7 +89,7 @@ public class Document {
             if (StringUtils.isEmpty(item.getGroupId())) {
                 if (!item.getId().equals(PropertyConstant.ROOT)) {
                     if (parentNode != null) {
-                        if (parentNode.getType().equals(PropertyConstant.ARRAY) && StringUtils.equalsAnyIgnoreCase(item.getType(), PropertyConstant.STRING, PropertyConstant.INTEGER)) {
+                        if (parentNode.getType().equals(PropertyConstant.ARRAY)) {
                             try {
                                 int index = StringUtils.isNotEmpty(item.getName()) ? Integer.parseInt(item.getName()) : i;
                                 item.setJsonPath(parentNode.getJsonPath() + "[" + index + "]");
