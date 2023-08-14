@@ -38,6 +38,7 @@
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
+    organizationId?: string;
   }>();
 
   const formRef = ref<FormInstance>();

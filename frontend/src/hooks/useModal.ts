@@ -1,5 +1,6 @@
 import { Modal } from '@arco-design/web-vue';
 import type { ModalConfig } from '@arco-design/web-vue';
+import { useI18n } from '@/hooks/useI18n';
 
 export type ModalType = 'info' | 'success' | 'warning' | 'error';
 
@@ -13,6 +14,11 @@ export interface ModalOptions extends ModalConfig {
   size?: ModalSize;
 }
 
+export interface DeleteModalOptions extends ModalConfig {
+  title: string;
+  content: string;
+}
+const { t } = useI18n();
 export default function useModal() {
   return {
     openModal: (options: ModalOptions) =>
@@ -31,6 +37,16 @@ export default function useModal() {
         modalClass: `ms-usemodal ms-usemodal-${options.mode || 'default'} ms-usemodal-${
           options.size || 'small'
         } ms-usemodal-${options.type}`,
+      }),
+    deleteModal: (options: DeleteModalOptions) =>
+      Modal.warning({
+        okText: t('common.confirmDelete'),
+        cancelText: t('common.cancel'),
+        hideCancel: false,
+        okButtonProps: { status: 'danger' },
+        titleAlign: 'start',
+        modalClass: `ms-usemodal ms-usemodal-warning ms-usemodal-${'small'} ms-usemodal--warning`,
+        ...options,
       }),
   };
 }

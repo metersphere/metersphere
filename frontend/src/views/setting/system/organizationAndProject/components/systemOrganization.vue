@@ -1,5 +1,11 @@
 <template>
   <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+    <template #creator="{ record }">
+      <span>{{ record.createUser }}</span>
+      <span v-if="record.orgAdmins.length > 0" class="text-[var(--color-text-4)]">{{
+        `&nbsp;(${t('common.admin')})`
+      }}</span>
+    </template>
     <template #memberCount="{ record }">
       <span class="primary-color" @click="showUserDrawer(record)">{{ record.memberCount }}</span>
     </template>
@@ -8,18 +14,19 @@
     </template>
     <template #operation="{ record }">
       <template v-if="!record.enable">
-        <MsButton @click="handleEnable(record)">{{ t('system.organization.enable') }}</MsButton>
-        <MsButton @click="handleDelete(record)">{{ t('system.organization.delete') }}</MsButton>
+        <MsButton @click="handleEnableOrDisableOrg(record)">{{ t('common.enable') }}</MsButton>
+        <MsButton @click="handleDelete(record)">{{ t('common.delete') }}</MsButton>
       </template>
       <template v-else>
-        <MsButton @click="showOrganizationModal(record)">{{ t('system.organization.edit') }}</MsButton>
+        <MsButton @click="showOrganizationModal(record)">{{ t('common.edit') }}</MsButton>
         <MsButton @click="showAddUserModal(record)">{{ t('system.organization.addMember') }}</MsButton>
-        <MsButton @click="handleEnd(record)">{{ t('system.organization.end') }}</MsButton>
+        <MsButton @click="handleEnableOrDisableOrg(record, false)">{{ t('common.end') }}</MsButton>
         <MsTableMoreAction :list="tableActions" @select="handleMoreAction($event, record)"></MsTableMoreAction>
       </template>
     </template>
   </MsBaseTable>
-  <AddOrganizationModal :visible="userVisible" @cancel="handleAddUserModalCancel" />
+  <AddOrganizationModal type="edit" :visible="orgVisible" @cancel="handleAddOrgModalCancel" />
+  <AddUserModal :organization-id="currentOrganizationId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
   <ProjectDrawer v-bind="currentProjectDrawer" @cancel="handleProjectDrawerCancel" />
   <UserDrawer v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
 </template>
@@ -31,15 +38,17 @@
   import { useTableStore } from '@/store';
   import { ref, reactive, watch } from 'vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import { postOrgTable } from '@/api/modules/setting/system/organizationAndProject';
+  import { postOrgTable, deleteOrg, enableOrDisableOrg } from '@/api/modules/setting/system/organizationAndProject';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import AddOrganizationModal from './addOrganizationModal.vue';
   import ProjectDrawer from './projectDrawer.vue';
-  import { TableData } from '@arco-design/web-vue';
+  import { Message, TableData } from '@arco-design/web-vue';
   import UserDrawer from './userDrawer.vue';
+  import AddUserModal from './addUserModal.vue';
+  import useModal from '@/hooks/useModal';
 
   export interface SystemOrganizationProps {
     keyword: string;
@@ -50,76 +59,9 @@
   const { t } = useI18n();
   const tableStore = useTableStore();
   const userVisible = ref(false);
-
-  const currentProjectDrawer = reactive({
-    visible: false,
-    organizationId: '',
-    currentName: '',
-  });
-
-  const currentUserDrawer = reactive({
-    visible: false,
-    organizationId: '',
-  });
-
-  const tableActions: ActionsItem[] = [
-    {
-      label: 'system.user.delete',
-      eventTag: 'delete',
-      danger: true,
-    },
-  ];
-
-  const handleDelete = (record: any) => {
-    // eslint-disable-next-line no-console
-    console.log(record);
-  };
-
-  const handleMoreAction = (tag: string, record: any) => {
-    if (tag === 'delete') {
-      handleDelete(record);
-    }
-  };
-
-  const handleEnable = (record: any) => {
-    // eslint-disable-next-line no-console
-    console.log(record);
-  };
-
-  const handleEnd = (record: any) => {
-    // eslint-disable-next-line no-console
-    console.log(record);
-  };
-
-  const showOrganizationModal = (record: any) => {
-    // eslint-disable-next-line no-console
-    console.log(record);
-  };
-
-  const showAddUserModal = (record: any) => {
-    // eslint-disable-next-line no-console
-    console.log(record);
-    userVisible.value = true;
-  };
-
-  const handleProjectDrawerCancel = () => {
-    currentProjectDrawer.visible = false;
-  };
-
-  const showProjectDrawer = (record: TableData) => {
-    currentProjectDrawer.visible = true;
-    currentProjectDrawer.organizationId = record.id;
-    currentProjectDrawer.currentName = record.name;
-  };
-
-  const showUserDrawer = (record: TableData) => {
-    currentUserDrawer.visible = true;
-    currentUserDrawer.organizationId = record.id;
-  };
-
-  const handleUserDrawerCancel = () => {
-    currentUserDrawer.visible = false;
-  };
+  const orgVisible = ref(false);
+  const currentOrganizationId = ref('');
+  const { deleteModal } = useModal();
 
   const organizationColumns: MsTableColumn = [
     {
@@ -150,6 +92,7 @@
     },
     {
       title: 'system.organization.creator',
+      slotName: 'creator',
       dataIndex: 'createUser',
     },
     {
@@ -182,9 +125,95 @@
     await loadList();
   };
 
+  const currentProjectDrawer = reactive({
+    visible: false,
+    organizationId: '',
+    currentName: '',
+  });
+
+  const currentUserDrawer = reactive({
+    visible: false,
+    organizationId: '',
+  });
+
+  const tableActions: ActionsItem[] = [
+    {
+      label: 'system.user.delete',
+      eventTag: 'delete',
+      danger: true,
+    },
+  ];
+
+  const handleDelete = (record: TableData) => {
+    deleteModal({
+      title: t('system.organization.deleteName', { name: record.name }),
+      content: t('system.organization.deleteTip'),
+      onOk: async () => {
+        try {
+          await deleteOrg(record.id);
+          Message.success(t('common.deleteSuccess'));
+          fetchData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+    });
+  };
+
+  const handleMoreAction = (tag: ActionsItem, record: TableData) => {
+    if (tag.eventTag === 'delete') {
+      handleDelete(record);
+    }
+  };
+
+  const handleEnableOrDisableOrg = async (record: any, isEnable = true) => {
+    try {
+      await enableOrDisableOrg(record.id, isEnable);
+      Message.success(t('common.updateSuccess'));
+      fetchData();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  };
+
+  const showOrganizationModal = (record: any) => {
+    currentOrganizationId.value = record.id;
+    orgVisible.value = true;
+  };
+
+  const showAddUserModal = (record: any) => {
+    currentOrganizationId.value = record.id;
+    userVisible.value = true;
+  };
+
+  const handleProjectDrawerCancel = () => {
+    currentProjectDrawer.visible = false;
+  };
+
+  const showProjectDrawer = (record: TableData) => {
+    currentProjectDrawer.visible = true;
+    currentProjectDrawer.organizationId = record.id;
+    currentProjectDrawer.currentName = record.name;
+  };
+
+  const showUserDrawer = (record: TableData) => {
+    currentUserDrawer.visible = true;
+    currentUserDrawer.organizationId = record.id;
+  };
+
+  const handleUserDrawerCancel = () => {
+    currentUserDrawer.visible = false;
+  };
+
   const handleAddUserModalCancel = () => {
     userVisible.value = false;
   };
+  const handleAddOrgModalCancel = () => {
+    orgVisible.value = false;
+  };
+
   watch(
     () => props.keyword,
     () => {

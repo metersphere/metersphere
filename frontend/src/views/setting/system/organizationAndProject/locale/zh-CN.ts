@@ -37,4 +37,7 @@ export default {
   'system.organization.userName': '姓名',
   'system.organization.email': '邮箱',
   'system.organization.phone': '手机',
+  'system.organization.addSuccess': '添加成功',
+  'system.organization.deleteName': '确认删除 {name} 这个组织吗',
+  'system.organization.deleteTip': '删除组织同时将该组织下的项目数据一起删除，请谨慎操作！',
 };
