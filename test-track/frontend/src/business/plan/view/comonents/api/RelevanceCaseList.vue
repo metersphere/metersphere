@@ -236,6 +236,7 @@ export default {
       this.initTable();
     },
     projectId() {
+      this.envType = "default";
       this.condition = {
         components: TEST_PLAN_RELEVANCE_API_CASE_CONFIGS,
       };

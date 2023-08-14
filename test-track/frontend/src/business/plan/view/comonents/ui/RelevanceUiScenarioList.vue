@@ -194,6 +194,7 @@ export default {
       this.search();
     },
     projectId() {
+      this.envType = "default";
       this.condition = {
         components: TEST_PLAN_RELEVANCE_UI_SCENARIO_CONFIGS
       };
