@@ -139,6 +139,7 @@ export default {
       this.projectId = "";
     },
     open() {
+      this.isApiListEnable = true;
       this.init();
       this.$refs.baseRelevance.open();
       if (this.$refs.apiList) {
