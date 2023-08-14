@@ -189,7 +189,8 @@
     () => props.keyword,
     () => {
       fetchData();
-    }
+    },
+    { immediate: true }
   );
 </script>
 

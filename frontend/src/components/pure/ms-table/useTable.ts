@@ -190,8 +190,11 @@ export default function useTableProps(
       setTableErrorStatus('error');
     } finally {
       setLoading(false);
-      // eslint-disable-next-line no-console
-      if (propsRes.value.debug) console.info(propsRes.value);
+      // debug 模式下打印属性
+      if (propsRes.value.debug && import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.log('Table propsRes: ', propsRes.value);
+      }
     }
   };
 

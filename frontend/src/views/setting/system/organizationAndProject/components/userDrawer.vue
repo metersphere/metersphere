@@ -22,7 +22,11 @@
       </div>
       <ms-base-table class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
         <template #operation="{ record }">
-          <ms-button @click="handleRemove(record)">{{ t('system.organization.remove') }}</ms-button>
+          <MsRemoveButton
+            :title="t('system.organization.removeName', { name: record.name })"
+            :sub-title-tip="t('system.organization.removeTip')"
+            @ok="handleRemove(record)"
+          />
         </template>
       </ms-base-table>
     </div>
@@ -31,7 +35,10 @@
 </template>
 
 <script lang="ts" setup>
-  import { postUserTableByOrgId } from '@/api/modules/setting/system/organizationAndProject';
+  import {
+    postUserTableByOrgId,
+    deleteUserFromOrgOrProject,
+  } from '@/api/modules/setting/system/organizationAndProject';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { useI18n } from '@/hooks/useI18n';
@@ -39,8 +46,8 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import AddUserModal from './addUserModal.vue';
-  import { TableData } from '@arco-design/web-vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
+  import { TableData, Message } from '@arco-design/web-vue';
+  import MsRemoveButton from '@/components/bussiness/ms-remove-button/MsRemoveButton.vue';
 
   export interface projectDrawerProps {
     visible: boolean;
@@ -71,7 +78,7 @@
       title: 'system.organization.phone',
       dataIndex: 'phone',
     },
-    { title: 'system.organization.operation', dataIndex: 'operation' },
+    { title: 'system.organization.operation', slotName: 'operation' },
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserTableByOrgId, {
@@ -93,6 +100,7 @@
   };
 
   const fetchData = async () => {
+    setLoadListParams({ organizationId: props.organizationId });
     await loadList();
   };
 
@@ -104,16 +112,21 @@
     userVisible.value = false;
   };
 
-  const handleRemove = (record: TableData) => {
-    // TODO: remove user
-    // eslint-disable-next-line no-console
-    console.log(record);
+  const handleRemove = async (record: TableData) => {
+    deleteUserFromOrgOrProject(props.organizationId, record.id)
+      .then(() => {
+        Message.success(t('common.removeSuccess'));
+        fetchData();
+      })
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      });
   };
 
   watch(
     () => props.organizationId,
-    (organizationId) => {
-      setLoadListParams({ organizationId });
+    () => {
       fetchData();
     }
   );
