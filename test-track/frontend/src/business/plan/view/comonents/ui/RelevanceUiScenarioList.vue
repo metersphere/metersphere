@@ -1,22 +1,5 @@
 <template>
   <div v-loading="loading">
-    <env-group-popover
-      :env-map="projectEnvMap"
-      :project-ids="projectIds"
-      :show-env-group="false"
-      @setProjectEnvMap="setProjectEnvMap"
-      :environment-type.sync="environmentType"
-      :group-id="envGroupId"
-      :is-scenario="false"
-      @setEnvGroup="setEnvGroup"
-      :show-config-button-with-out-permission="
-        showConfigButtonWithOutPermission
-      "
-      :project-list="projectList"
-      ref="envPopover"
-      class="env-popover"
-    />
-
     <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                              v-if="condition.components !== undefined && condition.components.length > 0"
                              @search="filterSearch"/>
@@ -105,6 +88,28 @@
     </ms-table>
     <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
+    <div>
+      <el-radio-group v-model="envType" style="float: left;margin-top: 18px;">
+        <el-radio label="default">{{ $t("api_test.environment.default_environment") }}</el-radio>
+        <el-radio label="newEnv">{{ $t("api_test.environment.choose_new_environment") }}</el-radio>
+      </el-radio-group>
+      <env-group-popover
+        :env-map="projectEnvMap"
+        :project-ids="projectIds"
+        :show-env-group="false"
+        @setProjectEnvMap="setProjectEnvMap"
+        :environment-type.sync="environmentType"
+        :group-id="envGroupId"
+        :is-scenario="false"
+        @setEnvGroup="setEnvGroup"
+        :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
+        :project-list="projectList"
+        ref="envPopover"
+        class="env-popover"
+        style="float: left;margin-left: 16px"
+        v-if="envType==='newEnv'"
+      />
+    </div>
   </div>
 </template>
 
@@ -120,14 +125,10 @@ import {TEST_PLAN_RELEVANCE_UI_SCENARIO_CONFIGS} from "metersphere-frontend/src/
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import {getOwnerProjects, getVersionFilters} from "@/business/utils/sdk-utils";
-import {getProjectApplicationConfig} from "@/api/project-application";
 import {testPlanUiScenarioRelevanceList} from "@/api/remote/ui/test-plan-ui-scenario-case";
-import {
-  getCustomTableWidth
-} from "metersphere-frontend/src/utils/tableUtils";
+import {getCustomTableWidth} from "metersphere-frontend/src/utils/tableUtils";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
-import {getApiScenarioEnvByProjectId} from "@/api/remote/api/api-automation";
 import {getUiScenarioEnvByProjectId} from "@/api/remote/ui/ui-automation";
 
 export default {
@@ -168,6 +169,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      envType: "default",
       reportId: "",
       infoDb: false,
       selectRows: new Set(),
