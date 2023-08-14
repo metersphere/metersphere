@@ -1,7 +1,6 @@
 <template>
   <div class="user-group-left">
     <a-input-search
-      v-model="searchKey"
       class="w-[252px]"
       :placeholder="t('system.userGroup.searchHolder')"
       @press-enter="enterData"
@@ -75,7 +74,6 @@
 
   const { t } = useI18n();
 
-  const searchKey = ref('');
   const store = useUserGroupStore();
   const { openModal } = useModal();
   // 请求loading

@@ -13,7 +13,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { useUserGroupStore, useTableStore } from '@/store';
-  import { watchEffect, ref } from 'vue';
+  import { watchEffect, ref, watch } from 'vue';
   import { postUserByUserGroup, deleteUserFromUserGroup } from '@/api/modules/setting/usergroup';
   import { UserTableItem } from '@/models/setting/usergroup';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -25,6 +25,9 @@
   const store = useUserGroupStore();
   const tableStore = useTableStore();
   const userVisible = ref(false);
+  const props = defineProps<{
+    keyword: string;
+  }>();
 
   const userGroupUsercolumns: MsTableColumn = [
     {
@@ -57,7 +60,7 @@
 
   tableStore.initColumn(TableKeyEnum.USERGROUPUSER, userGroupUsercolumns, 'drawer');
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(postUserByUserGroup, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserByUserGroup, {
     tableKey: TableKeyEnum.USERGROUPUSER,
     scroll: { x: '600px' },
     selectable: true,
@@ -65,6 +68,7 @@
   });
 
   const fetchData = async () => {
+    setKeyword(props.keyword);
     await loadList();
   };
   const handleRemove = async (record: UserTableItem) => {
@@ -88,4 +92,10 @@
       fetchData();
     }
   });
+  watch(
+    () => props.keyword,
+    () => {
+      fetchData();
+    }
+  );
 </script>

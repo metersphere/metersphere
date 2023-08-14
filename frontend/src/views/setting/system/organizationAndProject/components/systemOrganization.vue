@@ -29,7 +29,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { useTableStore } from '@/store';
-  import { ref, reactive, watchEffect, watch } from 'vue';
+  import { ref, reactive, watch } from 'vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { postOrgTable } from '@/api/modules/setting/system/organizationAndProject';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -174,6 +174,7 @@
     noDisable: false,
     debug: true,
     size: 'default',
+    showSetting: true,
   });
 
   const fetchData = async () => {

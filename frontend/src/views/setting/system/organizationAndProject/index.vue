@@ -11,9 +11,9 @@
       <div class="flex items-center">
         <a-input-search
           :placeholder="t('system.user.searchUser')"
-          class="w-[230px]"
-          @change="handleKeywordChange"
-          @search="handleKeywordChange"
+          class="w-[240px]"
+          @press-enter="handleEnter"
+          @search="handleSearch"
         ></a-input-search>
         <a-radio-group v-model="currentTable" class="ml-[14px]" type="button">
           <a-radio value="organization">{{
@@ -46,8 +46,11 @@
   const projectCount = ref(0);
   const currentKeyword = ref('');
 
-  const handleKeywordChange = (value: string) => {
+  const handleSearch = (value: string) => {
     currentKeyword.value = value;
+  };
+  const handleEnter = (eve: Event) => {
+    currentKeyword.value = (eve.target as HTMLInputElement).value;
   };
 
   const handleAddOrganization = () => {
