@@ -10,6 +10,8 @@ export default {
   'common.search': 'Search',
   'common.reset': 'Reset',
   'common.retry': 'Retry',
+  'common.end': 'End',
+  'common.enable': 'Enable',
   'common.all': 'All',
   'common.operation': 'Operation',
   'common.remove': 'Remove',
@@ -27,4 +29,5 @@ export default {
   'common.operationFailed': 'Operation failed',
   'common.removeSuccess': 'Remove success',
   'common.removeFailed': 'Remove failed',
+  'common.admin': 'Admin',
 };

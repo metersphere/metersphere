@@ -10,6 +10,8 @@ export default {
   'common.search': '搜索',
   'common.reset': '重置',
   'common.retry': '重试',
+  'common.end': '结束',
+  'common.enable': '启用',
   'common.all': '全部',
   'common.operation': '操作',
   'common.remove': '移除',
@@ -27,4 +29,5 @@ export default {
   'common.operationFailed': '操作失败',
   'common.removeSuccess': '移除成功',
   'common.removeFailed': '移除失败',
+  'common.admin': '管理员',
 };

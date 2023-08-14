@@ -113,15 +113,14 @@
   };
 
   const handleRemove = async (record: TableData) => {
-    deleteUserFromOrgOrProject(props.organizationId, record.id)
-      .then(() => {
-        Message.success(t('common.removeSuccess'));
-        fetchData();
-      })
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error(error);
-      });
+    try {
+      await deleteUserFromOrgOrProject(props.organizationId, record.id);
+      Message.success(t('common.removeSuccess'));
+      fetchData();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
   };
 
   watch(

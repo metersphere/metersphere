@@ -8,6 +8,16 @@ export function postOrgTable(data: TableQueryParams) {
   return MSR.post({ url: orgUrl.postOrgTableUrl, data });
 }
 
+// 删除组织
+export function deleteOrg(id: string) {
+  return MSR.get({ url: `${orgUrl.getDeleteOrgUrl}${id}` });
+}
+
+// 启用或禁用组织
+export function enableOrDisableOrg(id: string, isEnable = true) {
+  return MSR.get({ url: `${isEnable ? orgUrl.getEnableOrgUrl : orgUrl.getDisableOrgUrl}${id}` });
+}
+
 // 获取项目列表
 export function postProjectTable(data: TableQueryParams) {
   return MSR.post({ url: orgUrl.postProjectTableUrl, data });
