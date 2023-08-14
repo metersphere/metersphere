@@ -30,3 +30,9 @@ export function addUserToOrgOrProject(data: AddUserToOrgOrProjectParams) {
 export function getUserByOrganizationOrProject(sourceId: string) {
   return MSR.get({ url: `${orgUrl.getUserByOrgOrProjectUrl}${sourceId}` });
 }
+// 删除组织或项目成员
+export function deleteUserFromOrgOrProject(sourceId: string, userId: string, isOrg = true) {
+  return MSR.get({
+    url: `${isOrg ? orgUrl.getDeleteOrgMemberUrl : orgUrl.getDeleteProjectMemberUrl}${sourceId}/${userId}`,
+  });
+}

@@ -6,6 +6,8 @@ export default {
   'system.organization.edit': 'Edit',
   'system.organization.save': 'Save',
   'system.organization.end': 'End',
+  'system.organization.removeName': 'Confirm to remove {name} this user',
+  'system.organization.removeTip': 'After removal, the organization permission will be lost',
   'system.organization.addMember': 'Add Member',
   'system.organization.addMemberPlaceholder': 'Please select member',
   'system.organization.addMemberRequired': 'Please select member',

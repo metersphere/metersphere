@@ -32,7 +32,7 @@
     placeholder?: string;
     type?: 'organization' | 'usergroup';
     sourceId?: string;
-    disabledKey?: 'disabled' | 'memberFlag' | 'adminFlag';
+    disabledKey?: 'disabled' | 'memberFlag';
   }
 
   export interface UserItem {
@@ -41,7 +41,6 @@
     email: string;
     disabled?: boolean;
     memberFlag?: boolean;
-    adminFlag?: boolean;
   }
 
   const fieldNames = { value: 'id', label: 'name' };

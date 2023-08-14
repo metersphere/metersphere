@@ -197,7 +197,7 @@
   };
   watch(
     () => props.treeData,
-    (newVal, oldVal) => {
+    (newVal) => {
       treeList.value = newVal;
       transferData = getTransferData(treeList.value, []);
     },
