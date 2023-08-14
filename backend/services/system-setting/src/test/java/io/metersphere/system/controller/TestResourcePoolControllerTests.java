@@ -14,7 +14,10 @@ import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+
 import org.junit.jupiter.api.*;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.model.Header;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -29,7 +32,12 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import static org.mockserver.matchers.Times.exactly;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+import static org.mockserver.model.StringBody.exact;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -44,6 +52,10 @@ class TestResourcePoolControllerTests extends BaseTest {
     private MockMvc mockMvc;
     @Resource
     private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
+    @Resource
+    private  MockServerClient mockServerClient;
+
+
 
     private static final String TEST_RESOURCE_POOL_ADD = "/test/resource/pool/add";
     private static final String TEST_RESOURCE_POOL_UPDATE = "/test/resource/pool/update";
@@ -527,7 +539,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Test
     @Order(21)
     void unableTestResourcePoolSuccess() throws Exception {
-        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob3", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
+        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob4", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
         TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
         String id = testResourcePoolRequest1.getId();
         mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/"+id)
@@ -540,6 +552,37 @@ class TestResourcePoolControllerTests extends BaseTest {
 
     @Test
     @Order(22)
+    void createExpectationForInvalidAuth() throws Exception {
+        mockServerClient
+                .when(
+                        request()
+                                .withMethod("POST")
+                                .withPath("172.16.200.8")
+                                .withHeader("Content-type", "application/json")
+                                .withBody(exact("OK")),
+                        exactly(1))
+                .respond(
+                        response()
+                                .withStatusCode(401)
+                                .withHeaders(
+                                        new Header("Content-Type", "application/json; charset=utf-8"),
+                                        new Header("Cache-Control", "public, max-age=86400"))
+                                .withBody("OK")
+                                .withDelay(TimeUnit.SECONDS,1)
+                );
+        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob3", false, true, true, false, false, ResourcePoolTypeEnum.NODE.name());
+        TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
+        String id = testResourcePoolRequest1.getId();
+        mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/"+id)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+    }
+
+    @Test
+    @Order(23)
     void unableTestResourcePoolFiled() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/105")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -548,6 +591,7 @@ class TestResourcePoolControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
     }
+
 
 
     void listByKeyWord(String keyWord) throws Exception {
