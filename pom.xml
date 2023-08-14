@@ -79,8 +79,9 @@
         <jgit.version>6.6.0.202305301015-r</jgit.version>
         <curator.version>5.4.0</curator.version>
         <graalvmjs.version>22.3.1</graalvmjs.version>
-        <embedded.version>3.0.0-RC7</embedded.version>
+        <embedded.version>3.0.0-RC9</embedded.version>
         <otp-java.version>2.0.1</otp-java.version>
+        <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
         <httpclient.version>4.5.14</httpclient.version>
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
@@ -120,6 +121,23 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-netty</artifactId>
+            <version>${mockserver-client-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-client-java</artifactId>
+            <version>${mockserver-client-java.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!--   embedded 配置      -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -149,6 +167,12 @@
         <dependency>
             <groupId>com.playtika.testcontainers</groupId>
             <artifactId>embedded-kafka</artifactId>
+            <version>${embedded.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.playtika.testcontainers</groupId>
+            <artifactId>embedded-mockserver</artifactId>
             <version>${embedded.version}</version>
             <scope>test</scope>
         </dependency>
