@@ -149,6 +149,7 @@
           await addLicense(authorizedForm.licenseCode);
           authDrawer.value = false;
           Message.success(t('system.authorized.licenseSuccessTip'));
+          getLicenseDetail();
         } catch (error) {
           console.log(error);
         } finally {
