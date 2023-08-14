@@ -93,7 +93,7 @@
     if ((column as TableColumnData).dataIndex === 'ability') {
       if (record.isSystem) {
         return {
-          rowspan: 2,
+          rowspan: systemSpan.value,
         };
       }
       if (record.isOrganization) {

@@ -12,11 +12,13 @@
         <div class="flex flex-row items-center justify-between">
           <div class="title">{{ store.userGroupInfo.currentName }}</div>
           <div class="flex items-center">
-            <a-input class="w-[240px]" :placeholder="t('system.userGroup.searchPlaceholder')">
-              <template #prefix>
-                <icon-search />
-              </template>
-            </a-input>
+            <a-input-search
+              v-if="currentTable === 'user'"
+              :placeholder="t('system.user.searchUser')"
+              class="w-[240px]"
+              @press-enter="handleEnter"
+              @search="handleSearch"
+            ></a-input-search>
             <a-radio-group v-if="couldShowUser" v-model="currentTable" class="ml-[14px]" type="button">
               <a-radio value="auth">{{ t('system.userGroup.auth') }}</a-radio>
               <a-radio value="user">{{ t('system.userGroup.user') }}</a-radio>
@@ -24,7 +26,7 @@
           </div>
         </div>
         <div class="mt-[16px]">
-          <user-table v-if="currentTable === 'user'" />
+          <user-table v-if="currentTable === 'user'" :keyword="currentKeyword" />
           <auth-table v-if="currentTable === 'auth'" />
         </div>
       </div>
@@ -45,11 +47,19 @@
   const collapse = ref(true);
 
   const { t } = useI18n();
+  const currentKeyword = ref('');
+
+  const handleSearch = (value: string) => {
+    currentKeyword.value = value;
+  };
+  const handleEnter = (eve: Event) => {
+    currentKeyword.value = (eve.target as HTMLInputElement).value;
+  };
 
   const store = useUserGroupStore();
   const couldShowUser = computed(() => store.userGroupInfo.currentType === 'SYSTEM');
   watch(
-    () => couldShowUser,
+    () => couldShowUser.value,
     (val) => {
       if (!val) {
         currentTable.value = 'auth';

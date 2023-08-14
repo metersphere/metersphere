@@ -8,8 +8,6 @@ import { useAppStore } from '@/store';
 
 import type { TableData } from '@arco-design/web-vue';
 import { type MsTableProps, type MsTableData, type MsTableColumn, SpecialColumnEnum, MsTableErrorStatus } from './type';
-import { set } from 'nprogress';
-import debug from '@/utils/env';
 
 export interface Pagination {
   current: number;
@@ -130,7 +128,9 @@ export default function useTableProps(
   const setPagination = ({ current, total }: SetPaginationPrams) => {
     if (propsRes.value.msPagination && typeof propsRes.value.msPagination === 'object') {
       propsRes.value.msPagination.current = current;
-      propsRes.value.msPagination.total = total || 0;
+      if (total !== undefined) {
+        propsRes.value.msPagination.total = total;
+      }
     }
   };
 
@@ -190,6 +190,7 @@ export default function useTableProps(
       setTableErrorStatus('error');
     } finally {
       setLoading(false);
+      // eslint-disable-next-line no-console
       if (propsRes.value.debug) console.info(propsRes.value);
     }
   };
