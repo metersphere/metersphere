@@ -6,7 +6,7 @@ export default {
   'system.authorized.authorizedVersion': 'The authorized version',
   'system.authorized.authorizationsCount': 'Number of authorizations',
   'system.authorized.authorizationStatus': 'Authorization status',
-  'system.authorized.authorityChecking': 'Authority Checking',
+  'system.authorized.authorityChecking': 'Valid License',
   'system.authorized.valid': 'valid',
   'system.authorized.invalid': 'invalid',
   'system.authorized.failure': 'failure',

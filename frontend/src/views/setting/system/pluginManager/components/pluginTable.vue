@@ -20,119 +20,117 @@
         ></a-input-search>
       </a-col>
     </a-row>
-    <div class="ms-table-wrapper flex flex-col justify-between">
-      <div>
-        <a-table
-          :data="filterData"
-          :pagination="false"
-          :scroll="{ y: 480, x: 2400 }"
-          :expandable="expandable"
-          :loading="loading"
-          row-key="id"
-          :expanded-row-keys="expandedRowKeys"
-          @expand="handleExpand"
-        >
-          <template #columns>
-            <a-table-column :width="300" fixed="left" :title="t('system.plugin.tableColunmName')" :ellipsis="true">
-              <template #cell="{ record }">
-                {{ record.name }} <span class="text-[--color-text-4]">({{ (record.pluginForms || []).length }})</span>
-              </template>
-            </a-table-column>
-            <a-table-column :title="t('system.plugin.tableColunmDescription')" data-index="description" />
-            <a-table-column :title="t('system.plugin.tableColunmStatus')">
-              <template #cell="{ record }">
-                <div v-if="record.enable" class="flex items-center">
-                  <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-                  {{ t('system.user.tableEnable') }}
-                </div>
-                <div v-else class="flex items-center text-[var(--color-text-4)]">
-                  <icon-stop class="mr-[2px]" />
-                  {{ t('system.user.tableDisable') }}
-                </div>
-              </template>
-            </a-table-column>
-            <a-table-column :title="t('system.plugin.tableColunmApplicationScene')" data-index="scenario">
-              <template #cell="{ record }">{{
-                record.scenario === 'API' ? t('system.plugin.sceneApi') : t('system.plugin.sceneManagement')
-              }}</template>
-            </a-table-column>
-            <a-table-column :title="t('system.user.tableColunmOrg')" :width="300">
-              <template #cell="{ record }">
-                <a-tooltip :content="(record.organizations||[]).map((e: any) => e.name).join(',')">
-                  <span>
-                    <a-tag
-                      v-for="org of (record.organizations || []).slice(0, 3)"
-                      :key="org.id"
-                      class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-                      bordered
-                    >
-                      {{ org.name }}
-                    </a-tag>
-                    <a-tag
-                      v-if="(record.organizations || []).length > 3"
-                      class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-                      bordered
-                    >
-                      +{{ (record.organizations || []).length - 3 }}
-                    </a-tag>
-                  </span>
-                </a-tooltip>
-              </template>
-            </a-table-column>
-            <a-table-column
-              :title="t('system.plugin.tableColunmDescription')"
-              data-index="fileName"
-              :width="300"
-              :ellipsis="true"
-            />
-            <a-table-column
-              :title="t('system.plugin.tableColunmVersion')"
-              data-index="pluginId"
-              :width="300"
-              :ellipsis="true"
-            />
-            <a-table-column :title="t('system.plugin.tableColunmAuthorization')">
-              <template #cell="{ record }">
-                <span>{{
-                  record.xpack ? t('system.plugin.uploadOpenSource') : t('system.plugin.uploadCompSource')
-                }}</span>
-              </template>
-            </a-table-column>
-            <a-table-column :title="t('system.plugin.tableColunmCreatedBy')" data-index="createUser" />
-            <a-table-column :title="t('system.plugin.tableColunmUpdateTime')" :width="200">
-              <template #cell="{ record }">
-                <span>{{ getTime(record.updateTime) }}</span>
-              </template>
-            </a-table-column>
-            <a-table-column :width="200" fixed="right" align="center" :bordered="false">
-              <template #title>
-                {{ t('system.plugin.tableColunmActions') }}
-              </template>
-              <template #cell="{ record }">
-                <MsButton @click="update(record)">{{ t('system.plugin.edit') }}</MsButton>
-                <MsButton v-if="record.enable" @click="disableHandler(record)">{{
-                  t('system.plugin.tableDisable')
-                }}</MsButton>
-                <MsButton v-else @click="enableHandler(record)">{{ t('system.plugin.tableEnable') }}</MsButton>
-                <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
-              </template>
-            </a-table-column>
-          </template>
-          <template #expand-icon="{ record, expanded }">
-            <span v-if="(record.pluginForms || []).length && !expanded" class="collapsebtn"
-              ><icon-plus :style="{ 'font-size': '12px' }"
-            /></span>
-            <span v-else-if="(record.pluginForms || []).length && expanded" class="expand"
-              ><icon-minus class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }"
-            /></span>
-          </template>
-        </a-table>
-      </div>
-      <div class="ms-footerNum"
-        >{{ t('system.plugin.totalNum') }}<span class="mx-2">{{ totalNum }}</span
-        >{{ t('system.plugin.dataList') }}</div
+    <div class="pr-2">
+      <a-table
+        :data="filterData"
+        :pagination="false"
+        :scroll="{ y: 360, x: 2400, maxHeight: 200 }"
+        :expandable="expandable"
+        :loading="loading"
+        row-key="id"
+        :expanded-row-keys="expandedRowKeys"
+        @expand="handleExpand"
       >
+        <template #columns>
+          <a-table-column :width="300" fixed="left" :title="t('system.plugin.tableColumnsName')" :ellipsis="true">
+            <template #cell="{ record }">
+              {{ record.name }} <span class="text-[--color-text-4]">({{ (record.pluginForms || []).length }})</span>
+            </template>
+          </a-table-column>
+          <a-table-column :title="t('system.plugin.tableColumnsDescription')" data-index="description" />
+          <a-table-column :title="t('system.plugin.tableColumnsStatus')">
+            <template #cell="{ record }">
+              <div v-if="record.enable" class="flex items-center">
+                <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+                {{ t('system.user.tableEnable') }}
+              </div>
+              <div v-else class="flex items-center text-[var(--color-text-4)]">
+                <icon-stop class="mr-[2px]" />
+                {{ t('system.user.tableDisable') }}
+              </div>
+            </template>
+          </a-table-column>
+          <a-table-column :title="t('system.plugin.tableColumnsApplicationScene')" data-index="scenario">
+            <template #cell="{ record }">{{
+              record.scenario === 'API' ? t('system.plugin.interfaceTest') : t('system.plugin.projectManagement')
+            }}</template>
+          </a-table-column>
+          <a-table-column :title="t('system.plugin.tableColumnsOrg')" :width="300">
+            <template #cell="{ record }">
+              <a-tooltip :content="(record.organizations||[]).map((e: any) => e.name).join(',')">
+                <span>
+                  <a-tag
+                    v-for="org of (record.organizations || []).slice(0, 3)"
+                    :key="org.id"
+                    class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+                    bordered
+                  >
+                    {{ org.name }}
+                  </a-tag>
+                  <a-tag
+                    v-if="(record.organizations || []).length > 3"
+                    class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+                    bordered
+                  >
+                    +{{ (record.organizations || []).length - 3 }}
+                  </a-tag>
+                </span>
+              </a-tooltip>
+            </template>
+          </a-table-column>
+          <a-table-column
+            :title="t('system.plugin.tableColumnsDescription')"
+            data-index="fileName"
+            :width="300"
+            :ellipsis="true"
+          />
+          <a-table-column
+            :title="t('system.plugin.tableColumnsVersion')"
+            data-index="pluginId"
+            :width="300"
+            :ellipsis="true"
+          />
+          <a-table-column :title="t('system.plugin.tableColumnsAuthorization')">
+            <template #cell="{ record }">
+              <span>{{
+                record.xpack ? t('system.plugin.uploadOpenSource') : t('system.plugin.uploadCompSource')
+              }}</span>
+            </template>
+          </a-table-column>
+          <a-table-column :title="t('system.plugin.tableColumnsCreatedBy')" data-index="createUser" />
+          <a-table-column :title="t('system.plugin.tableColumnsUpdateTime')" :width="200">
+            <template #cell="{ record }">
+              <span>{{ getTime(record.updateTime) }}</span>
+            </template>
+          </a-table-column>
+          <a-table-column :width="200" fixed="right" align="center" :bordered="false">
+            <template #title>
+              {{ t('system.plugin.tableColumnsActions') }}
+            </template>
+            <template #cell="{ record }">
+              <MsButton @click="update(record)">{{ t('system.plugin.edit') }}</MsButton>
+              <MsButton v-if="record.enable" @click="disableHandler(record)">{{
+                t('system.plugin.tableDisable')
+              }}</MsButton>
+              <MsButton v-else @click="enableHandler(record)">{{ t('system.plugin.tableEnable') }}</MsButton>
+              <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+            </template>
+          </a-table-column>
+        </template>
+        <template #expand-icon="{ record, expanded }">
+          <span v-if="(record.pluginForms || []).length && !expanded" class="collapsebtn"
+            ><icon-plus :style="{ 'font-size': '12px' }"
+          /></span>
+          <span v-else-if="(record.pluginForms || []).length && expanded" class="expand"
+            ><icon-minus class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }"
+          /></span>
+        </template>
+      </a-table>
     </div>
+    <div class="ms-footerNum"
+      >{{ t('system.plugin.totalNum') }}<span class="mx-2">{{ totalNum }}</span
+      >{{ t('system.plugin.dataList') }}</div
+    >
     <UploadModel
       v-model:visible="uploadVisible"
       :originize-list="originizeList"
@@ -211,7 +209,7 @@
       value: '',
     },
     {
-      label: 'system.plugin.apiTest',
+      label: 'system.plugin.interfaceTest',
       value: 'API',
     },
     {
@@ -248,7 +246,7 @@
     openModal({
       type: 'warning',
       title: t('system.plugin.deletePluginTip', { name: characterLimit(record.name) }),
-      content: '',
+      content: t('system.plugin.deleteContentTip'),
       okText: t('system.plugin.deletePluginConfirm'),
       cancelText: t('system.plugin.pluginCancel'),
       okButtonProps: {
@@ -389,11 +387,6 @@
   :deep(.arco-table-tr-expand .arco-table-cell) {
     padding: 0 !important;
   }
-  :deep(.arco-table) {
-    margin-right: -10px;
-    padding-right: 10px;
-    max-width: 100%;
-  }
   :deep(.collapsebtn) {
     padding: 0 1px;
     border: 1px solid var(--color-text-4);
@@ -414,18 +407,16 @@
     @apply bg-white;
   }
   .ms-footerNum {
-    height: 22px;
-    line-height: 22px;
-    @apply mt-4 text-sm text-slate-500;
-  }
-  .ms-table-wrapper {
-    height: calc(100vh - 236px);
-    min-height: 400px;
+    width: 100%;
+    @apply absolute bottom-0 z-20 mt-4 bg-white pt-4 text-sm text-slate-500;
   }
   :deep(.arco-table-tr .arco-table-td) {
     height: 54px !important;
   }
   .ms-table-expand :deep(.arco-scrollbar-container + .arco-scrollbar-track-direction-vertical) {
     left: 0 !important;
+  }
+  :deep(.arco-table-content + .arco-scrollbar-track-direction-vertical .arco-scrollbar-thumb-direction-vertical) {
+    height: 0 !important;
   }
 </style>
