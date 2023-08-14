@@ -1,6 +1,6 @@
 export default {
-  'system.log.operater': '操作人',
-  'system.log.operaterPlaceholder': '请输入用户名/邮箱',
+  'system.log.operator': '操作人',
+  'system.log.operatorPlaceholder': '请输入用户名/邮箱',
   'system.log.operateTime': '操作时间',
   'system.log.operateRange': '操作范围',
   'system.log.operateType': '操作类型',
@@ -9,7 +9,7 @@ export default {
   'system.log.operateName': '名称',
   'system.log.operateNamePlaceholder': '请输入用例/环境/菜单名',
   'system.log.system': '系统',
-  'system.log.orgnization': '组织',
+  'system.log.organization': '组织',
   'system.log.project': '项目',
   'system.log.search': '查询',
   'system.log.reset': '重置',

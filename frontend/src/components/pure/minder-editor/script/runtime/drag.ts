@@ -44,13 +44,13 @@ function createDragRuntime(this: DragRuntimeOptions) {
   let maxY: number;
   let containerY: number;
   let freeHorizen = false;
-  let freeVirtical = false;
+  let freeVertical = false;
   let frame: number | null = null;
 
   function move(direction: 'left' | 'top' | 'right' | 'bottom' | false, speed?: number) {
     if (!direction) {
       freeHorizen = false;
-      freeVirtical = false;
+      freeVertical = false;
       if (frame) {
         cancelAnimationFrame(frame);
       }
@@ -143,10 +143,10 @@ function createDragRuntime(this: DragRuntimeOptions) {
       } else if (osy > maxY - BOUND_CHECK) {
         move('top', BOUND_CHECK + osy - maxY);
       } else {
-        freeVirtical = true;
+        freeVertical = true;
       }
 
-      if (freeHorizen && freeVirtical) {
+      if (freeHorizen && freeVertical) {
         move(false);
       }
     }

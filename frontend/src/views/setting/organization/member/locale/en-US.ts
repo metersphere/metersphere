@@ -30,6 +30,6 @@ export default {
   'organization.member.deleteMemberSuccess': 'Delete successful',
   'organization.member.batchModalSuccess': 'Successfully added',
   'organization.member.batchUpdateSuccess': 'Successfully updated',
-  'organization.member.proejct': 'Project',
+  'organization.member.project': 'Project',
   'organization.member.selectUserScope': 'Please select a user group for the above members',
 };

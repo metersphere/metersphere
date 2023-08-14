@@ -70,8 +70,8 @@
       :ok-text="t('system.authorized.authorization')"
       :ok-loading="drawerLoading"
       :width="480"
-      @confirm="confirmHanlder"
-      @cancel="cancelHanlder"
+      @confirm="confirmHandler"
+      @cancel="cancelHandler"
     >
       <a-form ref="authFormRef" :model="authorizedForm" layout="vertical">
         <a-row class="grid-demo">
@@ -141,7 +141,7 @@
   const authFormRef = ref<FormInstance | null>(null);
   const fileList = ref([]);
 
-  const confirmHanlder = () => {
+  const confirmHandler = () => {
     authFormRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (!errors) {
         drawerLoading.value = true;
@@ -160,7 +160,7 @@
     });
   };
 
-  const cancelHanlder = () => {
+  const cancelHandler = () => {
     authDrawer.value = false;
     fileList.value = [];
     authFormRef.value?.resetFields();

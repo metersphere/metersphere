@@ -45,6 +45,6 @@ export default {
   'organization.service.deleteMemberSuccess': '删除成功',
   'organization.service.batchModalSuccess': '添加成功',
   'organization.service.batchUpdateSuccess': '更新成功',
-  'organization.service.proejct': '项目',
+  'organization.service.project': '项目',
   'organization.service.selectUserScope': '请为以上成员选择用户组',
 };

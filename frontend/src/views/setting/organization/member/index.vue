@@ -20,7 +20,7 @@
       :action-config="tableBatchActions"
       @selected-change="handleTableSelect"
       v-on="propsEvent"
-      @batch-action="handelTableBatch"
+      @batch-action="handleTableBatch"
     >
       <template #project="{ record }">
         <a-tooltip :content="(record.projectIdNameMap||[]).map((e: any) => e.name).join(',')">
@@ -323,7 +323,7 @@
     if (currentType) batchModalRef.value.batchRequestFun(currentType.request, params);
   };
   // 批量操作
-  const handelTableBatch = (actionItem: any) => {
+  const handleTableBatch = (actionItem: any) => {
     showBatchModal.value = true;
     treeData.value = [];
     batchAction.value = actionItem.eventTag;

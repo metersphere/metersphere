@@ -12,14 +12,14 @@ function stringHash(str: string): number {
 }
 
 class Debug {
-  private flaged: boolean;
+  private flagged: boolean;
 
   public log: (...args: any) => void;
 
   constructor(flag: string) {
-    this.flaged = window.location.search.indexOf(flag) !== -1;
+    this.flagged = window.location.search.indexOf(flag) !== -1;
 
-    if (this.flaged) {
+    if (this.flagged) {
       const h = stringHash(flag) % 360;
       const flagStyle = format(
         'background: hsl({0}, 50%, 80%); ' +

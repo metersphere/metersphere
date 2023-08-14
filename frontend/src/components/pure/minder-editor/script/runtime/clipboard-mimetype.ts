@@ -60,7 +60,7 @@ const MimeType = () => {
     return mimetype + SPLITOR + text;
   }
 
-  function registMimeTypeProtocol(type: string, sign: string): void {
+  function registerMimeTypeProtocol(type: string, sign: string): void {
     if (sign && SIGN[sign]) {
       throw new Error('sign has registered!');
     }
@@ -82,7 +82,7 @@ const MimeType = () => {
   }
 
   return {
-    registMimeTypeProtocol,
+    registerMimeTypeProtocol,
     getMimeTypeProtocol,
     getSpitor,
     getMimeType,

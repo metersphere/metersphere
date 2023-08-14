@@ -20,11 +20,11 @@ const entityMap = '</map>';
 
 function concatNodes(node: any) {
   let result = '';
-  const datas = node.data;
-  result += nodeCreated + datas.created + nodeId + datas.id + nodeText + datas.text + nodeSuffix;
-  if (datas.priority) {
+  const nodeData = node.data;
+  result += nodeCreated + nodeData.created + nodeId + nodeData.id + nodeText + nodeData.text + nodeSuffix;
+  if (nodeData.priority) {
     const mapped = priorities.find((d) => {
-      return d.jp === datas.priority;
+      return d.jp === nodeData.priority;
     });
     if (mapped) {
       result += iconTextPrefix + mapped.mp + iconTextSuffix;

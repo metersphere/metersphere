@@ -11,7 +11,7 @@
     </template>
     <div class="form">
       <a-form ref="memberFormRef" :model="form" size="large" layout="vertical">
-        <a-form-item v-if="type === 'edit'" :label="t('organization.member.proejct')" asterisk-position="end">
+        <a-form-item v-if="type === 'edit'" :label="t('organization.member.project')" asterisk-position="end">
           <a-select
             v-model="form.projectIds"
             multiple

@@ -60,7 +60,7 @@ function InputRuntime(this: any) {
       timer = setTimeout(() => {
         const box = focusNode.getRenderBox('TextRenderer');
         this.receiverElement.style.left = `${Math.round(box.x)}px`;
-        this.receiverElement.style.top = `${debug.flaged ? Math.round(box.bottom + 30) : Math.round(box.y)}px`;
+        this.receiverElement.style.top = `${debug.flagged ? Math.round(box.bottom + 30) : Math.round(box.y)}px`;
         timer = null;
       });
     }
@@ -69,7 +69,7 @@ function InputRuntime(this: any) {
   // let the receiver follow the current selected node position
   // setup everything to go
   const setupReciverElement = () => {
-    if (debug.flaged) {
+    if (debug.flagged) {
       this.receiverElement.classList.add('debug');
     }
 

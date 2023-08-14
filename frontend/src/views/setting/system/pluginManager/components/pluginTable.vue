@@ -15,8 +15,8 @@
           v-model="searchKeys.name"
           :max-length="250"
           :placeholder="t('system.plugin.searchPlugin')"
-          @search="searchHanlder"
-          @press-enter="searchHanlder"
+          @search="searchHandler"
+          @press-enter="searchHandler"
         ></a-input-search>
       </a-col>
     </a-row>
@@ -53,7 +53,7 @@
             </a-table-column>
             <a-table-column :title="t('system.plugin.tableColunmApplicationScene')" data-index="scenario">
               <template #cell="{ record }">{{
-                record.scenario === 'API' ? t('system.plugin.secneApi') : t('system.plugin.secneProManger')
+                record.scenario === 'API' ? t('system.plugin.sceneApi') : t('system.plugin.sceneManagement')
               }}</template>
             </a-table-column>
             <a-table-column :title="t('system.user.tableColunmOrg')" :width="300">
@@ -215,7 +215,7 @@
       value: 'API',
     },
     {
-      label: 'system.plugin.proMangement',
+      label: 'system.plugin.projectManagement',
       value: 'PLATFORM',
     },
   ]);
@@ -239,7 +239,7 @@
       loading.value = false;
     }
   };
-  const searchHanlder = () => {
+  const searchHandler = () => {
     filterData.value = data.value.filter(
       (item) => item.name?.includes(searchKeys.name) && item.scenario?.indexOf(searchKeys.scene) !== -1
     );
