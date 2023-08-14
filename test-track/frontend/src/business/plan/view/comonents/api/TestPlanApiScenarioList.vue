@@ -269,6 +269,7 @@
     <ms-test-plan-run-mode-with-env
       @handleRunBatch="handleRunBatch"
       ref="runMode"
+      :plan-id="planId"
       :plan-case-ids="planCaseIds"
       :type="'apiScenario'"
       @close="search"
