@@ -211,7 +211,6 @@ public class UserService {
         updateUser.setUpdateUser(operator);
         updateUser.setUpdateTime(System.currentTimeMillis());
         response.setSuccessCount(userMapper.updateByExampleSelective(updateUser, userExample));
-        response.setProcessedIds(request.getUserIds());
         return response;
     }
 
@@ -293,7 +292,6 @@ public class UserService {
         //更新删除标志位
         UserBatchProcessResponse response = new UserBatchProcessResponse();
         response.setTotalCount(userIdList.size());
-        response.setProcessedIds(userIdList);
         response.setSuccessCount(this.deleteUserByList(userIdList, operator));
         //删除用户角色关系
         userRoleRelationService.deleteByUserIdList(userIdList);
@@ -455,7 +453,6 @@ public class UserService {
         UserBatchProcessResponse response = new UserBatchProcessResponse();
         response.setTotalCount(request.getUserIds().size());
         response.setSuccessCount(request.getUserIds().size());
-        response.setProcessedIds(request.getUserIds());
         return response;
     }
 
