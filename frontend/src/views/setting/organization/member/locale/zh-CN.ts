@@ -23,7 +23,7 @@ export default {
   'organization.member.selectUserEmptyTip': '用户组不能为空',
   'organization.member.Confirm': '确定',
   'organization.member.Cancel': '取消',
-  'organization.member.deleteMemberTip': '确认移除 `{name}` 这个成员吗？',
+  'organization.member.deleteMemberTip': '确认移除 {name} 这个成员吗？',
   'organization.member.deleteMemberConfirm': '确认删除',
   'organization.member.deleteMemberCancel': '取消',
   'organization.member.deleteMemberSuccess': '删除成功',
@@ -31,4 +31,7 @@ export default {
   'organization.member.batchUpdateSuccess': '更新成功',
   'organization.member.project': '项目',
   'organization.member.selectUserScope': '请为以上成员选择用户组',
+  'organization.member.statusEnable': '正常',
+  'organization.member.statusDisable': '禁用',
+  'organization.member.subTitle': '移除后，将失去组织权限',
 };

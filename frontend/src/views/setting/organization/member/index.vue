@@ -89,9 +89,28 @@
           </a-select>
         </a-tooltip>
       </template>
+      <template #enable="{ record }">
+        <div v-if="record.enable" class="flex items-center">
+          <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+          {{ t('organization.member.statusEnable') }}
+        </div>
+        <div v-else class="flex items-center text-[var(--color-text-4)]">
+          <MsIcon type="icon-icon_disable" class="mr-[2px]" />
+          {{ t('organization.member.statusDisable') }}
+        </div>
+      </template>
       <template #action="{ record }">
         <MsButton @click="addOrEditMember('edit', record)">{{ t('organization.member.edit') }}</MsButton>
-        <MsButton @click="deleteMember(record)">{{ t('organization.member.remove') }}</MsButton>
+        <MsPopConfirm
+          type="error"
+          position="br"
+          :ok-text="t('organization.member.remove')"
+          :title="t('organization.member.deleteMemberTip', { name: characterLimit(record.name) })"
+          :sub-title-tip="t('organization.member.subTitle')"
+          @confirm="deleteMember(record)"
+        >
+          <MsButton>{{ t('organization.member.remove') }}</MsButton>
+        </MsPopConfirm>
       </template>
     </ms-base-table>
   </MsCard>
@@ -124,6 +143,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import AddMemberModal from './components/addMemberModal.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
   import {
     getMemberList,
     deleteMemberReq,
@@ -133,7 +153,6 @@
     getProjectList,
     getGlobalUserGroup,
   } from '@/api/modules/setting/member';
-  import useModal from '@/hooks/useModal';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import MSBatchModal from '@/components/bussiness/ms-batch-modal/index.vue';
   import { useTableStore, useUserStore } from '@/store';
@@ -157,50 +176,43 @@
       title: 'organization.member.tableColunmEmail',
       dataIndex: 'email',
       width: 200,
-      showDrag: false,
       showInTable: true,
     },
     {
       title: 'organization.member.tableColunmName',
       dataIndex: 'name',
-      showDrag: false,
       showInTable: true,
     },
     {
       title: 'organization.member.tableColunmPhone',
       dataIndex: 'phone',
-      showDrag: false,
       showInTable: true,
     },
     {
       title: 'organization.member.tableColunmPro',
       slotName: 'project',
       dataIndex: 'projectIdNameMap',
-      width: 280,
-      showDrag: false,
+      width: 300,
       showInTable: true,
     },
     {
       title: 'organization.member.tableColunmUsergroup',
       slotName: 'userRole',
       dataIndex: 'userRoleIdNameMap',
-      width: 250,
-      showDrag: false,
+      width: 300,
       showInTable: true,
     },
     {
       title: 'organization.member.tableColunmStatus',
       slotName: 'enable',
       dataIndex: 'enable',
-      showDrag: false,
       showInTable: true,
     },
     {
       title: 'organization.member.tableColunmActions',
       slotName: 'action',
       fixed: 'right',
-      width: 100,
-      showDrag: false,
+      width: 140,
       showInTable: true,
     },
   ];
@@ -226,7 +238,6 @@
   const keyword = ref('');
   const tableSelected = ref<(string | number)[]>([]);
   const selectData = ref<string[]>([]);
-  const { openModal } = useModal();
 
   interface TreeDataItem {
     key: string;
@@ -253,27 +264,14 @@
       AddMemberRef.value.edit(record);
     }
   };
-  const deleteMember = (record: MemberItem) => {
-    openModal({
-      type: 'warning',
-      title: t('organization.member.deleteMemberTip', { name: characterLimit(record.name) }),
-      content: '',
-      okText: t('organization.member.deleteMemberConfirm'),
-      cancelText: t('organization.member.deleteMemberCancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
-      onBeforeOk: async () => {
-        try {
-          await deleteMemberReq(lastOrganizationId, record.id);
-          Message.success(t('organization.member.deleteMemberSuccess'));
-          initData();
-        } catch (error) {
-          console.log(error);
-        }
-      },
-      hideCancel: false,
-    });
+  const deleteMember = async (record: MemberItem) => {
+    try {
+      await deleteMemberReq(lastOrganizationId, record.id);
+      Message.success(t('organization.member.deleteMemberSuccess'));
+      initData();
+    } catch (error) {
+      console.log(error);
+    }
   };
   const handleTableSelect = (selectArr: (string | number)[]) => {
     tableSelected.value = selectArr;

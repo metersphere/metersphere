@@ -32,4 +32,7 @@ export default {
   'organization.member.batchUpdateSuccess': 'Successfully updated',
   'organization.member.project': 'Project',
   'organization.member.selectUserScope': 'Please select a user group for the above members',
+  'organization.member.statusEnable': 'Normal',
+  'organization.member.statusDisable': 'Disabled',
+  'organization.member.subTitle': 'When removed, you lose your organization privileges',
 };
