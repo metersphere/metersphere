@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.Header;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -32,12 +33,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import static org.mockserver.matchers.Times.exactly;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
-import static org.mockserver.model.StringBody.exact;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,7 +53,10 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Resource
     private  MockServerClient mockServerClient;
 
-
+    @Value("${embedded.mockserver.host}")
+    private String host;
+    @Value("${embedded.mockserver.port}")
+    private int port;
 
     private static final String TEST_RESOURCE_POOL_ADD = "/test/resource/pool/add";
     private static final String TEST_RESOURCE_POOL_UPDATE = "/test/resource/pool/update";
@@ -434,10 +435,14 @@ class TestResourcePoolControllerTests extends BaseTest {
         listByKeyWord("test_pool_update");
     }
 
-    private static void setResources(TestResourcePoolRequest testResourcePoolDTO, boolean isPart) {
+    private  void setResources(TestResourcePoolRequest testResourcePoolDTO, boolean isPart) {
         TestResourceDTO testResourceDTO;
         if (isPart) {
             testResourceDTO = JSON.parseObject(configuration, TestResourceDTO.class);
+            testResourceDTO.getNodesList().forEach(testResourceNodeDTO -> {
+                testResourceNodeDTO.setIp(host);
+                testResourceNodeDTO.setPort(port + "");
+            });
         } else {
             testResourceDTO = JSON.parseObject(configurationWidthOutOrgIds, TestResourceDTO.class);
         }
@@ -556,19 +561,15 @@ class TestResourcePoolControllerTests extends BaseTest {
         mockServerClient
                 .when(
                         request()
-                                .withMethod("POST")
-                                .withPath("172.16.200.8")
-                                .withHeader("Content-type", "application/json")
-                                .withBody(exact("OK")),
-                        exactly(1))
+                                .withMethod("GET")
+                                .withPath("/status"))
                 .respond(
                         response()
-                                .withStatusCode(401)
+                                .withStatusCode(200)
                                 .withHeaders(
                                         new Header("Content-Type", "application/json; charset=utf-8"),
                                         new Header("Cache-Control", "public, max-age=86400"))
-                                .withBody("OK")
-                                .withDelay(TimeUnit.SECONDS,1)
+                                .withBody(JSON.toJSONString(ResultHolder.success("OK")))
                 );
         MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob3", false, true, true, false, false, ResourcePoolTypeEnum.NODE.name());
         TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
@@ -650,12 +651,12 @@ class TestResourcePoolControllerTests extends BaseTest {
             if (noIp) {
                 testResourceNodeDTO.setIp("");
             } else {
-                testResourceNodeDTO.setIp("172.2.130.1");
+                testResourceNodeDTO.setIp(host);
             }
             if (noPort) {
                 testResourceNodeDTO.setPort("");
             } else {
-                testResourceNodeDTO.setPort("3306");
+                testResourceNodeDTO.setPort(port + "");
             }
             if (noMonitor) {
                 testResourceNodeDTO.setMonitor(" ");
