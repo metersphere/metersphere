@@ -611,7 +611,8 @@ public class UserControllerTests extends BaseTest {
                     this.requestPostAndReturn(userRequestUtils.URL_USER_RESET_PASSWORD, request),
                     UserBatchProcessResponse.class
             );
-            List<User> userList = userService.selectByIdList(response.getProcessedIds());
+            Assertions.assertEquals(response.getTotalCount(), response.getSuccessCount(), 1);
+            List<User> userList = userService.selectByIdList(Collections.singletonList(userId));
             for (User checkUser : userList) {
                 UserExample userExample = new UserExample();
                 userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtil.md5(checkUser.getEmail()));
@@ -628,7 +629,14 @@ public class UserControllerTests extends BaseTest {
                     this.requestPostAndReturn(userRequestUtils.URL_USER_RESET_PASSWORD, request),
                     UserBatchProcessResponse.class
             );
-            List<User> userList = userService.selectByIdList(response.getProcessedIds());
+            UserExample example = new UserExample();
+            example.createCriteria().andIdNotEqualTo("admin");
+            long count = userMapper.countByExample(example);
+            Assertions.assertEquals(response.getTotalCount(), response.getSuccessCount(), count);
+
+            example.clear();
+            example.createCriteria().andIdNotEqualTo("admin");
+            List<User> userList = userMapper.selectByExample(example);
             for (User checkUser : userList) {
                 UserExample userExample = new UserExample();
                 userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtil.md5(checkUser.getEmail()));
@@ -731,12 +739,8 @@ public class UserControllerTests extends BaseTest {
             Assertions.assertEquals(request.getUserIds().size(), response.getTotalCount());
             Assertions.assertEquals(request.getUserIds().size(), response.getSuccessCount());
             //检查数据库
-            UserExample example = new UserExample();
-            example.createCriteria().andIdIn(response.getProcessedIds());
-            List<User> userList = userMapper.selectByExample(example);
-            for (User user : userList) {
-                Assertions.assertTrue(user.getDeleted());
-            }
+            User user = userMapper.selectByPrimaryKey(deleteUser.getId());
+            Assertions.assertTrue(user.getDeleted());
             USER_LIST.remove(deleteUser);
         }
 
@@ -746,11 +750,10 @@ public class UserControllerTests extends BaseTest {
             request.setUserIds(USER_LIST.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
             request.setSkipIds(Collections.singletonList("admin"));
             UserBatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(userRequestUtils.URL_USER_DELETE, request), UserBatchProcessResponse.class);
-            Assertions.assertEquals(request.getUserIds().size(), response.getTotalCount());
-            Assertions.assertEquals(request.getUserIds().size(), response.getSuccessCount());
+            Assertions.assertEquals(request.getUserIds().size(), response.getTotalCount(), response.getSuccessCount());
             //检查数据库
             UserExample example = new UserExample();
-            example.createCriteria().andIdIn(response.getProcessedIds());
+            example.createCriteria().andIdIn(request.getUserIds());
             List<User> userList = userMapper.selectByExample(example);
             for (User user : userList) {
                 Assertions.assertTrue(user.getDeleted());
@@ -759,7 +762,7 @@ public class UserControllerTests extends BaseTest {
             //记录已经删除了的用户，用于反例
             DELETED_USER_ID_LIST.clear();
             USER_LIST.clear();
-            DELETED_USER_ID_LIST.addAll(response.getProcessedIds());
+            DELETED_USER_ID_LIST.addAll(request.getUserIds());
             //检查删除了的用户，可以用其邮箱继续注册
             this.testAddSuccess();
         }

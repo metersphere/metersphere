@@ -118,7 +118,6 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         UserBatchProcessResponse response = new UserBatchProcessResponse();
         response.setTotalCount(request.getUserIds().size());
         response.setSuccessCount(saveList.size());
-        response.setProcessedIds(saveList.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()));
         return response;
     }
 
