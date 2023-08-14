@@ -1,7 +1,7 @@
 /* stylelint-disable order/properties-order */
 <template>
   <MsCard simple>
-    <div class="wrapper flex flex-col justify-between">
+    <div class="wrapper">
       <a-alert :closable="true" class="mb-4">
         <div>
           {{ t('system.plugin.alertDescribe') }}
@@ -28,6 +28,9 @@
     color: rgb(var(--primary-5));
   }
   .wrapper {
+    /* position: relative; */
     width: 100%;
+    height: calc(100vh - 138px);
+    min-height: 500px;
   }
 </style>

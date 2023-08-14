@@ -29,6 +29,9 @@ export default {
   'organization.member.deleteMemberSuccess': '删除成功',
   'organization.member.batchModalSuccess': '添加成功',
   'organization.member.batchUpdateSuccess': '更新成功',
-  'organization.member.proejct': '项目',
+  'organization.member.project': '项目',
   'organization.member.selectUserScope': '请为以上成员选择用户组',
+  'organization.member.statusEnable': '正常',
+  'organization.member.statusDisable': '禁用',
+  'organization.member.subTitle': '移除后，将失去组织权限',
 };

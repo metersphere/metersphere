@@ -14,8 +14,8 @@ export default {
   'system.plugin.tableColunmApplicationScene': 'ApplicationScene',
   'system.plugin.ChangeSceneName': 'Change Scene({name})',
   'system.plugin.tableColunmOrg': 'Application Organization',
-  'system.plugin.tableColunmAuthorization': 'Authorization Type',
-  'system.plugin.tableColunmCreatedBy': 'Created By',
+  'system.plugin.tableColunmAuthorization': 'AuthorizationType',
+  'system.plugin.tableColunmCreatedBy': 'CreatedBy',
   'system.plugin.tableColunmExpirationDate': 'Expiration Date',
   'system.plugin.tableColunmActions': 'Actions',
   'system.plugin.tableColunmStatus': 'Status',
@@ -101,5 +101,7 @@ export default {
   'system.resourcePool.useUI': ' UI test',
   'system.plugin.all': 'All',
   'system.plugin.apiTest': 'API Test',
-  'system.plugin.proMangement': 'Project Management',
+  'system.plugin.proManagement': 'Project Management',
+  'system.plugin.deleteContentTip':
+    'After deletion, the defects/requirements of the platform cannot be synchronized, and the historical data is automatically switched to other templates. Please exercise caution!',
 };
