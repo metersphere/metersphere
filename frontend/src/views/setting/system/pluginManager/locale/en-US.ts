@@ -83,8 +83,8 @@ export default {
   'system.plugin.uploadFileTip': 'Please upload the file and submit it!',
   'system.plugin.uploadOpenSource': 'Open Source',
   'system.plugin.uploadCompSource': 'Enterprise Edition',
-  'system.plugin.secneApi': 'Interface Testing',
-  'system.plugin.secneProManger': 'Project Management',
+  'system.plugin.sceneApi': 'Interface Testing',
+  'system.plugin.sceneManagement': 'Project Management',
   'system.resourcePool.deletePoolSuccess': 'Deleted successfully',
   'system.plugin.sizeExceedTip': 'The file size exceeds the limit！',
   'system.plugin.showScriptTitle': 'View the script ({name})',
@@ -101,5 +101,5 @@ export default {
   'system.resourcePool.useUI': ' UI test',
   'system.plugin.all': 'All',
   'system.plugin.apiTest': 'API Test',
-  'system.plugin.proMangement': 'Project Management',
+  'system.plugin.projectManagement': 'Project Management',
 };

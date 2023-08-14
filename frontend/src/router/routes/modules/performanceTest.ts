@@ -4,7 +4,7 @@ import menuEnum from '@/enums/menuEnum';
 
 const PerformanceTest: AppRouteRecordRaw = {
   path: '/performance-test',
-  name: menuEnum.PERFORMANCETEST,
+  name: menuEnum.PERFORMANCE_TEST,
   redirect: '/performance-test/index',
   component: DEFAULT_LAYOUT,
   meta: {

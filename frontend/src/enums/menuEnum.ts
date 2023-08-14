@@ -2,7 +2,7 @@ enum menuEnum {
   APITEST = 'apiTest',
   BUGMANAGEMENT = 'bugManagement',
   FEATURETEST = 'featureTest',
-  PERFORMANCETEST = 'performanceTest',
+  PERFORMANCE_TEST = 'performanceTest',
   PROJECTMANAGEMENT = 'projectManagement',
   SETTING = 'setting',
   TESTPLAN = 'testPlan',

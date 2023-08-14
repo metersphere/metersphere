@@ -23,7 +23,7 @@
   </div>
 </template>
 
-<script lang="ts" name="StyleOpreation" setup>
+<script lang="ts" name="StyleOperation" setup>
   import { nextTick, onMounted, reactive, ref } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
 

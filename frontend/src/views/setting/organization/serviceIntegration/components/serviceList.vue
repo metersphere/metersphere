@@ -56,7 +56,7 @@
                   <a-button v-else type="outline" class="arco-btn-outline--secondary" size="mini">{{
                     t('organization.service.testLink')
                   }}</a-button>
-                  <a-button type="outline" class="arco-btn-outline--secondary" size="mini" @click="editHanlder(item)">{{
+                  <a-button type="outline" class="arco-btn-outline--secondary" size="mini" @click="editHandler(item)">{{
                     t('organization.service.edit')
                   }}</a-button>
                   <a-button
@@ -64,7 +64,7 @@
                     type="outline"
                     class="arco-btn-outline--secondary"
                     size="mini"
-                    @click="resetHanlder(item)"
+                    @click="resetHandler(item)"
                     >{{ t('organization.service.reset') }}</a-button
                   >
                 </a-space>
@@ -160,10 +160,10 @@
   const serviceVisible = ref<boolean>(false);
   let createRules = reactive([]);
 
-  const editHanlder = (item: any) => {
+  const editHandler = (item: any) => {
     serviceVisible.value = true;
   };
-  const resetHanlder = (item: any) => {};
+  const resetHandler = (item: any) => {};
 
   onMounted(() => {
     setTimeout(() => {

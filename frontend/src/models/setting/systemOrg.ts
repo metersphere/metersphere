@@ -1,4 +1,4 @@
-export interface AddUserToOrgOrPorjectParams {
+export interface AddUserToOrgOrProjectParams {
   userIds?: string[];
   organizationId?: string;
   projectId?: string;

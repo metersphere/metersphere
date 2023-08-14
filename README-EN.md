@@ -84,7 +84,7 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
             <td>Support multi-interface scenario testing</td>
         </tr>
         <tr>
-            <td>Quickly record test script via brower plug-in</td>
+            <td>Quickly record test script via browser plug-in</td>
         </tr>
         <tr>
             <td rowspan="2">Test Report</td>
@@ -108,7 +108,7 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
             <td>Support parameterized testing</td>
         </tr>
         <tr>
-            <td>Quickly record test script via brower plug-in</td>
+            <td>Quickly record test script via browser plug-in</td>
         </tr>
         <tr>
             <td rowspan="4">Test Report</td>

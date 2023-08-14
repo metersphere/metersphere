@@ -4,11 +4,11 @@
       <a-input
         v-model:model-value="operUser"
         class="filter-item"
-        :placeholder="t('system.log.operaterPlaceholder')"
+        :placeholder="t('system.log.operatorPlaceholder')"
         allow-clear
       >
         <template #prefix>
-          {{ t('system.log.operater') }}
+          {{ t('system.log.operator') }}
         </template>
       </a-input>
       <a-range-picker
@@ -174,7 +174,7 @@
           level: 0,
           value: levelTop[1],
         },
-        label: t('system.log.orgnization'),
+        label: t('system.log.organization'),
         children: res.organizationList.map((e) => ({
           value: {
             level: levelTop[1],
