@@ -108,7 +108,6 @@
           :sub-title-tip="t('organization.member.subTitle')"
           @confirm="deleteMember(record)"
         >
-          <!-- <MsButton @click="deleteMember(record)">{{ t('organization.member.remove') }}</MsButton> -->
           <MsButton>{{ t('organization.member.remove') }}</MsButton>
         </MsPopConfirm>
       </template>
@@ -267,26 +266,6 @@
     }
   };
   const deleteMember = async (record: MemberItem) => {
-    // openModal({
-    //   type: 'warning',
-    //   title: t('organization.member.deleteMemberTip', { name: characterLimit(record.name) }),
-    //   content: '',
-    //   okText: t('organization.member.deleteMemberConfirm'),
-    //   cancelText: t('organization.member.deleteMemberCancel'),
-    //   okButtonProps: {
-    //     status: 'danger',
-    //   },
-    //   onBeforeOk: async () => {
-    //     try {
-    //       await deleteMemberReq(lastOrganizationId, record.id);
-    //       Message.success(t('organization.member.deleteMemberSuccess'));
-    //       initData();
-    //     } catch (error) {
-    //       console.log(error);
-    //     }
-    //   },
-    //   hideCancel: false,
-    // });
     try {
       await deleteMemberReq(lastOrganizationId, record.id);
       Message.success(t('organization.member.deleteMemberSuccess'));
