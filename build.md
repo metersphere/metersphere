@@ -7,7 +7,7 @@
 ./mvnw install -N
 
 # 此命令会将 domain sdk ，其他外部子工程可以获得最新的 jar
-./mvnw mvn clean install -DskipTests -DskipAntRunForJenkins -pl !app --file backend/pom.xml
+./mvnw clean install -DskipTests -DskipAntRunForJenkins --file backend/pom.xml
 
 ```
 
