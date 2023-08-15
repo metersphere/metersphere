@@ -18,7 +18,7 @@
               <el-link v-if="node.redirect" class="report-label-head" @click="isLink">
                 {{ getLabel(node.label) }}
               </el-link>
-              <span v-else>{{ getLabel(node.label) }}</span>
+              <span v-else class="ms-req-name">{{ getLabel(node.label) }}</span>
             </el-tooltip>
           </el-col>
           <el-col :span="2">
@@ -206,5 +206,16 @@ export default {
 
 :deep(.ms-card .el-card__body) {
   padding-right: 1px;
+}
+
+.ms-req-name {
+  display: inline-block;
+  margin: 0 5px;
+  padding-bottom: 0;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 350px;
 }
 </style>
