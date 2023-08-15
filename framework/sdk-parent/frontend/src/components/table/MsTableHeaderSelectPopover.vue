@@ -1,26 +1,36 @@
 <template>
-  <el-table-column v-if="isShow" width="1" :resizable="false" fixed="left" align="center">
-    <el-popover slot="header" placement="right" trigger="click" style="margin-right: 0px;">
-      <el-link
-        @click.native.stop="click('selectAll')"
-        ref="selectAllLink">
-        <span :style="selectAllFontColor">
-          {{ $t('api_test.batch_menus.select_all_data', [total]) }}
-        </span>
-
-      </el-link>
-
-      <br/>
-      <el-link
-        @click.native.stop="click('selectPageAll')"
-        ref="selectPageAllLink">
-          <span :style="selectPageFontColor">
-            {{ $t('api_test.batch_menus.select_show_data', [tableDataCountInPage]) }}
+  <el-table-column
+    v-if="isShow"
+    width="1"
+    :resizable="false"
+    fixed="left"
+    align="center"
+  >
+    <template #header>
+      <el-popover placement="right" trigger="click" style="margin-right: 0px">
+        <el-link @click.native.stop="click('selectAll')" ref="selectAllLink">
+          <span :style="selectAllFontColor">
+            {{ $t("api_test.batch_menus.select_all_data", [total]) }}
           </span>
-      </el-link>
+        </el-link>
 
-      <i class="el-icon-arrow-down table-select-icon" slot="reference"></i>
-    </el-popover>
+        <br />
+        <el-link
+          @click.native.stop="click('selectPageAll')"
+          ref="selectPageAllLink"
+        >
+          <span :style="selectPageFontColor">
+            {{
+              $t("api_test.batch_menus.select_show_data", [
+                tableDataCountInPage,
+              ])
+            }}
+          </span>
+        </el-link>
+
+        <i class="el-icon-arrow-down table-select-icon" slot="reference"></i>
+      </el-popover>
+    </template>
   </el-table-column>
 </template>
 
@@ -33,31 +43,31 @@ export default {
       type: Number,
       default() {
         return 10;
-      }
+      },
     },
     pageSize: {
       type: Number,
       default() {
         return 10;
-      }
+      },
     },
     selectType: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     tableDataCountInPage: {
       type: Number,
       default() {
         return 10;
-      }
+      },
     },
     selectDataCounts: {
       type: Number,
       default() {
         return 0;
-      }
+      },
     },
   },
   watch: {
@@ -66,7 +76,7 @@ export default {
     },
     tableDataCountInPage() {
       this.reload();
-    }
+    },
   },
   created() {
     if (this.keyIndex === 0) {
@@ -88,13 +98,14 @@ export default {
   },
   methods: {
     click(even) {
-      if (even === 'selectPageAll') {
+      if (even === "selectPageAll") {
         this.selectAllFontColor.color = "gray";
-        this.selectPageFontColor.color = document.body.style.getPropertyValue("--count_number");
-      } else if (even === 'selectAll') {
-        this.selectAllFontColor.color = document.body.style.getPropertyValue("--count_number");
+        this.selectPageFontColor.color =
+          document.body.style.getPropertyValue("--count_number");
+      } else if (even === "selectAll") {
+        this.selectAllFontColor.color =
+          document.body.style.getPropertyValue("--count_number");
         this.selectPageFontColor.color = "gray";
-
       } else {
         this.selectAllFontColor.color = "gray";
         this.selectPageFontColor.color = "gray";
@@ -115,15 +126,13 @@ export default {
       this.$nextTick(() => {
         this.isShow = true;
       });
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .selected-link {
   color: #783887 !important;
 }
-
 </style>

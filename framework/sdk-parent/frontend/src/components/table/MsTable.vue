@@ -1,8 +1,7 @@
 <template>
-  <div>
+  <div v-if="tableActive">
     <el-table
       :id="msTableKey"
-      v-if="tableActive"
       border
       class="test-content adjust-table ms-table"
       v-loading="tableIsLoading"
@@ -34,7 +33,7 @@
       />
 
       <el-table-column
-        v-if="enableSelection && reserveOption"
+        v-else-if="enableSelection && reserveOption"
         width="50"
         type="selection"
         reserve-selection
@@ -71,7 +70,7 @@
       </el-table-column>
 
       <el-table-column width="1">
-        <template v-slot:header>
+        <template #header>
           <span class="table-column-mark">&nbsp;</span>
         </template>
       </el-table-column>
@@ -98,7 +97,7 @@
         :min-width="operatorWidth"
         :label="$t('commons.operating')"
       >
-        <template slot="header">
+        <template #header>
           <header-label-operate
             v-if="fieldKey"
             :disable-header-config="disableHeaderConfig"
@@ -422,7 +421,7 @@ export default {
         this.condition
       );
       setUnSelectIds(selection, this.condition, this.selectRows);
-      this.selectDataCounts = this.selectRows.size
+      this.selectDataCounts = this.selectRows.size;
       this.selectIds = Array.from(this.selectRows).map((o) => o.id);
       //有的组件需要回调父组件的函数，做下一步处理
       this.$emit("callBackSelectAll", selection);
@@ -456,9 +455,9 @@ export default {
       //显示隐藏菜单
       _handleSelectAll(this, this.data, this.data, this.selectRows);
       //选中行
-      this.selectRows.forEach(t => {
+      this.selectRows.forEach((t) => {
         this.$refs.table.toggleRowSelection(t, true);
-      })
+      });
       this.deleteTableRow();
       //设置未选择ID(更新)
       this.condition.unSelectIds = [];
@@ -527,9 +526,9 @@ export default {
         this.moduleOptions
       );
     },
-    handleRowClick (row, column) {
+    handleRowClick(row, column) {
       // 多选框的列不触发点击行事件
-      if (column && column.type === 'selection') {
+      if (column && column.type === "selection") {
         return;
       }
       this.$emit("handleRowClick", row, column);
@@ -618,8 +617,8 @@ export default {
         return "padding-col";
       }
     },
-    rowStyle({row}) {
-      return row.hidden ? {display: "none"} : {};
+    rowStyle({ row }) {
+      return row.hidden ? { display: "none" } : {};
     },
     tableRowClassName(row) {
       if (row.row.hidden) {
@@ -630,7 +629,7 @@ export default {
     //清空Filter条件
     clearFilter() {
       this.$refs.table.clearFilter();
-    }
+    },
   },
 };
 </script>
