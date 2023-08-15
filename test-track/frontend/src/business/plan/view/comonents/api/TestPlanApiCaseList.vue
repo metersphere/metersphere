@@ -124,7 +124,7 @@
             :label="$t('commons.environment')"
           >
             <template v-slot:default="scope">
-              {{ scope.row.environmentName || "-" }}
+              {{ scope.row.environmentName || $t('api_test.environment.default_environment') }}
             </template>
           </ms-table-column>
 
