@@ -186,6 +186,9 @@ export default {
 </script>
 
 <style scoped>
+.json-path-picker :deep(.ms-drawer-header){
+  margin-left: 13px;
+}
 .json-path-picker {
   padding: 10px 13px;
 }
