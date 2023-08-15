@@ -1619,7 +1619,11 @@ export default {
       };
       setLatestVersionById(param).then(() => {
         this.$success(this.$t("commons.modify_success"));
-        this.checkoutByVersionId(version.id);
+        if (version.id !== this.form.versionId) {
+          this.checkoutByVersionId(version.id);
+        } else {
+          this.$refs.versionHistory.getVersionOptionList();
+        }
       }).catch(() => {
         this.$refs.versionHistory.loading = false;
       });
