@@ -35,7 +35,7 @@
         <el-input size="mini" type="text"
                   class="text-item"
                   :placeholder="$t('custom_field.field_value')"
-                  maxlength="10"
+                  maxlength="50"
                   show-word-limit
                   v-if="editIndex === idx && isKv"
                   @blur="handleValueEdit(element)"
