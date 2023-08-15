@@ -45,7 +45,7 @@ export default function useModal() {
         hideCancel: false,
         okButtonProps: { status: 'danger' },
         titleAlign: 'start',
-        modalClass: `ms-usemodal ms-usemodal-warning ms-usemodal-${'small'} ms-usemodal--warning`,
+        modalClass: `ms-usemodal ms-usemodal-warning ms-usemodal-small ms-usemodal--warning`,
         ...options,
       }),
   };
