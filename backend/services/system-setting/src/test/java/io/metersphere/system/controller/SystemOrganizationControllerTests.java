@@ -244,7 +244,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
                 || StringUtils.contains(userExtend.getPhone(), organizationRequest.getKeyword()));
         // 权限校验
         organizationMemberRequest.setMemberIds(List.of("admin"));
-        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, ORGANIZATION_ADD_MEMBER, organizationMemberRequest);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD, ORGANIZATION_ADD_MEMBER, organizationMemberRequest);
     }
 
     @Test
@@ -312,7 +312,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         // 日志校验
         checkLog("default-organization-3", OperationLogType.DELETE);
         // 权限校验
-        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin");
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_DELETE, ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin");
     }
 
     @Test

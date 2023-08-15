@@ -923,6 +923,76 @@ public class ProjectExtendExample {
             addCriterion("api_template_id not between", value1, value2, "apiTemplateId");
             return (Criteria) this;
         }
+
+        public Criteria andModuleSettingIsNull() {
+            addCriterion("module_setting is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingIsNotNull() {
+            addCriterion("module_setting is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingEqualTo(String value) {
+            addCriterion("module_setting =", value, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingNotEqualTo(String value) {
+            addCriterion("module_setting <>", value, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingGreaterThan(String value) {
+            addCriterion("module_setting >", value, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingGreaterThanOrEqualTo(String value) {
+            addCriterion("module_setting >=", value, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingLessThan(String value) {
+            addCriterion("module_setting <", value, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingLessThanOrEqualTo(String value) {
+            addCriterion("module_setting <=", value, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingLike(String value) {
+            addCriterion("module_setting like", value, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingNotLike(String value) {
+            addCriterion("module_setting not like", value, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingIn(List<String> values) {
+            addCriterion("module_setting in", values, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingNotIn(List<String> values) {
+            addCriterion("module_setting not in", values, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingBetween(String value1, String value2) {
+            addCriterion("module_setting between", value1, value2, "moduleSetting");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleSettingNotBetween(String value1, String value2) {
+            addCriterion("module_setting not between", value1, value2, "moduleSetting");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
