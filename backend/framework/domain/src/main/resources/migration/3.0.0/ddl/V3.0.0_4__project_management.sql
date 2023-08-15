@@ -346,5 +346,62 @@ CREATE INDEX idx_create_user ON api_template (create_user);
 CREATE INDEX idx_project_id ON api_template (project_id);
 
 
+CREATE TABLE IF NOT EXISTS message_task
+(
+    `id`          VARCHAR(50)  NOT NULL COMMENT '',
+    `type`        VARCHAR(50)  NOT NULL COMMENT '消息类型',
+    `event`       VARCHAR(255) NOT NULL COMMENT '通知事件类型',
+    `receiver`    VARCHAR(50)  NOT NULL COMMENT '接收人id',
+    `task_type`   VARCHAR(64)  NOT NULL COMMENT '任务类型',
+    `webhook`     VARCHAR(255) COMMENT 'webhook地址',
+    `test_id`     VARCHAR(50)  NOT NULL DEFAULT 'none' COMMENT '具体测试的ID',
+    `create_time` BIGINT       NOT NULL DEFAULT 0 COMMENT '创建时间',
+    `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务';
+
+
+CREATE INDEX idx_project_id ON message_task (`project_id`);
+CREATE INDEX idx_create_time ON message_task (`create_time`);
+CREATE INDEX idx_receiver ON message_task (`receiver`);
+CREATE INDEX idx_test_id ON message_task (`test_id`);
+
+CREATE TABLE IF NOT EXISTS message_task_blob
+(
+    `id`       VARCHAR(50) NOT NULL COMMENT '',
+    `template` TEXT COMMENT '消息模版',
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务大字段';
+
+
+CREATE TABLE IF NOT EXISTS notification
+(
+    `id`            BIGINT       NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `type`          VARCHAR(30)  NOT NULL COMMENT '通知类型',
+    `receiver`      VARCHAR(50)  NOT NULL COMMENT '接收人',
+    `title`         VARCHAR(255) NOT NULL COMMENT '标题',
+    `status`        VARCHAR(30)  NOT NULL COMMENT '状态',
+    `create_time`   BIGINT       NOT NULL COMMENT '创建时间',
+    `operator`      VARCHAR(50)  NOT NULL COMMENT '操作人',
+    `operation`     VARCHAR(50)  NOT NULL COMMENT '操作',
+    `resource_id`   VARCHAR(50)  NOT NULL COMMENT '资源ID',
+    `resource_type` VARCHAR(50)  NOT NULL COMMENT '资源类型',
+    `resource_name` VARCHAR(255) NOT NULL COMMENT '资源名称',
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '消息通知';
+
+
+CREATE INDEX idx_receiver ON notification (`receiver`);
+CREATE INDEX idx_receiver_type ON notification (`receiver`, `type`);
+CREATE INDEX idx_notification_create_time ON notification (`create_time`);
+
+
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

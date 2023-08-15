@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.system.mapper.NotificationMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.Notification">
+<mapper namespace="io.metersphere.project.mapper.NotificationMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.project.domain.Notification">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="receiver" jdbcType="VARCHAR" property="receiver" />
@@ -76,7 +76,7 @@
     id, `type`, receiver, title, `status`, create_time, `operator`, `operation`, resource_id, 
     resource_type, resource_name
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.system.domain.NotificationExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.project.domain.NotificationExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -100,13 +100,13 @@
     delete from notification
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.NotificationExample">
+  <delete id="deleteByExample" parameterType="io.metersphere.project.domain.NotificationExample">
     delete from notification
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.system.domain.Notification">
+  <insert id="insert" parameterType="io.metersphere.project.domain.Notification">
     insert into notification (id, `type`, receiver, 
       title, `status`, create_time, 
       `operator`, `operation`, resource_id, 
@@ -116,7 +116,7 @@
       #{operator,jdbcType=VARCHAR}, #{operation,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{resourceType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.system.domain.Notification">
+  <insert id="insertSelective" parameterType="io.metersphere.project.domain.Notification">
     insert into notification
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -189,7 +189,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.system.domain.NotificationExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="io.metersphere.project.domain.NotificationExample" resultType="java.lang.Long">
     select count(*) from notification
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -253,7 +253,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.Notification">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.project.domain.Notification">
     update notification
     <set>
       <if test="type != null">
@@ -289,7 +289,7 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.Notification">
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.Notification">
     update notification
     set `type` = #{type,jdbcType=VARCHAR},
       receiver = #{receiver,jdbcType=VARCHAR},

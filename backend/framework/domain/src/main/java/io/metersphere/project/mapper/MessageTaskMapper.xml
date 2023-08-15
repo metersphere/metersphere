@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.system.mapper.MessageTaskMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.MessageTask">
+<mapper namespace="io.metersphere.project.mapper.MessageTaskMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.project.domain.MessageTask">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="event" jdbcType="VARCHAR" property="event" />
@@ -73,7 +73,7 @@
   <sql id="Base_Column_List">
     id, `type`, event, receiver, task_type, webhook, test_id, create_time, project_id
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.system.domain.MessageTaskExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.project.domain.MessageTaskExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -97,13 +97,13 @@
     delete from message_task
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.MessageTaskExample">
+  <delete id="deleteByExample" parameterType="io.metersphere.project.domain.MessageTaskExample">
     delete from message_task
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.system.domain.MessageTask">
+  <insert id="insert" parameterType="io.metersphere.project.domain.MessageTask">
     insert into message_task (id, `type`, event, 
       receiver, task_type, webhook, 
       test_id, create_time, project_id
@@ -113,7 +113,7 @@
       #{testId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.system.domain.MessageTask">
+  <insert id="insertSelective" parameterType="io.metersphere.project.domain.MessageTask">
     insert into message_task
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -174,7 +174,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.system.domain.MessageTaskExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="io.metersphere.project.domain.MessageTaskExample" resultType="java.lang.Long">
     select count(*) from message_task
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -230,7 +230,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.MessageTask">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.project.domain.MessageTask">
     update message_task
     <set>
       <if test="type != null">
@@ -260,7 +260,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.MessageTask">
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.MessageTask">
     update message_task
     set `type` = #{type,jdbcType=VARCHAR},
       event = #{event,jdbcType=VARCHAR},

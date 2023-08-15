@@ -1,7 +1,7 @@
-package io.metersphere.system.mapper;
+package io.metersphere.project.mapper;
 
-import io.metersphere.system.domain.Notification;
-import io.metersphere.system.domain.NotificationExample;
+import io.metersphere.project.domain.Notification;
+import io.metersphere.project.domain.NotificationExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
