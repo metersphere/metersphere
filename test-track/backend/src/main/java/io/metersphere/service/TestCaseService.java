@@ -3224,7 +3224,7 @@ public class TestCaseService {
                 testCase.setNum(nextNum++);
                 testCase.setCasePublic(false);
                 testCase.setCreateUser(SessionUtils.getUserId());
-                testCase.setMaintainer(SessionUtils.getUserId());
+                testCase.setMaintainer(testCase.getMaintainer());
                 testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
                 testCase.setStatus(TestCaseReviewStatus.Prepare.name());
                 testCase.setLastExecuteResult(null);
