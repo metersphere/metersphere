@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.system.mapper.MessageTaskBlobMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.MessageTaskBlob">
+<mapper namespace="io.metersphere.project.mapper.MessageTaskBlobMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.project.domain.MessageTaskBlob">
     <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.MessageTaskBlob">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.project.domain.MessageTaskBlob">
     <result column="template" jdbcType="LONGVARCHAR" property="template" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -71,7 +71,7 @@
   <sql id="Blob_Column_List">
     `template`
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.system.domain.MessageTaskBlobExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.project.domain.MessageTaskBlobExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
@@ -87,7 +87,7 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="io.metersphere.system.domain.MessageTaskBlobExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.project.domain.MessageTaskBlobExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -113,17 +113,17 @@
     delete from message_task_blob
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.MessageTaskBlobExample">
+  <delete id="deleteByExample" parameterType="io.metersphere.project.domain.MessageTaskBlobExample">
     delete from message_task_blob
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.system.domain.MessageTaskBlob">
+  <insert id="insert" parameterType="io.metersphere.project.domain.MessageTaskBlob">
     insert into message_task_blob (id, `template`)
     values (#{id,jdbcType=VARCHAR}, #{template,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.system.domain.MessageTaskBlob">
+  <insert id="insertSelective" parameterType="io.metersphere.project.domain.MessageTaskBlob">
     insert into message_task_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -142,7 +142,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.system.domain.MessageTaskBlobExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="io.metersphere.project.domain.MessageTaskBlobExample" resultType="java.lang.Long">
     select count(*) from message_task_blob
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -177,7 +177,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.MessageTaskBlob">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.project.domain.MessageTaskBlob">
     update message_task_blob
     <set>
       <if test="template != null">
@@ -186,7 +186,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.MessageTaskBlob">
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.MessageTaskBlob">
     update message_task_blob
     set `template` = #{template,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}

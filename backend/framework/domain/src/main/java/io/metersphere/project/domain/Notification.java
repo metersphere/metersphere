@@ -1,4 +1,4 @@
-package io.metersphere.system.domain;
+package io.metersphere.project.domain;
 
 import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;

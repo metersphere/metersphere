@@ -89,7 +89,9 @@
         <table tableName="bug_template_extend"/>
         <table tableName="bug_template"/>
         <table tableName="api_template"/>
-
+        <table tableName="message_task"/>
+        <table tableName="message_task_blob"/>
+        <table tableName="notification"/>
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">
              <ignoreColumn column="follow_people"/>

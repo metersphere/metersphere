@@ -1,4 +1,4 @@
-package io.metersphere.system.domain;
+package io.metersphere.project.domain;
 
 import java.util.ArrayList;
 import java.util.List;

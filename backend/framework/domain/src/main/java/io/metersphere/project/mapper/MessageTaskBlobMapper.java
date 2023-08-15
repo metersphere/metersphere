@@ -1,7 +1,7 @@
-package io.metersphere.system.mapper;
+package io.metersphere.project.mapper;
 
-import io.metersphere.system.domain.MessageTaskBlob;
-import io.metersphere.system.domain.MessageTaskBlobExample;
+import io.metersphere.project.domain.MessageTaskBlob;
+import io.metersphere.project.domain.MessageTaskBlobExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
