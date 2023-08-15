@@ -86,7 +86,7 @@
   const orgVisible = ref(false);
   const currentOrganizationId = ref('');
   const currentUpdateOrganization = ref<CreateOrUpdateSystemOrgParams>();
-  const { deleteModal, openModal } = useModal();
+  const { openDeleteModal, openModal } = useModal();
 
   const organizationColumns: MsTableColumn = [
     {
@@ -170,7 +170,7 @@
   ];
 
   const handleDelete = (record: TableData) => {
-    deleteModal({
+    openDeleteModal({
       title: t('system.organization.deleteName', { name: record.name }),
       content: t('system.organization.deleteTip'),
       onOk: async () => {
