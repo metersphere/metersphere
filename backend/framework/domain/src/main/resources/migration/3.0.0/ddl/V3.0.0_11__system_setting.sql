@@ -154,35 +154,6 @@ CREATE TABLE IF NOT EXISTS plugin_organization
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '插件和组织的关联表';
 
-CREATE TABLE IF NOT EXISTS quota
-(
-    `id`                    VARCHAR(50) NOT NULL COMMENT '',
-    `organization_id`       VARCHAR(50) COMMENT '组织ID',
-    `project_id`            VARCHAR(50) COMMENT '项目类型配额',
-    `functional_case`       INT COMMENT '功能用例数量',
-    `load_test_vum_total`   DECIMAL(10, 2) COMMENT '总vum数',
-    `load_test_vum_used`    DECIMAL(10, 2) COMMENT '消耗的vum数',
-    `load_test_max_threads` INT COMMENT '最大并发数',
-    `load_test_duration`    INT COMMENT '最大执行时长',
-    `resource_pool`         VARCHAR(1000) COMMENT '资源池列表',
-    `use_default`           BIT COMMENT '是否使用默认值',
-    `update_time`           BIGINT COMMENT '更新时间',
-    `member`                INT COMMENT '成员数量限制',
-    `project`               INT COMMENT '项目数量限制',
-    `api_test_vum_total`    DECIMAL(10, 2) COMMENT '总vum数',
-    `api_test_vum_used`     DECIMAL(10, 2) COMMENT '消耗的vum数',
-    `ui_test_vum_total`     DECIMAL(10, 2) COMMENT '总vum数',
-    `ui_test_vum_used`      DECIMAL(10, 2) COMMENT '消耗的vum数',
-    `file_storage`          BIGINT COMMENT '文件大小限制',
-    PRIMARY KEY (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '配额';
-
-
-CREATE INDEX idx_quota_project_id ON quota (`project_id`);
-CREATE INDEX idx_quota_workspace_id ON quota (`organization_id`);
-
 CREATE TABLE IF NOT EXISTS schedule
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '',
@@ -406,12 +377,12 @@ CREATE TABLE IF NOT EXISTS message_task_blob
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务大字段';
 
-DROP TABLE IF EXISTS test_resource_pool_organization;
-CREATE TABLE test_resource_pool_organization(
-                                                `id` VARCHAR(50) NOT NULL   COMMENT '测试资源池项目关系ID' ,
-                                                `test_resource_pool_id` VARCHAR(50) NOT NULL   COMMENT '资源池ID' ,
-                                                `org_id` VARCHAR(50) NOT NULL   COMMENT '组织ID' ,
-                                                PRIMARY KEY (id)
+CREATE TABLE IF NOT EXISTS test_resource_pool_organization
+(
+    `id`                    VARCHAR(50) NOT NULL COMMENT '测试资源池项目关系ID',
+    `test_resource_pool_id` VARCHAR(50) NOT NULL COMMENT '资源池ID',
+    `org_id`                VARCHAR(50) NOT NULL COMMENT '组织ID',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '测试资源池项目关系';
