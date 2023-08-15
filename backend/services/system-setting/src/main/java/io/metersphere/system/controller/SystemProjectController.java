@@ -3,7 +3,6 @@ package io.metersphere.system.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
@@ -13,6 +12,7 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.dto.ProjectExtendDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
@@ -46,7 +46,7 @@ public class SystemProjectController {
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#project)", msClass = SystemProjectLogService.class)
     @Operation(summary = "添加项目")
-    public Project addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
+    public ProjectExtendDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
         return systemProjectService.add(project, SessionUtils.getUserId());
     }
 
@@ -55,7 +55,7 @@ public class SystemProjectController {
     @Operation(summary = "根据ID获取项目信息")
     @Parameter(name = "id", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public Project getProject(@PathVariable @NotBlank String id) {
+    public ProjectExtendDTO getProject(@PathVariable @NotBlank String id) {
         return systemProjectService.get(id);
     }
 
@@ -72,7 +72,7 @@ public class SystemProjectController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = SystemProjectLogService.class)
     @Operation(summary = "更新项目信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
-    public Project updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
+    public ProjectExtendDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
         return systemProjectService.update(project, SessionUtils.getUserId());
     }
 
@@ -103,7 +103,7 @@ public class SystemProjectController {
     }
 
     @PostMapping("/add-member")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD)
     @Operation(summary = "添加项目成员")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
         ProjectAddMemberBatchRequest batchRequest = new ProjectAddMemberBatchRequest();
@@ -116,7 +116,7 @@ public class SystemProjectController {
     @Operation(summary = "移除项目成员")
     @Parameter(name = "userId", description = "用户id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Parameter(name = "projectId", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#projectId)", msClass = SystemProjectLogService.class)
     public int removeProjectMember(@PathVariable String projectId, @PathVariable String userId) {
         return systemProjectService.removeProjectMember(projectId, userId, SessionUtils.getUserId());
