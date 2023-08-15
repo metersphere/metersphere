@@ -45,7 +45,7 @@
 
         <el-container>
           <el-main class="case-content">
-            <ms-table-header :condition.sync="condition" @search="search" title="" :show-create="false">
+            <ms-table-header :tip="$t('commons.search_by_name_or_id')" :condition.sync="condition" @search="search" title="" :show-create="false">
               <template v-slot:searchBarBefore>
                 <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"/>
               </template>
