@@ -22,6 +22,14 @@
           },
           {
             "id": "SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER"
+          },
+          {
+            "id": "SYSTEM_ORGANIZATION_PROJECT_MEMBER:ADD",
+            "name": "permission.system_organization_project_member.add"
+          },
+          {
+            "id": "SYSTEM_ORGANIZATION_PROJECT_MEMBER:DELETE",
+            "name": "permission.system_organization_project_member.delete"
           }
         ]
       },
@@ -208,6 +216,14 @@
           },
           {
             "id": "ORGANIZATION_PROJECT:READ+RECOVER"
+          },
+          {
+            "id": "ORGANIZATION_PROJECT_MEMBER:ADD",
+            "name": "permission.system_organization_project_member.add"
+          },
+          {
+            "id": "ORGANIZATION_PROJECT_MEMBER:DELETE",
+            "name": "permission.system_organization_project_member.delete"
           }
         ]
 

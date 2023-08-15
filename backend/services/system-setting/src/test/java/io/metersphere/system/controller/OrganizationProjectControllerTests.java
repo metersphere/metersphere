@@ -2,6 +2,8 @@ package io.metersphere.system.controller;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.domain.ProjectExtend;
+import io.metersphere.project.mapper.ProjectExtendMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
@@ -9,6 +11,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.AddProjectRequest;
+import io.metersphere.sdk.dto.ModuleSettingDTO;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -17,6 +20,7 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.OrganizationDTO;
+import io.metersphere.system.dto.ProjectExtendDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.OrganizationProjectRequest;
@@ -75,6 +79,8 @@ public class OrganizationProjectControllerTests extends BaseTest {
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private OrganizationService organizationService;
+    @Resource
+    private ProjectExtendMapper projectExtendMapper;
 
     private OrganizationDTO getDefault() {
         return organizationService.getDefault();
@@ -179,7 +185,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testAddProjectSuccess() throws Exception {
         AddProjectRequest project = this.generatorAdd("organizationId","organization-name", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
-        Project result = this.parseObjectFromMvcResult(mvcResult, Project.class);
+        ProjectExtendDTO result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         List<Project> projects = projectMapper.selectByExample(projectExample);
@@ -196,13 +202,15 @@ public class OrganizationProjectControllerTests extends BaseTest {
          userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
         projectId = result.getId();
+        ProjectExtend projectExtend = projectExtendMapper.selectByPrimaryKey(projectId);
+        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(new ModuleSettingDTO()));
         // 校验日志
         checkLog(projectId, OperationLogType.ADD);
 
         //userId为空的时候
         project = this.generatorAdd("organizationId","organization-userIdIsNull", "description", true, new ArrayList<>());
         mvcResult = this.responsePost(addProject, project);
-        result = this.parseObjectFromMvcResult(mvcResult, Project.class);
+        result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         projects = projectMapper.selectByExample(projectExample);
@@ -218,6 +226,34 @@ public class OrganizationProjectControllerTests extends BaseTest {
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
+        projectExtend = projectExtendMapper.selectByPrimaryKey(projectId);
+        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(new ModuleSettingDTO()));
+
+        //设置了模块模版
+        ModuleSettingDTO moduleSettingDTO = new ModuleSettingDTO();
+        moduleSettingDTO.setApiTest(true);
+        moduleSettingDTO.setLoadTest(true);
+        project.setModuleSetting(moduleSettingDTO);
+        project.setName("org-moduleSetting");
+        mvcResult = this.responsePost(addProject, project);
+        result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        projectExample = new ProjectExample();
+        projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
+        projects = projectMapper.selectByExample(projectExample);
+        projectId = result.getId();
+        // 校验日志
+        checkLog(projectId, OperationLogType.ADD);
+
+        this.compareProjectDTO(projects.get(0), result);
+        userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
+        userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
+        userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
+        projectExtend = projectExtendMapper.selectByPrimaryKey(projectId);
+        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleSettingDTO));
 
         project.setName("organization-testAddProjectSuccess1");
         project.setOrganizationId(getDefault().getId());
@@ -252,11 +288,16 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testGetProject() throws Exception {
         AddProjectRequest project = this.generatorAdd("organizationId","organization-getName", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
-        Project result = this.parseObjectFromMvcResult(mvcResult, Project.class);
+        ProjectExtendDTO result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         projectId = result.getId();
         mvcResult = this.responseGet(getProject + projectId);
-        Project getProjects = this.parseObjectFromMvcResult(mvcResult, Project.class);
+        ProjectExtendDTO getProjects = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         Assertions.assertTrue(StringUtils.equals(getProjects.getId(), projectId));
+
+
+        mvcResult = this.responseGet(getProject + "projectId1");
+        getProjects = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        Assertions.assertTrue(StringUtils.equals(getProjects.getId(), "projectId1"));
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getProject + projectId);
     }
@@ -265,9 +306,8 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testGetProjectError() throws Exception {
         //项目不存在
         MvcResult mvcResult = this.responseGet(getProject + "111111");
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        Assertions.assertNull(resultHolder.getData());
+        ProjectExtend project = this.parseObjectFromMvcResult(mvcResult, ProjectExtend.class);
+        Assertions.assertEquals(project, new ProjectExtend());
     }
 
     @Test
@@ -468,7 +508,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
             }
         });
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE, addProjectMember, projectAddMemberRequest);
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_MEMBER_ADD, addProjectMember, projectAddMemberRequest);
     }
 
     @Test
@@ -569,7 +609,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         // 校验日志
         checkLog(userRoleRelations.get(0).getId(), OperationLogType.DELETE);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE, removeProjectMember + projectId + "/" + userId);
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_MEMBER_DELETE, removeProjectMember + projectId + "/" + userId);
     }
 
     @Test

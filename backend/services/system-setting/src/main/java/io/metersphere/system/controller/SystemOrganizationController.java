@@ -70,7 +70,7 @@ public class SystemOrganizationController {
 
     @PostMapping("/add-member")
     @Operation(summary = "添加组织成员")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD)
     public void addMember(@Validated @RequestBody OrganizationMemberRequest request) {
         organizationService.addMemberBySystem(request, SessionUtils.getUserId());
     }
@@ -81,7 +81,7 @@ public class SystemOrganizationController {
             @Parameter(name = "organizationId", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
             @Parameter(name = "userId", description = "成员ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     })
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_DELETE)
     public void removeMember(@PathVariable String organizationId, @PathVariable String userId) {
         organizationService.removeMember(organizationId, userId);
     }
