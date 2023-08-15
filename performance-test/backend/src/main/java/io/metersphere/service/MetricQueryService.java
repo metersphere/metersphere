@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
@@ -25,6 +26,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -85,9 +87,19 @@ public class MetricQueryService {
         String start = df.format(startTime / 1000.0);
         String end = df.format(endTime / 1000.0);
         try {
-            LogUtil.debug(prometheusHost + "/api/v1/query_range?query=" + promQL + "&start=" + start + "&end" + end + "&step=" + step);
+            // prometheusHost 不再变更
+            String host = prometheusHost;
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", "application/x-www-form-urlencoded");
+            // 如果prometheus开启了认证，需要在请求头中添加认证信息
+            if (host.contains("@")) {
+                URL url = new URL(host);
+                // 获取认证信息部分
+                String userInfo = url.getUserInfo();
+                headers.add("Authorization", "Basic " + CodingUtil.base64Encoding(userInfo));
+                host = host.replace(userInfo + "@", "");
+            }
+            LogUtil.debug(host + "/api/v1/query_range?query=" + promQL + "&start=" + start + "&end" + end + "&step=" + step);
             // 设置请求参数
             MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
             postParameters.add("query", promQL);
@@ -96,7 +108,7 @@ public class MetricQueryService {
             postParameters.add("step", step);
             HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(postParameters, headers);
 
-            Map response = restTemplate.postForObject(prometheusHost + "/api/v1/query_range", httpEntity, Map.class);
+            Map response = restTemplate.postForObject(host + "/api/v1/query_range", httpEntity, Map.class);
             metricData = handleResult(seriesName, response, instance);
         } catch (Exception e) {
             LogUtil.error("query prometheus metric fail.");
