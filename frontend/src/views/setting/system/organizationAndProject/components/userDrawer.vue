@@ -21,6 +21,12 @@
         ></a-input-search>
       </div>
       <ms-base-table class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
+        <template #name="{ record }">
+          <span>{{ record.name }}</span>
+          <span v-if="record.adminFlag" class="ml-[4px] text-[var(--color-text-4)]">{{
+            `(${t('common.admin')})`
+          }}</span>
+        </template>
         <template #operation="{ record }">
           <MsRemoveButton
             :title="t('system.organization.removeName', { name: record.name })"
@@ -68,7 +74,7 @@
   const projectColumn: MsTableColumn = [
     {
       title: 'system.organization.userName',
-      dataIndex: 'name',
+      slotName: 'name',
     },
     {
       title: 'system.organization.email',

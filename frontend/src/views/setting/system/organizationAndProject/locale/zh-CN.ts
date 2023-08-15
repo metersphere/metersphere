@@ -40,4 +40,11 @@ export default {
   'system.organization.addSuccess': '添加成功',
   'system.organization.deleteName': '确认删除 {name} 这个组织吗',
   'system.organization.deleteTip': '删除组织同时将该组织下的项目数据一起删除，请谨慎操作！',
+  'system.organization.revokeDeleteToolTip': '该组织将与 30 天后自动删除',
+  'system.organization.createOrganizationSuccess': '创建组织成功',
+  'system.organization.enableTitle': '开启组织',
+  'system.organization.endTitle': '关闭组织',
+  'system.organization.enableContent': '开启后的组织展示在组织切换列表',
+  'system.organization.endContent': '关闭后的组织不展示在组织切换列表',
+  'system.organization.updateOrganizationSuccess': '更新组织成功',
 };

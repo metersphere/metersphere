@@ -43,4 +43,12 @@ export default {
   'system.organization.deleteName': 'Are you sure to delete {name}',
   'system.organization.deleteTip':
     'Delete the organization and delete the project data under that organization together. Please be cautious!',
+  'system.organization.revokeDeleteToolTip': 'The organization will be deleted automatically after 30 days',
+  'system.organization.createOrganizationSuccess': 'Create organization success',
+  'system.organization.enableTitle': 'Start organization',
+  'system.organization.endTitle': 'Close organization',
+  'system.organization.enableContent': 'The organization after opening is displayed in the organization switching list',
+  'system.organization.endContent':
+    'The organization after closing is not displayed in the organization switching list',
+  'system.organization.updateOrganizationSuccess': 'Update organization success',
 };
