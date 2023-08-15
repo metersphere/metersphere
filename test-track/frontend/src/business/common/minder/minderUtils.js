@@ -411,7 +411,7 @@ function _appendExtraNodes(parent, data) {
 }
 
 /**
- * 去掉已有节点
+ * 清理子节点中的tmp节点
  * @param parent
  */
 function clearChildren(node) {
@@ -419,7 +419,7 @@ function clearChildren(node) {
   if (children) {
     for (let i = 0; i < children.length; i++) {
       let item = children[i];
-      if (item.data.type !== 'node') {
+      if (item.data.type === 'tmp') {
         window.minder.removeNode(item);
         i--;
       }
