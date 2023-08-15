@@ -135,7 +135,7 @@
 
   tableStore.initColumn(TableKeyEnum.SYSTEM_ORGANIZATION, organizationColumns, 'drawer');
 
-  const { propsRes, propsEvent, loadList, setKeyword } = useTable(postOrgTable, {
+  const { propsRes, propsEvent, loadList, setKeyword, setLoading } = useTable(postOrgTable, {
     tableKey: TableKeyEnum.SYSTEM_ORGANIZATION,
     scroll: { y: 'auto', x: '1300px' },
     selectable: false,
@@ -264,12 +264,15 @@
 
   const handleRevokeDelete = async (record: TableData) => {
     try {
+      setLoading(true);
       await revokeDeleteOrg(record.id);
       Message.success(t('common.revokeDeleteSuccess'));
       fetchData();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 

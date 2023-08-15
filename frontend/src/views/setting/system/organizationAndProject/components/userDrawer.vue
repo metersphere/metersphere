@@ -79,6 +79,7 @@
     {
       title: 'system.organization.email',
       dataIndex: 'email',
+      width: 200,
     },
     {
       title: 'system.organization.phone',
