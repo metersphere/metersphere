@@ -33,7 +33,7 @@ public class JSONToDocumentUtil {
                 if (value != null) {
                     type = DocumentUtils.getType(value);
                 }
-                children.add(new DocumentElement(StringUtils.EMPTY, type, value, null));
+                children.add(new DocumentElement(String.valueOf(i), type, value, null));
             }
         }
     }
