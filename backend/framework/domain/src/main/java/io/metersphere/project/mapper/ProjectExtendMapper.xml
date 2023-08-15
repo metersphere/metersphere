@@ -14,6 +14,7 @@
     <result column="version_enable" jdbcType="BIT" property="versionEnable" />
     <result column="issue_config" jdbcType="VARCHAR" property="issueConfig" />
     <result column="api_template_id" jdbcType="VARCHAR" property="apiTemplateId" />
+    <result column="module_setting" jdbcType="VARCHAR" property="moduleSetting" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -75,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, tapd_id, jira_key, zentao_id, azure_devops_id, case_template_id, azure_filter_id, 
-    platform, third_part_template, version_enable, issue_config, api_template_id
+    platform, third_part_template, version_enable, issue_config, api_template_id, module_setting
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.ProjectExtendExample" resultMap="BaseResultMap">
     select
@@ -111,13 +112,13 @@
     insert into project_extend (id, tapd_id, jira_key, 
       zentao_id, azure_devops_id, case_template_id, 
       azure_filter_id, platform, third_part_template, 
-      version_enable, issue_config, api_template_id
-      )
+      version_enable, issue_config, api_template_id, 
+      module_setting)
     values (#{id,jdbcType=VARCHAR}, #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, 
       #{zentaoId,jdbcType=VARCHAR}, #{azureDevopsId,jdbcType=VARCHAR}, #{caseTemplateId,jdbcType=VARCHAR}, 
       #{azureFilterId,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, #{thirdPartTemplate,jdbcType=BIT}, 
-      #{versionEnable,jdbcType=BIT}, #{issueConfig,jdbcType=VARCHAR}, #{apiTemplateId,jdbcType=VARCHAR}
-      )
+      #{versionEnable,jdbcType=BIT}, #{issueConfig,jdbcType=VARCHAR}, #{apiTemplateId,jdbcType=VARCHAR}, 
+      #{moduleSetting,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.ProjectExtend">
     insert into project_extend
@@ -158,6 +159,9 @@
       <if test="apiTemplateId != null">
         api_template_id,
       </if>
+      <if test="moduleSetting != null">
+        module_setting,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -195,6 +199,9 @@
       </if>
       <if test="apiTemplateId != null">
         #{apiTemplateId,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleSetting != null">
+        #{moduleSetting,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -243,6 +250,9 @@
       <if test="record.apiTemplateId != null">
         api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR},
       </if>
+      <if test="record.moduleSetting != null">
+        module_setting = #{record.moduleSetting,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -261,7 +271,8 @@
       third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
       version_enable = #{record.versionEnable,jdbcType=BIT},
       issue_config = #{record.issueConfig,jdbcType=VARCHAR},
-      api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR}
+      api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR},
+      module_setting = #{record.moduleSetting,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -302,6 +313,9 @@
       <if test="apiTemplateId != null">
         api_template_id = #{apiTemplateId,jdbcType=VARCHAR},
       </if>
+      <if test="moduleSetting != null">
+        module_setting = #{moduleSetting,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -317,20 +331,22 @@
       third_part_template = #{thirdPartTemplate,jdbcType=BIT},
       version_enable = #{versionEnable,jdbcType=BIT},
       issue_config = #{issueConfig,jdbcType=VARCHAR},
-      api_template_id = #{apiTemplateId,jdbcType=VARCHAR}
+      api_template_id = #{apiTemplateId,jdbcType=VARCHAR},
+      module_setting = #{moduleSetting,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into project_extend
     (id, tapd_id, jira_key, zentao_id, azure_devops_id, case_template_id, azure_filter_id, 
-      platform, third_part_template, version_enable, issue_config, api_template_id)
+      platform, third_part_template, version_enable, issue_config, api_template_id, module_setting
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.tapdId,jdbcType=VARCHAR}, #{item.jiraKey,jdbcType=VARCHAR}, 
         #{item.zentaoId,jdbcType=VARCHAR}, #{item.azureDevopsId,jdbcType=VARCHAR}, #{item.caseTemplateId,jdbcType=VARCHAR}, 
         #{item.azureFilterId,jdbcType=VARCHAR}, #{item.platform,jdbcType=VARCHAR}, #{item.thirdPartTemplate,jdbcType=BIT}, 
-        #{item.versionEnable,jdbcType=BIT}, #{item.issueConfig,jdbcType=VARCHAR}, #{item.apiTemplateId,jdbcType=VARCHAR}
-        )
+        #{item.versionEnable,jdbcType=BIT}, #{item.issueConfig,jdbcType=VARCHAR}, #{item.apiTemplateId,jdbcType=VARCHAR}, 
+        #{item.moduleSetting,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -378,6 +394,9 @@
         </if>
         <if test="'api_template_id'.toString() == column.value">
           #{item.apiTemplateId,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_setting'.toString() == column.value">
+          #{item.moduleSetting,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

@@ -1,8 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
@@ -10,6 +8,7 @@ import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.ProjectExtendDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.request.OrganizationProjectRequest;
@@ -41,16 +40,16 @@ public class OrganizationProjectService {
     private final static String REMOVE_PROJECT_MEMBER = PREFIX + "/remove-member/";
     private final static String ADD_MEMBER = PREFIX + "/add-member";
 
-    public Project get(String id) {
-        return projectMapper.selectByPrimaryKey(id);
+    public ProjectExtendDTO get(String id) {
+        return commonProjectService.get(id);
     }
 
     /**
      * @param addProjectDTO 添加项目的时候  默认给用户组添加管理员的权限
      * @return
      */
-    public Project add(AddProjectRequest addProjectDTO, String createUser) {
-        Project project = commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.SYSTEM_PROJECT);
+    public ProjectExtendDTO add(AddProjectRequest addProjectDTO, String createUser) {
+        ProjectExtendDTO project = commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.ORGANIZATION_PROJECT);
         return project;
     }
 
@@ -61,8 +60,8 @@ public class OrganizationProjectService {
         return commonProjectService.buildUserInfo(projectList);
     }
 
-    public Project update(UpdateProjectRequest updateProjectDto, String updateUser) {
-        Project project = commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.SYSTEM_PROJECT);
+    public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
+        ProjectExtendDTO project = commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.ORGANIZATION_PROJECT);
         return project;
     }
 
@@ -83,11 +82,11 @@ public class OrganizationProjectService {
      */
     public void addProjectMember(ProjectAddMemberBatchRequest request, String createUser) {
         commonProjectService.addProjectMember(request, createUser, ADD_MEMBER,
-                OperationLogType.ADD.name(), HttpMethodConstants.POST.name(), Translator.get("add"), OperationLogModule.SYSTEM_PROJECT);
+                OperationLogType.ADD.name(), Translator.get("add"), OperationLogModule.ORGANIZATION_PROJECT);
     }
 
     public int removeProjectMember(String projectId, String userId, String createUser) {
-        return commonProjectService.removeProjectMember(projectId, userId, createUser,OperationLogModule.SYSTEM_PROJECT, StringUtils.join(REMOVE_PROJECT_MEMBER,projectId, "/", userId));
+        return commonProjectService.removeProjectMember(projectId, userId, createUser,OperationLogModule.ORGANIZATION_PROJECT, StringUtils.join(REMOVE_PROJECT_MEMBER,projectId, "/", userId));
     }
 
     public int revoke(String id) {
