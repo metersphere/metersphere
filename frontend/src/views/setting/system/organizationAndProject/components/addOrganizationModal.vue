@@ -19,7 +19,10 @@
           <a-input v-model="form.name" :placeholder="t('system.organization.organizationNamePlaceholder')" />
         </a-form-item>
         <a-form-item field="name" :label="t('system.organization.organizationAdmin')">
-          <MsUserSelector v-model:value="form.admin" placeholder="system.organization.organizationAdminPlaceholder" />
+          <MsUserSelector
+            v-model:value="form.memberIds"
+            placeholder="system.organization.organizationAdminPlaceholder"
+          />
         </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">
           <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
@@ -34,11 +37,14 @@
   import { reactive, ref, watchEffect } from 'vue';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/bussiness/ms-user-selector/index.vue';
+  import { createOrUpdateOrg } from '@/api/modules/setting/system/organizationAndProject';
+  import { Message } from '@arco-design/web-vue';
+  import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
-    organizationId?: string;
+    currentOrganization?: CreateOrUpdateSystemOrgParams;
   }>();
 
   const formRef = ref<FormInstance>();
@@ -47,9 +53,9 @@
     (e: 'cancel'): void;
   }>();
 
-  const form = reactive({
+  const form = reactive<{ name: string; memberIds: string[]; description: string }>({
     name: '',
-    admin: [],
+    memberIds: [],
     description: '',
   });
 
@@ -63,11 +69,31 @@
   };
 
   const handleBeforeOk = () => {
-    formRef.value?.validate((errors: undefined | Record<string, ValidatedError>) => {
+    formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (errors) {
         return false;
       }
-      return true;
+      try {
+        await createOrUpdateOrg({ id: props.currentOrganization?.id, ...form });
+        Message.success(
+          props.currentOrganization?.id
+            ? t('system.organization.updateOrganizationSuccess')
+            : t('system.organization.createOrganizationSuccess')
+        );
+        handleCancel();
+        return true;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        return false;
+      }
     });
   };
+  watchEffect(() => {
+    if (props.currentOrganization) {
+      form.name = props.currentOrganization.name;
+      form.memberIds = props.currentOrganization.memberIds;
+      form.description = props.currentOrganization.description;
+    }
+  });
 </script>

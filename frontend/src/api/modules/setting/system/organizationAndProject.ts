@@ -2,15 +2,26 @@ import MSR from '@/api/http/index';
 import * as orgUrl from '@/api/requrls/setting/system/organizationAndProject';
 import { TableQueryParams } from '@/models/common';
 import { AddUserToOrgOrProjectParams } from '@/models/setting/systemOrg';
+import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
 
 // 获取组织列表
 export function postOrgTable(data: TableQueryParams) {
   return MSR.post({ url: orgUrl.postOrgTableUrl, data });
 }
 
+// 创建或修改组织
+export function createOrUpdateOrg(data: CreateOrUpdateSystemOrgParams) {
+  return MSR.post({ url: data.id ? orgUrl.postModifyOrgUrl : orgUrl.postAddOrgUrl, data });
+}
+
 // 删除组织
 export function deleteOrg(id: string) {
   return MSR.get({ url: `${orgUrl.getDeleteOrgUrl}${id}` });
+}
+
+// 撤销删除组织
+export function revokeDeleteOrg(id: string) {
+  return MSR.get({ url: `${orgUrl.getRecoverOrgUrl}${id}` });
 }
 
 // 启用或禁用组织
