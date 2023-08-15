@@ -164,6 +164,11 @@ export default {
     }
   },
   mounted() {
+    let markdownIt = this.$refs.md.markdownIt;
+    if (markdownIt) {
+      // 解决英文引号变成中文引号的问题
+      markdownIt.options.typographer = false;
+    }
     if (!this.disabled) {
       // 点击编辑，失去焦点展示
       let el = document.getElementById(this.id);
