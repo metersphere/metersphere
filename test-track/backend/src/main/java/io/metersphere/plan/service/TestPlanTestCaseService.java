@@ -484,8 +484,6 @@ public class TestPlanTestCaseService {
         if (planTestCaseWithBLOBs != null) {
             TestCase testCase = testCaseMapper.selectByPrimaryKey(planTestCaseWithBLOBs.getCaseId());
             List<DetailColumn> columns = new LinkedList<>();
-            DetailColumn executeStatusColumn = new DetailColumn("状态", "lastExecuteResult", StatusReference.statusMap.get(testCase.getLastExecuteResult()), null);
-            columns.add(executeStatusColumn);
             // 增加评论内容
             List<TestCaseCommentDTO> dtos = testCaseCommentService.getCaseComments(planTestCaseWithBLOBs.getCaseId());
             if (CollectionUtils.isNotEmpty(dtos)) {
