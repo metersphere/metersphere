@@ -50,5 +50,6 @@ export default {
   'system.organization.enableContent': 'The organization after opening is displayed in the organization switching list',
   'system.organization.endContent':
     'The organization after closing is not displayed in the organization switching list',
+  'system.organization.updateOrganization': 'Update organization',
   'system.organization.updateOrganizationSuccess': 'Update organization success',
 };

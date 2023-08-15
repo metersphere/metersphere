@@ -46,5 +46,6 @@ export default {
   'system.organization.endTitle': '关闭组织',
   'system.organization.enableContent': '开启后的组织展示在组织切换列表',
   'system.organization.endContent': '关闭后的组织不展示在组织切换列表',
+  'system.organization.updateOrganization': '更新组织',
   'system.organization.updateOrganizationSuccess': '更新组织成功',
 };

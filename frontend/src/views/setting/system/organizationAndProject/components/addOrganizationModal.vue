@@ -2,12 +2,20 @@
   <a-modal
     v-model:visible="currentVisible"
     width="680px"
+    class="ms-modal-form ms-modal-medium"
     :ok-text="t('system.organization.create')"
     unmount-on-close
-    :on-before-ok="handleBeforeOk"
     @cancel="handleCancel"
   >
-    <template #title> {{ t('system.organization.createOrganization') }} </template>
+    <template #title>
+      <span v-if="isEdit">
+        {{ t('system.organization.updateOrganization') }}
+        <span class="text-[var(--color-text-4)]">({{ props.currentOrganization?.name }})</span>
+      </span>
+      <span v-else>
+        {{ t('system.organization.createOrganization') }}
+      </span>
+    </template>
     <div class="form">
       <a-form ref="formRef" :model="form" size="large" :style="{ width: '600px' }" layout="vertical">
         <a-form-item
@@ -29,12 +37,20 @@
         </a-form-item>
       </a-form>
     </div>
+    <template #footer>
+      <a-button type="secondary" :loading="loading" @click="handleCancel">
+        {{ t('common.cancel') }}
+      </a-button>
+      <a-button type="primary" :loading="loading" @click="handleBeforeOk">
+        {{ isEdit ? t('common.confirm') : t('common.create') }}
+      </a-button>
+    </template>
   </a-modal>
 </template>
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect } from 'vue';
+  import { reactive, ref, watchEffect, computed } from 'vue';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/bussiness/ms-user-selector/index.vue';
   import { createOrUpdateOrg } from '@/api/modules/setting/system/organizationAndProject';
@@ -48,6 +64,8 @@
   }>();
 
   const formRef = ref<FormInstance>();
+
+  const loading = ref(false);
 
   const emit = defineEmits<{
     (e: 'cancel'): void;
@@ -74,6 +92,7 @@
         return false;
       }
       try {
+        loading.value = true;
         await createOrUpdateOrg({ id: props.currentOrganization?.id, ...form });
         Message.success(
           props.currentOrganization?.id
@@ -86,6 +105,8 @@
         // eslint-disable-next-line no-console
         console.error(error);
         return false;
+      } finally {
+        loading.value = false;
       }
     });
   };
@@ -96,4 +117,5 @@
       form.description = props.currentOrganization.description;
     }
   });
+  const isEdit = computed(() => !!props.currentOrganization?.id);
 </script>
