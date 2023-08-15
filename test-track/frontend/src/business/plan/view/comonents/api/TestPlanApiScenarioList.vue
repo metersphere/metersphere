@@ -99,7 +99,7 @@
             min-width="150"
           >
             <template v-slot:default="{ row }">
-              <div v-if="row.envs">
+              <div v-if="row.envs && JSON.stringify(row.envs) !== '{}'">
                 <span v-for="(k, v, index) in row.envs" :key="index">
                   <span v-if="index === 0 || index === 1">
                     <span class="project-name" :title="v">{{ v }}</span
@@ -128,6 +128,9 @@
                     />
                   </el-popover>
                 </span>
+              </div>
+              <div v-else>
+                {{ $t('api_test.environment.default_environment') }}
               </div>
             </template>
           </ms-table-column>
