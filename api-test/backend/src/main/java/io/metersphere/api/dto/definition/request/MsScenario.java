@@ -88,10 +88,6 @@ public class MsScenario extends MsTestElement {
                     this.environmentMap.put(RunModeConstants.HIS_PRO_ID.toString(), environmentId);
                 }
             }
-            if (this.environmentMap != null && !this.environmentMap.isEmpty()) {
-                this.setEnv(this.environmentMap, envConfig);
-                config.setConfig(envConfig);
-            }
         } else {
             Map<String, EnvironmentConfig> map = config.getConfig();
             for (EnvironmentConfig evnConfig : map.values()) {

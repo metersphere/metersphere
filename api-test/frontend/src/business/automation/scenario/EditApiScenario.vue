@@ -2051,10 +2051,10 @@ export default {
                 this.scenarioDefinition = obj.hashTree;
                 this.$nextTick(() => {
                   let data = this.scenarioDefinition;
-                  if (data.hashTree) {
-                    this.sort(data.hashTree);
+                  if (data && data instanceof Array) {
+                    this.sort(data);
                     let domainMap = new Map();
-                    this.getEnvDomain(data.hashTree, domainMap);
+                    this.getEnvDomain(data, domainMap);
                     this.margeDomain(this.scenarioDefinition, domainMap);
                     this.cancelBatchProcessing();
                   }
