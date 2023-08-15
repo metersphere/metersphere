@@ -1,31 +1,31 @@
 <template>
   <div class="card-container">
     <ms-table
-      :table-is-loading="loading"
-      :data="page.data"
-      :enableSelection="false"
-      :condition="condition"
-      :total="page.total"
-      :page-size.sync="page.pageSize"
-      :screen-height="screenHeight"
-      :remember-order="true"
-      row-key="id"
-      :row-order-group-id="projectId"
-      :row-order-func="editTestCaseOrder"
-      @handlePageChange="initTableData"
-      @handleRowClick="handleEdit"
-      :fields.sync="fields"
-      :field-key="tableHeaderKey"
-      @refresh="initTableData"
-      ref="table"
+        :table-is-loading="loading"
+        :data="page.data"
+        :enableSelection="false"
+        :condition="condition"
+        :total="page.total"
+        :page-size.sync="page.pageSize"
+        :screen-height="screenHeight"
+        :remember-order="true"
+        row-key="id"
+        :row-order-group-id="projectId"
+        :row-order-func="editTestCaseOrder"
+        @handlePageChange="initTableData"
+        @handleRowClick="handleEdit"
+        :fields.sync="fields"
+        :field-key="tableHeaderKey"
+        @refresh="initTableData"
+        ref="table"
     >
       <ms-table-column
-        prop="deleteTime"
-        sortable
-        v-if="this.trashEnable"
-        :fields-width="fieldsWidth"
-        :label="$t('commons.delete_time')"
-        min-width="150px"
+          prop="deleteTime"
+          sortable
+          v-if="this.trashEnable"
+          :fields-width="fieldsWidth"
+          :label="$t('commons.delete_time')"
+          min-width="150px"
       >
         <template v-slot:default="scope">
           <span>{{ scope.row.deleteTime | datetimeFormat }}</span>
@@ -33,48 +33,48 @@
       </ms-table-column>
 
       <ms-table-column
-        prop="deleteUserId"
-        :fields-width="fieldsWidth"
-        v-if="this.trashEnable"
-        :label="$t('commons.delete_user')"
-        min-width="120"
+          prop="deleteUserId"
+          :fields-width="fieldsWidth"
+          v-if="this.trashEnable"
+          :label="$t('commons.delete_user')"
+          min-width="120"
       />
 
       <span v-for="item in fields" :key="item.key">
         <ms-table-column
-          v-if="!customNum"
-          :field="item"
-          :fields-width="fieldsWidth"
-          prop="num"
-          sortable
-          :label="$t('commons.id')"
-          min-width="80"
+            v-if="!customNum"
+            :field="item"
+            :fields-width="fieldsWidth"
+            prop="num"
+            sortable
+            :label="$t('commons.id')"
+            min-width="80"
         />
 
         <ms-table-column
-          v-if="item.id === 'num' && customNum"
-          :fields-width="fieldsWidth"
-          prop="customNum"
-          sortable
-          :label="$t('commons.id')"
-          min-width="80"
+            v-if="item.id === 'num' && customNum"
+            :fields-width="fieldsWidth"
+            prop="customNum"
+            sortable
+            :label="$t('commons.id')"
+            min-width="80"
         />
 
         <ms-table-column
-          prop="name"
-          sortable
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.name')"
-          min-width="120"
+            prop="name"
+            sortable
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.name')"
+            min-width="120"
         />
         <ms-table-column
-          prop="nodePath"
-          :field="item"
-          v-if="isShowAllColumn"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.case.module')"
-          min-width="150px"
+            prop="nodePath"
+            :field="item"
+            v-if="isShowAllColumn"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.case.module')"
+            min-width="150px"
         >
           <template v-slot:default="scope">
             <span>{{ nodePathMap.get(scope.row.nodeId) }}</span>
@@ -82,21 +82,21 @@
         </ms-table-column>
 
         <ms-table-column
-          prop="projectName"
-          :field="item"
-          v-if="!isShowAllColumn"
-          :fields-width="fieldsWidth"
-          :label="$t('report.project_name')"
-          min-width="150px"
+            prop="projectName"
+            :field="item"
+            v-if="!isShowAllColumn"
+            :fields-width="fieldsWidth"
+            :label="$t('report.project_name')"
+            min-width="150px"
         >
         </ms-table-column>
 
         <ms-table-column
-          :label="$t('project.version.name')"
-          :field="item"
-          :fields-width="fieldsWidth"
-          min-width="100px"
-          prop="versionId"
+            :label="$t('project.version.name')"
+            :field="item"
+            :fields-width="fieldsWidth"
+            min-width="100px"
+            prop="versionId"
         >
           <template v-slot:default="scope">
             <span>{{ scope.row.versionName }}</span>
@@ -104,29 +104,29 @@
         </ms-table-column>
 
         <ms-table-column
-          :label="$t('test_track.case.case_desc')"
-          prop="desc"
-          :field="item"
-          min-width="120px"
-          v-if="isShowAllColumn"
+            :label="$t('test_track.case.case_desc')"
+            prop="desc"
+            :field="item"
+            min-width="120px"
+            v-if="isShowAllColumn"
         >
           <template v-slot:default="scope">
             <el-link
-              @click.stop="getCase(scope.row.id)"
-              style="color: #783887"
-              >{{ $t("commons.preview") }}</el-link
+                @click.stop="getCase(scope.row.id)"
+                style="color: #783887"
+            >{{ $t("commons.preview") }}</el-link
             >
           </template>
         </ms-table-column>
 
         <ms-table-column
-          sortable
-          prop="createUser"
-          min-width="120"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.create_user')"
-          :filters="userFilter"
+            sortable
+            prop="createUser"
+            min-width="120"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.create_user')"
+            :filters="userFilter"
         >
           <template v-slot:default="scope">
             {{ getCreateUserName(scope.row.createUser) }}
@@ -134,47 +134,47 @@
         </ms-table-column>
 
         <test-case-review-status-table-item
-          :field="item"
-          :fields-width="fieldsWidth"
+            :field="item"
+            :fields-width="fieldsWidth"
         />
 
         <test-plan-case-status-table-item
-          prop="lastExecuteResult"
-          :field="item"
-          :fields-width="fieldsWidth"
+            prop="lastExecuteResult"
+            :field="item"
+            :fields-width="fieldsWidth"
         />
 
         <ms-table-column
-          prop="tags"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.tag')"
-          min-width="80"
+            prop="tags"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.tag')"
+            min-width="80"
         >
           <template v-slot:default="scope">
             <ms-tag
-              v-for="(itemName, index) in scope.row.tags"
-              :key="index"
-              type="success"
-              effect="plain"
-              :show-tooltip="
+                v-for="(itemName, index) in scope.row.tags"
+                :key="index"
+                type="success"
+                effect="plain"
+                :show-tooltip="
                 scope.row.tags.length === 1 && itemName.length * 12 <= 80
               "
-              :content="itemName"
-              style="margin-left: 0px; margin-right: 2px"
+                :content="itemName"
+                style="margin-left: 0px; margin-right: 2px"
             />
-            <span />
+            <span/>
           </template>
         </ms-table-column>
 
         <ms-table-column
-          prop="updateTime"
-          sortable
-          v-if="isShowAllColumn"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.update_time')"
-          min-width="150px"
+            prop="updateTime"
+            sortable
+            v-if="isShowAllColumn"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.update_time')"
+            min-width="150px"
         >
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | datetimeFormat }}</span>
@@ -182,12 +182,12 @@
         </ms-table-column>
 
         <ms-table-column
-          prop="createTime"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.create_time')"
-          sortable
-          min-width="150px"
+            prop="createTime"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.create_time')"
+            sortable
+            min-width="150px"
         >
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | datetimeFormat }}</span>
@@ -195,19 +195,19 @@
         </ms-table-column>
 
         <ms-table-column
-          v-for="field in testCaseTemplate.customFields"
-          :key="field.id"
-          :filters="getCustomFieldFilter(field)"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="field.system ? $t(systemFiledMap[field.name]) : field.name"
-          :min-width="120"
-          :prop="field.name"
+            v-for="field in testCaseTemplate.customFields"
+            :key="field.id"
+            :filters="getCustomFieldFilter(field)"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="field.system ? $t(systemFiledMap[field.name]) : field.name"
+            :min-width="120"
+            :prop="field.name"
         >
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">
               <priority-table-item
-                :value="
+                  :value="
                   getCustomFieldValue(scope.row, field)
                     ? getCustomFieldValue(scope.row, field)
                     : scope.row.priority
@@ -223,18 +223,18 @@
     </ms-table>
 
     <ms-table-pagination
-      :change="initTableData"
-      :current-page.sync="page.currentPage"
-      :page-size.sync="page.pageSize"
-      :total="page.total"
+        :change="initTableData"
+        :current-page.sync="page.currentPage"
+        :page-size.sync="page.pageSize"
+        :total="page.total"
     />
 
-    <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading" />
+    <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
   </div>
 </template>
 
 <script>
-import { TEST_CASE_LIST } from "metersphere-frontend/src/utils/constants";
+import {TEST_CASE_LIST} from "metersphere-frontend/src/utils/constants";
 
 import {
   getCustomFieldFilter,
@@ -247,39 +247,31 @@ import {
   parseCustomFilesForList,
 } from "metersphere-frontend/src/utils/tableUtils";
 import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderLabelOperate";
-import {
-  getCurrentProjectID,
-  getCurrentUserId,
-} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID, getCurrentUserId,} from "metersphere-frontend/src/utils/token";
 
-import { getProjectMember, getProjectMemberUserFilter } from "@/api/user";
+import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
-import { SYSTEM_FIELD_NAME_MAP } from "metersphere-frontend/src/utils/table-constants";
-import {
-  editTestCaseOrder,
-  getTestCaseListById,
-  getTestCaseStep,
-  testCaseList,
-} from "@/api/test-case";
+import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
+import {editTestCaseOrder, getTestCaseListById, getTestCaseStep, testCaseList,} from "@/api/test-case";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
-import { TEST_CASE_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
+import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import PriorityTableItem from "@/business/module/track/PriorityTableItem";
 import StatusTableItem from "@/business/module/track/StatusTableItem";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import { hasLicense } from "metersphere-frontend/src/utils/permission";
-import { getProject } from "@/api/project";
-import { getProjectVersions } from "metersphere-frontend/src/api/version";
-import useStore, { useApiStore } from "@/store";
-import { getTestTemplate } from "metersphere-frontend/src/api/custom-field-template";
-import { getAdvSearchCustomField } from "metersphere-frontend/src/components/search/custom-component";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import {getProject} from "@/api/project";
+import {getProjectVersions} from "metersphere-frontend/src/api/version";
+import useStore, {useApiStore} from "@/store";
+import {getTestTemplate} from "metersphere-frontend/src/api/custom-field-template";
+import {getAdvSearchCustomField} from "metersphere-frontend/src/components/search/custom-component";
 import TestCaseReviewStatusTableItem from "@/business/othermodule/track/TestCaseReviewStatusTableItem";
 import TestPlanCaseStatusTableItem from "@/business/othermodule/track/TestPlanCaseStatusTableItem";
 import TestCasePreview from "@/business/othermodule/track/TestCasePreview";
-import { parseTag } from "metersphere-frontend/src/utils";
-import { getCustomFieldValueForTrack } from "@/business/component/js/table-head-util";
+import {parseTag} from "metersphere-frontend/src/utils";
+import {getCustomFieldValueForTrack} from "@/business/component/js/table-head-util";
 import {getTestCaseNodes} from "@/api/test-case-node";
-import {buildTree, buildNodePath} from "metersphere-frontend/src/model/NodeTree";
+import {buildNodePath, buildTree} from "metersphere-frontend/src/model/NodeTree";
 
 export default {
   name: "TableList",
@@ -313,18 +305,18 @@ export default {
       loading: false,
       versionFilters: [],
       statusFilters: [
-        { text: this.$t("test_track.case.status_prepare"), value: "Prepare" },
-        { text: this.$t("test_track.case.status_running"), value: "Underway" },
+        {text: this.$t("test_track.case.status_prepare"), value: "Prepare"},
+        {text: this.$t("test_track.case.status_running"), value: "Underway"},
         {
           text: this.$t("test_track.case.status_finished"),
           value: "Completed",
         },
       ],
       priorityFilters: [
-        { text: "P0", value: "P0" },
-        { text: "P1", value: "P1" },
-        { text: "P2", value: "P2" },
-        { text: "P3", value: "P3" },
+        {text: "P0", value: "P0"},
+        {text: "P1", value: "P1"},
+        {text: "P2", value: "P2"},
+        {text: "P3", value: "P3"},
       ],
       typeArr: [],
       valueArr: {},
@@ -407,7 +399,7 @@ export default {
         delete this.condition.userId;
       }
       this.condition.combine = {
-        followPeople: { operator: "current user", value: "current user" },
+        followPeople: {operator: "current user", value: "current user"},
       };
     } else if (this.isCreation) {
       if (this.condition.filters) {
@@ -422,7 +414,7 @@ export default {
       if (this.condition.filters) {
         this.condition.filters.status = ["Trash"];
       } else {
-        this.condition.filters = { status: ["Trash"] };
+        this.condition.filters = {status: ["Trash"]};
       }
     }
     this.condition.versionId = this.currentVersion;
@@ -454,7 +446,7 @@ export default {
         if (this.condition.filters) {
           this.condition.filters.status = [];
         } else {
-          this.condition.filters = { status: [] };
+          this.condition.filters = {status: []};
         }
       }
       initCondition(this.condition, false);
@@ -469,7 +461,7 @@ export default {
         if (this.condition.filters) {
           this.condition.filters.status = ["Trash"];
         } else {
-          this.condition.filters = { status: ["Trash"] };
+          this.condition.filters = {status: ["Trash"]};
         }
         this.condition.moduleIds = [];
         initCondition(this.condition, false);
@@ -478,7 +470,7 @@ export default {
         if (this.condition.filters) {
           this.condition.filters.status = [];
         } else {
-          this.condition.filters = { status: [] };
+          this.condition.filters = {status: []};
         }
       }
     },
@@ -506,17 +498,17 @@ export default {
         let template = data[1];
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields(
-          this.tableHeaderKey,
-          this.testCaseTemplate.customFields,
-          this.members
+            this.tableHeaderKey,
+            this.testCaseTemplate.customFields,
+            this.members
         );
         // todo 处理高级搜索自定义字段部分
         this.condition.components = this.condition.components.filter(
-          (item) => item.custom !== true
+            (item) => item.custom !== true
         );
         let comp = getAdvSearchCustomField(
-          this.condition,
-          this.testCaseTemplate.customFields
+            this.condition,
+            this.testCaseTemplate.customFields
         );
         // 系统字段国际化处理
         comp.filter((element) => {
@@ -558,24 +550,24 @@ export default {
         return;
       }
       getTestCaseNodes(this.projectId)
-        .then((r) => {
-          let treeNodes = r.data;
-          treeNodes.forEach(node => {
-            node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
-            buildTree(node, {path: ''});
-          });
-          let moduleOptions = [];
-          treeNodes.forEach(node => {
-            buildNodePath(node, {path: ''}, moduleOptions);
-          });
-          let map = new Map();
-          if (moduleOptions) {
-            moduleOptions.forEach((item) => {
-              map.set(item.id, item.path);
+          .then((r) => {
+            let treeNodes = r.data;
+            treeNodes.forEach(node => {
+              node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
+              buildTree(node, {path: ''});
             });
-          }
-          this.nodePathMap = map;
-        });
+            let moduleOptions = [];
+            treeNodes.forEach(node => {
+              buildNodePath(node, {path: ''}, moduleOptions);
+            });
+            let map = new Map();
+            if (moduleOptions) {
+              moduleOptions.forEach((item) => {
+                map.set(item.id, item.path);
+              });
+            }
+            this.nodePathMap = map;
+          });
     },
     setTestCaseDefaultValue(template) {
       let testCaseDefaultValue = {};
@@ -712,8 +704,8 @@ export default {
         this.$emit("setCondition", this.condition);
         this.loading = true;
         testCaseList(
-          { pageNum: this.page.currentPage, pageSize: this.page.pageSize },
-          this.condition
+            {pageNum: this.page.currentPage, pageSize: this.page.pageSize},
+            this.condition
         ).then((response) => {
           this.loading = false;
           let data = response.data;
@@ -728,8 +720,8 @@ export default {
             }
             if (nodePath.startsWith("/未规划用例", "0")) {
               item.nodePath = nodePath.replaceAll(
-                "/未规划用例",
-                "/" + this.$t("api_test.unplanned_case")
+                  "/未规划用例",
+                  "/" + this.$t("api_test.unplanned_case")
               );
             }
           });
@@ -763,6 +755,7 @@ export default {
       this.rowCaseResult.loading = true;
 
       getTestCaseStep(id).then((response) => {
+        this.rowCaseResult.loading = false;
         this.rowCase = response.data;
         this.rowCase.steps = JSON.parse(this.rowCase.steps);
         if (!this.rowCase.steps || this.rowCase.length < 1) {
@@ -784,7 +777,7 @@ export default {
       if (hasLicense()) {
         getProjectVersions(getCurrentProjectID()).then((response) => {
           this.versionFilters = response.data.map((u) => {
-            return { text: u.name, value: u.id };
+            return {text: u.name, value: u.id};
           });
         });
       }
