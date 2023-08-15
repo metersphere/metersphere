@@ -448,9 +448,11 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         if (nodeNameList.size() <= 1) {
             throw new ExcelException(Translator.get("test_case_create_module_fail") + ":" + nodePath);
         } else {
-            itemIterator.next();
-            itemIterator.remove();
             rootNodeName = itemIterator.next().trim();
+            while (StringUtils.isBlank(rootNodeName) && itemIterator.hasNext()) {
+                itemIterator.remove();
+                rootNodeName = itemIterator.next().trim();
+            }
             //原来没有，新建的树nodeTrees也不包含
             for (TestCaseNodeDTO nodeTree : nodeTrees) {
                 if (StringUtils.equals(rootNodeName, nodeTree.getName())) {
