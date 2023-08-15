@@ -13,6 +13,7 @@ export default {
   'common.end': 'End',
   'common.enable': 'Enable',
   'common.close': 'Close',
+  'common.create': 'Create',
   'common.confirmEnable': 'Confirm enable',
   'common.confirmClose': 'Confirm close',
   'common.enableSuccess': 'Enable success',

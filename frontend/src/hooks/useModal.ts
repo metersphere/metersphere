@@ -38,14 +38,14 @@ export default function useModal() {
           options.size || 'small'
         } ms-usemodal-${options.type}`,
       }),
-    deleteModal: (options: DeleteModalOptions) =>
+    openDeleteModal: (options: DeleteModalOptions) =>
       Modal.warning({
         okText: t('common.confirmDelete'),
         cancelText: t('common.cancel'),
         hideCancel: false,
         okButtonProps: { status: 'danger' },
         titleAlign: 'start',
-        modalClass: `ms-usemodal ms-usemodal-warning ms-usemodal-small ms-usemodal--warning`,
+        modalClass: `ms-usemodal ms-usemodal-warning ms-usemodal-small`,
         ...options,
       }),
   };

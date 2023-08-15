@@ -13,6 +13,7 @@ export default {
   'common.end': '结束',
   'common.enable': '启用',
   'common.close': '关闭',
+  'common.create': '创建',
   'common.confirmEnable': '确认启用',
   'common.confirmClose': '确认关闭',
   'common.enableSuccess': '启用成功',

@@ -20,11 +20,11 @@
       </a-form>
     </div>
     <template #footer>
-      <a-button type="secondary" @click="handleCancel">
-        {{ t('system.organization.cancel') }}
+      <a-button type="secondary" :loading="loading" @click="handleCancel">
+        {{ t('common.cancel') }}
       </a-button>
       <a-button type="primary" :loading="loading" :disabled="form.name.length === 0" @click="handleAddMember">
-        {{ t('system.organization.add') }}
+        {{ t('common.add') }}
       </a-button>
     </template>
   </a-modal>
@@ -69,15 +69,14 @@
 
   const handleAddMember = () => {
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
-      loading.value = true;
       if (errors) {
         loading.value = false;
       }
       const { organizationId, projectId } = props;
       try {
+        loading.value = true;
         await addUserToOrgOrProject({ memberIds: form.name, organizationId, projectId });
         Message.success(t('system.organization.addSuccess'));
-        loading.value = false;
         handleCancel();
       } catch (error) {
         // eslint-disable-next-line no-console
