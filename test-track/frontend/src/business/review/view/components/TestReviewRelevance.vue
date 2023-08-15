@@ -302,6 +302,9 @@ export default {
       });
     },
     async openTestReviewRelevanceDialog() {
+      this.condition = {
+        components: TEST_REVIEW_RELEVANCE_CASE_CONFIGS
+      };
       this.getProject();
       this.dialogFormVisible = true;
       await this.getProjectNode(this.projectId);
