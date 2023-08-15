@@ -56,7 +56,6 @@
             <span :v-if="pe.id !== currentProjectID">
               <span class="project-name" :title="getProjectName(pe.id)">
                 {{ getProjectName(pe.id) }}
-                <span style="color: red" :v-show="pe.id === currentProjectID">* </span>
               </span>
               <el-select
                 v-model="pe['selectEnv']"
@@ -107,9 +106,8 @@
 </template>
 
 <script>
-import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
 import ApiEnvironmentConfig from 'metersphere-frontend/src/components/environment/ApiEnvironmentConfig';
-import { getEnvironmentByProjectId, getEnvironmentByProjectIds } from 'metersphere-frontend/src/api/environment';
+import { getEnvironmentByProjectIds } from 'metersphere-frontend/src/api/environment';
 import { getOwnerProjectIds } from '@/api/project';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 
