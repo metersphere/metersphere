@@ -62,7 +62,7 @@ import {
   isModuleNodeData,
   listenBeforeExecCommand,
   listenDblclick,
-  listenNodeSelected,
+  listenNodeSelected, loadNode,
   loadSelectNodes,
   priorityDisableCheck,
   tagEditCheck,
@@ -275,6 +275,11 @@ export default {
         if ('resource' === even.commandName) {
           // 设置完标签后，优先级显示有问题，重新设置下
           setTimeout(() => setPriorityView(true, 'P'), 100);
+        }
+
+        if ('movetoparent' === even.commandName) {
+          // 拖入的节点尚未加载时，加载节点
+          loadNode(even.commandArgs[1], this.getParam(), getTestCasesForMinder, null, getMinderExtraNode);
         }
       });
 
