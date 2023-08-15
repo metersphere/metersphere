@@ -11,7 +11,7 @@ import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.dto.request.GlobalUserRoleRelationQueryRequest;
-import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
+import io.metersphere.system.request.user.UserAndRoleBatchRequest;
 import io.metersphere.system.service.GlobalUserRoleRelationLogService;
 import io.metersphere.system.service.GlobalUserRoleRelationService;
 import io.metersphere.validation.groups.Created;

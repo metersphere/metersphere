@@ -20,14 +20,14 @@ import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
-import io.metersphere.system.dto.request.UserBaseBatchRequest;
-import io.metersphere.system.dto.request.UserChangeEnableRequest;
-import io.metersphere.system.dto.request.UserEditRequest;
-import io.metersphere.system.dto.response.UserBatchProcessResponse;
-import io.metersphere.system.dto.response.UserImportResponse;
-import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.request.user.UserBaseBatchRequest;
+import io.metersphere.system.request.user.UserChangeEnableRequest;
+import io.metersphere.system.request.user.UserEditRequest;
+import io.metersphere.system.response.user.BatchProcessResponse;
+import io.metersphere.system.response.user.UserImportResponse;
+import io.metersphere.system.response.user.UserTableResponse;
 import io.metersphere.system.utils.UserImportEventListener;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -197,10 +197,10 @@ public class UserService {
         return userEditRequest;
     }
 
-    public UserBatchProcessResponse updateUserEnable(UserChangeEnableRequest request, String operator) {
+    public BatchProcessResponse updateUserEnable(UserChangeEnableRequest request, String operator) {
         request.setUserIds(this.getBatchUserIds(request));
         this.checkUserInDb(request.getUserIds());
-        UserBatchProcessResponse response = new UserBatchProcessResponse();
+        BatchProcessResponse response = new BatchProcessResponse();
         response.setTotalCount(request.getUserIds().size());
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(
@@ -282,7 +282,7 @@ public class UserService {
     }
 
 
-    public UserBatchProcessResponse deleteUser(@Valid UserBaseBatchRequest request, String operator) {
+    public BatchProcessResponse deleteUser(@Valid UserBaseBatchRequest request, String operator) {
         List<String> userIdList = this.getBatchUserIds(request);
         this.checkUserInDb(userIdList);
         //检查是否含有Admin
@@ -290,7 +290,7 @@ public class UserService {
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(userIdList);
         //更新删除标志位
-        UserBatchProcessResponse response = new UserBatchProcessResponse();
+        BatchProcessResponse response = new BatchProcessResponse();
         response.setTotalCount(userIdList.size());
         response.setSuccessCount(this.deleteUserByList(userIdList, operator));
         //删除用户角色关系
@@ -422,7 +422,7 @@ public class UserService {
         return extUserMapper.getMemberOption(sourceId);
     }
 
-    public UserBatchProcessResponse resetPassword(UserBaseBatchRequest request, String operator) {
+    public BatchProcessResponse resetPassword(UserBaseBatchRequest request, String operator) {
         request.setUserIds(this.getBatchUserIds(request));
         this.checkUserInDb(request.getUserIds());
 
@@ -450,7 +450,7 @@ public class UserService {
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
 
-        UserBatchProcessResponse response = new UserBatchProcessResponse();
+        BatchProcessResponse response = new BatchProcessResponse();
         response.setTotalCount(request.getUserIds().size());
         response.setSuccessCount(request.getUserIds().size());
         return response;

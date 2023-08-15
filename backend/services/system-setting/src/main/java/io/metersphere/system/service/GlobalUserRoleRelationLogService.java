@@ -12,9 +12,9 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.domain.UserRoleRelation;
-import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.request.user.UserAndRoleBatchRequest;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 

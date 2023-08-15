@@ -7,9 +7,9 @@ import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
-import io.metersphere.system.dto.UserRoleOption;
 import io.metersphere.system.mapper.ExtUserRoleMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
+import io.metersphere.system.response.user.UserSelectOption;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -109,12 +109,12 @@ public class GlobalUserRoleService extends BaseUserRoleService {
         }
     }
 
-    public List<UserRoleOption> getGlobalSystemRoleList() {
+    public List<UserSelectOption> getGlobalSystemRoleList() {
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andScopeIdEqualTo(GLOBAL_SCOPE).andTypeEqualTo(SYSTEM_TYPE);
-        List<UserRoleOption> returnList = new ArrayList<>();
+        List<UserSelectOption> returnList = new ArrayList<>();
         userRoleMapper.selectByExample(example).forEach(userRole -> {
-            UserRoleOption userRoleOption = new UserRoleOption();
+            UserSelectOption userRoleOption = new UserSelectOption();
             userRoleOption.setId(userRole.getId());
             userRoleOption.setName(userRole.getName());
             userRoleOption.setSelected(StringUtils.equals(userRole.getId(), MEMBER.getValue()));

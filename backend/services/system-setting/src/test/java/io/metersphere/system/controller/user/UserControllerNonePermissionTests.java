@@ -2,10 +2,10 @@ package io.metersphere.system.controller.user;
 
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.system.dto.UserCreateInfo;
-import io.metersphere.system.dto.UserRoleOption;
-import io.metersphere.system.dto.request.UserBaseBatchRequest;
-import io.metersphere.system.dto.request.UserChangeEnableRequest;
-import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
+import io.metersphere.system.request.user.UserAndRoleBatchRequest;
+import io.metersphere.system.request.user.UserBaseBatchRequest;
+import io.metersphere.system.request.user.UserChangeEnableRequest;
+import io.metersphere.system.response.user.UserSelectOption;
 import io.metersphere.system.utils.user.UserParamUtils;
 import io.metersphere.system.utils.user.UserRequestUtils;
 import jakarta.annotation.Resource;
@@ -58,9 +58,9 @@ public class UserControllerNonePermissionTests {
             setName("tianyang.no.permission.email");
             setEmail("tianyang.no.permission.email@126.com");
         }};
-        List<UserRoleOption> paramRoleList = new ArrayList<>() {{
+        List<UserSelectOption> paramRoleList = new ArrayList<>() {{
             this.add(
-                    new UserRoleOption() {{
+                    new UserSelectOption() {{
                         this.setId("member");
                         this.setName("member");
                     }});

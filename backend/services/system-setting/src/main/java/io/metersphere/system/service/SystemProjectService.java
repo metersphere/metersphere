@@ -94,7 +94,6 @@ public class SystemProjectService {
         commonProjectService.deleteProject(projects);
     }
 
-
     public List<OrganizationProjectOptionsDTO> getProjectOptions() {
         return extSystemProjectMapper.selectProjectOptions();
     }

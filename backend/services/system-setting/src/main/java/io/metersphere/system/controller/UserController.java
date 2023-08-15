@@ -3,30 +3,27 @@ package io.metersphere.system.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserSourceEnum;
 import io.metersphere.sdk.dto.BasePageRequest;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserExtend;
-import io.metersphere.system.dto.UserRoleOption;
-import io.metersphere.system.dto.request.UserBaseBatchRequest;
-import io.metersphere.system.dto.request.UserChangeEnableRequest;
-import io.metersphere.system.dto.request.UserEditRequest;
-import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
-import io.metersphere.system.dto.response.UserBatchProcessResponse;
-import io.metersphere.system.dto.response.UserImportResponse;
-import io.metersphere.system.dto.response.UserTableResponse;
-import io.metersphere.system.service.GlobalUserRoleRelationLogService;
-import io.metersphere.system.service.GlobalUserRoleRelationService;
-import io.metersphere.system.service.GlobalUserRoleService;
-import io.metersphere.system.service.UserService;
+import io.metersphere.system.request.OrganizationMemberBatchRequest;
+import io.metersphere.system.request.ProjectAddMemberBatchRequest;
+import io.metersphere.system.request.user.*;
+import io.metersphere.system.response.user.*;
+import io.metersphere.system.service.*;
+import io.metersphere.system.utils.TreeNodeParseUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/system/user")
@@ -51,19 +49,16 @@ public class UserController {
     private GlobalUserRoleService globalUserRoleService;
     @Resource
     private GlobalUserRoleRelationService globalUserRoleRelationService;
+    @Resource
+    private OrganizationService organizationService;
+    @Resource
+    private SystemProjectService systemProjectService;
 
     @GetMapping("/get/{email}")
     @Operation(summary = "通过email查找用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
     public UserDTO getUser(@PathVariable String email) {
         return userService.getUserDTOByEmail(email);
-    }
-
-    @GetMapping("/get/global/system/role")
-    @Operation(summary = "查找系统级用户权限")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
-    public List<UserRoleOption> getGlobalSystemRole() {
-        return globalUserRoleService.getGlobalSystemRoleList();
     }
 
     @PostMapping("/add")
@@ -94,7 +89,7 @@ public class UserController {
     @Operation(summary = "启用/禁用用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateLog(#request)", msClass = UserService.class)
-    public UserBatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
+    public BatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
         return userService.updateUserEnable(request, SessionUtils.getSessionId());
     }
 
@@ -109,7 +104,7 @@ public class UserController {
     @Operation(summary = "删除用户")
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#request)", msClass = UserService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
-    public UserBatchProcessResponse deleteUser(@Validated @RequestBody UserBaseBatchRequest request) {
+    public BatchProcessResponse deleteUser(@Validated @RequestBody UserBaseBatchRequest request) {
         return userService.deleteUser(request, SessionUtils.getUserId());
     }
 
@@ -124,7 +119,7 @@ public class UserController {
     @Operation(summary = "重置用户密码")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.resetPasswordLog(#request)", msClass = UserService.class)
-    public UserBatchProcessResponse resetPassword(@Validated @RequestBody UserBaseBatchRequest request) {
+    public BatchProcessResponse resetPassword(@Validated @RequestBody UserBaseBatchRequest request) {
         return userService.resetPassword(request, SessionUtils.getUserId());
     }
 
@@ -140,7 +135,52 @@ public class UserController {
     @Operation(summary = "批量添加用户到多个用户组中")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     @Log(type = OperationLogType.ADD, expression = "#msClass.batchAddLog(#request)", msClass = GlobalUserRoleRelationLogService.class)
-    public UserBatchProcessResponse batchAdd(@Validated({Created.class}) @RequestBody UserAndRoleBatchRequest request) {
+    public BatchProcessResponse batchAdd(@Validated({Created.class}) @RequestBody UserAndRoleBatchRequest request) {
         return globalUserRoleRelationService.batchAdd(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/get/global/system/role")
+    @Operation(summary = "查找系统级用户权限")
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
+    public List<UserSelectOption> getGlobalSystemRole() {
+        return globalUserRoleService.getGlobalSystemRoleList();
+    }
+
+    @GetMapping("/get/organization")
+    @Operation(summary = "用户批量操作-查找组织")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_ROLE_READ, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ}, logical = Logical.AND)
+    public List<OptionDTO> getOrganization() {
+        return organizationService.listAll();
+    }
+
+    @GetMapping("/get/project")
+    @Operation(summary = "用户批量操作-查找项目")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_ROLE_READ, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ}, logical = Logical.AND)
+    public List<UserTreeSelectOption> getProject() {
+        Map<Organization, List<Project>> orgProjectMap = organizationService.getOrgProjectMap();
+        return TreeNodeParseUtils.parseOrgProjectMap(orgProjectMap);
+    }
+
+
+    @PostMapping("/add-project-member")
+    //todo 这里权限有更改 权限待定
+    @Operation(summary = "添加用户到项目")
+    //    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    public void addProjectMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
+        ProjectAddMemberBatchRequest request = new ProjectAddMemberBatchRequest();
+        request.setProjectIds(userRoleBatchRelationRequest.getRoleIds());
+        request.setUserIds(userRoleBatchRelationRequest.getUserIds());
+        systemProjectService.addProjectMember(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/add-org-member")
+    @Operation(summary = "添加用户到组织")
+    //todo 这里权限有更改 权限待定
+    //    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    public void addMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
+        OrganizationMemberBatchRequest request = new OrganizationMemberBatchRequest();
+        request.setOrganizationIds(userRoleBatchRelationRequest.getRoleIds());
+        request.setMemberIds(userRoleBatchRelationRequest.getUserIds());
+        organizationService.addMemberBySystem(request, SessionUtils.getUserId());
     }
 }

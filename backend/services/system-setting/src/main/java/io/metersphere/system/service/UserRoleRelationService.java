@@ -8,11 +8,11 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.response.user.UserTableResponse;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;
@@ -162,7 +162,7 @@ public class UserRoleRelationService {
         List<String> deleteRoleList = new ArrayList<>();
         List<UserRoleRelation> saveList = new ArrayList<>();
         List<UserRoleRelation> userRoleRelationList = this.selectGlobalRoleByUserId(user.getId());
-        List<String> userSavedRoleIdList = userRoleRelationList.stream().map(UserRoleRelation::getRoleId).collect(Collectors.toList());
+        List<String> userSavedRoleIdList = userRoleRelationList.stream().map(UserRoleRelation::getRoleId).toList();
         //获取要移除的权限
         for (String userSavedRoleId : userSavedRoleIdList) {
             if (!roleList.contains(userSavedRoleId)) {

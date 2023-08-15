@@ -1,6 +1,5 @@
-package io.metersphere.system.dto.request;
+package io.metersphere.system.request.user;
 
-import io.metersphere.system.dto.request.user.BaseCondition;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;

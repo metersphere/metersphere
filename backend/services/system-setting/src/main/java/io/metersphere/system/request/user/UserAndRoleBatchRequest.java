@@ -1,6 +1,5 @@
-package io.metersphere.system.dto.request.user;
+package io.metersphere.system.request.user;
 
-import io.metersphere.system.dto.request.UserBaseBatchRequest;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,10 +8,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class UserAndRoleBatchRequest extends UserBaseBatchRequest {
 
     @Schema(description =  "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
