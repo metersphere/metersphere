@@ -29,7 +29,7 @@ export const getOrgDefaultUrl = '/system/organization/default';
 // 更新项目信息
 export const postModifyProjectUrl = '/system/project/update';
 // 获取项目列表
-export const postProjectTableUrl = '/system/project/list';
+export const postProjectTableUrl = '/system/project/page';
 // 获取项目成员
 export const postProjectMemberUrl = '/system/project/member/list';
 // 添加项目

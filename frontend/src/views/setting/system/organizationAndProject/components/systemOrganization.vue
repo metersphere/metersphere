@@ -173,7 +173,7 @@
     openDeleteModal({
       title: t('system.organization.deleteName', { name: record.name }),
       content: t('system.organization.deleteTip'),
-      onOk: async () => {
+      onBeforeOk: async () => {
         try {
           await deleteOrg(record.id);
           Message.success(t('common.deleteSuccess'));

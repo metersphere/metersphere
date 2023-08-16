@@ -40,7 +40,7 @@
   import SystemProject from './components/systemProject.vue';
 
   const { t } = useI18n();
-  const currentTable = ref('organization');
+  const currentTable = ref('project');
   const organizationVisible = ref(false);
   const organizationCount = ref(0);
   const projectCount = ref(0);
