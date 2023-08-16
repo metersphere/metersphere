@@ -14,7 +14,6 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.*;
-import io.metersphere.constants.RunModeConstants;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsParameter;
@@ -78,17 +77,7 @@ public class MsScenario extends MsTestElement {
 
         // 设置共享cookie
         config.setEnableCookieShare(enableCookieShare);
-        Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
-        if (MapUtils.isEmpty(config.getConfig())) {
-            // 兼容历史数据
-            if (this.environmentMap == null || this.environmentMap.isEmpty()) {
-                this.environmentMap = new HashMap<>(16);
-                if (StringUtils.isNotBlank(environmentId)) {
-                    // 兼容1.8之前 没有environmentMap但有environmentId的数据
-                    this.environmentMap.put(RunModeConstants.HIS_PRO_ID.toString(), environmentId);
-                }
-            }
-        } else {
+        if (MapUtils.isNotEmpty(config.getConfig())) {
             Map<String, EnvironmentConfig> map = config.getConfig();
             for (EnvironmentConfig evnConfig : map.values()) {
                 if (evnConfig.getHttpConfig() != null) {
@@ -103,7 +92,7 @@ public class MsScenario extends MsTestElement {
         // 取出自身场景环境
         ParameterConfig newConfig = new ParameterConfig(this.getProjectId(), false);
         if (this.isEnvironmentEnable()) {
-            this.setNewConfig(envConfig, newConfig);
+            this.setNewConfig(newConfig);
             newConfig.setRetryNum(config.getRetryNum());
         }
         if (StringUtils.equals(this.getId(), config.getScenarioId())) {
@@ -232,7 +221,8 @@ public class MsScenario extends MsTestElement {
         return false;
     }
 
-    private void setNewConfig(Map<String, EnvironmentConfig> envConfig, ParameterConfig newConfig) {
+    private void setNewConfig( ParameterConfig newConfig) {
+        Map<String, EnvironmentConfig> envConfig = new HashMap<>();
         if (this.isEnvironmentEnable()) {
             ApiScenarioMapper apiScenarioMapper = CommonBeanFactory.getBean(ApiScenarioMapper.class);
             BaseEnvGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(BaseEnvGroupProjectService.class);
