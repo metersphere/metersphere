@@ -333,10 +333,8 @@
         try {
           await resetUserPassword(userIdList);
           Message.success(t('system.user.resetPswSuccess'));
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
         }
       },
       hideCancel: false,
@@ -363,26 +361,17 @@
       okButtonProps: {
         status: 'danger',
       },
-      cancelButtonProps: {
-        disabled: modalLoading.value,
-      },
-      okLoading: modalLoading.value,
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          modalLoading.value = true;
           await toggleUserStatus({
             userIdList,
             enable: false,
           });
           Message.success(t('system.user.disableUserSuccess'));
           loadList();
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
-        } finally {
-          modalLoading.value = false;
         }
       },
       hideCancel: false,
@@ -405,26 +394,17 @@
       content: t('system.user.enableUserContent'),
       okText: t('system.user.enableUserConfirm'),
       cancelText: t('system.user.enableUserCancel'),
-      cancelButtonProps: {
-        disabled: modalLoading.value,
-      },
-      okLoading: modalLoading.value,
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          modalLoading.value = true;
           await toggleUserStatus({
             userIdList,
             enable: true,
           });
           Message.success(t('system.user.enableUserSuccess'));
           loadList();
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
-        } finally {
-          modalLoading.value = false;
         }
       },
       hideCancel: false,
@@ -450,25 +430,16 @@
       okButtonProps: {
         status: 'danger',
       },
-      cancelButtonProps: {
-        disabled: modalLoading.value,
-      },
-      okLoading: modalLoading.value,
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          modalLoading.value = true;
           await deleteUserInfo({
             userIdList,
           });
           Message.success(t('system.user.deleteUserSuccess'));
           loadList();
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
-        } finally {
-          modalLoading.value = false;
         }
       },
       hideCancel: false,

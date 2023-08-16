@@ -184,23 +184,14 @@
       okButtonProps: {
         status: 'danger',
       },
-      cancelButtonProps: {
-        disabled: disableLoading.value,
-      },
-      okLoading: disableLoading.value,
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          disableLoading.value = true;
           await togglePoolStatus(record.id);
           Message.success(t('system.resourcePool.disablePoolSuccess'));
           loadList();
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
-        } finally {
-          disableLoading.value = false;
         }
       },
       hideCancel: false,
@@ -221,23 +212,14 @@
       okButtonProps: {
         status: 'danger',
       },
-      cancelButtonProps: {
-        disabled: delLoading.value,
-      },
       maskClosable: false,
-      okLoading: delLoading.value,
       onBeforeOk: async () => {
         try {
-          delLoading.value = true;
           await delPoolInfo(record.id);
           Message.success(t('system.resourcePool.deletePoolSuccess'));
           loadList();
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
-        } finally {
-          delLoading.value = false;
         }
       },
       hideCancel: false,
