@@ -17,7 +17,13 @@
                   :key="index"
                   class="ms-api-header-select"
                   style="width: 180px"
-                  :readonly="!hasPermissions('PROJECT_API_DEFINITION:READ+EDIT_CASE', 'PROJECT_API_DEFINITION:READ+CREATE_CASE', 'PROJECT_API_DEFINITION:READ+COPY_CASE')"
+                  :readonly="
+                    !hasPermissions(
+                      'PROJECT_API_DEFINITION:READ+EDIT_CASE',
+                      'PROJECT_API_DEFINITION:READ+CREATE_CASE',
+                      'PROJECT_API_DEFINITION:READ+COPY_CASE'
+                    )
+                  "
                   :placeholder="$t('commons.input_name')"
                   ref="nameEdit" />
                 <span v-else>
@@ -272,7 +278,7 @@ import {
   _getBodyUploadFiles,
   hisDataProcessing,
   mergeRequestDocumentData,
-  stepCompute
+  stepCompute,
 } from '@/business/definition/api-definition';
 import { API_METHOD_COLOUR, API_STATUS, PRIORITY } from '../../model/JsonData';
 import MsTag from 'metersphere-frontend/src/components/MsTag';
@@ -284,7 +290,7 @@ import MsSqlBasisParameters from '../request/database/BasisParameters';
 import TcpFormatParameters from '@/business/definition/components/request/tcp/TcpFormatParameters';
 import MsDubboBasisParameters from '../request/dubbo/BasisParameters';
 import MsApiExtendBtns from '../reference/ApiExtendBtns';
-import MsInputTag from 'metersphere-frontend/src/components/MsInputTag';
+import MsInputTag from './MsInputEllipsisTag.vue';
 import MsRequestResultTail from '../response/RequestResultTail';
 import ApiResponseComponent from '../../../automation/scenario/component/ApiResponseComponent';
 import ShowMoreBtn from '@/business/commons/ShowMoreBtn';
@@ -293,7 +299,7 @@ import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import ApiCaseHeader from './ApiCaseHeader';
 import { deepClone } from 'metersphere-frontend/src/utils/tableUtils';
 import { useApiStore } from '@/store';
-import {Body, KeyValue} from "@/business/definition/model/ApiTestModel";
+import { Body, KeyValue } from '@/business/definition/model/ApiTestModel';
 
 const store = useApiStore();
 export default {
@@ -411,11 +417,15 @@ export default {
         this.apiCase.request.hashTree[index].document.nodeType = 'Case';
         this.apiCase.request.hashTree[index].document.apiDefinitionId = this.apiCase.apiDefinitionId;
       }
-      this.apiCase.request.hashTree.forEach(item =>{
+      this.apiCase.request.hashTree.forEach((item) => {
         item.projectId = this.apiCase.projectId;
-      })
+      });
     }
-    this.readonly = !hasPermissions('PROJECT_API_DEFINITION:READ+EDIT_CASE', 'PROJECT_API_DEFINITION:READ+CREATE_CASE', 'PROJECT_API_DEFINITION:READ+COPY_CASE');
+    this.readonly = !hasPermissions(
+      'PROJECT_API_DEFINITION:READ+EDIT_CASE',
+      'PROJECT_API_DEFINITION:READ+CREATE_CASE',
+      'PROJECT_API_DEFINITION:READ+COPY_CASE'
+    );
     if (this.apiCase && this.apiCase.id) {
       this.showFollow = false;
       getApiCaseFollow(this.apiCase.id).then((response) => {
@@ -466,7 +476,7 @@ export default {
         if (v1) {
           this.saveStatus();
         }
-      }
+      },
     },
     'apiCase.request': {
       handler(v) {
@@ -475,7 +485,7 @@ export default {
           this.saveStatus();
         }
       },
-      deep: true
+      deep: true,
     },
     'caseSyncRuleRelation.showUpdateRule': {
       handler(v) {
@@ -1026,7 +1036,7 @@ export default {
 
 .tag-item {
   margin-right: 20px;
-  width: 900px;
+  width: 800px;
   position: relative;
   z-index: 100;
 }
