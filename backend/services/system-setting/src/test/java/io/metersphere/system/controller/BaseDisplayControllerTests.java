@@ -20,7 +20,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -123,6 +123,6 @@ public class BaseDisplayControllerTests extends BaseTest {
         return mockMvc.perform(MockMvcRequestBuilders.get(url)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andDo(print()).andReturn();
+                .andReturn();
     }
 }

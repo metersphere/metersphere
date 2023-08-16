@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -79,7 +79,7 @@ public class BugControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 // 检查数据
                 .andExpect(jsonPath("$.data.title").value("test"))
-                .andDo(print());
+                ;
 
         // 缺陷已存在校验
         mockMvc.perform(
@@ -94,7 +94,7 @@ public class BugControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 // 检查业务状态码
                 .andExpect(jsonPath("$.code").value(108001))
-                .andDo(print());
+                ;
     }
 
     @Test

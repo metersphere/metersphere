@@ -33,7 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -165,7 +165,7 @@ public class AuthSourceControllerTests extends BaseTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
+                
                 .andReturn();
     }
 
@@ -173,7 +173,7 @@ public class AuthSourceControllerTests extends BaseTest {
         return mockMvc.perform(MockMvcRequestBuilders.get(url)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk()).andDo(print()).andReturn();
+                .andExpect(status().isOk()).andReturn();
     }
 
     private List<AuthSourceRequest> getAuthSourceList() throws Exception {
@@ -194,7 +194,7 @@ public class AuthSourceControllerTests extends BaseTest {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(param))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(resultMatcher).andDo(print())
+                .andExpect(resultMatcher)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
