@@ -15,4 +15,19 @@ export enum TableKeyEnum {
   ORGANNATIONMEMBER = 'member',
   SYSTEM_ORGANIZATION = 'systemOrganization',
   SYSTEM_PROJECT = 'systemProject',
+  SYSTEM_LOG = 'systemLog',
+}
+
+// 具有特殊功能的列
+export enum SpecialColumnEnum {
+  // 编辑列
+  NAME = 'name',
+  // 状态列
+  ENABLE = 'enable',
+}
+
+export enum SelectAllEnum {
+  ALL = 'all',
+  CURRENT = 'current',
+  NONE = 'none',
 }

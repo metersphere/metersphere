@@ -21,14 +21,18 @@ export interface MsTableColumnData extends TableColumnData {
 }
 
 export type MsTableErrorStatus = boolean | 'error' | 'empty';
+export type MsTableDataItem<T> = T & {
+  updateTime?: string | number | null;
+  createTime?: string | number | null;
+} & TableData;
 // 表格属性
-export interface MsTableProps {
+export interface MsTableProps<T> {
+  // 表格数据 - 详见 TableData  https://arco.design/web-vue/components/table-data;
+  data: MsTableDataItem<T>[];
   // 表格key, 用于存储表格列配置
   tableKey: string;
   // 表格列 - 详见 TableColumn  https://arco.design/web-vue/components/table-column;
   columns: MsTableColumnData[];
-  // 表格数据 - 详见 TableData  https://arco.design/web-vue/components/table-data;
-  data: TableData[];
   // 表格尺寸
   size?: 'mini' | 'small' | 'default' | 'large';
   // 表格是否可滚动
@@ -83,16 +87,9 @@ export interface MsTableSelectAll {
   type: 'all' | 'page';
 }
 
-export type MsTableData = TableData[];
+// export type MsTableData = TableData[];
 export type MsTableColumn = MsTableColumnData[];
 export type MSTableChangeExtra = TableChangeExtra;
-
-// eslint-disable-next-line no-shadow
-export enum SelectAllEnum {
-  ALL = 'all',
-  CURRENT = 'current',
-  NONE = 'none',
-}
 
 export interface SortItem {
   [key: string]: string;
@@ -111,13 +108,4 @@ export interface BatchActionConfig {
 
 export interface renamePopconfirmVisibleType {
   [key: string]: boolean;
-}
-
-// 具有特殊功能的列
-// eslint-disable-next-line no-shadow
-export enum SpecialColumnEnum {
-  // 编辑列
-  NAME = 'name',
-  // 状态列
-  ENABLE = 'enable',
 }

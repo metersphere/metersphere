@@ -14,8 +14,8 @@ import {
   AddAuthUrl,
   DeleteAuthUrl,
 } from '@/api/requrls/setting/config';
-import { TableQueryParams } from '@/models/common';
 
+import type { CommonList, TableQueryParams } from '@/models/common';
 import type {
   SaveInfoParams,
   TestEmailParams,
@@ -65,7 +65,7 @@ export function getPageConfig() {
 
 // 获取认证源列表
 export function getAuthList(data: TableQueryParams) {
-  return MSR.post<AuthItem[]>({ url: GetAuthListUrl, data });
+  return MSR.post<CommonList<AuthItem>>({ url: GetAuthListUrl, data });
 }
 
 // 获取认证源详情

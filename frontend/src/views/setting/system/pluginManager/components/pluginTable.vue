@@ -244,7 +244,7 @@
   };
   function deletePlugin(record: any) {
     openModal({
-      type: 'warning',
+      type: 'error',
       title: t('system.plugin.deletePluginTip', { name: characterLimit(record.name) }),
       content: t('system.plugin.deleteContentTip'),
       okText: t('system.plugin.deletePluginConfirm'),

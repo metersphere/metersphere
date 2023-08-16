@@ -21,11 +21,11 @@ import type {
   ImportResult,
   BatchAddUserGroupParams,
 } from '@/models/setting/user';
-import type { TableQueryParams } from '@/models/common';
+import type { CommonList, TableQueryParams } from '@/models/common';
 
 // 获取用户列表
 export function getUserList(data: TableQueryParams) {
-  return MSR.post<UserListItem[]>({ url: GetUserListUrl, data });
+  return MSR.post<CommonList<UserListItem>>({ url: GetUserListUrl, data });
 }
 
 // 批量创建用户
