@@ -12,7 +12,6 @@ import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ConditionType;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.constants.RunModeConstants;
 import io.metersphere.environment.ssl.MsKeyStore;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
@@ -206,24 +205,11 @@ public class ParameterConfig extends MsParameter {
         }
 
         // 数据兼容处理
-        if (this.getConfig() != null && StringUtils.isNotEmpty(samplerProxy.getProjectId()) && this.getConfig().containsKey(samplerProxy.getProjectId())) {
-            // 1.8 之后 当前正常数据
-        } else if (this.getConfig() != null && this.getConfig().containsKey(getParentProjectId(samplerProxy))) {
+      if (StringUtils.isBlank(samplerProxy.getProjectId())
+              && this.getConfig() != null
+              && this.getConfig().containsKey(getParentProjectId(samplerProxy))) {
             // 1.8 前后 混合数据
             samplerProxy.setProjectId(getParentProjectId(samplerProxy));
-        } else {
-            // 1.8 之前 数据
-            if (this.getConfig() != null) {
-                if (!this.getConfig().containsKey(RunModeConstants.HIS_PRO_ID.toString())) {
-                    // 测试计划执行
-                    Iterator<String> it = this.getConfig().keySet().iterator();
-                    if (it.hasNext()) {
-                        samplerProxy.setProjectId(it.next());
-                    }
-                } else {
-                    samplerProxy.setProjectId(RunModeConstants.HIS_PRO_ID.toString());
-                }
-            }
         }
     }
 
