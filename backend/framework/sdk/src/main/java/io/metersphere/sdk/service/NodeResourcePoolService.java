@@ -50,7 +50,7 @@ public class NodeResourcePoolService {
             }
             if (!usedApiType) {
                 if (StringUtils.isBlank(testResourceNodeDTO.getMonitor())) {
-                    throw new MSException(Translator.get("monitor_number_is_null"));
+                    throw new MSException(Translator.get("monitor_is_null"));
                 }
             }
             isValid = validateNode(testResourceNodeDTO);
