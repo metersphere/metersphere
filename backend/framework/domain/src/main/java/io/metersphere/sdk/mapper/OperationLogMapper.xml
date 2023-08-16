@@ -8,6 +8,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
+    <result column="batch_id" jdbcType="VARCHAR" property="batchId" />
     <result column="method" jdbcType="VARCHAR" property="method" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="module" jdbcType="VARCHAR" property="module" />
@@ -73,8 +74,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, organization_id, create_time, create_user, source_id, `method`, `type`, 
-    `module`, content, `path`
+    id, project_id, organization_id, create_time, create_user, source_id, batch_id, `method`, 
+    `type`, `module`, content, `path`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.sdk.domain.OperationLogExample" resultMap="BaseResultMap">
     select
@@ -109,12 +110,14 @@
   <insert id="insert" parameterType="io.metersphere.sdk.domain.OperationLog">
     insert into operation_log (id, project_id, organization_id, 
       create_time, create_user, source_id, 
-      `method`, `type`, `module`, 
-      content, `path`)
+      batch_id, `method`, `type`, 
+      `module`, content, `path`
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, 
-      #{method,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{module,jdbcType=VARCHAR}, 
-      #{content,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR})
+      #{batchId,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+      #{module,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.OperationLog">
     insert into operation_log
@@ -136,6 +139,9 @@
       </if>
       <if test="sourceId != null">
         source_id,
+      </if>
+      <if test="batchId != null">
+        batch_id,
       </if>
       <if test="method != null">
         `method`,
@@ -171,6 +177,9 @@
       </if>
       <if test="sourceId != null">
         #{sourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="batchId != null">
+        #{batchId,jdbcType=VARCHAR},
       </if>
       <if test="method != null">
         #{method,jdbcType=VARCHAR},
@@ -216,6 +225,9 @@
       <if test="record.sourceId != null">
         source_id = #{record.sourceId,jdbcType=VARCHAR},
       </if>
+      <if test="record.batchId != null">
+        batch_id = #{record.batchId,jdbcType=VARCHAR},
+      </if>
       <if test="record.method != null">
         `method` = #{record.method,jdbcType=VARCHAR},
       </if>
@@ -244,6 +256,7 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       source_id = #{record.sourceId,jdbcType=VARCHAR},
+      batch_id = #{record.batchId,jdbcType=VARCHAR},
       `method` = #{record.method,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       `module` = #{record.module,jdbcType=VARCHAR},
@@ -271,6 +284,9 @@
       <if test="sourceId != null">
         source_id = #{sourceId,jdbcType=VARCHAR},
       </if>
+      <if test="batchId != null">
+        batch_id = #{batchId,jdbcType=VARCHAR},
+      </if>
       <if test="method != null">
         `method` = #{method,jdbcType=VARCHAR},
       </if>
@@ -296,6 +312,7 @@
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       source_id = #{sourceId,jdbcType=VARCHAR},
+      batch_id = #{batchId,jdbcType=VARCHAR},
       `method` = #{method,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       `module` = #{module,jdbcType=VARCHAR},
@@ -303,4 +320,67 @@
       `path` = #{path,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into operation_log
+    (id, project_id, organization_id, create_time, create_user, source_id, batch_id, 
+      `method`, `type`, `module`, content, `path`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.sourceId,jdbcType=VARCHAR}, 
+        #{item.batchId,jdbcType=VARCHAR}, #{item.method,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
+        #{item.module,jdbcType=VARCHAR}, #{item.content,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into operation_log (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'organization_id'.toString() == column.value">
+          #{item.organizationId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'source_id'.toString() == column.value">
+          #{item.sourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'batch_id'.toString() == column.value">
+          #{item.batchId,jdbcType=VARCHAR}
+        </if>
+        <if test="'method'.toString() == column.value">
+          #{item.method,jdbcType=VARCHAR}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+        <if test="'module'.toString() == column.value">
+          #{item.module,jdbcType=VARCHAR}
+        </if>
+        <if test="'content'.toString() == column.value">
+          #{item.content,jdbcType=VARCHAR}
+        </if>
+        <if test="'path'.toString() == column.value">
+          #{item.path,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>
