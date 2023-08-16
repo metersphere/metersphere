@@ -990,6 +990,7 @@ public class ApiScenarioService {
             if (scenario == null) {
                 return null;
             }
+            config.setConfig(GenerateHashTreeUtil.getEnv(scenario.getEnvironmentMap()));
             scenario.setId(apiScenario.getId());
             GenerateHashTreeUtil.parse(apiScenario.getScenarioDefinition(), scenario);
             String environmentType = apiScenario.getEnvironmentType();

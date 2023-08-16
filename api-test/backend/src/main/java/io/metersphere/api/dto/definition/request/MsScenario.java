@@ -266,19 +266,4 @@ public class MsScenario extends MsTestElement {
             }
         }
     }
-
-    private void setEnv(Map<String, String> environmentMap, Map<String, EnvironmentConfig> envConfig) {
-        for (String projectId : environmentMap.keySet()) {
-            BaseEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
-            ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(environmentMap.get(projectId));
-            if (environment != null && StringUtils.isNotEmpty(environment.getConfig())) {
-                EnvironmentConfig env = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                env.setEnvironmentId(environment.getId());
-                envConfig.put(projectId, env);
-                if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
-                    this.setMockEnvironment(true);
-                }
-            }
-        }
-    }
 }
