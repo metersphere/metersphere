@@ -3,11 +3,12 @@
 
 import { ref } from 'vue';
 import dayjs from 'dayjs';
-import { TableQueryParams } from '@/models/common';
 import { useAppStore } from '@/store';
+import { SpecialColumnEnum } from '@/enums/tableEnum';
 
 import type { TableData } from '@arco-design/web-vue';
-import { type MsTableProps, type MsTableData, type MsTableColumn, SpecialColumnEnum, MsTableErrorStatus } from './type';
+import type { TableQueryParams, CommonList } from '@/models/common';
+import type { MsTableProps, MsTableDataItem, MsTableColumn, MsTableErrorStatus } from './type';
 
 export interface Pagination {
   current: number;
@@ -16,13 +17,13 @@ export interface Pagination {
 }
 
 const appStore = useAppStore();
-export default function useTableProps(
-  loadListFunc: (v: TableQueryParams) => Promise<any>,
-  props?: Partial<MsTableProps>,
+export default function useTableProps<T>(
+  loadListFunc: (v: TableQueryParams) => Promise<CommonList<MsTableDataItem<T>>>,
+  props?: Partial<MsTableProps<T>>,
   // 数据处理的回调函数
-  dataTransform?: (item: TableData) => TableData,
+  dataTransform?: (item: T) => TableData & T,
   // 编辑操作的保存回调函数
-  saveCallBack?: (item: TableData) => Promise<any>
+  saveCallBack?: (item: T) => Promise<any>
 ) {
   // 行选择
   const rowSelection = {
@@ -30,7 +31,7 @@ export default function useTableProps(
     showCheckedAll: false,
   };
 
-  const defaultProps: MsTableProps = {
+  const defaultProps: MsTableProps<T> = {
     tableKey: '',
     bordered: true,
     showPagination: true,
@@ -38,7 +39,7 @@ export default function useTableProps(
     scroll: { maxHeight: '600px', x: '1400px' },
     checkable: true,
     loading: false,
-    data: [] as MsTableData,
+    data: [],
     columns: [] as MsTableColumn,
     rowKey: 'id',
     selectedKeys: [],
@@ -59,7 +60,7 @@ export default function useTableProps(
   };
 
   // 属性组
-  const propsRes = ref(defaultProps);
+  const propsRes = ref<MsTableProps<T>>(defaultProps);
   const oldPagination = ref<Pagination>({
     current: 1,
     pageSize: appStore.pageSize,
@@ -135,7 +136,7 @@ export default function useTableProps(
   };
 
   // 单独设置默认属性
-  const setProps = (params: Partial<MsTableProps>) => {
+  const setProps = (params: Partial<MsTableProps<T>>) => {
     const tmpProps = propsRes.value;
     Object.keys(params).forEach((key) => {
       tmpProps[key] = params[key];
@@ -166,8 +167,8 @@ export default function useTableProps(
         keyword: keyword.value,
         ...loadListParams.value,
       });
-      const tmpArr = data.list as unknown as MsTableData;
-      propsRes.value.data = tmpArr.map((item: TableData) => {
+      const tmpArr = data.list;
+      (propsRes.value.data as MsTableDataItem<T>[]) = tmpArr.map((item) => {
         if (item.updateTime) {
           item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
         }
@@ -243,14 +244,13 @@ export default function useTableProps(
       }
       propsRes.value.selectedKeys = arr;
     },
-    change: (_data: MsTableData) => {
+    change: (_data: MsTableDataItem<T>[]) => {
       if (propsRes.value.draggable && _data instanceof Array) {
-        // eslint-disable-next-line vue/require-explicit-emits
-        propsRes.value.data = _data;
+        (propsRes.value.data as MsTableDataItem<T>[]) = _data;
       }
     },
     // 编辑触发
-    rowNameChange: (record: TableData) => {
+    rowNameChange: (record: T) => {
       if (saveCallBack) {
         saveCallBack(record);
       }

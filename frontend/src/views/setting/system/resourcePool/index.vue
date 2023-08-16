@@ -180,9 +180,6 @@
       content: t('system.resourcePool.disablePoolContent'),
       okText: t('system.resourcePool.disablePoolConfirm'),
       cancelText: t('system.resourcePool.disablePoolCancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
       maskClosable: false,
       onBeforeOk: async () => {
         try {
@@ -202,7 +199,7 @@
    */
   function deletePool(record: any) {
     openModal({
-      type: 'warning',
+      type: 'error',
       title: t('system.resourcePool.deletePoolTip', { name: characterLimit(record.name) }),
       content: t('system.resourcePool.deletePoolContentUsed'),
       okText: t('system.resourcePool.deletePoolConfirm'),

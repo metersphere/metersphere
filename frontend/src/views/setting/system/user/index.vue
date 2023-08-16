@@ -357,9 +357,6 @@
       content: t('system.user.disableUserContent'),
       okText: t('system.user.disableUserConfirm'),
       cancelText: t('system.user.disableUserCancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
       maskClosable: false,
       onBeforeOk: async () => {
         try {
@@ -421,7 +418,7 @@
       userIdList = tableSelected.value as string[];
     }
     openModal({
-      type: 'warning',
+      type: 'error',
       title,
       content: t('system.user.deleteUserContent'),
       okText: t('system.user.deleteUserConfirm'),

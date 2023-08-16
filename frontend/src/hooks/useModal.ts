@@ -34,7 +34,7 @@ export default function useModal() {
     openModal: (options: ModalOptions) => {
       const okHandlerLoading = ref<boolean>(false);
       // error 使用 warning的感叹号图标
-      Modal[options.type === 'error' ? 'warning' : options.type]({
+      Modal[options.type]({
         // 默认设置按钮属性，也可通过options传入覆盖
         okButtonProps: {
           type: options.mode === 'weak' ? 'text' : 'primary',

@@ -112,20 +112,14 @@
   import { useAttrs, computed, ref, onMounted } from 'vue';
   import { useAppStore, useTableStore } from '@/store';
   import selectAll from './select-all.vue';
-  import {
-    MsTableProps,
-    SelectAllEnum,
-    MsPaginationI,
-    BatchActionParams,
-    BatchActionConfig,
-    MsTableColumn,
-    SpecialColumnEnum,
-  } from './type';
+  import { SpecialColumnEnum, SelectAllEnum } from '@/enums/tableEnum';
   import BatchAction from './batchAction.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
-  import type { TableData } from '@arco-design/web-vue';
   import ColumnSelector from './columnSelector.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+
+  import type { MsTableProps, MsPaginationI, BatchActionParams, BatchActionConfig, MsTableColumn } from './type';
+  import type { TableData } from '@arco-design/web-vue';
 
   const batchleft = ref('10px');
   const { t } = useI18n();
@@ -157,10 +151,10 @@
   const editActiveKey = ref(-1);
   // 编辑input的Ref
   const currentInputRef = ref(null);
-  const { rowKey, editKey }: Partial<MsTableProps> = attrs;
+  const { rowKey, editKey }: Partial<MsTableProps<any>> = attrs;
 
   const setSelectAllTotal = (isAll: boolean) => {
-    const { data, msPagination }: Partial<MsTableProps> = attrs;
+    const { data, msPagination }: Partial<MsTableProps<any>> = attrs;
     if (isAll) {
       selectTotal.value = msPagination?.total || data?.length || appStore.pageSize;
     } else {
@@ -188,7 +182,7 @@
 
   // 全选change事件
   const handleChange = (v: string) => {
-    const { data, msPagination }: Partial<MsTableProps> = attrs;
+    const { data, msPagination }: Partial<MsTableProps<any>> = attrs;
     isSelectAll.value = v === SelectAllEnum.ALL;
     if (v === SelectAllEnum.NONE) {
       selectionChange([], true);

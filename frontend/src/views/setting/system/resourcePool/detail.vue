@@ -227,11 +227,11 @@
           :rules="[{ required: true, message: t('system.resourcePool.testResourceDTO.tokenRequired') }]"
           asterisk-position="end"
         >
-          <a-input
+          <a-input-password
             v-model:model-value="form.testResourceDTO.token"
             :placeholder="t('system.resourcePool.testResourceDTO.tokenPlaceholder')"
             :max-length="250"
-          ></a-input>
+          ></a-input-password>
         </a-form-item>
         <a-form-item
           :label="t('system.resourcePool.testResourceDTO.nameSpaces')"
@@ -258,6 +258,7 @@
           </a-tooltip>
         </a-form-item>
         <a-form-item
+          v-if="isCheckedAPI"
           :label="t('system.resourcePool.testResourceDTO.deployName')"
           field="testResourceDTO.deployName"
           class="form-item"
@@ -691,7 +692,7 @@
             nameSpaces,
             concurrentNumber,
             podThreads,
-            deployName,
+            deployName: isCheckedAPI.value ? deployName : null, // 勾选了接口测试才需要传
           }
         : {};
     // 性能测试资源

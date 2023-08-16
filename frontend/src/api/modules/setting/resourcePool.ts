@@ -15,11 +15,11 @@ import type {
   UpdateResourcePoolParams,
   ResourcePoolDetail,
 } from '@/models/setting/resourcePool';
-import type { TableQueryParams } from '@/models/common';
+import type { CommonList, TableQueryParams } from '@/models/common';
 
 // 获取资源池列表
 export function getPoolList(data: TableQueryParams) {
-  return MSR.post<ResourcePoolItem[]>({ url: PoolListUrl, data });
+  return MSR.post<CommonList<ResourcePoolItem>>({ url: PoolListUrl, data });
 }
 
 // 更新资源池信息

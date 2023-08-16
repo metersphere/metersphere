@@ -14,7 +14,7 @@
 <script lang="ts" setup>
   import { ref, watchEffect } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { SelectAllEnum } from './type';
+  import { SelectAllEnum } from '@/enums/tableEnum';
   import MsIcon from '../ms-icon-font/index.vue';
 
   const { t } = useI18n();

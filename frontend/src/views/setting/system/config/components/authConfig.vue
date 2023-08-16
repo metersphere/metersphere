@@ -630,7 +630,7 @@
    */
   function delAuth(record: any) {
     openModal({
-      type: 'warning',
+      type: 'error',
       title: t('system.config.auth.deleteTipTitle', { name: characterLimit(record.name) }),
       content: t('system.config.auth.deleteTipContent'),
       okText: t('system.config.auth.deleteConfirm'),

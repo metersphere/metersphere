@@ -154,7 +154,7 @@
       }
     } else {
       openModal({
-        type: 'warning',
+        type: 'error',
         title: t('system.userGroup.isDeleteUserGroup', { name: characterLimit(store.currentName) }),
         content: t('system.userGroup.beforeDeleteUserGroup'),
         okText: t('system.userGroup.confirmDelete'),

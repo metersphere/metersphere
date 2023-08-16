@@ -10,11 +10,11 @@ import {
   getUserList,
   getProjectListUrl,
 } from '@/api/requrls/setting/member';
-import type { MemberList, AddorUpdateMemberModel, BatchAddProjectModel, LinkItem } from '@/models/setting/member';
-import type { TableQueryParams } from '@/models/common';
+import type { MemberItem, AddorUpdateMemberModel, BatchAddProjectModel, LinkItem } from '@/models/setting/member';
+import type { TableQueryParams, CommonList } from '@/models/common';
 // 获取成员列表
 export function getMemberList(data: TableQueryParams) {
-  return MSR.post<MemberList>({ url: GetMemberListUrl, data });
+  return MSR.post<CommonList<MemberItem>>({ url: GetMemberListUrl, data });
 }
 // 添加成员
 export function addOrUpdate(data: AddorUpdateMemberModel, type: string) {
