@@ -64,15 +64,12 @@ import org.apache.jmeter.protocol.jdbc.AbstractJDBCTestElement;
 import org.apache.jmeter.protocol.jdbc.config.DataSourceElement;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.testelement.TestPlan;
-import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jorphan.collections.HashTree;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -236,22 +233,6 @@ public class ElementUtil {
         return getFullIndexPath(element.getParent(), path);
     }
 
-    public static boolean isURL(String str) {
-        try {
-            if (StringUtils.isEmpty(str)) {
-                return false;
-            }
-            new URL(str);
-            return true;
-        } catch (Exception e) {
-            // 支持包含变量的url
-            if (str.matches("^(http|https|ftp)://.*$") && str.matches(".*://\\$\\{.*$")) {
-                return true;
-            }
-            return false;
-        }
-    }
-
     public static <T> List<T> findFromHashTreeByType(MsTestElement hashTree, Class<T> clazz, List<T> requests) {
         if (requests == null) {
             requests = new ArrayList<>();
@@ -410,19 +391,17 @@ public class ElementUtil {
         }
         MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(element.toString(), MsHTTPSamplerProxy.class);
         ParameterConfig config = (ParameterConfig) msParameter;
-        if (httpSamplerProxy != null &&
-                (!httpSamplerProxy.isCustomizeReq() || (httpSamplerProxy.isCustomizeReq()
-                        && BooleanUtils.isTrue(httpSamplerProxy.getIsRefEnvironment()))) && MapUtils.isNotEmpty(config.getConfig())) {
-            if (element != null && element.has(ElementConstants.HASH_TREE)) {
-                httpSamplerProxy.setHashTree(JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE)));
-            }
+        if (httpSamplerProxy != null
+                && (!httpSamplerProxy.isCustomizeReq() || BooleanUtils.isTrue(httpSamplerProxy.getIsRefEnvironment()))
+                && MapUtils.isNotEmpty(config.getConfig())) {
             try {
-                HashTree tmpHashTree = new HashTree();
-                httpSamplerProxy.toHashTree(tmpHashTree, null, msParameter);
-                if (tmpHashTree != null && tmpHashTree.getArray().length > 0) {
-                    HTTPSamplerProxy object = (HTTPSamplerProxy) tmpHashTree.getArray()[0];
-                    // 清空Domain
-                    element.put("domain", "");
+                if (element.has(ElementConstants.HASH_TREE)) {
+                    httpSamplerProxy.setHashTree(JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE)));
+                }
+                HashTree testPlan = new HashTree();
+                httpSamplerProxy.toHashTree(testPlan, null, msParameter);
+                if (testPlan.getArray().length > 0) {
+                    HTTPSamplerProxy object = (HTTPSamplerProxy) testPlan.getArray()[0];
                     if (object != null && StringUtils.isNotEmpty(object.getDomain())) {
                         element.put("domain", StringUtils.isNotEmpty(object.getProtocol()) ?
                                 object.getProtocol() + "://" + object.getDomain() : object.getDomain());
@@ -644,30 +623,6 @@ public class ElementUtil {
     public static void setBaseParams(TestElement sampler, MsTestElement parent, ParameterConfig config, String id, String indexPath) {
         sampler.setProperty("MS-ID", id);
         sampler.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(id, config, parent, indexPath));
-    }
-
-    public static void accuracyHashTree(HashTree hashTree) {
-        Map<Object, HashTree> objects = new LinkedHashMap<>();
-        Object groupHashTree = hashTree;
-        if (hashTree != null && hashTree.size() > 0) {
-            for (Object key : hashTree.keySet()) {
-                if (key instanceof TestPlan) {
-                    for (Object node : hashTree.get(key).keySet()) {
-                        if (node instanceof ThreadGroup) {
-                            groupHashTree = hashTree.get(key).get(node);
-                        }
-                    }
-                } else {
-                    objects.put(key, hashTree.get(key));
-                }
-            }
-        }
-        if (!objects.isEmpty() && groupHashTree instanceof HashTree) {
-            for (Object key : objects.keySet()) {
-                hashTree.remove(key);
-                ((HashTree) groupHashTree).add(key, objects.get(key));
-            }
-        }
     }
 
     private static final List<String> preOperates = new ArrayList<String>() {{
