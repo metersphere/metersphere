@@ -3,9 +3,9 @@ package io.metersphere.service.plan;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiCaseRelevanceRequest;
+import io.metersphere.api.dto.EnvironmentCheckDTO;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.RelevanceScenarioRequest;
-import io.metersphere.api.dto.EnvironmentCheckDTO;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.plan.*;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
@@ -240,7 +240,11 @@ public class TestPlanScenarioCaseService {
                 EnvironmentCheckDTO scenarioEnv = apiAutomationService.getApiScenarioProjectId(id);
                 list = new ArrayList<>(scenarioEnv.getProjectIds());
             }
-            list.forEach(l -> newEnvMap.put(l, envMap == null ? StringUtils.EMPTY : envMap.getOrDefault(l, StringUtils.EMPTY)));
+            for (String s : list) {
+                if (envMap != null && StringUtils.isNotEmpty(envMap.get(s))) {
+                    newEnvMap.put(s, envMap.get(s));
+                }
+            }
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(UUID.randomUUID().toString());
             testPlanApiScenario.setCreateUser(SessionUtils.getUserId());
@@ -304,17 +308,6 @@ public class TestPlanScenarioCaseService {
         testPlanScenarioRequest.setPlanCaseIds(planCaseIdList);
         if (CollectionUtils.isEmpty(planCaseIdList)) {
             MSException.throwException("未找到执行场景！");
-        }
-        RunModeConfigDTO config = testPlanScenarioRequest.getConfig();
-        if (config != null) {
-            String envType = config.getEnvironmentType();
-            String envGroupId = config.getEnvironmentGroupId();
-            Map<String, String> envMap = config.getEnvMap();
-            if ((StringUtils.equals(envType, EnvironmentType.JSON.toString()) && envMap != null && !envMap.isEmpty())
-                    || (StringUtils.equals(envType, EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(envGroupId))) {
-                // 更新场景用例环境信息，运行时从数据库读取最新环境
-                this.setScenarioEnv(new ArrayList<>(), planCaseIdList, testPlanScenarioRequest.getConfig());
-            }
         }
         jMeterService.verifyPool(testPlanScenarioRequest.getProjectId(), testPlanScenarioRequest.getConfig());
 

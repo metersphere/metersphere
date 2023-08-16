@@ -108,8 +108,8 @@ public class ApiCaseExecuteService {
         List<String> apiCaseIds = planApiCases.stream().map(TestPlanApiCaseInfoDTO::getApiCaseId).collect(Collectors.toList());
         ApiTestCaseExample caseExample = new ApiTestCaseExample();
         caseExample.createCriteria().andIdIn(apiCaseIds);
-        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(caseExample);
-        Map<String, ApiTestCase> caseMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getId, a -> a, (k1, k2) -> k1));
+        List<ApiTestCaseWithBLOBs> apiTestCases = apiTestCaseMapper.selectByExampleWithBLOBs(caseExample);
+        Map<String, ApiTestCaseWithBLOBs> caseMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getId, a -> a, (k1, k2) -> k1));
         // 资源池
         String resourcePoolId = null;
         if (request.getConfig() != null && GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()).isPool()) {
@@ -120,14 +120,19 @@ public class ApiCaseExecuteService {
                 //处理环境配置为空时的情况
                 RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
                 BeanUtils.copyBean(runModeConfigDTO, request.getConfig());
-                ApiTestCase testCase = caseMap.get(testPlanApiCase.getApiCaseId());
+                ApiTestCaseWithBLOBs testCase = caseMap.get(testPlanApiCase.getApiCaseId());
                 if (testCase == null) {
                     continue;
                 }
                 if (MapUtils.isEmpty(runModeConfigDTO.getEnvMap())) {
-                    runModeConfigDTO.setEnvMap(new HashMap<>() {{
-                        this.put(testCase.getProjectId(), testPlanApiCase.getEnvironmentId());
-                    }});
+                    if (StringUtils.isEmpty(testPlanApiCase.getEnvironmentId())) {
+                        JSONObject jsonObject = new JSONObject(testCase.getRequest());
+                        runModeConfigDTO.setEnvMap(this.getEnvMap(jsonObject, testCase.getProjectId()));
+                    } else {
+                        runModeConfigDTO.setEnvMap(new HashMap<>() {{
+                            this.put(testCase.getProjectId(), testPlanApiCase.getEnvironmentId());
+                        }});
+                    }
                 }
                 ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.addResult(request, runModeConfigDTO, testPlanApiCase, status, testCase, resourcePoolId);
                 executeQueue.put(testPlanApiCase.getId(), report);

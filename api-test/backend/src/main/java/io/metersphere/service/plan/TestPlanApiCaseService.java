@@ -13,6 +13,8 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.plan.AutomationsRunInfoDTO;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
 import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
+import io.metersphere.api.dto.scenario.DatabaseConfig;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.jmeter.JMeterService;
@@ -30,6 +32,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
+import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ResetOrderRequest;
@@ -44,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.json.JSONObject;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -98,6 +102,8 @@ public class TestPlanApiCaseService {
     private ApiCaseResultService apiCaseResultService;
     @Resource
     private RedisTemplateService redisTemplateService;
+    @Resource
+    private BaseEnvironmentService baseEnvironmentService;
 
     public List<TestPlanApiCaseDTO> list(ApiTestCaseRequest request) {
         request.setProjectId(null);
@@ -776,6 +782,36 @@ public class TestPlanApiCaseService {
         return nodeTrees;
     }
 
+    public Map<String, String> getEnvMap(JSONObject request, String projectId) {
+        Map<String, String> projectEnvMap = new HashMap<>();
+        if (!request.has(PropertyConstant.TYPE)) {
+            return projectEnvMap;
+        }
+        if (StringUtils.equals(ElementConstants.HTTP_SAMPLER, request.optString(PropertyConstant.TYPE))) {
+            if (StringUtils.isNotEmpty(request.optString(PropertyConstant.ENVIRONMENT))) {
+                //记录运行环境ID
+                projectEnvMap.put(projectId, request.optString(PropertyConstant.ENVIRONMENT));
+            }
+        }
+        if (StringUtils.equals(ElementConstants.JDBC_SAMPLER, request.optString(PropertyConstant.TYPE))) {
+            if (request.has(PropertyConstant.ENVIRONMENT) && request.has(PropertyConstant.DATASOURCE_ID)) {
+                ApiTestEnvironmentWithBLOBs environment = baseEnvironmentService.get(request.optString(PropertyConstant.ENVIRONMENT));
+                if (environment != null && environment.getConfig() != null) {
+                    EnvironmentConfig envConfig = JSON.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    if (org.apache.commons.collections.CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
+                        for (DatabaseConfig item : envConfig.getDatabaseConfigs()) {
+                            if (StringUtils.equals(item.getId(), request.optString(PropertyConstant.DATASOURCE_ID))) {
+                                //记录运行环境ID
+                                projectEnvMap.put(projectId, request.optString(PropertyConstant.ENVIRONMENT));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return projectEnvMap;
+    }
+
     public void run(String testId, String reportId) {
         TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
         if (testPlanApiCase == null) {
@@ -796,9 +832,12 @@ public class TestPlanApiCaseService {
             runModeConfigDTO.setEnvMap(new HashMap<>() {{
                 this.put(result.getProjectId(), testPlanApiCase.getEnvironmentId());
             }});
-            runModeConfigDTO.setResourcePoolId(runModeConfigDTO.getResourcePoolId());
-            result.setEnvConfig(JSON.toJSONString(runModeConfigDTO));
+        } else {
+            JSONObject jsonObject = new JSONObject(apiCase.getRequest());
+            runModeConfigDTO.setEnvMap(this.getEnvMap(jsonObject, apiCase.getProjectId()));
         }
+        runModeConfigDTO.setResourcePoolId(runModeConfigDTO.getResourcePoolId());
+        result.setEnvConfig(JSON.toJSONString(runModeConfigDTO));
         result.setActuator(runModeConfigDTO.getResourcePoolId());
         apiCaseResultService.batchSave(result);
         apiCase.setId(testId);
