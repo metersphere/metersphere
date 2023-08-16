@@ -1,25 +1,29 @@
 package io.metersphere.service;
 
-import io.metersphere.base.domain.Plugin;
 import io.metersphere.base.domain.PluginExample;
-import io.metersphere.commons.exception.MSException;
-import io.metersphere.i18n.Translator;
-import io.metersphere.platform.api.Platform;
-import io.metersphere.platform.api.PluginMetaInfo;
 import io.metersphere.base.domain.PluginWithBLOBs;
 import io.metersphere.base.domain.ServiceIntegration;
+import io.metersphere.base.domain.User;
 import io.metersphere.base.mapper.PluginMapper;
+import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.constants.PluginScenario;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.platform.domain.*;
 import io.metersphere.dto.PlatformProjectOptionRequest;
+import io.metersphere.i18n.Translator;
+import io.metersphere.platform.api.Platform;
+import io.metersphere.platform.api.PluginMetaInfo;
+import io.metersphere.platform.domain.GetOptionRequest;
+import io.metersphere.platform.domain.PlatformRequest;
+import io.metersphere.platform.domain.SelectOption;
 import io.metersphere.platform.loader.PlatformPluginManager;
 import io.metersphere.request.IntegrationRequest;
 import io.metersphere.utils.PluginManagerUtil;
-import org.apache.commons.collections.CollectionUtils;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -28,8 +32,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,6 +51,8 @@ public class PlatformPluginService {
     private PluginMapper pluginMapper;
     @Resource
     private BaseIntegrationService baseIntegrationService;
+    @Resource
+    private UserMapper userMapper;
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
     @Resource
@@ -184,11 +188,28 @@ public class PlatformPluginService {
 
         PlatformRequest pluginRequest = new PlatformRequest();
         pluginRequest.setIntegrationConfig(serviceIntegration.getConfiguration());
+        pluginRequest.setUserPlatformInfo(getUserPlatformInfo(workspaceId));
         Platform platform = getPluginManager().getPlatformByKey(platformKey, pluginRequest);
         if (platform == null) {
             MSException.throwException(Translator.get("platform_plugin_not_exit") + PLUGIN_DOWNLOAD_URL);
         }
         return platform;
+    }
+
+    private String getUserPlatformInfo(String workspaceId) {
+        try {
+            String userId = SessionUtils.getUserId();
+            if (StringUtils.isBlank(workspaceId) || StringUtils.isBlank(userId)) {
+                return null;
+            }
+            User user = userMapper.selectByPrimaryKey(userId);
+            if (StringUtils.isNotBlank(user.getPlatformInfo())) {
+                return JSON.toJSONString(JSON.parseMap(user.getPlatformInfo()).get(workspaceId));
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return null;
     }
 
     public Map getFrontendMetaDataConfig(PluginWithBLOBs plugin, String configName) {

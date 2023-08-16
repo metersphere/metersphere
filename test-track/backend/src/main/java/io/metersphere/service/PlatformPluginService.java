@@ -1,8 +1,11 @@
 package io.metersphere.service;
 
+import io.metersphere.base.domain.User;
+import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.i18n.Translator;
 import io.metersphere.platform.api.Platform;
 import io.metersphere.platform.api.PluginMetaInfo;
@@ -40,6 +43,8 @@ public class PlatformPluginService {
     private BaseIntegrationService baseIntegrationService;
     @Resource
     private BaseProjectService baseProjectService;
+    @Resource
+    private UserMapper userMapper;
 
     public static final String PLUGIN_DOWNLOAD_URL = "https://github.com/metersphere/metersphere-platform-plugin";
 
@@ -96,11 +101,28 @@ public class PlatformPluginService {
         PlatformRequest pluginRequest = new PlatformRequest();
         pluginRequest.setWorkspaceId(workspaceId);
         pluginRequest.setIntegrationConfig(serviceIntegration.getConfiguration());
+        pluginRequest.setUserPlatformInfo(getUserPlatformInfo(workspaceId));
         Platform platform = getPluginManager().getPlatformByKey(platformKey, pluginRequest);
         if (platform == null) {
             MSException.throwException(Translator.get("platform_plugin_not_exit") + PLUGIN_DOWNLOAD_URL);
         }
         return platform;
+    }
+
+    private String getUserPlatformInfo(String workspaceId) {
+        try {
+            String userId = SessionUtils.getUserId();
+            if (StringUtils.isBlank(workspaceId) || StringUtils.isBlank(userId)) {
+                return null;
+            }
+            User user = userMapper.selectByPrimaryKey(userId);
+            if (StringUtils.isNotBlank(user.getPlatformInfo())) {
+                return JSON.toJSONString(JSON.parseMap(user.getPlatformInfo()).get(workspaceId));
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return null;
     }
 
     public Platform getPlatform(String platformKey) {
