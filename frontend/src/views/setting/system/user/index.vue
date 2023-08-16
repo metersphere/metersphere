@@ -341,7 +341,6 @@
     });
   }
 
-  const modalLoading = ref(false);
   /**
    * 禁用用户
    */
