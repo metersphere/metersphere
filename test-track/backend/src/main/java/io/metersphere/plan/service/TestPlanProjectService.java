@@ -5,12 +5,12 @@ import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanProjectMapper;
 import io.metersphere.plan.request.function.TestCaseRelevanceRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,7 +58,6 @@ public class TestPlanProjectService {
         TestPlanExample testPlanExample = new TestPlanExample();
         testPlanExample.createCriteria().andProjectIdEqualTo(projectId);
         List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
-
         if (CollectionUtils.isEmpty(testPlans)) {
             return null;
         }
