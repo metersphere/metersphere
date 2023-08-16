@@ -238,7 +238,7 @@ import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsBottomContainer from "metersphere-frontend/src/components/MsBottomContainer";
 import BatchEdit from "@/business/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP,} from "metersphere-frontend/src/model/JsonData";
-import {getCurrentProjectID, getCurrentWorkspaceId,} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID,} from "metersphere-frontend/src/utils/token";
 import {hasLicense, hasPermission,} from "metersphere-frontend/src/utils/permission";
 import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
@@ -273,6 +273,7 @@ import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiS
 import {getProjectVersions} from "@/business/utils/sdk-utils";
 import {TEST_PLAN_API_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import MsTestPlanRunModeWithEnv from "@/business/plan/common/TestPlanRunModeWithEnv";
+import {getProject} from "@/api/project";
 
 export default {
   name: "TestPlanApiCaseList",
@@ -726,19 +727,25 @@ export default {
       }
     },
     openApiById(item) {
-      let definitionData = this.$router.resolve(
-        "/api/definition/default/" +
-          getUUID() +
-          "/apiTestCase/single:" +
-          item.caseId +
-          "/" +
-          getCurrentProjectID() +
-          "/" +
-          item.protocol +
-          "/" +
-          getCurrentWorkspaceId()
-      );
-      window.open(definitionData.href, "_blank");
+      let projectId = item.projectId;
+      getProject(projectId).then((rsp) => {
+        if (rsp.data) {
+          let workspaceId = rsp.data.workspaceId;
+          let definitionData = this.$router.resolve(
+              "/api/definition/default/" +
+              getUUID() +
+              "/apiTestCase/single:" +
+              item.caseId +
+              "/" +
+              projectId +
+              "/" +
+              item.protocol +
+              "/" +
+              workspaceId
+          );
+          window.open(definitionData.href, "_blank");
+        }
+      });
     },
     getTagToolTips(tags) {
       try {

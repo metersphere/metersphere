@@ -1,4 +1,5 @@
 import {get, post} from '../plugins/request'
+
 const BASE_URL = '/project/';
 
 export function getOwnerProjects() {
@@ -7,6 +8,10 @@ export function getOwnerProjects() {
 
 export function getProjectListAll() {
   return get(BASE_URL + 'list/all')
+}
+
+export function getProject(projectId) {
+  return get(BASE_URL + 'get/' + projectId);
 }
 
 export function getUserProjectList(data) {

@@ -286,7 +286,7 @@
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import {getCurrentProjectID, getCurrentWorkspaceId,} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID,} from "metersphere-frontend/src/utils/token";
 import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
 import {hasLicense, hasPermission,} from "metersphere-frontend/src/utils/permission";
 import MsTableMoreBtn from "metersphere-frontend/src/components/table/TableMoreBtn";
@@ -323,6 +323,7 @@ import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiS
 import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {TEST_PLAN_API_SCENARIO_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import MsTestPlanRunModeWithEnv from "@/business/plan/common/TestPlanRunModeWithEnv";
+import {getProject} from "@/api/project";
 
 export default {
   name: "MsTestPlanApiScenarioList",
@@ -676,17 +677,23 @@ export default {
       }
     },
     openById(item) {
-      let automationData = this.$router.resolve(
-        "/api/automation/default/" +
-          getUUID() +
-          "/scenario/edit:" +
-          item.caseId +
-          "/" +
-          item.projectId +
-          "/" +
-          getCurrentWorkspaceId()
-      );
-      window.open(automationData.href, "_blank");
+      let projectId = item.projectId;
+      getProject(projectId).then((rsp) => {
+        if (rsp.data) {
+          let workspaceId = rsp.data.workspaceId;
+          let automationData = this.$router.resolve(
+              "/api/automation/default/" +
+              getUUID() +
+              "/scenario/edit:" +
+              item.caseId +
+              "/" +
+              projectId +
+              "/" +
+              workspaceId
+          );
+          window.open(automationData.href, "_blank");
+        }
+      });
     },
     getTagToolTips(tags) {
       try {
