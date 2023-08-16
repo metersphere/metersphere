@@ -101,16 +101,12 @@
       </template>
       <template #action="{ record }">
         <MsButton @click="addOrEditMember('edit', record)">{{ t('organization.member.edit') }}</MsButton>
-        <MsPopConfirm
-          type="error"
+        <MsRemoveButton
           position="br"
-          :ok-text="t('organization.member.remove')"
           :title="t('organization.member.deleteMemberTip', { name: characterLimit(record.name) })"
           :sub-title-tip="t('organization.member.subTitle')"
-          @confirm="deleteMember(record)"
-        >
-          <MsButton>{{ t('organization.member.remove') }}</MsButton>
-        </MsPopConfirm>
+          @ok="deleteMember(record)"
+        />
       </template>
     </ms-base-table>
   </MsCard>
@@ -143,7 +139,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import AddMemberModal from './components/addMemberModal.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
+  import MsRemoveButton from '@/components/bussiness/ms-remove-button/MsRemoveButton.vue';
   import {
     getMemberList,
     deleteMemberReq,
@@ -232,7 +228,7 @@
   };
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getMemberList, {
     tableKey: TableKeyEnum.ORGANNATIONMEMBER,
-    scroll: { x: 1200 },
+    scroll: { x: 1600 },
     selectable: true,
   });
   const keyword = ref('');

@@ -252,7 +252,7 @@
       okButtonProps: {
         status: 'danger',
       },
-      onBeforeOk: async () => {
+      handlerOk: async () => {
         try {
           await deletePluginReq(record.id);
           Message.success(t('system.plugin.deletePluginSuccess'));
@@ -309,7 +309,7 @@
       okButtonProps: {
         status: 'normal',
       },
-      onBeforeOk: async () => {
+      handlerOk: async () => {
         try {
           const params: UpdatePluginModel = {
             id: record.id,

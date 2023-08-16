@@ -1,6 +1,7 @@
 import { Modal } from '@arco-design/web-vue';
 import type { ModalConfig } from '@arco-design/web-vue';
 import { useI18n } from '@/hooks/useI18n';
+import { ref } from 'vue';
 
 export type ModalType = 'info' | 'success' | 'warning' | 'error';
 
@@ -12,6 +13,7 @@ export interface ModalOptions extends ModalConfig {
   mode?: ModalMode;
   type: ModalType;
   size?: ModalSize;
+  onBeforeOk: () => Promise<void>;
 }
 
 export interface DeleteModalOptions extends ModalConfig {
@@ -20,6 +22,7 @@ export interface DeleteModalOptions extends ModalConfig {
 }
 const { t } = useI18n();
 export default function useModal() {
+  const enableLoading = ref<boolean>(false);
   return {
     openModal: (options: ModalOptions) =>
       // error 使用 warning的感叹号图标
@@ -30,9 +33,21 @@ export default function useModal() {
         },
         cancelButtonProps: {
           type: options.mode === 'weak' ? 'text' : 'secondary',
+          disabled: enableLoading.value,
         },
         simple: false,
+        okLoading: enableLoading.value,
         ...options,
+        onBeforeOk: (done: (closed: boolean) => void) => {
+          enableLoading.value = true;
+          options?.onBeforeOk().finally(() => {
+            enableLoading.value = false;
+            done(true);
+          });
+        },
+        onBeforeCancel: () => {
+          return !enableLoading.value;
+        },
         titleAlign: 'start',
         modalClass: `ms-usemodal ms-usemodal-${options.mode || 'default'} ms-usemodal-${
           options.size || 'small'
