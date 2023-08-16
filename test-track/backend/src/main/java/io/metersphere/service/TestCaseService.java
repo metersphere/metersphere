@@ -2614,7 +2614,7 @@ public class TestCaseService {
                     }
                 }
             }
-            DetailColumn column = new DetailColumn("关联测试", "testcase", nameBuilder.toString(), null);
+            DetailColumn column = new DetailColumn("related_test_case", "testcase", nameBuilder.toString(), null);
             columns.add(column);
 
             //关联缺陷
@@ -2631,7 +2631,7 @@ public class TestCaseService {
                     issuesNames = issues.stream().map(Issues::getTitle).collect(Collectors.toList());
                 }
             }
-            DetailColumn issuesColumn = new DetailColumn("关联缺陷 ", "issues", String.join(",", issuesNames), null);
+            DetailColumn issuesColumn = new DetailColumn("related_issues ", "issues", String.join(",", issuesNames), null);
             columns.add(issuesColumn);
             //附件
             List<FileMetadata> originFiles = attachmentService.getFileMetadataByCaseId(id);
@@ -2639,7 +2639,7 @@ public class TestCaseService {
             if (CollectionUtils.isNotEmpty(originFiles)) {
                 fileNames = originFiles.stream().map(FileMetadata::getName).collect(Collectors.toList());
             }
-            DetailColumn fileColumn = new DetailColumn("附件 ", "files", String.join(",", fileNames), null);
+            DetailColumn fileColumn = new DetailColumn("attachment", "files", String.join(",", fileNames), null);
             columns.add(fileColumn);
 
             // 增加评论内容
@@ -2648,7 +2648,7 @@ public class TestCaseService {
             if (CollectionUtils.isNotEmpty(dtos)) {
                 names = dtos.stream().map(TestCaseCommentDTO::getDescription).collect(Collectors.toList());
             }
-            DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join(StringUtils.LF, names), null);
+            DetailColumn detailColumn = new DetailColumn("comment", "comment", String.join(StringUtils.LF, names), null);
             columns.add(detailColumn);
 
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);

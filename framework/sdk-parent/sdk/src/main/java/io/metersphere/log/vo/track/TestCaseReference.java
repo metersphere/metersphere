@@ -8,28 +8,28 @@ public class TestCaseReference {
 
     static {
         testCaseColumns.clear();
-        testCaseColumns.put("name", "用例名称");
-        testCaseColumns.put("createUser", "创建人");
-        testCaseColumns.put("nodePath", "用例模块");
-        testCaseColumns.put("type", "用例类型");
-        testCaseColumns.put("maintainer", "责任人");
-        testCaseColumns.put("priority", "用例等级");
-        testCaseColumns.put("method", "请求类型");
-        testCaseColumns.put("prerequisite", "前置条件");
-        testCaseColumns.put("remark", "备注");
+        testCaseColumns.put("name", "test_case_name");
+        testCaseColumns.put("createUser", "create_user");
+        testCaseColumns.put("nodePath", "module");
+        testCaseColumns.put("type", "test_case_type");
+        testCaseColumns.put("maintainer", "maintainer");
+        testCaseColumns.put("priority", "test_case_priority");
+        testCaseColumns.put("method", "method");
+        testCaseColumns.put("prerequisite", "preconditions");
+        testCaseColumns.put("remark", "remark");
         testCaseColumns.put("customNum", "ID");
-        testCaseColumns.put("steps", "用例步骤");
-        testCaseColumns.put("other_test_name", "其他名称");
-        testCaseColumns.put("review_status", "评审状态");
-        testCaseColumns.put("tags", "标签");
-        testCaseColumns.put("demand_name", "需求名称");
-        testCaseColumns.put("follow_people", "关注人");
-        testCaseColumns.put("status", "用例状态");
-        testCaseColumns.put("stepDescription", "步骤描述");
-        testCaseColumns.put("expectedResult", "预期结果");
-        testCaseColumns.put("demandName", "关联需求");
-        testCaseColumns.put("followPeople", "关注人");
-        testCaseColumns.put("comment", "评论");
+        testCaseColumns.put("steps", "case_step");
+        testCaseColumns.put("other_test_name", "other_test_name");
+        testCaseColumns.put("review_status", "review_status");
+        testCaseColumns.put("tags", "tag");
+        testCaseColumns.put("demand_name", "demand_name");
+        testCaseColumns.put("follow_people", "follow_people");
+        testCaseColumns.put("status", "test_case_status");
+        testCaseColumns.put("stepDescription", "test_case_step_desc");
+        testCaseColumns.put("expectedResult", "test_case_step_result");
+        testCaseColumns.put("demandName", "related_requirements");
+        testCaseColumns.put("followPeople", "follow_people");
+        testCaseColumns.put("comment", "comment");
         testCaseColumns.put("ms-dff-col", "tags,steps");
 
     }
