@@ -167,11 +167,8 @@
             await deleteUserGroup(id);
             Message.success(t('system.user.deleteUserSuccess'));
             initData();
-            return true;
           } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error(error);
-            return false;
+            console.log(error);
           }
         },
         hideCancel: false,

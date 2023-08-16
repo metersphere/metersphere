@@ -208,8 +208,7 @@
           Message.success(isEnable ? t('common.enableSuccess') : t('common.closeSuccess'));
           fetchData();
         } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error(error);
+          console.log(error);
         }
       },
       hideCancel: false,

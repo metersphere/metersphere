@@ -582,26 +582,17 @@
       content: t('system.config.auth.enableTipContent'),
       okText: t('system.config.auth.enableConfirm'),
       cancelText: t('system.config.auth.cancel'),
-      cancelButtonProps: {
-        disabled: enableLoading.value,
-      },
-      okLoading: enableLoading.value,
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          enableLoading.value = true;
           await updateAuthStatus({
             id: record.id,
             enable: true,
           });
           Message.success(t('system.config.auth.enableSuccess'));
           loadList();
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
-        } finally {
-          enableLoading.value = false;
         }
       },
       hideCancel: false,
@@ -619,26 +610,17 @@
       content: t('system.config.auth.disableTipContent'),
       okText: t('system.config.auth.disableConfirm'),
       cancelText: t('system.config.auth.cancel'),
-      cancelButtonProps: {
-        disabled: disableLoading.value,
-      },
-      okLoading: disableLoading.value,
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          disableLoading.value = true;
           await updateAuthStatus({
             id: record.id,
             enable: false,
           });
           Message.success(t('system.config.auth.disableSuccess'));
           loadList();
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
-        } finally {
-          disableLoading.value = false;
         }
       },
       hideCancel: false,
@@ -659,23 +641,14 @@
       okButtonProps: {
         status: 'danger',
       },
-      cancelButtonProps: {
-        disabled: delLoading.value,
-      },
       maskClosable: false,
-      okLoading: delLoading.value,
       onBeforeOk: async () => {
         try {
-          delLoading.value = true;
           await deleteAuth(record.id);
           Message.success(t('system.config.auth.deleteSuccess'));
           loadList();
-          return true;
         } catch (error) {
           console.log(error);
-          return false;
-        } finally {
-          delLoading.value = false;
         }
       },
       hideCancel: false,
