@@ -691,7 +691,7 @@ public class TestPlanApiCaseService {
 
     public Map<String, List<String>> getApiCaseEnv(List<String> planApiCaseIds) {
         Map<String, List<String>> envMap = new HashMap<>();
-        if (org.apache.commons.collections.CollectionUtils.isEmpty(planApiCaseIds)) {
+        if (CollectionUtils.isEmpty(planApiCaseIds)) {
             return envMap;
         }
 
@@ -699,7 +699,7 @@ public class TestPlanApiCaseService {
         caseExample.createCriteria().andIdIn(planApiCaseIds);
         List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(caseExample);
         List<String> apiCaseIds = testPlanApiCases.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
-        if (org.apache.commons.collections.CollectionUtils.isEmpty(apiCaseIds)) {
+        if (CollectionUtils.isEmpty(apiCaseIds)) {
             return envMap;
         }
 
@@ -713,7 +713,7 @@ public class TestPlanApiCaseService {
             String caseId = testPlanApiCase.getApiCaseId();
             String envId = testPlanApiCase.getEnvironmentId();
             String projectId = projectCaseIdMap.get(caseId);
-            if (StringUtils.isNotBlank(projectId) && StringUtils.isNotBlank(envId)) {
+            if (StringUtils.isNotBlank(projectId)) {
                 if (envMap.containsKey(projectId)) {
                     List<String> list = envMap.get(projectId);
                     if (!list.contains(envId)) {
@@ -721,7 +721,9 @@ public class TestPlanApiCaseService {
                     }
                 } else {
                     List<String> envs = new ArrayList<>();
-                    envs.add(envId);
+                    if (StringUtils.isNotBlank(envId)) {
+                        envs.add(envId);
+                    }
                     envMap.put(projectId, envs);
                 }
             }
