@@ -106,15 +106,18 @@ public class MsHashTreeService {
     private final static String DOCUMENT = "document";
     private final static String LABEL = "label";
     private final static String SCENARIO_REF = "SCENARIO-REF-STEP";
+    private final static String DOMAIN = "domain";
+    private final static String MARK = "markStep";
 
     private void setElement(JSONObject element, Integer num,
                             Boolean enable, String versionName,
                             Boolean versionEnable, ParameterConfig msParameter) {
         element.put(NUM, num);
-        element.put(ENABLE, enable == null ? false : enable);
+        element.put(ENABLE, enable != null && enable);
         element.put(VERSION_NAME, versionName);
-        element.put(VERSION_ENABLE, versionEnable == null ? false : versionEnable);
-        if (msParameter != null) {
+        element.put(VERSION_ENABLE, versionEnable != null && versionEnable);
+        if ((!element.has(MARK) || !element.optBoolean(MARK)) && msParameter != null) {
+            element.put(DOMAIN, "");
             ElementUtil.setDomain(element, msParameter);
         }
     }
@@ -345,17 +348,17 @@ public class MsHashTreeService {
     }
 
     private JSONObject setRefScenario(JSONObject element) {
-        boolean enable = element.has(ENABLE) ? element.optBoolean(ENABLE) : true;
+        boolean enable = !element.has(ENABLE) || element.optBoolean(ENABLE);
         if (!element.has(MIX_ENABLE)) {
             element.put(MIX_ENABLE, false);
         }
 
         ApiScenarioDTO scenario = extApiScenarioMapper.selectById(element.optString(ID));
         if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
-            boolean environmentEnable = element.has(ENV_ENABLE) ? element.optBoolean(ENV_ENABLE) : false;
-            boolean variableEnable = element.has(VARIABLE_ENABLE) ? element.optBoolean(VARIABLE_ENABLE) : false;
-            boolean mixEnable = element.has(MIX_ENABLE)
-                    ? element.getBoolean(MIX_ENABLE) : false;
+            boolean environmentEnable = element.has(ENV_ENABLE) && element.optBoolean(ENV_ENABLE);
+            boolean variableEnable = element.has(VARIABLE_ENABLE) && element.optBoolean(VARIABLE_ENABLE);
+            boolean mixEnable = element.has(MIX_ENABLE) && element.getBoolean(MIX_ENABLE);
+            element.put(MARK, false);
 
             if (environmentEnable && StringUtils.isNotEmpty(scenario.getEnvironmentJson())) {
                 element.put(ENV_MAP, JSON.parseObject(scenario.getEnvironmentJson(), Map.class));
@@ -366,6 +369,7 @@ public class MsHashTreeService {
                 element = object;
                 element.put(REFERENCED, REF);
                 element.put(NAME, scenario.getName());
+                element.put(MARK, environmentEnable);
             }
             element.put(ID, scenario.getId());
             element.put(ENV_ENABLE, environmentEnable);
@@ -406,9 +410,17 @@ public class MsHashTreeService {
                 hashTree.put(i, element);
             }
             if (element.has(HASH_TREE)) {
-                JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
-                dataFormatting(elementJSONArray, caseIds);
+                addMark(element);
+                dataFormatting(element.optJSONArray(HASH_TREE), caseIds);
             }
+
+        }
+    }
+
+    private void addMark(JSONObject element) {
+        JSONArray objects = element.optJSONArray(HASH_TREE);
+        for (int j = 0; j < objects.length(); j++) {
+            objects.optJSONObject(j).put(MARK, element.optBoolean(MARK));
         }
     }
 
@@ -422,10 +434,9 @@ public class MsHashTreeService {
         } else if (ElementConstants.REQUESTS.contains(element.optString(TYPE))) {
             this.addCaseIds(element, caseIds);
         }
-
         if (element.has(HASH_TREE)) {
-            JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
-            dataFormatting(elementJSONArray, caseIds);
+            addMark(element);
+            dataFormatting(element.optJSONArray(HASH_TREE), caseIds);
         }
     }
 
@@ -439,6 +450,7 @@ public class MsHashTreeService {
             }
             if (element.has(HASH_TREE)) {
                 JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
+                addMark(element);
                 caseFormatting(elementJSONArray, caseMap, apiMap, msParameter);
             }
         }
