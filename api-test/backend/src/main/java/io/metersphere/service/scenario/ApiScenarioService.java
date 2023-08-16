@@ -2350,9 +2350,8 @@ public class ApiScenarioService {
     public Map<String, List<String>> getProjectEnvMap(RunScenarioRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
 
-        List<String> ids = request.getIds();
         ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andIdIn(ids);
+        example.createCriteria().andIdIn(request.getIds());
         List<ApiScenarioWithBLOBs> apiScenarios = apiScenarioMapper.selectByExampleWithBLOBs(example);
         Map<String, List<String>> projectEnvMap = new HashMap<>();
         apiScenarios.forEach(item -> {
@@ -2360,8 +2359,7 @@ public class ApiScenarioService {
                 JSONObject jsonObject = JSONUtil.parseObject(item.getEnvironmentJson());
                 Map<String, Object> projectIdEnvMap = jsonObject.toMap();
                 if (MapUtils.isNotEmpty(projectIdEnvMap)) {
-                    Set<String> projectIds = projectIdEnvMap.keySet();
-                    projectIds.forEach(t -> {
+                    projectIdEnvMap.keySet().forEach(t -> {
                         List<String> envIds = projectEnvMap.get(t);
                         if (CollectionUtils.isNotEmpty(envIds)) {
                             if (!envIds.contains(projectIdEnvMap.get(t).toString())) {
@@ -2376,6 +2374,13 @@ public class ApiScenarioService {
                     });
                 }
             }
+            // 未选择环境的项目
+            List<String> scenarioProjectIds = ElementUtil.getProjectIds(item.getScenarioDefinition());
+            scenarioProjectIds.forEach(id -> {
+                if (!projectEnvMap.containsKey(id)) {
+                    projectEnvMap.put(id, new ArrayList<>());
+                }
+            });
         });
         return projectEnvMap;
     }
