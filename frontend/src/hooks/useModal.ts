@@ -1,7 +1,7 @@
 import { Modal } from '@arco-design/web-vue';
 import type { ModalConfig } from '@arco-design/web-vue';
 import { useI18n } from '@/hooks/useI18n';
-import { ref } from 'vue';
+import { Ref, ref } from 'vue';
 
 export type ModalType = 'info' | 'success' | 'warning' | 'error';
 
@@ -21,10 +21,18 @@ export interface DeleteModalOptions extends ModalConfig {
   content: string;
 }
 const { t } = useI18n();
+
 export default function useModal() {
-  const enableLoading = ref<boolean>(false);
+  const beforeOkHandler = (options: any, done: (closed: boolean) => void, loading: Ref) => {
+    loading.value = true;
+    options?.onBeforeOk().finally(() => {
+      loading.value = false;
+      done(true);
+    });
+  };
   return {
-    openModal: (options: ModalOptions) =>
+    openModal: (options: ModalOptions) => {
+      const okHandlerLoading = ref<boolean>(false);
       // error 使用 warning的感叹号图标
       Modal[options.type === 'error' ? 'warning' : options.type]({
         // 默认设置按钮属性，也可通过options传入覆盖
@@ -33,27 +41,25 @@ export default function useModal() {
         },
         cancelButtonProps: {
           type: options.mode === 'weak' ? 'text' : 'secondary',
-          disabled: enableLoading.value,
+          disabled: okHandlerLoading.value,
         },
         simple: false,
-        okLoading: enableLoading.value,
+        okLoading: okHandlerLoading.value,
         ...options,
         onBeforeOk: (done: (closed: boolean) => void) => {
-          enableLoading.value = true;
-          options?.onBeforeOk().finally(() => {
-            enableLoading.value = false;
-            done(true);
-          });
+          beforeOkHandler(options, done, okHandlerLoading);
         },
         onBeforeCancel: () => {
-          return !enableLoading.value;
+          return !okHandlerLoading.value;
         },
         titleAlign: 'start',
         modalClass: `ms-usemodal ms-usemodal-${options.mode || 'default'} ms-usemodal-${
           options.size || 'small'
         } ms-usemodal-${options.type}`,
-      }),
-    openDeleteModal: (options: DeleteModalOptions) =>
+      });
+    },
+    openDeleteModal: (options: DeleteModalOptions) => {
+      const deleteLoading = ref<boolean>(false);
       Modal.warning({
         okText: t('common.confirmDelete'),
         cancelText: t('common.cancel'),
@@ -62,6 +68,17 @@ export default function useModal() {
         titleAlign: 'start',
         modalClass: `ms-usemodal ms-usemodal-warning ms-usemodal-small`,
         ...options,
-      }),
+        okLoading: deleteLoading.value,
+        cancelButtonProps: {
+          disabled: deleteLoading.value,
+        },
+        onBeforeOk: (done: (closed: boolean) => void) => {
+          beforeOkHandler(options, done, deleteLoading);
+        },
+        onBeforeCancel: () => {
+          return !deleteLoading.value;
+        },
+      });
+    },
   };
 }
