@@ -741,9 +741,10 @@ public class TestPlanApiCaseService {
         return buildCases(extTestPlanApiCaseMapper.getFailureListByIds(planApiCaseIds, null));
     }
 
-    public List<ApiModuleDTO> getNodeByPlanId(List<String> projectIds, String planId, String protocol) {
+    public List<ApiModuleDTO> getNodeByPlanId(String planId, String protocol) {
         List<ApiModuleDTO> list = new ArrayList<>();
-        projectIds.forEach(id -> {
+        List<String> apiCaseProjectId = extTestPlanApiCaseMapper.getCaseProjectIdByPlanId(planId);
+        apiCaseProjectId.forEach(id -> {
             Project project = baseProjectService.getProjectById(id);
             String name = project.getName();
             List<ApiModuleDTO> nodeList = getNodeDTO(id, planId, protocol);

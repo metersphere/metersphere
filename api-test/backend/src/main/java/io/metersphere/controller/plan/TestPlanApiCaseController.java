@@ -185,7 +185,7 @@ public class TestPlanApiCaseController {
 
     @PostMapping("/list/module/{planId}/{protocol}")
     public List<ApiModuleDTO> getNodeByPlanId(@PathVariable String planId, @PathVariable String protocol, @RequestBody List<String> projectIds) {
-        return testPlanApiCaseService.getNodeByPlanId(projectIds, planId, protocol);
+        return testPlanApiCaseService.getNodeByPlanId(planId, protocol);
     }
 
     @GetMapping("/run/{testId}/{reportId}")

@@ -567,6 +567,13 @@
             #{id}
         </foreach>
     </select>
+    <select id="getCaseProjectIdByPlanId" resultType="java.lang.String">
+        SELECT DISTINCT project_id
+        FROM api_test_case
+        WHERE id in (SELECT api_case_id
+                     FROM test_plan_api_case
+                     WHERE test_plan_id = #{0});
+    </select>
     <update id="updateStatusStop" parameterType="java.util.List">
         update test_plan_api_case set status="STOPPED" where id in
         <foreach collection="ids" item="value" separator="," open="(" close=")">
