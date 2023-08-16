@@ -481,7 +481,7 @@ export default {
           this.reloadItems();
         }
         // 解决数组对象下拉框切换类型，不刷新的问题
-        if(this.parent && this.parent.type === 'object') {
+        if (this.parent && this.parent.type === 'object') {
           this.reloadSelf();
         }
       }
