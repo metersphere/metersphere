@@ -170,7 +170,6 @@
     }
   }
 
-  const disableLoading = ref(false);
   /**
    * 禁用资源池
    */
@@ -198,7 +197,6 @@
     });
   }
 
-  const delLoading = ref(false);
   /**
    * 删除资源池
    */

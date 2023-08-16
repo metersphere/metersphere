@@ -571,7 +571,6 @@
     loadList();
   });
 
-  const enableLoading = ref(false);
   /**
    * 启用认证源
    */
@@ -599,7 +598,6 @@
     });
   }
 
-  const disableLoading = ref(false);
   /**
    * 禁用认证源
    */
@@ -627,7 +625,6 @@
     });
   }
 
-  const delLoading = ref(false);
   /**
    * 删除认证源
    */
