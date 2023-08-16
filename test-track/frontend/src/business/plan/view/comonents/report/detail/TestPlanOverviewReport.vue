@@ -57,19 +57,14 @@
           </div>
         </div>
       </el-row>
-      <el-row
-        class="select-time"
-        v-else
-        style="display: inline-block"
-      >
-        <div style="float: left">
-          {{ $t("commons.environment") + ":" }}
-        </div>
-        <div style="float: right">
-          <div style="margin-left: 42px">
+      <el-row justify="space-between" class="select-time" v-else>
+        <el-col :span="8">
+          <el-form-item :label="$t('commons.environment') + ':'">
             {{ $t('test_track.report.case_env') }}
-          </div>
-        </div>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8"></el-col>
+        <el-col :span="8"></el-col>
 
       </el-row>
       <el-row type="flex" justify="space-between" class="select-time">

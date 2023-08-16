@@ -825,29 +825,42 @@ public class TestPlanScenarioCaseService {
         scenarioExample.createCriteria().andIdIn(planApiScenarioIds);
         List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(scenarioExample);
 
+        List<String> defaultEnvScenarioIds = new ArrayList<>();
         for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
             String env = testPlanApiScenario.getEnvironment();
-            if (StringUtils.isBlank(env)) {
-                continue;
-            }
-            Map<String, String> map = JSON.parseObject(env, Map.class);
-            if (!map.isEmpty()) {
-                Set<String> set = map.keySet();
-                for (String s : set) {
-                    String e = map.get(s);
-                    if (StringUtils.isBlank(e)) {
-                        continue;
-                    }
-                    if (envMap.containsKey(s)) {
-                        List<String> list = envMap.get(s);
-                        if (!list.contains(e)) {
-                            list.add(e);
+            if ((StringUtils.isBlank(env) || StringUtils.equals(env, "{}")) && !defaultEnvScenarioIds.contains(testPlanApiScenario.getApiScenarioId())) {
+                defaultEnvScenarioIds.add(testPlanApiScenario.getApiScenarioId());
+            } else {
+                Map<String, String> map = JSON.parseObject(env, Map.class);
+                if (!map.isEmpty()) {
+                    Set<String> set = map.keySet();
+                    for (String s : set) {
+                        String e = map.get(s);
+                        if (StringUtils.isBlank(e)) {
+                            continue;
                         }
-                    } else {
-                        List<String> envs = new ArrayList<>();
-                        envs.add(e);
-                        envMap.put(s, envs);
+                        if (envMap.containsKey(s)) {
+                            List<String> list = envMap.get(s);
+                            if (!list.contains(e)) {
+                                list.add(e);
+                            }
+                        } else {
+                            List<String> envs = new ArrayList<>();
+                            envs.add(e);
+                            envMap.put(s, envs);
+                        }
                     }
+                }
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(defaultEnvScenarioIds)) {
+            RunScenarioRequest runScenarioRequest = new RunScenarioRequest();
+            runScenarioRequest.setIds(defaultEnvScenarioIds);
+            Set<String> projectIDSet = apiAutomationService.getProjectEnvMap(runScenarioRequest).keySet();
+            for (String projectId : projectIDSet) {
+                if (!envMap.containsKey(projectId)) {
+                    envMap.put(projectId, new ArrayList<>());
                 }
             }
         }
