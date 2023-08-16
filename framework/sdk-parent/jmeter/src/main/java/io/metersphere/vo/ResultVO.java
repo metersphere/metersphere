@@ -19,6 +19,7 @@ public class ResultVO {
     }
 
     public String computerPassRate() {
+        if (this.scenarioTotal == 0) return null;
         return new DecimalFormat("0%").format((float) this.scenarioSuccess / this.scenarioTotal);
     }
 }
