@@ -79,7 +79,7 @@ public class ProjectControllerTests {
     //                        .contentType(MediaType.APPLICATION_JSON))
     //                .andExpect(status().isOk())
     //                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-    //                .andDo(print());
+    //                ;
     //    }
     //
     //    @Test
@@ -91,7 +91,7 @@ public class ProjectControllerTests {
     //                .andExpect(status().isOk())
     //                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
     //                //                .andExpect(jsonPath("$.person.name").value("Jason"))
-    //                .andDo(print());
+    //                ;
     //    }
 
 }

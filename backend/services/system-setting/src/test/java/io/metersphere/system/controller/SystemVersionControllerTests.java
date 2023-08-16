@@ -13,7 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -30,7 +30,7 @@ public class SystemVersionControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andDo(print());
+                .andExpect(status().isOk());
     }
 
 }

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -264,7 +264,7 @@ public class TestPlanControllerTests {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(testPlan))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError()).andDo(print());
+                .andExpect(status().is5xxServerError());
 
         //测试parentId和id相同
         testPlan = this.getSimpleTestPlan();

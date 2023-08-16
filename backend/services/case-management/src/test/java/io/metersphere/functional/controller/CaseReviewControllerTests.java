@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -65,7 +65,7 @@ public class CaseReviewControllerTests {
                         .content(JSON.toJSONString(caseReview))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test

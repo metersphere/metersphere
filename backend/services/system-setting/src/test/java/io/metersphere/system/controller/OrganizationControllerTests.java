@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -321,7 +321,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -340,7 +340,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -356,7 +356,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError()).andDo(print())
+                .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
@@ -368,7 +368,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -387,7 +387,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -409,7 +409,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError()).andDo(print())
+                .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
@@ -422,7 +422,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -441,7 +441,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -457,7 +457,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError()).andDo(print())
+                .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
@@ -546,7 +546,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(resultMatcher).andDo(print())
+                .andExpect(resultMatcher)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -556,7 +556,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(param))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(resultMatcher).andDo(print())
+                .andExpect(resultMatcher)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -566,7 +566,7 @@ public class OrganizationControllerTests extends BaseTest {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(organizationRequest))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
     }
