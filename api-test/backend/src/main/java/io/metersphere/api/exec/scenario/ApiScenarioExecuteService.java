@@ -298,6 +298,16 @@ public class ApiScenarioExecuteService {
             }
             // 获取场景用例单独的执行环境
             Map<String, String> planEnvMap = apiScenarioEnvService.getPlanScenarioEnv(planApiScenario, configEnvMap);
+            if (MapUtils.isEmpty(planEnvMap)) {
+                Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(new ArrayList<>() {{
+                    this.add(scenario);
+                }});
+                projectEnvMap.forEach((projectId, envList) -> {
+                    if (CollectionUtils.isNotEmpty(envList)) {
+                        planEnvMap.put(projectId, envList.get(0));
+                    }
+                });
+            }
             if (StringUtils.isEmpty(request.getProjectId())) {
                 request.setProjectId(extTestPlanScenarioCaseMapper.getProjectIdById(testPlanScenarioId));
             }
