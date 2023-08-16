@@ -40,7 +40,6 @@
     @cancel="handleAddOrgModalCancel"
   />
   <AddUserModal :organization-id="currentOrganizationId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
-  <ProjectDrawer v-bind="currentProjectDrawer" @cancel="handleProjectDrawerCancel" />
   <UserDrawer v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
 </template>
 
@@ -62,7 +61,6 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import AddOrganizationModal from './addOrganizationModal.vue';
-  import ProjectDrawer from './projectDrawer.vue';
   import { Message, TableData } from '@arco-design/web-vue';
   import UserDrawer from './userDrawer.vue';
   import AddUserModal from './addUserModal.vue';
@@ -150,12 +148,6 @@
     await loadList();
   };
 
-  const currentProjectDrawer = reactive({
-    visible: false,
-    organizationId: '',
-    currentName: '',
-  });
-
   const currentUserDrawer = reactive({
     visible: false,
     organizationId: '',
@@ -230,17 +222,6 @@
   const showAddUserModal = (record: any) => {
     currentOrganizationId.value = record.id;
     userVisible.value = true;
-  };
-
-  const handleProjectDrawerCancel = () => {
-    currentProjectDrawer.visible = false;
-    fetchData();
-  };
-
-  const showProjectDrawer = (record: TableData) => {
-    currentProjectDrawer.visible = true;
-    currentProjectDrawer.organizationId = record.id;
-    currentProjectDrawer.currentName = record.name;
   };
 
   const showUserDrawer = (record: TableData) => {
