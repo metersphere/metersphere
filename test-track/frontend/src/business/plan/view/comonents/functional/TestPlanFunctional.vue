@@ -133,7 +133,7 @@ export default {
         this.condition.name = undefined;
       }
       this.clearSelectNode();
-      this.initData();
+      this.getNodeTreeByPlanId(this.condition);
     }
   },
   methods: {
