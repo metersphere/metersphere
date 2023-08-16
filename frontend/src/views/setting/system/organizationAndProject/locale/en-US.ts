@@ -52,4 +52,6 @@ export default {
     'The organization after closing is not displayed in the organization switching list',
   'system.organization.updateOrganization': 'Update organization',
   'system.organization.updateOrganizationSuccess': 'Update organization success',
+  'system.organization.createProject': 'Create project',
+  'system.organization.subordinateOrg': 'Subordinate organization',
 };

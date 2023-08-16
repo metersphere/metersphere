@@ -48,4 +48,6 @@ export default {
   'system.organization.endContent': '关闭后的组织不展示在组织切换列表',
   'system.organization.updateOrganization': '更新组织',
   'system.organization.updateOrganizationSuccess': '更新组织成功',
+  'system.organization.createProject': '创建项目',
+  'system.organization.subordinateOrg': '所属组织',
 };

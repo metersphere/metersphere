@@ -121,7 +121,7 @@
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
         setLoginExpires();
         router.push({
-          name: (redirect as string) || 'setting',
+          name: (redirect as string) || 'settingSystemUser',
           query: {
             ...othersQuery,
           },

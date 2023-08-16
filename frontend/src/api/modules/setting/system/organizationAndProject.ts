@@ -57,3 +57,8 @@ export function deleteUserFromOrgOrProject(sourceId: string, userId: string, isO
     url: `${isOrg ? orgUrl.getDeleteOrgMemberUrl : orgUrl.getDeleteProjectMemberUrl}${sourceId}/${userId}`,
   });
 }
+
+// TODO: 等待后端同学的接口 启用或禁用项目
+export function enableOrDisableProject(id: string, isEnable = true) {
+  return MSR.get({ url: `${isEnable ? orgUrl.getEnableOrgUrl : orgUrl.getDisableOrgUrl}${id}` });
+}
