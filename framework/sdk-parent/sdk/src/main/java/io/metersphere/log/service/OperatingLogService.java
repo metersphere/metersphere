@@ -10,6 +10,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.constants.OperatorLevel;
+import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.OperatingLogRequest;
@@ -131,7 +132,15 @@ public class OperatingLogService {
                 }
                 if (CollectionUtils.isEmpty(logWithBLOB.getDetails().getColumns())) {
                     dtos.add(logWithBLOB);
-                }
+                } else {
+                    List<DetailColumn> columns = logWithBLOB.getDetails().getColumns();
+                    columns.stream().forEach(column -> {
+                        if (StringUtils.isNotEmpty(column.getColumnTitle())) {
+                            String columnsTitle = Translator.get(column.getColumnTitle());
+                            column.setColumnTitle(columnsTitle.replace("Not Support Key:", ""));
+                        }
+                    });
+                } 
                 setUserName(logWithBLOB);
             }
         }
