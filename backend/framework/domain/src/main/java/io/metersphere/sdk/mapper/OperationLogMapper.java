@@ -27,4 +27,8 @@ public interface OperationLogMapper {
     int updateByPrimaryKeySelective(OperationLog record);
 
     int updateByPrimaryKey(OperationLog record);
+
+    int batchInsert(@Param("list") List<OperationLog> list);
+
+    int batchInsertSelective(@Param("list") List<OperationLog> list, @Param("selective") OperationLog.Column ... selective);
 }
