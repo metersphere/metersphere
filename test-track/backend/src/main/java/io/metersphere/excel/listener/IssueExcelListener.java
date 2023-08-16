@@ -6,6 +6,7 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.util.DateUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.exception.MSException;
@@ -24,6 +25,7 @@ import io.metersphere.request.issues.IssueImportRequest;
 import io.metersphere.service.IssuesService;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
+import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 
 /**
  * 缺陷导入读取
+ *
  * @author songcc
  */
 
@@ -53,7 +56,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
      * excelHeadFieldMap: excel表头字段字典值
      * issueCustomFieldMap: 缺陷自定义字段KeyMap
      */
-    private Class dataClass;
+    private Class<?> dataClass;
     private IssueImportRequest request;
     private Boolean isThirdPlatform;
     private Map<Integer, String> headMap;
@@ -63,7 +66,6 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
     private List<PlatformStatusDTO> platformStatusList;
     private List<String> tapdUsers;
     private Map<String, String> headFieldTransferDic = new HashMap<>();
-    private Map<String, List<CustomFieldResourceDTO>> issueCustomFieldMap = new HashMap<>();
 
     /**
      * 每超过2000条数据, 则插入数据库
@@ -77,14 +79,21 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
      */
     protected List<IssueExcelData> insertList = new ArrayList<>();
     protected List<IssueExcelData> updateList = new ArrayList<>();
+    @Getter
     protected List<ExcelErrData<IssueExcelData>> errList = new ArrayList<>();
 
-    public IssueExcelListener(IssueImportRequest request, Class clazz, Boolean isThirdPlatform, List<CustomFieldDao> customFields, Map<String, String> memberMap, List<PlatformStatusDTO> platformStatusList, List<String> tapdUsers) {
+    /**
+     * 选项值文本数组
+     */
+    public static final String OPTION_TEXT_ARRAY_PREFIX = "[\"";
+    public static final String OPTION_TEXT_ARRAY_SUFFIX = "\"]";
+
+    public IssueExcelListener(IssueImportRequest request, Class<?> clazz, Boolean isThirdPlatform, List<CustomFieldDao> customFields, Map<String, String> memberMap, List<PlatformStatusDTO> platformStatusList, List<String> tapdUsers) {
         this.request = request;
-        this.dataClass = clazz;
+        dataClass = clazz;
         this.isThirdPlatform = isThirdPlatform;
         this.customFields = customFields;
-        this.issuesService = CommonBeanFactory.getBean(IssuesService.class);
+        issuesService = CommonBeanFactory.getBean(IssuesService.class);
         this.memberMap = memberMap;
         this.platformStatusList = platformStatusList;
         this.tapdUsers = tapdUsers;
@@ -96,7 +105,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
         IssueExcelData issueExcelData = null;
         StringBuilder errMsg;
         try {
-            issueExcelData = this.parseDataToModel(data);
+            issueExcelData = parseDataToModel(data);
             // EXCEL校验, 如果不是第三方模板则需要校验
             errMsg = new StringBuilder(!isThirdPlatform ? ExcelValidateHelper.validateEntity(issueExcelData) : StringUtils.EMPTY);
             // 校验自定义字段及平台状态及TAPD处理人
@@ -111,7 +120,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
         }
 
         if (StringUtils.isNotEmpty(errMsg)) {
-            ExcelErrData excelErrData = new ExcelErrData(issueExcelData, rowIndex,
+            ExcelErrData<IssueExcelData> excelErrData = new ExcelErrData<>(issueExcelData, rowIndex,
                     Translator.get("number")
                             .concat(StringUtils.SPACE)
                             .concat(String.valueOf(rowIndex + 1)).concat(StringUtils.SPACE)
@@ -121,6 +130,9 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                             .concat(errMsg.toString()));
             errList.add(excelErrData);
         } else {
+            if (issueExcelData == null) {
+                return;
+            }
             if (issueExcelData.getNum() == null) {
                 // ID为空或不存在, 新增
                 issueExcelData.setAddFlag(Boolean.TRUE);
@@ -182,8 +194,8 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
     @Override
     public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
         this.headMap = headMap;
-        this.genExcelHeadFieldTransferDic();
-        this.formatHeadMap();
+        genExcelHeadFieldTransferDic();
+        formatHeadMap();
         super.invokeHeadMap(headMap, context);
     }
 
@@ -192,7 +204,6 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
         saveData();
         insertList.clear();
         updateList.clear();
-        issueCustomFieldMap.clear();
     }
 
     /**
@@ -209,19 +220,20 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 校验自定义字段
-     * @param data excel数据
+     *
+     * @param data   excel数据
      * @param errMsg 错误信息
      */
     public void validateCustomField(IssueExcelData data, StringBuilder errMsg) {
         Map<String, List<CustomFieldDao>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(CustomFieldDao::getName));
         data.getCustomData().forEach((k, v) -> {
-            List<CustomFieldDao> customFieldDaos = customFieldMap.get(k);
-            if (CollectionUtils.isNotEmpty(customFieldDaos) && customFieldDaos.size() > 0) {
-                CustomFieldDao customFieldDao = customFieldDaos.get(0);
+            List<CustomFieldDao> customFields = customFieldMap.get(k);
+            if (CollectionUtils.isNotEmpty(customFields) && !customFields.isEmpty()) {
+                CustomFieldDao customFieldDao = customFields.get(0);
                 String type = customFieldDao.getType();
                 Boolean required = customFieldDao.getRequired();
                 String options = StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MEMBER.getValue(), CustomFieldType.MULTIPLE_MEMBER.getValue()) ?
-                        JSON.toJSONString(this.memberMap) : customFieldDao.getOptions();
+                        JSON.toJSONString(memberMap) : customFieldDao.getOptions();
                 if (required && StringUtils.isEmpty(v.toString())) {
                     errMsg.append(k).append(Translator.get("can_not_be_null")).append(";");
                 } else if (StringUtils.isNotEmpty(v.toString()) && isIllegalFormat(type, v)) {
@@ -239,7 +251,8 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 校验并转换平台状态
-     * @param data excel数据
+     *
+     * @param data   excel数据
      * @param errMsg 错误信息
      */
     public void validateAndTransferPlatformStatus(IssueExcelData data, StringBuilder errMsg) {
@@ -256,7 +269,8 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 校验TAPD处理人
-     * @param data excel数据
+     *
+     * @param data   excel数据
      * @param errMsg 错误信息
      */
     public void validateTapdUsers(IssueExcelData data, StringBuilder errMsg) {
@@ -273,6 +287,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 解析表格数据 -> excel数据
+     *
      * @param rowData 表格数据
      * @return excel数据
      */
@@ -311,7 +326,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                     List<String> dataList = Arrays.stream(value.split(",")).map(String::trim).toList();
                     List<String> formatDataList = dataList.stream().map(item -> "\"" + item + "\"").collect(Collectors.toList());
                     data.getCustomData().put(field, formatDataList);
-                } else if (StringUtils.isNotEmpty(value) && (value.contains(";"))){
+                } else if (StringUtils.isNotEmpty(value) && (value.contains(";"))) {
                     // 分号分隔
                     List<String> dataList = Arrays.stream(value.split(";")).map(String::trim).toList();
                     List<String> formatDataList = dataList.stream().map(item -> "\"" + item + "\"").collect(Collectors.toList());
@@ -326,6 +341,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * excel数据 -> issue请求数据
+     *
      * @param issueExcelData excel数据
      * @return issue请求数据
      */
@@ -348,17 +364,12 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
         return issuesUpdateRequest;
     }
 
-    public List<ExcelErrData<IssueExcelData>> getErrList() {
-        return this.errList;
-    }
-
     /**
      * 获取注解ExcelProperty的value和对应field
      */
     public void genExcelHeadFieldTransferDic() {
         Field[] fields = dataClass.getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
+        for (Field field : fields) {
             ExcelProperty excelProperty = field.getAnnotation(ExcelProperty.class);
             if (excelProperty != null) {
                 StringBuilder value = new StringBuilder();
@@ -372,7 +383,8 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 缺陷存在
-     * @param num 缺陷ID
+     *
+     * @param num       缺陷ID
      * @param projectId 项目ID
      * @return issues
      */
@@ -382,7 +394,8 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 构建自定义字段
-     * @param issueExcelData excel对象
+     *
+     * @param issueExcelData      excel对象
      * @param issuesUpdateRequest 缺陷请求对象
      */
     private void buildFields(IssueExcelData issueExcelData, IssuesUpdateRequest issuesUpdateRequest) {
@@ -397,7 +410,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
         issueExcelData.getCustomData().forEach((k, v) -> {
             try {
                 List<CustomFieldDao> customFieldDaoList = customFieldMap.get(k);
-                if (CollectionUtils.isNotEmpty(customFieldDaoList) && customFieldDaoList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(customFieldDaoList) && !customFieldDaoList.isEmpty()) {
                     CustomFieldDao customFieldDao = customFieldDaoList.get(0);
                     String type = customFieldDao.getType();
                     // add field
@@ -466,7 +479,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                             customFieldResourceDTO.setValue(parseStr);
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.DATETIME.getValue())) {
                             Date vDate = DateUtils.parseDate(v.toString(), "yyyy-MM-dd HH:mm:ss");
-                            v =  DateUtils.format(vDate, "yyyy-MM-dd'T'HH:mm");
+                            v = DateUtils.format(vDate, "yyyy-MM-dd'T'HH:mm");
                             customFieldItemDTO.setValue(v.toString());
                             customFieldResourceDTO.setValue("\"" + v + "\"");
                         } else {
@@ -499,6 +512,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 校验字段是否为下拉框
+     *
      * @param type 字段类型
      * @return boolean
      */
@@ -510,7 +524,8 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 校验字段非法格式
-     * @param type 字段类型
+     *
+     * @param type  字段类型
      * @param value 字段值
      * @return boolean
      */
@@ -537,7 +552,8 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 是否选项中包含该值
-     * @param value 值
+     *
+     * @param value   值
      * @param options 选项
      * @return boolean
      */
@@ -546,7 +562,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
         if (value instanceof List) {
             ((List<?>) value).forEach(item -> {
                 String s = item.toString().replaceAll("\"", StringUtils.EMPTY);
-                if (!StringUtils.contains(options, s))  {
+                if (!StringUtils.contains(options, s)) {
                     isInclude.set(Boolean.FALSE);
                 }
             });
@@ -558,6 +574,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 是否包含导出字段
+     *
      * @param name 导出字段名称
      * @return boolean
      */
@@ -572,8 +589,9 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 解析选择类型字段 (文本 -> 值)
+     *
      * @param options 选项
-     * @param tarVal 文本
+     * @param tarVal  文本
      * @return 值
      */
     public String parseOptionText(String options, String tarVal) {
@@ -581,11 +599,12 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
             return StringUtils.EMPTY;
         }
 
-        List<Map> optionList = JSON.parseArray(options, Map.class);
-        if (StringUtils.containsAny(tarVal, "[", "]")) {
+        List<Map<Object, Object>> optionList = JSON.parseArray(options, new TypeReference<>() {
+        });
+        if (StringUtils.containsAny(tarVal, OPTION_TEXT_ARRAY_PREFIX, OPTION_TEXT_ARRAY_SUFFIX)) {
             List<String> parseArr = new ArrayList<>();
             List<String> tarArr = JSONArray.parseArray(tarVal, String.class);
-            for (Map option : optionList) {
+            for (Map<Object, Object> option : optionList) {
                 String text = option.get("text").toString();
                 String value = option.get("value").toString();
                 if (tarArr.contains(text)) {
@@ -594,7 +613,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
             }
             return parseArr.toString();
         } else {
-            for (Map option : optionList) {
+            for (Map<Object, Object> option : optionList) {
                 String text = option.get("text").toString();
                 String value = option.get("value").toString();
                 if (StringUtils.containsIgnoreCase(text, tarVal)) {
@@ -607,8 +626,9 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 解析级联类型字段(文本 -> 值)
+     *
      * @param cascadingOption 级联选项
-     * @param tarVal 文本
+     * @param tarVal          文本
      * @return 值
      */
     public String parseCascadingOptionText(String cascadingOption, String tarVal) {
@@ -617,13 +637,13 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
             return StringUtils.EMPTY;
         }
         JSONArray options = JSONArray.parseArray(cascadingOption);
-        JSONArray talVals = JSONArray.parseArray(tarVal);
-        if (options.size() == 0 || talVals.size() == 0) {
+        JSONArray talVars = JSONArray.parseArray(tarVal);
+        if (options.isEmpty() || talVars.isEmpty()) {
             return StringUtils.EMPTY;
         }
-        for (int i = 0; i < talVals.size(); i++) {
-            String val = talVals.get(i).toString();
-            JSONObject jsonOption = this.findJsonOption(options, val);
+        for (Object talVar : talVars) {
+            String val = talVar.toString();
+            JSONObject jsonOption = findJsonOption(options, val);
             if (jsonOption == null) {
                 return StringUtils.EMPTY;
             } else {
@@ -636,16 +656,17 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     /**
      * 匹配级联层级options
+     *
      * @param options 级联选项
-     * @param tarVal 文本
+     * @param tarVal  文本
      * @return json对象
      */
     private JSONObject findJsonOption(JSONArray options, String tarVal) {
-        if (options.size() == 0) {
+        if (options.isEmpty()) {
             return null;
         }
         List<JSONObject> jsonObjects = options.stream().map(option -> (JSONObject) option).filter(option -> StringUtils.equals(tarVal, option.get("text").toString())).toList();
-        if (jsonObjects.size() == 0) {
+        if (jsonObjects.isEmpty()) {
             return null;
         } else {
             return jsonObjects.get(0);
