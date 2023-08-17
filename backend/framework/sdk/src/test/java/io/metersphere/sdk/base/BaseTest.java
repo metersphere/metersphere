@@ -1,8 +1,8 @@
 package io.metersphere.sdk.base;
 
+import com.jayway.jsonpath.JsonPath;
 import io.metersphere.sdk.base.param.InvalidateParamInfo;
 import io.metersphere.sdk.base.param.ParamGeneratorFactory;
-import com.jayway.jsonpath.JsonPath;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.controller.handler.result.IResultCode;
@@ -13,6 +13,7 @@ import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.UserRolePermission;
+import io.metersphere.system.domain.UserRolePermissionExample;
 import io.metersphere.system.mapper.UserRolePermissionMapper;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -172,10 +173,10 @@ public abstract class BaseTest {
     protected MvcResult requestMultipartWithOkAndReturn(String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
         return this.requestMultipartWithOk(url, paramMap, uriVariables).andReturn();
     }
-    private MockHttpServletRequestBuilder getPermissionMultipartRequestBuilder(String permissionId, String url,
+    private MockHttpServletRequestBuilder getPermissionMultipartRequestBuilder(String roleId, String url,
                                                                           MultiValueMap<String, Object> paramMap,
                                                                           Object[] uriVariables) {
-        AuthInfo authInfo = getPermissionAuthInfo(permissionId);
+        AuthInfo authInfo = getPermissionAuthInfo(roleId);
         return getMultipartRequestBuilderWithParam(url, paramMap, uriVariables)
                 .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
@@ -328,10 +329,6 @@ public abstract class BaseTest {
         System.out.println("paramValidateTest-end: ====================================");
     }
 
-    protected void requestPostPermissionTest(String permissionId, String url, Object param, Object... uriVariables) throws Exception {
-        requestPermissionTest(permissionId, url, () -> getPermissionPostRequestBuilder(permissionId, url, param, uriVariables));
-    }
-
     /**
      * 校验权限
      * 实现步骤
@@ -353,7 +350,7 @@ public abstract class BaseTest {
         UserRolePermission userRolePermission = initUserRolePermission(roleId, permissionId);
 
         // 添加后刷新下权限
-        refreshUserPermission(permissionId);
+        refreshUserPermission(roleId);
 
         int status = mockMvc.perform(requestBuilderGetFunc.get())
                 .andReturn()
@@ -369,7 +366,7 @@ public abstract class BaseTest {
         userRolePermissionMapper.deleteByPrimaryKey(userRolePermission.getId());
 
         // 删除后刷新下权限
-        refreshUserPermission(permissionId);
+        refreshUserPermission(roleId);
 
         // 删除权限后，调用接口，校验是否没有权限
         status = mockMvc.perform(requestBuilderGetFunc.get())
@@ -383,25 +380,97 @@ public abstract class BaseTest {
     }
 
     /**
+     *  校验多个权限(同级别权限: 列如都是SYSTEM)
+     *
+     * @param permissionIds 多个权限
+     * @param url 请求url
+     * @param requestBuilderGetFunc 请求构造器
+     * @throws Exception 请求抛出异常
+     */
+    private void requestPermissionsTest(List<String> permissionIds, String url, Supplier<MockHttpServletRequestBuilder> requestBuilderGetFunc) throws Exception {
+        // 相同的用户组
+        String roleId = permissionIds.get(0).split("_")[0];
+        for (String permissionId : permissionIds) {
+            // 多个权限插入同一个用户组
+            initUserRolePermission(roleId, permissionId);
+        }
+
+        // 根据roleId刷新用户
+        refreshUserPermissionByRoleId(roleId);
+
+        int status = mockMvc.perform(requestBuilderGetFunc.get())
+                .andReturn()
+                .getResponse()
+                .getStatus();
+
+        // 校验是否有权限
+        if (status == HttpStatus.FORBIDDEN.value()) {
+            throw new MSException(String.format("接口 %s 权限校验失败 %s", getBasePath() + url, permissionIds));
+        }
+
+        // 删除权限
+        UserRolePermissionExample example = new UserRolePermissionExample();
+        example.createCriteria().andRoleIdEqualTo(roleId);
+        userRolePermissionMapper.deleteByExample(example);
+
+        // 删除后刷新下权限
+        refreshUserPermissionByRoleId(roleId);
+
+        // 删除权限后，调用接口，校验是否没有权限
+        status = mockMvc.perform(requestBuilderGetFunc.get())
+                .andReturn()
+                .getResponse()
+                .getStatus();
+
+        if (status != HttpStatus.FORBIDDEN.value()) {
+            throw new MSException(String.format("接口 %s 没有设置权限 %s", getBasePath() + url, permissionIds));
+        }
+    }
+
+    /**
      * 调用 is-login 接口刷新权限
      *
-     * @param permissionId
+     * @param roleId
      * @throws Exception
      */
-    private void refreshUserPermission(String permissionId) throws Exception {
-        AuthInfo authInfo = getPermissionAuthInfo(permissionId);
+    private void refreshUserPermission(String roleId) throws Exception {
+        AuthInfo authInfo = getPermissionAuthInfo(roleId);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/is-login")
                 .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
         mockMvc.perform(requestBuilder);
     }
 
+    private void refreshUserPermissionByRoleId(String roleId) throws Exception {
+        AuthInfo authInfo = permissionAuthInfoMap.get(roleId);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/is-login")
+                .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
+                .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
+        mockMvc.perform(requestBuilder);
+    }
+
+    protected void requestPostPermissionTest(String permissionId, String url, Object param, Object... uriVariables) throws Exception {
+        requestPermissionTest(permissionId, url, () -> getPermissionPostRequestBuilder(permissionId.split("_")[0], url, param, uriVariables));
+    }
+
     protected void requestGetPermissionTest(String permissionId, String url, Object... uriVariables) throws Exception {
-        requestPermissionTest(permissionId, url, () -> getPermissionRequestBuilder(permissionId, url, uriVariables));
+        requestPermissionTest(permissionId, url, () -> getPermissionRequestBuilder(permissionId.split("_")[0], url, uriVariables));
     }
 
     protected void requestMultipartPermissionTest(String permissionId, String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
-        requestPermissionTest(permissionId, url, () -> getPermissionMultipartRequestBuilder(permissionId, url, paramMap, uriVariables));
+        requestPermissionTest(permissionId, url, () -> getPermissionMultipartRequestBuilder(permissionId.split("_")[0], url, paramMap, uriVariables));
+    }
+
+    protected void requestPostPermissionsTest(List<String> permissionIds, String url, Object param, Object... uriVariables) throws Exception {
+        requestPermissionsTest(permissionIds, url, () -> getPermissionPostRequestBuilder(permissionIds.get(0).split("_")[0], url, param, uriVariables));
+    }
+
+    protected void requestGetPermissionsTest(List<String> permissionIds, String url, Object... uriVariables) throws Exception {
+        requestPermissionsTest(permissionIds, url, () -> getPermissionRequestBuilder(permissionIds.get(0).split("_")[0], url, uriVariables));
+    }
+
+    protected void requestMultipartPermissionsTest(List<String> permissionIds, String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
+        requestPermissionsTest(permissionIds, url, () -> getPermissionMultipartRequestBuilder(permissionIds.get(0).split("_")[0], url, paramMap, uriVariables));
     }
 
     /**
@@ -420,8 +489,8 @@ public abstract class BaseTest {
         return userRolePermission;
     }
 
-    private MockHttpServletRequestBuilder getPermissionPostRequestBuilder(String permissionId, String url, Object param, Object... uriVariables) {
-        AuthInfo authInfo = getPermissionAuthInfo(permissionId);
+    private MockHttpServletRequestBuilder getPermissionPostRequestBuilder(String roleId, String url, Object param, Object... uriVariables) {
+        AuthInfo authInfo = getPermissionAuthInfo(roleId);
         return MockMvcRequestBuilders.post(getBasePath() + url, uriVariables)
                 .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken())
@@ -429,12 +498,12 @@ public abstract class BaseTest {
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
-    private AuthInfo getPermissionAuthInfo(String permissionId) {
-        return permissionAuthInfoMap.get(permissionId.split("_")[0]);
+    private AuthInfo getPermissionAuthInfo(String roleId) {
+        return permissionAuthInfoMap.get(roleId);
     }
 
-    private MockHttpServletRequestBuilder getPermissionRequestBuilder(String permissionId, String url, Object... uriVariables) {
-        AuthInfo authInfo = getPermissionAuthInfo(permissionId);
+    private MockHttpServletRequestBuilder getPermissionRequestBuilder(String roleId, String url, Object... uriVariables) {
+        AuthInfo authInfo = getPermissionAuthInfo(roleId);
         return MockMvcRequestBuilders.get(getBasePath() + url, uriVariables)
                 .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());

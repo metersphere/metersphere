@@ -284,7 +284,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         }
         // 权限校验
         request.setOrganizationId(getDefault().getId());
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ, ORGANIZATION_USER_ROLE_LIST_MEMBER, request);
+        requestPostPermissionsTest(List.of(PermissionConstants.ORGANIZATION_USER_ROLE_READ, PermissionConstants.ORGANIZATION_MEMBER_READ), ORGANIZATION_USER_ROLE_LIST_MEMBER, request);
     }
 
     @Test
