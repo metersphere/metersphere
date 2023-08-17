@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
@@ -8,7 +8,6 @@ import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.ProjectExtendDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.request.OrganizationProjectRequest;
@@ -27,8 +26,6 @@ import java.util.List;
 public class OrganizationProjectService {
 
     @Resource
-    private ProjectMapper projectMapper;
-    @Resource
     private ExtSystemProjectMapper extSystemProjectMapper;
     @Resource
     private CommonProjectService commonProjectService;
@@ -40,7 +37,7 @@ public class OrganizationProjectService {
     private final static String REMOVE_PROJECT_MEMBER = PREFIX + "/remove-member/";
     private final static String ADD_MEMBER = PREFIX + "/add-member";
 
-    public ProjectExtendDTO get(String id) {
+    public Project get(String id) {
         return commonProjectService.get(id);
     }
 
@@ -48,9 +45,8 @@ public class OrganizationProjectService {
      * @param addProjectDTO 添加项目的时候  默认给用户组添加管理员的权限
      * @return
      */
-    public ProjectExtendDTO add(AddProjectRequest addProjectDTO, String createUser) {
-        ProjectExtendDTO project = commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.ORGANIZATION_PROJECT);
-        return project;
+    public Project add(AddProjectRequest addProjectDTO, String createUser) {
+        return commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.ORGANIZATION_PROJECT);
     }
 
     public List<ProjectDTO> getProjectList(OrganizationProjectRequest request) {
@@ -60,9 +56,8 @@ public class OrganizationProjectService {
         return commonProjectService.buildUserInfo(projectList);
     }
 
-    public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
-        ProjectExtendDTO project = commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.ORGANIZATION_PROJECT);
-        return project;
+    public Project update(UpdateProjectRequest updateProjectDto, String updateUser) {
+        return commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.ORGANIZATION_PROJECT);
     }
 
     public int delete(String id, String deleteUser) {
@@ -71,8 +66,7 @@ public class OrganizationProjectService {
 
     public List<UserExtend> getProjectMember(ProjectMemberRequest request) {
         commonProjectService.checkProjectNotExist(request.getProjectId());
-        List<UserExtend> projectMemberList = extSystemProjectMapper.getProjectMemberList(request);
-        return projectMemberList;
+        return extSystemProjectMapper.getProjectMemberList(request);
     }
 
     /***

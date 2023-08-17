@@ -9,17 +9,17 @@ import lombok.EqualsAndHashCode;
 public class ModuleSettingDTO {
 
     @Schema(description =  "接口测试")
-    private boolean apiTest;
+    private Boolean apiTest;
     @Schema(description =  "性能测试")
-    private boolean loadTest;
+    private Boolean loadTest;
     @Schema(description =  "UI测试")
-    private boolean uiTest;
+    private Boolean uiTest;
     @Schema(description =  "测试计划")
-    private boolean testPlan;
+    private Boolean testPlan;
     @Schema(description =  "工作台")
-    private boolean workstation;
+    private Boolean workstation;
     @Schema(description =  "缺陷管理")
-    private boolean bugManagement;
+    private Boolean bugManagement;
     @Schema(description =  "功能测试")
-    private boolean caseManagement;
+    private Boolean caseManagement;
 }

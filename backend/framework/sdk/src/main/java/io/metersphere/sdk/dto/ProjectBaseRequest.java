@@ -29,5 +29,5 @@ public class ProjectBaseRequest {
     private Boolean enable;
 
     @Schema(description =  "模块设置")
-    private ModuleSettingDTO moduleSetting;
+    private String moduleSetting;
 }
