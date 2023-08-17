@@ -31,6 +31,12 @@ public class UserRequestUtils {
     public final String URL_USER_RESET_PASSWORD = "/system/user/reset/password";
     public final String URL_USER_ROLE_RELATION = "/system/user/add/batch/user-role";
 
+    //查找组织、项目
+    public final String URL_GET_ORGANIZATION = "/system/user/get/organization";
+    public final String URL_GET_PROJECT = "/system/user/get/project";
+    public final String URL_ADD_PROJECT_MEMBER = "/system/user/add-project-member";
+    public final String URL_ADD_ORGANIZATION_MEMBER = "/system/user/add-org-member";
+
     private final MockMvc mockMvc;
     private final String sessionId;
     private final String csrfToken;

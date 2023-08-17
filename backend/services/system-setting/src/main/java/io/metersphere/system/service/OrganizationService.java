@@ -815,6 +815,29 @@ public class OrganizationService {
         return extOrganizationMapper.getOptionsByIds(orgIds);
     }
 
+    public LinkedHashMap<Organization, List<Project>> getOrgProjectMap() {
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.setOrderByClause("name asc");
+        List<Project> allProject = projectMapper.selectByExample(projectExample);
+
+        OrganizationExample orgExample = new OrganizationExample();
+        orgExample.createCriteria().andIdIn(allProject.stream().map(Project::getOrganizationId).distinct().collect(Collectors.toList()));
+        orgExample.setOrderByClause("name asc");
+        List<Organization> orgList = organizationMapper.selectByExample(orgExample);
+
+        LinkedHashMap<Organization, List<Project>> returnMap = new LinkedHashMap<>();
+        for (Organization org : orgList) {
+            List<Project> projectsInOrg = new ArrayList<>();
+            for (Project project : allProject) {
+                if (StringUtils.equals(project.getOrganizationId(), org.getId())) {
+                    projectsInOrg.add(project);
+                }
+            }
+            allProject.remove(projectsInOrg);
+            returnMap.put(org, projectsInOrg);
+        }
+        return returnMap;
+    }
 
     public Map<String, Long> getTotal(String organizationId) {
         Map<String, Long> total = new HashMap<>();

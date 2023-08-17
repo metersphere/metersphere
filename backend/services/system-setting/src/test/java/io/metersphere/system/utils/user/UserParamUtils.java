@@ -1,44 +1,40 @@
 package io.metersphere.system.utils.user;
 
-import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
-import io.metersphere.system.dto.UserRoleOption;
-import io.metersphere.system.dto.request.UserEditRequest;
-import io.metersphere.system.dto.response.UserImportResponse;
+import io.metersphere.system.request.user.UserEditRequest;
+import io.metersphere.system.response.user.UserImportResponse;
+import io.metersphere.system.response.user.UserSelectOption;
 import io.metersphere.system.service.GlobalUserRoleService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class UserParamUtils {
 
     public static UserBatchCreateDTO getUserCreateDTO(
-            List<UserRoleOption> userRoleList,
+            List<UserSelectOption> userRoleList,
             List<UserCreateInfo> userInfoList) {
         UserBatchCreateDTO userMaintainRequest = new UserBatchCreateDTO();
         if (CollectionUtils.isNotEmpty(userRoleList)) {
             userMaintainRequest.setUserRoleIdList(
-                    userRoleList.stream().map(UserRoleOption::getId).collect(Collectors.toList()));
+                    userRoleList.stream().map(UserSelectOption::getId).collect(Collectors.toList()));
         }
         userMaintainRequest.setUserInfoList(userInfoList);
         return userMaintainRequest;
     }
 
-    public static UserEditRequest getUserUpdateDTO(UserCreateInfo user, List<UserRoleOption> userRoleList) {
+    public static UserEditRequest getUserUpdateDTO(UserCreateInfo user, List<UserSelectOption> userRoleList) {
         UserEditRequest returnDTO = new UserEditRequest();
         if (user.getPhone() == null) {
             user.setPhone("");
@@ -46,7 +42,7 @@ public class UserParamUtils {
         BeanUtils.copyBean(returnDTO, user);
         if (CollectionUtils.isNotEmpty(userRoleList)) {
             returnDTO.setUserRoleIdList(
-                    userRoleList.stream().map(UserRoleOption::getId).collect(Collectors.toList()));
+                    userRoleList.stream().map(UserSelectOption::getId).collect(Collectors.toList()));
         }
         return returnDTO;
     }
@@ -61,23 +57,15 @@ public class UserParamUtils {
     public static byte[] getFileBytes(String filePath) {
         File file = new File(filePath);
         byte[] buffer = new byte[0];
-        FileInputStream fi = null;
-        try {
-            fi = new FileInputStream(file);
+        try (FileInputStream fi = new FileInputStream(file)) {
             buffer = new byte[(int) file.length()];
             int offset = 0;
-            int numRead = 0;
+            int numRead;
             while (offset < buffer.length
                     && (numRead = fi.read(buffer, offset, buffer.length - offset)) >= 0) {
                 offset += numRead;
             }
         } catch (Exception ignore) {
-        } finally {
-            try {
-                fi.close();
-            } catch (Exception ignore) {
-            }
-
         }
         return buffer;
     }
@@ -100,7 +88,7 @@ public class UserParamUtils {
                 = selectUserDTO.getUserRoles().stream()
                 .filter(item -> (StringUtils.equals(item.getType(), BaseUserRoleService.SYSTEM_TYPE)
                         && StringUtils.equals(item.getScopeId(), GlobalUserRoleService.GLOBAL_SCOPE)))
-                .map(UserRole::getId).collect(Collectors.toList());
+                .map(UserRole::getId).toList();
         Assertions.assertTrue(
                 editRequest.getUserRoleIdList().containsAll(selectUserSystemRoleId)
                         && selectUserSystemRoleId.containsAll(editRequest.getUserRoleIdList()));
