@@ -9,7 +9,7 @@ const PerformanceTest: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.performanceTest',
-    icon: 'icon_performance-test-filled',
+    icon: 'icon-icon_performance-test-filled',
     order: 6,
     hideChildrenInMenu: true,
   },

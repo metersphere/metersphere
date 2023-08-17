@@ -1,5 +1,6 @@
 <template>
   <MsDrawer
+    :mask="false"
     :width="680"
     :visible="currentVisible"
     unmount-on-close

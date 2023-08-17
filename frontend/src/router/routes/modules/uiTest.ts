@@ -9,7 +9,7 @@ const UiTest: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.uiTest',
-    icon: 'icon_ui-test-filled',
+    icon: 'icon-icon_ui-test-filled',
     order: 5,
     hideChildrenInMenu: true,
   },

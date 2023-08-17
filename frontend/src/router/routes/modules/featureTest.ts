@@ -9,7 +9,7 @@ const FeatureTest: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.featureTest',
-    icon: 'icon_functional_testing',
+    icon: 'icon-icon_functional_testing',
     order: 3,
     hideChildrenInMenu: true,
   },

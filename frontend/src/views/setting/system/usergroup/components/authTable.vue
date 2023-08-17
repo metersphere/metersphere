@@ -40,12 +40,6 @@
         </a-table-column>
       </template>
     </a-table>
-    <div class="action">
-      <ms-button class="btn" @click="handleReset">{{ t('system.userGroup.reset') }}</ms-button>
-      <a-button class="btn" :disabled="!canSave" type="primary" @click="handleSave">{{
-        t('system.userGroup.save')
-      }}</a-button>
-    </div>
   </div>
 </template>
 
@@ -56,7 +50,6 @@
   import useUserGroupStore from '@/store/modules/setting/usergroup';
   import { getGlobalUSetting, saveGlobalUSetting } from '@/api/modules/setting/usergroup';
   import { UserGroupAuthSetting, AuthTableItem, type AuthScopeType, SavePermissions } from '@/models/setting/usergroup';
-  import MsButton from '@/components/pure/ms-button/index.vue';
 
   export declare type OperationName = 'selection-checkbox' | 'selection-radio' | 'expand' | 'drag-handle';
 
@@ -280,6 +273,11 @@
     if (store.currentId) {
       initData(store.currentId);
     }
+  });
+  defineExpose({
+    handleReset,
+    handleSave,
+    canSave,
   });
 </script>
 

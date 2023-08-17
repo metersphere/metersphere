@@ -5,4 +5,6 @@ export interface UserGroupState {
   currentId: string;
   // 当前用户类型
   currentType: string;
+  // 菜单开启关闭
+  collapse: boolean;
 }

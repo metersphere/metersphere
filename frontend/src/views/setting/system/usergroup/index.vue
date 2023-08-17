@@ -1,14 +1,14 @@
 <template>
   <MsCard simple>
     <div class="flex flex-row">
-      <div class="user-group-left">
+      <div class="user-group-left" :style="{ padding: collapse ? '24px 24px 24px 0' : 0 }">
         <user-group-left v-if="collapse" />
-        <div class="usergroup-collapse">
-          <icon-double-left v-if="collapse" class="icon" @click="collapse = false" />
-          <icon-double-right v-else class="icon" @click="collapse = true" />
+        <div class="usergroup-collapse" @click="handleCollapse">
+          <MsIcon v-if="collapse" type="icon-icon_up-left_outlined" class="icon" />
+          <MsIcon v-else type="icon-icon_down-right_outlined" class="icon" />
         </div>
       </div>
-      <div class="w-[100%] overflow-x-scroll p-[24px]">
+      <div class="relative w-[100%] overflow-x-scroll p-[24px]">
         <div class="flex flex-row items-center justify-between">
           <div class="title">{{ store.userGroupInfo.currentName }}</div>
           <div class="flex items-center">
@@ -27,11 +27,21 @@
         </div>
         <div class="mt-[16px]">
           <user-table v-if="currentTable === 'user'" :keyword="currentKeyword" />
-          <auth-table v-if="currentTable === 'auth'" />
+          <auth-table v-if="currentTable === 'auth'" ref="authRef" />
         </div>
       </div>
     </div>
   </MsCard>
+  <div
+    v-if="currentTable === 'auth'"
+    class="fixed bottom-[16px] right-[16px] z-[999] flex justify-between bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+    :style="{ width: `calc(100% - ${menuWidth + 16}px)` }"
+  >
+    <ms-button class="btn" :disabled="!canSave" @click="handleReset">{{ t('system.userGroup.reset') }}</ms-button>
+    <a-button class="btn" :disabled="!canSave" type="primary" @click="handleSave">{{
+      t('system.userGroup.save')
+    }}</a-button>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -42,12 +52,20 @@
   import UserGroupLeft from './components/index.vue';
   import UserTable from './components/userTable.vue';
   import AuthTable from './components/authTable.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import { useAppStore } from '@/store';
 
   const currentTable = ref('auth');
-  const collapse = ref(true);
 
   const { t } = useI18n();
   const currentKeyword = ref('');
+  const authRef = ref<{
+    handleReset: () => void;
+    handleSave: () => void;
+    canSave: boolean;
+  }>();
+  const appStore = useAppStore();
 
   const handleSearch = (value: string) => {
     currentKeyword.value = value;
@@ -58,6 +76,10 @@
 
   const store = useUserGroupStore();
   const couldShowUser = computed(() => store.userGroupInfo.currentType === 'SYSTEM');
+  const handleCollapse = () => {
+    store.setCollapse(!store.collapse);
+  };
+  const collapse = computed(() => store.collapse);
   watch(
     () => couldShowUser.value,
     (val) => {
@@ -66,6 +88,26 @@
       }
     }
   );
+  const menuWidth = computed(() => {
+    const width = appStore.menuCollapse ? 86 : appStore.menuWidth;
+    if (store.collapse) {
+      return width + 300;
+    }
+    return width + 24;
+  });
+
+  const handleReset = () => {
+    authRef.value?.handleReset();
+  };
+  const handleSave = () => {
+    authRef.value?.handleSave();
+  };
+  const canSave = computed(() => {
+    if (currentTable.value === 'auth') {
+      return authRef.value?.canSave;
+    }
+    return true;
+  });
 </script>
 
 <style lang="scss" scoped>
@@ -77,19 +119,23 @@
   }
   .user-group-left {
     position: relative;
-    padding: 24px;
     border-right: 1px solid var(--color-border);
     .usergroup-collapse {
       position: absolute;
       top: 50%;
       right: -16px;
+      z-index: 100;
       display: flex;
       justify-content: center;
       align-items: center;
       width: 16px;
       height: 36px;
       background-color: var(--color-text-n8);
+      opacity: 0;
       cursor: pointer;
+      &:hover {
+        opacity: 1;
+      }
       .icon {
         font-size: 12px;
         color: var(--color-text-brand);

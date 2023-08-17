@@ -9,7 +9,7 @@ const WorkPlace: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.workplace',
-    icon: 'icon_pc_filled',
+    icon: 'icon-icon_pc_filled',
     order: 0,
     hideChildrenInMenu: true,
   },

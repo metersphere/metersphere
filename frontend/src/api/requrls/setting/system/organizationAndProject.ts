@@ -46,3 +46,7 @@ export const getProjectInfoUrl = '/system/project/get/';
 export const getDeleteProjectUrl = '/system/project/delete/';
 // 系统-组织及项目，获取用户下拉选项
 export const getUserByOrgOrProjectUrl = '/system/user/get-option/';
+// 启用项目
+export const getEnableProjectUrl = '/system/project/enable/';
+// 禁用项目
+export const getDisableProjectUrl = '/system/project/disable/';

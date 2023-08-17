@@ -19,9 +19,19 @@ export function deleteOrg(id: string) {
   return MSR.get({ url: `${orgUrl.getDeleteOrgUrl}${id}` });
 }
 
+// 删除项目
+export function deleteProject(id: string) {
+  return MSR.get({ url: `${orgUrl.getDeleteProjectUrl}${id}` });
+}
+
 // 撤销删除组织
 export function revokeDeleteOrg(id: string) {
   return MSR.get({ url: `${orgUrl.getRecoverOrgUrl}${id}` });
+}
+
+// 撤销删除项目
+export function revokeDeleteProject(id: string) {
+  return MSR.get({ url: `${orgUrl.getRevokeProjectUrl}${id}` });
 }
 
 // 启用或禁用组织
@@ -60,5 +70,5 @@ export function deleteUserFromOrgOrProject(sourceId: string, userId: string, isO
 
 // TODO: 等待后端同学的接口 启用或禁用项目
 export function enableOrDisableProject(id: string, isEnable = true) {
-  return MSR.get({ url: `${isEnable ? orgUrl.getEnableOrgUrl : orgUrl.getDisableOrgUrl}${id}` });
+  return MSR.get({ url: `${isEnable ? orgUrl.getEnableProjectUrl : orgUrl.getDisableProjectUrl}${id}` });
 }

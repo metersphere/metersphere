@@ -75,7 +75,7 @@
       const { organizationId, projectId } = props;
       try {
         loading.value = true;
-        await addUserToOrgOrProject({ memberIds: form.name, organizationId, projectId });
+        await addUserToOrgOrProject({ userIds: form.name, organizationId, projectId });
         Message.success(t('system.organization.addSuccess'));
         handleCancel();
       } catch (error) {

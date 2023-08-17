@@ -2,7 +2,11 @@
   <a-button type="primary" @click="handleAddUser">{{ t('system.userGroup.quickAddUser') }}</a-button>
   <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
     <template #action="{ record }">
-      <ms-button @click="handleRemove(record)">{{ t('system.userGroup.remove') }}</ms-button>
+      <MsRemoveButton
+        :title="t('system.userGroup.removeName', { name: record.name })"
+        :sub-title-tip="t('system.userGroup.removeTip')"
+        @ok="handleRemove(record)"
+      />
     </template>
   </MsBaseTable>
   <AddUserModal :visible="userVisible" @cancel="handleAddUserModalCancel" />
@@ -17,9 +21,9 @@
   import { postUserByUserGroup, deleteUserFromUserGroup } from '@/api/modules/setting/usergroup';
   import { UserTableItem } from '@/models/setting/usergroup';
   import { TableKeyEnum } from '@/enums/tableEnum';
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import AddUserModal from './addUserModal.vue';
+  import MsRemoveButton from '@/components/bussiness/ms-remove-button/MsRemoveButton.vue';
 
   const { t } = useI18n();
   const store = useUserGroupStore();
@@ -33,28 +37,20 @@
     {
       title: 'system.userGroup.name',
       dataIndex: 'name',
-      showDrag: false,
-      showInTable: true,
     },
     {
       title: 'system.userGroup.email',
       dataIndex: 'email',
-      showDrag: false,
-      showInTable: true,
     },
     {
       title: 'system.userGroup.phone',
       dataIndex: 'email',
-      showDrag: true,
-      showInTable: true,
     },
     {
       title: 'system.userGroup.operation',
       slotName: 'action',
       fixed: 'right',
       width: 200,
-      showDrag: true,
-      showInTable: true,
     },
   ];
 

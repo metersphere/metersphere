@@ -54,6 +54,8 @@ export default {
       phone: 'Phone',
       remove: 'Remove',
       quickAddUser: 'Quick add user',
+      removeName: 'Confirm to remove {name} this user',
+      removeTip: 'After removal, the User Group permission will be lost',
     },
   },
   permission: {
