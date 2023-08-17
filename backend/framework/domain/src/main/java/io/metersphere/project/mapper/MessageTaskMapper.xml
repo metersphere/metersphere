@@ -11,6 +11,7 @@
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="enable" jdbcType="BIT" property="enable" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,7 +72,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `type`, event, receiver, task_type, webhook, test_id, create_time, project_id
+    id, `type`, event, receiver, task_type, webhook, test_id, create_time, project_id, 
+    `enable`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.MessageTaskExample" resultMap="BaseResultMap">
     select
@@ -106,12 +108,12 @@
   <insert id="insert" parameterType="io.metersphere.project.domain.MessageTask">
     insert into message_task (id, `type`, event, 
       receiver, task_type, webhook, 
-      test_id, create_time, project_id
-      )
+      test_id, create_time, project_id, 
+      `enable`)
     values (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, 
       #{receiver,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{webhook,jdbcType=VARCHAR}, 
-      #{testId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}
-      )
+      #{testId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
+      #{enable,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.MessageTask">
     insert into message_task
@@ -143,6 +145,9 @@
       <if test="projectId != null">
         project_id,
       </if>
+      <if test="enable != null">
+        `enable`,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -171,6 +176,9 @@
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -210,6 +218,9 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -225,7 +236,8 @@
       webhook = #{record.webhook,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      project_id = #{record.projectId,jdbcType=VARCHAR}
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -257,6 +269,9 @@
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -269,19 +284,20 @@
       webhook = #{webhook,jdbcType=VARCHAR},
       test_id = #{testId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      project_id = #{projectId,jdbcType=VARCHAR}
+      project_id = #{projectId,jdbcType=VARCHAR},
+      `enable` = #{enable,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into message_task
-    (id, `type`, event, receiver, task_type, webhook, test_id, create_time, project_id
-      )
+    (id, `type`, event, receiver, task_type, webhook, test_id, create_time, project_id, 
+      `enable`)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.event,jdbcType=VARCHAR}, 
         #{item.receiver,jdbcType=VARCHAR}, #{item.taskType,jdbcType=VARCHAR}, #{item.webhook,jdbcType=VARCHAR}, 
-        #{item.testId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}
-        )
+        #{item.testId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.enable,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -320,6 +336,9 @@
         </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'enable'.toString() == column.value">
+          #{item.enable,jdbcType=BIT}
         </if>
       </foreach>
       )
