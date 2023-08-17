@@ -94,6 +94,24 @@ public class OrganizationProjectController {
         return organizationProjectService.revoke(id);
     }
 
+    @GetMapping("/enable/{id}")
+    @Operation(summary = "启用项目")
+    @Parameter(name = "id", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = OrganizationProjectLogService.class)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE)
+    public void enable(@PathVariable String id) {
+        organizationProjectService.enable(id);
+    }
+
+    @GetMapping("/disable/{id}")
+    @Operation(summary = "禁用项目")
+    @Parameter(name = "id", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = OrganizationProjectLogService.class)
+    public void disable(@PathVariable String id) {
+        organizationProjectService.disable(id);
+    }
+
     @PostMapping("/member-list")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     @Operation(summary = "获取项目下成员列表")

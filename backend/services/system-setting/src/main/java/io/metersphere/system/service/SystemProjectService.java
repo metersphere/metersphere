@@ -98,4 +98,12 @@ public class SystemProjectService {
     public List<OrganizationProjectOptionsDTO> getProjectOptions() {
         return extSystemProjectMapper.selectProjectOptions();
     }
+
+    public void enable(String id) {
+        commonProjectService.enable(id);
+    }
+
+    public void disable(String id) {
+        commonProjectService.disable(id);
+    }
 }

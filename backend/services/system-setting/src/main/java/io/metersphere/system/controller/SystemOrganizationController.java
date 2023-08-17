@@ -29,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author song-cc-rock
@@ -102,5 +103,12 @@ public class SystemOrganizationController {
         ProjectRequest projectRequest = new ProjectRequest();
         BeanUtils.copyBean(projectRequest, request);
         return PageUtils.setPageInfo(page, systemProjectService.getProjectList(projectRequest));
+    }
+
+    @GetMapping("/total")
+    @Operation(summary = "获取组织和项目总数")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
+    public Map<String, Long> getTotal(@RequestParam(value = "organizationId",required = false) String organizationId) {
+        return organizationService.getTotal(organizationId);
     }
 }

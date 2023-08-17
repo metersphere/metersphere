@@ -34,7 +34,7 @@
                p.deleted,
                p.delete_user,
                p.enable,
-               count(distinct u.id) as number,
+               count(distinct u.id) as memberCount,
                o.name as organizationName
         FROM project p
         LEFT JOIN user_role_relation u on p.id = u.source_id

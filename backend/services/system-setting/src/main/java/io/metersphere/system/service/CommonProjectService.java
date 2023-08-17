@@ -185,6 +185,11 @@ public class CommonProjectService {
         projectList.forEach(projectDTO -> {
             List<User> users = extSystemProjectMapper.getProjectAdminList(projectDTO.getId());
             projectDTO.setAdminList(users);
+            List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(userIds) && userIds.contains(projectDTO.getCreateUser())) {
+                projectDTO.setProjectCreateUserIsAdmin(true);
+            }
+
         });
         return projectList;
     }
@@ -462,5 +467,23 @@ public class CommonProjectService {
         dto.setMethod(method);
         dto.setOriginalValue(JSON.toJSONBytes(StringUtils.EMPTY));
         logDTOList.add(dto);
+    }
+
+    public void enable(String id) {
+        checkProjectNotExist(id);
+        Project project = new Project();
+        project.setId(id);
+        project.setEnable(true);
+        project.setUpdateTime(System.currentTimeMillis());
+        projectMapper.updateByPrimaryKeySelective(project);
+    }
+
+    public void disable(String id) {
+        checkProjectNotExist(id);
+        Project project = new Project();
+        project.setId(id);
+        project.setEnable(false);
+        project.setUpdateTime(System.currentTimeMillis());
+        projectMapper.updateByPrimaryKeySelective(project);
     }
 }

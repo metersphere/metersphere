@@ -772,6 +772,10 @@ public class OrganizationService {
         organizationDTOS.forEach(organizationDTO -> {
             List<User> orgAdminList = extOrganizationMapper.getOrgAdminList(organizationDTO.getId());
             organizationDTO.setOrgAdmins(orgAdminList);
+            List<String> userIds = orgAdminList.stream().map(User::getId).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(userIds) && userIds.contains(organizationDTO.getCreateUser())) {
+                organizationDTO.setOrgCreateUserIsAdmin(true);
+            }
         });
         return organizationDTOS;
     }
@@ -809,5 +813,23 @@ public class OrganizationService {
             return new ArrayList<>(0);
         }
         return extOrganizationMapper.getOptionsByIds(orgIds);
+    }
+
+
+    public Map<String, Long> getTotal(String organizationId) {
+        Map<String, Long> total = new HashMap<>();
+        ProjectExample projectExample = new ProjectExample();
+        OrganizationExample organizationExample = new OrganizationExample();
+        if (StringUtils.isBlank(organizationId)) {
+            // 统计所有项目
+            total.put("projectTotal", projectMapper.countByExample(projectExample));
+            total.put("organizationTotal", organizationMapper.countByExample(organizationExample));
+        } else {
+            // 统计组织下的项目
+            projectExample.createCriteria().andOrganizationIdEqualTo(organizationId);
+            total.put("projectTotal", projectMapper.countByExample(projectExample));
+            total.put("organizationTotal", 1L);
+        }
+        return total;
     }
 }
