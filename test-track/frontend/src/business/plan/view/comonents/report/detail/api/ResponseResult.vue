@@ -2,122 +2,122 @@
   <div class="text-container" v-if="responseResult">
     <el-tabs v-model="activeName" v-show="isActive">
       <el-tab-pane
-        :label="$t('api_test.definition.request.response_body')"
-        name="body"
-        class="pane"
+          :label="$t('api_test.definition.request.response_body')"
+          name="body"
+          class="pane"
       >
         <ms-sql-result-table
-          v-if="isSqlType && activeName === 'body'"
-          :body="responseResult.body"
+            v-if="isSqlType && activeName === 'body'"
+            :body="responseResult.body"
         />
         <ms-code-edit
-          v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'"
-          :mode="mode"
-          :read-only="true"
-          :modes="modes"
-          :data.sync="responseResult.body"
-          ref="codeEdit"
+            v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'"
+            :mode="mode"
+            :read-only="true"
+            :modes="modes"
+            :data.sync="responseResult.body"
+            ref="codeEdit"
         />
       </el-tab-pane>
 
       <el-tab-pane
-        :label="$t('api_test.definition.request.response_header')"
-        name="headers"
-        class="pane"
+          :label="$t('api_test.definition.request.response_header')"
+          name="headers"
+          class="pane"
       >
         <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="responseResult.headers"
-          v-if="activeName === 'headers'"
+            :mode="'text'"
+            :read-only="true"
+            :data.sync="responseResult.headers"
+            v-if="activeName === 'headers'"
         />
       </el-tab-pane>
 
       <el-tab-pane
-        v-if="isTestPlan"
-        :label="$t('api_test.definition.request.console')"
-        name="console"
-        class="pane"
+          v-if="isTestPlan"
+          :label="$t('api_test.definition.request.console')"
+          name="console"
+          class="pane"
       >
         <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="responseResult.console"
-          v-if="activeName === 'console'"
-          height="420px"
+            :mode="'text'"
+            :read-only="true"
+            :data.sync="responseResult.console"
+            v-if="activeName === 'console'"
+            height="420px"
         />
       </el-tab-pane>
 
       <el-tab-pane
-        v-if="!isTestPlan"
-        :label="$t('api_test.definition.request.console')"
-        name="console"
-        class="pane"
+          v-if="!isTestPlan"
+          :label="$t('api_test.definition.request.console')"
+          name="console"
+          class="pane"
       >
         <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="responseResult.console"
-          v-if="activeName === 'console'"
+            :mode="'text'"
+            :read-only="true"
+            :data.sync="responseResult.console"
+            v-if="activeName === 'console'"
         />
       </el-tab-pane>
 
       <el-tab-pane
-        :label="$t('api_report.assertions')"
-        name="assertions"
-        class="pane assertions"
+          :label="$t('api_report.assertions')"
+          name="assertions"
+          class="pane assertions"
       >
         <ms-assertion-results
-          :assertions="responseResult.assertions"
-          v-if="activeName === 'assertions'"
+            :assertions="responseResult.assertions"
+            v-if="activeName === 'assertions'"
         />
       </el-tab-pane>
 
       <el-tab-pane
-        :label="$t('api_test.request.extract.label')"
-        name="label"
-        class="pane"
+          :label="$t('api_test.request.extract.label')"
+          name="label"
+          class="pane"
       >
         <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="responseResult.vars"
-          v-if="activeName === 'label'"
+            :mode="'text'"
+            :read-only="true"
+            :data.sync="responseResult.vars"
+            v-if="activeName === 'label'"
         />
       </el-tab-pane>
 
       <el-tab-pane
-        :label="$t('api_report.request_body')"
-        name="request_body"
-        class="pane"
+          :label="$t('api_report.request_body')"
+          name="request_body"
+          class="pane"
       >
         <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="reqMessages"
-          v-if="activeName === 'request_body'"
+            :mode="'text'"
+            :read-only="true"
+            :data.sync="reqMessages"
+            v-if="activeName === 'request_body'"
         />
       </el-tab-pane>
 
       <el-tab-pane
-        v-if="activeName == 'body'"
-        :disabled="true"
-        name="mode"
-        class="pane cookie"
+          v-if="activeName === 'body'"
+          :disabled="true"
+          name="mode"
+          class="pane cookie"
       >
         <template v-slot:label>
           <ms-dropdown
-            v-if="currentProtocol === 'SQL'"
-            :commands="sqlModes"
-            :default-command="mode"
-            @command="sqlModeChange"
+              v-if="currentProtocol === 'SQL'"
+              :commands="sqlModes"
+              :default-command="mode"
+              @command="sqlModeChange"
           />
           <ms-dropdown
-            v-else
-            :commands="modes"
-            :default-command="mode"
-            @command="modeChange"
-            ref="modeDropdown"
+              v-else
+              :commands="modes"
+              :default-command="mode"
+              @command="modeChange"
+              ref="modeDropdown"
           />
         </template>
       </el-tab-pane>
@@ -179,12 +179,12 @@ export default {
     },
     setBodyType() {
       if (
-        this.response &&
-        this.response.responseResult &&
-        this.response.responseResult.headers &&
-        this.response.responseResult.headers.indexOf(
-          "Content-Type: application/json"
-        ) > 0
+          this.response &&
+          this.response.responseResult &&
+          this.response.responseResult.headers &&
+          this.response.responseResult.headers.indexOf(
+              "Content-Type: application/json"
+          ) > 0
       ) {
         this.mode = BODY_FORMAT.JSON;
         this.$nextTick(() => {
@@ -222,20 +222,20 @@ export default {
           this.response.responseResult.vars = "";
         }
         this.reqMessages =
-          this.$t("api_test.request.address") +
-          ":\n" +
-          this.response.url +
-          "\n" +
-          this.$t("api_test.scenario.headers") +
-          ":\n" +
-          this.response.headers +
-          "\n" +
-          "Cookie:\n" +
-          this.response.cookies +
-          "\n" +
-          "Body:" +
-          "\n" +
-          this.response.body;
+            this.$t("api_test.request.address") +
+            ":\n" +
+            this.response.url +
+            "\n" +
+            this.$t("api_test.scenario.headers") +
+            ":\n" +
+            this.response.headers +
+            "\n" +
+            "Cookie:\n" +
+            this.response.cookies +
+            "\n" +
+            "Body:" +
+            "\n" +
+            this.response.body;
       }
     },
   },
@@ -246,15 +246,15 @@ export default {
   computed: {
     isSqlType() {
       return (
-        this.currentProtocol === "SQL" &&
-        this.response.responseResult.responseCode === "200" &&
-        this.mode === "table"
+          this.currentProtocol === "SQL" &&
+          this.response.responseResult['responseCode'] === "200" &&
+          this.mode === "table"
       );
     },
     responseResult() {
       return this.response && this.response.responseResult
-        ? this.response.responseResult
-        : {};
+          ? this.response.responseResult
+          : {};
     },
   },
 };
@@ -280,7 +280,7 @@ export default {
 .text-container .pane {
   background-color: #f5f5f5;
   padding: 1px 0;
-  height: 250px;
+  height: 400px;
   overflow-y: auto;
 }
 
@@ -289,7 +289,7 @@ export default {
 }
 
 :deep(.el-tabs__nav-wrap::after) {
-  height: 0px;
+  height: 0;
 }
 
 .ms-div {
