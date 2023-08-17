@@ -1036,9 +1036,6 @@ export default {
 
 .tag-item {
   margin-right: 20px;
-  width: 800px;
-  position: relative;
-  z-index: 100;
 }
 
 .ms-col-name {
