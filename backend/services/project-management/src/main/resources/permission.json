@@ -1,316 +1,119 @@
-{
-  "permissions": [
-    {
-      "id": "PROJECT_USER:READ",
-      "name": "permission.project_user.read",
-      "resourceId": "PROJECT_USER"
-    },
-    {
-      "id": "PROJECT_USER:READ+ADD",
-      "name": "permission.project_user.add",
-      "resourceId": "PROJECT_USER"
-    },
-    {
-      "id": "PROJECT_USER:READ+UPDATE",
-      "name": "permission.project_user.update",
-      "resourceId": "PROJECT_USER"
-    },
-    {
-      "id": "PROJECT_USER:READ+DELETE",
-      "name": "permission.project_user.delete",
-      "resourceId": "PROJECT_USER"
-    },
-    {
-      "id": "PROJECT_GROUP:READ",
-      "name": "permission.project_group.read",
-      "resourceId": "PROJECT_GROUP"
-    },
-    {
-      "id": "PROJECT_GROUP:READ+ADD",
-      "name": "permission.project_group.add",
-      "resourceId": "PROJECT_GROUP"
-    },
-    {
-      "id": "PROJECT_GROUP:READ+UPDATE",
-      "name": "permission.project_group.update",
-      "resourceId": "PROJECT_GROUP"
-    },
-    {
-      "id": "PROJECT_GROUP:READ+DELETE",
-      "name": "permission.project_group.delete",
-      "resourceId": "PROJECT_GROUP"
-    },
-    {
-      "id": "PROJECT_GROUP:READ+SETTING_PERMISSION",
-      "name": "permission.project_group.setting_permission",
-      "resourceId": "PROJECT_GROUP"
-    },
-    {
-      "id": "PROJECT_MANAGER:READ",
-      "name": "permission.project_manager.read",
-      "resourceId": "PROJECT_MANAGER"
-    },
-    {
-      "id": "PROJECT_MANAGER:READ+UPDATE",
-      "name": "permission.project_manager.update",
-      "resourceId": "PROJECT_MANAGER"
-    },
-    {
-      "id": "PROJECT_APP_MANAGER:READ+UPDATE",
-      "name": "permission.project_app_manager.update",
-      "resourceId": "PROJECT_APP_MANAGER"
-    },
-    {
-      "id": "PROJECT_ENVIRONMENT:READ",
-      "name": "permission.project_environment.read",
-      "resourceId": "PROJECT_ENVIRONMENT"
-    },
-    {
-      "id": "PROJECT_ENVIRONMENT:READ+ADD",
-      "name": "permission.project_environment.add",
-      "resourceId": "PROJECT_ENVIRONMENT"
-    },
-    {
-      "id": "PROJECT_ENVIRONMENT:READ+UPDATE",
-      "name": "permission.project_environment.update",
-      "resourceId": "PROJECT_ENVIRONMENT"
-    },
-    {
-      "id": "PROJECT_ENVIRONMENT:READ+DELETE",
-      "name": "permission.project_environment.delete",
-      "resourceId": "PROJECT_ENVIRONMENT"
-    },
-    {
-      "id": "PROJECT_ENVIRONMENT:READ+COPY",
-      "name": "permission.project_environment.copy",
-      "resourceId": "PROJECT_ENVIRONMENT"
-    },
-    {
-      "id": "PROJECT_ENVIRONMENT:READ+IMPORT",
-      "name": "permission.project_environment.import",
-      "resourceId": "PROJECT_ENVIRONMENT"
-    },
-    {
-      "id": "PROJECT_ENVIRONMENT:READ+EXPORT",
-      "name": "permission.project_environment.export",
-      "resourceId": "PROJECT_ENVIRONMENT"
-    },
-    {
-      "id": "PROJECT_OPERATING_LOG:READ",
-      "name": "permission.project_operation_log.read",
-      "resourceId": "PROJECT_OPERATING_LOG"
-    },
-    {
-      "id": "PROJECT_FILE:READ",
-      "name": "permission.project_file.jar",
-      "resourceId": "PROJECT_FILE"
-    },
-    {
-      "id": "PROJECT_FILE:READ+UPLOAD+JAR",
-      "name": "permission.project_file.upload_jar",
-      "resourceId": "PROJECT_FILE"
-    },
-    {
-      "id": "PROJECT_FILE:READ+DOWNLOAD+JAR",
-      "name": "permission.project_file.file_download",
-      "resourceId": "PROJECT_FILE"
-    },
-    {
-      "id": "PROJECT_FILE:READ+DELETE+JAR",
-      "name": "permission.project_file.delete_jar",
-      "resourceId": "PROJECT_FILE"
-    },
-    {
-      "id": "PROJECT_FILE:READ+BATCH+DELETE",
-      "name": "permission.project_file.batch_delete",
-      "resourceId": "PROJECT_FILE"
-    },
-    {
-      "id": "PROJECT_FILE:READ+BATCH+DOWNLOAD",
-      "name": "permission.project_file.batch_download",
-      "resourceId": "PROJECT_FILE"
-    },
-    {
-      "id": "PROJECT_FILE:READ+BATCH+MOVE",
-      "name": "permission.project_file.batch_move",
-      "resourceId": "PROJECT_FILE"
-    },
-    {
-      "id": "PROJECT_TEMPLATE:READ",
-      "name": "permission.project_template.read",
-      "resourceId": "PROJECT_TEMPLATE"
-    },
-    {
-      "id": "PROJECT_TEMPLATE:READ+CASE_TEMPLATE",
-      "name": "permission.project_template.case_template",
-      "resourceId": "PROJECT_TEMPLATE"
-    },
-    {
-      "id": "PROJECT_TEMPLATE:READ+ISSUE_TEMPLATE",
-      "name": "permission.project_template.issue_template",
-      "resourceId": "PROJECT_TEMPLATE"
-    },
-    {
-      "id": "PROJECT_TEMPLATE:READ+API_TEMPLATE",
-      "name": "permission.project_template.api_template",
-      "resourceId": "PROJECT_TEMPLATE"
-    },
-    {
-      "id": "PROJECT_TEMPLATE:READ+CUSTOM",
-      "name": "permission.project_template.custom",
-      "resourceId": "PROJECT_TEMPLATE"
-    },
-    {
-      "id": "PROJECT_MESSAGE:READ",
-      "name": "permission.project_message.read",
-      "resourceId": "PROJECT_MESSAGE"
-    },
-    {
-      "id": "PROJECT_MESSAGE:READ+UPDATE",
-      "name": "permission.project_message.update",
-      "resourceId": "PROJECT_MESSAGE"
-    },
-    {
-      "id": "PROJECT_MESSAGE:READ+DELETE",
-      "name": "permission.project_message.delete",
-      "resourceId": "PROJECT_MESSAGE"
-    },
-    {
-      "id": "PROJECT_CUSTOM_CODE:READ",
-      "name": "permission.project_custom_code.read",
-      "resourceId": "PROJECT_CUSTOM_CODE"
-    },
-    {
-      "id": "PROJECT_CUSTOM_CODE:READ+ADD",
-      "name": "permission.project_custom_code.add",
-      "resourceId": "PROJECT_CUSTOM_CODE"
-    },
-    {
-      "id": "PROJECT_CUSTOM_CODE:READ+UPDATE",
-      "name": "permission.project_custom_code.update",
-      "resourceId": "PROJECT_CUSTOM_CODE"
-    },
-    {
-      "id": "PROJECT_CUSTOM_CODE:READ+DELETE",
-      "name": "permission.project_custom_code.delete",
-      "resourceId": "PROJECT_CUSTOM_CODE"
-    },
-    {
-      "id": "PROJECT_CUSTOM_CODE:READ+COPY",
-      "name": "permission.project_custom_code.copy",
-      "resourceId": "PROJECT_CUSTOM_CODE"
-    },
-    {
-      "id": "PROJECT_VERSION:READ",
-      "name": "project.version.read",
-      "resourceId": "PROJECT_VERSION",
-      "license": true
-    },
-    {
-      "id": "PROJECT_VERSION:READ+ADD",
-      "name": "project.version.add_version",
-      "resourceId": "PROJECT_VERSION",
-      "license": true
-    },
-    {
-      "id": "PROJECT_VERSION:READ+UPDATE",
-      "name": "project.version.update_version",
-      "resourceId": "PROJECT_VERSION",
-      "license": true
-    },
-    {
-      "id": "PROJECT_VERSION:READ+DELETE",
-      "name": "project.version.delete_version",
-      "resourceId": "PROJECT_VERSION",
-      "license": true
-    },
-    {
-      "id": "PROJECT_VERSION:READ+ENABLE",
-      "name": "project.version.enable",
-      "resourceId": "PROJECT_VERSION",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ",
-      "name": "permission.project_error_report_library.read",
-      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+ADD",
-      "name": "permission.project_error_report_library.add",
-      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+UPDATE",
-      "name": "permission.project_error_report_library.update",
-      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+DELETE",
-      "name": "permission.project_error_report_library.delete",
-      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+BATCH_DELETE",
-      "name": "permission.project_error_report_library.batch_delete",
-      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
-      "license": true
-    }
-  ],
-  "resource": [
-    {
-      "id": "PROJECT_USER",
-      "name": "permission.project_user.name"
-    },
-    {
-      "id": "PROJECT_MANAGER",
-      "name": "permission.project_manager.name"
-    },
-    {
-      "id": "PROJECT_GROUP",
-      "name": "permission.project_group.name"
-    },
-    {
-      "id": "PROJECT_ENVIRONMENT",
-      "name": "permission.project_environment.name"
-    },
-    {
-      "id": "PROJECT_OPERATING_LOG",
-      "name": "permission.project_operation_log.name"
-    },
-    {
-      "id": "PROJECT_CUSTOM_CODE",
-      "name": "permission.project_custom_code.name"
-    },
-    {
-      "id": "PROJECT_FILE",
-      "name": "permission.project_file.name"
-    },
-    {
-      "id": "PROJECT_TEMPLATE",
-      "name": "permission.project_template.name"
-    },
-    {
-      "id": "PROJECT_MESSAGE",
-      "name": "permission.project_message.name"
-    },
-    {
-      "id": "PROJECT_VERSION",
-      "name": "project.version_manage",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ERROR_REPORT_LIBRARY",
-      "name": "permission.project_error_report_library.name",
-      "license": true
-    },
-    {
-      "id": "PROJECT_APP_MANAGER",
-      "name": "permission.project_app_manager.name"
-    }
-  ]
-}
+[
+  {
+    "id": "PROJECT",
+    "name": "permission.project.name",
+    "type": "PROJECT",
+    "children": [
+      {
+        "id": "PROJECT_USER",
+        "name": "permission.project_user.name",
+        "permissions": [
+          {
+            "id": "PROJECT_USER:READ"
+          },
+          {
+            "id": "PROJECT_USER:READ+ADD"
+          },
+          {
+            "id": "PROJECT_USER:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_USER:READ+DELETE"
+          }
+        ]
+      },
+      {
+        "id": "PROJECT_GROUP",
+        "name": "permission.project_group.name",
+        "permissions": [
+          {
+            "id": "PROJECT_GROUP:READ"
+          },
+          {
+            "id": "PROJECT_GROUP:READ+ADD"
+          },
+          {
+            "id": "PROJECT_GROUP:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_GROUP:READ+DELETE"
+          }
+        ]
+      },
+      {
+        "id": "PROJECT_ENVIRONMENT",
+        "name": "permission.project_environment.name",
+        "permissions": [
+          {
+            "id": "PROJECT_ENVIRONMENT:READ"
+          },
+          {
+            "id": "PROJECT_ENVIRONMENT:READ+ADD"
+          },
+          {
+            "id": "PROJECT_ENVIRONMENT:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_ENVIRONMENT:READ+DELETE"
+          }
+        ]
+      },
+      {
+        "id": "PROJECT_FILE",
+        "name": "permission.project_file.name",
+        "permissions": [
+          {
+            "id": "PROJECT_FILE:READ"
+          }
+        ]
+      },
+      {
+        "id": "PROJECT_TEMPLATE",
+        "name": "permission.project_template.name",
+        "permissions": [
+          {
+            "id": "PROJECT_TEMPLATE:READ"
+          }
+        ]
+      },
+      {
+        "id": "PROJECT_MESSAGE",
+        "name": "permission.project_message.name",
+        "permissions": [
+          {
+            "id": "PROJECT_MESSAGE:READ"
+          },
+          {
+            "id": "PROJECT_MESSAGE:READ+ADD"
+          },
+          {
+            "id": "PROJECT_MESSAGE:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_MESSAGE:READ+DELETE"
+          }
+        ]
+      },
+      {
+        "id": "PROJECT_FAKE_ERROR",
+        "name": "permission.project_fake_error.name",
+        "license": true,
+        "permissions": [
+          {
+            "id": "PROJECT_FAKE_ERROR:READ"
+
+          },
+          {
+            "id": "PROJECT_FAKE_ERROR:READ+ADD"
+          },
+          {
+            "id": "PROJECT_FAKE_ERROR:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_FAKE_ERROR:READ+DELETE"
+          }
+        ]
+      }
+    ]
+  }
+]
