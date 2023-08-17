@@ -219,8 +219,8 @@ const useAppStore = defineStore('app', {
               // 四个属性值为文件类型，单独处理
               this.pageConfig[key] = [
                 {
-                  url: e.paramValue,
-                  name: e.fileName,
+                  url: e.fileName,
+                  name: e.paramValue,
                 },
               ] as any;
             } else {

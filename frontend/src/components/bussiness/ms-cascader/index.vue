@@ -12,6 +12,7 @@
     :max-tag-count="maxTagCount"
     :virtual-list-props="props.virtualListProps"
     :placeholder="props.placeholder"
+    :loading="props.loading"
     @change="handleMsCascaderChange"
   >
     <template #prefix>
@@ -26,7 +27,7 @@
       <a-tooltip :content="data.label" position="top" :mouse-enter-delay="500" mini>
         <a-radio
           v-if="data.level === 0"
-          v-model:model-value="level"
+          v-model:model-value="innerLevel"
           :value="data.value.value"
           size="mini"
           @change="handleLevelChange"
@@ -50,6 +51,7 @@
     :max-tag-count="maxTagCount"
     :placeholder="props.placeholder"
     :virtual-list-props="props.virtualListProps"
+    :loading="props.loading"
   >
     <template #prefix>
       {{ props.prefix }}
@@ -83,19 +85,21 @@
       mode?: 'MS' | 'native'; // MS的多选、原生;这里的多选指的是出了一级以外的多选，一级是顶级分类选项只能单选。原生模式使用 arco-design 的 cascader 组件，只加了getOptionComputedStyle
       prefix?: string; // 输入框前缀
       levelTop?: string[]; // 顶级选项，多选时则必传
+      level?: string; // 顶级选项，该级别为单选选项
       multiple?: boolean; // 是否多选
       strictly?: boolean; // 是否严格模式
       virtualListProps?: VirtualListProps; // 传入开启虚拟滚动
       placeholder?: string;
+      loading?: boolean;
     }>(),
     {
       mode: 'MS',
     }
   );
-  const emit = defineEmits(['update:modelValue']);
+  const emit = defineEmits(['update:modelValue', 'update:level']);
 
   const innerValue = ref<CascaderModelValue>([]);
-  const level = ref(''); // 顶级选项，该级别为单选选项
+  const innerLevel = ref(''); // 顶级选项，该级别为单选选项
   const maxTagCount = ref(1); // 最大显示 tag 数量
   const cascader: Ref = ref(null);
   const cascaderWidth = ref(0); // cascader 宽度
@@ -113,7 +117,7 @@
         typeof val[0] === 'string' &&
         props.levelTop?.includes(val[0])
       ) {
-        level.value = val[0] as string;
+        innerLevel.value = val[0] as string;
       }
     },
     {
@@ -125,6 +129,27 @@
     () => innerValue.value,
     (val) => {
       emit('update:modelValue', val);
+      if (val === '') {
+        innerLevel.value = '';
+        emit('update:level', val);
+      }
+    }
+  );
+
+  watch(
+    () => props.level,
+    (val) => {
+      innerLevel.value = val || '';
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => innerLevel.value,
+    (val) => {
+      emit('update:level', val);
     }
   );
 
@@ -170,7 +195,7 @@
         innerValue.value = innerValue.value.filter(
           (e) => typeof e !== 'string' && (e as CascaderValue).level === lastValue.level
         );
-        level.value = '';
+        innerLevel.value = '';
       }
     }
     nextTick(() => {

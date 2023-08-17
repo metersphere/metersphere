@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1689750124664') format('woff2'), url('iconfont.woff?t=1689750124664') format('woff'),
-    url('iconfont.ttf?t=1689750124664') format('truetype'), url('iconfont.svg?t=1689750124664#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1692250847167') format('woff2'), url('iconfont.woff?t=1692250847167') format('woff'),
+    url('iconfont.ttf?t=1692250847167') format('truetype'), url('iconfont.svg?t=1692250847167#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,36 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_time_axis::before {
+  content: '\e751';
+}
+.icon-icon_maybe_filled::before {
+  content: '\e750';
+}
+.icon-icon_succeed_colorful::before {
+  content: '\e74d';
+}
+.icon-icon_close_colorful::before {
+  content: '\e74e';
+}
+.icon-icon_warning_colorful::before {
+  content: '\e74f';
+}
+.icon-icon_info_colorful::before {
+  content: '\e6f8';
+}
+.icon-icon_move_outlined::before {
+  content: '\e74a';
+}
+.icon-icon_assigned_outlined::before {
+  content: '\e74b';
+}
+.icon-icon_team-add_outlined::before {
+  content: '\e74c';
+}
+.icon-icon_sql_outlined1::before {
+  content: '\e749';
 }
 .icon-icon_that_person::before {
   content: '\e66a';
@@ -435,9 +465,6 @@
 }
 .icon-icon_not-started_filled::before {
   content: '\e6f4';
-}
-.icon-icon_skip_filled::before {
-  content: '\e6f8';
 }
 .icon-icon_divider_outlined::before {
   content: '\e6fa';
