@@ -2,8 +2,6 @@ package io.metersphere.system.controller;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
-import io.metersphere.project.domain.ProjectExtend;
-import io.metersphere.project.mapper.ProjectExtendMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
@@ -20,7 +18,6 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.OrganizationDTO;
-import io.metersphere.system.dto.ProjectExtendDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.OrganizationProjectRequest;
@@ -44,8 +41,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,8 +76,6 @@ public class OrganizationProjectControllerTests extends BaseTest {
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private OrganizationService organizationService;
-    @Resource
-    private ProjectExtendMapper projectExtendMapper;
 
     private OrganizationDTO getDefault() {
         return organizationService.getDefault();
@@ -148,7 +141,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         //判断描述是否一样
         Assertions.assertTrue(StringUtils.equals(currentProject.getDescription(), result.getDescription()));
         //判断是否启用
-        Assertions.assertTrue(currentProject.getEnable() == result.getEnable());
+        Assertions.assertSame(currentProject.getEnable(), result.getEnable());
 
     }
 
@@ -187,24 +180,25 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testAddProjectSuccess() throws Exception {
         AddProjectRequest project = this.generatorAdd("organizationId","organization-name", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
-        ProjectExtendDTO result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        Project result = parseObjectFromMvcResult(mvcResult, Project.class);
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         List<Project> projects = projectMapper.selectByExample(projectExample);
+        assert result != null;
         projectId = result.getId();
         // 校验日志
         checkLog(projectId, OperationLogType.ADD);
 
-        this.compareProjectDTO(projects.get(0), result);
+        compareProjectDTO(projects.get(0), result);
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
+        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
          userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
+        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         projectId = result.getId();
-        ProjectExtend projectExtend = projectExtendMapper.selectByPrimaryKey(projectId);
+        Project projectExtend = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(new ModuleSettingDTO()));
         // 校验日志
         checkLog(projectId, OperationLogType.ADD);
@@ -212,49 +206,51 @@ public class OrganizationProjectControllerTests extends BaseTest {
         //userId为空的时候
         project = this.generatorAdd("organizationId","organization-userIdIsNull", "description", true, new ArrayList<>());
         mvcResult = this.responsePost(addProject, project);
-        result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        result = parseObjectFromMvcResult(mvcResult, Project.class);
         projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         projects = projectMapper.selectByExample(projectExample);
+        assert result != null;
         projectId = result.getId();
         // 校验日志
         checkLog(projectId, OperationLogType.ADD);
 
-        this.compareProjectDTO(projects.get(0), result);
+        compareProjectDTO(projects.get(0), result);
         userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
+        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
-        projectExtend = projectExtendMapper.selectByPrimaryKey(projectId);
+        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
+        projectExtend = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(new ModuleSettingDTO()));
 
         //设置了模块模版
         ModuleSettingDTO moduleSettingDTO = new ModuleSettingDTO();
         moduleSettingDTO.setApiTest(true);
         moduleSettingDTO.setLoadTest(true);
-        project.setModuleSetting(moduleSettingDTO);
+        project.setModuleSetting(JSON.toJSONString(moduleSettingDTO));
         project.setName("org-moduleSetting");
         mvcResult = this.responsePost(addProject, project);
-        result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        result = parseObjectFromMvcResult(mvcResult, Project.class);
         projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         projects = projectMapper.selectByExample(projectExample);
+        assert result != null;
         projectId = result.getId();
         // 校验日志
         checkLog(projectId, OperationLogType.ADD);
 
-        this.compareProjectDTO(projects.get(0), result);
+        compareProjectDTO(projects.get(0), result);
         userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
+        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
-        projectExtend = projectExtendMapper.selectByPrimaryKey(projectId);
+        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
+        projectExtend = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleSettingDTO));
 
         project.setName("organization-testAddProjectSuccess1");
@@ -290,15 +286,17 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testGetProject() throws Exception {
         AddProjectRequest project = this.generatorAdd("organizationId","organization-getName", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
-        ProjectExtendDTO result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        Project result = parseObjectFromMvcResult(mvcResult, Project.class);
+        assert result != null;
         projectId = result.getId();
         mvcResult = this.responseGet(getProject + projectId);
-        ProjectExtendDTO getProjects = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        Project getProjects = parseObjectFromMvcResult(mvcResult, Project.class);
         Assertions.assertTrue(StringUtils.equals(getProjects.getId(), projectId));
 
 
         mvcResult = this.responseGet(getProject + "projectId1");
-        getProjects = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        getProjects = parseObjectFromMvcResult(mvcResult, Project.class);
+        assert getProjects != null;
         Assertions.assertTrue(StringUtils.equals(getProjects.getId(), "projectId1"));
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getProject + projectId);
@@ -308,8 +306,8 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testGetProjectError() throws Exception {
         //项目不存在
         MvcResult mvcResult = this.responseGet(getProject + "111111");
-        ProjectExtend project = this.parseObjectFromMvcResult(mvcResult, ProjectExtend.class);
-        Assertions.assertEquals(project, new ProjectExtend());
+        Project project = parseObjectFromMvcResult(mvcResult, Project.class);
+        Assertions.assertNull(project);
     }
 
     @Test
@@ -333,6 +331,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         mvcResult = this.responsePost(getProjectList, projectRequest);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //第一个数据的createTime是最大的
+        assert returnPager != null;
         List<ProjectDTO> projectDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ProjectDTO.class);
         long firstCreateTime = projectDTOS.get(0).getCreateTime();
         for (ProjectDTO projectDTO : projectDTOS) {
@@ -344,9 +343,10 @@ public class OrganizationProjectControllerTests extends BaseTest {
         mvcResult = this.responsePost(getProjectList, projectRequest);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回的数据中的createUser是admin或者admin1
+        assert returnPager != null;
         projectDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ProjectDTO.class);
         //拿到所有的createUser
-        List<String> createUsers = projectDTOS.stream().map(ProjectDTO::getCreateUser).collect(Collectors.toList());
+        List<String> createUsers = projectDTOS.stream().map(ProjectDTO::getCreateUser).toList();
         Assertions.assertTrue(List.of("test").containsAll(createUsers));
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getProjectList, projectRequest);
@@ -391,25 +391,25 @@ public class OrganizationProjectControllerTests extends BaseTest {
     @Order(7)
     public void testUpdateProject() throws Exception {
         UpdateProjectRequest project = this.generatorUpdate("organizationId", projectId,"organization-TestName", "Edit name", true, List.of("admin1"));
-        ProjectExtend projectExtend = projectExtendMapper.selectByPrimaryKey(projectId);
+        Project projectExtend = projectMapper.selectByPrimaryKey(projectId);
         ModuleSettingDTO moduleSettingDTO = JSON.parseObject(projectExtend.getModuleSetting(), ModuleSettingDTO.class);
         moduleSettingDTO.setApiTest(true);
         moduleSettingDTO.setTestPlan(true);
         moduleSettingDTO.setUiTest(true);
-        project.setModuleSetting(moduleSettingDTO);
+        project.setModuleSetting(JSON.toJSONString(moduleSettingDTO));
         MvcResult mvcResult = this.responsePost(updateProject, project);
-        ProjectExtendDTO result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        Project result = parseObjectFromMvcResult(mvcResult, Project.class);
         Project currentProject = projectMapper.selectByPrimaryKey(project.getId());
-        this.compareProjectDTO(currentProject, result);
+        compareProjectDTO(currentProject, result);
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin1")), true);
+        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin1"));
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of( "admin1")), true);
+        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin1"));
         //断言模块设置
-        projectExtend = projectExtendMapper.selectByPrimaryKey(projectId);
+        projectExtend = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleSettingDTO));
 
         // 校验日志
@@ -417,38 +417,38 @@ public class OrganizationProjectControllerTests extends BaseTest {
         //用户id为空
         project = this.generatorUpdate("organizationId", "projectId2", "organization-TestNameUserIdIsNull", "Edit name", true, new ArrayList<>());
         mvcResult = this.responsePost(updateProject, project);
-        result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        result = parseObjectFromMvcResult(mvcResult, Project.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
-        this.compareProjectDTO(currentProject, result);
+        compareProjectDTO(currentProject, result);
         userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId2").andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         //断言userRoleRelations是空的
         Assertions.assertTrue(userRoleRelations.isEmpty());
         //断言模块设置
-        projectExtend = projectExtendMapper.selectByPrimaryKey("projectId2");
+        projectExtend = projectMapper.selectByPrimaryKey("projectId2");
         Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(new ModuleSettingDTO()));
 
         // 修改模块设置
         project = this.generatorUpdate("organizationId", "projectId2", "org-Module", "Edit name", true, new ArrayList<>());
-        projectExtend = projectExtendMapper.selectByPrimaryKey("projectId2");
+        projectExtend = projectMapper.selectByPrimaryKey("projectId2");
         moduleSettingDTO = JSON.parseObject(projectExtend.getModuleSetting(), ModuleSettingDTO.class);
         moduleSettingDTO.setApiTest(true);
         moduleSettingDTO.setTestPlan(true);
         moduleSettingDTO.setUiTest(true);
         moduleSettingDTO.setWorkstation(true);
-        project.setModuleSetting(moduleSettingDTO);
+        project.setModuleSetting(JSON.toJSONString(moduleSettingDTO));
         mvcResult = this.responsePost(updateProject, project);
-        result = this.parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        result = parseObjectFromMvcResult(mvcResult, Project.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
-        this.compareProjectDTO(currentProject, result);
+        compareProjectDTO(currentProject, result);
         userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId2").andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         //断言userRoleRelations是空的
         Assertions.assertTrue(userRoleRelations.isEmpty());
         //断言模块设置
-        projectExtend = projectExtendMapper.selectByPrimaryKey("projectId2");
+        projectExtend = projectMapper.selectByPrimaryKey("projectId2");
         Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleSettingDTO));
         // @@校验权限
         project.setName("organization-TestName2");
@@ -487,8 +487,8 @@ public class OrganizationProjectControllerTests extends BaseTest {
         int count = parseObjectFromMvcResult(mvcResult, Integer.class);
         Project currentProject = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertEquals(currentProject.getDeleted(), true);
-        Assertions.assertTrue(currentProject.getId().equals(projectId));
-        Assertions.assertTrue(count == 1);
+        Assertions.assertEquals(currentProject.getId(), projectId);
+        Assertions.assertEquals(1, count);
         // 校验日志
         checkLog(projectId, OperationLogType.DELETE);
         // @@校验权限
@@ -509,8 +509,8 @@ public class OrganizationProjectControllerTests extends BaseTest {
         int count = parseObjectFromMvcResult(mvcResult, Integer.class);
         Project currentProject = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertEquals(currentProject.getDeleted(), false);
-        Assertions.assertTrue(currentProject.getId().equals(projectId));
-        Assertions.assertTrue(count == 1);
+        Assertions.assertEquals(currentProject.getId(), projectId);
+        Assertions.assertEquals(1, count);
         // 校验日志
         checkLog(projectId, OperationLogType.RECOVER);
         // @@校验权限
@@ -535,8 +535,8 @@ public class OrganizationProjectControllerTests extends BaseTest {
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId);
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(userIds), true);
-        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(userIds));
+        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().containsAll(userIds));
+        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().containsAll(userIds));
         userRoleRelations.forEach(item ->{
             try {
                 checkLog(item.getId(), OperationLogType.ADD);
@@ -592,6 +592,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         mvcResult = this.responsePost(getProjectMemberList, memberRequest);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //第一个数据的createTime是最大的
+        assert returnPager != null;
         List<UserExtend> userExtends = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserExtend.class);
         long firstCreateTime = userExtends.get(0).getCreateTime();
         for (UserExtend userExtend : userExtends) {
@@ -642,7 +643,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         MvcResult mvcResult = this.responseGet(removeProjectMember + projectId + "/" + userId);
         int count = parseObjectFromMvcResult(mvcResult, Integer.class);
-        Assertions.assertTrue(count == userRoleRelations.size());
+        Assertions.assertEquals(count, userRoleRelations.size());
         // 校验日志
         checkLog(userRoleRelations.get(0).getId(), OperationLogType.DELETE);
         // @@校验权限
@@ -655,7 +656,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         String userId = "admin1";
         MvcResult mvcResult = this.responseGet(removeProjectMember + projectId + "/" + userId);
         int count = parseObjectFromMvcResult(mvcResult, Integer.class);
-        Assertions.assertTrue(count == 0);
+        Assertions.assertEquals(0, count);
 
         //用户Id不存在
         projectId = "projectId1";

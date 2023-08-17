@@ -15,6 +15,7 @@
     <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
     <result column="enable" jdbcType="BIT" property="enable" />
+    <result column="module_setting" jdbcType="VARCHAR" property="moduleSetting" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, num, organization_id, `name`, description, create_time, update_time, update_user, 
-    create_user, delete_time, deleted, delete_user, `enable`
+    create_user, delete_time, deleted, delete_user, `enable`, module_setting
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -113,12 +114,12 @@
       `name`, description, create_time, 
       update_time, update_user, create_user, 
       delete_time, deleted, delete_user, 
-      `enable`)
+      `enable`, module_setting)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{organizationId,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{deleteTime,jdbcType=BIGINT}, #{deleted,jdbcType=BIT}, #{deleteUser,jdbcType=VARCHAR}, 
-      #{enable,jdbcType=BIT})
+      #{enable,jdbcType=BIT}, #{moduleSetting,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.Project">
     insert into project
@@ -162,6 +163,9 @@
       <if test="enable != null">
         `enable`,
       </if>
+      <if test="moduleSetting != null">
+        module_setting,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -202,6 +206,9 @@
       </if>
       <if test="enable != null">
         #{enable,jdbcType=BIT},
+      </if>
+      <if test="moduleSetting != null">
+        #{moduleSetting,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -253,6 +260,9 @@
       <if test="record.enable != null">
         `enable` = #{record.enable,jdbcType=BIT},
       </if>
+      <if test="record.moduleSetting != null">
+        module_setting = #{record.moduleSetting,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -272,7 +282,8 @@
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       deleted = #{record.deleted,jdbcType=BIT},
       delete_user = #{record.deleteUser,jdbcType=VARCHAR},
-      `enable` = #{record.enable,jdbcType=BIT}
+      `enable` = #{record.enable,jdbcType=BIT},
+      module_setting = #{record.moduleSetting,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -316,6 +327,9 @@
       <if test="enable != null">
         `enable` = #{enable,jdbcType=BIT},
       </if>
+      <if test="moduleSetting != null">
+        module_setting = #{moduleSetting,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -332,20 +346,21 @@
       delete_time = #{deleteTime,jdbcType=BIGINT},
       deleted = #{deleted,jdbcType=BIT},
       delete_user = #{deleteUser,jdbcType=VARCHAR},
-      `enable` = #{enable,jdbcType=BIT}
+      `enable` = #{enable,jdbcType=BIT},
+      module_setting = #{moduleSetting,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into project
     (id, num, organization_id, `name`, description, create_time, update_time, update_user, 
-      create_user, delete_time, deleted, delete_user, `enable`)
+      create_user, delete_time, deleted, delete_user, `enable`, module_setting)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.organizationId,jdbcType=VARCHAR}, 
         #{item.name,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.deleteTime,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}, #{item.deleteUser,jdbcType=VARCHAR}, 
-        #{item.enable,jdbcType=BIT})
+        #{item.enable,jdbcType=BIT}, #{item.moduleSetting,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -396,6 +411,9 @@
         </if>
         <if test="'enable'.toString() == column.value">
           #{item.enable,jdbcType=BIT}
+        </if>
+        <if test="'module_setting'.toString() == column.value">
+          #{item.moduleSetting,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

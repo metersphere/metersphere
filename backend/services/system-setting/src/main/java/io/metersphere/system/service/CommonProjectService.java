@@ -2,8 +2,6 @@ package io.metersphere.system.service;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
-import io.metersphere.project.domain.ProjectExtend;
-import io.metersphere.project.mapper.ProjectExtendMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.InternalUserRole;
@@ -15,12 +13,10 @@ import io.metersphere.sdk.invoker.ProjectServiceInvoker;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.ProjectExtendDTO;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import jakarta.annotation.Resource;
@@ -55,8 +51,6 @@ public class CommonProjectService {
     private UserRoleMapper userRoleMapper;
     @Resource
     private UserRolePermissionMapper userRolePermissionMapper;
-    @Resource
-    private ProjectExtendMapper projectExtendMapper;
     private final ProjectServiceInvoker serviceInvoker;
 
     @Autowired
@@ -64,17 +58,12 @@ public class CommonProjectService {
         this.serviceInvoker = serviceInvoker;
     }
 
-    public ProjectExtendDTO get(String id) {
+    public Project get(String id) {
         Project project = projectMapper.selectByPrimaryKey(id);
-        ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
-        if (ObjectUtils.isNotEmpty(project)) {
-            BeanUtils.copyBean(projectExtendDTO, project);
-            ProjectExtend projectExtend = projectExtendMapper.selectByPrimaryKey(id);
-            if (ObjectUtils.isNotEmpty(projectExtend)) {
-                projectExtendDTO.setModuleSetting(JSON.parseObject(projectExtend.getModuleSetting(), ModuleSettingDTO.class));
-            }
+        if (ObjectUtils.isNotEmpty(project) && StringUtils.isEmpty(project.getModuleSetting())) {
+            project.setModuleSetting(JSON.toJSONString(new ModuleSettingDTO()));
         }
-        return projectExtendDTO;
+        return project;
     }
 
     /**
@@ -84,7 +73,7 @@ public class CommonProjectService {
      * @param module        日志记录模块
      * @return
      */
-    public ProjectExtendDTO add(AddProjectRequest addProjectDTO, String createUser, String path, String module) {
+    public Project add(AddProjectRequest addProjectDTO, String createUser, String path, String module) {
 
         Project project = new Project();
         project.setId(UUID.randomUUID().toString());
@@ -98,20 +87,12 @@ public class CommonProjectService {
         project.setEnable(addProjectDTO.getEnable());
         project.setDescription(addProjectDTO.getDescription());
         addProjectDTO.setId(project.getId());
-        ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
-        BeanUtils.copyBean(projectExtendDTO, project);
-        projectMapper.insertSelective(project);
 
         //判断是否有模块设置
-        ProjectExtend projectExtend = new ProjectExtend();
-        projectExtend.setId(project.getId());
-        projectExtend.setPlatform("LOCAL");
-        if (ObjectUtils.isEmpty(addProjectDTO.getModuleSetting())) {
-            addProjectDTO.setModuleSetting(new ModuleSettingDTO());
+        if (StringUtils.isEmpty(addProjectDTO.getModuleSetting())) {
+            addProjectDTO.setModuleSetting(JSON.toJSONString(new ModuleSettingDTO()));
         }
-        projectExtend.setModuleSetting(JSON.toJSONString(addProjectDTO.getModuleSetting()));
-        projectExtendMapper.insert(projectExtend);
-        projectExtendDTO.setModuleSetting(addProjectDTO.getModuleSetting());
+        project.setModuleSetting(addProjectDTO.getModuleSetting());
 
         ProjectAddMemberBatchRequest memberRequest = new ProjectAddMemberBatchRequest();
         memberRequest.setProjectIds(List.of(project.getId()));
@@ -120,10 +101,11 @@ public class CommonProjectService {
         } else {
             memberRequest.setUserIds(addProjectDTO.getUserIds());
         }
+        projectMapper.insertSelective(project);
         //添加项目管理员   创建的时候如果没有传管理员id  则默认创建者为管理员
         this.addProjectAdmin(memberRequest, createUser, path,
                 OperationLogType.ADD.name(), Translator.get("add"), module);
-        return projectExtendDTO;
+        return project;
     }
 
     /**
@@ -137,7 +119,7 @@ public class CommonProjectService {
         userRoleRelationExample.createCriteria().andUserIdIn(userId).andSourceIdEqualTo(orgId);
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         //把用户id放到一个新的list
-        List<String> orgUserIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList());
+        List<String> orgUserIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).toList();
         if (CollectionUtils.isNotEmpty(userId)) {
             List<UserRoleRelation> userRoleRelation = new ArrayList<>();
             userId.forEach(id -> {
@@ -194,9 +176,8 @@ public class CommonProjectService {
         return projectList;
     }
 
-    public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser, String path, String module) {
+    public Project update(UpdateProjectRequest updateProjectDto, String updateUser, String path, String module) {
         Project project = new Project();
-        ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
         project.setId(updateProjectDto.getId());
         project.setName(updateProjectDto.getName());
         project.setDescription(updateProjectDto.getDescription());
@@ -208,7 +189,6 @@ public class CommonProjectService {
         project.setUpdateTime(System.currentTimeMillis());
         checkProjectExistByName(project);
         checkProjectNotExist(project.getId());
-        BeanUtils.copyBean(projectExtendDTO, project);
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(project.getId()).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
@@ -257,22 +237,13 @@ public class CommonProjectService {
             operationLogService.batchAdd(logDTOList);
         }
         //判断是否有模块设置
-        ProjectExtend projectExtend = new ProjectExtend();
-        projectExtend.setId(project.getId());
-        if (ObjectUtils.isEmpty(updateProjectDto.getModuleSetting())) {
-            updateProjectDto.setModuleSetting(new ModuleSettingDTO());
+        if (StringUtils.isEmpty(updateProjectDto.getModuleSetting())) {
+            updateProjectDto.setModuleSetting(JSON.toJSONString(new ModuleSettingDTO()));
         }
-        projectExtend.setModuleSetting(JSON.toJSONString(updateProjectDto.getModuleSetting()));
-        if (projectExtendMapper.selectByPrimaryKey(project.getId()) == null) {
-            projectExtend.setPlatform("LOCAL");
-            projectExtendMapper.insert(projectExtend);
-        } else {
-            projectExtendMapper.updateByPrimaryKeySelective(projectExtend);
-        }
-        projectExtendDTO.setModuleSetting(updateProjectDto.getModuleSetting());
+        project.setModuleSetting(updateProjectDto.getModuleSetting());
 
         projectMapper.updateByPrimaryKeySelective(project);
-        return projectExtendDTO;
+        return project;
     }
 
     public int delete(String id, String deleteUser) {

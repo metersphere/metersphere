@@ -1,59 +1,67 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class Project implements Serializable {
-    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{project.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "项目编号")
+    @Schema(description = "项目编号")
     private Long num;
 
-    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.organization_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{project.organization_id.length_range}", groups = {Created.class, Updated.class})
     private String organizationId;
 
-    @Schema(description =  "项目名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{project.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description =  "项目描述")
+    @Schema(description = "项目描述")
     private String description;
 
-    @Schema(description =  "创建时间")
+    @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "更新时间")
+    @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description =  "修改人")
+    @Schema(description = "修改人")
     private String updateUser;
 
-    @Schema(description =  "创建人")
+    @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description =  "删除时间")
+    @Schema(description = "删除时间")
     private Long deleteTime;
 
-    @Schema(description =  "是否删除")
+    @Schema(description = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{project.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
-    @Schema(description =  "删除人")
+    @Schema(description = "删除人")
     private String deleteUser;
 
-    @Schema(description =  "是否启用")
+    @Schema(description = "是否启用")
     private Boolean enable;
+
+    @Schema(description = "模块设置")
+    private String moduleSetting;
 
     private static final long serialVersionUID = 1L;
 
@@ -70,7 +78,8 @@ public class Project implements Serializable {
         deleteTime("delete_time", "deleteTime", "BIGINT", false),
         deleted("deleted", "deleted", "BIT", false),
         deleteUser("delete_user", "deleteUser", "VARCHAR", false),
-        enable("enable", "enable", "BIT", true);
+        enable("enable", "enable", "BIT", true),
+        moduleSetting("module_setting", "moduleSetting", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
