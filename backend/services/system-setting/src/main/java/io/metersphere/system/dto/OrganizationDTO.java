@@ -43,4 +43,10 @@ public class OrganizationDTO extends Organization {
     @Schema(description =  "组织管理员ID集合")
     @NotEmpty(groups = {Created.class, Updated.class}, message = "{member.id.not_empty}")
     private List<String> memberIds;
+
+    /**
+     * 创建人是否是管理员
+     */
+    @Schema(description =  "创建人是否是管理员")
+    private boolean orgCreateUserIsAdmin;
 }

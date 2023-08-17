@@ -86,11 +86,30 @@ public class SystemProjectController {
     }
 
     @GetMapping("/revoke/{id}")
+    @Operation(summary = "撤销项目")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.recoverLog(#id)", msClass = SystemProjectLogService.class)
     @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public int revokeProject(@PathVariable String id) {
        return systemProjectService.revoke(id);
+    }
+
+    @GetMapping("/enable/{id}")
+    @Operation(summary = "启用项目")
+    @Parameter(name = "id", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = SystemProjectLogService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    public void enable(@PathVariable String id) {
+        systemProjectService.enable(id);
+    }
+
+    @GetMapping("/disable/{id}")
+    @Operation(summary = "禁用项目")
+    @Parameter(name = "id", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = SystemProjectLogService.class)
+    public void disable(@PathVariable String id) {
+        systemProjectService.disable(id);
     }
 
     @PostMapping("/member-list")

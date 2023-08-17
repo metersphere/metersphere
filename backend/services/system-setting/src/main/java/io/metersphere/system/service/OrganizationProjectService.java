@@ -93,4 +93,11 @@ public class OrganizationProjectService {
         return commonProjectService.revoke(id);
     }
 
+    public void enable(String id) {
+        commonProjectService.enable(id);
+    }
+
+    public void disable(String id) {
+        commonProjectService.disable(id);
+    }
 }

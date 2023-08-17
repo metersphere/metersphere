@@ -2,6 +2,7 @@ package io.metersphere.system.service;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
@@ -53,6 +54,25 @@ public class SystemProjectLogService {
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SYSTEM_PROJECT,
                     project.getName());
+
+            dto.setOriginalValue(JSON.toJSONBytes(project));
+            return dto;
+        }
+        return null;
+    }
+
+    public LogDTO updateLog(String id) {
+        Project project = projectMapper.selectByPrimaryKey(id);
+        if (project != null) {
+            LogDTO dto = new LogDTO(
+                    project.getId(),
+                    project.getOrganizationId(),
+                    project.getId(),
+                    project.getCreateUser(),
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.SYSTEM_PROJECT,
+                    project.getName());
+            dto.setMethod(HttpMethodConstants.GET.name());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;

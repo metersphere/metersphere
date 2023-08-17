@@ -66,6 +66,8 @@ public class SystemProjectControllerTests extends BaseTest {
     private final static String getProjectMemberList = prefix + "/member-list";
     private final static String addProjectMember = prefix + "/add-member";
     private final static String removeProjectMember = prefix + "/remove-member/";
+    private final static String disableProject = prefix + "/disable/";
+    private final static String enableProject = prefix + "/enable/";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -484,6 +486,8 @@ public class SystemProjectControllerTests extends BaseTest {
         this.responseGet(revokeProject + id, ERROR_REQUEST_MATCHER);
     }
 
+
+
     @Test
     @Order(13)
     public void testAddProjectMember() throws Exception{
@@ -625,6 +629,44 @@ public class SystemProjectControllerTests extends BaseTest {
         projectId = "projectId111";
         userId = "admin1";
         this.responseGet(removeProjectMember + projectId + "/" + userId, ERROR_REQUEST_MATCHER);
+    }
+
+    @Test
+    @Order(19)
+    public void disableSuccess() throws Exception {
+        String id = "projectId";
+        this.responseGet(disableProject + id,status().isOk());
+        Project currentProject = projectMapper.selectByPrimaryKey(id);
+        Assertions.assertEquals(currentProject.getEnable(), false);
+        checkLog(id, OperationLogType.UPDATE);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, disableProject + id);
+    }
+
+    @Test
+    @Order(20)
+    public void disableError() throws Exception {
+        String id = "1111";
+        this.responseGet(disableProject + id, ERROR_REQUEST_MATCHER);
+    }
+
+    @Test
+    @Order(19)
+    public void enableSuccess() throws Exception {
+        String id = "projectId";
+        this.responseGet(enableProject + id,status().isOk());
+        Project currentProject = projectMapper.selectByPrimaryKey(id);
+        Assertions.assertEquals(currentProject.getEnable(), true);
+        checkLog(id, OperationLogType.UPDATE);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, enableProject + id);
+    }
+
+    @Test
+    @Order(20)
+    public void enableError() throws Exception {
+        String id = "1111";
+        this.responseGet(enableProject + id, ERROR_REQUEST_MATCHER);
     }
 
 }

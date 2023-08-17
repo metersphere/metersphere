@@ -29,7 +29,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,6 +48,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public static final String ORGANIZATION_REMOVE_MEMBER = "/system/organization/remove-member";
     public static final String ORGANIZATION_LIST_PROJECT = "/system/organization/list-project";
     public static final String ORGANIZATION_MEMBER_OPTION = "/system/user/get-option";
+    public static final String ORGANIZATION_TOTAL = "/system/organization/total";
 
     @Test
     @Order(0)
@@ -413,6 +413,23 @@ public class SystemOrganizationControllerTests extends BaseTest{
 
         // 权限校验
         requestGetPermissionTest(PermissionConstants.SYSTEM_USER_READ, SystemOrganizationControllerTests.ORGANIZATION_MEMBER_OPTION + "/default-organization-2");
+    }
+
+    @Test
+    @Order(17)
+    public void testGetTotal() throws Exception {
+        // 组织不存在
+        MvcResult mvcResult = this.responseGet(SystemOrganizationControllerTests.ORGANIZATION_TOTAL + "?organizationId=default-organization-2");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        Map<String, Integer> resultHolder = JSON.parseObject(returnData, Map.class);
+
+        mvcResult = this.responseGet(SystemOrganizationControllerTests.ORGANIZATION_TOTAL);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, Map.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
     }
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
