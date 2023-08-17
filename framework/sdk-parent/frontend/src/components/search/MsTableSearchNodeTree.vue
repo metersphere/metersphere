@@ -36,7 +36,6 @@
             @check="handleCheckChange"
             default-expand-all
             show-checkbox
-            :check-strictly="true"
             node-key="id"
             class="search-tree"
             ref="tree">
@@ -155,34 +154,9 @@ export default {
         }
       }
     },
-    handleCheckChange(data) {
-      const node = this.$refs.tree.getNode(data.id);
-      this.setNode(node);
-    },
-    setNode(node) {
-      if (node.checked) {
-        //选中,递归设置所有父节点选中
-        this.setParentNode(node);
-      } else {
-        //取消选中,所有子节点取消选中
-        this.setChildenNode(node);
-      }
-    },
-    setParentNode(node) {
-      if (node.parent) {
-        for (const key in node) {
-          if (key === "parent") {
-            node[key].checked = true;
-            this.setParentNode(node[key]);
-          }
-        }
-      }
-    },
-    setChildenNode(node) {
-      for (let i = 0; i < node.childNodes.length; i++) {
-        node.childNodes[i].checked = false;
-        this.setChildenNode(node.childNodes[i]);
-      }
+    handleCheckChange(data, curData) {
+      const {checkedKeys} = curData;
+      this.component.value = checkedKeys;
     },
     changeTreeTag() {
       if (this.component.value) {
