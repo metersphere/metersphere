@@ -230,6 +230,7 @@ export default {
 
 .el-input-tag--small {
   line-height: 30px;
+  width: 800px;
 }
 
 .el-input-tag--medium {
