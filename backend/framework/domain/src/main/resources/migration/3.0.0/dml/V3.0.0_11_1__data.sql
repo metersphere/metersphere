@@ -25,60 +25,41 @@ INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, cr
 -- 系统管理员拥有所有的权限，不用初始化
 
 -- 系统成员的权限
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_ORGANIZATION_PROJECT:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_USER_ROLE:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_TEST_RESOURCE_POOL:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_PLUGIN:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_PARAMETER_SETTING_BASE:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_PARAMETER_SETTING_DISPLAY:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_PARAMETER_SETTING_AUTH:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_AUTH:READ');
 
 -- 组织管理员权限
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_PROJECT:READ+DELETE_USER');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_PROJECT:READ+ADD_USER');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_PROJECT:READ+UPDATE_USER');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_QUOTA:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_QUOTA:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'PERSONAL_INFORMATION:READ+UPDATE_PASSWORD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'PERSONAL_INFORMATION:READ+API_KEYS');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'PERSONAL_INFORMATION:READ+THIRD_ACCOUNT');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'PERSONAL_INFORMATION:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+DELETE_GROUP');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+COPY_GROUP');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+UPDATE_GROUP');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+CREATE_GROUP');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_MANAGER:READ+UPLOAD_JAR');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_MESSAGE:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_MESSAGE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_SERVICE:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_SERVICE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_OPERATING_LOG:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+EXPORT');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+IMPORT');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+COPY');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_PROJECT:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_PROJECT:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_PROJECT:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_PROJECT:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_TEMPLATE:READ+CASE_TEMPLATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_TEMPLATE:READ+ISSUE_TEMPLATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_TEMPLATE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_TEMPLATE:READ+CUSTOM');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER:READ+ADD');
--- 初始化组织-用户组菜单权限(默认)
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ+ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ+UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_MEMBER:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_MEMBER:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_MEMBER:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_MEMBER:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_SERVICE_INTEGRATION:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_SERVICE_INTEGRATION:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_SERVICE_INTEGRATION:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_SERVICE_INTEGRATION:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT:READ+RECOVER');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_MEMBER:ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_MEMBER:DELETE');
+
 -- 组织成员权限
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_PROJECT_MANAGER:READ+UPLOAD_JAR');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_MESSAGE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_SERVICE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_OPERATING_LOG:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'SYSTEM_PROJECT:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_TEMPLATE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_USER:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_USER_ROLE:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_MEMBER:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'SYSTEM_SERVICE_INTEGRATION:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_PROJECT:READ');
 
 -- 项目管理员权限
 
