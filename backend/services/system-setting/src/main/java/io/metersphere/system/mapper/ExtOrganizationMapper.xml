@@ -28,7 +28,7 @@
     </update>
 
     <select id="listMember" resultType="io.metersphere.system.dto.UserExtend">
-        select temp.*, max(if(temp.role_id = 'org_admin', true, false))
+        select temp.*, max(if(temp.role_id = 'org_admin', true, false)) as adminFlag
         from (
             select u.*, urr.role_id
             from user_role_relation urr
