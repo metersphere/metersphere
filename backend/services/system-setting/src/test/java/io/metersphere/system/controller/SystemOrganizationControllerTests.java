@@ -187,6 +187,9 @@ public class SystemOrganizationControllerTests extends BaseTest{
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
         UserExtend userExtend1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), UserExtend.class).get(0);
         Assertions.assertTrue(StringUtils.contains(userExtend1.getId(), "default-admin"));
+        // 权限校验
+        requestPostPermissionsTest(List.of(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ),
+                ORGANIZATION_LIST_MEMBER, organizationRequest);
     }
 
     @Test
