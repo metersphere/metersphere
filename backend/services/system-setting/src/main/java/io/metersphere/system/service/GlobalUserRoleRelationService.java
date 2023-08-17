@@ -40,10 +40,11 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
     private UserService userService;
 
     public List<UserRoleRelationUserDTO> list(GlobalUserRoleRelationQueryRequest request) {
+        List<UserRoleRelationUserDTO> userRoleRelationUserDTOS = extUserRoleRelationMapper.listGlobal(request);
         UserRole userRole = globalUserRoleService.get(request.getRoleId());
         globalUserRoleService.checkSystemUserGroup(userRole);
         globalUserRoleService.checkGlobalUserRole(userRole);
-        return extUserRoleRelationMapper.listGlobal(request);
+        return userRoleRelationUserDTOS;
     }
 
     //校验用户组
