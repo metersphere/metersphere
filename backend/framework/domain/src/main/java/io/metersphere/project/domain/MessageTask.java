@@ -10,44 +10,50 @@ import lombok.Data;
 
 @Data
 public class MessageTask implements Serializable {
-    @Schema(description =  "", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{message_task.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "消息类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "消息类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{message_task.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
-    @Schema(description =  "通知事件类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "通知事件类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.event.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{message_task.event.length_range}", groups = {Created.class, Updated.class})
     private String event;
 
-    @Schema(description =  "接收人id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "接收人id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.receiver.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{message_task.receiver.length_range}", groups = {Created.class, Updated.class})
     private String receiver;
 
-    @Schema(description =  "任务类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "任务类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.task_type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{message_task.task_type.length_range}", groups = {Created.class, Updated.class})
     private String taskType;
 
-    @Schema(description =  "webhook地址")
+    @Schema(title = "webhook地址")
     private String webhook;
 
-    @Schema(description =  "具体测试的ID")
+    @Schema(title = "具体测试的ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{message_task.test_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{message_task.test_id.length_range}", groups = {Created.class, Updated.class})
     private String testId;
 
-    @Schema(description =  "创建时间")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{message_task.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
+
+    @Schema(title = "是否启用")
+    @NotNull(message = "{message_task.enable.not_blank}", groups = {Created.class, Updated.class})
+    private Boolean enable;
 
     private static final long serialVersionUID = 1L;
 
@@ -60,7 +66,8 @@ public class MessageTask implements Serializable {
         webhook("webhook", "webhook", "VARCHAR", false),
         testId("test_id", "testId", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
-        projectId("project_id", "projectId", "VARCHAR", false);
+        projectId("project_id", "projectId", "VARCHAR", false),
+        enable("enable", "enable", "BIT", true);
 
         private static final String BEGINNING_DELIMITER = "`";
 

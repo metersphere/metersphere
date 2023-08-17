@@ -696,6 +696,7 @@ CREATE TABLE IF NOT EXISTS message_task
     `test_id`     VARCHAR(50)  NOT NULL DEFAULT 'none' COMMENT '具体测试的ID',
     `create_time` BIGINT       NOT NULL DEFAULT 0 COMMENT '创建时间',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
+    `enable` BIT NOT NULL  DEFAULT 1 COMMENT '是否启用' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
