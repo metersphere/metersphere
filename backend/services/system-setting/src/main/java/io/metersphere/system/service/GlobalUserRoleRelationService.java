@@ -11,9 +11,9 @@ import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.request.GlobalUserRoleRelationQueryRequest;
-import io.metersphere.system.dto.request.user.UserAndRoleBatchRequest;
-import io.metersphere.system.dto.response.UserBatchProcessResponse;
 import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
+import io.metersphere.system.request.user.UserAndRoleBatchRequest;
+import io.metersphere.system.response.user.BatchProcessResponse;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;
@@ -85,7 +85,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         return userRoleRelationMapper.selectByExample(example);
     }
 
-    public UserBatchProcessResponse batchAdd(@Validated({Created.class, Updated.class}) UserAndRoleBatchRequest request, String operator) {
+    public BatchProcessResponse batchAdd(@Validated({Created.class, Updated.class}) UserAndRoleBatchRequest request, String operator) {
         //检查角色的合法性
         this.checkGlobalSystemUserRoleLegality(request.getRoleIds());
         //获取本次处理的用户
@@ -116,7 +116,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         if (CollectionUtils.isNotEmpty(saveList)) {
             userRoleRelationMapper.batchInsert(saveList);
         }
-        UserBatchProcessResponse response = new UserBatchProcessResponse();
+        BatchProcessResponse response = new BatchProcessResponse();
         response.setTotalCount(request.getUserIds().size());
         response.setSuccessCount(saveList.size());
         return response;
