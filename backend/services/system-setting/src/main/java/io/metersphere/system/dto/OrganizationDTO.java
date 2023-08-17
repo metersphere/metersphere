@@ -48,5 +48,5 @@ public class OrganizationDTO extends Organization {
      * 创建人是否是管理员
      */
     @Schema(description =  "创建人是否是管理员")
-    private boolean orgCreateUserIsAdmin;
+    private Boolean orgCreateUserIsAdmin;
 }
