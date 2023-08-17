@@ -6,6 +6,76 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "36956895",
+      "name": "icon_time_axis",
+      "font_class": "icon_time_axis",
+      "unicode": "e751",
+      "unicode_decimal": 59217
+    },
+    {
+      "icon_id": "36840867",
+      "name": "icon_maybe_filled",
+      "font_class": "icon_maybe_filled",
+      "unicode": "e750",
+      "unicode_decimal": 59216
+    },
+    {
+      "icon_id": "36840652",
+      "name": "icon_succeed_colorful",
+      "font_class": "icon_succeed_colorful",
+      "unicode": "e74d",
+      "unicode_decimal": 59213
+    },
+    {
+      "icon_id": "36840650",
+      "name": "icon_close_colorful",
+      "font_class": "icon_close_colorful",
+      "unicode": "e74e",
+      "unicode_decimal": 59214
+    },
+    {
+      "icon_id": "36840649",
+      "name": "icon_warning_colorful",
+      "font_class": "icon_warning_colorful",
+      "unicode": "e74f",
+      "unicode_decimal": 59215
+    },
+    {
+      "icon_id": "36840651",
+      "name": "icon_info_colorful",
+      "font_class": "icon_info_colorful",
+      "unicode": "e6f8",
+      "unicode_decimal": 59128
+    },
+    {
+      "icon_id": "36836165",
+      "name": "icon_move_outlined",
+      "font_class": "icon_move_outlined",
+      "unicode": "e74a",
+      "unicode_decimal": 59210
+    },
+    {
+      "icon_id": "36836164",
+      "name": "icon_assigned_outlined",
+      "font_class": "icon_assigned_outlined",
+      "unicode": "e74b",
+      "unicode_decimal": 59211
+    },
+    {
+      "icon_id": "36836163",
+      "name": "icon_team-add_outlined",
+      "font_class": "icon_team-add_outlined",
+      "unicode": "e74c",
+      "unicode_decimal": 59212
+    },
+    {
+      "icon_id": "36472148",
+      "name": "icon_sql_outlined",
+      "font_class": "icon_sql_outlined1",
+      "unicode": "e749",
+      "unicode_decimal": 59209
+    },
+    {
       "icon_id": "36511677",
       "name": "icon_that_person",
       "font_class": "icon_that_person",
@@ -998,13 +1068,6 @@
       "font_class": "icon_not-started_filled",
       "unicode": "e6f4",
       "unicode_decimal": 59124
-    },
-    {
-      "icon_id": "34061216",
-      "name": "icon_skip_filled",
-      "font_class": "icon_skip_filled",
-      "unicode": "e6f8",
-      "unicode_decimal": 59128
     },
     {
       "icon_id": "33795435",
