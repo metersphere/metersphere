@@ -1,5 +1,6 @@
 <template>
   <MsDrawer
+    :mask="false"
     :width="680"
     :visible="currentVisible"
     unmount-on-close
@@ -37,7 +38,12 @@
       </ms-base-table>
     </div>
   </MsDrawer>
-  <AddUserModal :organization-id="props.organizationId" :visible="userVisible" @cancel="handleHideUserModal" />
+  <AddUserModal
+    :project-id="props.projectId"
+    :organization-id="props.organizationId"
+    :visible="userVisible"
+    @cancel="handleHideUserModal"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -57,7 +63,8 @@
 
   export interface projectDrawerProps {
     visible: boolean;
-    organizationId: string;
+    organizationId?: string;
+    projectId?: string;
   }
   const { t } = useI18n();
   const props = defineProps<projectDrawerProps>();
@@ -121,7 +128,12 @@
 
   const handleRemove = async (record: TableData) => {
     try {
-      await deleteUserFromOrgOrProject(props.organizationId, record.id);
+      if (props.organizationId) {
+        await deleteUserFromOrgOrProject(props.organizationId, record.id);
+      }
+      if (props.projectId) {
+        await deleteUserFromOrgOrProject(props.projectId, record.id, true);
+      }
       Message.success(t('common.removeSuccess'));
       fetchData();
     } catch (error) {

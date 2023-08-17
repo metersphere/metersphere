@@ -1,13 +1,11 @@
 <template>
   <a-modal
-    v-model="currentVisible"
+    v-model:visible="currentVisible"
     class="ms-modal-form ms-modal-medium"
     width="680px"
     text-align="start"
     :ok-text="t('system.userGroup.add')"
     unmount-on-close
-    :ok-loading="loading"
-    :on-before-ok="handleBeforeOk"
     @cancel="handleCancel"
   >
     <template #title> {{ t('system.userGroup.addUser') }} </template>
@@ -22,6 +20,14 @@
         </a-form-item>
       </a-form>
     </div>
+    <template #footer>
+      <a-button type="secondary" :loading="loading" @click="handleCancel">
+        {{ t('common.cancel') }}
+      </a-button>
+      <a-button type="primary" :loading="loading" :disabled="form.name.length === 0" @click="handleBeforeOk">
+        {{ t('common.add') }}
+      </a-button>
+    </template>
   </a-modal>
 </template>
 

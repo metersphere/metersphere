@@ -53,6 +53,8 @@ export default {
       phone: '手机',
       remove: '移除',
       quickAddUser: '快速添加用户',
+      removeName: '确认移除 {name} 这个用户吗',
+      removeTip: '移除后，将失去用户组权限',
     },
   },
   permission: {

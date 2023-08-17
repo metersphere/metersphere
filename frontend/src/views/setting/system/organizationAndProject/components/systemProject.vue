@@ -12,7 +12,9 @@
     </template>
     <template #creator="{ record }">
       <span>{{ record.createUser }}</span>
-      <span v-if="record.creatorAdmin" class="text-[var(--color-text-4)]">{{ `&nbsp;(${t('common.admin')})` }}</span>
+      <span v-if="record.projectCreateUserIsAdmin" class="ml-[8px] text-[var(--color-text-4)]">{{
+        `(${t('common.admin')})`
+      }}</span>
     </template>
     <template #memberCount="{ record }">
       <span class="primary-color" @click="showUserDrawer(record)">{{ record.memberCount }}</span>
@@ -22,25 +24,30 @@
         <MsButton @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
       </template>
       <template v-else-if="!record.enable">
-        <MsButton @click="handleEnableOrDisableOrg(record)">{{ t('common.enable') }}</MsButton>
+        <MsButton @click="handleEnableOrDisableProject(record)">{{ t('common.enable') }}</MsButton>
         <MsButton @click="handleDelete(record)">{{ t('common.delete') }}</MsButton>
       </template>
       <template v-else>
         <MsButton @click="showOrganizationModal(record)">{{ t('common.edit') }}</MsButton>
         <MsButton @click="showAddUserModal(record)">{{ t('system.organization.addMember') }}</MsButton>
-        <MsButton @click="handleEnableOrDisableOrg(record, false)">{{ t('common.end') }}</MsButton>
+        <MsButton @click="handleEnableOrDisableProject(record, false)">{{ t('common.end') }}</MsButton>
         <MsTableMoreAction :list="tableActions" @select="handleMoreAction($event, record)"></MsTableMoreAction>
       </template>
     </template>
   </MsBaseTable>
-  <AddOrganizationModal
+  <AddProjectModal
     type="edit"
     :current-organization="currentUpdateOrganization"
     :visible="orgVisible"
     @cancel="handleAddOrgModalCancel"
   />
-  <AddUserModal :organization-id="currentOrganizationId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
-  <UserDrawer v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
+  <AddUserModal :project-id="currentProjectId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
+  <UserDrawer
+    :project-id="currentProjectId"
+    type="project"
+    v-bind="currentUserDrawer"
+    @cancel="handleUserDrawerCancel"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -52,20 +59,20 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import {
     postProjectTable,
-    deleteOrg,
+    deleteProject,
     enableOrDisableProject,
-    revokeDeleteOrg,
+    revokeDeleteProject,
   } from '@/api/modules/setting/system/organizationAndProject';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import AddOrganizationModal from './addOrganizationModal.vue';
   import { Message, TableData } from '@arco-design/web-vue';
   import UserDrawer from './userDrawer.vue';
   import AddUserModal from './addUserModal.vue';
   import useModal from '@/hooks/useModal';
   import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
+  import AddProjectModal from './addProjectModal.vue';
 
   export interface SystemOrganizationProps {
     keyword: string;
@@ -77,7 +84,7 @@
   const tableStore = useTableStore();
   const userVisible = ref(false);
   const orgVisible = ref(false);
-  const currentOrganizationId = ref('');
+  const currentProjectId = ref('');
   const currentUpdateOrganization = ref<CreateOrUpdateSystemOrgParams>();
   const { openDeleteModal, openModal } = useModal();
 
@@ -133,7 +140,7 @@
 
   tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
 
-  const { propsRes, propsEvent, loadList, setKeyword, setLoading } = useTable(postProjectTable, {
+  const { propsRes, propsEvent, loadList, setKeyword } = useTable(postProjectTable, {
     tableKey: TableKeyEnum.SYSTEM_PROJECT,
     scroll: { y: 'auto', x: '1300px' },
     selectable: false,
@@ -167,7 +174,7 @@
       content: t('system.organization.deleteTip'),
       onBeforeOk: async () => {
         try {
-          await deleteOrg(record.id);
+          await deleteProject(record.id);
           Message.success(t('common.deleteSuccess'));
           fetchData();
         } catch (error) {
@@ -184,9 +191,9 @@
     }
   };
 
-  const handleEnableOrDisableOrg = async (record: any, isEnable = true) => {
-    const title = isEnable ? t('system.organization.enableTitle') : t('system.organization.enableTitle');
-    const content = isEnable ? t('system.organization.enableContent') : t('system.organization.endContent');
+  const handleEnableOrDisableProject = async (record: any, isEnable = true) => {
+    const title = isEnable ? t('system.project.enableTitle') : t('system.project.endTitle');
+    const content = isEnable ? t('system.project.enableContent') : t('system.project.endContent');
     const okText = isEnable ? t('common.confirmEnable') : t('common.confirmClose');
     openModal({
       type: 'error',
@@ -209,7 +216,7 @@
   };
 
   const showOrganizationModal = (record: any) => {
-    currentOrganizationId.value = record.id;
+    currentProjectId.value = record.id;
     orgVisible.value = true;
     currentUpdateOrganization.value = {
       id: record.id,
@@ -220,7 +227,7 @@
   };
 
   const showAddUserModal = (record: any) => {
-    currentOrganizationId.value = record.id;
+    currentProjectId.value = record.id;
     userVisible.value = true;
   };
 
@@ -244,17 +251,24 @@
   };
 
   const handleRevokeDelete = async (record: TableData) => {
-    try {
-      setLoading(true);
-      await revokeDeleteOrg(record.id);
-      Message.success(t('common.revokeDeleteSuccess'));
-      fetchData();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+    openModal({
+      type: 'error',
+      cancelText: t('common.cancel'),
+      title: t('system.project.revokeDeleteTitle', { name: record.name }),
+      content: t('system.organization.enableContent'),
+      okText: t('common.revokeDelete'),
+      onBeforeOk: async () => {
+        try {
+          await revokeDeleteProject(record.id);
+          Message.success(t('common.revokeDeleteSuccess'));
+          fetchData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error(error);
+        }
+      },
+      hideCancel: false,
+    });
   };
 
   watch(

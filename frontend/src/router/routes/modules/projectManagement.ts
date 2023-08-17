@@ -9,7 +9,7 @@ const ProjectManagement: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.projectManagement',
-    icon: 'icon_project-settings-filled',
+    icon: 'icon-icon_project-settings-filled',
     order: 7,
     hideChildrenInMenu: true,
   },

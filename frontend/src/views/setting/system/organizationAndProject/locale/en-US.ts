@@ -54,4 +54,9 @@ export default {
   'system.organization.updateOrganizationSuccess': 'Update organization success',
   'system.organization.createProject': 'Create project',
   'system.organization.subordinateOrg': 'Subordinate organization',
+  'system.project.revokeDeleteTitle': 'Confirm revoke {name} ?',
+  'system.project.enableTitle': 'Start project',
+  'system.project.endTitle': 'Close project',
+  'system.project.enableContent': 'The project after opening is displayed in the organization switching list',
+  'system.project.endContent': 'The project after closing is not displayed in the project switching list',
 };

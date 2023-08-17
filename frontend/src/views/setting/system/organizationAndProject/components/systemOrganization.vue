@@ -12,8 +12,8 @@
     </template>
     <template #creator="{ record }">
       <span>{{ record.createUser }}</span>
-      <span v-if="record.orgAdmins.length > 0" class="text-[var(--color-text-4)]">{{
-        `&nbsp;(${t('common.admin')})`
+      <span v-if="record.orgCreateUserIsAdmin" class="ml-[8px] text-[var(--color-text-4)]">{{
+        `(${t('common.admin')})`
       }}</span>
     </template>
     <template #memberCount="{ record }">
