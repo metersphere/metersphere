@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { login as userLogin, logout as userLogout } from '@/api/modules/user';
-import { getLicenseInfo } from '@/api/modules/setting/authorizedManagement';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import useAppStore from '../app';
@@ -66,7 +65,6 @@ const useUserStore = defineStore('user', {
           appStore.setCurrentOrgId(res.lastOrganizationId || '');
         }
         this.setInfo(res);
-        this.getValidateLicense();
       } catch (err) {
         clearToken();
         throw err;
@@ -92,22 +90,6 @@ const useUserStore = defineStore('user', {
         await userLogout();
       } finally {
         this.logoutCallBack();
-      }
-    },
-    // license校验
-    async getValidateLicense() {
-      try {
-        const licenseStore = useLicenseStore();
-        const result = await getLicenseInfo();
-        if (!result || !result.status || !result.license || !result.license.count) {
-          return;
-        }
-        licenseStore.setLicenseStatus(result.status);
-        if (result.status !== 'valid') {
-          localStorage.setItem('setShowLicenseCountWarning', 'false');
-        }
-      } catch (error) {
-        console.log(error);
       }
     },
   },

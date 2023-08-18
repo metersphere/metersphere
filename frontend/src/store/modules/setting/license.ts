@@ -1,26 +1,32 @@
 import { defineStore } from 'pinia';
-
-const LicenseKey = 'License_Key';
+import { getLicenseInfo } from '@/api/modules/setting/authorizedManagement';
 
 const useLicenseStore = defineStore('userGroup', {
+  persist: true,
   state: (): { status: string | null } => ({
     status: '',
   }),
   actions: {
     setLicenseStatus(status: string) {
-      this.$state.status = status;
-      localStorage.setItem(LicenseKey, status);
+      this.status = status;
     },
     removeLicenseStatus() {
-      localStorage.removeItem(LicenseKey);
-    },
-    getLicenseStatus() {
-      this.status = localStorage.getItem(LicenseKey);
-      return this.status;
+      this.status = null;
     },
     hasLicense() {
-      this.getLicenseStatus();
       return this.status && this.status === 'valid';
+    },
+    // license校验
+    async getValidateLicense() {
+      try {
+        const result = await getLicenseInfo();
+        if (!result || !result.status || !result.license || !result.license.count) {
+          return;
+        }
+        this.setLicenseStatus(result.status);
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 });
