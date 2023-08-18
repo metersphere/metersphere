@@ -45,10 +45,11 @@
   import type { ServiceItem, AddOrUpdateServiceModel } from '@/models/setting/serviceIntegration';
   import useLoading from '@/hooks/useLoading';
   import { useUserStore } from '@/store';
+  import { FormRule } from '@form-create/arco-design';
 
   const { t } = useI18n();
   const userStore = useUserStore();
-  const lastOrganizationId = userStore.$state?.lastOrganizationId as string;
+  const lastOrganizationId = userStore.$state?.lastOrganizationId;
 
   const emits = defineEmits<{
     (event: 'update:visible', visible: boolean): void;
@@ -78,9 +79,9 @@
       'validate-trigger': ['change'],
     },
   });
-  const formRules = ref<any>([]);
+  const formRules = ref<FormRule>();
   const title = ref<string>('');
-  const formItem = ref<any>({});
+  const formItem = ref<AddOrUpdateServiceModel>({});
   watchEffect(() => {
     detailVisible.value = props.visible;
   });
