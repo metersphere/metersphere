@@ -5,13 +5,13 @@
 <script setup lang="ts">
   import { ref, watchEffect, watch } from 'vue';
   import PassWord from './formcreate-password.vue';
-  import formCreate, { Rule } from '@form-create/arco-design';
+  import formCreate, { FormRule } from '@form-create/arco-design';
 
   formCreate.component('PassWord', PassWord);
   const FormCreate = formCreate.$form();
 
   const props = defineProps<{
-    rule: Rule[]; // 表单的规则
+    rule: FormRule | undefined; // 表单的规则
     option: any; // 全局配置项
     api: any; // 收集表单的值
   }>();

@@ -122,7 +122,7 @@
     collapseHeight: string;
   }>();
 
-  const keyword = ref('');
+  const keyword = ref<string>('');
   const filterList = ref<ServiceList>([]);
   const data = ref<ServiceList>([]);
   const loading = ref<boolean>(false);

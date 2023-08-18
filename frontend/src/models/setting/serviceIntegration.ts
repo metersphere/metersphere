@@ -7,7 +7,7 @@ export type ServiceItem = Partial<{
   config: boolean;
   logo: string;
   organizationId: string; // 组织id
-  configuration?: null; // 配置项
+  configuration?: Record<string, any>; // 配置项
 }>;
 
 export type ServiceList = ServiceItem[];
@@ -17,9 +17,9 @@ export type ServiceList = ServiceItem[];
 export type AddOrUpdateServiceModel = Partial<{
   id?: string;
   pluginId: string;
-  enable: boolean | undefined;
+  enable: boolean;
   organizationId: string;
-  configuration?: any;
+  configuration?: Record<string, any>;
 }>;
 
 export interface SkipTitle {
