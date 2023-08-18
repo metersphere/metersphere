@@ -12,46 +12,46 @@
             <li>
               <span>{{ t('system.authorized.customerName') }}</span>
               <div>
-                <span>{{ licenseInfo.license?.corporation }}</span>
+                <span>{{ licenseInfo?.license?.corporation }}</span>
               </div>
             </li>
             <li>
               <span>{{ t('system.authorized.authorizationTime') }}</span>
               <div
-                ><span>{{ licenseInfo.license?.expired }}</span></div
+                ><span>{{ licenseInfo?.license?.expired }}</span></div
               >
             </li>
             <li>
               <span>{{ t('system.authorized.productName') }}</span>
               <div
-                ><span>{{ licenseInfo.license?.product }}</span></div
+                ><span>{{ licenseInfo?.license?.product }}</span></div
               >
             </li>
             <li>
               <span>{{ t('system.authorized.productionVersion') }}</span>
               <div
-                ><span>{{ licenseInfo.license?.edition }}</span></div
+                ><span>{{ licenseInfo?.license?.edition }}</span></div
               >
             </li>
             <li>
               <span>{{ t('system.authorized.authorizedVersion') }}</span>
               <div>
-                <span>{{ licenseInfo.license?.licenseVersion }}</span></div
+                <span>{{ licenseInfo?.license?.licenseVersion }}</span></div
               >
             </li>
             <li>
               <span>{{ t('system.authorized.authorizationsCount') }}</span>
               <div
-                ><span>{{ licenseInfo.license?.count }}</span></div
+                ><span>{{ licenseInfo?.license?.count }}</span></div
               >
             </li>
             <li>
               <span>{{ t('system.authorized.authorizationStatus') }}</span>
               <div
                 ><span>{{
-                  licenseInfo.status === 'valid'
+                  licenseInfo?.status === 'valid'
                     ? t('system.authorized.valid')
-                    : licenseInfo.status === 'expired'
+                    : licenseInfo?.status === 'expired'
                     ? t('system.authorized.invalid')
                     : t('system.authorized.failure')
                 }}</span></div
@@ -114,12 +114,14 @@
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
+  const licenseStore = useLicenseStore();
 
   const loading = ref<boolean>(false);
-  const licenseInfo = ref<LicenseInfo>({});
+  const licenseInfo = ref<LicenseInfo>();
   const authorizedForm = reactive<any>({
     licenseCode: '',
   });
@@ -130,6 +132,7 @@
     try {
       const result = await getLicenseInfo();
       licenseInfo.value = result;
+      licenseStore.setLicenseStatus(licenseInfo.value?.status);
     } catch (error) {
       console.log(error);
     } finally {
