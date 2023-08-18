@@ -131,7 +131,7 @@ public class SystemParameterControllerTests extends BaseTest {
         hashMap.put("smtp.password", "test");
         hashMap.put("smtp.from", "aaa@fit2cloud.com");
         hashMap.put("smtp.recipient", "aaa@fit2cloud.com");
-        hashMap.put("smtp.ssl", "ture");
+        hashMap.put("smtp.ssl", "true");
         hashMap.put("smtp.tsl", "false");
         this.requestPost(EMAIL_INFO_TEST_CONNECT_URL, hashMap, ERROR_REQUEST_MATCHER);
     }

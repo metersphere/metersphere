@@ -55,7 +55,6 @@ public class OperationLogService {
             log.setCreateUser("admin");
         }
         // 限制长度
-        log.setBatchId(UUID.randomUUID().toString());
         saveBlob(operationLogMapper, operationLogBlobMapper, log);
     }
 
@@ -68,9 +67,9 @@ public class OperationLogService {
         OperationLogBlobMapper logBlobMapper = sqlSession.getMapper(OperationLogBlobMapper.class);
 
         if (CollectionUtils.isNotEmpty(logs)) {
-            String batchId = UUID.randomUUID().toString();
+            long currentTimeMillis = System.currentTimeMillis();
             logs.forEach(item -> {
-                item.setBatchId(batchId);
+                item.setCreateTime(currentTimeMillis);
                 if (StringUtils.isBlank(item.getId())) {
                     item.setId(UUID.randomUUID().toString());
                 }

@@ -32,7 +32,7 @@ public class AuthSourceLogService {
                 request.getId(),
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SYSTEM_PARAMETER_SETTING,
+                OperationLogModule.SETTING_SYSTEM_PARAMETER_AUTH_CONFIG,
                 request.getName());
 
         dto.setModifiedValue(JSON.toJSONBytes(request));
@@ -55,7 +55,7 @@ public class AuthSourceLogService {
                     request.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_PARAMETER_SETTING,
+                    OperationLogModule.SETTING_SYSTEM_PARAMETER_AUTH_CONFIG,
                     request.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(authSource));
@@ -73,7 +73,7 @@ public class AuthSourceLogService {
                     id,
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_PARAMETER_SETTING,
+                    OperationLogModule.SETTING_SYSTEM_PARAMETER_AUTH_CONFIG,
                     authSource.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(authSource));
@@ -98,7 +98,7 @@ public class AuthSourceLogService {
                 authSource.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.SYSTEM_PARAMETER_SETTING,
+                OperationLogModule.SETTING_SYSTEM_PARAMETER_AUTH_CONFIG,
                 authSource.getName());
 
         dto.setOriginalValue(JSON.toJSONBytes(authSource));

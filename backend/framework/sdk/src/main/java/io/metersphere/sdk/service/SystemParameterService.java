@@ -228,7 +228,7 @@ public class SystemParameterService {
                 "system-parameter",
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SYSTEM_PARAMETER_SETTING,
+                OperationLogModule.SETTING_SYSTEM_PARAMETER,
                 "基础设置");
 
         dto.setPath("/system/parameter/save/base-info");
@@ -245,7 +245,7 @@ public class SystemParameterService {
                 "system-parameter",
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SYSTEM_PARAMETER_SETTING,
+                OperationLogModule.SETTING_SYSTEM_PARAMETER,
                 "基础设置");
 
         dto.setPath("/system/parameter/edit/email-info");

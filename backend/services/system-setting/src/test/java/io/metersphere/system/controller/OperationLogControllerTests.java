@@ -28,11 +28,11 @@ public class OperationLogControllerTests extends BaseTest {
     public static final String OPTIONS_LIST = "/operation/log/get/options";
 
 
-    public static final String USER_LIST = "/system/user/list";
+    public static final String USER_LIST = "/operation/log/user/list";
 
-    public static final String SYSTEM = "system";
-    public static final String ORGANIZATION = "organization";
-    public static final String PROJECT = "project";
+    public static final String SYSTEM = "SYSTEM";
+    public static final String ORGANIZATION = "ORGANIZATION";
+    public static final String PROJECT = "PROJECT";
 
 
     /**

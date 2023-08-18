@@ -53,4 +53,23 @@ public class OperationLogModule {
     public static final String SYSTEM_PROJECT = "SYSTEM_PROJECT";
     public static final String SYSTEM_PROJECT_MEMBER = "SYSTEM_PROJECT_MEMBER";
     public static final String ORGANIZATION_PROJECT = "ORGANIZATION_PROJECT";
+
+
+    public static final String SETTING = "SETTING";
+    public static final String SETTING_SYSTEM = "SETTING_SYSTEM";
+    public static final String SETTING_SYSTEM_USER = "SETTING_SYSTEM_USER";
+    public static final String SETTING_SYSTEM_USER_GROUP = "SETTING_SYSTEM_USER_GROUP";
+    public static final String SETTING_SYSTEM_ORGANIZATION = "SETTING_SYSTEM_ORGANIZATION";
+    public static final String SETTING_SYSTEM_PARAMETER = "SETTING_SYSTEM_PARAMETER";
+    public static final String SETTING_SYSTEM_PARAMETER_PAGE_CONFIG = "SETTING_SYSTEM_PARAMETER_PAGE_CONFIG";
+    public static final String SETTING_SYSTEM_PARAMETER_AUTH_CONFIG = "SETTING_SYSTEM_PARAMETER_AUTH_CONFIG";
+    //系统设置-系统-资源池
+    public static final String SETTING_SYSTEM_RESOURCE_POOL = "SETTING_SYSTEM_RESOURCE_POOL";
+    public static final String SETTING_SYSTEM_AUTHORIZED_MANAGEMENT = "SETTING_SYSTEM_AUTHORIZED_MANAGEMENT";
+    public static final String SETTING_SYSTEM_LOG = "SETTING_SYSTEM_LOG";
+    public static final String SETTING_SYSTEM_PLUGIN_MANAGEMENT = "SETTING_SYSTEM_PLUGIN_MANAGEMENT";
+    public static final String SETTING_ORGANIZATION = "SETTING_ORGANIZATION";
+    public static final String SETTING_ORGANIZATION_MEMBER = "SETTING_ORGANIZATION_MEMBER";
+    public static final String SETTING_ORGANIZATION_SERVICE = "SETTING_ORGANIZATION_SERVICE";
+
 }
