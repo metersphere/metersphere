@@ -18,7 +18,6 @@ import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
 import io.metersphere.plan.utils.TestPlanReportUtil;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.ResetOrderRequest;
-import io.metersphere.utils.BatchProcessingUtil;
 import io.metersphere.utils.DiscoveryUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -192,6 +191,10 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
 
     public List<String> getUiScenarioProjectIds(String planId) {
         return microService.getForData(serviceName, BASE_URL + "/get/project/ids/" + planId, List.class);
+    }
+
+    public List<String> getUiScenarioEnvProjectIds(String planId) {
+        return microService.getForData(serviceName, BASE_URL + "/get/env-project-ids/" + planId, List.class);
     }
 
     public RunModeConfigDTO setScenarioEnv(String planId, RunModeConfigDTO runModeConfig) {

@@ -13,7 +13,6 @@ import io.metersphere.plan.request.api.ApiScenarioRequest;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanReportUtil;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
-import io.metersphere.utils.BatchProcessingUtil;
 import io.metersphere.utils.DiscoveryUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -163,6 +162,10 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
 
     public List<String> getApiScenarioProjectIds(String planId) {
         return microService.getForData(serviceName, BASE_UEL + "/get/project/ids/" + planId, List.class);
+    }
+
+    public List<String> getApiScenarioEnvProjectIds(String planId) {
+        return microService.getForData(serviceName, BASE_UEL + "/get/env-project-ids/" + planId, List.class);
     }
 
     public ApiPlanReportDTO getApiReport(ApiPlanReportRequest request) {

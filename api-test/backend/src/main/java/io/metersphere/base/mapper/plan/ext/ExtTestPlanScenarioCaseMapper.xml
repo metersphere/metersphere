@@ -426,4 +426,10 @@
         </foreach>
         ORDER BY FIND_IN_SET(tpas.id, ${order})
     </select>
+    <select id="selectByPlanIds" resultType="io.metersphere.base.domain.TestPlanApiScenario">
+        SELECT * FROM test_plan_api_scenario WHERE test_plan_id in
+        <foreach collection="planIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

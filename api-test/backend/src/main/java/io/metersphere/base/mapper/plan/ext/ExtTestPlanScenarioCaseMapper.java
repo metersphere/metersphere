@@ -20,6 +20,8 @@ public interface ExtTestPlanScenarioCaseMapper {
 
     List<String> getIdsByPlanId(String planId);
 
+    List<TestPlanApiScenario> selectByPlanIds(@Param("planIds") List<String> planIds);
+
     List<String> getNotRelevanceCaseIds(String planId, List<String> relevanceProjectIds);
 
     List<String> selectIds(@Param("request") TestPlanScenarioRequest request);
@@ -47,8 +49,6 @@ public interface ExtTestPlanScenarioCaseMapper {
     Long getPreOrder(@Param("planId") String planId, @Param("baseOrder") Long baseOrder);
 
     Long getLastOrder(@Param("planId") String planId, @Param("baseOrder") Long baseOrder);
-
-    List<String> selectNameByIdIn(List<String> ids);
 
     String selectProjectId(String testPlanId);
 }

@@ -240,11 +240,7 @@ public class TestPlanScenarioCaseService {
                 EnvironmentCheckDTO scenarioEnv = apiAutomationService.getApiScenarioProjectId(id);
                 list = new ArrayList<>(scenarioEnv.getProjectIds());
             }
-            for (String s : list) {
-                if (envMap != null && StringUtils.isNotEmpty(envMap.get(s))) {
-                    newEnvMap.put(s, envMap.get(s));
-                }
-            }
+            list.forEach(l -> newEnvMap.put(l, envMap == null ? StringUtils.EMPTY : envMap.getOrDefault(l, StringUtils.EMPTY)));
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(UUID.randomUUID().toString());
             testPlanApiScenario.setCreateUser(SessionUtils.getUserId());
@@ -834,20 +830,19 @@ public class TestPlanScenarioCaseService {
                 Map<String, String> map = JSON.parseObject(env, Map.class);
                 if (!map.isEmpty()) {
                     Set<String> set = map.keySet();
-                    for (String s : set) {
-                        String e = map.get(s);
-                        if (StringUtils.isBlank(e)) {
-                            continue;
-                        }
-                        if (envMap.containsKey(s)) {
-                            List<String> list = envMap.get(s);
-                            if (!list.contains(e)) {
-                                list.add(e);
+                    for (String projectId : set) {
+                        String envInProject = map.get(projectId);
+                        if (envMap.containsKey(projectId) && StringUtils.isNotEmpty(envInProject)) {
+                            List<String> list = envMap.get(projectId);
+                            if (!list.contains(envInProject)) {
+                                list.add(envInProject);
                             }
                         } else {
                             List<String> envs = new ArrayList<>();
-                            envs.add(e);
-                            envMap.put(s, envs);
+                            if (StringUtils.isNotBlank(envInProject)) {
+                                envs.add(envInProject);
+                            }
+                            envMap.put(projectId, envs);
                         }
                     }
                 }
@@ -1239,5 +1234,23 @@ public class TestPlanScenarioCaseService {
         example.createCriteria().andIdIn(scenarioIds);
         List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
         return apiScenarios.stream().map(ApiScenario::getProjectId).distinct().collect(Collectors.toList());
+    }
+
+    public List<String> getEnvProjectIds(String planId) {
+        TestPlanApiScenarioExample scenarioExample = new TestPlanApiScenarioExample();
+        scenarioExample.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanApiScenario> testPlanApiScenarios = extTestPlanScenarioCaseMapper.selectByPlanIds(Collections.singletonList(planId));
+        List<String> projectIds = new ArrayList<>();
+        for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
+            if (StringUtils.isNotEmpty(testPlanApiScenario.getEnvironment())) {
+                Map<String, String> envMap = JSON.parseMap(testPlanApiScenario.getEnvironment());
+                envMap.forEach((k, v) -> {
+                    if (StringUtils.isNotEmpty(k) && !projectIds.contains(k)) {
+                        projectIds.add(k);
+                    }
+                });
+            }
+        }
+        return projectIds;
     }
 }
