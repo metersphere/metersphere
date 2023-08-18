@@ -1507,7 +1507,7 @@ public class TestPlanService {
             }
             if (CollectionUtils.isNotEmpty(checkStatusList)) {
                 testPlanReportStruct.getApiAllCases().forEach(item -> {
-                    if (checkStatusList.contains(item.getExecResult().toLowerCase())) {
+                    if (item.getExecResult() != null && checkStatusList.contains(item.getExecResult().toLowerCase())) {
                         errorApiDTOMap.put(item.getReportId(), item);
                     }
                 });
@@ -1556,7 +1556,7 @@ public class TestPlanService {
             }
             if (CollectionUtils.isNotEmpty(checkStatusList)) {
                 testPlanReportStruct.getScenarioAllCases().forEach(item -> {
-                    if (checkStatusList.contains(item.getLastResult().toLowerCase())) {
+                    if (item.getLastResult() != null && checkStatusList.contains(item.getLastResult().toLowerCase())) {
                         statusScenarioDTOMap.put(item.getReportId(), item);
                     }
                 });
@@ -2308,9 +2308,9 @@ public class TestPlanService {
     public List<String> getRelevanceProjectIds(String planId) {
         List<String> projectIds = new ArrayList<>();
         List<String> apiCaseProjectIds = planTestPlanApiCaseService.getApiCaseProjectIds(planId);
-        List<String> apiScenarioProjectIds = planTestPlanScenarioCaseService.getApiScenarioProjectIds(planId);
+        List<String> apiScenarioProjectIds = planTestPlanScenarioCaseService.getApiScenarioEnvProjectIds(planId);
         if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
-            List<String> uiScenarioProjectIds = planTestPlanUiScenarioCaseService.getUiScenarioProjectIds(planId);
+            List<String> uiScenarioProjectIds = planTestPlanUiScenarioCaseService.getUiScenarioEnvProjectIds(planId);
             projectIds.addAll(uiScenarioProjectIds);
         }
         projectIds.addAll(apiCaseProjectIds);

@@ -186,6 +186,11 @@ public class TestPlanScenarioCaseController {
         return testPlanScenarioCaseService.getApiScenarioProjectIds(planId);
     }
 
+    @GetMapping("/get/env-project-ids/{planId}")
+    public List<String> getEnvProjectIds(@PathVariable("planId") String planId) {
+        return testPlanScenarioCaseService.getEnvProjectIds(planId);
+    }
+
     @PostMapping("/plan/report")
     public ApiPlanReportDTO buildApiReport(@RequestBody ApiPlanReportRequest request) {
         return testPlanScenarioCaseService.buildApiReport(request);

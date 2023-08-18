@@ -298,12 +298,12 @@ public class ApiScenarioExecuteService {
             }
             // 获取场景用例单独的执行环境
             Map<String, String> planEnvMap = apiScenarioEnvService.getPlanScenarioEnv(planApiScenario, configEnvMap);
-            if (MapUtils.isEmpty(planEnvMap)) {
+            if (this.checkProjectHasEmptyEnv(planEnvMap)) {
                 Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(new ArrayList<>() {{
                     this.add(scenario);
                 }});
                 projectEnvMap.forEach((projectId, envList) -> {
-                    if (CollectionUtils.isNotEmpty(envList)) {
+                    if (CollectionUtils.isNotEmpty(envList) && StringUtils.isEmpty(planEnvMap.get(projectId))) {
                         planEnvMap.put(projectId, envList.get(0));
                     }
                 });
@@ -358,6 +358,19 @@ public class ApiScenarioExecuteService {
             redisTemplateService.lock(planApiScenario.getId(), report.getId());
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
+        }
+    }
+
+    private boolean checkProjectHasEmptyEnv(Map<String, String> planEnvMap) {
+        if (MapUtils.isNotEmpty(planEnvMap)) {
+            for (Map.Entry<String, String> entry : planEnvMap.entrySet()) {
+                if (StringUtils.isEmpty(entry.getValue())) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return true;
         }
     }
 
