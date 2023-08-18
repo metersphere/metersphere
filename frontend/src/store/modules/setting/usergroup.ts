@@ -7,6 +7,7 @@ const useUserGroupStore = defineStore('userGroup', {
     currentTitle: '',
     currentId: '',
     currentType: '',
+    currentInternal: false,
     collapse: true,
   }),
   getters: {

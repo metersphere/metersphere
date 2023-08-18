@@ -38,7 +38,7 @@
     "@7polo/kity": "2.0.8",
     "@7polo/kityminder-core": "1.4.53",
     "@arco-design/web-vue": "^2.49.2",
-    "@arco-themes/vue-ms-theme-default": "^0.0.25",
+    "@arco-themes/vue-ms-theme-default": "^0.0.28",
     "@form-create/arco-design": "^3.1.22",
     "@types/color": "^3.0.3",
     "@vueuse/core": "^10.2.1",

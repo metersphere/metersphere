@@ -282,6 +282,9 @@
     },
     { immediate: true }
   );
+  defineExpose({
+    fetchData,
+  });
 </script>
 
 <style lang="scss" scoped>

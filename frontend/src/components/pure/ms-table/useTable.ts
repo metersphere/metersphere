@@ -56,6 +56,7 @@ export default function useTableProps<T>(
     // 表格的错误状态
     tableErrorStatus: false,
     debug: false,
+    showFirstOperation: false,
     ...props,
   };
 

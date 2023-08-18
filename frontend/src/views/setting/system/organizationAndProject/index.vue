@@ -24,11 +24,12 @@
       </div>
     </div>
     <div>
-      <SystemOrganization v-if="currentTable === 'organization'" :keyword="currentKeyword" />
-      <SystemProject v-if="currentTable === 'project'" :keyword="currentKeyword" />
+      <SystemOrganization v-if="currentTable === 'organization'" ref="orgTableRef" :keyword="currentKeyword" />
+      <SystemProject v-if="currentTable === 'project'" ref="projectTabeRef" :keyword="currentKeyword" />
     </div>
   </MsCard>
   <AddOrganizationModal :visible="organizationVisible" @cancel="handleAddOrganizationCancel" />
+  <AddProjectModal :visible="projectVisible" @cancel="handleAddProjectCancel" />
 </template>
 
 <script lang="ts" setup>
@@ -38,6 +39,7 @@
   import AddOrganizationModal from './components/addOrganizationModal.vue';
   import SystemOrganization from './components/systemOrganization.vue';
   import SystemProject from './components/systemProject.vue';
+  import AddProjectModal from './components/addProjectModal.vue';
 
   const { t } = useI18n();
   const currentTable = ref('project');
@@ -45,6 +47,9 @@
   const organizationCount = ref(0);
   const projectCount = ref(0);
   const currentKeyword = ref('');
+  const orgTableRef = ref();
+  const projectTabeRef = ref();
+  const projectVisible = ref(false);
 
   const handleSearch = (value: string) => {
     currentKeyword.value = value;
@@ -54,9 +59,22 @@
   };
 
   const handleAddOrganization = () => {
-    organizationVisible.value = true;
+    if (currentTable.value === 'organization') {
+      organizationVisible.value = true;
+    } else {
+      projectVisible.value = true;
+    }
+  };
+
+  const handleAddProjectCancel = () => {
+    projectVisible.value = false;
   };
   const handleAddOrganizationCancel = () => {
+    if (currentTable.value === 'organization') {
+      orgTableRef.value?.fetchData();
+    } else {
+      projectTabeRef.value?.fetchData();
+    }
     organizationVisible.value = false;
   };
 </script>
