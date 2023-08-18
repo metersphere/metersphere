@@ -22,7 +22,9 @@
       <div>
         <a-space>
           <a-button type="primary" @click="continueAdd">{{ t('system.plugin.continueUpload') }}</a-button>
-          <a-button type="outline">{{ t('system.plugin.ServiceIntegration') }}</a-button>
+          <a-button type="outline" @click="router.push({ name: 'settingOrganizationService' })">{{
+            t('system.plugin.ServiceIntegration')
+          }}</a-button>
           <a-button type="secondary">{{ t('system.plugin.backPluginList') }}</a-button>
         </a-space>
       </div>
@@ -38,8 +40,10 @@
   import { useDialog } from '@/hooks/useDialog';
   import useVisit from '@/hooks/useVisit';
   import { useI18n } from '@/hooks/useI18n';
+  import { useRouter } from 'vue-router';
 
   const { t } = useI18n();
+  const router = useRouter();
   const visitedKey = 'doNotShowAgain';
   const { addVisited } = useVisit(visitedKey);
   const props = defineProps<{

@@ -1,4 +1,4 @@
-export interface ServiceItem {
+export type ServiceItem = Partial<{
   id?: string;
   pluginId: string; // 插件id
   title: string;
@@ -8,16 +8,31 @@ export interface ServiceItem {
   logo: string;
   organizationId: string; // 组织id
   configuration?: null; // 配置项
-}
+}>;
 
 export type ServiceList = ServiceItem[];
 
 // 创建和更新服务
 
-export interface AddOrUpdateServiceModel {
+export type AddOrUpdateServiceModel = Partial<{
   id?: string;
   pluginId: string;
-  enable: boolean;
+  enable: boolean | undefined;
   organizationId: string;
-  configuration: any;
+  configuration?: any;
+}>;
+
+export interface SkipTitle {
+  name: string;
+  src: string;
+  active: boolean; // 是否激活
+}
+
+export interface StepListType {
+  id: string;
+  icon: string;
+  title: string;
+  skipTitle: SkipTitle[];
+  step: string;
+  description: string;
 }

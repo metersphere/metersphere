@@ -32,12 +32,22 @@
         @expand="handleExpand"
       >
         <template #columns>
-          <a-table-column :width="300" fixed="left" :title="t('system.plugin.tableColumnsName')" :ellipsis="true">
+          <a-table-column
+            :width="300"
+            fixed="left"
+            :title="t('system.plugin.tableColumnsName')"
+            :ellipsis="true"
+            :tooltip="true"
+          >
             <template #cell="{ record }">
               {{ record.name }} <span class="text-[--color-text-4]">({{ (record.pluginForms || []).length }})</span>
             </template>
           </a-table-column>
-          <a-table-column :title="t('system.plugin.tableColumnsDescription')" data-index="description" />
+          <a-table-column
+            :title="t('system.plugin.tableColumnsDescription')"
+            data-index="description"
+            :ellipsis="true"
+          />
           <a-table-column :title="t('system.plugin.tableColumnsStatus')">
             <template #cell="{ record }">
               <div v-if="record.enable" class="flex items-center">

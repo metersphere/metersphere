@@ -4,17 +4,26 @@
       <a-collapse :bordered="false" expand-icon-position="right" @change="changeHandler">
         <a-collapse-item key="1" class="font-medium" :header="t('organization.service.headerTip')">
           <template #expand-icon="{ active }">
-            <span v-if="active" class="text-[rgb(var(--primary-6))]">{{ t('organization.service.packUp') }}</span>
-            <span v-else class="text-[rgb(var(--primary-6))]">{{ t('organization.service.expand') }}</span>
+            <span v-if="active" class="float-right -mr-4 text-[rgb(var(--primary-6))]">{{
+              t('organization.service.packUp')
+            }}</span>
+            <span v-else class="float-right -mr-4 text-[rgb(var(--primary-6))]">{{
+              t('organization.service.expand')
+            }}</span>
           </template>
           <div class="flex w-[100%] flex-row justify-between text-sm font-normal">
-            <div v-for="(item, index) in cardContent" :key="item.id" class="item" :class="`ms-item-${index}`">
-              <span>
+            <div
+              v-for="(item, index) in cardContent"
+              :key="item.id"
+              class="item mt-4 p-[16px]"
+              :class="`ms-item-${index}`"
+            >
+              <span class="mr-3">
                 <svg-icon width="64px" height="46px" :name="item.icon" />
               </span>
-              <div class="flex h-[100%] flex-1 flex-col justify-between p-4">
-                <div class="flex justify-between">
-                  <span class="leading-6">{{ t(item.title) }}</span>
+              <div class="flex h-[100%] flex-1 flex-col justify-between">
+                <div class="flex items-center justify-between">
+                  <span class="font-normal">{{ t(item.title) }}</span>
                   <span>
                     <a-button
                       v-for="links of item.skipTitle"
@@ -24,13 +33,14 @@
                       type="text"
                       :href="links.src"
                       target="_blank"
+                      @click="jumpHandler(links)"
                     >
                       {{ t(links.name) }}
                     </a-button>
                   </span>
                 </div>
                 <div class="text-xs text-[var(--color-text-4)]">
-                  {{ t(item.description) }}
+                  <div class="one-line-text w-[400px]"> {{ t(item.description) }}</div>
                 </div>
               </div>
             </div>
@@ -47,9 +57,12 @@
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import ServiceList from './components/serviceList.vue';
+  import { useRouter } from 'vue-router';
+  import type { StepListType, SkipTitle } from '@/models/setting/serviceIntegration';
 
   const { t } = useI18n();
-  const cardContent = ref([
+  const router = useRouter();
+  const cardContent = ref<StepListType[]>([
     {
       id: '1001',
       icon: 'configplugin',
@@ -57,11 +70,13 @@
       skipTitle: [
         {
           name: 'organization.service.developmentDoc',
-          src: '',
+          src: 'https://github.com/metersphere/metersphere-platform-plugin/wiki/%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97',
+          active: false,
         },
         {
           name: 'organization.service.downPlugin',
           src: 'https://github.com/metersphere/metersphere-platform-plugin',
+          active: false,
         },
       ],
       step: '@/assets/images/ms_plugindownload.jpg',
@@ -75,6 +90,7 @@
         {
           name: 'organization.service.jumpPlugin',
           src: '',
+          active: true,
         },
       ],
       step: '@/assets/images/ms_configplugin.jpg',
@@ -88,6 +104,13 @@
     isCollapse.value = activeKey.length > 0;
     collapseHeight.value = activeKey.length > 0 ? '158px' : '72px';
   };
+
+  const jumpHandler = (links: SkipTitle) => {
+    if (links.active)
+      router.push({
+        name: 'settingSystemPluginManger',
+      });
+  };
 </script>
 
 <style scoped lang="less">
@@ -99,9 +122,10 @@
   }
   .item {
     width: calc(50% - 10px);
+    height: 78px;
     border: 1px solid #ffffff;
     box-shadow: 0 0 7px rgb(120 56 135 / 10%);
-    @apply flex h-20 items-center rounded-md;
+    @apply flex items-center rounded-md;
   }
   .ms-item-0 {
     background: url('@/assets/images/ms_plugindownload.jpg') no-repeat center / cover;

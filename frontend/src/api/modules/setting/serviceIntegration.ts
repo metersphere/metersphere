@@ -30,8 +30,8 @@ export function getValidate(id: string) {
   return MSR.get({ url: GetValidateServiceUrl, params: id });
 }
 // 内部校验测试连接 注:不同的平台对应的不同的字段
-export function postValidate(data: any) {
-  return MSR.post({ url: PostValidateServiceUrl, data });
+export function postValidate(data: any, pluginId: string) {
+  return MSR.post({ url: PostValidateServiceUrl, data, params: pluginId });
 }
 // 前端配置脚本
 export function configScript(pluginId: string) {

@@ -63,6 +63,8 @@
       <MsUpload
         v-model:file-list="fileList"
         accept="jar"
+        :max-size="50"
+        size-unit="MB"
         main-text="system.user.importModalDragtext"
         :sub-text="t('system.plugin.supportFormat')"
         :show-file-list="false"
