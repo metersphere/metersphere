@@ -22,6 +22,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
+import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -91,6 +92,8 @@ public class ApiScenarioReportService {
     BaseShareInfoService baseShareInfoService;
     @Resource
     private RedisTemplateService redisTemplateService;
+    @Resource
+    private BaseEnvGroupProjectService environmentGroupProjectService;
 
     public void batchSaveResult(List<ResultDTO> dtos) {
         apiScenarioReportResultService.batchSave(dtos);
@@ -754,19 +757,6 @@ public class ApiScenarioReportService {
         return null;
     }
 
-    public List<ApiScenarioReport> getByIds(List<String> ids) {
-        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(ids)) {
-            ApiScenarioReportExample example = new ApiScenarioReportExample();
-            example.createCriteria().andIdIn(ids);
-            return apiScenarioReportMapper.selectByExample(example);
-        }
-        return null;
-    }
-
-    public List<ApiReportCountDTO> countByApiScenarioId() {
-        return extApiScenarioReportMapper.countByApiScenarioId();
-    }
-
     public Map<String, String> getReportStatusByReportIds(Collection<String> values) {
         if (CollectionUtils.isEmpty(values)) {
             return new HashMap<>();
@@ -869,6 +859,16 @@ public class ApiScenarioReportService {
         return projectEnvMap;
     }
 
+    private Map<String, String> extractScenarioEnv(String envType, String envJson, String envGroupId) {
+        Map<String, String> scenarioEnv = new LinkedHashMap<>();
+        if (envType.equals(EnvironmentType.JSON.name()) && !envJson.isBlank()) {
+            scenarioEnv = JSON.parseObject(envJson, Map.class);
+        } else if (envType.equals(EnvironmentType.GROUP.name()) && !envGroupId.isBlank()) {
+            scenarioEnv = environmentGroupProjectService.getEnvMap(envGroupId);
+        }
+        return scenarioEnv;
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void batchSave(Map<String, RunModeDataDTO> executeQueue, String serialReportId, String runMode, List<MsExecResponseDTO> responseDTOS) {
         List<ApiScenarioReportResult> list = new LinkedList<>();
@@ -877,14 +877,30 @@ public class ApiScenarioReportService {
                 ApiScenarioReportResult report = executeQueue.get(reportId).getReport();
                 ApiScenarioWithBLOBs scenario = executeQueue.get(reportId).getScenario();
                 if (ObjectUtils.isNotEmpty(scenario)) {
+                    // 当前场景环境
+                    Map<String, String> scenarioEnv = extractScenarioEnv(scenario.getEnvironmentType(), scenario.getEnvironmentJson(), scenario.getEnvironmentGroupId());
                     List<String> projectIdLists = ElementUtil.getProjectIds(scenario.getScenarioDefinition());
                     String envConfig = report.getEnvConfig();
                     RunModeConfigWithEnvironmentDTO config = JsonUtils.parseObject(envConfig, RunModeConfigWithEnvironmentDTO.class);
                     if (MapUtils.isNotEmpty(config.getEnvMap())) {
                         Map<String, String> envMap = ElementUtil.getProjectEnvMap(projectIdLists, config.getEnvMap());
+                        // 获取场景用例单独的执行环境
+                        scenarioEnv.entrySet().stream()
+                                .filter(entry -> StringUtils.isBlank(envMap.get(entry.getKey())))
+                                .forEach(entry -> envMap.put(entry.getKey(), entry.getValue()));
+
                         config.setEnvMap(envMap);
                     } else if (MapUtils.isNotEmpty(config.getExecutionEnvironmentMap())) {
                         Map<String, List<String>> envMap = getProjectMap(projectIdLists, config.getExecutionEnvironmentMap());
+                        // 获取场景用例单独的执行环境
+                        scenarioEnv.forEach((k, v) -> {
+                            if (!envMap.containsKey(k) || CollectionUtils.isEmpty(envMap.get(k))) {
+                                envMap.put(k, Collections.singletonList(v));
+                            } else {
+                                envMap.get(k).add(v);
+                            }
+                        });
+
                         config.setExecutionEnvironmentMap(envMap);
                     }
                     report.setEnvConfig(JSON.toJSONString(config));
