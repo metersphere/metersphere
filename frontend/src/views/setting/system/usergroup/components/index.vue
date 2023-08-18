@@ -38,7 +38,7 @@
                 <span class="n1">{{ element.name }}</span>
                 <span v-if="element.type" class="n4">（{{ t(`system.userGroup.${element.type}`) }}）</span>
               </div>
-              <div v-if="element.id === currentId">
+              <div v-if="element.id === currentId && !element.internal">
                 <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
               </div>
             </div>
@@ -112,9 +112,15 @@
 
   // 点击用户组列表
   const handleListItemClick = (element: UserGroupItem) => {
-    const { id, name, type } = element;
+    const { id, name, type, internal } = element;
     currentId.value = id;
-    store.setInfo({ currentName: name, currentTitle: type, currentId: id, currentType: type });
+    store.setInfo({
+      currentName: name,
+      currentTitle: type,
+      currentId: id,
+      currentType: type,
+      currentInternal: internal,
+    });
   };
 
   // 用户组数据初始化

@@ -19,15 +19,15 @@
               @press-enter="handleEnter"
               @search="handleSearch"
             ></a-input-search>
-            <a-radio-group v-if="couldShowUser" v-model="currentTable" class="ml-[14px]" type="button">
-              <a-radio value="auth">{{ t('system.userGroup.auth') }}</a-radio>
-              <a-radio value="user">{{ t('system.userGroup.user') }}</a-radio>
+            <a-radio-group v-if="couldShowUser && couldShowAuth" v-model="currentTable" class="ml-[14px]" type="button">
+              <a-radio v-if="couldShowAuth" value="auth">{{ t('system.userGroup.auth') }}</a-radio>
+              <a-radio v-if="couldShowUser" value="user">{{ t('system.userGroup.user') }}</a-radio>
             </a-radio-group>
           </div>
         </div>
         <div class="mt-[16px]">
-          <user-table v-if="currentTable === 'user'" :keyword="currentKeyword" />
-          <auth-table v-if="currentTable === 'auth'" ref="authRef" />
+          <user-table v-if="currentTable === 'user' && couldShowUser" :keyword="currentKeyword" />
+          <auth-table v-if="currentTable === 'auth' && couldShowAuth" ref="authRef" />
         </div>
       </div>
     </div>
@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed, watchEffect } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import useUserGroupStore from '@/store/modules/setting/usergroup';
@@ -76,18 +76,11 @@
 
   const store = useUserGroupStore();
   const couldShowUser = computed(() => store.userGroupInfo.currentType === 'SYSTEM');
+  const couldShowAuth = computed(() => store.userGroupInfo.currentId !== 'admin');
   const handleCollapse = () => {
     store.setCollapse(!store.collapse);
   };
   const collapse = computed(() => store.collapse);
-  watch(
-    () => couldShowUser.value,
-    (val) => {
-      if (!val) {
-        currentTable.value = 'auth';
-      }
-    }
-  );
   const menuWidth = computed(() => {
     const width = appStore.menuCollapse ? 86 : appStore.menuWidth;
     if (store.collapse) {
@@ -107,6 +100,15 @@
       return authRef.value?.canSave;
     }
     return true;
+  });
+  watchEffect(() => {
+    if (!couldShowAuth.value) {
+      currentTable.value = 'user';
+    } else if (!couldShowUser.value) {
+      currentTable.value = 'auth';
+    } else {
+      currentTable.value = 'auth';
+    }
   });
 </script>
 

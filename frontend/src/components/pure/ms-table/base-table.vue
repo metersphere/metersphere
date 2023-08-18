@@ -11,8 +11,12 @@
       v-bind="$attrs"
       :row-class="getRowClass"
       :selected-keys="props.selectedKeys"
+      :span-method="spanMethod"
       @selection-change="(e) => selectionChange(e, true)"
     >
+      <template #optional="{ rowIndex, record }">
+        <slot name="optional" v-bind="{ rowIndex, record }" />
+      </template>
       <template #columns>
         <a-table-column
           v-for="(item, idx) in currentColumns"
@@ -133,6 +137,7 @@
     noDisable?: boolean;
     showSetting?: boolean;
     columns: MsTableColumn;
+    spanMethod?: (params: { record: TableData; rowIndex: number; columnIndex: number }) => void;
   }>();
   const emit = defineEmits<{
     (e: 'selectedChange', value: (string | number)[]): void;
@@ -152,6 +157,31 @@
   // 编辑input的Ref
   const currentInputRef = ref(null);
   const { rowKey, editKey }: Partial<MsTableProps<any>> = attrs;
+  // 第一行表格合并
+  const currentSpanMethod = ({
+    rowIndex,
+    columnIndex,
+  }: {
+    record: TableData;
+    rowIndex: number;
+    columnIndex: number;
+  }) => {
+    if (rowIndex === 0 && columnIndex === 0) {
+      return {
+        rowspan: 1,
+        colspan: currentColumns.value.length,
+      };
+    }
+  };
+  const spanMethod = computed(() => {
+    if (props.spanMethod) {
+      return props.spanMethod;
+    }
+    if (attrs.showFirstOperation) {
+      return currentSpanMethod;
+    }
+    return undefined;
+  });
 
   const setSelectAllTotal = (isAll: boolean) => {
     const { data, msPagination }: Partial<MsTableProps<any>> = attrs;

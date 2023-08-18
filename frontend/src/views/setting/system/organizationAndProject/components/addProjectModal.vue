@@ -3,17 +3,17 @@
     v-model:visible="currentVisible"
     width="680px"
     class="ms-modal-form ms-modal-medium"
-    :ok-text="t('system.organization.create')"
+    :ok-text="isEdit ? t('common.update') : t('common.create')"
     unmount-on-close
     @cancel="handleCancel"
   >
     <template #title>
       <span v-if="isEdit">
-        {{ t('system.organization.updateOrganization') }}
-        <span class="text-[var(--color-text-4)]">({{ props.currentOrganization?.name }})</span>
+        {{ t('system.project.updateProject') }}
+        <span class="text-[var(--color-text-4)]">({{ props.currentProject?.name }})</span>
       </span>
       <span v-else>
-        {{ t('system.organization.createOrganization') }}
+        {{ t('system.project.create') }}
       </span>
     </template>
     <div class="form">
@@ -21,19 +21,22 @@
         <a-form-item
           field="name"
           required
-          :label="t('system.organization.organizationName')"
-          :rules="[{ required: true, message: t('system.organization.organizationNameRequired') }]"
+          :label="t('system.project.name')"
+          :rules="[{ required: true, message: t('system.project.projectNameRequired') }]"
         >
-          <a-input v-model="form.name" :placeholder="t('system.organization.organizationNamePlaceholder')" />
+          <a-input v-model="form.name" :placeholder="t('system.project.projectNamePlaceholder')" />
         </a-form-item>
-        <a-form-item field="name" :label="t('system.organization.organizationAdmin')">
-          <MsUserSelector
-            v-model:value="form.memberIds"
-            placeholder="system.organization.organizationAdminPlaceholder"
-          />
+        <a-form-item field="organizationId" :label="t('system.project.affiliatedOrg')">
+          <a-input v-model="form.organizationId" :placeholder="t('system.project.affiliatedOrgPlaceholder')" />
+        </a-form-item>
+        <a-form-item field="userIds" :label="t('system.project.projectAdmin')">
+          <MsUserSelector v-model:value="form.userIds" placeholder="system.project.projectAdminPlaceholder" />
         </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">
           <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
+        </a-form-item>
+        <a-form-item field="enable" :label="t('system.organization.description')">
+          <a-switch v-model="form.enable" :placeholder="t('system.organization.descriptionPlaceholder')" />
         </a-form-item>
       </a-form>
     </div>
@@ -55,26 +58,30 @@
   import MsUserSelector from '@/components/bussiness/ms-user-selector/index.vue';
   import { createOrUpdateOrg } from '@/api/modules/setting/system/organizationAndProject';
   import { Message } from '@arco-design/web-vue';
-  import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
+  import { CreateOrUpdateSystemProjectParams } from '@/models/setting/system/orgAndProject';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
-    currentOrganization?: CreateOrUpdateSystemOrgParams;
+    currentProject?: CreateOrUpdateSystemProjectParams;
   }>();
 
   const formRef = ref<FormInstance>();
 
   const loading = ref(false);
+  const isEdit = computed(() => !!props.currentProject?.id);
 
   const emit = defineEmits<{
     (e: 'cancel'): void;
   }>();
 
-  const form = reactive<{ name: string; memberIds: string[]; description: string }>({
+  const form = reactive<CreateOrUpdateSystemProjectParams>({
     name: '',
-    memberIds: [],
+    userIds: [],
+    organizationId: '',
     description: '',
+    enable: true,
+    module: [],
   });
 
   const currentVisible = ref(props.visible);
@@ -93,9 +100,9 @@
       }
       try {
         loading.value = true;
-        await createOrUpdateOrg({ id: props.currentOrganization?.id, ...form });
+        await createOrUpdateOrg({ id: props.currentProject?.id, ...form });
         Message.success(
-          props.currentOrganization?.id
+          isEdit.value
             ? t('system.organization.updateOrganizationSuccess')
             : t('system.organization.createOrganizationSuccess')
         );
@@ -111,11 +118,12 @@
     });
   };
   watchEffect(() => {
-    if (props.currentOrganization) {
-      form.name = props.currentOrganization.name;
-      form.memberIds = props.currentOrganization.memberIds;
-      form.description = props.currentOrganization.description;
+    if (props.currentProject) {
+      form.name = props.currentProject.name;
+      form.userIds = props.currentProject.userIds;
+      form.description = props.currentProject.description;
+      form.organizationId = props.currentProject.organizationId;
+      form.enable = props.currentProject.enable;
     }
   });
-  const isEdit = computed(() => !!props.currentOrganization?.id);
 </script>

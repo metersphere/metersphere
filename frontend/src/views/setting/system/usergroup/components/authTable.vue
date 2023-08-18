@@ -15,9 +15,13 @@
         <a-table-column :title="t('system.userGroup.auth')">
           <template #cell="{ record, rowIndex }">
             <a-checkbox-group v-model="record.perChecked" @change="(v) => handleAuthChange(v, rowIndex)">
-              <a-checkbox v-for="item in record.permissions" :key="item.id" :disabled="item.license" :value="item.id">{{
-                t(item.name)
-              }}</a-checkbox>
+              <a-checkbox
+                v-for="item in record.permissions"
+                :key="item.id"
+                :disabled="item.license || currentInternal"
+                :value="item.id"
+                >{{ t(item.name) }}</a-checkbox
+              >
             </a-checkbox-group>
           </template>
         </a-table-column>
@@ -27,6 +31,7 @@
               v-if="tableData && tableData?.length > 0"
               :model-value="allChecked"
               :indeterminate="allIndeterminate"
+              :disabled="currentInternal"
               @change="handleAllChangeByCheckbox"
             ></a-checkbox>
           </template>
@@ -34,6 +39,7 @@
             <a-checkbox
               :model-value="record.enable"
               :indeterminate="record.indeterminate"
+              :disabled="currentInternal"
               @change="(value) => handleActionChangeAll(value, rowIndex)"
             />
           </template>
@@ -45,7 +51,7 @@
 
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
-  import { RenderFunction, VNodeChild, ref, watchEffect } from 'vue';
+  import { RenderFunction, VNodeChild, ref, watchEffect, computed } from 'vue';
   import { type TableColumnData, type TableData } from '@arco-design/web-vue';
   import useUserGroupStore from '@/store/modules/setting/usergroup';
   import { getGlobalUSetting, saveGlobalUSetting } from '@/api/modules/setting/usergroup';
@@ -75,6 +81,10 @@
   const tableData = ref<AuthTableItem[]>();
   // 是否可以保存
   const canSave = ref(false);
+  // 内部用户不可编辑
+  const currentInternal = computed(() => {
+    return store.userGroupInfo.currentInternal;
+  });
 
   const dataSpanMethod = (data: {
     record: TableData;

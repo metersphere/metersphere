@@ -2,7 +2,10 @@ import MSR from '@/api/http/index';
 import * as orgUrl from '@/api/requrls/setting/system/organizationAndProject';
 import { TableQueryParams } from '@/models/common';
 import { AddUserToOrgOrProjectParams } from '@/models/setting/systemOrg';
-import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
+import {
+  CreateOrUpdateSystemOrgParams,
+  CreateOrUpdateSystemProjectParams,
+} from '@/models/setting/system/orgAndProject';
 
 // 获取组织列表
 export function postOrgTable(data: TableQueryParams) {
@@ -10,7 +13,7 @@ export function postOrgTable(data: TableQueryParams) {
 }
 
 // 创建或修改组织
-export function createOrUpdateOrg(data: CreateOrUpdateSystemOrgParams) {
+export function createOrUpdateOrg(data: CreateOrUpdateSystemOrgParams | CreateOrUpdateSystemProjectParams) {
   return MSR.post({ url: data.id ? orgUrl.postModifyOrgUrl : orgUrl.postAddOrgUrl, data });
 }
 

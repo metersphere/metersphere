@@ -7,4 +7,5 @@ export interface UserGroupState {
   currentType: string;
   // 菜单开启关闭
   collapse: boolean;
+  currentInternal: boolean;
 }

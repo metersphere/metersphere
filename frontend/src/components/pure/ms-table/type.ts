@@ -77,6 +77,8 @@ export interface MsTableProps<T> {
   tableErrorStatus?: MsTableErrorStatus;
   // debug模式，开启后会打印表格所有state
   debug?: boolean;
+  // 是否展示第一行的操作
+  showFirstOperation?: boolean;
   [key: string]: any;
 }
 
