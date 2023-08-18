@@ -66,8 +66,6 @@ public class ApiJMeterFileService {
     @Lazy
     @Resource
     private TemporaryFileUtil temporaryFileUtil;
-    @Resource
-    private RemakeReportService remakeReportService;
 
     // 接口测试 用例/接口
     private static final List<String> CASE_MODES = new ArrayList<>() {{
@@ -84,40 +82,44 @@ public class ApiJMeterFileService {
             ApiRunMode.JENKINS_SCENARIO_PLAN.name(),
             ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
 
-    private ApiScenarioWithBLOBs getScenario(String runMode, String remoteTestId, Map<String, String> planEnvMap, Map<String, String> envMap) {
+    private ApiScenarioWithBLOBs getScenario(String runMode, String remoteTestId, Map<String, String> executeEnvMap, Map<String, String> envMap) {
         ApiScenarioWithBLOBs scenario = null;
         if (PLAN_SCENARIO.contains(runMode)) {
             // 获取场景用例单独的执行环境
             TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(remoteTestId);
             if (planApiScenario != null) {
-                String envType = planApiScenario.getEnvironmentType();
-                String environmentGroupId = planApiScenario.getEnvironmentGroupId();
-                String environment = planApiScenario.getEnvironment();
-                if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(environment)) {
-                    planEnvMap.putAll(JSON.parseObject(environment, Map.class));
-                } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(environmentGroupId)) {
-                    planEnvMap.putAll(environmentGroupProjectService.getEnvMap(environmentGroupId));
-                }
+                // 测试计划自身环境
+                executeEnvMap.putAll(extractScenarioEnv(planApiScenario.getEnvironmentType(), planApiScenario.getEnvironment(), planApiScenario.getEnvironmentGroupId()));
                 scenario = apiScenarioMapper.selectByPrimaryKey(planApiScenario.getApiScenarioId());
             }
         }
         if (scenario == null) {
             scenario = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
         }
+        // 获取场景用例单独的执行环境
+        Map<String, String> scenarioEnv = extractScenarioEnv(scenario.getEnvironmentType(), scenario.getEnvironmentJson(), scenario.getEnvironmentGroupId());
+        scenarioEnv.entrySet().stream()
+                .filter(entry -> StringUtils.isBlank(executeEnvMap.get(entry.getKey())))
+                .forEach(entry -> executeEnvMap.put(entry.getKey(), entry.getValue()));
+
+        // 当前执行时所选环境
         if (MapUtils.isNotEmpty(envMap)) {
-            planEnvMap.putAll(envMap);
-        } else if (scenario != null && !PLAN_SCENARIO.contains(runMode)) {
-            String envType = scenario.getEnvironmentType();
-            String envJson = scenario.getEnvironmentJson();
-            String envGroupId = scenario.getEnvironmentGroupId();
-            if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
-                planEnvMap.putAll(JSON.parseObject(envJson, Map.class));
-            } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
-                planEnvMap.putAll(environmentGroupProjectService.getEnvMap(envGroupId));
-            }
+            executeEnvMap.putAll(envMap);
         }
+
         return scenario;
     }
+
+    private Map<String, String> extractScenarioEnv(String envType, String envJson, String envGroupId) {
+        Map<String, String> scenarioEnv = new LinkedHashMap<>();
+        if (envType.equals(EnvironmentType.JSON.name()) && !envJson.isBlank()) {
+            scenarioEnv = JSON.parseObject(envJson, Map.class);
+        } else if (envType.equals(EnvironmentType.GROUP.name()) && !envGroupId.isBlank()) {
+            scenarioEnv = environmentGroupProjectService.getEnvMap(envGroupId);
+        }
+        return scenarioEnv;
+    }
+
     public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType, String queueId) {
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(remoteTestId, reportId, runMode, null);
         runRequest.setReportType(reportType);
@@ -140,6 +142,7 @@ public class ApiJMeterFileService {
                 runRequest.setRetryNum(detail.getRetryNumber());
                 runRequest.setRunType(detail.getType());
             }
+            // 执行时选择的环境
             Map<String, String> processEnvMap = new LinkedHashMap<>();
             if (detail != null && StringUtils.isNotEmpty(detail.getEvnMap())) {
                 processEnvMap = JSONUtil.parseObject(detail.getEvnMap(), Map.class);
@@ -151,9 +154,7 @@ public class ApiJMeterFileService {
             } else {
                 Map<String, String> execEnvMap = new HashMap<>();
                 ApiScenarioWithBLOBs scenario = this.getScenario(runMode, remoteTestId, execEnvMap, processEnvMap);
-                if (scenario != null) {
-                    hashTree = GenerateHashTreeUtil.generateHashTree(scenario, execEnvMap, runRequest);
-                }
+                hashTree = GenerateHashTreeUtil.generateHashTree(scenario, execEnvMap, runRequest);
             }
 
             if (MapUtils.isEmpty(processEnvMap)) {
