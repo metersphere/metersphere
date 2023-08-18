@@ -36,11 +36,7 @@ public class OperationLog implements Serializable {
     @Schema(description =  "资源id")
     private String sourceId;
 
-    @Schema(description = "批次id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{operation_log.batch_id.not_blank}", groups = {Created.class})
-    private String batchId;
-
-    @Schema(description =  "操作方法", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "操作方法", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_log.method.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{operation_log.method.length_range}", groups = {Created.class, Updated.class})
     private String method;
@@ -68,7 +64,6 @@ public class OperationLog implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         sourceId("source_id", "sourceId", "VARCHAR", false),
-        batchId("batch_id", "batchId", "VARCHAR", false),
         method("method", "method", "VARCHAR", true),
         type("type", "type", "VARCHAR", true),
         module("module", "module", "VARCHAR", true),

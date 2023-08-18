@@ -15,7 +15,6 @@ import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.Organization;
-import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.OrganizationMemberBatchRequest;
@@ -106,13 +105,6 @@ public class UserController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
     public BatchProcessResponse deleteUser(@Validated @RequestBody UserBaseBatchRequest request) {
         return userService.deleteUser(request, SessionUtils.getUserId());
-    }
-
-    @GetMapping("/list")
-    @Operation(summary = "系统/组织日志页面，获取用户列表")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_OPERATING_LOG_READ, PermissionConstants.ORGANIZATION_OPERATING_LOG_READ}, logical = Logical.OR)
-    public List<User> getUserList() {
-        return userService.getUserList();
     }
 
     @PostMapping("/reset/password")

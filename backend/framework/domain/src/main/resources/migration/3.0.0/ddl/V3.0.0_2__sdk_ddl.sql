@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS operation_log
     `create_time` BIGINT       NOT NULL COMMENT '操作时间',
     `create_user` VARCHAR(50) COMMENT '操作人',
     `source_id`   VARCHAR(50) COMMENT '资源id',
-    `batch_id`    VARCHAR(50) COMMENT '批次id',
     `method`      VARCHAR(255) NOT NULL COMMENT '操作方法',
     `type`        VARCHAR(20)  NOT NULL COMMENT '操作类型/add/update/delete',
     `module`      VARCHAR(50) COMMENT '操作模块/api/case/scenario/ui',
