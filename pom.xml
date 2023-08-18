@@ -273,6 +273,10 @@
     </distributionManagement>
     <pluginRepositories>
         <pluginRepository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </pluginRepository>
+        <pluginRepository>
             <id>fit2cloud-public</id>
             <url>https://repository.fit2cloud.com/repository/public/</url>
         </pluginRepository>
