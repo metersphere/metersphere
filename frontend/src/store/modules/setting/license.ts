@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { getLicenseInfo } from '@/api/modules/setting/authorizedManagement';
 
-const useLicenseStore = defineStore('userGroup', {
+const useLicenseStore = defineStore('license', {
   persist: true,
   state: (): { status: string | null } => ({
     status: '',
