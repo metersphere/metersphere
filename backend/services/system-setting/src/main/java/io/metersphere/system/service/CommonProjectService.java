@@ -13,6 +13,7 @@ import io.metersphere.sdk.invoker.ProjectServiceInvoker;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
@@ -58,12 +59,18 @@ public class CommonProjectService {
         this.serviceInvoker = serviceInvoker;
     }
 
-    public Project get(String id) {
+    public ProjectExtendDTO get(String id) {
         Project project = projectMapper.selectByPrimaryKey(id);
-        if (ObjectUtils.isNotEmpty(project) && StringUtils.isEmpty(project.getModuleSetting())) {
-            project.setModuleSetting(JSON.toJSONString(new ModuleSettingDTO()));
+        ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
+        if (ObjectUtils.isNotEmpty(project)) {
+            BeanUtils.copyBean(projectExtendDTO, project);
+            if (StringUtils.isNotEmpty(project.getModuleSetting())) {
+                projectExtendDTO.setModuleIds(JSON.parseArray(project.getModuleSetting(), String.class));
+            }
+        } else {
+            return null;
         }
-        return project;
+        return projectExtendDTO;
     }
 
     /**
@@ -73,13 +80,14 @@ public class CommonProjectService {
      * @param module        日志记录模块
      * @return
      */
-    public Project add(AddProjectRequest addProjectDTO, String createUser, String path, String module) {
+    public ProjectExtendDTO add(AddProjectRequest addProjectDTO, String createUser, String path, String module) {
 
         Project project = new Project();
+        ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
         project.setId(UUID.randomUUID().toString());
         project.setName(addProjectDTO.getName());
         project.setOrganizationId(addProjectDTO.getOrganizationId());
-        checkProjectExistByName(project);
+        checkProjectExistByNameAdd(project);
         project.setCreateTime(System.currentTimeMillis());
         project.setUpdateTime(System.currentTimeMillis());
         project.setUpdateUser(createUser);
@@ -87,12 +95,13 @@ public class CommonProjectService {
         project.setEnable(addProjectDTO.getEnable());
         project.setDescription(addProjectDTO.getDescription());
         addProjectDTO.setId(project.getId());
+        BeanUtils.copyBean(projectExtendDTO, project);
 
         //判断是否有模块设置
-        if (StringUtils.isEmpty(addProjectDTO.getModuleSetting())) {
-            addProjectDTO.setModuleSetting(JSON.toJSONString(new ModuleSettingDTO()));
+        if (CollectionUtils.isNotEmpty(addProjectDTO.getModuleIds())) {
+            project.setModuleSetting(JSON.toJSONString(addProjectDTO.getModuleIds()));
+            projectExtendDTO.setModuleIds(addProjectDTO.getModuleIds());
         }
-        project.setModuleSetting(addProjectDTO.getModuleSetting());
 
         ProjectAddMemberBatchRequest memberRequest = new ProjectAddMemberBatchRequest();
         memberRequest.setProjectIds(List.of(project.getId()));
@@ -105,7 +114,7 @@ public class CommonProjectService {
         //添加项目管理员   创建的时候如果没有传管理员id  则默认创建者为管理员
         this.addProjectAdmin(memberRequest, createUser, path,
                 OperationLogType.ADD.name(), Translator.get("add"), module);
-        return project;
+        return projectExtendDTO;
     }
 
     /**
@@ -144,10 +153,18 @@ public class CommonProjectService {
         operationLogService.batchAdd(logDTOList);
     }
 
-    private void checkProjectExistByName(Project project) {
+    private void checkProjectExistByNameAdd(Project project) {
         ProjectExample example = new ProjectExample();
         example.createCriteria().andNameEqualTo(project.getName()).andOrganizationIdEqualTo(project.getOrganizationId());
         if (projectMapper.selectByExample(example).size() > 0) {
+            throw new MSException(Translator.get("project_name_already_exists"));
+        }
+    }
+
+    private void checkProjectExistByNameUpdate(Project project) {
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andNameEqualTo(project.getName()).andOrganizationIdEqualTo(project.getOrganizationId());
+        if (projectMapper.selectByExample(example).size() > 1) {
             throw new MSException(Translator.get("project_name_already_exists"));
         }
     }
@@ -165,6 +182,9 @@ public class CommonProjectService {
 
     public List<ProjectDTO> buildUserInfo(List<ProjectDTO> projectList) {
         projectList.forEach(projectDTO -> {
+            if (StringUtils.isNotBlank(projectDTO.getModuleSetting())) {
+                projectDTO.setModuleIds(JSON.parseArray(projectDTO.getModuleSetting(), String.class));
+            }
             List<User> users = extSystemProjectMapper.getProjectAdminList(projectDTO.getId());
             projectDTO.setAdminList(users);
             List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
@@ -176,8 +196,9 @@ public class CommonProjectService {
         return projectList;
     }
 
-    public Project update(UpdateProjectRequest updateProjectDto, String updateUser, String path, String module) {
+    public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser, String path, String module) {
         Project project = new Project();
+        ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
         project.setId(updateProjectDto.getId());
         project.setName(updateProjectDto.getName());
         project.setDescription(updateProjectDto.getDescription());
@@ -187,8 +208,9 @@ public class CommonProjectService {
         project.setCreateUser(null);
         project.setCreateTime(null);
         project.setUpdateTime(System.currentTimeMillis());
-        checkProjectExistByName(project);
+        checkProjectExistByNameUpdate(project);
         checkProjectNotExist(project.getId());
+        BeanUtils.copyBean(projectExtendDTO, project);
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(project.getId()).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
@@ -237,13 +259,13 @@ public class CommonProjectService {
             operationLogService.batchAdd(logDTOList);
         }
         //判断是否有模块设置
-        if (StringUtils.isEmpty(updateProjectDto.getModuleSetting())) {
-            updateProjectDto.setModuleSetting(JSON.toJSONString(new ModuleSettingDTO()));
+        if (CollectionUtils.isNotEmpty(updateProjectDto.getModuleIds())) {
+            project.setModuleSetting(JSON.toJSONString(updateProjectDto.getModuleIds()));
+            projectExtendDTO.setModuleIds(updateProjectDto.getModuleIds());
         }
-        project.setModuleSetting(updateProjectDto.getModuleSetting());
 
         projectMapper.updateByPrimaryKeySelective(project);
-        return project;
+        return projectExtendDTO;
     }
 
     public int delete(String id, String deleteUser) {

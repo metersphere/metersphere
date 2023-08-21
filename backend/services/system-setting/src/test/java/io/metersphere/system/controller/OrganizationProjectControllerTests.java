@@ -8,10 +8,7 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
-import io.metersphere.sdk.dto.AddProjectRequest;
-import io.metersphere.sdk.dto.ModuleSettingDTO;
-import io.metersphere.sdk.dto.ProjectDTO;
-import io.metersphere.sdk.dto.UpdateProjectRequest;
+import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
@@ -25,6 +22,7 @@ import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.service.OrganizationService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -181,7 +179,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testAddProjectSuccess() throws Exception {
         AddProjectRequest project = this.generatorAdd("organizationId","organization-name", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
-        Project result = parseObjectFromMvcResult(mvcResult, Project.class);
+        ProjectExtendDTO result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         List<Project> projects = projectMapper.selectByExample(projectExample);
@@ -200,14 +198,14 @@ public class OrganizationProjectControllerTests extends BaseTest {
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         projectId = result.getId();
         Project projectExtend = projectMapper.selectByPrimaryKey(projectId);
-        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(new ModuleSettingDTO()));
+        Assertions.assertNull(projectExtend.getModuleSetting());
         // 校验日志
         checkLog(projectId, OperationLogType.ADD);
 
         //userId为空的时候
         project = this.generatorAdd("organizationId","organization-userIdIsNull", "description", true, new ArrayList<>());
         mvcResult = this.responsePost(addProject, project);
-        result = parseObjectFromMvcResult(mvcResult, Project.class);
+        result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         projects = projectMapper.selectByExample(projectExample);
@@ -225,16 +223,16 @@ public class OrganizationProjectControllerTests extends BaseTest {
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         projectExtend = projectMapper.selectByPrimaryKey(projectId);
-        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(new ModuleSettingDTO()));
+        Assertions.assertNull(projectExtend.getModuleSetting());
 
         //设置了模块模版
-        ModuleSettingDTO moduleSettingDTO = new ModuleSettingDTO();
-        moduleSettingDTO.setApiTest(true);
-        moduleSettingDTO.setLoadTest(true);
-        project.setModuleSetting(JSON.toJSONString(moduleSettingDTO));
+        List<String> moduleIds = new ArrayList<>();
+        moduleIds.add("apiTest");
+        moduleIds.add("loadTest");
+        project.setModuleIds(moduleIds);
         project.setName("org-moduleSetting");
         mvcResult = this.responsePost(addProject, project);
-        result = parseObjectFromMvcResult(mvcResult, Project.class);
+        result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         projects = projectMapper.selectByExample(projectExample);
@@ -252,7 +250,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         projectExtend = projectMapper.selectByPrimaryKey(projectId);
-        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleSettingDTO));
+        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleIds));
 
         project.setName("organization-testAddProjectSuccess1");
         project.setOrganizationId(getDefault().getId());
@@ -287,16 +285,16 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testGetProject() throws Exception {
         AddProjectRequest project = this.generatorAdd("organizationId","organization-getName", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
-        Project result = parseObjectFromMvcResult(mvcResult, Project.class);
+        ProjectExtendDTO result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         assert result != null;
         projectId = result.getId();
         mvcResult = this.responseGet(getProject + projectId);
-        Project getProjects = parseObjectFromMvcResult(mvcResult, Project.class);
+        Project getProjects = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         Assertions.assertTrue(StringUtils.equals(getProjects.getId(), projectId));
 
 
         mvcResult = this.responseGet(getProject + "projectId1");
-        getProjects = parseObjectFromMvcResult(mvcResult, Project.class);
+        getProjects = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         assert getProjects != null;
         Assertions.assertTrue(StringUtils.equals(getProjects.getId(), "projectId1"));
         // @@校验权限
@@ -306,8 +304,9 @@ public class OrganizationProjectControllerTests extends BaseTest {
     @Order(4)
     public void testGetProjectError() throws Exception {
         //项目不存在
+        //项目不存在
         MvcResult mvcResult = this.responseGet(getProject + "111111");
-        Project project = parseObjectFromMvcResult(mvcResult, Project.class);
+        ProjectExtendDTO project = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         Assertions.assertNull(project);
     }
 
@@ -393,13 +392,13 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testUpdateProject() throws Exception {
         UpdateProjectRequest project = this.generatorUpdate("organizationId", projectId,"organization-TestName", "Edit name", true, List.of("admin1"));
         Project projectExtend = projectMapper.selectByPrimaryKey(projectId);
-        ModuleSettingDTO moduleSettingDTO = JSON.parseObject(projectExtend.getModuleSetting(), ModuleSettingDTO.class);
-        moduleSettingDTO.setApiTest(true);
-        moduleSettingDTO.setTestPlan(true);
-        moduleSettingDTO.setUiTest(true);
-        project.setModuleSetting(JSON.toJSONString(moduleSettingDTO));
+        List<String> moduleIds = new ArrayList<>();
+        if (StringUtils.isNotBlank(projectExtend.getModuleSetting())) {
+            moduleIds = JSON.parseArray(projectExtend.getModuleSetting(), String.class);
+        }
+        project.setModuleIds(moduleIds);
         MvcResult mvcResult = this.responsePost(updateProject, project);
-        Project result = parseObjectFromMvcResult(mvcResult, Project.class);
+        ProjectExtendDTO result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         Project currentProject = projectMapper.selectByPrimaryKey(project.getId());
         compareProjectDTO(currentProject, result);
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
@@ -411,14 +410,14 @@ public class OrganizationProjectControllerTests extends BaseTest {
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin1"));
         //断言模块设置
         projectExtend = projectMapper.selectByPrimaryKey(projectId);
-        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleSettingDTO));
+        Assertions.assertEquals(projectExtend.getModuleSetting(), CollectionUtils.isEmpty(project.getModuleIds()) ? null : JSON.toJSONString(project.getModuleIds()));
 
         // 校验日志
         checkLog(projectId, OperationLogType.ADD);
         //用户id为空
         project = this.generatorUpdate("organizationId", "projectId2", "organization-TestNameUserIdIsNull", "Edit name", true, new ArrayList<>());
         mvcResult = this.responsePost(updateProject, project);
-        result = parseObjectFromMvcResult(mvcResult, Project.class);
+        result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
         compareProjectDTO(currentProject, result);
         userRoleRelationExample = new UserRoleRelationExample();
@@ -428,19 +427,16 @@ public class OrganizationProjectControllerTests extends BaseTest {
         Assertions.assertTrue(userRoleRelations.isEmpty());
         //断言模块设置
         projectExtend = projectMapper.selectByPrimaryKey("projectId2");
-        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(new ModuleSettingDTO()));
+        Assertions.assertEquals(projectExtend.getModuleSetting(), CollectionUtils.isEmpty(project.getModuleIds()) ? null : JSON.toJSONString(project.getModuleIds()));
 
         // 修改模块设置
         project = this.generatorUpdate("organizationId", "projectId2", "org-Module", "Edit name", true, new ArrayList<>());
-        projectExtend = projectMapper.selectByPrimaryKey("projectId2");
-        moduleSettingDTO = JSON.parseObject(projectExtend.getModuleSetting(), ModuleSettingDTO.class);
-        moduleSettingDTO.setApiTest(true);
-        moduleSettingDTO.setTestPlan(true);
-        moduleSettingDTO.setUiTest(true);
-        moduleSettingDTO.setWorkstation(true);
-        project.setModuleSetting(JSON.toJSONString(moduleSettingDTO));
+        moduleIds = new ArrayList<>();
+        moduleIds.add("apiTest");
+        moduleIds.add("uiTest");
+        project.setModuleIds(moduleIds);
         mvcResult = this.responsePost(updateProject, project);
-        result = parseObjectFromMvcResult(mvcResult, Project.class);
+        result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
         compareProjectDTO(currentProject, result);
         userRoleRelationExample = new UserRoleRelationExample();
@@ -450,7 +446,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         Assertions.assertTrue(userRoleRelations.isEmpty());
         //断言模块设置
         projectExtend = projectMapper.selectByPrimaryKey("projectId2");
-        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleSettingDTO));
+        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleIds));
         // @@校验权限
         project.setName("organization-TestName2");
         project.setId("projectId1");
