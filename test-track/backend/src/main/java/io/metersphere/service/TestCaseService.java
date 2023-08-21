@@ -229,7 +229,7 @@ public class TestCaseService {
         request.setDemandName(request.getDemandName());
         request.setCreateUser(SessionUtils.getUserId());
         request.setLastExecuteResult(null);
-        this.setNode(request);
+        setNode(request);
         request.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extTestCaseMapper::getLastOrder));
         //直接点保存 || 复制走的逻辑
         if (StringUtils.isAllBlank(request.getRefId(), request.getVersionId())) {
@@ -820,7 +820,7 @@ public class TestCaseService {
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request, boolean isSampleInfo) {
         boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
         request.setQueryUi(queryUi);
-        this.initRequest(request, true);
+        initRequest(request, true);
         setDefaultOrder(request);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
@@ -876,7 +876,7 @@ public class TestCaseService {
     }
 
     public void setPublicListRequestParam(QueryTestCaseRequest request) {
-        this.initRequest(request, true);
+        initRequest(request, true);
         setDefaultOrder(request);
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
             request.getFilters().put("status", new ArrayList<>(0));
@@ -1163,12 +1163,12 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
                     if (CollectionUtils.isNotEmpty(xmindParser.getTestCase())) {
-                        this.saveImportData(testCase, request, null);
+                        saveImportData(testCase, request, null);
                         names = testCase.stream().map(TestCase::getName).collect(Collectors.toList());
                         ids = testCase.stream().map(TestCase::getId).collect(Collectors.toList());
                     }
                     if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
-                        this.updateImportData(xmindParser.getUpdateTestCase(), request, null);
+                        updateImportData(xmindParser.getUpdateTestCase(), request, null);
                         names.addAll(xmindParser.getUpdateTestCase().stream().map(TestCase::getName).collect(Collectors.toList()));
                         ids.addAll(xmindParser.getUpdateTestCase().stream().map(TestCase::getId).collect(Collectors.toList()));
                     }
@@ -1180,7 +1180,7 @@ public class TestCaseService {
                 if (CollectionUtils.isNotEmpty(continueCaseList) || CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
                     if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
                         continueCaseList.removeAll(xmindParser.getUpdateTestCase());
-                        this.updateImportData(xmindParser.getUpdateTestCase(), request, null);
+                        updateImportData(xmindParser.getUpdateTestCase(), request, null);
                         names = testCase.stream().map(TestCase::getName).collect(Collectors.toList());
                         ids = testCase.stream().map(TestCase::getId).collect(Collectors.toList());
                     }
@@ -1189,7 +1189,7 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(nodePathList, projectId);
                     }
                     if (CollectionUtils.isNotEmpty(continueCaseList)) {
-                        this.saveImportData(continueCaseList, request, null);
+                        saveImportData(continueCaseList, request, null);
                         names.addAll(continueCaseList.stream().map(TestCase::getName).collect(Collectors.toList()));
                         ids.addAll(continueCaseList.stream().map(TestCase::getId).collect(Collectors.toList()));
 
@@ -1487,7 +1487,7 @@ public class TestCaseService {
         // 发送给客户端的数据
         byte[] buff = new byte[1024];
         try (OutputStream outputStream = res.getOutputStream();
-             BufferedInputStream bis = new BufferedInputStream(TestCaseService.class.getClassLoader().getResourceAsStream("xmind/" + fileName));) {
+             BufferedInputStream bis = new BufferedInputStream(TestCaseService.class.getClassLoader().getResourceAsStream("xmind/" + fileName))) {
             int i = bis.read(buff);
             while (i != -1) {
                 outputStream.write(buff, 0, buff.length);
@@ -1555,7 +1555,7 @@ public class TestCaseService {
         File tmpDir = null;
 
         try {
-            tmpDir = new File(this.getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() +
+            tmpDir = new File(getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() +
                     EXPORT_CASE_TMP_DIR + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + UUID.randomUUID().toString());
             // 生成tmp随机目录
             FileUtils.deleteDir(tmpDir.getPath());
@@ -1647,6 +1647,7 @@ public class TestCaseService {
                     .head(Optional.ofNullable(headList).orElse(new ArrayList<>()))
                     .registerWriteHandler(handler)
                     .registerWriteHandler(writeHandler)
+                    .registerWriteHandler(FunctionCaseTemplateWriteHandler.getHorizontalWrapStrategy())
                     .excelType(ExcelTypeEnum.XLSX).sheet(Translator.get("test_case_import_template_sheet")).doWrite(data);
             tmpExportExcelList.add(createFile);
         });
@@ -1654,7 +1655,7 @@ public class TestCaseService {
     }
 
     public void cleanUpTmpDirOfClassPath() {
-        File tmpDir = new File(this.getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() + EXPORT_CASE_TMP_DIR);
+        File tmpDir = new File(getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() + EXPORT_CASE_TMP_DIR);
         if (tmpDir.exists()) {
             FileUtils.deleteDir(tmpDir.getPath());
         }
@@ -1662,20 +1663,25 @@ public class TestCaseService {
 
     @NotNull
     private List<List<String>> getTestcaseExportHeads(TestCaseExportRequest request) {
-        List<List<String>> headList = new ArrayList<>() {{
-            addAll(request.getBaseHeaders()
-                    .stream()
-                    .map(item -> Arrays.asList(item.getName()))
-                    .collect(Collectors.toList()));
-            addAll(request.getCustomHeaders()
-                    .stream()
-                    .map(item -> Arrays.asList(item.getName()))
-                    .collect(Collectors.toList()));
-            addAll(request.getOtherHeaders()
-                    .stream()
-                    .map(item -> Arrays.asList(item.getName()))
-                    .collect(Collectors.toList()));
-        }};
+        List<List<String>> headList = new ArrayList<>() {
+            @Serial
+            private static final long serialVersionUID = 5726921174161850104L;
+
+            {
+                addAll(request.getBaseHeaders()
+                        .stream()
+                        .map(item -> Arrays.asList(item.getName()))
+                        .collect(Collectors.toList()));
+                addAll(request.getCustomHeaders()
+                        .stream()
+                        .map(item -> Arrays.asList(item.getName()))
+                        .collect(Collectors.toList()));
+                addAll(request.getOtherHeaders()
+                        .stream()
+                        .map(item -> Arrays.asList(item.getName()))
+                        .collect(Collectors.toList()));
+            }
+        };
         return headList;
     }
 
@@ -1717,9 +1723,9 @@ public class TestCaseService {
                 // 导出所有用例, 勾选ID清空
                 request.setIds(null);
             }
-            List<TestCaseDTO> testCaseDTOList = this.findByBatchRequest(request);
+            List<TestCaseDTO> testCaseDTOList = findByBatchRequest(request);
 
-            TestCaseXmindData rootXmindData = this.generateTestCaseXmind(testCaseDTOList);
+            TestCaseXmindData rootXmindData = generateTestCaseXmind(testCaseDTOList);
             boolean isUseCustomId = trackProjectService.useCustomNum(request.getProjectId());
             XmindExportUtil xmindExportUtil = new XmindExportUtil(isUseCustomId);
             xmindExportUtil.exportXmind(response, rootXmindData);
@@ -1820,7 +1826,7 @@ public class TestCaseService {
     private TestCaseBatchRequest setTestCaseExportParamIds(TestCaseBatchRequest param) {
         boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
         param.getCondition().setQueryUi(queryUi);
-        this.initRequest(param.getCondition(), true);
+        initRequest(param.getCondition(), true);
         setDefaultOrder(param.getCondition());
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(param.getCondition());
         Map<String, List<String>> filters = param.getCondition().getFilters();
@@ -1873,7 +1879,7 @@ public class TestCaseService {
             buildExportCustomField(customSelectValueMap, customNameMap, t, data, textFields);
             buildExportOtherField(data, t, otherHeaders);
 
-            this.validateExportTextField(data);
+            validateExportTextField(data);
             if (CollectionUtils.isNotEmpty(stepDescList)) {
                 // 如果有多条步骤则添加多条数据，之后合并单元格
                 buildExportMergeData(rowMergeInfo, list, stepDescList, stepResultList, data);
@@ -1966,7 +1972,7 @@ public class TestCaseService {
                 //进行key value对换
                 String id = field.getFieldId();
                 if (textFields.contains(id)) {
-                    map.put(customNameMap.get(id), this.validateExportText(field.getTextValue()));
+                    map.put(customNameMap.get(id), validateExportText(field.getTextValue()));
                     continue;
                 }
                 if (StringUtils.isNotBlank(field.getValue())) {
@@ -2235,8 +2241,9 @@ public class TestCaseService {
                 batchCopy.setNum(nextNum++);
                 mapper.insert(batchCopy);
                 dealWithCopyOtherInfo(batchCopy, oldTestCaseId);
-                if (i % 50 == 0)
+                if (i % 50 == 0) {
                     sqlSession.flushStatements();
+                }
             }
             sqlSession.flushStatements();
         } finally {
@@ -2245,7 +2252,7 @@ public class TestCaseService {
     }
 
     public void deleteTestCaseBath(TestCaseBatchRequest request) {
-        TestCaseExample example = this.getBatchExample(request);
+        TestCaseExample example = getBatchExample(request);
         //删除全部版本的数据根据 RefId
         List<String> refIds = testCaseMapper.selectByExample(example).stream().map(TestCase::getRefId).collect(Collectors.toList());
         example.clear();
@@ -2413,7 +2420,7 @@ public class TestCaseService {
             MSException.throwException(Translator.get("edit_trash_case_error"));
         }
         request.setNum(testCaseWithBLOBs.getNum());
-        this.setNode(request);
+        setNode(request);
         return editTestCase(request);
     }
 
@@ -2450,7 +2457,7 @@ public class TestCaseService {
                 testCaseFileMapper.insert(testCaseFile);
             });
         }
-        this.setNode(request);
+        setNode(request);
         request.setStatus(null); // 不更新状态
         request.setRefId(testCaseWithBLOBs.getRefId());
         request.setVersionId(testCaseWithBLOBs.getVersionId());
@@ -2756,8 +2763,9 @@ public class TestCaseService {
                     TestCaseWithBLOBs t = new TestCaseWithBLOBs();
                     t.setCasePublic(false);
                     mapper.updateByExampleSelective(t, e);
-                    if (i % 50 == 0)
+                    if (i % 50 == 0) {
                         sqlSession.flushStatements();
+                    }
                 }
                 sqlSession.flushStatements();
             }
@@ -3017,6 +3025,7 @@ public class TestCaseService {
 
     /**
      * 测试计划功能用例页面和脑图页面批量修改执行结果时记录下操作日志，用例的变更日志需要查看
+     *
      * @param ids
      * @param status
      */
@@ -3053,7 +3062,7 @@ public class TestCaseService {
 
     public void updateLastExecuteStatus(String id, String status) {
         if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(status)) {
-            this.updateLastExecuteStatus(Arrays.asList(id), status);
+            updateLastExecuteStatus(Arrays.asList(id), status);
         }
     }
 
@@ -3069,7 +3078,7 @@ public class TestCaseService {
 
     public void updateReviewStatus(String id, String status) {
         if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(status)) {
-            this.updateReviewStatus(Arrays.asList(id), status);
+            updateReviewStatus(Arrays.asList(id), status);
         }
     }
 
@@ -3199,7 +3208,9 @@ public class TestCaseService {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestCaseMapper.selectIds(query));
         List<String> ids = request.getIds();
-        if (CollectionUtils.isEmpty(ids)) return;
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
         List<TestCaseWithBLOBs> testCases = getTestCasesWithBLOBs(ids);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
@@ -3235,8 +3246,9 @@ public class TestCaseService {
 
                 dealWithCopyOtherInfo(testCase, oldTestCaseId);
                 copyCustomFields(oldTestCaseId, id);
-                if (i % 50 == 0)
+                if (i % 50 == 0) {
                     sqlSession.flushStatements();
+                }
             }
             sqlSession.flushStatements();
         } finally {
@@ -3264,20 +3276,30 @@ public class TestCaseService {
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setRefId(testCase.getRefId());
         if (CommonConstants.TrashStatus.equalsIgnoreCase(testCase.getStatus())) {
-            request.setFilters(new HashMap<>() {{
-                put("status", new ArrayList() {{
-                    add(CommonConstants.TrashStatus);
-                }});
-            }});
+            request.setFilters(new HashMap<>() {
+                @Serial
+                private static final long serialVersionUID = 7656278760319683749L;
+
+                {
+                    put("status", new ArrayList() {
+                        @Serial
+                        private static final long serialVersionUID = 2599911267062544334L;
+
+                        {
+                            add(CommonConstants.TrashStatus);
+                        }
+                    });
+                }
+            });
         }
-        return this.listTestCase(request);
+        return listTestCase(request);
     }
 
     public TestCaseDTO getTestCaseByVersion(String refId, String version) {
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setRefId(refId);
         request.setVersionId(version);
-        List<TestCaseDTO> testCaseList = this.listTestCase(request);
+        List<TestCaseDTO> testCaseList = listTestCase(request);
         if (CollectionUtils.isEmpty(testCaseList)) {
             return null;
         }
