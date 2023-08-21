@@ -35,7 +35,8 @@
                p.delete_user,
                p.enable,
                count(distinct u.id) as memberCount,
-               o.name as organizationName
+               o.name as organizationName,
+               p.module_setting
         FROM project p
         LEFT JOIN user_role_relation u on p.id = u.source_id
         INNER JOIN organization o on p.organization_id = o.id

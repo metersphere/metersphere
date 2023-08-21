@@ -1,8 +1,8 @@
 package io.metersphere.system.service;
 
-import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
+import io.metersphere.sdk.dto.ProjectExtendDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -37,7 +37,7 @@ public class OrganizationProjectService {
     private final static String REMOVE_PROJECT_MEMBER = PREFIX + "/remove-member/";
     private final static String ADD_MEMBER = PREFIX + "/add-member";
 
-    public Project get(String id) {
+    public ProjectExtendDTO get(String id) {
         return commonProjectService.get(id);
     }
 
@@ -45,7 +45,7 @@ public class OrganizationProjectService {
      * @param addProjectDTO 添加项目的时候  默认给用户组添加管理员的权限
      * @return
      */
-    public Project add(AddProjectRequest addProjectDTO, String createUser) {
+    public ProjectExtendDTO add(AddProjectRequest addProjectDTO, String createUser) {
         return commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.ORGANIZATION_PROJECT);
     }
 
@@ -56,7 +56,7 @@ public class OrganizationProjectService {
         return commonProjectService.buildUserInfo(projectList);
     }
 
-    public Project update(UpdateProjectRequest updateProjectDto, String updateUser) {
+    public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
         return commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.ORGANIZATION_PROJECT);
     }
 
