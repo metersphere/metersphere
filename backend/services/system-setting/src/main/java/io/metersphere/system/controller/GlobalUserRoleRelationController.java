@@ -3,6 +3,7 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.ExcludeOptionDTO;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.annotation.Log;
@@ -16,6 +17,8 @@ import io.metersphere.system.service.GlobalUserRoleRelationLogService;
 import io.metersphere.system.service.GlobalUserRoleRelationService;
 import io.metersphere.validation.groups.Created;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -68,5 +71,13 @@ public class GlobalUserRoleRelationController {
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = GlobalUserRoleRelationLogService.class)
     public void delete(@PathVariable String id) {
         globalUserRoleRelationService.delete(id);
+    }
+
+    @GetMapping("/user/option/{roleId}")
+    @Operation(summary = "系统用户组-用户下拉选项")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_ROLE_READ})
+    public List<ExcludeOptionDTO> getSelectOption(@Parameter(description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+                                                  @PathVariable String roleId) {
+        return globalUserRoleRelationService.getExcludeSelectOption(roleId);
     }
 }

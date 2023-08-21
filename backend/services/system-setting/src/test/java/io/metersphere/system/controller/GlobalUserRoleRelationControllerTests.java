@@ -2,10 +2,13 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.ExcludeOptionDTO;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.mapper.BaseUserRoleRelationMapper;
 import io.metersphere.sdk.service.BaseUserRoleService;
+import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationQueryRequestDefinition;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationUpdateRequestDefinition;
@@ -42,8 +45,15 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
 
     // 保存创建的数据，方便之后的修改和删除测试使用
     private static UserRoleRelation addUserRoleRelation;
+
+    protected static final String USER_OPTION = "user/option/{0}";
+
     @Resource
     private UserRoleMapper userRoleMapper;
+    @Resource
+    private BaseUserService baseUserService;
+    @Resource
+    private BaseUserRoleRelationMapper baseUserRoleRelationMapper;
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
     @Override
@@ -135,6 +145,25 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
 
     @Test
     @Order(1)
+    public void getExcludeSelectOption() throws Exception {
+        // @@正常请求
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(USER_OPTION, ADMIN.getValue());
+        // 校验请求数据
+        List<ExcludeOptionDTO> options = getResultDataArray(mvcResult, ExcludeOptionDTO.class);
+        List<ExcludeOptionDTO> excludeSelectOption = baseUserService.getExcludeSelectOption();
+        Set<String> excludeUserIds = baseUserRoleRelationMapper.getUserIdByRoleId(ADMIN.getValue())
+                .stream()
+                .collect(Collectors.toSet());
+        // 校验数量
+        Assertions.assertTrue(options.size() == excludeSelectOption.size());
+        options.forEach(item -> {
+            // 校验 exclude 字段
+            Assertions.assertTrue(item.getExclude() == excludeUserIds.contains(item.getId()));
+        });
+    }
+
+    @Test
+    @Order(2)
     void delete() throws Exception {
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addUserRoleRelation.getId());

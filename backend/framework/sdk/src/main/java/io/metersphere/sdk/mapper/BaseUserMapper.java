@@ -1,5 +1,6 @@
 package io.metersphere.sdk.mapper;
 
+import io.metersphere.sdk.dto.ExcludeOptionDTO;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.system.domain.User;
@@ -28,4 +29,6 @@ public interface BaseUserMapper {
 
     long deleteUser(String id, String deleteUser, long deleteTime);
     List<OptionDTO> selectUserOptionByIds(List<String> userIds);
+
+    List<ExcludeOptionDTO> getExcludeSelectOption();
 }

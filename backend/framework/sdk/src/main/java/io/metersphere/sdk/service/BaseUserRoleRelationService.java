@@ -1,5 +1,6 @@
 package io.metersphere.sdk.service;
 
+import io.metersphere.sdk.dto.ExcludeOptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.BaseUserRoleRelationMapper;
 import io.metersphere.system.domain.UserRole;
@@ -15,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.*;
@@ -34,6 +37,8 @@ public class BaseUserRoleRelationService {
     @Resource
     @Lazy
     protected BaseUserRoleService baseUserRoleService;
+    @Resource
+    private BaseUserService baseUserService;
 
     protected UserRoleRelation add(UserRoleRelation userRoleRelation) {
         checkExist(userRoleRelation);
@@ -102,8 +107,8 @@ public class BaseUserRoleRelationService {
         return null;
     }
 
-    public List<String> getUserIdRoleId(String roleId) {
-       return baseUserRoleRelationMapper.getUserIdRoleId(roleId);
+    public List<String> getUserIdByRoleId(String roleId) {
+       return baseUserRoleRelationMapper.getUserIdByRoleId(roleId);
     }
 
     public List<UserRoleRelation> getUserIdAndSourceIdByUserIds(List<String> userIds) {
@@ -118,5 +123,27 @@ public class BaseUserRoleRelationService {
             return;
         }
         userRoleRelationMapper.batchInsert(addRelations);
+    }
+
+    /**
+     * 获取关联用户的下拉框选项
+     * 已经关联过的用户，exclude 标记为 true
+     * @param roleId
+     * @return
+     */
+    public List<ExcludeOptionDTO> getExcludeSelectOption(String roleId) {
+        // 查询所有用户选项
+        List<ExcludeOptionDTO> selectOptions = baseUserService.getExcludeSelectOption();
+        // 查询已经关联的用户ID
+        Set<String> excludeUserIds = baseUserRoleRelationMapper.getUserIdByRoleId(roleId)
+                .stream()
+                .collect(Collectors.toSet());
+        // 标记已经关联的用户
+        selectOptions.forEach((excludeOption) -> {
+            if (excludeUserIds.contains(excludeOption.getId())) {
+                excludeOption.setExclude(true);
+            }
+        });
+        return selectOptions;
     }
 }
