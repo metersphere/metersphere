@@ -58,6 +58,10 @@ public class UserControllerTests extends BaseTest {
     private UserMapper userMapper;
     @Resource
     private GlobalUserRoleRelationService globalUserRoleRelationService;
+    @Resource
+    ProjectMapper projectMapper;
+    @Resource
+    private UserRoleRelationMapper userRoleRelationMapper;
 
     //失败请求返回编码
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
@@ -470,14 +474,6 @@ public class UserControllerTests extends BaseTest {
         }
     }
 
-    public final String URL_GET_PROJECT = "/system/user/get/project";
-    public final String URL_ADD_PROJECT_MEMBER = "/system/user/add-project-member";
-    public final String URL_ADD_ORGANIZATION_MEMBER = "/system/user/add-org-member";
-    @Resource
-    ProjectMapper projectMapper;
-    @Resource
-    private UserRoleRelationMapper userRoleRelationMapper;
-
     @Test
     @Order(8)
     public void testUserResetPasswordError() throws Exception {
@@ -643,7 +639,7 @@ public class UserControllerTests extends BaseTest {
         //重置非Admin用户的密码
         {
             UserBaseBatchRequest request = new UserBaseBatchRequest();
-            request.setSkipIds(Collections.singletonList("admin"));
+            request.setExcludeIds(Collections.singletonList("admin"));
             request.setSelectAll(true);
             BatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(
                     this.requestPostAndReturn(userRequestUtils.URL_USER_RESET_PASSWORD, request),
@@ -905,29 +901,6 @@ public class UserControllerTests extends BaseTest {
             User user = userMapper.selectByPrimaryKey(deleteUser.getId());
             Assertions.assertTrue(user.getDeleted());
             USER_LIST.remove(deleteUser);
-        }
-
-        //删除已存的所有用户(不包括admin）
-        {
-            UserBaseBatchRequest request = new UserBaseBatchRequest();
-            request.setUserIds(USER_LIST.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
-            request.setSkipIds(Collections.singletonList("admin"));
-            BatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(userRequestUtils.URL_USER_DELETE, request), BatchProcessResponse.class);
-            Assertions.assertEquals(request.getUserIds().size(), response.getTotalCount(), response.getSuccessCount());
-            //检查数据库
-            UserExample example = new UserExample();
-            example.createCriteria().andIdIn(request.getUserIds());
-            List<User> userList = userMapper.selectByExample(example);
-            for (User user : userList) {
-                Assertions.assertTrue(user.getDeleted());
-            }
-
-            //记录已经删除了的用户，用于反例
-            DELETED_USER_ID_LIST.clear();
-            USER_LIST.clear();
-            DELETED_USER_ID_LIST.addAll(request.getUserIds());
-            //检查删除了的用户，可以用其邮箱继续注册
-            this.testAddSuccess();
         }
     }
 

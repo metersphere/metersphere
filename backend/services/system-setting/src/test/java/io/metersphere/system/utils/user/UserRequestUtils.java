@@ -13,29 +13,28 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 
-
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UserRequestUtils {
 
     //用户管理URL
-    public final String URL_USER_CREATE = "/system/user/add";
-    public final String URL_USER_UPDATE = "/system/user/update";
-    public final String URL_USER_GET = "/system/user/get/%s";
-    public final String URL_USER_PAGE = "/system/user/page";
-    public final String URL_GET_GLOBAL_SYSTEM = "/system/user/get/global/system/role";
-    public final String URL_USER_UPDATE_ENABLE = "/system/user/update/enable";
-    public final String URL_USER_IMPORT = "/system/user/import";
-    public final String URL_USER_DELETE = "/system/user/delete";
-    public final String URL_USER_RESET_PASSWORD = "/system/user/reset/password";
-    public final String URL_USER_ROLE_RELATION = "/system/user/add/batch/user-role";
+    public static final String URL_USER_CREATE = "/system/user/add";
+    public static final String URL_USER_UPDATE = "/system/user/update";
+    public static final String URL_USER_GET = "/system/user/get/%s";
+    public static final String URL_USER_PAGE = "/system/user/page";
+    public static final String URL_GET_GLOBAL_SYSTEM = "/system/user/get/global/system/role";
+    public static final String URL_USER_UPDATE_ENABLE = "/system/user/update/enable";
+    public static final String URL_USER_IMPORT = "/system/user/import";
+    public static final String URL_USER_DELETE = "/system/user/delete";
+    public static final String URL_USER_RESET_PASSWORD = "/system/user/reset/password";
+    public static final String URL_USER_ROLE_RELATION = "/system/user/add/batch/user-role";
 
     //查找组织、项目
-    public final String URL_GET_ORGANIZATION = "/system/user/get/organization";
-    public final String URL_GET_PROJECT = "/system/user/get/project";
-    public final String URL_ADD_PROJECT_MEMBER = "/system/user/add-project-member";
-    public final String URL_ADD_ORGANIZATION_MEMBER = "/system/user/add-org-member";
+    public static final String URL_GET_ORGANIZATION = "/system/user/get/organization";
+    public static final String URL_GET_PROJECT = "/system/user/get/project";
+    public static final String URL_ADD_PROJECT_MEMBER = "/system/user/add-project-member";
+    public static final String URL_ADD_ORGANIZATION_MEMBER = "/system/user/add-org-member";
 
     private final MockMvc mockMvc;
     private final String sessionId;
