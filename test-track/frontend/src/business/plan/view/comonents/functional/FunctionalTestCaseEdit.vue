@@ -231,6 +231,7 @@ import { getTestTemplate } from "@/api/custom-field-template";
 import { checkProjectPermission } from "@/api/testCase";
 import {openCaseEdit, resetPlanCaseSystemField} from "@/business/case/test-case";
 import CustomFieldFormItems from "@/business/common/CustomFieldFormItems";
+import {getCurrentProjectID, parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
 
 export default {
   name: "FunctionalTestCaseEdit",
@@ -289,6 +290,11 @@ export default {
     },
     nextPageData: Object,
     prePageData: Object,
+  },
+  provide() {
+    return {
+      enableTempUpload: true
+    }
   },
   computed: {
     systemNameMap() {
@@ -384,7 +390,7 @@ export default {
       }
       param.results = JSON.stringify(param.results);
       param.actualResult = this.testCase.actualResult;
-      testPlanTestCaseEdit(param).then(() => {
+      testPlanTestCaseEdit(param).then((response) => {
         this.$request(option);
 
         this.$success(this.$t("commons.save_success"));
@@ -392,6 +398,10 @@ export default {
         this.setPlanStatus(this.testCase.planId);
 
         if (this.testCase.comment) {
+          this.handleMdImages({
+            id: response.data.id,
+            description: this.testCase.comment,
+          });
           this.$refs.comment.getComments();
           this.testCase.comment = "";
         }
@@ -399,6 +409,17 @@ export default {
         if (command === 'save') {
           this.handleNext();
         }
+      });
+    },
+    handleMdImages(param) {
+      // 解析富文本框中的图片
+      let mdImages = [];
+      mdImages.push(...parseMdImage(param.description));
+      // 将图片从临时目录移入正式目录
+      saveMarkDownImg({
+        projectId: getCurrentProjectID(),
+        resourceId: param.id,
+        fileNames: mdImages
       });
     },
     updateTestCases(param) {

@@ -381,6 +381,7 @@ import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
 import axios from "axios";
 import MsFileMetadataList from "metersphere-frontend/src/components/environment/commons/variable/QuoteFileList";
 import MsFileBatchMove from "metersphere-frontend/src/components/environment/commons/variable/FileBatchMove";
+import {parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
 
 export default {
   name: "IssueEditDetail",
@@ -509,6 +510,11 @@ export default {
     planId: String,
     planCaseId: String,
     isMinder: Boolean,
+  },
+  provide() {
+    return {
+      enableTempUpload: true
+    }
   },
   computed: {
     isSystem() {
@@ -757,11 +763,30 @@ export default {
           this.$emit("close");
           this.$success(this.$t("commons.save_success"));
           this.$emit("refresh", response.data);
+
+          param.id = response.data.id;
+          this.handleMdImages(param);
           this.result.loading = false;
         })
         .catch(() => {
           this.result.loading = false;
         });
+    },
+    handleMdImages(param) {
+      // 解析富文本框中的图片
+      let mdImages = [];
+      mdImages.push(...parseMdImage(param.description));
+      param.requestFields.forEach(field => {
+        if (field.type === 'richText') {
+          mdImages.push(...parseMdImage(field.value));
+        }
+      });
+      // 将图片从临时目录移入正式目录
+      saveMarkDownImg({
+        projectId: param.projectId,
+        resourceId: param.id,
+        fileNames: mdImages
+      });
     },
     parseOldFields(param) {
       let customFieldsStr = param.customFields;

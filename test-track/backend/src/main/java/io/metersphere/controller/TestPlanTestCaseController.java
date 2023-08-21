@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.TestCaseComment;
 import io.metersphere.base.domain.TestPlanTestCaseWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
@@ -124,8 +125,8 @@ public class TestPlanTestCaseController {
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testPlanTestCase.id)", content = "#msClass.getLogDetails(#testPlanTestCase.id)", msClass = TestPlanTestCaseService.class)
-    public void editTestCase(@RequestBody TestPlanFuncCaseEditRequest testPlanTestCase) {
-        testPlanTestCaseService.editTestCase(testPlanTestCase);
+    public TestCaseComment editTestCase(@RequestBody TestPlanFuncCaseEditRequest testPlanTestCase) {
+        return testPlanTestCaseService.editTestCase(testPlanTestCase);
     }
 
     @PostMapping("/minder/edit")

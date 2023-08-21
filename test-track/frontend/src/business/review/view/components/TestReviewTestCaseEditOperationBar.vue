@@ -63,7 +63,7 @@
 import CommentEdit from "@/business/review/view/components/commnet/CommentEdit";
 import {testCaseCommentAdd} from "@/api/test-case-comment";
 import {editTestCaseReviewStatus, editTestReviewTestCase} from "@/api/test-review";
-import {getCurrentUser} from "@/business/utils/sdk-utils";
+import {getCurrentProjectID, getCurrentUser, parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
 export default {
   name: "TestReviewTestCaseEditOperationBar",
   components: {CommentEdit},
@@ -116,7 +116,11 @@ export default {
     prePageData: Object,
     testCase: Object
   },
-
+  provide() {
+    return {
+      enableTempUpload: true
+    }
+  },
   computed: {
     countNum() {
       return this.pageSize * (this.pageNum - 1) + this.index + 1;
@@ -152,7 +156,10 @@ export default {
             editTestCaseReviewStatus(this.testCase.reviewId);
 
             // 修改当前用例在整个用例列表的状态
-            this.$emit('refreshTestCaseStatus', r.data);
+            this.$emit('refreshTestCaseStatus', r.data.status);
+
+            comment.id = r.data.commentId;
+            this.handleMdImages(comment);
           })
           .catch(() => {
             this.$refs.commentEdit.close();
@@ -163,12 +170,25 @@ export default {
         comment.belongId = this.testCase.reviewId;
         comment.author = getCurrentUser().id;
         testCaseCommentAdd(comment)
-          .then(() => {
+          .then((response) => {
             this.$success(this.$t('test_track.comment.send_success'));
             this.$emit('refreshComment');
             this.$refs.commentEdit.close();
+            comment.id = response.data.id;
+            this.handleMdImages(comment);
           });
       }
+    },
+    handleMdImages(param) {
+      // 解析富文本框中的图片
+      let mdImages = [];
+      mdImages.push(...parseMdImage(param.description));
+      // 将图片从临时目录移入正式目录
+      saveMarkDownImg({
+        projectId: getCurrentProjectID(),
+        resourceId: param.id,
+        fileNames: mdImages
+      });
     },
     addCommentOpen(status) {
       this.status = status;

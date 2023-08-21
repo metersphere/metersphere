@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.TestReviewTestCaseEditResult;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.dto.TestReviewCaseDTO;
 import io.metersphere.log.annotation.MsRequestLog;
@@ -89,7 +90,7 @@ public class TestReviewTestCaseController {
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_REVIEW)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.REVIEW, content = "#msClass.getLogDetails(#testCaseReviewTestCase)", msClass = TestReviewTestCaseService.class)
-    public String editTestCase(@RequestBody TestCaseReviewTestCaseEditRequest testCaseReviewTestCase) {
+    public TestReviewTestCaseEditResult editTestCase(@RequestBody TestCaseReviewTestCaseEditRequest testCaseReviewTestCase) {
         return testReviewTestCaseService.editTestCase(testCaseReviewTestCase);
     }
 

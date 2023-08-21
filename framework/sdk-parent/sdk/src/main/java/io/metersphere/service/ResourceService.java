@@ -1,9 +1,8 @@
 package io.metersphere.service;
 
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.i18n.Translator;
+import io.metersphere.request.MdImageSaveRequest;
 import io.metersphere.request.MdUploadRequest;
 import jakarta.annotation.Resource;
 import org.springframework.core.io.FileSystemResource;
@@ -12,12 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -27,17 +24,28 @@ import java.util.Date;
 public class ResourceService {
 
     @Resource
-    private RestTemplate restTemplate;
+    private MdFileService mdFileService;
 
     public String mdUpload(MdUploadRequest request, MultipartFile file) {
+        FileUtils.validateFileName(request.getFileName());
         String fileName = request.getId() + request.getFileName().substring(request.getFileName().lastIndexOf("."));
         FileUtils.uploadFile(file, FileUtils.MD_IMAGE_DIR, fileName);
         return fileName;
     }
 
+    public String mdUpload2Temp(MdUploadRequest request, MultipartFile file) {
+        FileUtils.validateFileName(request.getFileName());
+        String fileName = request.getId() + request.getFileName().substring(request.getFileName().lastIndexOf("."));
+        FileUtils.uploadFile(file, FileUtils.MD_IMAGE_TEMP_DIR, fileName);
+        return fileName;
+    }
+
     public ResponseEntity<FileSystemResource> getMdImage(String name) {
-        if (name.contains("/")) {
-            MSException.throwException(Translator.get("invalid_parameter"));
+        FileUtils.validateFileName(name);
+        File file = new File(FileUtils.MD_IMAGE_TEMP_DIR + "/" + name);
+        if (file.exists()) {
+            // 如果临时目录有该图片则，从临时目录中返回
+            return getImage(FileUtils.MD_IMAGE_TEMP_DIR + "/" + name);
         }
         return getImage(FileUtils.MD_IMAGE_DIR + "/" + name);
     }
@@ -73,19 +81,13 @@ public class ResourceService {
         }
     }
 
-    public String decodeFileName(String fileName) {
-        try {
-            return URLDecoder.decode(fileName, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            LogUtil.error(e);
-            return fileName;
-        }
-    }
-
     public void mdDelete(String fileName) {
-        if (fileName.contains("/")) {
-            MSException.throwException(Translator.get("invalid_parameter"));
-        }
+        FileUtils.validateFileName(fileName);
         FileUtils.deleteFile(FileUtils.MD_IMAGE_DIR + "/" + fileName);
     }
+
+    public void saveMdImages(MdImageSaveRequest request) {
+        mdFileService.saveFiles(request);
+    }
+
 }

@@ -12,7 +12,7 @@
   import 'mavon-editor/dist/css/index.css';
   import {getCurrentUser} from "metersphere-frontend/src/utils/token";
   import {getUUID} from "metersphere-frontend/src/utils";
-  import {deleteMarkDownImg, uploadMarkDownImg} from "metersphere-frontend/src/api/img";
+  import {deleteMarkDownImg, uploadMarkDownImg, uploadTempMarkDownImg} from "metersphere-frontend/src/api/img";
   import {DEFAULT_XSS_ATTR} from "metersphere-frontend/src/utils/constants";
 
   export default {
@@ -125,7 +125,11 @@
         defaultOpenValue: 'preview'
       }
     },
-
+    inject: {
+      enableTempUpload: {
+        default: false
+      }
+    },
     computed: {
       language() {
         const user = getCurrentUser();
@@ -194,13 +198,24 @@
     methods: {
       imgAdd(pos, file) {
         this.loading = true;
-        uploadMarkDownImg(file)
-          .then((r) => {
-            this.$success(this.$t('commons.save_success'));
-            let url = '/resource/md/get?fileName=' + r.data;
-            this.$refs.md.$img2Url(pos, url);
-            this.loading = false;
-          });
+        if (this.enableTempUpload) {
+          // 上传文件到临时目录
+          uploadTempMarkDownImg(file)
+            .then((r) => {
+              this.$success(this.$t('commons.save_success'));
+              let url = '/resource/md/get?fileName=' + r.data;
+              this.$refs.md.$img2Url(pos, url);
+              this.loading = false;
+            });
+        } else {
+          uploadMarkDownImg(file)
+            .then((r) => {
+              this.$success(this.$t('commons.save_success'));
+              let url = '/resource/md/get?fileName=' + r.data;
+              this.$refs.md.$img2Url(pos, url);
+              this.loading = false;
+            });
+        }
         this.$emit('imgAdd', file);
       },
       imgDel(file) {

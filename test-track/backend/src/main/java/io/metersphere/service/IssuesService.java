@@ -157,6 +157,8 @@ public class IssuesService {
     private UserService userService;
     @Resource
     private BasePluginService basePluginService;
+    @Resource
+    private MdFileService mdFileService;
 
     private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
     private static final String SYNC_THIRD_PARTY_ISSUES_ERROR_KEY = "ISSUE:SYNC:ERROR";
@@ -651,6 +653,7 @@ public class IssuesService {
         request.setBelongId(id);
         request.setBelongType(AttachmentType.ISSUE.type());
         attachmentService.deleteAttachment(request);
+        mdFileService.deleteBySourceId(id);
     }
 
     public void batchDelete(IssuesUpdateRequest request) {

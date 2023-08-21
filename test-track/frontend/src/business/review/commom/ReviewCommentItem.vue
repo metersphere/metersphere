@@ -51,9 +51,9 @@
 
 <script>
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {getCurrentUser} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID, getCurrentUser} from "metersphere-frontend/src/utils/token";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
-import {deleteMarkDownImgByName} from "@/business/utils/sdk-utils";
+import {parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
 import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
 
 export default {
@@ -145,7 +145,19 @@ export default {
           this.visible = false;
           this.$success(this.$t('commons.modify_success'));
           this.$emit("refresh");
+          this.handleMdImages(this.comment);
         });
+    },
+    handleMdImages(param) {
+      // 解析富文本框中的图片
+      let mdImages = [];
+      mdImages.push(...parseMdImage(param.description));
+      // 将图片从临时目录移入正式目录
+      saveMarkDownImg({
+        projectId: getCurrentProjectID(),
+        resourceId: param.id,
+        fileNames: mdImages
+      });
     },
     handleClose() {
       this.comment.description = this.originDesc;

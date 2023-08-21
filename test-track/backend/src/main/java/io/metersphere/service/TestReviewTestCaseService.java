@@ -14,6 +14,7 @@ import io.metersphere.constants.TestCaseReviewPassRule;
 import io.metersphere.dto.TestCaseCommentDTO;
 import io.metersphere.dto.TestCaseReviewDTO;
 import io.metersphere.dto.TestReviewCaseDTO;
+import io.metersphere.dto.TestReviewTestCaseEditResult;
 import io.metersphere.excel.converter.TestReviewCaseStatus;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -227,7 +228,7 @@ public class TestReviewTestCaseService {
         testCaseReviewTestCaseMapper.deleteByExample(example);
     }
 
-    public String editTestCase(TestCaseReviewTestCaseEditRequest testCaseReviewTestCase) {
+    public TestReviewTestCaseEditResult editTestCase(TestCaseReviewTestCaseEditRequest testCaseReviewTestCase) {
         List<String> caseIds = new ArrayList<>();
         caseIds.add(testCaseReviewTestCase.getCaseId());
         checkReviewCase(testCaseReviewTestCase.getReviewId(), caseIds);
@@ -235,18 +236,21 @@ public class TestReviewTestCaseService {
         String originStatus = testCaseReviewTestCase.getStatus();
         TestCaseReview testReview = testCaseReviewService.getTestReview(testCaseReviewTestCase.getReviewId());
         String status = updateReviewCaseStatusForEdit(testCaseReviewTestCase, testReview.getReviewPassRule());
-
+        TestReviewTestCaseEditResult result = new TestReviewTestCaseEditResult();
         // 添加评论，评论的状态不变，按照用户填写的
         testCaseReviewTestCase.setStatus(originStatus);
         if (StringUtils.isNotEmpty(testCaseReviewTestCase.getComment())) {
             // 走Spring的代理对象，防止发送通知操作记录等操作失效
-            testCaseCommentService.saveReviewComment(testCaseReviewTestCase);
+            TestCaseComment testCaseComment = testCaseCommentService.saveReviewComment(testCaseReviewTestCase);
+            result.setCommentId(testCaseComment.getId());
         } else {
             // 如果只是通过没有加评论内容不通知，添加空评论
             testCaseReviewTestCase.setComment(StringUtils.EMPTY);
             testCaseCommentService.saveReviewCommentWithoutNotification(testCaseReviewTestCase);
         }
-        return status;
+        result.setId(testCaseReviewTestCase.getId());
+        result.setStatus(status);
+        return result;
     }
 
     public String updateReviewCaseStatusForEdit(TestCaseReviewTestCaseEditRequest testCaseReviewTestCase, String reviewPassRule) {

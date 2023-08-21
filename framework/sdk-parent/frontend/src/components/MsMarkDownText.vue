@@ -23,7 +23,7 @@ import {mavonEditor} from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css';
 import {getCurrentUser} from "../utils/token";
 import {getUUID} from "../utils";
-import {deleteMarkDownImg, uploadMarkDownImg} from "../api/img";
+import {deleteMarkDownImg, uploadMarkDownImg, uploadTempMarkDownImg} from "../api/img";
 import {DEFAULT_XSS_ATTR} from "../utils/constants";
 
 export default {
@@ -135,7 +135,11 @@ export default {
       defaultOpenValue: 'preview'
     }
   },
-
+  inject: {
+    enableTempUpload: {
+      default: false
+    }
+  },
   computed: {
     language() {
       const user = getCurrentUser();
@@ -204,13 +208,24 @@ export default {
   methods: {
     imgAdd(pos, file) {
       this.loading = true;
-      uploadMarkDownImg(file)
-        .then((r) => {
-          this.$success(this.$t('commons.save_success'));
-          let url = '/resource/md/get?fileName=' + r.data;
-          this.$refs.md.$img2Url(pos, url);
-          this.loading = false;
-        });
+      if (this.enableTempUpload) {
+        // 上传文件到临时目录
+        uploadTempMarkDownImg(file)
+          .then((r) => {
+            this.$success(this.$t('commons.save_success'));
+            let url = '/resource/md/get?fileName=' + r.data;
+            this.$refs.md.$img2Url(pos, url);
+            this.loading = false;
+          });
+      } else {
+        uploadMarkDownImg(file)
+          .then((r) => {
+            this.$success(this.$t('commons.save_success'));
+            let url = '/resource/md/get?fileName=' + r.data;
+            this.$refs.md.$img2Url(pos, url);
+            this.loading = false;
+          });
+      }
       this.$emit('imgAdd', file);
     },
     imgDel(file) {

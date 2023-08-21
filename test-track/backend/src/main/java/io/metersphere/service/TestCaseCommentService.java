@@ -47,6 +47,8 @@ public class TestCaseCommentService {
     private ExtTestCaseCommentMapper extTestCaseCommentMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private MdFileService mdFileService;
 
     public TestCaseComment saveComment(SaveCommentRequest request) {
         request.setId(UUID.randomUUID().toString());
@@ -69,14 +71,14 @@ public class TestCaseCommentService {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReviewWithMaintainer(#request)", targetClass = TestCaseReviewService.class,
             event = NoticeConstants.Event.COMMENT, subject = "测试评审通知")
-    public void saveReviewComment(TestCaseReviewTestCaseEditRequest request) {
+    public TestCaseComment saveReviewComment(TestCaseReviewTestCaseEditRequest request) {
         SaveCommentRequest saveCommentRequest = new SaveCommentRequest();
         saveCommentRequest.setCaseId(request.getCaseId());
         saveCommentRequest.setDescription(request.getComment());
         saveCommentRequest.setStatus(request.getStatus());
         saveCommentRequest.setType(TestCaseCommentType.REVIEW.name());
         saveCommentRequest.setBelongId(request.getReviewId());
-        saveComment(saveCommentRequest);
+        return saveComment(saveCommentRequest);
     }
 
     public void saveReviewCommentWithoutNotification(TestCaseReviewTestCaseEditRequest request) {
@@ -112,6 +114,8 @@ public class TestCaseCommentService {
     }
 
     public void deleteCaseComment(String caseId) {
+        List<String> commentIds = getCaseComments(caseId).stream().map(TestCaseCommentDTO::getId).toList();
+        mdFileService.deleteBySourceIds(commentIds);
         TestCaseCommentExample testCaseCommentExample = new TestCaseCommentExample();
         testCaseCommentExample.createCriteria().andCaseIdEqualTo(caseId);
         testCaseCommentMapper.deleteByExample(testCaseCommentExample);
@@ -132,6 +136,7 @@ public class TestCaseCommentService {
     public void delete(String commentId) {
         checkCommentOwner(commentId);
         testCaseCommentMapper.deleteByPrimaryKey(commentId);
+        mdFileService.deleteBySourceId(commentId);
     }
 
     public void deleteByBelongIdAndCaseId(String caseId, String belongId) {

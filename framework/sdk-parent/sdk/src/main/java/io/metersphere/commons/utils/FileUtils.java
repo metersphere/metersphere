@@ -30,6 +30,7 @@ public class FileUtils {
     public static final String ROOT_DIR = "/opt/metersphere/";
     public static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
     public static final String MD_IMAGE_DIR = "/opt/metersphere/data/image/markdown";
+    public static final String MD_IMAGE_TEMP_DIR = "/opt/metersphere/data/image/markdown/temp";
     public static final String UI_IMAGE_DIR = "/opt/metersphere/data/image/ui/screenshots";
     public static final String ATTACHMENT_DIR = "/opt/metersphere/data/attachment";
     public static final String ATTACHMENT_TMP_DIR = "/opt/metersphere/data/attachment/tmp";
@@ -231,6 +232,11 @@ public class FileUtils {
             targetDir.mkdirs();
         }
         copyFileToDir(sourceFile, targetDir);
+    }
+
+    public static void moveFileToDir(String filePath, String targetPath) {
+       copyFileToDir(filePath, targetPath);
+       deleteFile(filePath);
     }
 
     private static void copyFileToDir(File file, File targetDir) {

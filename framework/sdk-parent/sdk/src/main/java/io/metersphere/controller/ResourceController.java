@@ -1,5 +1,6 @@
 package io.metersphere.controller;
 
+import io.metersphere.request.MdImageSaveRequest;
 import io.metersphere.request.MdUploadRequest;
 import io.metersphere.service.ResourceService;
 import org.springframework.core.io.FileSystemResource;
@@ -18,6 +19,11 @@ public class ResourceController {
     @PostMapping(value = "/md/upload", consumes = {"multipart/form-data"})
     public String upload(@RequestPart(value = "request") MdUploadRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         return resourceService.mdUpload(request, file);
+    }
+
+    @PostMapping(value = "/md/temp/upload", consumes = {"multipart/form-data"})
+    public String upload2Temp(@RequestPart(value = "request") MdUploadRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        return resourceService.mdUpload2Temp(request, file);
     }
 
     @GetMapping(value = "/md/get")
@@ -45,4 +51,8 @@ public class ResourceController {
         resourceService.mdDelete(fileName);
     }
 
+    @PostMapping("/md/save/image")
+    public void saveMdImages(@RequestBody MdImageSaveRequest request) {
+        resourceService.saveMdImages(request);
+    }
 }

@@ -577,7 +577,7 @@ public class FileMetadataService {
         }
     }
 
-    private void initBase(FileMetadata fileMetadata) {
+    public void initBase(FileMetadata fileMetadata) {
         if (fileMetadata == null) {
             fileMetadata = new FileMetadata();
         }
@@ -832,6 +832,13 @@ public class FileMetadataService {
             updateModel.setModuleId(fileModule.getId());
             fileMetadataMapper.updateByExampleSelective(updateModel, example);
         }
+    }
 
+    public void deleteMetadataByIds(List<String> fileIds) {
+        if (CollectionUtils.isNotEmpty(fileIds)) {
+            FileMetadataExample example = new FileMetadataExample();
+            example.createCriteria().andIdIn(fileIds);
+            fileMetadataMapper.deleteByExample(example);
+        }
     }
 }
