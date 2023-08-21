@@ -87,8 +87,8 @@ public class SystemProjectService {
         commonProjectService.deleteProject(projects);
     }
 
-    public List<OrganizationProjectOptionsDTO> getProjectOptions() {
-        return extSystemProjectMapper.selectProjectOptions();
+    public List<OrganizationProjectOptionsDTO> getProjectOptions(String organizationId) {
+        return extSystemProjectMapper.selectProjectOptions(organizationId);
     }
 
     public void enable(String id) {

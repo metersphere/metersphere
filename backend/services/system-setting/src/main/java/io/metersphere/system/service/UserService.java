@@ -476,4 +476,8 @@ public class UserService {
             return request.getUserIds();
         }
     }
+
+    public List<User> getUserListByOrgId(String organizationId) {
+        return extUserMapper.getUserListByOrgId(organizationId);
+    }
 }

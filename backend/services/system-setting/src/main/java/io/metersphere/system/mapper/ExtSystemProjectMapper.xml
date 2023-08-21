@@ -54,7 +54,14 @@
 
 
     <select id="selectProjectOptions" resultType="io.metersphere.system.dto.OrganizationProjectOptionsDTO">
-        select id, name from project order by create_time desc
+        select id, name
+        from project
+        <where>
+            <if test="organizationId != null and organizationId != ''">
+                and organization_id = #{organizationId}
+            </if>
+        </where>
+        order by create_time desc
     </select>
 
     <sql id="queryWhereCondition">

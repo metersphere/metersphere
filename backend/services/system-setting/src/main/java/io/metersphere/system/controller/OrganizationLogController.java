@@ -12,7 +12,6 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.response.OrganizationProjectOptionsResponse;
-import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,13 +24,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "系统日志")
-@RestController
-@RequestMapping("/operation/log")
-public class OperationLogController {
 
-    @Resource
-    private OrganizationService organizationService;
+/**
+ * @author wx
+ */
+@Tag(name = "组织日志")
+@RestController
+@RequestMapping("/organization/log")
+public class OrganizationLogController {
 
     @Resource
     private SystemProjectService systemProjectService;
@@ -43,39 +43,34 @@ public class OperationLogController {
     private UserService userService;
 
 
-    @GetMapping("/get/options")
-    @Operation(summary = "获取组织/项目级联下拉框选项")
-    @RequiresPermissions(PermissionConstants.SYSTEM_OPERATING_LOG_READ)
-    public OrganizationProjectOptionsResponse getOptions() {
-
-        //获取全部组织
-        List<OrganizationProjectOptionsDTO> organizationList = organizationService.getOrganizationOptions();
+    @GetMapping("/get/options/{organizationId}")
+    @Operation(summary = "组织日志-获取项目级联下拉框选项")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_OPERATING_LOG_READ)
+    public OrganizationProjectOptionsResponse getOrganizationOptions(@PathVariable(value = "organizationId") String organizationId) {
         //获取全部项目
-        List<OrganizationProjectOptionsDTO> projectList = systemProjectService.getProjectOptions(null);
-
+        List<OrganizationProjectOptionsDTO> projectList = systemProjectService.getProjectOptions(organizationId);
         OrganizationProjectOptionsResponse optionsResponse = new OrganizationProjectOptionsResponse();
-        optionsResponse.setOrganizationList(organizationList);
         optionsResponse.setProjectList(projectList);
 
         return optionsResponse;
     }
 
 
+    @GetMapping("/user/list/{organizationId}")
+    @Operation(summary = "组织日志-获取用户列表")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_OPERATING_LOG_READ)
+    public List<User> getLogUserList(@PathVariable(value = "organizationId") String organizationId) {
+        return userService.getUserListByOrgId(organizationId);
+    }
+
+
     @PostMapping("/list")
-    @Operation(summary = "组织操作日志列表查询")
-    @RequiresPermissions(PermissionConstants.SYSTEM_OPERATING_LOG_READ)
-    public Pager<List<OperationLogResponse>> list(@Validated @RequestBody OperationLogRequest request) {
+    @Operation(summary = "组织菜单下操作日志列表查询")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_OPERATING_LOG_READ)
+    public Pager<List<OperationLogResponse>> organizationLogList(@Validated @RequestBody OperationLogRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, operationLogService.list(request));
     }
 
-
-    @GetMapping("/user/list")
-    @Operation(summary = "系统日志页面，获取用户列表")
-    @RequiresPermissions(PermissionConstants.SYSTEM_OPERATING_LOG_READ)
-    public List<User> getUserList() {
-        List<User> userList = userService.getUserList();
-        return userList;
-    }
 }
