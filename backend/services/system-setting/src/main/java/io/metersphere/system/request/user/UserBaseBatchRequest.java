@@ -21,7 +21,7 @@ public class UserBaseBatchRequest {
             > userIds;
 
     @Schema(description = "不处理的用户ID")
-    List<String> skipIds;
+    List<String> excludeIds;
 
     @Schema(description = "是否选择所有数据")
     private boolean selectAll;

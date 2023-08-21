@@ -468,8 +468,8 @@ public class UserService {
         if (request.isSelectAll()) {
             List<User> userList = baseUserMapper.selectByKeyword(request.getCondition().getKeyword(), true);
             List<String> userIdList = userList.stream().map(User::getId).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(request.getSkipIds())) {
-                userIdList.removeAll(request.getSkipIds());
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                userIdList.removeAll(request.getExcludeIds());
             }
             return userIdList;
         } else {
