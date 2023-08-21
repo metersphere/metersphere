@@ -643,7 +643,7 @@ public class UserControllerTests extends BaseTest {
         //重置非Admin用户的密码
         {
             UserBaseBatchRequest request = new UserBaseBatchRequest();
-            request.setSkipIds(Collections.singletonList("admin"));
+            request.setExcludeIds(Collections.singletonList("admin"));
             request.setSelectAll(true);
             BatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(
                     this.requestPostAndReturn(userRequestUtils.URL_USER_RESET_PASSWORD, request),
@@ -911,7 +911,7 @@ public class UserControllerTests extends BaseTest {
         {
             UserBaseBatchRequest request = new UserBaseBatchRequest();
             request.setUserIds(USER_LIST.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
-            request.setSkipIds(Collections.singletonList("admin"));
+            request.setExcludeIds(Collections.singletonList("admin"));
             BatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(userRequestUtils.URL_USER_DELETE, request), BatchProcessResponse.class);
             Assertions.assertEquals(request.getUserIds().size(), response.getTotalCount(), response.getSuccessCount());
             //检查数据库
