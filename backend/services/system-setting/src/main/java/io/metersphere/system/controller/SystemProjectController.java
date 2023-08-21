@@ -13,6 +13,7 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
@@ -20,6 +21,7 @@ import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
 import io.metersphere.system.service.SystemProjectLogService;
 import io.metersphere.system.service.SystemProjectService;
+import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +43,8 @@ import java.util.List;
 public class SystemProjectController {
     @Resource
     private SystemProjectService systemProjectService;
+    @Resource
+    private UserService userService;
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD)
@@ -141,5 +145,11 @@ public class SystemProjectController {
         return systemProjectService.removeProjectMember(projectId, userId, SessionUtils.getUserId());
     }
 
+    @GetMapping("/user-list")
+    @Operation(summary = "获取用户列表")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
+    public List<User> getUserList() {
+        return userService.getUserList();
+    }
 
 }

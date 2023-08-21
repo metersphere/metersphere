@@ -63,6 +63,7 @@ public class SystemProjectControllerTests extends BaseTest {
     private final static String removeProjectMember = prefix + "/remove-member/";
     private final static String disableProject = prefix + "/disable/";
     private final static String enableProject = prefix + "/enable/";
+    private final static String userList = prefix + "/user-list";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -669,4 +670,12 @@ public class SystemProjectControllerTests extends BaseTest {
         this.responseGet(enableProject + id, ERROR_REQUEST_MATCHER);
     }
 
+    @Test
+    @Order(21)
+    public void testUserList() throws Exception {
+        this.requestGetWithOkAndReturn(userList);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, userList);
+    }
 }
