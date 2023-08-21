@@ -6,4 +6,15 @@
         from `user` u left join user_role_relation urr on urr.user_id = u.id and urr.source_id = #{sourceId}
         group by u.id
     </select>
+
+    <select id="getUserListByOrgId" resultType="io.metersphere.system.domain.User">
+        SELECT DISTINCT
+            u.id,
+            u.NAME
+        FROM
+            `user` u
+                LEFT JOIN user_role_relation urr ON u.id = urr.user_id
+        WHERE
+            urr.source_id = #{sourceId}
+    </select>
 </mapper>

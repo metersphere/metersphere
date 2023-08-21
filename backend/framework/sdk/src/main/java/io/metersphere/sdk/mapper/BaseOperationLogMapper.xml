@@ -8,6 +8,7 @@
         t.organization_id,
         t.create_time,
         t.create_user,
+        t.source_id,
         t.module,
         t.type,
         t.content
@@ -42,10 +43,12 @@
                 AND t.type = #{request.type}
             </if>
             <if test="request.module != null and request.module != ''">
-                AND t.module = #{request.module}
+                <bind name="module" value="request.module+'%'"/>
+                AND t.module like #{module}
             </if>
             <if test="request.content != null and request.content != ''">
-                AND t.content like CONCAT('%', #{request.content},'%')
+                <bind name="content" value="'%'+request.content+'%'"/>
+                AND t.content like #{content}
             </if>
         </where>
         ORDER BY t.create_time DESC
