@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ProjectBaseRequest {
@@ -29,5 +31,5 @@ public class ProjectBaseRequest {
     private Boolean enable;
 
     @Schema(description =  "模块设置")
-    private String moduleSetting;
+    private List<String> moduleIds;
 }

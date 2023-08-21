@@ -6,11 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ProjectDTO extends Project {
+public class ProjectDTO extends Project implements Serializable {
     @Schema(description =  "项目成员数量", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long memberCount;
     @Schema(description =  "所属组织", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
@@ -19,4 +20,8 @@ public class ProjectDTO extends Project {
     private List<User> adminList;
     @Schema(description =  "创建人是否是管理员", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Boolean projectCreateUserIsAdmin;
+    @Schema(description =  "模块设置", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private List<String> moduleIds;
+
+    private static final long serialVersionUID = 1L;
 }

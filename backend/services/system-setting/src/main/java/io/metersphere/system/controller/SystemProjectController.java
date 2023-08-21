@@ -7,6 +7,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
+import io.metersphere.sdk.dto.ProjectExtendDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -50,7 +51,7 @@ public class SystemProjectController {
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#project)", msClass = SystemProjectLogService.class)
     @Operation(summary = "添加项目")
-    public Project addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
+    public ProjectExtendDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
         return systemProjectService.add(project, SessionUtils.getUserId());
     }
 
@@ -76,7 +77,7 @@ public class SystemProjectController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = SystemProjectLogService.class)
     @Operation(summary = "更新项目信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
-    public Project updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
+    public ProjectExtendDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
         return systemProjectService.update(project, SessionUtils.getUserId());
     }
 
