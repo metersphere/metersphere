@@ -69,6 +69,7 @@
         <avro.version>1.11.1</avro.version>
         <dec.version>0.1.2</dec.version>
         <dingtalk-sdk.version>2.0.0</dingtalk-sdk.version>
+        <dingtalk-client.version>2.0.29</dingtalk-client.version>
         <org-json.version>20220924</org-json.version>
         <minio.version>8.5.2</minio.version>
         <hikaricp.version>5.0.1</hikaricp.version>

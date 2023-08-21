@@ -307,6 +307,12 @@
             <artifactId>htmlcleaner</artifactId>
             <version>${htmlcleaner.version}</version>
         </dependency>
+        <!-- dingClient -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dingtalk</artifactId>
+            <version>${dingtalk-client.version}</version>
+        </dependency>
         <!-- k8s client -->
         <dependency>
             <groupId>io.fabric8</groupId>
