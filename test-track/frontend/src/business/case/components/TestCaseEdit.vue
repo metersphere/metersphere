@@ -363,7 +363,7 @@ import TestCaseBaseInfo from "@/business/case/components/TestCaseBaseInfo";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import {useStore, useUserStore} from "@/store";
+import {useCommonStore, useStore, useUserStore} from "@/store";
 import { getProjectApplicationConfig } from "@/api/project-application";
 import {
   deleteTestCaseVersion,
@@ -381,7 +381,7 @@ import {
 
 import {
   getProjectListAll,
-  getProjectMemberOption, parseCustomFilesForItem,
+  getProjectMemberOption, parseCustomFilesForItem, parseMdImage, saveMarkDownImg,
 } from "@/business/utils/sdk-utils";
 import { testCaseCommentList } from "@/api/test-case-comment";
 import {
@@ -398,6 +398,7 @@ import CaseDiffSideViewer from "./case/diff/CaseDiffSideViewer";
 import TestCaseEditNameView from "@/business/case/components/head/TestCaseEditNameView";
 
 const store = useStore();
+const commonStore = useCommonStore();
 
 export default {
   name: "TestCaseEdit",
@@ -598,6 +599,11 @@ export default {
       default: false
     },
     publicCaseId: String,
+  },
+  provide() {
+    return {
+      enableTempUpload: true
+    }
   },
   computed: {
     hasCopyPermission() {
@@ -1220,6 +1226,25 @@ export default {
         }
       }
     },
+    handleMdImages(param) {
+      // 解析富文本框中的图片
+      let mdImages = [];
+      mdImages.push(...parseMdImage(param.prerequisite));
+      mdImages.push(...parseMdImage(param.stepDescription));
+      mdImages.push(...parseMdImage(param.expectedResult));
+      mdImages.push(...parseMdImage(param.remark));
+      param.requestFields.forEach(field => {
+        if (field.type === 'richText') {
+          mdImages.push(...parseMdImage(field.value));
+        }
+      });
+      // 将图片从临时目录移入正式目录
+      saveMarkDownImg({
+        projectId: param.projectId,
+        resourceId: param.id,
+        fileNames: mdImages
+      });
+    },
     _saveCase(isAddPublic) {
       let param = this.buildParam();
       if (this.validate(param)) {
@@ -1274,6 +1299,7 @@ export default {
               }
             }
             this.createVersionId = null;
+            this.handleMdImages(param);
           })
           .catch(() => {
             this.loading = false;

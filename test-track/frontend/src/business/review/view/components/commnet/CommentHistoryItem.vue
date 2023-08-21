@@ -58,9 +58,9 @@
 
 <script>
 import MsUserIcon from "metersphere-frontend/src/components/MsUserIcon";
-import {getCurrentUser} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID, getCurrentUser} from "metersphere-frontend/src/utils/token";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
-import {deleteMarkDownImgByName} from "@/business/utils/sdk-utils";
+import {deleteMarkDownImgByName, parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
 import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
 import CommentStatusText from "@/business/review/view/components/commnet/CommentStatusText";
 import CommentEdit from "@/business/review/view/components/commnet/CommentEdit";
@@ -79,6 +79,11 @@ export default {
   data() {
     return {
       loading: false
+    }
+  },
+  provide() {
+    return {
+      enableTempUpload: true
     }
   },
   computed: {
@@ -112,7 +117,19 @@ export default {
           this.$refs.commentEdit.close();
           this.$success(this.$t('commons.modify_success'));
           this.comment.description = comment.description;
+          this.handleMdImages(comment);
         });
+    },
+    handleMdImages(param) {
+      // 解析富文本框中的图片
+      let mdImages = [];
+      mdImages.push(...parseMdImage(param.description));
+      // 将图片从临时目录移入正式目录
+      saveMarkDownImg({
+        projectId: getCurrentProjectID(),
+        resourceId: param.id,
+        fileNames: mdImages
+      });
     },
     openEdit() {
       this.$refs.commentEdit.open(this.comment);

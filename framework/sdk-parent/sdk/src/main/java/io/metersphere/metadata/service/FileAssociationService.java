@@ -2,6 +2,7 @@ package io.metersphere.metadata.service;
 
 import io.metersphere.base.domain.FileAssociation;
 import io.metersphere.base.domain.FileAssociationExample;
+import io.metersphere.base.mapper.ExtFileAssociationMapper;
 import io.metersphere.base.mapper.FileAssociationMapper;
 import io.metersphere.request.BodyFile;
 import jakarta.annotation.Resource;
@@ -22,6 +23,8 @@ public class FileAssociationService {
     private FileAssociationMapper fileAssociationMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ExtFileAssociationMapper extFileAssociationMapper;
 
     public void save(FileAssociation fileAssociation) {
         fileAssociationMapper.insert(fileAssociation);
@@ -30,6 +33,17 @@ public class FileAssociationService {
     public void deleteByFileId(String fileId) {
         FileAssociationExample example = new FileAssociationExample();
         example.createCriteria().andFileMetadataIdEqualTo(fileId);
+        fileAssociationMapper.deleteByExample(example);
+    }
+
+    public void deleteByFileIdsAndResourceIds(List<String> resourceIds, List<String> fileIds) {
+        if (CollectionUtils.isEmpty(fileIds)) {
+            return;
+        }
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria()
+                .andFileMetadataIdIn(fileIds)
+                .andSourceIdIn(resourceIds);
         fileAssociationMapper.deleteByExample(example);
     }
 
@@ -60,9 +74,29 @@ public class FileAssociationService {
         return fileAssociationMapper.selectByExample(example);
     }
 
+    public List<FileAssociation> getByFileIds(List<String> fileIds) {
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria().andFileMetadataIdIn(fileIds);
+        return fileAssociationMapper.selectByExample(example);
+    }
+
     public List<FileAssociation> getByResourceId(String sourceId) {
         FileAssociationExample example = new FileAssociationExample();
         example.createCriteria().andSourceIdEqualTo(sourceId);
+        return fileAssociationMapper.selectByExample(example);
+    }
+
+    public List<FileAssociation> getByResourceIdAndType(String sourceId, String type) {
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria()
+                .andSourceIdEqualTo(sourceId)
+                .andTypeEqualTo(type);
+        return fileAssociationMapper.selectByExample(example);
+    }
+
+    public List<FileAssociation> getByResourceIds(List<String> sourceIds) {
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria().andSourceIdIn(sourceIds);
         return fileAssociationMapper.selectByExample(example);
     }
 
@@ -92,5 +126,17 @@ public class FileAssociationService {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
         }
+    }
+
+    public List<String> getFileIdsByProjectIdAndType(String projectId, String fileAssociationType) {
+        return extFileAssociationMapper.getFileIdsByProjectIdAndType(projectId, fileAssociationType);
+    }
+
+    public void deleteByProjectIdAndType(String projectId, String fileAssociationType) {
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria()
+                .andProjectIdEqualTo(projectId)
+                .andTypeEqualTo(fileAssociationType);
+        fileAssociationMapper.deleteByExample(example);
     }
 }

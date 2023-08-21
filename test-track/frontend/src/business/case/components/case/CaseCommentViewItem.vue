@@ -43,8 +43,9 @@
 </template>
 <script>
 import CaseCommentEdit from "./CaseCommentEdit";
-import { getCurrentUser } from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID, getCurrentUser} from "metersphere-frontend/src/utils/token";
 import CaseDiffStatus from "./diff/CaseDiffStatus";
+import {parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
 export default {
   name: "CaseCommentViewItem",
   components: {
@@ -118,15 +119,28 @@ export default {
       });
     },
     editComment(description) {
-      this.$post(this.apiUrl + "/comment/edit", {
+      let param = {
         id: this.comment.id,
         description,
-      }).then(() => {
+      };
+      this.$post(this.apiUrl + "/comment/edit", param).then(() => {
         this.originDesc = this.comment.description;
         this.visible = false;
         this.$success(this.$t("commons.modify_success"), false);
         this.state = "PREVIEW";
         this.$emit("refresh");
+        this.handleMdImages(param);
+      });
+    },
+    handleMdImages(param) {
+      // 解析富文本框中的图片
+      let mdImages = [];
+      mdImages.push(...parseMdImage(param.description));
+      // 将图片从临时目录移入正式目录
+      saveMarkDownImg({
+        projectId: getCurrentProjectID(),
+        resourceId: param.id,
+        fileNames: mdImages
       });
     },
   },

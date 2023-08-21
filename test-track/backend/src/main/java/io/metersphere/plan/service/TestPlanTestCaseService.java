@@ -179,7 +179,7 @@ public class TestPlanTestCaseService {
         return list;
     }
 
-    public void editTestCase(TestPlanFuncCaseEditRequest testPlanTestCase) {
+    public TestCaseComment editTestCase(TestPlanFuncCaseEditRequest testPlanTestCase) {
         if (!StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
             //记录功能用例执行信息
             functionCaseExecutionInfoService.insertExecutionInfo(testPlanTestCase.getId(), testPlanTestCase.getStatus());
@@ -191,7 +191,7 @@ public class TestPlanTestCaseService {
         testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
         testCaseService.updateLastExecuteStatus(testPlanTestCase.getCaseId(), testPlanTestCase.getStatus());
 
-        saveComment(testPlanTestCase);
+        return saveComment(testPlanTestCase);
     }
 
     private void setUpdateCaseExecutor(TestPlanTestCaseWithBLOBs testPlanTestCase) {
@@ -204,15 +204,16 @@ public class TestPlanTestCaseService {
         }
     }
 
-    private void saveComment(TestPlanFuncCaseEditRequest testPlanTestCase) {
+    private TestCaseComment saveComment(TestPlanFuncCaseEditRequest testPlanTestCase) {
         if (StringUtils.isNotEmpty(testPlanTestCase.getComment())) {
             SaveCommentRequest saveCommentRequest = new SaveCommentRequest();
             saveCommentRequest.setCaseId(testPlanTestCase.getCaseId());
             saveCommentRequest.setDescription(testPlanTestCase.getComment());
             saveCommentRequest.setStatus(testPlanTestCase.getStatus());
             saveCommentRequest.setType(TestCaseCommentType.PLAN.name());
-            testCaseCommentService.saveComment(saveCommentRequest);
+            return testCaseCommentService.saveComment(saveCommentRequest);
         }
+        return null;
     }
 
     public int deleteTestCase(String id) {

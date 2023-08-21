@@ -321,7 +321,8 @@
         test_plan_test_case.update_time, test_plan_test_case.create_time,
         test_plan_test_case.issues_count as issuesCount,
         test_plan_test_case.plan_id as planId,
-        test_case.version_id as versionId
+        test_case.version_id as versionId,
+        test_case.review_status
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
         <include refid="queryWhereCondition"/>

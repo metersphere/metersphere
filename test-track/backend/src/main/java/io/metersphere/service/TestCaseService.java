@@ -200,6 +200,8 @@ public class TestCaseService {
     private OperatingLogService operatingLogService;
     @Resource
     private TrackCustomFieldTemplateService trackCustomFieldTemplateService;
+    @Resource
+    private MdFileService mdFileService;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
 
@@ -737,6 +739,9 @@ public class TestCaseService {
         request.setBelongId(testCaseId);
         request.setBelongType(AttachmentType.TEST_CASE.type());
         attachmentService.deleteAttachment(request);
+
+        // 删除富文本框图片
+        mdFileService.deleteBySourceId(testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -2286,6 +2291,9 @@ public class TestCaseService {
         });
 
         testCaseMapper.deleteByExample(example);
+
+        // 删除富文本框图片
+        mdFileService.deleteBySourceIds(request.getIds());
     }
 
     public TestCaseExample getBatchExample(TestCaseBatchRequest request) {
@@ -2382,29 +2390,32 @@ public class TestCaseService {
                 attachmentService.uploadAttachment(attachmentRequest, file);
             });
         }
+
         // relate file
         if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             FileAssociationMapper associationBatchMapper = sqlSession.getMapper(FileAssociationMapper.class);
             AttachmentModuleRelationMapper attachmentModuleRelationBatchMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
             FileAttachmentMetadataMapper fileAttachmentMetadataBatchMapper = sqlSession.getMapper(FileAttachmentMetadataMapper.class);
-            request.getRelateFileMetaIds().forEach(filemetaId -> {
-                FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(filemetaId);
+            request.getRelateFileMetaIds().forEach(fileMetaId -> {
+                FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileMetaId);
                 FileAssociation fileAssociation = new FileAssociation();
                 fileAssociation.setId(UUID.randomUUID().toString());
-                fileAssociation.setFileMetadataId(filemetaId);
+                fileAssociation.setFileMetadataId(fileMetaId);
                 fileAssociation.setFileType(fileMetadata.getType());
                 fileAssociation.setType(FileAssociationType.TEST_CASE.name());
                 fileAssociation.setProjectId(fileMetadata.getProjectId());
-                fileAssociation.setSourceItemId(filemetaId);
+                fileAssociation.setSourceItemId(fileMetaId);
                 fileAssociation.setSourceId(testCaseWithBLOBs.getId());
                 associationBatchMapper.insert(fileAssociation);
+
                 AttachmentModuleRelation record = new AttachmentModuleRelation();
                 record.setRelationId(testCaseWithBLOBs.getId());
                 record.setRelationType(AttachmentType.TEST_CASE.type());
                 record.setFileMetadataRefId(fileAssociation.getId());
                 record.setAttachmentId(UUID.randomUUID().toString());
                 attachmentModuleRelationBatchMapper.insert(record);
+
                 FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                 BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                 fileAttachmentMetadata.setId(record.getAttachmentId());

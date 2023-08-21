@@ -23,6 +23,7 @@
 <script>
 import CaseCommentEdit from "./CaseCommentEdit";
 import { testCaseCommentAdd } from "@/api/test-case-comment";
+import {getCurrentProjectID, parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
 export default {
   name: "CaseCommentComponent",
   components: {
@@ -75,13 +76,26 @@ export default {
         return;
       }
       this.result.loading = true;
-      testCaseCommentAdd(comment).then(() => {
+      testCaseCommentAdd(comment).then((response) => {
         this.result.loading = false;
         this.$success(this.$t("test_track.comment.send_success"), false);
         this.cancel("");
         this.refresh(comment.caseId);
         this.formData.richText = "";
-        this.$emit('toggleCommentTab')
+        this.$emit('toggleCommentTab');
+        comment.id = response.data.id;
+        this.handleMdImages(comment);
+      });
+    },
+    handleMdImages(param) {
+      // 解析富文本框中的图片
+      let mdImages = [];
+      mdImages.push(...parseMdImage(param.description));
+      // 将图片从临时目录移入正式目录
+      saveMarkDownImg({
+        projectId: getCurrentProjectID(),
+        resourceId: param.id,
+        fileNames: mdImages
       });
     },
     refresh(id) {

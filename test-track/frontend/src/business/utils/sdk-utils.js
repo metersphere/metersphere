@@ -1,5 +1,6 @@
 export {operationConfirm, removeGoBackListener, handleCtrlSEvent, byteToSize, sizeToByte, resizeTextarea,
   getTypeByFileName, strMapToObj, getUUID, windowPrint, parseTag} from "metersphere-frontend/src/utils";
+export {parseMdImage} from "metersphere-frontend/src/utils/mdImgUtils";
 export {parseCustomFilesForList, getCustomFieldFilter, buildBatchParam, parseCustomFilesForItem} from "metersphere-frontend/src/utils/tableUtils";
 export {sortCustomFields, parseCustomField, buildCustomFields} from "metersphere-frontend/src/utils/custom_field";
 export {getCurrentProjectID, getCurrentWorkspaceId, getCurrentUser, setCurrentProjectID} from "metersphere-frontend/src/utils/token";
@@ -16,7 +17,7 @@ export {TEST_CASE_RELEVANCE_ISSUE_LIST, OPERATORS} from "metersphere-frontend/sr
 
 
 export {getProjectMemberOption} from "metersphere-frontend/src/api/user";
-export {deleteMarkDownImgByName} from "metersphere-frontend/src/api/img";
+export {deleteMarkDownImgByName, saveMarkDownImg} from "metersphere-frontend/src/api/img";
 export {getApiDefinitionById, getApiTestCasePages} from "metersphere-frontend/src/api/environment";
 export {getOwnerProjects, getProjectListAll} from "metersphere-frontend/src/api/project";
 export {deleteRelationshipEdge} from "metersphere-frontend/src/api/relationship-edge";
