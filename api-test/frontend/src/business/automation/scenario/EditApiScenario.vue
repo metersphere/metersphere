@@ -2372,11 +2372,28 @@ export default {
       this.drawer = false;
       this.$emit('closePage', name);
     },
+    deleteEnableStep(hashTree) {
+      for (let i in hashTree) {
+        if (hashTree[i] && !hashTree[i].enable) {
+          delete hashTree[i];
+        }
+      }
+    },
     showPopover() {
-      let definition = JSON.parse(JSON.stringify(this.currentScenario));
-      definition.hashTree = this.scenarioDefinition;
+      let test = JSON.parse(JSON.stringify(this.scenarioDefinition));
+      try {
+        for (let i in test) {
+          if (test[i] && !test[i].enable) {
+            delete test[i];
+          } else if (test[i] && test[i].hashTree) {
+            this.deleteEnableStep(test[i].hashTree);
+          }
+        }
+      } catch (e) {
+        this.envResult.loading = true;
+      }
       this.envResult.loading = true;
-      this.getEnv(JSON.stringify(definition)).then(() => {
+      this.getEnv(JSON.stringify(test)).then(() => {
         this.$refs.envPopover.openEnvSelect();
         this.envResult.loading = false;
       });
