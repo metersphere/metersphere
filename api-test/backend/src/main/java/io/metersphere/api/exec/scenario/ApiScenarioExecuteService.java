@@ -246,13 +246,24 @@ public class ApiScenarioExecuteService {
             if (request.getConfig() == null) {
                 request.setConfig(new RunModeConfigWithEnvironmentDTO());
             }
-            if (MapUtils.isEmpty(request.getConfig().getEnvMap())) {
-                RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
-                BeanUtils.copyBean(runModeConfig, request.getConfig());
-                Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(apiScenarios);
-                apiCaseExecuteService.setExecutionEnvironment(runModeConfig, projectEnvMap);
-                request.setConfig(runModeConfig);
+
+            RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
+            BeanUtils.copyBean(runModeConfig, request.getConfig());
+            Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(apiScenarios);
+            apiCaseExecuteService.setExecutionEnvironment(runModeConfig, projectEnvMap);
+
+            if (MapUtils.isNotEmpty(request.getConfig().getEnvMap())) {
+                request.getConfig().getEnvMap().forEach((k, v) -> {
+                    if (!runModeConfig.getExecutionEnvironmentMap().containsKey(k)
+                            || CollectionUtils.isEmpty(runModeConfig.getExecutionEnvironmentMap().get(k))) {
+                        runModeConfig.getExecutionEnvironmentMap().put(k, Collections.singletonList(v));
+                    } else {
+                        runModeConfig.getExecutionEnvironmentMap().get(k).add(v);
+                    }
+                });
             }
+            request.setConfig(runModeConfig);
+
             // 生成集合报告
             String names = apiScenarios.stream().map(ApiScenario::getName).collect(Collectors.joining(","));
             ApiScenarioReportResult report = apiScenarioReportService.getApiScenarioReportResult(request, serialReportId, names, reportScenarioIds);
