@@ -91,4 +91,8 @@
             #{id}
         </foreach>
     </select>
+    <select id="getExcludeSelectOption" resultType="io.metersphere.sdk.dto.ExcludeOptionDTO">
+        select id, name
+        from user
+    </select>
 </mapper>

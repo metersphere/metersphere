@@ -407,4 +407,8 @@ public class BaseUserService {
 
         return false;
     }
+
+    public List<ExcludeOptionDTO> getExcludeSelectOption() {
+        return baseUserMapper.getExcludeSelectOption();
+    }
 }

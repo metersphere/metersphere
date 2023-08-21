@@ -9,9 +9,13 @@
             #{userId}
         </foreach>
     </select>
-    <select id="getUserIdRoleId" resultType="java.lang.String">
+    <select id="getUserIdByRoleId" resultType="java.lang.String">
         select user_id
         from user_role_relation
         where role_id = #{roleId}
+    </select>
+    <select id="getSelectOption" resultType="io.metersphere.sdk.dto.ExcludeOptionDTO">
+        select user_id as id, user_name as name
+        from user
     </select>
 </mapper>

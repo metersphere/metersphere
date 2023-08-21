@@ -199,7 +199,7 @@ public class BaseUserRoleService {
     public void checkOneLimitRole(String roleId, String defaultRoleId, String currentUserId) {
 
         // 查询要删除的用户组关联的用户ID
-        List<String> userIds = baseUserRoleRelationService.getUserIdRoleId(roleId);
+        List<String> userIds = baseUserRoleRelationService.getUserIdByRoleId(roleId);
 
         if (CollectionUtils.isEmpty(userIds)) {
            return;
