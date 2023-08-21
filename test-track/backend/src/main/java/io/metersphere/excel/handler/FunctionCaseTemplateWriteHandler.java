@@ -3,6 +3,8 @@ package io.metersphere.excel.handler;
 import com.alibaba.excel.util.BooleanUtils;
 import com.alibaba.excel.write.handler.RowWriteHandler;
 import com.alibaba.excel.write.handler.context.RowWriteHandlerContext;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.excel.constants.TestCaseImportFiled;
 import io.metersphere.i18n.Translator;
@@ -43,7 +45,7 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
 
     public FunctionCaseTemplateWriteHandler(boolean isNeedId, List<List<String>> headList, Map<String, List<String>> caseLevelAndStatusValueMap) {
         this.isNeedId = isNeedId;
-        this.initIndex(headList);
+        initIndex(headList);
         this.caseLevelAndStatusValueMap = caseLevelAndStatusValueMap;
     }
 
@@ -121,5 +123,12 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, index + 3, 1));
         comment.setString(new XSSFRichTextString(text));
         sheet.getRow(0).getCell(1).setCellComment(comment);
+    }
+
+    public static HorizontalCellStyleStrategy getHorizontalWrapStrategy() {
+        WriteCellStyle contentWriteCellStyle = new WriteCellStyle();
+        // 设置自动换行
+        contentWriteCellStyle.setWrapped(true);
+        return new HorizontalCellStyleStrategy(null, contentWriteCellStyle);
     }
 }
