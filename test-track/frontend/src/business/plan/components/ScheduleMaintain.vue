@@ -596,7 +596,6 @@ export default {
     },
     changeMode() {
       this.runConfig.onSampleError = false;
-      this.runConfig.resourcePoolId = null;
     },
   },
   computed: {
