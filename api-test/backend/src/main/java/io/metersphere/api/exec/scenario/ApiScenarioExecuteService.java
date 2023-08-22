@@ -254,11 +254,8 @@ public class ApiScenarioExecuteService {
 
             if (MapUtils.isNotEmpty(request.getConfig().getEnvMap())) {
                 request.getConfig().getEnvMap().forEach((k, v) -> {
-                    if (!runModeConfig.getExecutionEnvironmentMap().containsKey(k)
-                            || CollectionUtils.isEmpty(runModeConfig.getExecutionEnvironmentMap().get(k))) {
+                    if (StringUtils.isNotBlank(v)) {
                         runModeConfig.getExecutionEnvironmentMap().put(k, Collections.singletonList(v));
-                    } else {
-                        runModeConfig.getExecutionEnvironmentMap().get(k).add(v);
                     }
                 });
             }
