@@ -151,4 +151,18 @@ public class PermissionConstants {
     public static final String PROJECT_APPLICATION_API_UPDATE = "PROJECT_APPLICATION_API:UPDATE";
     /*------ end: PROJECT_APPLICATION ------*/
     public static final String PROJECT_BASE_INFO_READ = "PROJECT_BASE_INFO:READ";
+
+    /**
+     * 项目环境权限
+     */
+    /*------ start: PROJECT_ENVIRONMENT ------*/
+    public static final String PROJECT_ENVIRONMENT_READ = "PROJECT_ENVIRONMENT:READ";
+    public static final String PROJECT_ENVIRONMENT_READ_ADD = "PROJECT_ENVIRONMENT:READ+ADD";
+    public static final String PROJECT_ENVIRONMENT_READ_UPDATE = "PROJECT_ENVIRONMENT:READ+UPDATE";
+    public static final String PROJECT_ENVIRONMENT_READ_DELETE = "PROJECT_ENVIRONMENT:READ+DELETE";
+    public static final String PROJECT_ENVIRONMENT_READ_IMPORT = "PROJECT_ENVIRONMENT:READ+IMPORT";
+    public static final String PROJECT_ENVIRONMENT_READ_EXPORT = "PROJECT_ENVIRONMENT:READ+EXPORT";
+    /*------ end: PROJECT_ENVIRONMENT ------*/
+
+
 }

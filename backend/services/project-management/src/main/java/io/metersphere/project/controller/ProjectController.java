@@ -30,7 +30,7 @@ public class ProjectController {
     }
 
     @GetMapping("/list/options/{organizationId}")
-    @Operation(summary = "根据项目ID获取所有有权限的项目")
+    @Operation(summary = "根据组织ID获取所有有权限的项目")
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
     public List<Project> getUserProject(@PathVariable String organizationId) {
         return projectService.getUserProject(organizationId, SessionUtils.getUserId());
