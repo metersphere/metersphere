@@ -5,6 +5,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.service.JdbcDriverPluginService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.param.PluginUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
@@ -52,6 +53,8 @@ public class PluginControllerTests extends BaseTest {
     private PluginScriptMapper pluginScriptMapper;
     @Resource
     private OrganizationService organizationService;
+    @Resource
+    private JdbcDriverPluginService jdbcDriverPluginService;
     private static Plugin addPlugin;
     private static Plugin anotherAddPlugin;
 
@@ -75,10 +78,6 @@ public class PluginControllerTests extends BaseTest {
         OrganizationDTO org = organizationService.getDefault();
         File jarFile = new File(
                 this.getClass().getClassLoader().getResource("file/metersphere-mqtt-plugin-3.x.jar")
-                        .getPath()
-        );
-        File anotherJarFile = new File(
-                this.getClass().getClassLoader().getResource("file/metersphere-jira-plugin-3.x.jar")
                         .getPath()
         );
 
@@ -112,6 +111,10 @@ public class PluginControllerTests extends BaseTest {
         request.setEnable(true);
         request.setName("test2");
         request.setOrganizationIds(Arrays.asList(org.getId()));
+        File anotherJarFile = new File(
+                this.getClass().getClassLoader().getResource("file/metersphere-jira-plugin-3.x.jar")
+                        .getPath()
+        );
         MvcResult antoherMvcResult = this.requestMultipartWithOkAndReturn(DEFAULT_ADD,
                 getDefaultMultiPartParam(request, anotherJarFile));
         Plugin antoherPlugin = pluginMapper.selectByPrimaryKey(getResultData(antoherMvcResult, Plugin.class).getId());
@@ -120,6 +123,17 @@ public class PluginControllerTests extends BaseTest {
         Assertions.assertEquals(Arrays.asList(org.getId()), getOrgIdsByPlugId(antoherPlugin.getId()));
         anotherAddPlugin = antoherPlugin;
         addPlugin = plugin;
+
+        // 校验数据库驱动上传成功
+        request.setName("my-driver");
+        request.setOrganizationIds(Arrays.asList(org.getId()));
+        File myDriver = new File(
+                this.getClass().getClassLoader().getResource("file/my-driver-1.0.jar")
+                        .getPath()
+        );
+        this.requestMultipartWithOkAndReturn(DEFAULT_ADD,
+                getDefaultMultiPartParam(request, myDriver));
+        Assertions.assertEquals(jdbcDriverPluginService.getJdbcDriverClass(), Arrays.asList("io.jianxing.MyDriver", "com.mysql.jdbc.Driver"));
 
         // @@重名校验异常
         // 校验插件名称重名
@@ -139,6 +153,14 @@ public class PluginControllerTests extends BaseTest {
         assertErrorCode(this.requestMultipart(DEFAULT_ADD,
                 getDefaultMultiPartParam(request, typeRepeatFile)), PLUGIN_TYPE_EXIST);
 
+        // @@校验禁止上传mysql驱动
+        File mysqlDriver = new File(
+                this.getClass().getClassLoader().getResource("file/test-mysql-driver-1.0.jar")
+                        .getPath()
+        );
+        assertErrorCode(this.requestMultipart(DEFAULT_ADD,
+                getDefaultMultiPartParam(request, mysqlDriver)), PLUGIN_TYPE_EXIST);
+
         // @@校验插件脚本解析失败
         File scriptParseFile = new File(
                 this.getClass().getClassLoader().getResource("file/metersphere-plugin-script-parse-error.jar")
@@ -153,7 +175,7 @@ public class PluginControllerTests extends BaseTest {
                         .getPath()
         );
         assertErrorCode(this.requestMultipart(DEFAULT_ADD,
-                getDefaultMultiPartParam(request, scriptIdRepeatFile)), PLUGIN_SCRIPT_EXIST);
+                getDefaultMultiPartParam(request, scriptIdRepeatFile)), PLUGIN_SCRIPT_EXIST);     // @@校验插件脚本ID重复
 
         // @@校验日志
         checkLog(this.addPlugin.getId(), OperationLogType.ADD);
@@ -237,14 +259,9 @@ public class PluginControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(DEFAULT_LIST);
         // 校验数据是否正确
         List<PluginDTO> pluginList = getResultDataArray(mvcResult, PluginDTO.class);
-        Assertions.assertEquals(2, pluginList.size());
+        Assertions.assertEquals(3, pluginList.size());
         for (PluginDTO pluginDTO : pluginList) {
-            Plugin comparePlugin = null;
-            if (StringUtils.equals(pluginDTO.getId(), addPlugin.getId())) {
-                comparePlugin = pluginMapper.selectByPrimaryKey(addPlugin.getId());
-            } else if (StringUtils.equals(pluginDTO.getId(), anotherAddPlugin.getId())) {
-                comparePlugin =  pluginMapper.selectByPrimaryKey(anotherAddPlugin.getId());
-            }
+            Plugin comparePlugin = pluginMapper.selectByPrimaryKey(pluginDTO.getId());
             Plugin plugin = JSON.parseObject(JSON.toJSONString(pluginDTO), Plugin.class);
             List<String> scriptIds = pluginDTO.getPluginForms().stream().map(OptionDTO::getId).toList();
             Assertions.assertEquals(plugin, comparePlugin);
