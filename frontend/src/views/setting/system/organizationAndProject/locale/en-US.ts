@@ -59,4 +59,16 @@ export default {
   'system.project.endTitle': 'Close project',
   'system.project.enableContent': 'The project after opening is displayed in the organization switching list',
   'system.project.endContent': 'The project after closing is not displayed in the project switching list',
+  'system.project.projectNamePlaceholder':
+    'Please enter the project name, which cannot be duplicated with other project names',
+  'system.project.updateProject': 'Update project',
+  'system.project.createProject': 'Create project',
+  'system.project.affiliatedOrg': 'Affiliated organization',
+  'system.project.affiliatedOrgPlaceholder': 'Please select affiliated organization',
+  'system.project.projectAdmin': 'Project administrator',
+  'system.project.projectAdminPlaceholder': 'The project administrator defaults to the person who created the project',
+  'system.project.moduleSetting': 'Module setting',
+  'system.project.projectNameRequired': 'Project name cannot be empty',
+  'system.project.createTip': 'After the project is enabled, it will be displayed in the project switching list',
+  'system.project.affiliatedOrgRequired': 'Affiliated organization cannot be empty',
 };

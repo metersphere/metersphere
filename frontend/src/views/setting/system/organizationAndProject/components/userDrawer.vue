@@ -48,7 +48,7 @@
 
 <script lang="ts" setup>
   import {
-    postUserTableByOrgId,
+    postUserTableByOrgIdOrProjectId,
     deleteUserFromOrgOrProject,
   } from '@/api/modules/setting/system/organizationAndProject';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -95,7 +95,7 @@
     { title: 'system.organization.operation', slotName: 'operation' },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserTableByOrgId, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserTableByOrgIdOrProjectId, {
     columns: projectColumn,
     showSetting: false,
     scroll: { y: 'auto', x: '600px' },
@@ -144,6 +144,12 @@
 
   watch(
     () => props.organizationId,
+    () => {
+      fetchData();
+    }
+  );
+  watch(
+    () => props.projectId,
     () => {
       fetchData();
     }

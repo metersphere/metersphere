@@ -54,7 +54,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { useTableStore } from '@/store';
-  import { ref, reactive, watch } from 'vue';
+  import { ref, reactive } from 'vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import {
     postOrgTable,
@@ -140,7 +140,6 @@
     scroll: { y: 'auto', x: '1300px' },
     selectable: false,
     noDisable: false,
-    debug: true,
     size: 'default',
     showSetting: true,
   });
@@ -208,6 +207,7 @@
           Message.success(isEnable ? t('common.enableSuccess') : t('common.closeSuccess'));
           fetchData();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -274,14 +274,6 @@
       setLoading(false);
     }
   };
-
-  watch(
-    () => props.keyword,
-    () => {
-      fetchData();
-    },
-    { immediate: true }
-  );
   defineExpose({
     fetchData,
   });

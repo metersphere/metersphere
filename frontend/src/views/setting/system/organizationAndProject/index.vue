@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { ref, onMounted, watch, nextTick } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import AddOrganizationModal from './components/addOrganizationModal.vue';
@@ -51,11 +51,31 @@
   const projectTabeRef = ref();
   const projectVisible = ref(false);
 
+  const tableSearch = () => {
+    if (currentTable.value === 'organization') {
+      if (orgTableRef.value) {
+        orgTableRef.value.fetchData();
+      } else {
+        nextTick(() => {
+          orgTableRef.value?.fetchData();
+        });
+      }
+    } else if (projectTabeRef.value) {
+      projectTabeRef.value.fetchData();
+    } else {
+      nextTick(() => {
+        projectTabeRef.value?.fetchData();
+      });
+    }
+  };
+
   const handleSearch = (value: string) => {
     currentKeyword.value = value;
+    tableSearch();
   };
   const handleEnter = (eve: Event) => {
     currentKeyword.value = (eve.target as HTMLInputElement).value;
+    tableSearch();
   };
 
   const handleAddOrganization = () => {
@@ -67,14 +87,20 @@
   };
 
   const handleAddProjectCancel = () => {
+    tableSearch();
     projectVisible.value = false;
   };
   const handleAddOrganizationCancel = () => {
-    if (currentTable.value === 'organization') {
-      orgTableRef.value?.fetchData();
-    } else {
-      projectTabeRef.value?.fetchData();
-    }
+    tableSearch();
     organizationVisible.value = false;
   };
+  watch(
+    () => currentTable.value,
+    () => {
+      tableSearch();
+    }
+  );
+  onMounted(() => {
+    tableSearch();
+  });
 </script>

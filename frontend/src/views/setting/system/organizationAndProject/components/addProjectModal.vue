@@ -13,7 +13,7 @@
         <span class="text-[var(--color-text-4)]">({{ props.currentProject?.name }})</span>
       </span>
       <span v-else>
-        {{ t('system.project.create') }}
+        {{ t('system.project.createProject') }}
       </span>
     </template>
     <div class="form">
@@ -26,8 +26,21 @@
         >
           <a-input v-model="form.name" :placeholder="t('system.project.projectNamePlaceholder')" />
         </a-form-item>
-        <a-form-item field="organizationId" :label="t('system.project.affiliatedOrg')">
-          <a-input v-model="form.organizationId" :placeholder="t('system.project.affiliatedOrgPlaceholder')" />
+        <a-form-item
+          required
+          field="organizationId"
+          :label="t('system.project.affiliatedOrg')"
+          :rules="[{ required: true, message: t('system.project.affiliatedOrgRequired') }]"
+        >
+          <a-select
+            v-model="form.organizationId"
+            :disabled="!isXpack"
+            allow-search
+            :options="affiliatedOrgOption"
+            :placeholder="t('system.project.affiliatedOrgPlaceholder')"
+            :field-names="{ label: 'name', value: 'id' }"
+          >
+          </a-select>
         </a-form-item>
         <a-form-item field="userIds" :label="t('system.project.projectAdmin')">
           <MsUserSelector v-model:value="form.userIds" placeholder="system.project.projectAdminPlaceholder" />
@@ -35,18 +48,33 @@
         <a-form-item field="description" :label="t('system.organization.description')">
           <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
         </a-form-item>
-        <a-form-item field="enable" :label="t('system.organization.description')">
-          <a-switch v-model="form.enable" :placeholder="t('system.organization.descriptionPlaceholder')" />
+        <a-form-item field="module" :label="t('system.organization.description')">
+          <a-checkbox-group v-model="form.moduleIds" :options="moduleOption">
+            <template #label="{ data }">
+              <span>{{ t(data.label) }}</span>
+            </template>
+          </a-checkbox-group>
         </a-form-item>
       </a-form>
     </div>
     <template #footer>
-      <a-button type="secondary" :loading="loading" @click="handleCancel">
-        {{ t('common.cancel') }}
-      </a-button>
-      <a-button type="primary" :loading="loading" @click="handleBeforeOk">
-        {{ isEdit ? t('common.confirm') : t('common.create') }}
-      </a-button>
+      <div class="flex flex-row justify-between">
+        <div class="flex flex-row items-center gap-[4px]">
+          <a-switch v-model="form.enable" />
+          <span>{{ t('system.organization.status') }}</span>
+          <a-tooltip :content="t('system.project.createTip')" position="top">
+            <MsIcon type="icon-icon-maybe_outlined" class="text-[var(--color-text-4)]" />
+          </a-tooltip>
+        </div>
+        <div class="flex flex-row gap-[14px]">
+          <a-button type="secondary" :loading="loading" @click="handleCancel">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button type="primary" :loading="loading" @click="handleBeforeOk">
+            {{ isEdit ? t('common.confirm') : t('common.create') }}
+          </a-button>
+        </div>
+      </div>
     </template>
   </a-modal>
 </template>
@@ -56,9 +84,11 @@
   import { reactive, ref, watchEffect, computed } from 'vue';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { createOrUpdateOrg } from '@/api/modules/setting/system/organizationAndProject';
+  import { createOrUpdateProject, getSystemOrgOption } from '@/api/modules/setting/system/organizationAndProject';
   import { Message } from '@arco-design/web-vue';
-  import { CreateOrUpdateSystemProjectParams } from '@/models/setting/system/orgAndProject';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
+  import useLicenseStore from '@/store/modules/setting/license';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -70,6 +100,17 @@
 
   const loading = ref(false);
   const isEdit = computed(() => !!props.currentProject?.id);
+  const affiliatedOrgOption = ref<SystemOrgOption[]>([]);
+  const licenseStore = useLicenseStore();
+  const moduleOption = [
+    { label: 'menu.workplace', value: 'workstation' },
+    { label: 'menu.testPlan', value: 'testPlan' },
+    { label: 'menu.bugManagement', value: 'bugManagement' },
+    { label: 'menu.featureTest', value: 'caseManagement' },
+    { label: 'menu.apiTest', value: 'apiTest' },
+    { label: 'menu.uiTest', value: 'uiTest' },
+    { label: 'menu.performanceTest', value: 'loadTest' },
+  ];
 
   const emit = defineEmits<{
     (e: 'cancel'): void;
@@ -81,49 +122,64 @@
     organizationId: '',
     description: '',
     enable: true,
-    module: [],
+    moduleIds: [],
   });
 
   const currentVisible = ref(props.visible);
+
+  const isXpack = computed(() => {
+    return licenseStore.hasLicense();
+  });
 
   watchEffect(() => {
     currentVisible.value = props.visible;
   });
   const handleCancel = () => {
+    formRef.value?.resetFields();
     emit('cancel');
   };
 
-  const handleBeforeOk = () => {
-    formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
+  const handleBeforeOk = async () => {
+    await formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (errors) {
-        return false;
+        return;
       }
       try {
         loading.value = true;
-        await createOrUpdateOrg({ id: props.currentProject?.id, ...form });
+        await createOrUpdateProject({ id: props.currentProject?.id, ...form });
         Message.success(
           isEdit.value
             ? t('system.organization.updateOrganizationSuccess')
             : t('system.organization.createOrganizationSuccess')
         );
         handleCancel();
-        return true;
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
-        return false;
       } finally {
         loading.value = false;
       }
     });
   };
+  const initAffiliatedOrgOption = async () => {
+    try {
+      const res = await getSystemOrgOption();
+      affiliatedOrgOption.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  };
   watchEffect(() => {
+    initAffiliatedOrgOption();
     if (props.currentProject) {
+      form.id = props.currentProject.id;
       form.name = props.currentProject.name;
-      form.userIds = props.currentProject.userIds;
       form.description = props.currentProject.description;
-      form.organizationId = props.currentProject.organizationId;
       form.enable = props.currentProject.enable;
+      form.userIds = props.currentProject.userIds;
+      form.organizationId = props.currentProject.organizationId;
+      form.moduleIds = props.currentProject.moduleIds;
     }
   });
 </script>
