@@ -335,7 +335,7 @@ public class TestResourcePoolService {
                     pool.getCreateUser(),
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
-                    "编辑全局用户组对应的权限配置");
+                    "更新资源池配置");
 
             dto.setPath("/update");
             dto.setMethod(HttpMethodConstants.POST.name());

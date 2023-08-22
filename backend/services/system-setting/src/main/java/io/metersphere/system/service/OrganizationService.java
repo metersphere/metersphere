@@ -257,6 +257,7 @@ public class OrganizationService {
         List<String> sourceIds = new ArrayList<>(projectIdList);
         sourceIds.add(organizationId);
         userRoleRelationExample.createCriteria().andUserIdIn(new ArrayList<>(userMap.keySet())).andSourceIdIn(sourceIds);
+        userRoleRelationExample.setOrderByClause("create_time desc");
         List<UserRoleRelation> userRoleRelationsByUsers = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         //根据关系表查询出用户的关联组织和用户组
         Map<String, List<IdNameStructureDTO>> userIdprojectIdMap = new HashMap<>();
