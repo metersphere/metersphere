@@ -23,8 +23,7 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
   import { ref, onMounted, watch } from 'vue';
-  import { getUserList } from '@/api/modules/setting/usergroup';
-  import { getUserByOrganizationOrProject } from '@/api/modules/setting/system/organizationAndProject';
+  import { getUserByOrganizationOrProject, getAllUser } from '@/api/modules/setting/system/organizationAndProject';
 
   export interface MsUserSelectorProps {
     value: string[];
@@ -66,7 +65,7 @@
       }
       res = await getUserByOrganizationOrProject(props.sourceId);
     } else {
-      res = await getUserList();
+      res = await getAllUser();
     }
     res.forEach((item) => {
       item.disabled = item[props.disabledKey];

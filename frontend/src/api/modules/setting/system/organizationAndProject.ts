@@ -5,6 +5,7 @@ import { AddUserToOrgOrProjectParams } from '@/models/setting/systemOrg';
 import {
   CreateOrUpdateSystemOrgParams,
   CreateOrUpdateSystemProjectParams,
+  SystemGetUserByOrgOrProjectIdParams,
 } from '@/models/setting/system/orgAndProject';
 
 // 获取组织列表
@@ -52,9 +53,9 @@ export function postProjectTableByOrgId(data: TableQueryParams) {
   return MSR.post({ url: orgUrl.postProjectTableByOrgUrl, data });
 }
 
-// 根据组织id获取用户列表
-export function postUserTableByOrgId(data: TableQueryParams) {
-  return MSR.post({ url: orgUrl.postOrgMemberUrl, data });
+// 根据 orgId 或 projectId 获取用户列表
+export function postUserTableByOrgIdOrProjectId(data: SystemGetUserByOrgOrProjectIdParams) {
+  return MSR.post({ url: data.organizationId ? orgUrl.postOrgMemberUrl : orgUrl.postProjectMemberUrl, data });
 }
 // 给组织或项目添加成员
 export function addUserToOrgOrProject(data: AddUserToOrgOrProjectParams) {
@@ -71,7 +72,22 @@ export function deleteUserFromOrgOrProject(sourceId: string, userId: string, isO
   });
 }
 
-// TODO: 等待后端同学的接口 启用或禁用项目
+// 启用或禁用项目
 export function enableOrDisableProject(id: string, isEnable = true) {
   return MSR.get({ url: `${isEnable ? orgUrl.getEnableProjectUrl : orgUrl.getDisableProjectUrl}${id}` });
+}
+
+// 获取组织下拉选项
+export function getSystemOrgOption() {
+  return MSR.post({ url: orgUrl.postOrgOptionsUrl });
+}
+
+// 创建或更新项目
+export function createOrUpdateProject(data: CreateOrUpdateSystemProjectParams) {
+  return MSR.post({ url: data.id ? orgUrl.postModifyProjectUrl : orgUrl.postAddProjectUrl, data });
+}
+
+// 创建项目或组织时获取所有用户
+export function getAllUser() {
+  return MSR.get({ url: orgUrl.getOrgOrProjectAdminUrl });
 }

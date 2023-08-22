@@ -28,7 +28,7 @@
         <MsButton @click="handleDelete(record)">{{ t('common.delete') }}</MsButton>
       </template>
       <template v-else>
-        <MsButton @click="showOrganizationModal(record)">{{ t('common.edit') }}</MsButton>
+        <MsButton @click="showAddProjectModal(record)">{{ t('common.edit') }}</MsButton>
         <MsButton @click="showAddUserModal(record)">{{ t('system.organization.addMember') }}</MsButton>
         <MsButton @click="handleEnableOrDisableProject(record, false)">{{ t('common.end') }}</MsButton>
         <MsTableMoreAction :list="tableActions" @select="handleMoreAction($event, record)"></MsTableMoreAction>
@@ -36,18 +36,12 @@
     </template>
   </MsBaseTable>
   <AddProjectModal
-    type="edit"
-    :current-organization="currentUpdateOrganization"
-    :visible="orgVisible"
-    @cancel="handleAddOrgModalCancel"
+    :current-project="currentUpdateProject"
+    :visible="addProjectVisible"
+    @cancel="handleAddProjectModalCancel"
   />
   <AddUserModal :project-id="currentProjectId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
-  <UserDrawer
-    :project-id="currentProjectId"
-    type="project"
-    v-bind="currentUserDrawer"
-    @cancel="handleUserDrawerCancel"
-  />
+  <UserDrawer :project-id="currentProjectId" v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
 </template>
 
 <script lang="ts" setup>
@@ -55,7 +49,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { useTableStore } from '@/store';
-  import { ref, reactive, watch } from 'vue';
+  import { ref, reactive } from 'vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import {
     postProjectTable,
@@ -71,8 +65,9 @@
   import UserDrawer from './userDrawer.vue';
   import AddUserModal from './addUserModal.vue';
   import useModal from '@/hooks/useModal';
-  import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
+  import { CreateOrUpdateSystemProjectParams } from '@/models/setting/system/orgAndProject';
   import AddProjectModal from './addProjectModal.vue';
+  import { UserItem } from '@/components/bussiness/ms-user-selector/index.vue';
 
   export interface SystemOrganizationProps {
     keyword: string;
@@ -83,9 +78,9 @@
   const { t } = useI18n();
   const tableStore = useTableStore();
   const userVisible = ref(false);
-  const orgVisible = ref(false);
+  const addProjectVisible = ref(false);
   const currentProjectId = ref('');
-  const currentUpdateOrganization = ref<CreateOrUpdateSystemOrgParams>();
+  const currentUpdateProject = ref<CreateOrUpdateSystemProjectParams>();
   const { openDeleteModal, openModal } = useModal();
 
   const organizationColumns: MsTableColumn = [
@@ -145,7 +140,6 @@
     scroll: { y: 'auto', x: '1300px' },
     selectable: false,
     noDisable: false,
-    debug: true,
     size: 'default',
     showSetting: true,
   });
@@ -215,14 +209,17 @@
     });
   };
 
-  const showOrganizationModal = (record: any) => {
-    currentProjectId.value = record.id;
-    orgVisible.value = true;
-    currentUpdateOrganization.value = {
-      id: record.id,
-      name: record.name,
-      description: record.description,
-      memberIds: record.orgAdmins.map((item: any) => item.id) || [],
+  const showAddProjectModal = (record: any) => {
+    const { id, name, description, enable, adminList, organizationId, moduleIds } = record;
+    addProjectVisible.value = true;
+    currentUpdateProject.value = {
+      id,
+      name,
+      description,
+      enable,
+      userIds: adminList.map((item: UserItem) => item.id),
+      organizationId,
+      moduleIds,
     };
   };
 
@@ -245,8 +242,8 @@
     userVisible.value = false;
     fetchData();
   };
-  const handleAddOrgModalCancel = () => {
-    orgVisible.value = false;
+  const handleAddProjectModalCancel = () => {
+    addProjectVisible.value = false;
     fetchData();
   };
 
@@ -270,14 +267,6 @@
       hideCancel: false,
     });
   };
-
-  watch(
-    () => props.keyword,
-    () => {
-      fetchData();
-    },
-    { immediate: true }
-  );
   defineExpose({
     fetchData,
   });

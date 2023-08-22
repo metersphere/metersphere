@@ -50,3 +50,5 @@ export const getUserByOrgOrProjectUrl = '/system/user/get-option/';
 export const getEnableProjectUrl = '/system/project/enable/';
 // 禁用项目
 export const getDisableProjectUrl = '/system/project/disable/';
+// 获取组织或项目的管理员
+export const getOrgOrProjectAdminUrl = '/system/project/user-list';
