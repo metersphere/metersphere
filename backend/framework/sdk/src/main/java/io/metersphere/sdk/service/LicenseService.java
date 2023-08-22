@@ -9,6 +9,6 @@ public interface LicenseService {
 
     LicenseDTO validate();
 
-    LicenseDTO addLicense(String licenseCode);
+    LicenseDTO addLicense(String licenseCode, String userId);
 
 }

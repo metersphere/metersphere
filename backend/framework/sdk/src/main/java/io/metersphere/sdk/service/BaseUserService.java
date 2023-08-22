@@ -3,12 +3,12 @@ package io.metersphere.sdk.service;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.InternalUserRole;
-import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.sdk.constants.UserSource;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.mapper.BaseProjectMapper;
 import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.util.CodingUtil;
@@ -54,6 +54,8 @@ public class BaseUserService {
     private ProjectMapper projectMapper;
     @Resource
     private BaseProjectMapper baseProjectMapper;
+    @Resource
+    private OperationLogService operationLogService;
 
 
     public UserDTO getUserDTO(String userId) {
@@ -78,11 +80,11 @@ public class BaseUserService {
         if (!StringUtils.equals(login, UserSource.LDAP.name())) {
             password = StringUtils.trim(request.getPassword());
         }
-
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         Subject subject = SecurityUtils.getSubject();
         try {
             subject.login(token);
+            saveLog(SessionUtils.getUserId(), HttpMethodConstants.POST.name(), "/login", "登录成功", OperationLogType.LOGIN.name());
             if (subject.isAuthenticated()) {
                 SessionUser sessionUser = SessionUtils.getUser();
                 autoSwitch(sessionUser);
@@ -105,6 +107,21 @@ public class BaseUserService {
         } catch (UnauthorizedException e) {
             throw new UnauthorizedException(Translator.get("not_authorized") + e.getMessage());
         }
+    }
+    //保存日志
+    public void saveLog(String userId, String method, String path, String content, String type){
+        User user = userMapper.selectByPrimaryKey(userId);
+        LogDTO dto = new LogDTO(
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
+                userId,
+                type,
+                OperationLogConstants.SYSTEM,
+                StringUtils.join(user.getName(),StringUtils.EMPTY, content));
+        dto.setMethod(method);
+        dto.setPath(path);
+        operationLogService.add(dto);
     }
 
     public void autoSwitch(UserDTO user) {
