@@ -4,10 +4,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.User;
+import io.metersphere.base.domain.UserGroup;
 import io.metersphere.base.domain.Workspace;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.constants.UserGroupConstants;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -25,8 +28,9 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -46,8 +50,14 @@ public class GroupController {
     }
 
     @GetMapping("/get/all")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ, PermissionConstants.SYSTEM_USER_READ, PermissionConstants.WORKSPACE_USER_READ}, logical = Logical.OR)
     public List<GroupDTO> getAllGroup() {
+        SessionUser user = SessionUtils.getUser();
+        Optional<UserGroup> any = user.getUserGroups().stream()
+                .filter(ug -> (ug.getGroupId().equals(UserGroupConstants.SUPER_GROUP)))
+                .findAny();
+        if (any.isEmpty()) {
+            return new ArrayList<>();
+        }
         return groupService.getAllGroup();
     }
 
