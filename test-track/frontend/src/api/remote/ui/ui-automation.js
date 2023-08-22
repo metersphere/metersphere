@@ -6,6 +6,10 @@ export function getUiScenarioEnvByProjectId(id) {
   return get(BASE_URL + `env-project-ids/${id}`);
 }
 
+export function getUiScenarioIdProject(param) {
+  return post(BASE_URL + `id-project`, param);
+}
+
 export function uiAutomationReduction(param) {
   return post(BASE_URL + 'reduction', param);
 }

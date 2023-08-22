@@ -132,7 +132,7 @@ import {
 import {getCustomTableWidth} from "metersphere-frontend/src/utils/tableUtils";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
-import {getUiScenarioEnvByProjectId} from "@/api/remote/ui/ui-automation";
+import {getUiScenarioEnvByProjectId, getUiScenarioIdProject} from "@/api/remote/ui/ui-automation";
 
 export default {
   name: "RelevanceUiScenarioList",
@@ -301,34 +301,35 @@ export default {
     showReport() {
 
     },
-    async initProjectIds() {
+    initProjectIds() {
       this.projectIds.clear();
-      this.map.clear();
+      this.map = new Map();
       if (!this.selectAll) {
+        let selectIds = [];
         this.selectRows.forEach((row) => {
-          getUiScenarioEnvByProjectId(row.id).then((res) => {
-            let data = res.data;
-            data.projectIds.forEach((d) => this.projectIds.add(d));
-            this.map.set(row.id, data.projectIds);
-          });
+          selectIds.push(row.id);
+        });
+        getUiScenarioIdProject(selectIds).then((res) => {
+          this.map = res.data || {};
+          let newProjectIds = [];
+          for (let key of Object.keys(this.map)) {
+            newProjectIds.push(...this.map[key])
+          }
+          this.projectIds = new Set(newProjectIds)
         });
       } else {
-        this.selectAllIds = await this.getAllId(this.condition);
-        this.selectAllIds.forEach((row) => {
-          getUiScenarioEnvByProjectId(row).then((res) => {
-            let data = res.data;
-            data.projectIds.forEach((d) => this.projectIds.add(d));
-            this.map.set(row, data.projectIds);
+        testPlanUiScenarioRelevanceListIds(this.condition).then((res) => {
+          this.selectAllIds = res.data;
+          getUiScenarioIdProject(this.selectAllIds).then((res) => {
+            this.map = res.data || {};
+            let newProjectIds = [];
+            for (let key of Object.keys(this.map)) {
+              newProjectIds.push(...this.map[key])
+            }
+            this.projectIds = new Set(newProjectIds)
           });
         });
       }
-    },
-    getAllId(param) {
-      return new Promise((resolve) => {
-        testPlanUiScenarioRelevanceListIds(param).then((r) => {
-          resolve(r.data);
-        });
-      });
     },
     closeEnv() {
       if (this.$refs.envPopover) {

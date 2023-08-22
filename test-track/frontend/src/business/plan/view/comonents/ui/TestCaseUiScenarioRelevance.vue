@@ -124,7 +124,7 @@ export default {
       }
       let param = {};
       param.planId = this.planId;
-      param.mapping = strMapToObj(map);
+      param.mapping = map;
       param.envMap = strMapToObj(envMap);
       param.environmentType = envType;
       param.envGroupId = envGroupId;
@@ -163,7 +163,7 @@ export default {
 
       let param = {};
       param.planId = this.planId;
-      param.mapping = strMapToObj(map);
+      param.mapping = map;
       param.envMap = strMapToObj(envMap);
       param.envGroupId = envGroupId;
       param.selectIds = selectIds;
