@@ -67,7 +67,7 @@
   import useModal from '@/hooks/useModal';
   import { CreateOrUpdateSystemProjectParams } from '@/models/setting/system/orgAndProject';
   import AddProjectModal from './addProjectModal.vue';
-  import { UserItem } from '@/components/bussiness/ms-user-selector/index.vue';
+  import { UserItem } from '@/components/business/ms-user-selector/index.vue';
 
   export interface SystemOrganizationProps {
     keyword: string;
