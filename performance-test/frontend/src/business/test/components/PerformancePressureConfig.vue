@@ -708,6 +708,13 @@ export default {
         this.$emit('changeActive', '1');
         return false;
       }
+      // 浮点数加法
+      let add = function(num1, num2) {
+        const num1Digits = (num1.toString().split('.')[1] || '').length;
+        const num2Digits = (num2.toString().split('.')[1] || '').length;
+        const baseNum = Math.pow(10, Math.max(num1Digits, num2Digits));
+        return (num1 * baseNum + num2 * baseNum) / baseNum;
+      }
       for (let i = 0; i < this.threadGroups.length; i++) {
         let tg = this.threadGroups[i];
         tg.durationHours = tg.durationHours || 0;
@@ -722,7 +729,7 @@ export default {
           this.customNodeChange(tg);
 
           let sum = tg.resourceNodes.map(n => n.ratio).reduce((total, curr) => {
-            total += curr;
+            total = add(total, curr);
             return total;
           }, 0);
           if (sum !== 1) {
