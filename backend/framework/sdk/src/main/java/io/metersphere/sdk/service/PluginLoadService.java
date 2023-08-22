@@ -166,6 +166,11 @@ public class PluginLoadService {
         pluginManager.deletePlugin(pluginId);
     }
 
+
+    public PluginClassLoader getClassLoader(String pluginId) {
+        return pluginManager.getClassLoader(pluginId);
+    }
+
     /**
      * 删除插件
      */

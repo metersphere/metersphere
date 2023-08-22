@@ -1,5 +1,5 @@
 package io.metersphere.sdk.constants;
 
 public enum StorageConstants {
-    MINIO, GIT
+    MINIO, GIT, FILE_REF
 }
