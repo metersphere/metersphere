@@ -7,6 +7,7 @@ import io.metersphere.service.IssuesService;
 import io.metersphere.xpack.license.dto.LicenseDTO;
 import io.metersphere.xpack.license.service.LicenseService;
 import io.metersphere.xpack.track.service.XpackIssueService;
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
 
 /**
@@ -27,7 +28,8 @@ public class IssueSyncJob extends MsScheduleJob {
     @Override
     public void businessExecute(JobExecutionContext context) {
         LicenseDTO licenseDTO = licenseService.validate();
-        if (licenseDTO != null && licenseDTO.getLicense() != null) {
+        if (licenseDTO != null && licenseDTO.getLicense() != null
+                && StringUtils.equals(licenseDTO.getStatus(), "valid")) {
             LogUtil.info("sync all issue start");
             xpackIssueService.syncThirdPartyIssues();
         } else {
