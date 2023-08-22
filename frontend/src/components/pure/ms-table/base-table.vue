@@ -47,18 +47,25 @@
             <div v-else class="title">{{ t(item.title as string) }}</div>
           </template>
           <template #cell="{ column, record, rowIndex }">
-            <div class="flex flex-row items-center">
+            <div class="flex flex-row flex-nowrap items-center" :class="item.isTag ? 'max-w-[360px]' : 'max-w-[300px]'">
               <template v-if="item.dataIndex === SpecialColumnEnum.ENABLE">
                 <slot name="enable" v-bind="{ record }">
                   <div v-if="record.enable" class="flex items-center">
                     <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-                    {{ t('msTable.enable') }}
+                    {{ item.enableTitle ? t(item.enableTitle) : t('msTable.enable') }}
                   </div>
                   <div v-else class="flex items-center text-[var(--color-text-4)]">
                     <MsIcon type="icon-icon_disable" class="mr-[2px]" />
-                    {{ t('msTable.disable') }}
+                    {{ item.disableTitle ? t(item.disableTitle) : t('msTable.disable') }}
                   </div>
                 </slot>
+              </template>
+              <template v-else-if="item.showTooltip">
+                <a-tooltip placement="top" :content="record[item.dataIndex as string]">
+                  <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                    <span>{{ record[item.dataIndex as string] }}</span>
+                  </slot>
+                </a-tooltip>
               </template>
               <template v-else>
                 <a-input
@@ -83,6 +90,7 @@
           </template>
         </a-table-column>
       </template>
+
       <template #empty>
         <div class="flex h-[20px] flex-col items-center justify-center">
           <span class="text-[14px] text-[var(--color-text-4)]">{{ t('msTable.empty') }}</span>

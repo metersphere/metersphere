@@ -18,6 +18,14 @@ export interface MsTableColumnData extends TableColumnData {
   showInTable?: boolean;
   // 是否可编辑
   editable?: boolean;
+  // 是否展示tooltip
+  showTooltip?: boolean;
+  // 启用Title 默认为启用
+  enableTitle?: string;
+  // 禁用Title 默认为禁用
+  disableTitle?: string;
+  // 当展示tooltip时，是否是Tag
+  isTag?: boolean;
 }
 
 export type MsTableErrorStatus = boolean | 'error' | 'empty';
