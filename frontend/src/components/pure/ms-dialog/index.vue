@@ -12,33 +12,37 @@
       {{ t(props.title) }}
     </template>
     <slot></slot>
-    <!-- 自定义footer -->
-    <slot name="self-footer"></slot>
     <!-- 默认footer -->
     <template #footer>
-      <div class="flex" :class="[props.showSwitch ? 'justify-between' : 'justify-end']">
-        <div v-if="props.showSwitch" class="flex flex-row items-center justify-center">
-          <a-switch v-model="switchEnable" class="mr-1" size="small" />
-          <a-tooltip v-if="props.showSwitchTooltip" :content="t(props.showSwitchTooltip)">
-            <span class="flex items-center"
-              ><span class="mr-2">{{ props.switchName }}</span>
-              <span><svg-icon width="16px" height="16px" :name="'infotip'" /></span
-            ></span>
-          </a-tooltip>
-        </div>
-        <div class="flex justify-end">
-          <a-space>
+      <slot name="footer">
+        <div class="flex" :class="[props.switchProps?.showSwitch ? 'justify-between' : 'justify-end']">
+          <div v-if="props.switchProps?.showSwitch" class="flex flex-row items-center justify-center">
+            <a-switch v-model="switchEnable" class="mr-1" size="small" />
+            <a-tooltip v-if="props.switchProps?.switchTooltip" :content="t(props.switchProps?.switchTooltip)">
+              <span class="flex items-center"
+                ><span class="mr-1">{{ props.switchProps?.switchName }}</span>
+                <span><svg-icon width="16px" height="16px" :name="'infotip'" /></span
+              ></span>
+            </a-tooltip>
+          </div>
+          <div class="flex justify-end">
             <a-button v-if="showCancel" type="secondary" @click="handleCancel">{{
-              props.cancelText ? t(props.cancelText) : $t('ms.dialog.cancel')
+              props.cancelText ? t(props.cancelText) : t('ms.dialog.cancel')
             }}</a-button>
             <!-- 自定义确认与取消之间其他按钮可以直接使用loading按钮插槽 -->
             <slot name="self-button"></slot>
-            <a-button type="primary" :loading="props.loading" :disabled="props.disabledOk" @click="confirmHandler">
+            <a-button
+              class="ml-3"
+              type="primary"
+              :loading="props.loading"
+              :disabled="props.disabledOk"
+              @click="confirmHandler"
+            >
               {{ props.okText ? t(props.okText) : t('ms.dialog.ok') }}
             </a-button>
-          </a-space>
+          </div>
         </div>
-      </div>
+      </slot>
     </template>
   </a-modal>
 </template>
@@ -46,44 +50,44 @@
 <script setup lang="ts">
   import { ref, useAttrs, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { FormInstance } from '@arco-design/web-vue/es/form';
 
   const { t } = useI18n();
 
-  export type buttontype = 'text' | 'dashed' | 'outline' | 'primary' | 'secondary' | undefined;
+  export type buttontype = 'text' | 'dashed' | 'outline' | 'primary' | 'secondary';
   export type SizeType = 'medium' | 'large' | 'small';
+  export interface SwitchProps {
+    switchTooltip?: string; // 展示开关提示信息描述
+    switchName?: string; // 开关后边的名称
+    enable: boolean | undefined; // 开关绑定值
+    showSwitch: boolean; // 是否展示开关
+  }
+
   export type DialogType = Partial<{
-    dialogSize: SizeType; // 弹窗的宽度尺寸 medium large small
     showfooter: boolean; // 是否展示footer
-    title: string; // 标题
     showCancel: boolean; // 是否显示取消按钮
     okText: string; // 确定按钮的文本
     cancelText: string; // 取消按钮的文本
-    showSwitchTooltip: string; // 展示开关提示信息描述
-    showSwitch: boolean; // 是否展示开关
-    visible: boolean;
-    confirm: (enable: boolean | undefined) => void; // 确定
-    formRef: FormInstance | null; // 表单ref传入校验
     disabledOk: boolean; // 确认按钮禁用
-    close: () => void;
-    enable: boolean | undefined; // 开关禁用
-    switchName: string; // 开关后边的名称
+    switchProps: SwitchProps; // 开关的相关属性 打开 showSwitch才有效
+  }> & {
+    dialogSize: SizeType; // 弹窗的宽度尺寸 medium large small
+    title: string;
+    confirm: (enable: boolean | undefined) => void; // 确定
+    visible: boolean;
     loading: boolean;
-  }>;
+    close: () => void;
+  };
 
   const props = withDefaults(defineProps<DialogType>(), {
     showfooter: true,
-    showSwitch: false,
     showCancel: true,
     title: '',
     disabledOk: false,
     close: Function,
-    enable: undefined,
   });
   const emits = defineEmits<{
     (event: 'close'): void;
     (event: 'update:visible', visible: boolean): void;
-    (event: 'update:enable', enable: boolean): void;
   }>();
 
   const attrs = useAttrs();
@@ -100,17 +104,11 @@
   );
 
   watch(
-    () => props.enable,
+    () => props.switchProps?.enable,
     (val) => {
-      switchEnable.value = val;
-    }
-  );
-
-  watch(
-    () => switchEnable.value,
-    (val) => {
-      emits('update:enable', val);
-    }
+      if (val) switchEnable.value = val;
+    },
+    { deep: true }
   );
 
   const handleCancel = () => {
