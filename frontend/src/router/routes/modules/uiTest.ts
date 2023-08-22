@@ -1,10 +1,11 @@
 import { DEFAULT_LAYOUT } from '../base';
-import { AppRouteRecordRaw } from '../types';
-import menuEnum from '@/enums/menuEnum';
+import { UITestRouteEnum } from '@/enums/routeEnum';
+
+import type { AppRouteRecordRaw } from '../types';
 
 const UiTest: AppRouteRecordRaw = {
   path: '/ui-test',
-  name: menuEnum.UITEST,
+  name: UITestRouteEnum.UI_TEST,
   redirect: '/ui-test/index',
   component: DEFAULT_LAYOUT,
   meta: {

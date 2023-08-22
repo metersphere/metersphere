@@ -17,13 +17,13 @@ export const NOT_FOUND = {
 export const REDIRECT_ROUTE_NAME = 'Redirect';
 
 // 首页路由
-export const DEFAULT_ROUTE_NAME = 'Workplace';
+export const DEFAULT_ROUTE_NAME = 'Workbench';
 
 // 默认 tab-bar 路，多页签模式下，打开的第一个页面
 export const DEFAULT_ROUTE = {
-  title: 'menu.dashboard.workplace',
+  title: 'menu.dashboard.workbench',
   name: DEFAULT_ROUTE_NAME,
-  fullPath: '/dashboard/workplace',
+  fullPath: '/dashboard/workbench',
 };
 
 // 不需要显示项目选择器的模块，数组项为一级路由的path

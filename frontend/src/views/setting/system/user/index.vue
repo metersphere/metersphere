@@ -216,7 +216,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import MsBatchForm from '@/components/bussiness/ms-batch-form/index.vue';
+  import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import {
     getUserList,
     batchCreateUser,
@@ -240,7 +240,7 @@
   import type { MsTableColumn, BatchActionParams } from '@/components/pure/ms-table/type';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { SimpleUserInfo, SystemRole, UserListItem } from '@/models/setting/user';
-  import type { FormItemModel, MsBatchFormInstance } from '@/components/bussiness/ms-batch-form/types';
+  import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
 
   const { t } = useI18n();
 

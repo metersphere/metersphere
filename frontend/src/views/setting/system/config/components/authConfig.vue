@@ -499,7 +499,7 @@
     updateAuthStatus,
     deleteAuth,
   } from '@/api/modules/setting/config';
-  import MsFormItemSub from '@/components/bussiness/ms-form-item-sub/index.vue';
+  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import { scrollIntoView } from '@/utils/dom';
   import { characterLimit } from '@/utils';
 

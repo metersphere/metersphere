@@ -1,10 +1,11 @@
 import { DEFAULT_LAYOUT } from '../base';
-import { AppRouteRecordRaw } from '../types';
-import menuEnum from '@/enums/menuEnum';
+import { FeatureTestRouteEnum } from '@/enums/routeEnum';
+
+import type { AppRouteRecordRaw } from '../types';
 
 const FeatureTest: AppRouteRecordRaw = {
   path: '/feature-test',
-  name: menuEnum.FEATURETEST,
+  name: FeatureTestRouteEnum.FEATURE_TEST,
   redirect: '/feature-test/index',
   component: DEFAULT_LAYOUT,
   meta: {

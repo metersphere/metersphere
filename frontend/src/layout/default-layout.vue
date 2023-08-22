@@ -64,7 +64,7 @@
   import Footer from '@/components/pure/footer/index.vue';
   import usePermission from '@/hooks/usePermission';
   import PageLayout from './page-layout.vue';
-  import MsBreadCrumb from '@/components/bussiness/ms-breadcrumb/index.vue';
+  import MsBreadCrumb from '@/components/business/ms-breadcrumb/index.vue';
   import { GetTitleImgUrl } from '@/api/requrls/setting/config';
 
   interface Props {

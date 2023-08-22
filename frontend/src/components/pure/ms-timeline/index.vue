@@ -1,19 +1,5 @@
 <template>
-  <a-timeline v-if="mode === 'static'" class="ms-timeline">
-    <a-timeline-item
-      v-for="item of props.list"
-      :key="item.id || item.label"
-      :dot-color="item.dotColor || 'var(--color-text-input-border)'"
-      :label="item.label"
-      :line-type="item.lineType"
-    >
-      <slot name="content">
-        <span class="timeline-text">{{ item.time }}</span>
-      </slot>
-    </a-timeline-item>
-  </a-timeline>
   <a-timeline
-    v-else
     :class="[
       'ms-timeline',
       isArrivedTop ? 'ms-timeline--hidden-top-shadow' : '',
@@ -28,7 +14,7 @@
       @reach-bottom="handleReachBottom"
     >
       <template #item="{ item, index }">
-        <div>
+        <div :class="index === 0 ? 'pt-[12px]' : ''">
           <a-list-item :key="item.id">
             <a-timeline-item :dot-color="item.dotColor || 'var(--color-text-input-border)'" :line-type="item.lineType">
               <slot name="time" :item="item">
@@ -39,7 +25,10 @@
               </slot>
             </a-timeline-item>
           </a-list-item>
-          <div v-if="index === props.list.length - 1" class="flex h-[32px] items-center justify-center">
+          <div
+            v-if="props.mode === 'remote' && index === props.list.length - 1"
+            class="flex h-[32px] items-center justify-center"
+          >
             <div v-if="noMoreData" class="text-[var(--color-text-4)]">{{ t('ms.timeline.noMoreData') }}</div>
             <a-spin v-else />
           </div>
@@ -108,7 +97,7 @@
   });
 
   function handleReachBottom() {
-    if (!props.noMoreData && props.list.length > 0) {
+    if (props.mode === 'remote' && !props.noMoreData && props.list.length > 0) {
       emit('reachBottom');
     }
   }
@@ -146,6 +135,10 @@
     }
     .timeline-text {
       color: @color-text-5;
+    }
+    .ms-timeline-content {
+      @apply overflow-auto;
+      .ms-scroll-bar();
     }
   }
   .ms-timeline--hidden-top-shadow {

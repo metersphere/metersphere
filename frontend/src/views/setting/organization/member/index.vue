@@ -139,7 +139,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import AddMemberModal from './components/addMemberModal.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsRemoveButton from '@/components/bussiness/ms-remove-button/MsRemoveButton.vue';
+  import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
   import {
     getMemberList,
     deleteMemberReq,
@@ -150,7 +150,7 @@
     getGlobalUserGroup,
   } from '@/api/modules/setting/member';
   import { TableKeyEnum } from '@/enums/tableEnum';
-  import MSBatchModal from '@/components/bussiness/ms-batch-modal/index.vue';
+  import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import { useTableStore, useUserStore } from '@/store';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import type {

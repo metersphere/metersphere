@@ -35,7 +35,7 @@
   import { reactive, ref, watchEffect, onUnmounted } from 'vue';
   import { addUserToOrgOrProject } from '@/api/modules/setting/system/organizationAndProject';
   import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
-  import MsUserSelector from '@/components/bussiness/ms-user-selector/index.vue';
+  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
 
   const { t } = useI18n();
   const props = defineProps<{

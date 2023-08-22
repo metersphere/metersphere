@@ -1,9 +1,11 @@
 import { DEFAULT_LAYOUT } from '../base';
-import { AppRouteRecordRaw } from '../types';
+import { SettingRouteEnum } from '@/enums/routeEnum';
+
+import type { AppRouteRecordRaw } from '../types';
 
 const Setting: AppRouteRecordRaw = {
   path: '/setting',
-  name: 'setting',
+  name: SettingRouteEnum.SETTING,
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.settings',
@@ -13,7 +15,7 @@ const Setting: AppRouteRecordRaw = {
   children: [
     {
       path: 'system',
-      name: 'settingSystem',
+      name: SettingRouteEnum.SETTING_SYSTEM,
       redirect: '/setting/system/user',
       component: null,
       meta: {
@@ -24,7 +26,7 @@ const Setting: AppRouteRecordRaw = {
       children: [
         {
           path: 'user',
-          name: 'settingSystemUser',
+          name: SettingRouteEnum.SETTING_SYSTEM_USER,
           component: () => import('@/views/setting/system/user/index.vue'),
           meta: {
             locale: 'menu.settings.system.user',
@@ -34,7 +36,7 @@ const Setting: AppRouteRecordRaw = {
         },
         {
           path: 'usergroup',
-          name: 'settingSystemUsergroup',
+          name: SettingRouteEnum.SETTING_SYSTEM_USER_GROUP,
           component: () => import('@/views/setting/system/usergroup/index.vue'),
           meta: {
             locale: 'menu.settings.system.usergroup',
@@ -44,7 +46,7 @@ const Setting: AppRouteRecordRaw = {
         },
         {
           path: 'organization-and-project',
-          name: 'settingSystemOrganization',
+          name: SettingRouteEnum.SETTING_SYSTEM_ORGANIZATION,
           component: () => import('@/views/setting/system/organizationAndProject/index.vue'),
           meta: {
             locale: 'menu.settings.system.organizationAndProject',
@@ -54,7 +56,7 @@ const Setting: AppRouteRecordRaw = {
         },
         {
           path: 'parameter',
-          name: 'settingSystemParameter',
+          name: SettingRouteEnum.SETTING_SYSTEM_PARAMETER,
           component: () => import('@/views/setting/system/config/index.vue'),
           meta: {
             locale: 'menu.settings.system.parameter',
@@ -64,34 +66,28 @@ const Setting: AppRouteRecordRaw = {
         },
         {
           path: 'resourcePool',
-          name: 'settingSystemResourcePool',
+          name: SettingRouteEnum.SETTING_SYSTEM_RESOURCE_POOL,
           component: () => import('@/views/setting/system/resourcePool/index.vue'),
           meta: {
             locale: 'menu.settings.system.resourcePool',
             roles: ['*'],
             isTopMenu: true,
-            breadcrumbs: [
-              {
-                name: 'settingSystemResourcePool',
-                locale: 'menu.settings.system.resourcePool',
-              },
-            ],
           },
         },
         {
           path: 'resourcePoolDetail',
-          name: 'settingSystemResourcePoolDetail',
+          name: SettingRouteEnum.SETTING_SYSTEM_RESOURCE_POOL_DETAIL,
           component: () => import('@/views/setting/system/resourcePool/detail.vue'),
           meta: {
             locale: 'menu.settings.system.resourcePoolDetail',
             roles: ['*'],
             breadcrumbs: [
               {
-                name: 'settingSystemResourcePool',
+                name: SettingRouteEnum.SETTING_SYSTEM_RESOURCE_POOL,
                 locale: 'menu.settings.system.resourcePool',
               },
               {
-                name: 'settingSystemResourcePoolDetail',
+                name: SettingRouteEnum.SETTING_SYSTEM_RESOURCE_POOL_DETAIL,
                 locale: 'menu.settings.system.resourcePoolDetail',
                 editTag: 'id',
                 editLocale: 'menu.settings.system.resourcePoolEdit',
@@ -101,7 +97,7 @@ const Setting: AppRouteRecordRaw = {
         },
         {
           path: 'authorizedmanagement',
-          name: 'settingSystemAuthorizedManagement',
+          name: SettingRouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT,
           component: () => import('@/views/setting/system/authorizedManagement/index.vue'),
           meta: {
             locale: 'menu.settings.system.authorizedManagement',
@@ -111,7 +107,7 @@ const Setting: AppRouteRecordRaw = {
         },
         {
           path: 'log',
-          name: 'settingSystemLog',
+          name: SettingRouteEnum.SETTING_SYSTEM_LOG,
           component: () => import('@/views/setting/system/log/index.vue'),
           meta: {
             locale: 'menu.settings.system.log',
@@ -120,11 +116,11 @@ const Setting: AppRouteRecordRaw = {
           },
         },
         {
-          path: 'pluginmanger',
-          name: 'settingSystemPluginManger',
+          path: 'pluginManager',
+          name: SettingRouteEnum.SETTING_SYSTEM_PLUGIN_MANAGEMENT,
           component: () => import('@/views/setting/system/pluginManager/index.vue'),
           meta: {
-            locale: 'menu.settings.system.pluginmanger',
+            locale: 'menu.settings.system.pluginManager',
             roles: ['*'],
             isTopMenu: true,
           },
@@ -133,7 +129,7 @@ const Setting: AppRouteRecordRaw = {
     },
     {
       path: 'organization',
-      name: 'settingOrganization',
+      name: SettingRouteEnum.SETTING_ORGANIZATION,
       redirect: '/setting/organization/member',
       component: null,
       meta: {
@@ -144,7 +140,7 @@ const Setting: AppRouteRecordRaw = {
       children: [
         {
           path: 'member',
-          name: 'settingOrganizationMember',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_MEMBER,
           component: () => import('@/views/setting/organization/member/index.vue'),
           meta: {
             locale: 'menu.settings.organization.member',
@@ -154,10 +150,20 @@ const Setting: AppRouteRecordRaw = {
         },
         {
           path: 'serviceIntegration',
-          name: 'settingOrganizationService',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_SERVICE,
           component: () => import('@/views/setting/organization/serviceIntegration/index.vue'),
           meta: {
             locale: 'menu.settings.organization.serviceIntegration',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
+        {
+          path: 'log',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_LOG,
+          component: () => import('@/views/setting/organization/log/index.vue'),
+          meta: {
+            locale: 'menu.settings.organization.log',
             roles: ['*'],
             isTopMenu: true,
           },

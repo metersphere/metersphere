@@ -1,5 +1,5 @@
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
-import type { BreadcrumbItem } from '@/components/bussiness/ms-breadcrumb/types';
+import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 import type { PageConfig, ThemeConfig, LoginConfig, PlatformConfig } from '@/models/setting/config';
 
 export interface AppState {

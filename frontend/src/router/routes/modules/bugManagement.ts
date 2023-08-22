@@ -1,10 +1,11 @@
 import { DEFAULT_LAYOUT } from '../base';
-import { AppRouteRecordRaw } from '../types';
-import menuEnum from '@/enums/menuEnum';
+import { BugManagementRouteEnum } from '@/enums/routeEnum';
+
+import type { AppRouteRecordRaw } from '../types';
 
 const BugManagement: AppRouteRecordRaw = {
   path: '/bug-management',
-  name: menuEnum.BUGMANAGEMENT,
+  name: BugManagementRouteEnum.BUG_MANAGEMENT,
   redirect: '/bug-management/index',
   component: DEFAULT_LAYOUT,
   meta: {

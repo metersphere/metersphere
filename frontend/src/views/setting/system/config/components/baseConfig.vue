@@ -199,7 +199,7 @@
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsFormItemSub from '@/components/bussiness/ms-form-item-sub/index.vue';
+  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import { validateEmail } from '@/utils/validate';
   import { testEmail, saveBaseInfo, saveEmailInfo, getBaseInfo, getEmailInfo } from '@/api/modules/setting/config';
 

@@ -1,10 +1,11 @@
 import { DEFAULT_LAYOUT } from '../base';
-import { AppRouteRecordRaw } from '../types';
-import menuEnum from '@/enums/menuEnum';
+import { PerformanceTestRouteEnum } from '@/enums/routeEnum';
+
+import type { AppRouteRecordRaw } from '../types';
 
 const PerformanceTest: AppRouteRecordRaw = {
   path: '/performance-test',
-  name: menuEnum.PERFORMANCE_TEST,
+  name: PerformanceTestRouteEnum.PERFORMANCE_TEST,
   redirect: '/performance-test/index',
   component: DEFAULT_LAYOUT,
   meta: {

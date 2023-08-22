@@ -185,7 +185,7 @@
   import { LOCALE_OPTIONS } from '@/locale';
   import useLocale from '@/locale/useLocale';
   // import useUser from '@/hooks/useUser';
-  import TopMenu from '@/components/bussiness/ms-top-menu/index.vue';
+  import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
   import { NOT_SHOW_PROJECT_SELECT_MODULE } from '@/router/constants';
   // import { getProjectList } from '@/api/modules/setting/project';

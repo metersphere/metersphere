@@ -11,7 +11,7 @@ import { watchStyle, watchTheme } from '@/utils/theme';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 import type { AppState } from './types';
-import type { BreadcrumbItem } from '@/components/bussiness/ms-breadcrumb/types';
+import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 import type { PageConfig, PageConfigKeys, Style, Theme } from '@/models/setting/config';
 
 const defaultThemeConfig = {

@@ -1,6 +1,6 @@
 export default {
   'system.log.operator': '操作人',
-  'system.log.operatorPlaceholder': '请输入用户名/邮箱',
+  'system.log.operatorPlaceholder': '请输入用户名/邮箱搜索',
   'system.log.operateTime': '操作时间',
   'system.log.operateRange': '操作范围',
   'system.log.operateType': '操作类型',
@@ -29,4 +29,7 @@ export default {
   'system.log.operateType.select': '选择',
   'system.log.operateType.recover': '恢复',
   'system.log.operateType.logout': '登出',
+  'system.log.log': '操作日志',
+  'system.log.time': '操作时间',
+  'system.log.content': '{operator} 在 {range} 下的 {module} 中 ',
 };

@@ -23,7 +23,7 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import AddUserModal from './addUserModal.vue';
-  import MsRemoveButton from '@/components/bussiness/ms-remove-button/MsRemoveButton.vue';
+  import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
 
   const { t } = useI18n();
   const store = useUserGroupStore();
