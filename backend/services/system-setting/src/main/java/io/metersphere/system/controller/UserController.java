@@ -155,9 +155,8 @@ public class UserController {
 
 
     @PostMapping("/add-project-member")
-    //todo 这里权限有更改 权限待定
-    @Operation(summary = "添加用户到项目")
-    //    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @Operation(summary = "批量添加用户到项目")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_READ_UPDATE, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD}, logical = Logical.AND)
     public void addProjectMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
         ProjectAddMemberBatchRequest request = new ProjectAddMemberBatchRequest();
         request.setProjectIds(userRoleBatchRelationRequest.getRoleIds());
@@ -166,9 +165,8 @@ public class UserController {
     }
 
     @PostMapping("/add-org-member")
-    @Operation(summary = "添加用户到组织")
-    //todo 这里权限有更改 权限待定
-    //    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @Operation(summary = "批量添加用户到组织")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_READ_UPDATE, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD}, logical = Logical.AND)
     public void addMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
         OrganizationMemberBatchRequest request = new OrganizationMemberBatchRequest();
         request.setOrganizationIds(userRoleBatchRelationRequest.getRoleIds());
