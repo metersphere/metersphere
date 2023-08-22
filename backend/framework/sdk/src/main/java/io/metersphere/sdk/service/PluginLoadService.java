@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -210,9 +211,15 @@ public class PluginLoadService {
 
     public boolean hasPluginKey(String currentPluginId, String pluginKey) {
         for (String pluginId : pluginManager.getClassLoaderMap().keySet()) {
-            MsPlugin msPlugin = getMsPluginInstance(pluginId);
-            if (!StringUtils.equals(currentPluginId, pluginId) && StringUtils.equals(msPlugin.getKey(), pluginKey)) {
-                return true;
+            MsPlugin msPlugin;
+            try {
+                msPlugin = getMsPluginInstance(pluginId);
+                if (!StringUtils.equals(currentPluginId, pluginId) && StringUtils.equals(msPlugin.getKey(), pluginKey)) {
+                    return true;
+                }
+            } catch (MSException e) {
+                // jdbc 驱动没有实现 MsPlugin 接口
+                LogUtils.info(String.format("插件%s未实现 MsPlugin 接口", pluginId));
             }
         }
         return false;
@@ -229,5 +236,9 @@ public class PluginLoadService {
 
     public Object getPluginScriptContent(String pluginId, String scriptId) {
         return getPluginScriptConfig(pluginId, scriptId).get("script");
+    }
+
+    public Class getImplClass(String pluginId, Class<Driver> driverClass) {
+        return pluginManager.getImplClass(pluginId, driverClass);
     }
 }

@@ -142,21 +142,25 @@ public class PluginManager {
         if (impClazz == superClazz) {
             return true;
         }
-        Type[] interfaces = impClazz.getGenericInterfaces();
+        try {
+            Type[] interfaces = impClazz.getGenericInterfaces();
 
-        if (interfaces != null && interfaces.length > 0) {
-            for (Type genericInterface : interfaces) {
-                if (genericInterface instanceof Class && isImplClazz(superClazz, (Class) genericInterface)) {
-                    return true;
+            if (interfaces != null && interfaces.length > 0) {
+                for (Type genericInterface : interfaces) {
+                    if (genericInterface instanceof Class && isImplClazz(superClazz, (Class) genericInterface)) {
+                        return true;
+                    }
                 }
             }
-        }
-        Type superclass = impClazz.getGenericSuperclass();
-        if (superclass != null
-                && superclass instanceof Class
-                && isImplClazz(superClazz, (Class) superclass)) {
-            return true;
+            Type superclass = impClazz.getGenericSuperclass();
+            if (superclass != null
+                    && superclass instanceof Class
+                    && isImplClazz(superClazz, (Class) superclass)) {
+                return true;
 
+            }
+        } catch (Throwable e) {
+            LogUtils.error(e);
         }
         return false;
     }

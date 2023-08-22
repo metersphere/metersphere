@@ -4,9 +4,11 @@ package io.metersphere.system.service;
 import io.metersphere.plugin.sdk.api.MsPlugin;
 import io.metersphere.sdk.constants.KafkaPluginTopicType;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
+import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.controller.handler.result.CommonResultCode;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.service.JdbcDriverPluginService;
 import io.metersphere.sdk.service.PluginLoadService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.Plugin;
@@ -28,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.Driver;
 import java.util.*;
 
 import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_EXIST;
@@ -52,6 +55,8 @@ public class PluginService {
     @Resource
     private PluginLoadService pluginLoadService;
     @Resource
+    JdbcDriverPluginService jdbcDriverPluginService;
+    @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
 
     public List<PluginDTO> list() {
@@ -60,8 +65,10 @@ public class PluginService {
         Map<String, List<OptionDTO>> scripteMap = pluginScriptService.getScripteMap(pluginIds);
         Map<String, List<OptionDTO>> orgMap = pluginOrganizationService.getOrgMap(pluginIds);
         plugins.forEach(plugin -> {
-            plugin.setPluginForms(scripteMap.get(plugin.getId()));
-            plugin.setOrganizations(orgMap.get(plugin.getId()));
+            List<OptionDTO> pluginForms = scripteMap.get(plugin.getId());
+            List<OptionDTO> organizations = orgMap.get(plugin.getId());
+            plugin.setPluginForms(pluginForms == null ? new ArrayList<>(0) : pluginForms);
+            plugin.setOrganizations(organizations == null ? new ArrayList<>(0) : organizations);
         });
         return plugins;
     }
@@ -90,19 +97,32 @@ public class PluginService {
             pluginLoadService.loadPlugin(id, file);
             // 上传插件
             pluginLoadService.uploadPlugin(id, file);
-            // 获取插件前端配置脚本
-            List<String> frontendScript = pluginLoadService.getFrontendScripts(id);
 
-            MsPlugin msPlugin = pluginLoadService.getMsPluginInstance(id);
-            plugin.setScenario(msPlugin.getType());
-            plugin.setXpack(msPlugin.isXpack());
-            plugin.setPluginId(msPlugin.getPluginId());
+            if (jdbcDriverPluginService.isJdbcDriver(id)) {
+                Class implClass = pluginLoadService.getImplClass(id, Driver.class);
+                // mysql 已经内置了依赖，不允许上传
+                if (implClass.getName().startsWith("com.mysql")) {
+                    throw new MSException(PLUGIN_TYPE_EXIST);
+                }
+                plugin.setScenario(PluginScenarioType.JDBC_DRIVER.name());
+                plugin.setXpack(false);
+                plugin.setPluginId(file.getOriginalFilename());
+            } else {
+                // 非数据库驱动插件，解析脚本和插件信息
+                // 获取插件前端配置脚本
+                List<String> frontendScript = pluginLoadService.getFrontendScripts(id);
 
-            // 校验插件类型是否重复
-            checkPluginKeyExist(id, msPlugin.getKey());
+                MsPlugin msPlugin = pluginLoadService.getMsPluginInstance(id);
+                plugin.setScenario(msPlugin.getType());
+                plugin.setXpack(msPlugin.isXpack());
+                plugin.setPluginId(msPlugin.getPluginId());
 
-            // 保存插件脚本
-            pluginScriptService.add(id, frontendScript);
+                // 校验插件类型是否重复
+                checkPluginKeyExist(id, msPlugin.getKey());
+
+                // 保存插件脚本
+                pluginScriptService.add(id, frontendScript);
+            }
 
             // 保存插件和组织的关联关系
             if (!request.getGlobal()) {
