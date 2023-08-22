@@ -1,8 +1,8 @@
 import MSR from '@/api/http/index';
-import { GetLogListUrl, GetLogOptionstUrl } from '@/api/requrls/setting/log';
+import { GetLogListUrl, GetLogOptionsUrl, GetLogUserUrl } from '@/api/requrls/setting/log';
 
 import type { CommonList } from '@/models/common';
-import type { LogOptions, LogItem } from '@/models/setting/log';
+import type { LogOptions, LogItem, UserItem } from '@/models/setting/log';
 
 // 获取日志列表
 export function getLogList(data: any) {
@@ -11,5 +11,10 @@ export function getLogList(data: any) {
 
 // 获取日志操作范围选项
 export function getLogOptions() {
-  return MSR.get<LogOptions>({ url: GetLogOptionstUrl });
+  return MSR.get<LogOptions>({ url: GetLogOptionsUrl });
+}
+
+// 获取日志操作用户列表
+export function getLogUsers() {
+  return MSR.get<UserItem[]>({ url: GetLogUserUrl });
 }

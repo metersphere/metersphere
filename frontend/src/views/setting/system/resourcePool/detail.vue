@@ -338,7 +338,7 @@
   import useVisit from '@/hooks/useVisit';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsBatchForm from '@/components/bussiness/ms-batch-form/index.vue';
+  import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
   import { getYaml, YamlType, job } from './template';
@@ -348,7 +348,7 @@
   import { getAllOrgList } from '@/api/modules/setting/orgnization';
   import useAppStore from '@/store/modules/app';
 
-  import type { MsBatchFormInstance, FormItemModel } from '@/components/bussiness/ms-batch-form/types';
+  import type { MsBatchFormInstance, FormItemModel } from '@/components/business/ms-batch-form/types';
   import type { UpdateResourcePoolParams, NodesListItem } from '@/models/setting/resourcePool';
 
   const route = useRoute();

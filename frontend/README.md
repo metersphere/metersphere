@@ -486,7 +486,7 @@ export enum ContentTypeEnum {
 
 ## -locale
 
-国际化模块，存放项目声明的国际化配置，按语种划分模块。模块入口文件为`index.ts`，负责定义菜单、导航栏等公共的国际化配置，其他的按系统功能声明并导入`index.ts`，还有项目内页面组件的国际化配置也需要导入至`index.ts`，页面组件的国际化配置在页面的目录下声明，如：`views/dashboard/workplace/locale`。
+国际化模块，存放项目声明的国际化配置，按语种划分模块。模块入口文件为`index.ts`，负责定义菜单、导航栏等公共的国际化配置，其他的按系统功能声明并导入`index.ts`，还有项目内页面组件的国际化配置也需要导入至`index.ts`，页面组件的国际化配置在页面的目录下声明，如：`views/dashboard/workbench/locale`。
 
 ```typescript
 import { createI18n } from 'vue-i18n';

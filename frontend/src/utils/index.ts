@@ -172,3 +172,37 @@ export function calculateMaxDepth(arr?: Node[], depth = 0) {
 
   return maxDepth;
 }
+
+export interface TreeNode<T> {
+  [key: string]: any;
+  children?: TreeNode<T>[];
+}
+
+/**
+ * 递归遍历树形数组或树
+ * @param tree 树形数组或树
+ * @param customNodeFn 自定义节点函数
+ * @param customChildrenKey 自定义子节点的key
+ * @returns 遍历后的树形数组
+ */
+export function mapTree<T>(
+  tree: TreeNode<T> | TreeNode<T>[],
+  customNodeFn: (node: TreeNode<T>) => TreeNode<T> | null = (node) => node,
+  customChildrenKey = 'children'
+): TreeNode<T>[] {
+  if (!Array.isArray(tree)) {
+    tree = [tree];
+  }
+
+  return tree
+    .map((node: TreeNode<T>) => {
+      const newNode = typeof customNodeFn === 'function' ? customNodeFn(node) : node;
+
+      if (newNode && newNode[customChildrenKey] && newNode[customChildrenKey].length > 0) {
+        newNode[customChildrenKey] = mapTree(newNode[customChildrenKey], customNodeFn, customChildrenKey);
+      }
+
+      return newNode;
+    })
+    .filter(Boolean);
+}

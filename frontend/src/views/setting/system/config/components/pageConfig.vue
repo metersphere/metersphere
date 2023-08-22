@@ -312,7 +312,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import loginForm from '@/views/login/components/login-form.vue';
   import banner from '@/views/login/components/banner.vue';
-  import MsFormItemSub from '@/components/bussiness/ms-form-item-sub/index.vue';
+  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import useAppStore from '@/store/modules/app';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import defaultLayout from '@/layout/default-layout.vue';

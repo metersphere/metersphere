@@ -38,7 +38,7 @@
   import { useUserGroupStore } from '@/store';
   import { getUserList, addUserToUserGroup } from '@/api/modules/setting/usergroup';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
-  import MsUserSelector from '@/components/bussiness/ms-user-selector/index.vue';
+  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
 
   const { t } = useI18n();
   const props = defineProps<{

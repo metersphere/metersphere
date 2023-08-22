@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
   import { Ref, ref, watch } from 'vue';
-  import { useRouter, RouteRecordRaw, RouteRecordNormalized, RouteRecordName } from 'vue-router';
+  import { useRouter, RouteRecordRaw, RouteRecordName } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
   import { useAppStore } from '@/store';
   import { listenerRouteChange } from '@/utils/route-listener';
@@ -22,7 +22,7 @@
   import appClientMenus from '@/router/app-menus';
   import { useI18n } from '@/hooks/useI18n';
 
-  const copyRouter = cloneDeep(appClientMenus) as RouteRecordNormalized[];
+  const copyRouters = cloneDeep(appClientMenus) as RouteRecordRaw[];
   const permission = usePermission();
   const appStore = useAppStore();
   const router = useRouter();
@@ -41,13 +41,13 @@
 
   function setCurrentTopMenu(key: string) {
     // 先判断全等，避免同级路由出现命名包含情况
-    const secParentFullSame = appStore.topMenus.find((el: RouteRecordRaw) => {
-      return key === el?.name;
+    const secParentFullSame = appStore.topMenus.find((route: RouteRecordRaw) => {
+      return key === route?.name;
     });
 
     // 非全等的情况下，一定是父子路由包含关系
-    const secParentLike = appStore.topMenus.find((el: RouteRecordRaw) => {
-      return key.includes(el?.name as string);
+    const secParentLike = appStore.topMenus.find((route: RouteRecordRaw) => {
+      return key.includes(route?.name as string);
     });
 
     if (secParentFullSame) {
@@ -58,22 +58,35 @@
   }
 
   /**
-   * 监听路由变化，存储打开的三级子路由
+   * 监听路由变化，存储打开的顶部菜单
    */
   listenerRouteChange((newRoute) => {
     const { name } = newRoute;
-    copyRouter.forEach((el: RouteRecordRaw) => {
+    for (let i = 0; i < copyRouters.length; i++) {
+      const firstRoute = copyRouters[i];
       // 权限校验通过
-      if (permission.accessRouter(el)) {
-        if (name && (name as string).includes((el?.name as string) || '')) {
-          const currentParent = el?.children?.find(
-            (item) => name && (name as string).includes((item?.name as string) || '')
-          );
+      if (permission.accessRouter(firstRoute)) {
+        if (name && firstRoute?.name && (name as string).includes(firstRoute.name as string)) {
+          // 先判断二级菜单是否顶部菜单
+          let currentParent = firstRoute?.children?.some((item) => item.meta?.isTopMenu)
+            ? (firstRoute as RouteRecordRaw)
+            : undefined;
+
+          if (!currentParent) {
+            // 二级菜单非顶部菜单，则判断三级菜单是否有顶部菜单
+            currentParent = firstRoute?.children?.find(
+              (item) => name && item?.name && (name as string).includes(item.name as string)
+            );
+          }
           appStore.setTopMenus(currentParent?.children?.filter((item) => item.meta?.isTopMenu));
           setCurrentTopMenu(name as string);
+          return;
         }
+        // 切换到没有顶部菜单的路由时，清空顶部菜单
+        appStore.setTopMenus([]);
+        setCurrentTopMenu('');
       }
-    });
+    }
   }, true);
 
   function jumpPath(route: RouteRecordName | undefined) {

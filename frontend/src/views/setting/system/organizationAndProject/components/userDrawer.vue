@@ -59,7 +59,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import AddUserModal from './addUserModal.vue';
   import { TableData, Message } from '@arco-design/web-vue';
-  import MsRemoveButton from '@/components/bussiness/ms-remove-button/MsRemoveButton.vue';
+  import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
 
   export interface projectDrawerProps {
     visible: boolean;

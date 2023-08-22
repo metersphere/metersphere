@@ -1,10 +1,11 @@
 import { DEFAULT_LAYOUT } from '../base';
-import { AppRouteRecordRaw } from '../types';
-import menuEnum from '@/enums/menuEnum';
+import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
+
+import type { AppRouteRecordRaw } from '../types';
 
 const ProjectManagement: AppRouteRecordRaw = {
   path: '/project-management',
-  name: menuEnum.PROJECTMANAGEMENT,
+  name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT,
   redirect: '/project-management/index',
   component: DEFAULT_LAYOUT,
   meta: {
@@ -16,10 +17,20 @@ const ProjectManagement: AppRouteRecordRaw = {
   children: [
     {
       path: 'index',
-      name: 'ProjectManagementIndex',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_INDEX,
       component: () => import('@/views/project-management/index.vue'),
       meta: {
         roles: ['*'],
+      },
+    },
+    {
+      path: 'log',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_LOG,
+      component: () => import('@/views/project-management/log/index.vue'),
+      meta: {
+        locale: 'menu.projectManagement.log',
+        roles: ['*'],
+        isTopMenu: true,
       },
     },
   ],

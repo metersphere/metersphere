@@ -89,6 +89,7 @@
       multiple?: boolean; // 是否多选
       strictly?: boolean; // 是否严格模式
       virtualListProps?: VirtualListProps; // 传入开启虚拟滚动
+      panelWidth?: number; // 下拉框宽度，默认为 150px
       placeholder?: string;
       loading?: boolean;
     }>(),
@@ -167,7 +168,10 @@
   const getOptionComputedStyle = computed(() => {
     // 减去 80px 是为了防止溢出，因为会出现单选框、右侧箭头
     return {
-      width: cascaderDeep.value <= 2 ? `${cascaderWidth.value / cascaderDeep.value - 80}px` : '150px',
+      width:
+        cascaderDeep.value <= 2
+          ? `${cascaderWidth.value / cascaderDeep.value - 80 - cascaderDeep.value * 4}px`
+          : `${props.panelWidth}px` || '150px',
     };
   });
 
@@ -247,6 +251,10 @@
       .arco-cascader-panel-column {
         .arco-virtual-list {
           .ms-scroll-bar();
+        }
+        .arco-cascader-option {
+          margin: 2px 6px;
+          border-radius: 4px;
         }
       }
       .arco-cascader-panel-column:first-child {
