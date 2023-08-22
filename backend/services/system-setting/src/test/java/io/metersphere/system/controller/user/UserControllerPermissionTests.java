@@ -2,9 +2,8 @@ package io.metersphere.system.controller.user;
 
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.TableBatchProcessDTO;
 import io.metersphere.system.dto.UserCreateInfo;
-import io.metersphere.system.request.user.UserAndRoleBatchRequest;
-import io.metersphere.system.request.user.UserBaseBatchRequest;
 import io.metersphere.system.request.user.UserChangeEnableRequest;
 import io.metersphere.system.request.user.UserRoleBatchRelationRequest;
 import io.metersphere.system.response.user.UserSelectOption;
@@ -63,7 +62,7 @@ public class UserControllerPermissionTests extends BaseTest {
         //校验权限：启用/禁用用户
         UserChangeEnableRequest userChangeEnableRequest = new UserChangeEnableRequest();
         userChangeEnableRequest.setEnable(false);
-        userChangeEnableRequest.setUserIds(new ArrayList<>() {{
+        userChangeEnableRequest.setSelectIds(new ArrayList<>() {{
             this.add("admin");
         }});
         this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_UPDATE, UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest);
@@ -77,20 +76,20 @@ public class UserControllerPermissionTests extends BaseTest {
         this.requestMultipartPermissionTest(PermissionConstants.SYSTEM_USER_READ_IMPORT, UserRequestUtils.URL_USER_IMPORT, paramMap);
 
         //用户删除
-        UserBaseBatchRequest request = new UserBaseBatchRequest();
-        request.setUserIds(new ArrayList<>() {{
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectIds(new ArrayList<>() {{
             this.add("testId");
         }});
         this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_DELETE, UserRequestUtils.URL_USER_DELETE, request);
 
         //重置密码
-        request = new UserBaseBatchRequest();
-        request.setUserIds(Collections.singletonList("admin"));
+        request = new TableBatchProcessDTO();
+        request.setSelectIds(Collections.singletonList("admin"));
         this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD, request);
 
         //批量添加用户到用户组
-        UserAndRoleBatchRequest userAndRoleBatchRequest = new UserAndRoleBatchRequest();
-        userAndRoleBatchRequest.setUserIds(Collections.singletonList("admin"));
+        UserRoleBatchRelationRequest userAndRoleBatchRequest = new UserRoleBatchRelationRequest();
+        userAndRoleBatchRequest.setSelectIds(Collections.singletonList("admin"));
         userAndRoleBatchRequest.setRoleIds(Collections.singletonList("member"));
         this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_UPDATE, UserRequestUtils.URL_USER_ROLE_RELATION, userAndRoleBatchRequest);
 
@@ -104,7 +103,7 @@ public class UserControllerPermissionTests extends BaseTest {
 
         //        批量添加用户到项目
         UserRoleBatchRelationRequest roleBatchRelationRequest = new UserRoleBatchRelationRequest();
-        roleBatchRelationRequest.setUserIds(Collections.singletonList("admin"));
+        roleBatchRelationRequest.setSelectIds(Collections.singletonList("admin"));
         roleBatchRelationRequest.setRoleIds(Collections.singletonList("member"));
         List<String> addMemberPermissionList = new ArrayList<>();
         addMemberPermissionList.add(PermissionConstants.SYSTEM_USER_READ_UPDATE);

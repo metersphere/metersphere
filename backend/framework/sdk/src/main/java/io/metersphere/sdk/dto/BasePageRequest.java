@@ -10,14 +10,10 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
 import java.util.Map;
 
 @Data
-public class BasePageRequest {
-    @Schema(description =  "关键字")
-    private String keyword;
-
+public class BasePageRequest extends BaseCondition {
     @Min(value = 1, message = "当前页码必须大于0")
     @Schema(description =  "当前页码")
     private int current;
@@ -30,11 +26,6 @@ public class BasePageRequest {
     @Schema(description =  "排序字段（model中的字段 : asc/desc）")
     private Map<@Valid @Pattern(regexp = "^[A-Za-z]+$") String, @Valid @NotBlank String> sort;
 
-    @Schema(description =  "过滤字段")
-    private Map<String, List<String>> filter;
-
-    @Schema(description =  "高级搜索")
-    private Map<String, Object> combine;
 
     public String getSortString() {
         if (sort == null || sort.isEmpty()) {

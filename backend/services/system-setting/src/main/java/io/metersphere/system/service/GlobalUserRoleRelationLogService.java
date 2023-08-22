@@ -14,7 +14,7 @@ import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
-import io.metersphere.system.request.user.UserAndRoleBatchRequest;
+import io.metersphere.system.request.user.UserRoleBatchRelationRequest;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -58,11 +58,11 @@ public class GlobalUserRoleRelationLogService {
         return dto;
     }
 
-    public List<LogDTO> batchAddLog(UserAndRoleBatchRequest request) {
+    public List<LogDTO> batchAddLog(UserRoleBatchRelationRequest request) {
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andIdIn(request.getRoleIds());
         List<UserRole> userRoles = userRoleMapper.selectByExample(example);
-        List<String> userIds = request.getUserIds();
+        List<String> userIds = request.getSelectIds();
         List<OptionDTO> users = baseUserMapper.selectUserOptionByIds(userIds);
 
         List<LogDTO> returnList = new ArrayList<>();

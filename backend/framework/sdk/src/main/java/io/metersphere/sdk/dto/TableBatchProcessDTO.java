@@ -1,24 +1,22 @@
-package io.metersphere.system.request.user;
+package io.metersphere.sdk.dto;
 
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class UserBaseBatchRequest {
+public class TableBatchProcessDTO {
     @Schema(description = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @Valid
     private List<
-            @NotBlank(message = "{user_role_relation.user_id.not_blank}", groups = {Created.class, Updated.class})
-            @Size(min = 1, max = 50, message = "{user_role_relation.user_id.length_range}", groups = {Created.class, Updated.class})
+            @NotBlank(message = "{id must not be blank}", groups = {Created.class, Updated.class})
                     String
-            > userIds;
+            > selectIds;
 
     @Schema(description = "不处理的用户ID")
     List<String> excludeIds;

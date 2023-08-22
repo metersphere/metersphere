@@ -12,7 +12,6 @@ import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.dto.request.GlobalUserRoleRelationQueryRequest;
-import io.metersphere.system.request.user.UserAndRoleBatchRequest;
 import io.metersphere.system.service.GlobalUserRoleRelationLogService;
 import io.metersphere.system.service.GlobalUserRoleRelationService;
 import io.metersphere.validation.groups.Created;
@@ -54,15 +53,6 @@ public class GlobalUserRoleRelationController {
     public void add(@Validated({Created.class}) @RequestBody GlobalUserRoleRelationUpdateRequest request) {
         request.setCreateUser(SessionUtils.getUserId());
         globalUserRoleRelationService.add(request);
-    }
-
-    //用户管理页面，批量添加用户到多个用户组。 权限所属是用户管理的编辑页面权限
-    @PostMapping("/add/batch/user-role")
-    @Operation(summary = "批量添加用户到多个用户组中")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
-    @Log(type = OperationLogType.ADD, expression = "#msClass.batchAddLog(#request)", msClass = GlobalUserRoleRelationLogService.class)
-    public void batchAdd(@Validated({Created.class}) @RequestBody UserAndRoleBatchRequest request) {
-        globalUserRoleRelationService.batchAdd(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/delete/{id}")
