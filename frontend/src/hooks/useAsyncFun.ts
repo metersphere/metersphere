@@ -1,23 +1,23 @@
 import { ref } from 'vue';
 
 export default function useAsyncHandler() {
-  const confirmLoading = ref<boolean>(false);
+  const loading = ref<boolean>(false);
 
-  async function handleAsyncProcess<T>(reqFun: T): Promise<any> {
-    confirmLoading.value = true;
+  async function handleAsyncProcess<T>(reqAsyncFun: T): Promise<any> {
+    loading.value = true;
     try {
-      await reqFun;
+      await reqAsyncFun;
     } catch (error) {
       console.log(error);
-      confirmLoading.value = false;
-      return new Promise(() => {});
+      loading.value = false;
+      return Promise.reject();
     } finally {
-      confirmLoading.value = false;
+      loading.value = false;
     }
   }
 
   return {
-    confirmLoading,
+    loading,
     handleAsyncProcess,
   };
 }
