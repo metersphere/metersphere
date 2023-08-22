@@ -6,9 +6,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserSourceEnum;
-import io.metersphere.sdk.dto.BasePageRequest;
-import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
@@ -19,8 +17,13 @@ import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.OrganizationMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
-import io.metersphere.system.request.user.*;
-import io.metersphere.system.response.user.*;
+import io.metersphere.system.request.user.UserChangeEnableRequest;
+import io.metersphere.system.request.user.UserEditRequest;
+import io.metersphere.system.request.user.UserRoleBatchRelationRequest;
+import io.metersphere.system.response.user.UserImportResponse;
+import io.metersphere.system.response.user.UserSelectOption;
+import io.metersphere.system.response.user.UserTableResponse;
+import io.metersphere.system.response.user.UserTreeSelectOption;
 import io.metersphere.system.service.*;
 import io.metersphere.system.utils.TreeNodeParseUtils;
 import io.metersphere.validation.groups.Created;
@@ -88,7 +91,7 @@ public class UserController {
     @Operation(summary = "启用/禁用用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateLog(#request)", msClass = UserService.class)
-    public BatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
+    public TableBatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
         return userService.updateUserEnable(request, SessionUtils.getSessionId());
     }
 
@@ -103,7 +106,7 @@ public class UserController {
     @Operation(summary = "删除用户")
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#request)", msClass = UserService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
-    public BatchProcessResponse deleteUser(@Validated @RequestBody UserBaseBatchRequest request) {
+    public TableBatchProcessResponse deleteUser(@Validated @RequestBody TableBatchProcessDTO request) {
         return userService.deleteUser(request, SessionUtils.getUserId());
     }
 
@@ -111,7 +114,7 @@ public class UserController {
     @Operation(summary = "重置用户密码")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.resetPasswordLog(#request)", msClass = UserService.class)
-    public BatchProcessResponse resetPassword(@Validated @RequestBody UserBaseBatchRequest request) {
+    public TableBatchProcessResponse resetPassword(@Validated @RequestBody TableBatchProcessDTO request) {
         return userService.resetPassword(request, SessionUtils.getUserId());
     }
 
@@ -121,14 +124,6 @@ public class UserController {
     @Parameter(name = "sourceId", description = "组织ID或项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public List<UserExtend> getMemberOption(@PathVariable String sourceId) {
         return userService.getMemberOption(sourceId);
-    }
-
-    @PostMapping("/add/batch/user-role")
-    @Operation(summary = "批量添加用户到多个用户组中")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
-    @Log(type = OperationLogType.ADD, expression = "#msClass.batchAddLog(#request)", msClass = GlobalUserRoleRelationLogService.class)
-    public BatchProcessResponse batchAdd(@Validated({Created.class}) @RequestBody UserAndRoleBatchRequest request) {
-        return globalUserRoleRelationService.batchAdd(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/get/global/system/role")
@@ -153,24 +148,35 @@ public class UserController {
         return TreeNodeParseUtils.parseOrgProjectMap(orgProjectMap);
     }
 
+    @PostMapping("/add/batch/user-role")
+    @Operation(summary = "批量添加用户到多个用户组中")
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.batchAddLog(#request)", msClass = GlobalUserRoleRelationLogService.class)
+    public TableBatchProcessResponse batchAdd(@Validated({Created.class}) @RequestBody UserRoleBatchRelationRequest request) {
+        return globalUserRoleRelationService.batchAdd(request, SessionUtils.getUserId());
+    }
 
     @PostMapping("/add-project-member")
     @Operation(summary = "批量添加用户到项目")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_READ_UPDATE, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD}, logical = Logical.AND)
-    public void addProjectMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
+    public TableBatchProcessResponse addProjectMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
         ProjectAddMemberBatchRequest request = new ProjectAddMemberBatchRequest();
         request.setProjectIds(userRoleBatchRelationRequest.getRoleIds());
-        request.setUserIds(userRoleBatchRelationRequest.getUserIds());
+        request.setUserIds(userRoleBatchRelationRequest.getSelectIds());
         systemProjectService.addProjectMember(request, SessionUtils.getUserId());
+        return new TableBatchProcessResponse(userRoleBatchRelationRequest.getSelectIds().size(), userRoleBatchRelationRequest.getSelectIds().size());
     }
 
     @PostMapping("/add-org-member")
     @Operation(summary = "批量添加用户到组织")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_READ_UPDATE, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD}, logical = Logical.AND)
-    public void addMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
+    public TableBatchProcessResponse addMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
+        //获取本次处理的用户
+        userRoleBatchRelationRequest.setSelectIds(userService.getBatchUserIds(userRoleBatchRelationRequest));
         OrganizationMemberBatchRequest request = new OrganizationMemberBatchRequest();
         request.setOrganizationIds(userRoleBatchRelationRequest.getRoleIds());
-        request.setMemberIds(userRoleBatchRelationRequest.getUserIds());
+        request.setMemberIds(userRoleBatchRelationRequest.getSelectIds());
         organizationService.addMemberBySystem(request, SessionUtils.getUserId());
+        return new TableBatchProcessResponse(userRoleBatchRelationRequest.getSelectIds().size(), userRoleBatchRelationRequest.getSelectIds().size());
     }
 }

@@ -1,10 +1,14 @@
-package io.metersphere.system.response.user;
+package io.metersphere.sdk.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class BatchProcessResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+public class TableBatchProcessResponse {
     @Schema(description = "全部数量")
     private long totalCount;
     @Schema(description = "成功数量")

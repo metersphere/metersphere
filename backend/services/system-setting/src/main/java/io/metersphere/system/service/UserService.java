@@ -3,10 +3,7 @@ package io.metersphere.system.service;
 import com.alibaba.excel.EasyExcelFactory;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
-import io.metersphere.sdk.dto.BasePageRequest;
-import io.metersphere.sdk.dto.ExcelParseDTO;
-import io.metersphere.sdk.dto.LogDTO;
-import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -22,10 +19,8 @@ import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.mapper.UserMapper;
-import io.metersphere.system.request.user.UserBaseBatchRequest;
 import io.metersphere.system.request.user.UserChangeEnableRequest;
 import io.metersphere.system.request.user.UserEditRequest;
-import io.metersphere.system.response.user.BatchProcessResponse;
 import io.metersphere.system.response.user.UserImportResponse;
 import io.metersphere.system.response.user.UserTableResponse;
 import io.metersphere.system.utils.UserImportEventListener;
@@ -197,14 +192,14 @@ public class UserService {
         return userEditRequest;
     }
 
-    public BatchProcessResponse updateUserEnable(UserChangeEnableRequest request, String operator) {
-        request.setUserIds(this.getBatchUserIds(request));
-        this.checkUserInDb(request.getUserIds());
-        BatchProcessResponse response = new BatchProcessResponse();
-        response.setTotalCount(request.getUserIds().size());
+    public TableBatchProcessResponse updateUserEnable(UserChangeEnableRequest request, String operator) {
+        request.setSelectIds(this.getBatchUserIds(request));
+        this.checkUserInDb(request.getSelectIds());
+        TableBatchProcessResponse response = new TableBatchProcessResponse();
+        response.setTotalCount(request.getSelectIds().size());
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(
-                request.getUserIds()
+                request.getSelectIds()
         );
         User updateUser = new User();
         updateUser.setEnable(request.isEnable());
@@ -282,7 +277,7 @@ public class UserService {
     }
 
 
-    public BatchProcessResponse deleteUser(@Valid UserBaseBatchRequest request, String operator) {
+    public TableBatchProcessResponse deleteUser(@Valid TableBatchProcessDTO request, String operator) {
         List<String> userIdList = this.getBatchUserIds(request);
         this.checkUserInDb(userIdList);
         //检查是否含有Admin
@@ -290,7 +285,7 @@ public class UserService {
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(userIdList);
         //更新删除标志位
-        BatchProcessResponse response = new BatchProcessResponse();
+        TableBatchProcessResponse response = new TableBatchProcessResponse();
         response.setTotalCount(userIdList.size());
         response.setSuccessCount(this.deleteUserByList(userIdList, operator));
         //删除用户角色关系
@@ -342,10 +337,10 @@ public class UserService {
         return null;
     }
 
-    public List<LogDTO> batchUpdateLog(UserBaseBatchRequest request) {
+    public List<LogDTO> batchUpdateLog(TableBatchProcessDTO request) {
         List<LogDTO> logDTOList = new ArrayList<>();
-        request.setUserIds(this.getBatchUserIds(request));
-        List<User> userList = this.selectByIdList(request.getUserIds());
+        request.setSelectIds(this.getBatchUserIds(request));
+        List<User> userList = this.selectByIdList(request.getSelectIds());
         for (User user : userList) {
             LogDTO dto = new LogDTO(
                     OperationLogConstants.SYSTEM,
@@ -365,11 +360,11 @@ public class UserService {
     /**
      * @param request 批量重置密码  用于记录Log使用
      */
-    public List<LogDTO> resetPasswordLog(UserBaseBatchRequest request) {
-        request.setUserIds(this.getBatchUserIds(request));
+    public List<LogDTO> resetPasswordLog(TableBatchProcessDTO request) {
+        request.setSelectIds(this.getBatchUserIds(request));
         List<LogDTO> returnList = new ArrayList<>();
         UserExample example = new UserExample();
-        example.createCriteria().andIdIn(request.getUserIds());
+        example.createCriteria().andIdIn(request.getSelectIds());
         List<User> userList = userMapper.selectByExample(example);
         for (User user : userList) {
             LogDTO dto = new LogDTO(
@@ -388,9 +383,9 @@ public class UserService {
         return returnList;
     }
 
-    public List<LogDTO> deleteLog(UserBaseBatchRequest request) {
+    public List<LogDTO> deleteLog(TableBatchProcessDTO request) {
         List<LogDTO> logDTOList = new ArrayList<>();
-        request.getUserIds().forEach(item -> {
+        request.getSelectIds().forEach(item -> {
             User user = userMapper.selectByPrimaryKey(item);
             if (user != null) {
 
@@ -422,15 +417,15 @@ public class UserService {
         return extUserMapper.getMemberOption(sourceId);
     }
 
-    public BatchProcessResponse resetPassword(UserBaseBatchRequest request, String operator) {
-        request.setUserIds(this.getBatchUserIds(request));
-        this.checkUserInDb(request.getUserIds());
+    public TableBatchProcessResponse resetPassword(TableBatchProcessDTO request, String operator) {
+        request.setSelectIds(this.getBatchUserIds(request));
+        this.checkUserInDb(request.getSelectIds());
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         UserMapper batchUpdateMapper = sqlSession.getMapper(UserMapper.class);
         int insertIndex = 0;
         long updateTime = System.currentTimeMillis();
-        List<User> userList = this.selectByIdList(request.getUserIds());
+        List<User> userList = this.selectByIdList(request.getSelectIds());
         for (User user : userList) {
             User updateModel = new User();
             updateModel.setId(user.getId());
@@ -450,13 +445,16 @@ public class UserService {
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
 
-        BatchProcessResponse response = new BatchProcessResponse();
-        response.setTotalCount(request.getUserIds().size());
-        response.setSuccessCount(request.getUserIds().size());
+        TableBatchProcessResponse response = new TableBatchProcessResponse();
+        response.setTotalCount(request.getSelectIds().size());
+        response.setSuccessCount(request.getSelectIds().size());
         return response;
     }
 
     public void checkUserLegality(List<String> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            throw new MSException(Translator.get("user.not.exist"));
+        }
         UserExample example = new UserExample();
         example.createCriteria().andIdIn(userIds);
         if (userMapper.countByExample(example) != userIds.size()) {
@@ -464,7 +462,7 @@ public class UserService {
         }
     }
 
-    public List<String> getBatchUserIds(UserBaseBatchRequest request) {
+    public List<String> getBatchUserIds(TableBatchProcessDTO request) {
         if (request.isSelectAll()) {
             List<User> userList = baseUserMapper.selectByKeyword(request.getCondition().getKeyword(), true);
             List<String> userIdList = userList.stream().map(User::getId).collect(Collectors.toList());
@@ -473,7 +471,7 @@ public class UserService {
             }
             return userIdList;
         } else {
-            return request.getUserIds();
+            return request.getSelectIds();
         }
     }
 
