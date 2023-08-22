@@ -175,10 +175,15 @@ public class TestPlanExecuteService {
                     for (TestPlanApiDTO dto : apiTestCases) {
                         dto.setReportId(apiCaseReportMap.get(dto.getId()));
                     }
+                } else {
+                    redisTemplateService.unlock(testPlanReportId, TestPlanExecuteCaseType.API_CASE.name(), testPlanReportId);
+                    executing = false;
+                    apiTestCases.clear();
                 }
             } catch (Exception e) {
                 redisTemplateService.unlock(testPlanReportId, TestPlanExecuteCaseType.API_CASE.name(), testPlanReportId);
                 apiTestCases = null;
+                executing = false;
                 LoggerUtil.info("测试报告" + testPlanReportId + "本次执行测试计划接口用例失败！ ", e);
             }
         }
@@ -217,10 +222,16 @@ public class TestPlanExecuteService {
                     if (CollectionUtils.isNotEmpty(removeDTO)) {
                         scenarioCases.removeAll(removeDTO);
                     }
+                } else {
+                    //如果没有执行的用例，解锁数据，并设置执行数据为空
+                    redisTemplateService.unlock(testPlanReportId, TestPlanExecuteCaseType.SCENARIO.name(), testPlanReportId);
+                    executing = false;
+                    scenarioCases.clear();
                 }
             } catch (Exception e) {
                 redisTemplateService.unlock(testPlanReportId, TestPlanExecuteCaseType.SCENARIO.name(), testPlanReportId);
                 scenarioCases = null;
+                executing = false;
                 LoggerUtil.info("测试报告" + testPlanReportId + "本次执行测试计划场景用例失败！ ", e);
             }
         }
@@ -249,10 +260,15 @@ public class TestPlanExecuteService {
                     for (TestPlanUiScenarioDTO dto : uiScenarios) {
                         dto.setReportId(uiScenarioReportMap.get(dto.getId()));
                     }
+                } else {
+                    redisTemplateService.unlock(testPlanReportId, TestPlanExecuteCaseType.UI_SCENARIO.name(), testPlanReportId);
+                    uiScenarios.clear();
+                    executing = false;
                 }
             } catch (Exception e) {
                 redisTemplateService.unlock(testPlanReportId, TestPlanExecuteCaseType.UI_SCENARIO.name(), testPlanReportId);
                 uiScenarios = null;
+                executing = false;
                 LoggerUtil.info("测试报告" + testPlanReportId + "本次执行测试计划 UI 用例失败！ ", e);
             }
         }
@@ -273,8 +289,12 @@ public class TestPlanExecuteService {
                 loadCaseReportMap = perfExecService.executeLoadCase(testPlanReportId, runModeConfig, testPlanService.transformationPerfTriggerMode(triggerMode), executeCase);
                 if (MapUtils.isNotEmpty(loadCaseReportMap)) {
                     executing = true;
+                } else {
+                    redisTemplateService.unlock(testPlanReportId, TestPlanExecuteCaseType.LOAD_CASE.name(), testPlanReportId);
+                    executing = false;
                 }
             } catch (Exception e) {
+                executing = false;
                 redisTemplateService.unlock(testPlanReportId, TestPlanExecuteCaseType.LOAD_CASE.name(), testPlanReportId);
                 LoggerUtil.info("测试报告" + testPlanReportId + "本次执行测试计划性能用例失败！ ", e);
             }
