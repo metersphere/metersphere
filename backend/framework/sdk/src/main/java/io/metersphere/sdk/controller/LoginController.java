@@ -1,16 +1,15 @@
 package io.metersphere.sdk.controller;
 
 
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.LoginRequest;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.BaseUserService;
-import io.metersphere.sdk.service.LoginLogService;
 import io.metersphere.sdk.util.RsaKey;
 import io.metersphere.sdk.util.RsaUtil;
 import io.metersphere.sdk.util.SessionUtils;
@@ -59,7 +58,6 @@ public class LoginController {
 
     @PostMapping(value = "/login")
     @Operation(summary = "登录")
-    @Log(type = OperationLogType.LOGIN, expression = "#msClass.loginLog()", msClass = LoginLogService.class)
     public ResultHolder login(@RequestBody LoginRequest request) {
         SessionUser sessionUser = SessionUtils.getUser();
         if (sessionUser != null) {
@@ -77,8 +75,8 @@ public class LoginController {
 
     @GetMapping(value = "/signout")
     @Operation(summary = "退出登录")
-    @Log(type = OperationLogType.LOGOUT, expression = "#msClass.logoutLog()", msClass = LoginLogService.class)
     public ResultHolder logout(HttpServletResponse response) throws Exception {
+        baseUserService.saveLog(SessionUtils.getUserId(), HttpMethodConstants.GET.name(), "/signout", "登出成功", OperationLogType.LOGOUT.name());
         SecurityUtils.getSubject().logout();
         return ResultHolder.success("logout success");
     }
