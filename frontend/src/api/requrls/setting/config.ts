@@ -24,6 +24,11 @@ export const AddAuthUrl = '/system/authsource/add';
 export const GetAuthDetailUrl = '/system/authsource/get';
 // 删除认证源
 export const DeleteAuthUrl = '/system/authsource/delete';
+// 测试ldap连接
+export const TestLdapConnectUrl = '/system/authsource/ldap/test-connect';
+// 测试ldap登录
+export const TestLdapLoginUrl = '/system/authsource/ldap/test-login';
+
 // 获取系统主页左上角图片
 export const GetTitleImgUrl = `${import.meta.env.VITE_API_BASE_URL}/base-display/get/logo-platform`;
 // 获取登录 logo
