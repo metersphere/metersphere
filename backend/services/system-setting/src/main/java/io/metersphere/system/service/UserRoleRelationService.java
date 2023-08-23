@@ -2,6 +2,7 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.UserRoleEnum;
+import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -94,7 +95,7 @@ public class UserRoleRelationService {
                 userRoleRelation.setId(UUID.randomUUID().toString());
                 userRoleRelation.setUserId(user.getId());
                 userRoleRelation.setRoleId(userRoleId);
-                userRoleRelation.setSourceId("system");
+                userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
                 userRoleRelation.setCreateTime(operationTime);
                 userRoleRelation.setCreateUser(user.getCreateUser());
                 userRoleRelationSaveList.add(userRoleRelation);
@@ -120,22 +121,26 @@ public class UserRoleRelationService {
     }
 
     public Map<String, UserTableResponse> selectGlobalUserRoleAndOrganization(@Valid @NotEmpty List<String> userIdList) {
-        List<UserRoleRelation> userRoleRelationList = extUserRoleRelationMapper.listByUserIdAndScope(userIdList);
-        List<String> userRoleIdList = userRoleRelationList.stream().map(UserRoleRelation::getRoleId).collect(Collectors.toList());
-        List<String> sourceIdList = userRoleRelationList.stream().map(UserRoleRelation::getSourceId).collect(Collectors.toList());
-        Map<String, UserRole> userRoleMap = new HashMap<>();
-        Map<String, Organization> organizationMap = new HashMap<>();
+        List<UserRoleRelation> userRoleRelationList = extUserRoleRelationMapper.selectGlobalRoleByUserIdList(userIdList);
+        List<String> userRoleIdList = userRoleRelationList.stream().map(UserRoleRelation::getRoleId).distinct().collect(Collectors.toList());
+        List<String> sourceIdList = userRoleRelationList.stream().map(UserRoleRelation::getSourceId).distinct().collect(Collectors.toList());
+        Map<String, UserRole> userRoleMap;
+        Map<String, Organization> organizationMap;
         if (CollectionUtils.isNotEmpty(userRoleIdList)) {
             UserRoleExample userRoleExample = new UserRoleExample();
             userRoleExample.createCriteria().andIdIn(userRoleIdList).andScopeIdEqualTo(UserRoleEnum.GLOBAL.toString());
             userRoleMap = userRoleMapper.selectByExample(userRoleExample).stream()
                     .collect(Collectors.toMap(UserRole::getId, item -> item));
+        } else {
+            userRoleMap = new HashMap<>();
         }
         if (CollectionUtils.isNotEmpty(sourceIdList)) {
             OrganizationExample organizationExample = new OrganizationExample();
             organizationExample.createCriteria().andIdIn(sourceIdList);
             organizationMap = organizationMapper.selectByExample(organizationExample).stream()
                     .collect(Collectors.toMap(Organization::getId, item -> item));
+        } else {
+            organizationMap = new HashMap<>();
         }
         Map<String, UserTableResponse> returnMap = new HashMap<>();
         for (UserRoleRelation userRoleRelation : userRoleRelationList) {
@@ -146,9 +151,13 @@ public class UserRoleRelationService {
                 returnMap.put(userRoleRelation.getUserId(), userInfo);
             }
             UserRole userRole = userRoleMap.get(userRoleRelation.getRoleId());
+            if (userRole != null && StringUtils.equalsIgnoreCase(userRole.getType(), UserRoleScope.SYSTEM)) {
+                userInfo.getUserRoleList().add(userRole);
+            }
             Organization organization = organizationMap.get(userRoleRelation.getSourceId());
-            userInfo.getUserRoleList().add(userRole);
-            userInfo.getOrganizationList().add(organization);
+            if (organization != null) {
+                userInfo.getOrganizationList().add(organization);
+            }
         }
         return returnMap;
     }
@@ -176,7 +185,7 @@ public class UserRoleRelationService {
                 userRoleRelation.setId(UUID.randomUUID().toString());
                 userRoleRelation.setUserId(user.getId());
                 userRoleRelation.setRoleId(roleId);
-                userRoleRelation.setSourceId("system");
+                userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
                 userRoleRelation.setCreateTime(System.currentTimeMillis());
                 userRoleRelation.setCreateUser(operator);
                 saveList.add(userRoleRelation);
