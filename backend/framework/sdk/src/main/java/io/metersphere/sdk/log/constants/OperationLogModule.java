@@ -57,10 +57,11 @@ public class OperationLogModule {
 
     public static final String SETTING = "SETTING";
     public static final String SETTING_SYSTEM = "SETTING_SYSTEM";
-    public static final String SETTING_SYSTEM_USER = "SETTING_SYSTEM_USER";
+    public static final String SETTING_SYSTEM_USER_SINGLE = "SETTING_SYSTEM_USER";
     public static final String SETTING_SYSTEM_USER_GROUP = "SETTING_SYSTEM_USER_GROUP";
     public static final String SETTING_SYSTEM_ORGANIZATION = "SETTING_SYSTEM_ORGANIZATION";
     public static final String SETTING_SYSTEM_PARAMETER = "SETTING_SYSTEM_PARAMETER";
+    public static final String SETTING_SYSTEM_PARAMETER_BASE_CONFIG = "SETTING_SYSTEM_PARAMETER_BASE_CONFIG";
     public static final String SETTING_SYSTEM_PARAMETER_PAGE_CONFIG = "SETTING_SYSTEM_PARAMETER_PAGE_CONFIG";
     public static final String SETTING_SYSTEM_PARAMETER_AUTH_CONFIG = "SETTING_SYSTEM_PARAMETER_AUTH_CONFIG";
     //系统设置-系统-资源池

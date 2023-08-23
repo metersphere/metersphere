@@ -62,7 +62,7 @@ public class OperationLogController {
 
 
     @PostMapping("/list")
-    @Operation(summary = "组织操作日志列表查询")
+    @Operation(summary = "系统操作日志列表查询")
     @RequiresPermissions(PermissionConstants.SYSTEM_OPERATING_LOG_READ)
     public Pager<List<OperationLogResponse>> list(@Validated @RequestBody OperationLogRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
