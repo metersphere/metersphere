@@ -13,6 +13,8 @@ import {
   UpdateAuthStatusUrl,
   AddAuthUrl,
   DeleteAuthUrl,
+  TestLdapConnectUrl,
+  TestLdapLoginUrl,
 } from '@/api/requrls/setting/config';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
@@ -26,6 +28,8 @@ import type {
   AuthItem,
   AuthParams,
   UpdateAuthStatusParams,
+  LDAPConfig,
+  LDAPConnectConfig,
 } from '@/models/setting/config';
 
 // 测试邮箱连接
@@ -91,4 +95,14 @@ export function updateAuthStatus(data: UpdateAuthStatusParams) {
 // 删除认证源
 export function deleteAuth(id: string) {
   return MSR.get({ url: DeleteAuthUrl, params: id });
+}
+
+// 测试ldap连接
+export function testLdapConnect(data: LDAPConnectConfig) {
+  return MSR.post({ url: TestLdapConnectUrl, data });
+}
+
+// 测试ldap登录
+export function testLdapLogin(data: LDAPConfig) {
+  return MSR.post({ url: TestLdapLoginUrl, data });
 }

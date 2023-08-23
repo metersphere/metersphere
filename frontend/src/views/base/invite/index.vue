@@ -15,6 +15,7 @@
               v-model="form.password"
               :placeholder="t('invite.passwordPlaceholder')"
               allow-clear
+              autocomplete="new-password"
               @input="validatePsw"
               @clear="validatePsw(form.password)"
             />
@@ -39,7 +40,12 @@
           </a-popover>
         </a-form-item>
         <a-form-item field="repassword" class="hidden-item">
-          <a-input-password v-model="form.repassword" :placeholder="t('invite.repasswordPlaceholder')" allow-clear />
+          <a-input-password
+            v-model="form.repassword"
+            :placeholder="t('invite.repasswordPlaceholder')"
+            autocomplete="new-password"
+            allow-clear
+          />
         </a-form-item>
         <a-button type="primary" html-type="submit">{{ t('invite.confirm') }}</a-button>
       </a-form>

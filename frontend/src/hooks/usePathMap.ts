@@ -33,6 +33,7 @@ export default function usePathMap() {
 
   /**
    * 根据路由的 key 进行路由跳转，自动携带配置的 routeQuery 和 传入的routeQuery
+   * TODO: 权限校验待补充
    * @param key
    */
   const jumpRouteByMapKey = (key: typeof RouteEnum, routeQuery?: Record<string, any>) => {

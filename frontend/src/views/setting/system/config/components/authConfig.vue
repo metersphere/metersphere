@@ -402,7 +402,6 @@
               v-model:model-value="activeAuthForm.configuration.dn"
               :max-length="250"
               :placeholder="t('system.config.auth.DNPlaceholder')"
-              :input-attrs="{ autocomplete: 'off' }"
               allow-clear
             ></a-input>
           </a-form-item>
@@ -417,9 +416,9 @@
               v-model:model-value="activeAuthForm.configuration.password"
               :max-length="250"
               :placeholder="t('system.config.auth.LDAPPasswordPlaceholder')"
-              :input-attrs="{ autocomplete: 'off' }"
               allow-clear
-            ></a-input-password>
+              autocomplete="new-password"
+            />
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.OU')"
@@ -467,14 +466,59 @@
             <MsFormItemSub :text="t('system.config.auth.LDAPPropertyMapTip')" :show-fill-icon="false" />
           </a-form-item>
           <div>
-            <a-button type="outline" class="mr-[16px]" @click="testLink">
+            <a-button type="outline" class="mr-[16px]" :loading="LDAPTestLoading" @click="testLink">
               {{ t('system.config.auth.testLink') }}
             </a-button>
-            <a-button type="outline" @click="testLogin">{{ t('system.config.auth.testLogin') }}</a-button>
+            <a-button type="outline" :loading="LDAPTestLoading" @click="beforeTestLogin">{{
+              t('system.config.auth.testLogin')
+            }}</a-button>
           </div>
         </template>
       </a-form>
     </MsDrawer>
+    <a-modal
+      v-model:visible="testLoginModalVisible"
+      :title="t('system.config.auth.testLogin')"
+      title-align="start"
+      class="ms-modal-form ms-modal-medium"
+      :mask-closable="false"
+      @close="handleTestLoginModalClose"
+    >
+      <a-form ref="LDAPFormRef" class="rounded-[4px]" :model="LDAPForm" layout="vertical">
+        <a-form-item
+          field="username"
+          :label="t('system.config.auth.testLoginName')"
+          :rules="[{ required: true, message: t('system.config.auth.testLoginNameNotNull') }]"
+          asterisk-position="end"
+        >
+          <a-input
+            v-model:model-value="LDAPForm.username"
+            :placeholder="t('system.config.auth.testLoginNamePlaceholder')"
+            :max-length="250"
+          ></a-input>
+        </a-form-item>
+        <a-form-item
+          field="password"
+          :label="t('system.config.auth.testLoginPassword')"
+          :rules="[{ required: true, message: t('system.config.auth.testLoginPasswordNotNull') }]"
+          asterisk-position="end"
+        >
+          <a-input-password
+            v-model:model-value="LDAPForm.password"
+            :placeholder="t('system.config.auth.testLoginPasswordPlaceholder')"
+            autocomplete="new-password"
+          />
+        </a-form-item>
+      </a-form>
+      <template #footer>
+        <a-button type="secondary" :disabled="LDAPTestLoading" @click="handleTestLoginModalClose">
+          {{ t('system.config.auth.testLoginCancel') }}
+        </a-button>
+        <a-button type="primary" :loading="LDAPTestLoading" @click="testLogin">
+          {{ t('system.config.auth.testLogin') }}
+        </a-button>
+      </template>
+    </a-modal>
   </div>
 </template>
 
@@ -498,6 +542,8 @@
     updateAuth,
     updateAuthStatus,
     deleteAuth,
+    testLdapConnect,
+    testLdapLogin,
   } from '@/api/modules/setting/config';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import { scrollIntoView } from '@/utils/dom';
@@ -890,8 +936,86 @@
     activeAuthForm.value = { ...defaultAuth };
   }
 
-  async function testLink() {}
-  async function testLogin() {}
+  const LDAPTestLoading = ref(false);
+  const testLoginModalVisible = ref(false);
+  const LDAPForm = ref({
+    username: '',
+    password: '',
+  });
+  const LDAPFormRef = ref<FormInstance>();
+
+  function handleTestLoginModalClose() {
+    LDAPFormRef.value?.resetFields();
+    testLoginModalVisible.value = false;
+  }
+
+  function testLink() {
+    authFormRef.value?.validateField(
+      ['configuration.url', 'configuration.dn', 'configuration.password'],
+      async (res) => {
+        if (!res) {
+          try {
+            LDAPTestLoading.value = true;
+            await testLdapConnect({
+              ldapUrl: activeAuthForm.value.configuration.url,
+              ldapDn: activeAuthForm.value.configuration.dn,
+              ldapPassword: activeAuthForm.value.configuration.password,
+            });
+            Message.success(t('system.config.auth.testLinkSuccess'));
+          } catch (error) {
+            console.log(error);
+          } finally {
+            LDAPTestLoading.value = false;
+          }
+        }
+      }
+    );
+  }
+
+  function testLogin() {
+    LDAPFormRef.value?.validate(async (res) => {
+      if (!res) {
+        try {
+          LDAPTestLoading.value = true;
+          await testLdapLogin({
+            ldapUrl: activeAuthForm.value.configuration.url,
+            ldapDn: activeAuthForm.value.configuration.dn,
+            ldapPassword: activeAuthForm.value.configuration.password,
+            username: LDAPForm.value.username,
+            password: LDAPForm.value.password,
+            ldapUserFilter: activeAuthForm.value.configuration.filter,
+            ldapUserOu: activeAuthForm.value.configuration.ou,
+            ldapUserMapping: activeAuthForm.value.configuration.mapping,
+          });
+          Message.success(t('system.config.auth.testLinkSuccess'));
+        } catch (error) {
+          console.log(error);
+        } finally {
+          LDAPTestLoading.value = false;
+        }
+      }
+    });
+  }
+
+  function beforeTestLogin() {
+    authFormRef.value?.validateField(
+      [
+        'configuration.url',
+        'configuration.dn',
+        'configuration.password',
+        'configuration.filter',
+        'configuration.ou',
+        'configuration.mapping',
+      ],
+      async (errors: Record<string, ValidatedError> | undefined) => {
+        if (!errors) {
+          testLoginModalVisible.value = true;
+        } else {
+          scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
+        }
+      }
+    );
+  }
 
   /**
    * 保存认证信息
@@ -984,7 +1108,7 @@
       if (!errors) {
         saveAuth(isContinue);
       } else {
-        scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
+        scrollIntoView(authFormRef.value?.$el.querySelector('.arco-form-item-message'), { block: 'center' });
       }
     });
   }

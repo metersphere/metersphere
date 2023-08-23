@@ -194,6 +194,15 @@ export default {
   'system.config.auth.LDAPPropertyMapPlaceholder': 'Please enter',
   'system.config.auth.LDAPPropertyMapTip':
     'The left key is the MeterSphere user attribute, and the right value is the authentication platform user attribute',
-  'system.config.auth.testLink': 'Test connection',
-  'system.config.auth.testLogin': 'Test login',
+  'system.config.auth.testLink': 'Test Connection',
+  'system.config.auth.testLinkSuccess': 'LDAP connection succeeded',
+  'system.config.auth.testLogin': 'Test Login',
+  'system.config.auth.testLoginName': 'Test login username',
+  'system.config.auth.testLoginNamePlaceholder': 'Please enter LDAP login username',
+  'system.config.auth.testLoginNameNotNull': 'LDAP login username cannot be empty',
+  'system.config.auth.testLoginPassword': 'Test login password',
+  'system.config.auth.testLoginPasswordPlaceholder': 'Please enter LDAP login password',
+  'system.config.auth.testLoginPasswordNotNull': 'LDAP login password cannot be empty',
+  'system.config.auth.testLoginSuccess': 'LDAP login successful',
+  'system.config.auth.testLoginCancel': 'Cancel',
 };

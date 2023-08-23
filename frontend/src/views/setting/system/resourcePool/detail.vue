@@ -231,7 +231,8 @@
             v-model:model-value="form.testResourceDTO.token"
             :placeholder="t('system.resourcePool.testResourceDTO.tokenPlaceholder')"
             :max-length="250"
-          ></a-input-password>
+            autocomplete="new-password"
+          />
         </a-form-item>
         <a-form-item
           :label="t('system.resourcePool.testResourceDTO.nameSpaces')"
@@ -345,7 +346,7 @@
   import { downloadStringFile, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { addPool, getPoolInfo, updatePoolInfo } from '@/api/modules/setting/resourcePool';
-  import { getAllOrgList } from '@/api/modules/setting/orgnization';
+  import { getSystemOrgOption } from '@/api/modules/setting/system/organizationAndProject';
   import useAppStore from '@/store/modules/app';
 
   import type { MsBatchFormInstance, FormItemModel } from '@/components/business/ms-batch-form/types';
@@ -404,7 +405,7 @@
   const defaultGrid = 'http://selenium-hub:4444';
 
   onBeforeMount(async () => {
-    orgOptions.value = await getAllOrgList();
+    orgOptions.value = await getSystemOrgOption();
   });
 
   async function initPoolInfo() {

@@ -61,10 +61,7 @@ const useUserStore = defineStore('user', {
         const res = await userLogin(loginForm);
         setToken(res.sessionId, res.csrfToken);
         const appStore = useAppStore();
-        if (appStore.currentOrgId === '') {
-          // 第一次进系统才设置组织 ID，后续已经持久化存储了
-          appStore.setCurrentOrgId(res.lastOrganizationId || '');
-        }
+        appStore.setCurrentOrgId(res.lastOrganizationId || '');
         this.setInfo(res);
       } catch (err) {
         clearToken();
