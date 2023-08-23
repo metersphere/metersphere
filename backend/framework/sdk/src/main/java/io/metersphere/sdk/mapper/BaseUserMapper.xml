@@ -16,11 +16,12 @@
         WHERE user.id = #{id}
     </select>
 
-    <select id="selectByEmail" resultType="io.metersphere.sdk.dto.UserDTO">
+    <select id="selectDTOByKeyword" resultType="io.metersphere.sdk.dto.UserDTO">
         SELECT *
         FROM user
                  LEFT JOIN user_extend ON user.id = user_extend.id
-        WHERE user.email = #{email}  AND deleted IS FALSE
+        WHERE (user.email = #{keyword} OR user.id = #{keyword})
+          AND deleted IS FALSE
     </select>
 
     <select id="findAll" resultType="io.metersphere.system.domain.User">

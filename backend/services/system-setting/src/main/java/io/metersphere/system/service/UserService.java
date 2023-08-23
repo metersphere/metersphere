@@ -1,15 +1,14 @@
 package io.metersphere.system.service;
 
 import com.alibaba.excel.EasyExcelFactory;
-import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.log.constants.OperationLogModule;
-import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.mapper.BaseUserMapper;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CodingUtil;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.dto.UserBatchCreateDTO;
@@ -35,6 +34,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,26 +65,9 @@ public class UserService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
-    //批量添加用户记录日志
-    public List<LogDTO> getBatchAddLogs(@Valid List<User> userList) {
-        List<LogDTO> logs = new ArrayList<>();
-        userList.forEach(user -> {
-            LogDTO log = new LogDTO();
-            log.setId(UUID.randomUUID().toString());
-            log.setCreateUser(user.getCreateUser());
-            log.setProjectId(OperationLogConstants.SYSTEM);
-            log.setOrganizationId(OperationLogConstants.SYSTEM);
-            log.setType(OperationLogType.ADD.name());
-            log.setModule(OperationLogModule.SYSTEM_USER);
-            log.setMethod("addUser");
-            log.setCreateTime(user.getCreateTime());
-            log.setSourceId(user.getId());
-            log.setContent(user.getName() + "(" + user.getEmail() + ")");
-            log.setOriginalValue(JSON.toJSONBytes(user));
-            logs.add(log);
-        });
-        return logs;
-    }
+    @Resource
+    @Lazy
+    private UserLogService userLogService;
 
     public List<User> selectByIdList(@NotEmpty List<String> userIdList) {
         UserExample example = new UserExample();
@@ -142,13 +125,13 @@ public class UserService {
         }
         userRoleRelationService.batchSave(userCreateDTO.getUserRoleIdList(), saveUserList);
         //写入操作日志
-        operationLogService.batchAdd(this.getBatchAddLogs(saveUserList));
+        operationLogService.batchAdd(userLogService.getBatchAddLogs(saveUserList));
         return userCreateDTO;
     }
 
 
-    public UserDTO getUserDTOByEmail(String email) {
-        UserDTO userDTO = baseUserMapper.selectByEmail(email);
+    public UserDTO getUserDTOByKeyword(String email) {
+        UserDTO userDTO = baseUserMapper.selectDTOByKeyword(email);
         if (userDTO != null) {
             userDTO.setUserRoleRelations(
                     userRoleRelationService.selectByUserId(userDTO.getId())
@@ -316,95 +299,6 @@ public class UserService {
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         return insertIndex;
-    }
-
-    public LogDTO updateLog(UserEditRequest request) {
-        User user = userMapper.selectByPrimaryKey(request.getId());
-        if (user != null) {
-            LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
-                    request.getId(),
-                    null,
-                    OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_USER,
-                    JSON.toJSONString(user));
-            dto.setPath("/update");
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(user));
-            return dto;
-        }
-        return null;
-    }
-
-    public List<LogDTO> batchUpdateLog(TableBatchProcessDTO request) {
-        List<LogDTO> logDTOList = new ArrayList<>();
-        request.setSelectIds(this.getBatchUserIds(request));
-        List<User> userList = this.selectByIdList(request.getSelectIds());
-        for (User user : userList) {
-            LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
-                    user.getId(),
-                    null,
-                    OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_USER,
-                    JSON.toJSONString(user));
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(user));
-            logDTOList.add(dto);
-        }
-        return logDTOList;
-    }
-
-    /**
-     * @param request 批量重置密码  用于记录Log使用
-     */
-    public List<LogDTO> resetPasswordLog(TableBatchProcessDTO request) {
-        request.setSelectIds(this.getBatchUserIds(request));
-        List<LogDTO> returnList = new ArrayList<>();
-        UserExample example = new UserExample();
-        example.createCriteria().andIdIn(request.getSelectIds());
-        List<User> userList = userMapper.selectByExample(example);
-        for (User user : userList) {
-            LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
-                    user.getId(),
-                    null,
-                    OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_USER,
-                    user.getName());
-            dto.setPath("/reset/password");
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(user));
-            returnList.add(dto);
-        }
-        return returnList;
-    }
-
-    public List<LogDTO> deleteLog(TableBatchProcessDTO request) {
-        List<LogDTO> logDTOList = new ArrayList<>();
-        request.getSelectIds().forEach(item -> {
-            User user = userMapper.selectByPrimaryKey(item);
-            if (user != null) {
-
-                LogDTO dto = new LogDTO(
-                        OperationLogConstants.SYSTEM,
-                        OperationLogConstants.SYSTEM,
-                        user.getId(),
-                        user.getCreateUser(),
-                        OperationLogType.DELETE.name(),
-                        OperationLogModule.SYSTEM_PROJECT,
-                        user.getName());
-
-                dto.setPath("/delete");
-                dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(user));
-                logDTOList.add(dto);
-            }
-        });
-        return logDTOList;
     }
 
     public List<User> getUserList() {

@@ -34,6 +34,8 @@ public class GlobalUserRoleRelationLogService {
     private BaseUserMapper baseUserMapper;
     @Resource
     private UserRoleMapper userRoleMapper;
+    @Resource
+    private UserService userService;
 
     /**
      * 添加接口日志
@@ -62,7 +64,7 @@ public class GlobalUserRoleRelationLogService {
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andIdIn(request.getRoleIds());
         List<UserRole> userRoles = userRoleMapper.selectByExample(example);
-        List<String> userIds = request.getSelectIds();
+        List<String> userIds = userService.getBatchUserIds(request);
         List<OptionDTO> users = baseUserMapper.selectUserOptionByIds(userIds);
 
         List<LogDTO> returnList = new ArrayList<>();
