@@ -2,12 +2,12 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.dto.ExcludeOptionDTO;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.mapper.BaseUserRoleRelationMapper;
-import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationQueryRequestDefinition;
@@ -181,7 +181,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         assertErrorCode(this.requestGet(DEFAULT_DELETE, getNonGlobalUserRoleRelation().getId()), GLOBAL_USER_ROLE_PERMISSION);
 
         // @@校验必须有一个系统用户组
-        UserRoleRelation permissionUserRoleRelation = userRoleRelationMapper.selectByPrimaryKey(BaseUserRoleService.SYSTEM_TYPE);
+        UserRoleRelation permissionUserRoleRelation = userRoleRelationMapper.selectByPrimaryKey(UserRoleScope.SYSTEM);
         assertErrorCode(this.requestGet(DEFAULT_DELETE, permissionUserRoleRelation.getId()), GLOBAL_USER_ROLE_LIMIT);
 
         // @@删除admin系统管理员用户组异常

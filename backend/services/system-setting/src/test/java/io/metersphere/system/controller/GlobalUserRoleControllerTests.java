@@ -1,10 +1,7 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.base.BaseTest;
-import io.metersphere.sdk.constants.InternalUserRole;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.sdk.constants.UserSourceEnum;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.Permission;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
@@ -12,7 +9,6 @@ import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.BaseUserRolePermissionService;
 import io.metersphere.sdk.service.BaseUserRoleRelationService;
-import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.controller.param.PermissionSettingUpdateRequestDefinition;
@@ -35,10 +31,12 @@ import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.metersphere.sdk.constants.InternalUserRole.*;
+import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
+import static io.metersphere.sdk.constants.InternalUserRole.MEMBER;
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
-import static io.metersphere.system.controller.result.SystemResultCode.*;
-import static io.metersphere.system.service.GlobalUserRoleService.GLOBAL_SCOPE;
+import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_USER_ROLE_EXIST;
+import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_USER_ROLE_PERMISSION;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -74,7 +72,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
         List<UserRole> userRoles = getResultDataArray(mvcResult, UserRole.class);
 
         // 校验是否是全局用户组
-        userRoles.forEach(item -> Assertions.assertTrue(StringUtils.equals(item.getScopeId(), GLOBAL_SCOPE)));
+        userRoles.forEach(item -> Assertions.assertTrue(StringUtils.equalsIgnoreCase(item.getScopeId(), UserRoleScope.GLOBAL)));
 
         // 校验是否包含全部的内置用户组
         List<String> userRoleIds = userRoles.stream().map(UserRole::getId).toList();
@@ -277,7 +275,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
         example.createCriteria().andUserIdEqualTo(userRoleRelation.getUserId());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
         Assertions.assertTrue(userRoleRelations.size() == 1);
-        Assertions.assertTrue(StringUtils.equals(userRoleRelations.get(0).getRoleId(), MEMBER.getValue()));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(userRoleRelations.get(0).getRoleId(), MEMBER.getValue()));
         clearOneLimitTest(userRoleRelation.getUserId());
 
         // 删除没有关联用户的用户组
@@ -320,7 +318,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
         user.setId(UUID.randomUUID().toString());
         user.setCreateUser(SessionUtils.getUserId());
         user.setName("test one user role");
-        user.setSource(UserSourceEnum.LOCAL.name());
+        user.setSource(UserSource.LOCAL.name());
         user.setEmail("1111111111@qq.com");
         user.setCreateTime(System.currentTimeMillis());
         user.setUpdateTime(System.currentTimeMillis());
@@ -335,7 +333,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
         roleRelation.setRoleId(userRoleId);
         roleRelation.setCreateUser(ADMIN.getValue());
         roleRelation.setUserId(user.getId());
-        roleRelation.setSourceId(BaseUserRoleService.SYSTEM_TYPE);
+        roleRelation.setSourceId(UserRoleScope.SYSTEM);
         userRoleRelationMapper.insert(roleRelation);
         return roleRelation;
     }

@@ -5,7 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.UserSourceEnum;
+import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -67,7 +67,7 @@ public class UserController {
     @Operation(summary = "添加用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
     public UserBatchCreateDTO addUser(@Validated({Created.class}) @RequestBody UserBatchCreateDTO userCreateDTO) {
-        return userService.addUser(userCreateDTO, UserSourceEnum.LOCAL.name(), SessionUtils.getUserId());
+        return userService.addUser(userCreateDTO, UserSource.LOCAL.name(), SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
@@ -99,7 +99,7 @@ public class UserController {
     @Operation(summary = "导入用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_IMPORT)
     public UserImportResponse importUser(@RequestPart(value = "file", required = false) MultipartFile excelFile) {
-        return userService.importByExcel(excelFile, UserSourceEnum.LOCAL.name(), SessionUtils.getSessionId());
+        return userService.importByExcel(excelFile, UserSource.LOCAL.name(), SessionUtils.getSessionId());
     }
 
     @PostMapping("/delete")

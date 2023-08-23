@@ -278,8 +278,8 @@ public abstract class BaseTest {
         OperationLogExample example = new OperationLogExample();
         example.createCriteria().andSourceIdEqualTo(resourceId).andTypeEqualTo(operationLogType.name());
         operationLogMapper.selectByExample(example).stream()
-                .filter(operationLog -> operationLog.getSourceId().equals(resourceId))
-                .filter(operationLog -> operationLog.getType().equals(operationLogType.name()))
+                .filter(operationLog -> operationLog.getSourceId().equalsIgnoreCase(resourceId))
+                .filter(operationLog -> operationLog.getType().equalsIgnoreCase(operationLogType.name()))
                 .filter(operationLog -> StringUtils.isNotBlank(operationLog.getProjectId()))
                 .filter(operationLog -> StringUtils.isNotBlank(operationLog.getModule()))
                 .findFirst()

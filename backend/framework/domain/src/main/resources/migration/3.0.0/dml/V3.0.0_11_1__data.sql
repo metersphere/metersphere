@@ -11,15 +11,15 @@ insert into user(id, name, email, password, create_time, update_time, language, 
 VALUES ('admin', 'Administrator', 'admin@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin',false);
 
 -- 初始化用户组
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('admin', '系统管理员', '拥有系统全部组织以及项目的操作权限', 1, 'SYSTEM', 1621224000000, 1621224000000, 'admin', 'GLOBAL');
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('member', '系统成员', '系统内初始化的用户', 1, 'SYSTEM', 1621224000000, 1621224000000, 'admin', 'GLOBAL');
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('org_admin', '组织管理员', '组织管理员', 1, 'ORGANIZATION', 1620674220007, 1620674220000, 'admin', 'GLOBAL');
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('org_member', '组织成员', '组织成员', 1, 'ORGANIZATION', 1620674220008, 1620674220000, 'admin', 'GLOBAL');
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_admin', '项目管理员', '项目管理员', 1, 'PROJECT', 1620674220004, 1620674220000, 'admin', 'GLOBAL');
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_member', '项目成员', '项目成员', 1, 'PROJECT', 1620674220005, 1620674220000, 'admin', 'GLOBAL');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('admin', '系统管理员', '拥有系统全部组织以及项目的操作权限', 1, 'SYSTEM', 1621224000000, 1621224000000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('member', '系统成员', '系统内初始化的用户', 1, 'SYSTEM', 1621224000000, 1621224000000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('org_admin', '组织管理员', '组织管理员', 1, 'ORGANIZATION', 1620674220007, 1620674220000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('org_member', '组织成员', '组织成员', 1, 'ORGANIZATION', 1620674220008, 1620674220000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_admin', '项目管理员', '项目管理员', 1, 'PROJECT', 1620674220004, 1620674220000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_member', '项目成员', '项目成员', 1, 'PROJECT', 1620674220005, 1620674220000, 'admin', 'global');
 
 -- 初始化用户和组的关系
-INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user) VALUES (uuid(), 'admin', 'admin', 'SYSTEM', 1684747668375, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user) VALUES (uuid(), 'admin', 'admin', 'system', 1684747668375, 'admin');
 
 -- 初始化用户组权限
 -- 系统管理员拥有所有的权限，不用初始化
@@ -67,6 +67,8 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'o
 
 -- 初始化当前站点配置
 INSERT into system_parameter values('base.url', 'http://127.0.0.1:8081', 'text');
+-- 初始化prometheus站点配置
+INSERT into system_parameter values('base.prometheus.host', 'http://ms-prometheus:9090', 'text');
 
 -- 初始化资源池
 INSERT INTO test_resource_pool (id, name, type, description, enable, create_time, update_time, create_user, api_test, load_test, ui_test, all_org, deleted) VALUES ('a6374438-80fc-4a28-8848-96c492830af5', 'LOCAL', 'Node', '系统初始化资源池', true, 1690440108595, 1690440110182, 'admin', true, true, true, true, false);

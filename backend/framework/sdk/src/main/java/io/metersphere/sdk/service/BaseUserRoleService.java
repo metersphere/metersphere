@@ -29,7 +29,6 @@ import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTE
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class BaseUserRoleService {
-    public static final String SYSTEM_TYPE = "SYSTEM";
     @Resource
     private PermissionCache permissionCache;
     @Resource
@@ -41,6 +40,7 @@ public class BaseUserRoleService {
 
     /**
      * 根据用户组获取对应的权限配置项
+     *
      * @param userRole
      * @return
      */
@@ -193,6 +193,7 @@ public class BaseUserRoleService {
     /**
      * 删除用户组时校验必须要有一个用户组
      * 没有的话，添加系统成员，组织成员，项目成员用户组
+     *
      * @param defaultRoleId 默认用户组id
      * @param currentUserId 当前用户id
      */
@@ -202,7 +203,7 @@ public class BaseUserRoleService {
         List<String> userIds = baseUserRoleRelationService.getUserIdByRoleId(roleId);
 
         if (CollectionUtils.isEmpty(userIds)) {
-           return;
+            return;
         }
 
         // 查询用户列表与所有用户组的关联关系，并分组（UserRoleRelation 中只有 userId 和 sourceId）
