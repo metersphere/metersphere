@@ -31,9 +31,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -427,5 +425,12 @@ public class BaseUserService {
 
     public List<ExcludeOptionDTO> getExcludeSelectOption() {
         return baseUserMapper.getExcludeSelectOption();
+    }
+
+    public Map<String, String> getUserNameMap() {
+        List<ExcludeOptionDTO> excludeSelectOption = getExcludeSelectOption();
+        Map<String, String> nameMap = new HashMap<>();
+        excludeSelectOption.forEach(option -> nameMap.put(option.getId(), option.getName()));
+        return nameMap;
     }
 }

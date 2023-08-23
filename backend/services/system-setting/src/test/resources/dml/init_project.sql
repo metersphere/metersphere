@@ -15,6 +15,10 @@ into user(id, name, email, password, create_time, update_time, language, last_or
                  last_project_id, create_user, update_user)
 VALUES ('admin2', 'test2', 'admin2@metersphere.io', MD5('admin2@metersphere.io'),
         UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin');
+replace into user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
+                 last_project_id, create_user, update_user)
+VALUES ('test', 'test', 'admin3@metersphere.io', MD5('admin2@metersphere.io'),
+        UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin');
 
 replace
 INTO user_role_relation VALUES ('c3bb9b4f-46d8-4952-9681-8889974487w','admin1','project_admin','projectId1','1684747668375','1684747668375');

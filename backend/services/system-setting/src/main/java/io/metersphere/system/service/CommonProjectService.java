@@ -13,6 +13,7 @@ import io.metersphere.sdk.invoker.ProjectServiceInvoker;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
+import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -52,6 +53,8 @@ public class CommonProjectService {
     private UserRoleMapper userRoleMapper;
     @Resource
     private UserRolePermissionMapper userRolePermissionMapper;
+    @Resource
+    private BaseUserService baseUserService;
     private final ProjectServiceInvoker serviceInvoker;
 
     @Autowired
@@ -173,6 +176,7 @@ public class CommonProjectService {
     }
 
     public List<ProjectDTO> buildUserInfo(List<ProjectDTO> projectList) {
+        Map<String, String> userMap = baseUserService.getUserNameMap();
         projectList.forEach(projectDTO -> {
             if (StringUtils.isNotBlank(projectDTO.getModuleSetting())) {
                 projectDTO.setModuleIds(JSON.parseArray(projectDTO.getModuleSetting(), String.class));
@@ -183,7 +187,9 @@ public class CommonProjectService {
             if (CollectionUtils.isNotEmpty(userIds) && userIds.contains(projectDTO.getCreateUser())) {
                 projectDTO.setProjectCreateUserIsAdmin(true);
             }
-
+            projectDTO.setCreateUser(userMap.get(projectDTO.getCreateUser()));
+            projectDTO.setUpdateUser(userMap.get(projectDTO.getUpdateUser()));
+            projectDTO.setDeleteUser(userMap.get(projectDTO.getDeleteUser()));
         });
         return projectList;
     }
