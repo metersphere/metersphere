@@ -97,7 +97,14 @@
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { useI18n } from '@/hooks/useI18n';
   import usePathMap from '@/hooks/usePathMap';
-  import { getLogList, getLogOptions, getLogUsers } from '@/api/modules/setting/log';
+  import {
+    getSystemLogList,
+    getSystemLogOptions,
+    getSystemLogUsers,
+    getOrgLogList,
+    getOrgLogOptions,
+    getOrgLogUsers,
+  } from '@/api/modules/setting/log';
   import MsCascader from '@/components/business/ms-cascader/index.vue';
   import useTableStore from '@/store/modules/ms-table';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -106,23 +113,51 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { MENU_LEVEL } from '@/config/pathMap';
   import MsSearchSelect from '@/components/business/ms-search-select/index';
+  import useAppStore from '@/store/modules/app';
 
   import type { CascaderOption, SelectOptionData } from '@arco-design/web-vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import type { LogItem } from '@/models/setting/log';
+  import type { LogItem, LogOptions, UserItem } from '@/models/setting/log';
+  import type { CommonList } from '@/models/common';
 
   const props = defineProps<{
     mode: (typeof MENU_LEVEL)[number]; // 日志展示模式，系统/组织/项目
   }>();
   const { t } = useI18n();
+  const appStore = useAppStore();
+
+  const requestFuncMap: Record<
+    (typeof MENU_LEVEL)[number],
+    {
+      listFunc: (data: any) => Promise<CommonList<LogItem>>;
+      optionsFunc: (id: any) => Promise<LogOptions>;
+      usersFunc: any;
+    }
+  > = {
+    [MENU_LEVEL[0]]: {
+      listFunc: getSystemLogList,
+      optionsFunc: getSystemLogOptions,
+      usersFunc: getSystemLogUsers,
+    },
+    [MENU_LEVEL[1]]: {
+      listFunc: getOrgLogList,
+      optionsFunc: getOrgLogOptions,
+      usersFunc: getOrgLogUsers,
+    },
+    [MENU_LEVEL[2]]: {
+      listFunc: getOrgLogList,
+      optionsFunc: getOrgLogOptions,
+      usersFunc: getOrgLogUsers,
+    },
+  };
 
   const operUser = ref(''); // 操作人
   const userList = ref<SelectOptionData[]>([]); // 操作人列表
 
   async function initUserList() {
     try {
-      const res = await getLogUsers();
-      userList.value = res.map((e) => ({
+      const res = await requestFuncMap[props.mode].usersFunc(appStore.currentOrgId);
+      userList.value = res.map((e: UserItem) => ({
         id: e.id,
         value: e.id,
         label: e.name,
@@ -133,8 +168,8 @@
     }
   }
 
-  const defaultLevelIndex = MENU_LEVEL.findIndex((e) => e === props.mode); // 默认操作范围级别索引，根据传入的 mode 确定
-  const operateRange = ref<(string | number | Record<string, any>)[]>([MENU_LEVEL[defaultLevelIndex]]); // 操作范围
+  const defaultRange = props.mode === MENU_LEVEL[0] ? props.mode : MENU_LEVEL[2];
+  const operateRange = ref<(string | number | Record<string, any>)[]>([defaultRange]); // 操作范围
   const rangeOptions = ref<CascaderOption[]>( // 系统级别才展示系统级别选项
     props.mode === 'SYSTEM'
       ? [
@@ -157,9 +192,9 @@
   async function initRangeOptions() {
     try {
       rangeLoading.value = true;
-      const res = await getLogOptions();
-      if (props.mode === 'SYSTEM' || props.mode === 'ORGANIZATION') {
-        // 系统和组织级别才展示，项目级别不展示
+      const res = await requestFuncMap[props.mode].optionsFunc(appStore.currentOrgId);
+      if (props.mode === 'SYSTEM') {
+        // 系统级别才展示，组织和项目级别不展示
         rangeOptions.value.push({
           value: {
             level: 0,
@@ -200,7 +235,7 @@
     }
   }
 
-  const level = ref<(typeof MENU_LEVEL)[number]>('SYSTEM'); // 操作范围级别，系统/组织/项目
+  const level = ref<(typeof MENU_LEVEL)[number]>(defaultRange); // 操作范围级别，系统/组织/项目
   const type = ref(''); // 操作类型
   const _module = ref(''); // 操作对象
   const content = ref(''); // 名称
@@ -375,12 +410,15 @@
   ];
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.SYSTEM_LOG, columns, 'drawer');
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetPagination } = useTable(getLogList, {
-    tableKey: TableKeyEnum.SYSTEM_LOG,
-    columns,
-    selectable: false,
-    showSelectAll: false,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetPagination } = useTable(
+    requestFuncMap[props.mode].listFunc,
+    {
+      tableKey: TableKeyEnum.SYSTEM_LOG,
+      columns,
+      selectable: false,
+      showSelectAll: false,
+    }
+  );
 
   function searchLog() {
     const ranges = operateRange.value.map((e) => e);

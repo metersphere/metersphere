@@ -130,3 +130,17 @@ export interface UpdateAuthStatusParams {
   id: string;
   enable: boolean;
 }
+// ldap 连接配置
+export interface LDAPConnectConfig {
+  ldapUrl: string;
+  ldapDn: string;
+  ldapPassword: string;
+}
+// ldap登录配置
+export interface LDAPConfig extends LDAPConnectConfig {
+  username: string;
+  password: string;
+  ldapUserFilter: string;
+  ldapUserOu: string;
+  ldapUserMapping: string;
+}

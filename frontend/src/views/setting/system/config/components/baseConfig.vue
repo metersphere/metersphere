@@ -149,9 +149,9 @@
             v-model:model-value="emailConfigForm.password"
             :max-length="250"
             :placeholder="t('system.config.email.passwordPlaceholder')"
-            autocomplete="off"
+            autocomplete="new-password"
             allow-clear
-          ></a-input-password>
+          />
         </a-form-item>
         <a-form-item :label="t('system.config.email.from')" field="from" asterisk-position="end" :rules="[emailRule]">
           <a-input
@@ -391,7 +391,7 @@
       { paramKey: 'smtp.host', paramValue: host, type: 'text' },
       { paramKey: 'smtp.port', paramValue: port, type: 'text' },
       { paramKey: 'smtp.account', paramValue: account, type: 'text' },
-      { paramKey: 'smtp.password', paramValue: password, type: 'text' },
+      { paramKey: 'smtp.password', paramValue: password, type: 'password' },
       { paramKey: 'smtp.from', paramValue: from, type: 'text' },
       { paramKey: 'smtp.recipient', paramValue: recipient, type: 'text' },
       { paramKey: 'smtp.ssl', paramValue: ssl?.toString(), type: 'text' },

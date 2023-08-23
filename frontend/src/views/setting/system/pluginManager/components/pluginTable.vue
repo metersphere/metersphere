@@ -163,7 +163,7 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { getPluginList, deletePluginReq, updatePlugin, getScriptDetail } from '@/api/modules/setting/pluginManger';
-  import { getAllOrgList } from '@/api/modules/setting/orgnization';
+  import { getSystemOrgOption } from '@/api/modules/setting/system/organizationAndProject';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import UploadModel from './uploadModel.vue';
   import UpdatePluginModal from './updatePluginModal.vue';
@@ -385,7 +385,7 @@
   const originizeList = ref<SelectOptionData>([]);
   onBeforeMount(async () => {
     loadData();
-    originizeList.value = await getAllOrgList();
+    originizeList.value = await getSystemOrgOption();
   });
 </script>
 
