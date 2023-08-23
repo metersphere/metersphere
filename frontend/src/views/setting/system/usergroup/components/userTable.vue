@@ -80,6 +80,7 @@
     userVisible.value = true;
   };
   const handleAddUserModalCancel = () => {
+    fetchData();
     userVisible.value = false;
   };
   watchEffect(() => {

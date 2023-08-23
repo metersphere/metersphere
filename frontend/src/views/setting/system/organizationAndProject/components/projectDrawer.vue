@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { postProjectTableByOrgId } from '@/api/modules/setting/system/organizationAndProject';
+  import { postProjectTableByOrgId } from '@/api/modules/setting/organizationAndProject';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { useI18n } from '@/hooks/useI18n';
@@ -104,3 +104,4 @@
     }
   );
 </script>
+@/api/modules/setting/organizationAndProject

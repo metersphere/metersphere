@@ -53,7 +53,7 @@
   import { reactive, ref, watchEffect, computed } from 'vue';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { createOrUpdateOrg } from '@/api/modules/setting/system/organizationAndProject';
+  import { createOrUpdateOrg } from '@/api/modules/setting/organizationAndProject';
   import { Message } from '@arco-design/web-vue';
   import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
 
@@ -119,3 +119,4 @@
   });
   const isEdit = computed(() => !!props.currentOrganization?.id);
 </script>
+@/api/modules/setting/organizationAndProject

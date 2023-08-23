@@ -33,7 +33,7 @@
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
   import { reactive, ref, watchEffect, onUnmounted } from 'vue';
-  import { addUserToOrgOrProject } from '@/api/modules/setting/system/organizationAndProject';
+  import { addUserToOrgOrProject } from '@/api/modules/setting/organizationAndProject';
   import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
 
@@ -101,3 +101,4 @@
     color: var(--color-text-4);
   }
 </style>
+@/api/modules/setting/organizationAndProject
