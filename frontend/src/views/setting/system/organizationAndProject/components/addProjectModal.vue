@@ -37,6 +37,7 @@
             :disabled="!isXpack"
             allow-search
             :options="affiliatedOrgOption"
+            :default-value="isXpack ? '' : 'default_organization'"
             :placeholder="t('system.project.affiliatedOrgPlaceholder')"
             :field-names="{ label: 'name', value: 'id' }"
           >
@@ -103,7 +104,7 @@
   const affiliatedOrgOption = ref<SystemOrgOption[]>([]);
   const licenseStore = useLicenseStore();
   const moduleOption = [
-    { label: 'menu.workplace', value: 'workstation' },
+    { label: 'menu.workbench', value: 'workstation' },
     { label: 'menu.testPlan', value: 'testPlan' },
     { label: 'menu.bugManagement', value: 'bugManagement' },
     { label: 'menu.featureTest', value: 'caseManagement' },

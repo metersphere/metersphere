@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onBeforeMount } from 'vue';
+  import { computed, onBeforeMount, onMounted } from 'vue';
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
   import GlobalSetting from '@/components/pure/global-setting/index.vue';
@@ -17,8 +17,11 @@
   import useLicenseStore from '@/store/modules/setting/license';
   import { watchStyle, watchTheme, setFavicon } from '@/utils/theme';
   import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
+  import { useUserStore } from '@/store';
+  import { useRouter } from 'vue-router';
 
   const appStore = useAppStore();
+  const userStore = useUserStore();
   const licenseStore = useLicenseStore();
 
   const { currentLocale } = useLocale();
@@ -61,7 +64,15 @@
         setLocalStorage('isInitUrl', 'true'); // 设置已经初始化过 url，避免重复初始化
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+    }
+  });
+  onMounted(async () => {
+    const res = await userStore.isLogin();
+    if (!res) {
+      const router = useRouter();
+      router.push({ name: 'login' });
     }
   });
 </script>
