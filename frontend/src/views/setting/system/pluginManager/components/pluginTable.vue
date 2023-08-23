@@ -24,7 +24,7 @@
       <a-table
         :data="filterData"
         :pagination="false"
-        :scroll="{ y: 360, x: 2400, maxHeight: 200 }"
+        :scroll="{ y: 360, x: 2000, maxHeight: 200 }"
         :expandable="expandable"
         :loading="loading"
         row-key="id"
@@ -47,6 +47,8 @@
             :title="t('system.plugin.tableColumnsDescription')"
             data-index="description"
             :ellipsis="true"
+            :tooltip="true"
+            :width="150"
           />
           <a-table-column :title="t('system.plugin.tableColumnsStatus')">
             <template #cell="{ record }">
@@ -61,9 +63,7 @@
             </template>
           </a-table-column>
           <a-table-column :title="t('system.plugin.tableColumnsApplicationScene')" data-index="scenario">
-            <template #cell="{ record }">{{
-              record.scenario === 'API' ? t('system.plugin.interfaceTest') : t('system.plugin.projectManagement')
-            }}</template>
+            <template #cell="{ record }">{{ getScenarioType(record.scenario) }}</template>
           </a-table-column>
           <a-table-column :title="t('system.plugin.tableColumnsOrg')" :width="300">
             <template #cell="{ record }">
@@ -90,40 +90,48 @@
           </a-table-column>
           <a-table-column
             :title="t('system.plugin.tableColumnsDescription')"
-            data-index="fileName"
-            :width="300"
             :ellipsis="true"
+            :tooltip="true"
+            data-index="fileName"
           />
           <a-table-column
             :title="t('system.plugin.tableColumnsVersion')"
             data-index="pluginId"
-            :width="300"
+            :width="200"
             :ellipsis="true"
+            :tooltip="true"
           />
-          <a-table-column :title="t('system.plugin.tableColumnsAuthorization')">
+          <a-table-column :title="t('system.plugin.tableColumnsAuthorization')" :width="180">
             <template #cell="{ record }">
               <span>{{
-                record.xpack ? t('system.plugin.uploadOpenSource') : t('system.plugin.uploadCompSource')
+                record.xpack ? t('system.plugin.uploadCompSource') : t('system.plugin.uploadOpenSource')
               }}</span>
             </template>
           </a-table-column>
-          <a-table-column :title="t('system.plugin.tableColumnsCreatedBy')" data-index="createUser" />
+          <a-table-column
+            :title="t('system.plugin.tableColumnsCreatedBy')"
+            :ellipsis="true"
+            :tooltip="true"
+            data-index="createUser"
+          />
           <a-table-column :title="t('system.plugin.tableColumnsUpdateTime')" :width="200">
             <template #cell="{ record }">
               <span>{{ getTime(record.updateTime) }}</span>
             </template>
           </a-table-column>
-          <a-table-column :width="200" fixed="right" align="center" :bordered="false">
+          <a-table-column :width="180" fixed="right" :bordered="false">
             <template #title>
               {{ t('system.plugin.tableColumnsActions') }}
             </template>
             <template #cell="{ record }">
-              <MsButton @click="update(record)">{{ t('system.plugin.edit') }}</MsButton>
-              <MsButton v-if="record.enable" @click="disableHandler(record)">{{
-                t('system.plugin.tableDisable')
-              }}</MsButton>
-              <MsButton v-else @click="enableHandler(record)">{{ t('system.plugin.tableEnable') }}</MsButton>
-              <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+              <div class="flex">
+                <MsButton @click="update(record)">{{ t('system.plugin.edit') }}</MsButton>
+                <MsButton v-if="record.enable" @click="disableHandler(record)">{{
+                  t('system.plugin.tableDisable')
+                }}</MsButton>
+                <MsButton v-else @click="enableHandler(record)">{{ t('system.plugin.tableEnable') }}</MsButton>
+                <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+              </div>
             </template>
           </a-table-column>
         </template>
@@ -143,14 +151,14 @@
     >
     <UploadModel
       v-model:visible="uploadVisible"
-      :originize-list="originizeList"
+      :organize-list="organizeList"
       @success="okHandler"
       @brash="loadData()"
     />
     <UpdatePluginModal
       ref="updateModalRef"
       v-model:visible="updateVisible"
-      :originize-list="originizeList"
+      :organize-list="organizeList"
       @success="loadData()"
     />
     <scriptDetailDrawer v-model:visible="showDrawer" :value="detailYaml" :config="config" :read-only="true" />
@@ -226,6 +234,10 @@
       label: 'system.plugin.projectManagement',
       value: 'PLATFORM',
     },
+    {
+      label: 'system.plugin.databaseDriver',
+      value: 'JDBC_DRIVER',
+    },
   ]);
   const uploadVisible = ref<boolean>(false);
   const updateVisible = ref<boolean>(false);
@@ -283,6 +295,20 @@
         break;
     }
   }
+
+  function getScenarioType(scenario: string) {
+    switch (scenario) {
+      case 'API':
+        return t('system.plugin.interfaceTest');
+      case 'JDBC_DRIVER':
+        return t('system.plugin.databaseDriver');
+      case 'PLATFORM':
+        return t('system.plugin.projectManagement');
+      default:
+        break;
+    }
+  }
+
   function uploadPlugin() {
     uploadVisible.value = true;
   }
@@ -382,10 +408,10 @@
     Object.assign(expandedRowKeys, [rowKey]);
   };
 
-  const originizeList = ref<SelectOptionData>([]);
+  const organizeList = ref<SelectOptionData>([]);
   onBeforeMount(async () => {
     loadData();
-    originizeList.value = await getSystemOrgOption();
+    organizeList.value = await getSystemOrgOption();
   });
 </script>
 

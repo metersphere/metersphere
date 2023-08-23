@@ -54,7 +54,7 @@ export default {
   'system.plugin.pluginPreStep': 'Previous Step',
   'system.plugin.saveAndAdd': 'Save & Continue',
   'system.plugin.updateTitle': 'Update Plugin（{name}）',
-  'system.plugin.selectOriginize': 'Please Choose Organization',
+  'system.plugin.selectOrganizeTip': 'Please Choose Organization',
   'system.plugin.selectOrganization': 'Choose Organization',
   'system.plugin.infoTip': 'Jump to the Github download plug-in',
   'system.plugin.getPlugin': 'Gets the open source plug-in',
@@ -101,6 +101,7 @@ export default {
   'system.plugin.all': 'All',
   'system.plugin.projectManagement': 'Project Management',
   'system.plugin.pluginStatus': 'Status',
+  'system.plugin.databaseDriver': 'Database Driver',
   'system.plugin.deleteContentTip':
     'After deletion, the defects/requirements of the platform cannot be synchronized, and the historical data is automatically switched to other templates. Please exercise caution!',
 };

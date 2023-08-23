@@ -22,15 +22,15 @@
           field="organizationIds"
           :label="t('system.plugin.selectOrganization')"
           asterisk-position="end"
-          :rules="[{ required: true, message: t('system.plugin.selectOriginize') }]"
+          :rules="[{ required: true, message: t('system.plugin.selectOrganizeTip') }]"
         >
           <a-select
             v-model="form.organizationIds"
             multiple
-            :placeholder="t('system.plugin.selectOriginize')"
+            :placeholder="t('system.plugin.selectOrganizeTip')"
             allow-clear
           >
-            <a-option v-for="item of originizeList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+            <a-option v-for="item of organizeList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
           </a-select>
         </a-form-item>
         <a-form-item field="description" :label="t('system.plugin.description')" asterisk-position="end">
@@ -40,7 +40,7 @@
     </div>
     <template #footer>
       <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
-      <a-button type="primary" :loading="confirmLoading" @click="handleOk">
+      <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleOk">
         {{ t('system.plugin.pluginConfirm') }}
       </a-button>
     </template>
@@ -57,7 +57,7 @@
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
-    originizeList: SelectOptionData;
+    organizeList: SelectOptionData;
   }>();
   const emits = defineEmits<{
     (e: 'success'): void;
