@@ -235,8 +235,8 @@ public class AuthSourceControllerTests extends BaseTest {
     private LdapRequest getRequest(String ldapUrl, String ldapDn, String ldapPassword) {
         LdapRequest ldapRequest = new LdapRequest();
         ldapRequest.setLdapUrl(ldapUrl);
-        ldapRequest.setLadpDn(ldapDn);
-        ldapRequest.setLadpPassword(ldapPassword);
+        ldapRequest.setLdapDn(ldapDn);
+        ldapRequest.setLdapPassword(ldapPassword);
         return ldapRequest;
     }
 }

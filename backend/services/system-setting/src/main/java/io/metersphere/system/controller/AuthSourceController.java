@@ -90,13 +90,14 @@ public class AuthSourceController {
 
 
     @PostMapping("/ldap/test-connect")
-    @Operation(summary = "ladp测试连接")
+    @Operation(summary = "ldap测试连接")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     public void ldapTestConnect(@Validated @RequestBody LdapRequest request) {
         ldapService.testConnect(request);
     }
 
     @PostMapping("/ldap/test-login")
+    @Operation(summary = "ldap测试登录")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     public void testLogin(@RequestBody LdapLoginRequest request) {
         ldapService.testLogin(request);

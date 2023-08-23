@@ -38,7 +38,7 @@ public class LdapService {
     }
 
     private LdapTemplate getConnect(LdapRequest request) {
-        String credentials = EncryptUtils.aesDecrypt(request.getLadpPassword()).toString();
+        String credentials = EncryptUtils.aesDecrypt(request.getLdapPassword()).toString();
         LdapContextSource sourceLdapCtx;
         if (StringUtils.startsWithIgnoreCase(request.getLdapUrl(), "ldaps://")) {
             sourceLdapCtx = new SSLLdapContextSource();
@@ -47,7 +47,7 @@ public class LdapService {
             sourceLdapCtx = new LdapContextSource();
         }
         sourceLdapCtx.setUrl(request.getLdapUrl());
-        sourceLdapCtx.setUserDn(request.getLadpDn());
+        sourceLdapCtx.setUserDn(request.getLdapDn());
         sourceLdapCtx.setPassword(credentials);
         sourceLdapCtx.setDirObjectFactory(DefaultDirObjectFactory.class);
         sourceLdapCtx.afterPropertiesSet();
@@ -59,7 +59,7 @@ public class LdapService {
         sourceLdapCtx.setBaseEnvironmentProperties(baseEnv);
         ldapTemplate.setDefaultSearchScope(SearchScope.SUBTREE.getId());
         try {
-            authenticate(request.getLadpDn(), credentials, ldapTemplate);
+            authenticate(request.getLdapDn(), credentials, ldapTemplate);
         } catch (AuthenticationException e) {
             LogUtils.error(e.getMessage(), e);
             throw new MSException(Translator.get("ldap_connect_fail_user"));

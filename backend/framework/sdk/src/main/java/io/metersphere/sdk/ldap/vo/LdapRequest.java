@@ -18,9 +18,9 @@ public class LdapRequest implements Serializable {
 
     @Schema(description = "LDAP绑定DN", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ldap_dn_is_null}")
-    private String ladpDn;
+    private String ldapDn;
 
     @Schema(description = "密码", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ldap_password_is_null}")
-    private String ladpPassword;
+    private String ldapPassword;
 }
