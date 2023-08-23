@@ -26,7 +26,7 @@ const Setting: AppRouteRecordRaw = {
       children: [
         {
           path: 'user',
-          name: SettingRouteEnum.SETTING_SYSTEM_USER,
+          name: SettingRouteEnum.SETTING_SYSTEM_USER_SINGLE,
           component: () => import('@/views/setting/system/user/index.vue'),
           meta: {
             locale: 'menu.settings.system.user',

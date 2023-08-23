@@ -112,6 +112,7 @@ export default {
   'system.resourcePool.jobTemplate': 'Job 模版',
   'system.resourcePool.jobTemplateTip':
     'Kubernetes Job 模版是一个YAML格式的文本，用于定义Job的运行参数，您可以在此处编辑Job模版。',
+  'system.resourcePool.jobTemplateReset': '重置 Job 模版',
   'system.resourcePool.addSuccess': '添加资源池成功',
   'system.resourcePool.updateSuccess': '更新资源池成功',
 };

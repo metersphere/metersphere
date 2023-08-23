@@ -8,7 +8,7 @@
       </div>
       <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
         <template #name="{ record }">
-          <a-button type="text" @click="openAuthDetail(record)">{{ record.name }}</a-button>
+          <a-button type="text" @click="openAuthDetail(record.id)">{{ record.name }}</a-button>
         </template>
         <template #action="{ record }">
           <MsButton @click="editAuth(record)">{{ t('system.config.auth.edit') }}</MsButton>
@@ -682,13 +682,13 @@
 
   /**
    * 查看认证源
-   * @param record 表格项
+   * @param id 表格项 id
    */
-  async function openAuthDetail(record: AuthItem) {
+  async function openAuthDetail(id: string) {
     try {
       showDetailDrawer.value = true;
       detailDrawerLoading.value = true;
-      const res = await getAuthDetail(record.id);
+      const res = await getAuthDetail(id);
       activeAuthDetail.value = { ...res, configuration: JSON.parse(res.configuration || '{}') };
       const { configuration } = activeAuthDetail.value;
       let description: Description[] = [
@@ -993,6 +993,22 @@
     showDrawer.value = false;
     authFormRef.value?.resetFields();
   }
+
+  defineExpose({
+    openAuthDetail, // 暴露给父组件以实现页面携带 ID 时自动打开详情抽屉
+  });
+
+  declare const _default: import('vue').DefineComponent<
+    unknown,
+    unknown,
+    import('vue').ComponentOptionsMixin,
+    import('vue').ComponentOptionsMixin,
+    {
+      openAuthDetail: (id: string) => void;
+    }
+  >;
+
+  export declare type AuthConfigInstance = InstanceType<typeof _default>;
 </script>
 
 <style lang="less" scoped></style>

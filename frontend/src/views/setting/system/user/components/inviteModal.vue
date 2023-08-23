@@ -11,8 +11,16 @@
         field="emails"
         :label="t('system.user.inviteEmail')"
         :rules="[{ required: true, message: t('system.user.createUserEmailNotNull') }]"
+        :validate-trigger="['blur', 'input']"
+        asterisk-position="end"
       >
-        <a-input-tag v-model="emailForm.emails" :placeholder="t('system.user.inviteEmailPlaceholder')" allow-clear />
+        <MsTagsInput
+          v-model:model-value="emailForm.emails"
+          placeholder="system.user.inviteEmailPlaceholder"
+          allow-clear
+          unique-value
+          retain-input-value
+        />
       </a-form-item>
       <a-form-item class="mb-0" field="userGroup" :label="t('system.user.createUserUserGroup')">
         <a-select
@@ -21,7 +29,15 @@
           :placeholder="t('system.user.createUserUserGroupPlaceholder')"
           allow-clear
         >
-          <a-option v-for="item of userGroupOptions" :key="item.value">{{ item.label }}</a-option>
+          <a-option
+            v-for="item of userGroupOptions"
+            :key="item.id"
+            :tag-props="{ closable: emailForm.userGroup.length > 1 }"
+            :value="item.id"
+            :disabled="emailForm.userGroup.includes(item.id) && emailForm.userGroup.length === 1"
+          >
+            {{ item.name }}
+          </a-option>
         </a-select>
       </a-form-item>
     </a-form>
@@ -37,13 +53,17 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
   import { cloneDeep } from 'lodash-es';
-  import { useI18n } from '@/hooks/useI18n';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+  import { useI18n } from '@/hooks/useI18n';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+
+  import type { SystemRole } from '@/models/setting/user';
 
   const { t } = useI18n();
 
   const props = defineProps<{
     visible: boolean;
+    userGroupOptions: SystemRole[];
   }>();
 
   const emit = defineEmits(['update:visible']);
@@ -52,24 +72,10 @@
   const inviteLoading = ref(false);
   const inviteFormRef = ref<FormInstance | null>(null);
   const defaultInviteForm = {
-    emails: [],
-    userGroup: [],
+    emails: [] as string[],
+    userGroup: [] as string[],
   };
   const emailForm = ref(cloneDeep(defaultInviteForm));
-  const userGroupOptions = ref([
-    {
-      label: 'Beijing',
-      value: 'Beijing',
-    },
-    {
-      label: 'Shanghai',
-      value: 'Shanghai',
-    },
-    {
-      label: 'Guangzhou',
-      value: 'Guangzhou',
-    },
-  ]);
 
   watch(
     () => props.visible,
@@ -82,6 +88,15 @@
     () => inviteVisible.value,
     (val) => {
       emit('update:visible', val);
+    }
+  );
+
+  watch(
+    () => props.userGroupOptions,
+    (arr) => {
+      if (arr.length) {
+        emailForm.value.userGroup = arr.filter((e: SystemRole) => e.selected === true).map((e: SystemRole) => e.id);
+      }
     }
   );
 

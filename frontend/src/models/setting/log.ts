@@ -1,3 +1,5 @@
+import type { RouteEnum } from '@/enums/routeEnum';
+
 export interface OptionsItem {
   id: string;
   name: string;
@@ -16,7 +18,7 @@ export interface LogItem {
   projectName: string;
   organizationId: string;
   organizationName: string;
-  module: string; // 操作对象
+  module: typeof RouteEnum; // 操作对象
   type: string; // 操作类型
   content: string; // 操作名称
   createTime: number;

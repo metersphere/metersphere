@@ -63,7 +63,7 @@ export default {
   'system.user.invite': 'Email invite',
   'system.user.inviteEmail': 'Email',
   'system.user.inviteCancel': 'Cancel',
-  'system.user.inviteEmailPlaceholder': 'Enter multiple email addresses, separated by spaces or carriage returns',
+  'system.user.inviteEmailPlaceholder': 'Enter multiple email addresses, separated by carriage returns',
   'system.user.inviteSendEmail': 'SendEmail',
   'system.user.inviteSuccess': 'Invitation successfully',
   'system.user.importModalTitle': 'Import user',

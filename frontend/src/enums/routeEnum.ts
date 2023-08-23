@@ -35,7 +35,7 @@ export enum WorkbenchRouteEnum {
 export enum SettingRouteEnum {
   SETTING = 'setting',
   SETTING_SYSTEM = 'settingSystem',
-  SETTING_SYSTEM_USER = 'settingSystemUser',
+  SETTING_SYSTEM_USER_SINGLE = 'settingSystemUser',
   SETTING_SYSTEM_USER_GROUP = 'settingSystemUserGroup',
   SETTING_SYSTEM_ORGANIZATION = 'settingSystemOrganization',
   SETTING_SYSTEM_PARAMETER = 'settingSystemParameter',

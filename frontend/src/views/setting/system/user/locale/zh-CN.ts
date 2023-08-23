@@ -62,7 +62,7 @@ export default {
   'system.user.invite': '邮箱邀请',
   'system.user.inviteEmail': '邮箱',
   'system.user.inviteCancel': '取消',
-  'system.user.inviteEmailPlaceholder': '可输入多个邮箱地址，空格或回车分隔',
+  'system.user.inviteEmailPlaceholder': '可输入多个邮箱地址，回车分隔',
   'system.user.inviteSendEmail': '发送邮件',
   'system.user.inviteSuccess': '邀请成功',
   'system.user.importModalTitle': '导入用户',

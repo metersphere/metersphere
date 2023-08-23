@@ -3,7 +3,7 @@
     v-model:visible="showJobDrawer"
     :width="680"
     :title="t('system.resourcePool.customJobTemplate')"
-    :footer="false"
+    :footer="!props.readOnly"
     @close="handleClose"
   >
     <MsCodeEditor
@@ -14,6 +14,9 @@
       theme="MS-text"
       :read-only="props.readOnly"
     />
+    <template v-if="!props.readOnly" #footer>
+      <a-button type="secondary" @click="resetTemplate">{{ t('system.resourcePool.jobTemplateReset') }}</a-button>
+    </template>
   </MsDrawer>
 </template>
 
@@ -22,6 +25,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import { job } from '../template';
 
   const props = defineProps<{
     visible: boolean;
@@ -67,6 +71,10 @@
       emit('update:visible', val);
     }
   );
+
+  function resetTemplate() {
+    jobDefinition.value = job;
+  }
 
   function handleClose() {
     emit('update:value', jobDefinition.value);

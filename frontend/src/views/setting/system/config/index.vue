@@ -15,22 +15,25 @@
   </MsCard>
   <baseConfig v-show="activeTab === 'baseConfig'" />
   <pageConfig v-if="isInitedPageConfig" v-show="activeTab === 'pageConfig'" />
-  <authConfig v-if="isInitedAuthConfig" v-show="activeTab === 'authConfig'" />
+  <authConfig v-if="isInitedAuthConfig" v-show="activeTab === 'authConfig'" ref="authConfigRef" />
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
+  import { onMounted, ref, watch } from 'vue';
+  import { useRoute } from 'vue-router';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { useI18n } from '@/hooks/useI18n';
   import baseConfig from './components/baseConfig.vue';
   import pageConfig from './components/pageConfig.vue';
-  import authConfig from './components/authConfig.vue';
+  import authConfig, { AuthConfigInstance } from './components/authConfig.vue';
 
   const { t } = useI18n();
+  const route = useRoute();
 
-  const activeTab = ref('baseConfig');
+  const activeTab = ref((route.query.tab as string) || 'baseConfig');
   const isInitedPageConfig = ref(activeTab.value === 'pageConfig');
   const isInitedAuthConfig = ref(activeTab.value === 'authConfig');
+  const authConfigRef = ref<AuthConfigInstance | null>();
 
   watch(
     () => activeTab.value,
@@ -40,8 +43,17 @@
       } else if (val === 'authConfig' && !isInitedAuthConfig.value) {
         isInitedAuthConfig.value = true;
       }
+    },
+    {
+      immediate: true,
     }
   );
+
+  onMounted(() => {
+    if (route.query.tab === 'authConfig' && route.query.id) {
+      authConfigRef.value?.openAuthDetail(route.query.id as string);
+    }
+  });
 </script>
 
 <style lang="less" scoped>
