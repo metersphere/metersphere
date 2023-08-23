@@ -71,7 +71,7 @@ public class TestPlanExecuteService {
         }
         TestPlanReport testPlanReport = null;
         try {
-            this.checkTestPlanCanRunning(testPlanId, projectId, runModeConfig);
+            this.checkTestPlanCanRunning(testPlanId, projectId, runModeConfig, triggerMode);
             //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
             TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanService.genTestPlanReport(planReportId, testPlanId, userId, triggerMode, runModeConfig);
             testPlanReport = reportInfoDTO.getTestPlanReport();
@@ -89,10 +89,10 @@ public class TestPlanExecuteService {
         return planReportId;
     }
 
-    private void checkTestPlanCanRunning(String testPlanId, String projectId, RunModeConfigDTO runModeConfig) throws Exception {
+    private void checkTestPlanCanRunning(String testPlanId, String projectId, RunModeConfigDTO runModeConfig, String triggerMode) throws Exception {
 
         // 校验测试计划是否在执行中
-        if (testPlanService.checkTestPlanIsRunning(testPlanId)) {
+        if (StringUtils.startsWith(triggerMode, "SCHEDULE") && testPlanService.checkTestPlanIsRunning(testPlanId)) {
 
             LogUtil.info("当前测试计划正在执行中，请稍后再试", testPlanId);
             MSException.throwException(Translator.get("test_plan_run_message"));
