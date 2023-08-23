@@ -8,13 +8,18 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
-import io.metersphere.sdk.dto.*;
+import io.metersphere.sdk.dto.AddProjectRequest;
+import io.metersphere.sdk.dto.ProjectDTO;
+import io.metersphere.sdk.dto.ProjectExtendDTO;
+import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.UserExtend;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
@@ -70,6 +75,8 @@ public class SystemProjectControllerTests extends BaseTest {
     private ProjectMapper projectMapper;
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
+    @Resource
+    private UserMapper userMapper;
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(url)
@@ -333,7 +340,8 @@ public class SystemProjectControllerTests extends BaseTest {
         projectDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ProjectDTO.class);
         //拿到所有的createUser
         List<String> createUsers = projectDTOS.stream().map(ProjectDTO::getCreateUser).toList();
-        Assertions.assertTrue(List.of("test").containsAll(createUsers));
+        User user = userMapper.selectByPrimaryKey("test");
+        Assertions.assertTrue(List.of(user.getName()).containsAll(createUsers));
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProjectList, projectRequest);
     }

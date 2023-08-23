@@ -28,7 +28,9 @@ public interface BaseUserMapper {
     List<String> selectUnDeletedUserIdByIdList(@Param("idList") List<String> userIdList);
 
     long deleteUser(String id, String deleteUser, long deleteTime);
+
     List<OptionDTO> selectUserOptionByIds(List<String> userIds);
 
     List<ExcludeOptionDTO> getExcludeSelectOption();
+
 }

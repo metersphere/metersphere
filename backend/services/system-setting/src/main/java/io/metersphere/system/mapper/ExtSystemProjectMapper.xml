@@ -33,6 +33,7 @@
                p.delete_time,
                p.deleted,
                p.delete_user,
+               p.update_user,
                p.enable,
                count(distinct u.id) as memberCount,
                o.name as organizationName,
