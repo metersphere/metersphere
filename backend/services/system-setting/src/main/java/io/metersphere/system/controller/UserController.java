@@ -56,11 +56,11 @@ public class UserController {
     @Resource
     private SystemProjectService systemProjectService;
 
-    @GetMapping("/get/{email}")
-    @Operation(summary = "通过email查找用户")
+    @GetMapping("/get/{keyword}")
+    @Operation(summary = "通过email或id查找用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
-    public UserDTO getUser(@PathVariable String email) {
-        return userService.getUserDTOByEmail(email);
+    public UserDTO getUser(@PathVariable String keyword) {
+        return userService.getUserDTOByKeyword(keyword);
     }
 
     @PostMapping("/add")

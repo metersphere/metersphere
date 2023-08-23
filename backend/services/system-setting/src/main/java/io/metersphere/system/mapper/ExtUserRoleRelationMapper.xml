@@ -2,13 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtUserRoleRelationMapper">
 
-    <select id="listByUserIdAndScope" resultType="io.metersphere.system.domain.UserRoleRelation">
+    <select id="selectGlobalRoleByUserIdList" resultType="io.metersphere.system.domain.UserRoleRelation">
         SELECT * FROM
         user_role_relation
         WHERE
         <foreach collection="userIds" item="userId" open="(" close=")" separator="OR">
             user_id = #{userId}
         </foreach>
+        AND role_id IN (
+        SELECT id FROM user_role WHERE type = 'SYSTEM' AND scope_id = 'global'
+        )
     </select>
     <select id="selectGlobalRoleByUserId" resultType="io.metersphere.system.domain.UserRoleRelation">
         SELECT * FROM
