@@ -39,15 +39,15 @@
             field="organizationIds"
             :label="t('system.plugin.selectOrganization')"
             asterisk-position="end"
-            :rules="[{ required: true, message: t('system.plugin.selectOriginize') }]"
+            :rules="[{ required: true, message: t('system.plugin.selectOrganizeTip') }]"
           >
             <a-select
               v-model="form.organizationIds"
               multiple
-              :placeholder="t('system.plugin.selectOriginize')"
+              :placeholder="t('system.plugin.selectOrganizeTip')"
               allow-clear
             >
-              <a-option v-for="item of originizeList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+              <a-option v-for="item of organizeList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
             </a-select>
           </a-form-item>
           <a-form-item field="describe" :label="t('system.plugin.description')" asterisk-position="end">
@@ -90,15 +90,18 @@
           </a-tooltip>
         </div>
         <div>
-          <a-space>
-            <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
-            <a-button type="secondary" :disabled="isDisabled" :loading="saveLoading" @click="saveAndAddPlugin">{{
-              t('system.plugin.saveAndAdd')
-            }}</a-button>
-            <a-button type="primary" :disabled="isDisabled" :loading="confirmLoading" @click="saveConfirm">{{
-              t('system.plugin.pluginConfirm')
-            }}</a-button>
-          </a-space>
+          <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
+          <a-button
+            class="mx-[12px]"
+            type="secondary"
+            :disabled="isDisabled"
+            :loading="saveLoading"
+            @click="saveAndAddPlugin"
+            >{{ t('system.plugin.saveAndAdd') }}</a-button
+          >
+          <a-button type="primary" :disabled="isDisabled" :loading="confirmLoading" @click="saveConfirm">{{
+            t('system.plugin.pluginConfirm')
+          }}</a-button>
         </div>
       </div>
     </template>
@@ -122,7 +125,7 @@
   }>();
   const props = defineProps<{
     visible: boolean;
-    originizeList: SelectOptionData;
+    organizeList: SelectOptionData;
   }>();
   const pluginVisible = ref(false);
   const fileName = ref<string>('');

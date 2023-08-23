@@ -42,7 +42,7 @@ export default {
   'system.plugin.pluginPreStep': '上一步',
   'system.plugin.saveAndAdd': '保存并继续添加',
   'system.plugin.updateTitle': '更新插件（{name}）',
-  'system.plugin.selectOriginize': '请选择组织',
+  'system.plugin.selectOrganizeTip': '请选择组织',
   'system.plugin.selectOrganization': '选择组织',
   'system.plugin.infoTip': '跳转至Github下载插件',
   'system.plugin.getPlugin': '获取开源插件',
@@ -81,5 +81,6 @@ export default {
   'system.plugin.all': '全部',
   'system.plugin.projectManagement': '项目管理',
   'system.plugin.pluginStatus': '插件状态',
+  'system.plugin.databaseDriver': '数据库驱动',
   'system.plugin.deleteContentTip': '删除后，将无法同步该平台的缺陷/需求，历史数据自动切换为其它模板展示，请谨慎操作！',
 };

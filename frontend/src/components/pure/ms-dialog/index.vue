@@ -4,7 +4,7 @@
     title-align="start"
     :class="['ms-modal-form', `ms-modal-${props.dialogSize}`]"
     v-bind="attrs"
-    :footer="props.showfooter"
+    :footer="props.footer"
     :mask-closable="false"
     @close="handleCancel"
   >
@@ -54,7 +54,6 @@
 
   const { t } = useI18n();
 
-  export type buttontype = 'text' | 'dashed' | 'outline' | 'primary' | 'secondary';
   export type SizeType = 'medium' | 'large' | 'small';
   export interface SwitchProps {
     switchTooltip?: string; // 展示开关提示信息描述
@@ -64,7 +63,7 @@
   }
 
   export type DialogType = Partial<{
-    showfooter: boolean; // 是否展示footer
+    footer: boolean; // 是否展示footer
     showCancel: boolean; // 是否显示取消按钮
     okText: string; // 确定按钮的文本
     cancelText: string; // 取消按钮的文本
@@ -73,18 +72,19 @@
   }> & {
     dialogSize: SizeType; // 弹窗的宽度尺寸 medium large small
     title: string;
-    confirm: (enable: boolean | undefined) => void; // 确定
+    confirm?: (enable: boolean | undefined) => void; // 确定
     visible: boolean;
     loading: boolean;
     close: () => void;
   };
 
   const props = withDefaults(defineProps<DialogType>(), {
-    showfooter: true,
+    footer: true,
     showCancel: true,
     title: '',
     disabledOk: false,
     close: Function,
+    confirm: undefined,
   });
   const emits = defineEmits<{
     (event: 'close'): void;
