@@ -1,8 +1,9 @@
 package io.metersphere.sdk.util;
 
 import io.metersphere.sdk.constants.InternalUserRole;
+import io.metersphere.sdk.constants.UserRoleScope;
+import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.SessionUser;
-import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRolePermission;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,7 +16,6 @@ import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -136,7 +136,7 @@ public class SessionUtils {
         Map<String, UserRole> role = new HashMap<>();
         SessionUser user = Objects.requireNonNull(SessionUtils.getUser());
         user.getUserRoleRelations().forEach(ug -> user.getUserRolePermissions().forEach(gp -> {
-            if (StringUtils.equals(gp.getUserRole().getId(), ug.getRoleId())) {
+            if (StringUtils.equalsIgnoreCase(gp.getUserRole().getId(), ug.getRoleId())) {
                 userRolePermissions.put(ug.getId(), gp.getUserRolePermissions());
                 role.put(ug.getId(), gp.getUserRole());
             }
@@ -144,7 +144,7 @@ public class SessionUtils {
 
         long count = user.getUserRoles()
                 .stream()
-                .filter(g -> StringUtils.equals(g.getId(), InternalUserRole.ADMIN.getValue()))
+                .filter(g -> StringUtils.equalsIgnoreCase(g.getId(), InternalUserRole.ADMIN.getValue()))
                 .count();
 
         if (count > 0) {
@@ -168,8 +168,8 @@ public class SessionUtils {
 
     private static Set<String> getSystemPermissions(Map<String, List<UserRolePermission>> userRolePermissions, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
-                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equals(role.get(ug.getId()).getType(), BaseUserRoleService.SYSTEM_TYPE))
-                .filter(ug -> StringUtils.equals(ug.getSourceId(), BaseUserRoleService.SYSTEM_TYPE) || StringUtils.equals(ug.getSourceId(), "'adminSourceId'"))
+                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equalsIgnoreCase(role.get(ug.getId()).getType(), UserRoleType.SYSTEM.name()))
+                .filter(ug -> StringUtils.equalsIgnoreCase(ug.getSourceId(), UserRoleScope.SYSTEM))
                 .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
                 .map(UserRolePermission::getPermissionId)
                 .collect(Collectors.toSet());
@@ -177,8 +177,8 @@ public class SessionUtils {
 
     private static Set<String> getCurrentOrganizationPermissions(Map<String, List<UserRolePermission>> userRolePermissions, String organizationId, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
-                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equals(role.get(ug.getId()).getType(), "ORGANIZATION"))
-                .filter(ug -> StringUtils.equals(ug.getSourceId(), organizationId))
+                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equalsIgnoreCase(role.get(ug.getId()).getType(), UserRoleType.ORGANIZATION.name()))
+                .filter(ug -> StringUtils.equalsIgnoreCase(ug.getSourceId(), organizationId))
                 .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
                 .map(UserRolePermission::getPermissionId)
                 .collect(Collectors.toSet());
@@ -186,8 +186,8 @@ public class SessionUtils {
 
     private static Set<String> getCurrentProjectPermissions(Map<String, List<UserRolePermission>> userRolePermissions, String projectId, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
-                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equals(role.get(ug.getId()).getType(), "PROJECT"))
-                .filter(ug -> StringUtils.equals(ug.getSourceId(), projectId))
+                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equalsIgnoreCase(role.get(ug.getId()).getType(), UserRoleType.PROJECT.name()))
+                .filter(ug -> StringUtils.equalsIgnoreCase(ug.getSourceId(), projectId))
                 .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
                 .map(UserRolePermission::getPermissionId)
                 .collect(Collectors.toSet());

@@ -1,11 +1,11 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.dto.TableBatchProcessResponse;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserRoleRelationService;
-import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
@@ -69,7 +69,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
             UserRoleRelation userRoleRelation = new UserRoleRelation();
             BeanUtils.copyBean(userRoleRelation, request);
             userRoleRelation.setUserId(userId);
-            userRoleRelation.setSourceId(GlobalUserRoleService.SYSTEM_TYPE);
+            userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
             checkExist(userRoleRelation);
             userRoleRelation.setCreateTime(System.currentTimeMillis());
             userRoleRelation.setId(UUID.randomUUID().toString());
@@ -108,7 +108,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
                 userRoleRelation.setRoleId(roleId);
                 userRoleRelation.setCreateUser(operator);
                 userRoleRelation.setCreateTime(createTime);
-                userRoleRelation.setSourceId(GlobalUserRoleService.SYSTEM_TYPE);
+                userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
                 userRoleRelation.setId(UUID.randomUUID().toString());
                 saveList.add(userRoleRelation);
             }
@@ -132,7 +132,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria()
                 .andUserIdEqualTo(userRoleRelation.getUserId())
-                .andSourceIdEqualTo(BaseUserRoleService.SYSTEM_TYPE);
+                .andSourceIdEqualTo(UserRoleScope.SYSTEM);
         if (CollectionUtils.isEmpty(userRoleRelationMapper.selectByExample(example))) {
             throw new MSException(GLOBAL_USER_ROLE_LIMIT);
         }

@@ -1,5 +1,7 @@
 package io.metersphere.system.utils.user;
 
+import io.metersphere.sdk.constants.UserRoleScope;
+import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.service.BaseUserRoleService;
@@ -86,8 +88,8 @@ public class UserParamUtils {
         //判断系统权限是否一样
         List<String> selectUserSystemRoleId
                 = selectUserDTO.getUserRoles().stream()
-                .filter(item -> (StringUtils.equals(item.getType(), BaseUserRoleService.SYSTEM_TYPE)
-                        && StringUtils.equals(item.getScopeId(), GlobalUserRoleService.GLOBAL_SCOPE)))
+                .filter(item -> (StringUtils.equalsIgnoreCase(item.getType(), UserRoleType.SYSTEM.name())
+                        && StringUtils.equalsIgnoreCase(item.getScopeId(), UserRoleScope.GLOBAL)))
                 .map(UserRole::getId).toList();
         Assertions.assertTrue(
                 editRequest.getUserRoleIdList().containsAll(selectUserSystemRoleId)

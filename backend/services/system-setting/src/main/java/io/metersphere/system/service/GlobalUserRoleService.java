@@ -1,5 +1,7 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.UserRoleScope;
+import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
@@ -33,7 +35,7 @@ import static io.metersphere.system.controller.result.SystemResultCode.*;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class GlobalUserRoleService extends BaseUserRoleService {
-    public static final String GLOBAL_SCOPE = "GLOBAL";
+
     @Resource
     private UserRoleMapper userRoleMapper;
     @Resource
@@ -41,7 +43,7 @@ public class GlobalUserRoleService extends BaseUserRoleService {
 
     public List<UserRole> list() {
         UserRoleExample example = new UserRoleExample();
-        example.createCriteria().andScopeIdEqualTo(GLOBAL_SCOPE);
+        example.createCriteria().andScopeIdEqualTo(UserRoleScope.GLOBAL);
         return userRoleMapper.selectByExample(example);
     }
 
@@ -49,7 +51,7 @@ public class GlobalUserRoleService extends BaseUserRoleService {
      * 校验是否是全局用户组，非全局抛异常
      */
     public void checkGlobalUserRole(UserRole userRole) {
-        if (!StringUtils.equals(userRole.getScopeId(), GLOBAL_SCOPE)) {
+        if (!StringUtils.equals(userRole.getScopeId(), UserRoleScope.GLOBAL)) {
             throw new MSException(GLOBAL_USER_ROLE_PERMISSION);
         }
     }
@@ -58,7 +60,7 @@ public class GlobalUserRoleService extends BaseUserRoleService {
      * 校验用户是否是系统用户组
      */
     public void checkSystemUserGroup(UserRole userRole) {
-        if (!StringUtils.equals(userRole.getType(), GlobalUserRoleService.SYSTEM_TYPE)) {
+        if (!StringUtils.equalsIgnoreCase(userRole.getType(), UserRoleType.SYSTEM.name())) {
             throw new MSException(GLOBAL_USER_ROLE_RELATION_SYSTEM_PERMISSION);
         }
     }
@@ -66,7 +68,7 @@ public class GlobalUserRoleService extends BaseUserRoleService {
     @Override
     public UserRole add(UserRole userRole) {
         userRole.setInternal(false);
-        userRole.setScopeId(GLOBAL_SCOPE);
+        userRole.setScopeId(UserRoleScope.GLOBAL);
         checkExist(userRole);
         return super.add(userRole);
     }
@@ -75,7 +77,7 @@ public class GlobalUserRoleService extends BaseUserRoleService {
         UserRoleExample example = new UserRoleExample();
         UserRoleExample.Criteria criteria = example.createCriteria()
                 .andNameEqualTo(userRole.getName())
-                .andScopeIdEqualTo(GLOBAL_SCOPE);
+                .andScopeIdEqualTo(UserRoleScope.GLOBAL);
         if (StringUtils.isNoneBlank(userRole.getId())) {
             criteria.andIdNotEqualTo(userRole.getId());
         }
@@ -111,7 +113,8 @@ public class GlobalUserRoleService extends BaseUserRoleService {
 
     public List<UserSelectOption> getGlobalSystemRoleList() {
         UserRoleExample example = new UserRoleExample();
-        example.createCriteria().andScopeIdEqualTo(GLOBAL_SCOPE).andTypeEqualTo(SYSTEM_TYPE);
+        example.createCriteria().andScopeIdEqualTo(UserRoleScope.GLOBAL)
+                .andTypeEqualTo(UserRoleType.SYSTEM.name());
         List<UserSelectOption> returnList = new ArrayList<>();
         userRoleMapper.selectByExample(example).forEach(userRole -> {
             UserSelectOption userRoleOption = new UserSelectOption();

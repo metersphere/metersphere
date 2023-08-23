@@ -7,11 +7,11 @@ VALUES ('SYSTEM', 'SYSTEM', 'SYSTEM@fit2cloud.com', MD5('metersphere'),
 
 -- 初始化一个用于权限测试的用户组，这里默认使用 SYSTEM 作为ID，如果是组织和项目级别类似，便于根据权限的前缀找到对应测试的用户组
 INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id)
-VALUES ('SYSTEM', '系统级别权限校验', '', 1, 'SYSTEM', 1620674220005, 1620674220000, 'admin', 'GLOBAL');
+VALUES ('SYSTEM', '系统级别权限校验', '', 1, 'SYSTEM', 1620674220005, 1620674220000, 'admin', 'global');
 
 -- 初始化用户和组的关系
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user)
-VALUES ('SYSTEM', 'SYSTEM', 'SYSTEM', 'SYSTEM', 1684747668375, 'admin');
+VALUES ('SYSTEM', 'SYSTEM', 'SYSTEM', 'system', 1684747668375, 'admin');
 
 -- 初始化用于权限测试的组织用户
 INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
@@ -22,7 +22,7 @@ VALUES ('ORGANIZATION', 'ORGANIZATION', 'ORGANIZATION@fit2cloud.com', MD5('meter
 
 -- 初始化一个用于权限测试的用户组，这里默认使用 ORGANIZATION 作为ID，如果是组织和项目级别类似，便于根据权限的前缀找到对应测试的用户组
 INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id)
-VALUES ('ORGANIZATION', '组织级别权限校验', '', 1, 'ORGANIZATION', 1620674220005, 1620674220000, 'admin', 'GLOBAL');
+VALUES ('ORGANIZATION', '组织级别权限校验', '', 1, 'ORGANIZATION', 1620674220005, 1620674220000, 'admin', 'global');
 
 -- 初始化用户和组的关系
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user)
