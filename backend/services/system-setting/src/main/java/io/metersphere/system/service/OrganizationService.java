@@ -48,8 +48,6 @@ public class OrganizationService {
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
-    private ExtUserRoleRelationMapper extUserRoleRelationMapper;
-    @Resource
     private UserMapper userMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
@@ -147,27 +145,29 @@ public class OrganizationService {
         List<LogDTO> logs = new ArrayList<>();
         OrganizationMemberBatchRequest batchRequest = new OrganizationMemberBatchRequest();
         batchRequest.setOrganizationIds(List.of(organizationMemberRequest.getOrganizationId()));
-        batchRequest.setMemberIds(organizationMemberRequest.getMemberIds());
+        batchRequest.setUserIds(organizationMemberRequest.getUserIds());
         addMemberBySystem(batchRequest, createUserId);
-        //添加日志
+        // 添加日志
+        UserExample example = new UserExample();
+        example.createCriteria().andIdIn(batchRequest.getUserIds());
+        List<User> users = userMapper.selectByExample(example);
         Organization organization = organizationMapper.selectByPrimaryKey(organizationMemberRequest.getOrganizationId());
-        setLog(organizationMemberRequest.getOrganizationId(), createUserId, OperationLogType.ADD.name(), organization.getName(),
-                ADD_MEMBER_PATH, null, batchRequest.getMemberIds(), logs);
+        setLog(organizationMemberRequest.getOrganizationId(), createUserId, OperationLogType.UPDATE.name(), organization.getName(), ADD_MEMBER_PATH, null, users, logs);
         operationLogService.batchAdd(logs);
     }
 
     /**
      * 组织添加成员公共方法(N个组织添加N个成员)
      *
-     * @param batchRequest 请求参数 [organizationIds 组织集合, memberIds 成员集合]
+     * @param batchRequest 请求参数 [organizationIds 组织集合, userIds 成员集合]
      * @param createUserId 创建人ID
      */
     public void addMemberBySystem(OrganizationMemberBatchRequest batchRequest, String createUserId) {
         checkOrgExistByIds(batchRequest.getOrganizationIds());
-        Map<String, User> userMap = checkUserExist(batchRequest.getMemberIds());
+        Map<String, User> userMap = checkUserExist(batchRequest.getUserIds());
         List<UserRoleRelation> userRoleRelations = new ArrayList<>();
         batchRequest.getOrganizationIds().forEach(organizationId -> {
-            for (String userId : batchRequest.getMemberIds()) {
+            for (String userId : batchRequest.getUserIds()) {
                 if (userMap.get(userId) == null) {
                     throw new MSException(Translator.get("user.not.exist") + ", id: " + userId);
                 }
@@ -213,8 +213,9 @@ public class OrganizationService {
         example.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
         userRoleRelationMapper.deleteByExample(example);
         // 操作记录
+        User user = userMapper.selectByPrimaryKey(userId);
         Organization organization = organizationMapper.selectByPrimaryKey(organizationId);
-        setLog(organizationId, userId, OperationLogType.DELETE.name(), organization.getName(), REMOVE_MEMBER_PATH, userId, null, logs);
+        setLog(organizationId, userId, OperationLogType.UPDATE.name(), organization.getName(), REMOVE_MEMBER_PATH, user, null, logs);
         operationLogService.batchAdd(logs);
     }
 
@@ -312,7 +313,7 @@ public class OrganizationService {
     public void addMemberByOrg(OrganizationMemberExtendRequest organizationMemberExtendRequest, String createUserId) {
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
         checkOrgExistById(organizationId);
-        Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getMemberIds());
+        Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getUserIds());
         Map<String, UserRole> userRoleMap = checkUseRoleExist(organizationMemberExtendRequest.getUserRoleIds(), organizationId);
         setRelationByMemberAndGroupIds(organizationMemberExtendRequest, createUserId, userMap, userRoleMap, true);
     }
@@ -322,7 +323,7 @@ public class OrganizationService {
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         List<LogDTO> logDTOList = new ArrayList<>();
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
-        organizationMemberExtendRequest.getMemberIds().forEach(memberId -> {
+        organizationMemberExtendRequest.getUserIds().forEach(memberId -> {
             if (userMap.get(memberId) == null) {
                 throw new MSException("id:" + memberId + Translator.get("user.not.exist"));
             }
@@ -373,7 +374,7 @@ public class OrganizationService {
     public void addMemberRole(OrganizationMemberExtendRequest organizationMemberExtendRequest, String userId) {
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
         checkOrgExistById(organizationId);
-        Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getMemberIds());
+        Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getUserIds());
         Map<String, UserRole> userRoleMap = checkUseRoleExist(organizationMemberExtendRequest.getUserRoleIds(), organizationId);
         //在新增组织成员与用户组和组织的关系
         setRelationByMemberAndGroupIds(organizationMemberExtendRequest, userId, userMap, userRoleMap, false);
@@ -387,7 +388,7 @@ public class OrganizationService {
         List<LogDTO> logDTOList = new ArrayList<>();
         List<String> projectIds = orgMemberExtendProjectRequest.getProjectIds();
         //用户不在当前组织内过掉
-        Map<String, User> userMap = checkUserExist(orgMemberExtendProjectRequest.getMemberIds());
+        Map<String, User> userMap = checkUserExist(orgMemberExtendProjectRequest.getUserIds());
         List<String> userIds = userMap.values().stream().map(User::getId).toList();
         userIds.forEach(memberId -> {
             projectIds.forEach(projectId -> {
@@ -730,12 +731,12 @@ public class OrganizationService {
     /**
      * 检查用户是否存在
      *
-     * @param memberIds 成员ID集合
+     * @param userIds 成员ID集合
      * @return 用户集合
      */
-    private Map<String, User> checkUserExist(List<String> memberIds) {
+    private Map<String, User> checkUserExist(List<String> userIds) {
         UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(memberIds);
+        userExample.createCriteria().andIdIn(userIds);
         List<User> users = userMapper.selectByExample(userExample);
         if (CollectionUtils.isEmpty(users)) {
             throw new MSException(Translator.get("user.not.exist"));
@@ -800,7 +801,7 @@ public class OrganizationService {
                 organizationId,
                 createUser,
                 type,
-                OperationLogModule.SYSTEM_ORGANIZATION,
+                OperationLogModule.SETTING_SYSTEM_ORGANIZATION,
                 content);
         dto.setPath(path);
         dto.setMethod(HttpMethodConstants.POST.name());

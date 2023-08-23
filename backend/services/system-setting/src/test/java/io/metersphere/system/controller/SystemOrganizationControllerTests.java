@@ -47,7 +47,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public static final String ORGANIZATION_ADD_MEMBER = "/system/organization/add-member";
     public static final String ORGANIZATION_REMOVE_MEMBER = "/system/organization/remove-member";
     public static final String ORGANIZATION_LIST_PROJECT = "/system/organization/list-project";
-    public static final String ORGANIZATION_MEMBER_OPTION = "/system/user/get-option";
+    public static final String ORGANIZATION_MEMBER_OPTION = "/system/organization/get-option";
     public static final String ORGANIZATION_TOTAL = "/system/organization/total";
 
     @Test
@@ -217,10 +217,10 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public void testAddOrganizationMemberSuccess() throws Exception {
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
-        organizationMemberRequest.setMemberIds(List.of("admin", "default-admin"));
+        organizationMemberRequest.setUserIds(List.of("admin", "default-admin"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 日志校验
-        checkLog(organizationMemberRequest.getOrganizationId(), OperationLogType.ADD);
+        checkLog(organizationMemberRequest.getOrganizationId(), OperationLogType.UPDATE);
         // 批量添加成员成功后, 验证是否添加成功
         OrganizationRequest organizationRequest = new OrganizationRequest();
         organizationRequest.setCurrent(1);
@@ -246,7 +246,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
                 || StringUtils.contains(userExtend.getEmail(), organizationRequest.getKeyword())
                 || StringUtils.contains(userExtend.getPhone(), organizationRequest.getKeyword()));
         // 权限校验
-        organizationMemberRequest.setMemberIds(List.of("admin"));
+        organizationMemberRequest.setUserIds(List.of("admin"));
         requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD, ORGANIZATION_ADD_MEMBER, organizationMemberRequest);
     }
 
@@ -255,7 +255,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public void testAddOrganizationMemberSuccessWithRepeatUser() throws Exception {
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
-        organizationMemberRequest.setMemberIds(List.of("admin"));
+        organizationMemberRequest.setUserIds(List.of("admin"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
         OrganizationRequest organizationRequest = new OrganizationRequest();
@@ -289,22 +289,22 @@ public class SystemOrganizationControllerTests extends BaseTest{
         // 成员选择为空
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
-        organizationMemberRequest.setMemberIds(Collections.emptyList());
+        organizationMemberRequest.setUserIds(Collections.emptyList());
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().isBadRequest());
         // 成员都不存在
         organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
-        organizationMemberRequest.setMemberIds(Arrays.asList("SccNotExistOne", "SccNotExistTwo"));
+        organizationMemberRequest.setUserIds(Arrays.asList("SccNotExistOne", "SccNotExistTwo"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().is5xxServerError());
         // 成员有一个不存在
         organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
-        organizationMemberRequest.setMemberIds(Arrays.asList("SccNotExistOne", "default-admin"));
+        organizationMemberRequest.setUserIds(Arrays.asList("SccNotExistOne", "default-admin"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().is5xxServerError());
         // 组织不存在
         organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-x");
-        organizationMemberRequest.setMemberIds(Arrays.asList("admin", "default-admin"));
+        organizationMemberRequest.setUserIds(Arrays.asList("admin", "default-admin"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().is5xxServerError());
     }
 
@@ -313,7 +313,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public void testRemoveOrganizationMemberSuccess() throws Exception {
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin", status().isOk());
         // 日志校验
-        checkLog("default-organization-3", OperationLogType.DELETE);
+        checkLog("default-organization-3", OperationLogType.UPDATE);
         // 权限校验
         requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_DELETE, ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin");
     }
@@ -415,7 +415,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         Assertions.assertNotNull(resultHolder);
 
         // 权限校验
-        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_READ, SystemOrganizationControllerTests.ORGANIZATION_MEMBER_OPTION + "/default-organization-2");
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, SystemOrganizationControllerTests.ORGANIZATION_MEMBER_OPTION + "/default-organization-2");
     }
 
     @Test

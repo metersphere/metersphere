@@ -14,7 +14,6 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.dto.UserBatchCreateDTO;
-import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.OrganizationMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.user.UserChangeEnableRequest;
@@ -29,8 +28,6 @@ import io.metersphere.system.utils.TreeNodeParseUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
@@ -118,14 +115,6 @@ public class UserController {
         return userService.resetPassword(request, SessionUtils.getUserId());
     }
 
-    @GetMapping("/get-option/{sourceId}")
-    @Operation(summary = "系统-组织及项目, 获取用户下拉选项")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_READ})
-    @Parameter(name = "sourceId", description = "组织ID或项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-    public List<UserExtend> getMemberOption(@PathVariable String sourceId) {
-        return userService.getMemberOption(sourceId);
-    }
-
     @GetMapping("/get/global/system/role")
     @Operation(summary = "查找系统级用户权限")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
@@ -175,7 +164,7 @@ public class UserController {
         userRoleBatchRelationRequest.setSelectIds(userService.getBatchUserIds(userRoleBatchRelationRequest));
         OrganizationMemberBatchRequest request = new OrganizationMemberBatchRequest();
         request.setOrganizationIds(userRoleBatchRelationRequest.getRoleIds());
-        request.setMemberIds(userRoleBatchRelationRequest.getSelectIds());
+        request.setUserIds(userRoleBatchRelationRequest.getSelectIds());
         organizationService.addMemberBySystem(request, SessionUtils.getUserId());
         return new TableBatchProcessResponse(userRoleBatchRelationRequest.getSelectIds().size(), userRoleBatchRelationRequest.getSelectIds().size());
     }

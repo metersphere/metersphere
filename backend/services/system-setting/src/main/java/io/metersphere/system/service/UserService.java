@@ -413,8 +413,26 @@ public class UserService {
         return userMapper.selectByExample(example);
     }
 
+    /**
+     * 获取组织, 项目系统成员选项
+     *
+     * @param sourceId 组织ID, 项目ID
+     * @return 系统用户选项
+     */
     public List<UserExtend> getMemberOption(String sourceId) {
         return extUserMapper.getMemberOption(sourceId);
+    }
+
+    /**
+     * 获取系统用户选项
+     *
+     * @return 系统用户选项
+     */
+    public List<OptionDTO> getMemberOption() {
+        UserExample example = new UserExample();
+        example.setOrderByClause("update_time desc");
+        List<User> users = userMapper.selectByExample(example);
+        return users.stream().map(user -> new OptionDTO(user.getId(), user.getName())).toList();
     }
 
     public TableBatchProcessResponse resetPassword(TableBatchProcessDTO request, String operator) {

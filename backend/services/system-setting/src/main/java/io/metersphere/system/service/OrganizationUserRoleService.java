@@ -4,20 +4,26 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.service.BaseUserRoleService;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.mapper.*;
+import io.metersphere.system.dto.UserExtend;
+import io.metersphere.system.mapper.ExtUserRoleMapper;
+import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.mapper.UserRoleMapper;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.result.SystemResultCode.NO_ORG_USER_ROLE_PERMISSION;
 
@@ -34,6 +40,8 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
 
     @Resource
     UserMapper userMapper;
+    @Resource
+    BaseUserMapper baseUserMapper;
     @Resource
     UserRoleMapper userRoleMapper;
     @Resource
@@ -70,6 +78,35 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
         // 非组织用户组不允许删除, 内置用户组不允许删除
         checkOrgUserRole(userRole);
         super.delete(userRole, InternalUserRole.ORG_MEMBER.getValue(), currentUserId);
+    }
+
+    public List<UserExtend> getMember(String organizationId, String roleId) {
+        List<UserExtend> userExtends = new ArrayList<>();
+        // 查询所有用户
+        List<User> users = baseUserMapper.findAll();
+        Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
+        // 查询组织下所有用户关系
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andSourceIdEqualTo(organizationId);
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(userRoleRelations)) {
+            Map<String, List<String>> userRoleMap = userRoleRelations.stream().collect(Collectors.groupingBy(UserRoleRelation::getUserId,
+                    Collectors.mapping(UserRoleRelation::getRoleId, Collectors.toList())));
+            userRoleMap.forEach((k, v) -> {
+                UserExtend userExtend = new UserExtend();
+                User user = userMap.get(k);
+                if (user != null) {
+                    BeanUtils.copyBean(userExtend, user);
+                }
+                v.forEach(roleItem -> {
+                    if (StringUtils.equals(roleItem, roleId)) {
+                        userExtend.setCheckRoleFlag(true);
+                    }
+                });
+                userExtends.add(userExtend);
+            });
+        }
+        return userExtends;
     }
 
     public List<User> listMember(OrganizationUserRoleMemberRequest request) {

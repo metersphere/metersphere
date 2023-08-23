@@ -7,6 +7,7 @@ import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
@@ -14,6 +15,10 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+/**
+ * @author song-cc-rock
+ */
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class OrganizationUserRoleLogService {
@@ -30,13 +35,13 @@ public class OrganizationUserRoleLogService {
         LogDTO dto = new LogDTO(
                 OperationLogConstants.ORGANIZATION,
                 request.getScopeId(),
-                null,
+                OperationLogConstants.SYSTEM,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.ORGANIZATION_USER_ROLE,
+                OperationLogModule.SETTING_ORGANIZATION_USER_ROLE,
                 request.getName());
 
-        dto.setOriginalValue(JSON.toJSONBytes(request));
+        dto.setOriginalValue(JSON.toJSONBytes(request.getName()));
         return dto;
     }
 
@@ -49,13 +54,17 @@ public class OrganizationUserRoleLogService {
         LogDTO dto = new LogDTO(
                 OperationLogConstants.ORGANIZATION,
                 request.getScopeId(),
-                request.getId(),
+                OperationLogConstants.SYSTEM,
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.ORGANIZATION_USER_ROLE,
+                OperationLogModule.SETTING_ORGANIZATION_USER_ROLE,
                 request.getName());
 
-        dto.setOriginalValue(JSON.toJSONBytes(request));
+        UserRoleExample example = new UserRoleExample();
+        example.createCriteria().andIdEqualTo(request.getId());
+        UserRole userRole = userRoleMapper.selectByExample(example).get(0);
+        dto.setOriginalValue(JSON.toJSONBytes(userRole.getName()));
+        dto.setModifiedValue(JSON.toJSONBytes(request.getName()));
         return dto;
     }
 
@@ -69,13 +78,13 @@ public class OrganizationUserRoleLogService {
         LogDTO dto = new LogDTO(
                 OperationLogConstants.ORGANIZATION,
                 userRole.getScopeId(),
-                id,
+                OperationLogConstants.SYSTEM,
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.ORGANIZATION_USER_ROLE,
+                OperationLogModule.SETTING_ORGANIZATION_USER_ROLE,
                 userRole.getName());
 
-        dto.setOriginalValue(JSON.toJSONBytes(userRole));
+        dto.setOriginalValue(JSON.toJSONBytes(userRole.getName()));
         return dto;
     }
 
@@ -99,7 +108,7 @@ public class OrganizationUserRoleLogService {
     public LogDTO editMemberLog(OrganizationUserRoleMemberEditRequest request) {
         LogDTO dto = getLog(request.getUserRoleId());
         dto.setType(OperationLogType.UPDATE.name());
-        dto.setOriginalValue(JSON.toJSONBytes(request));
+        dto.setModifiedValue(JSON.toJSONBytes(request));
         return dto;
     }
 
@@ -108,10 +117,10 @@ public class OrganizationUserRoleLogService {
         return new LogDTO(
                 OperationLogConstants.ORGANIZATION,
                 userRole.getScopeId(),
-                roleId,
+                OperationLogConstants.SYSTEM,
                 null,
                 null,
-                OperationLogModule.ORGANIZATION_USER_ROLE,
+                OperationLogModule.SETTING_ORGANIZATION_USER_ROLE,
                 userRole.getName());
     }
 }

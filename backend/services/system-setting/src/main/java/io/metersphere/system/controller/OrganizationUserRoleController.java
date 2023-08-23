@@ -13,6 +13,7 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
@@ -92,6 +93,13 @@ public class OrganizationUserRoleController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePermissionSettingLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
         organizationUserRoleService.updatePermissionSetting(request);
+    }
+
+    @GetMapping("/get-member/option/{organizationId}/{roleId}")
+    @Operation(summary = "获取组织用户组-成员下拉选项")
+    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_USER_ROLE_READ})
+    public List<UserExtend> getMember(@PathVariable String organizationId, @PathVariable String roleId) {
+        return organizationUserRoleService.getMember(organizationId, roleId);
     }
 
     @PostMapping("/list-member")

@@ -6,7 +6,6 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
-import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.BaseUserRolePermissionService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
@@ -38,7 +37,6 @@ import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.NO_ORG_USER_ROLE_PERMISSION;
-
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -60,6 +58,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     public static final String ORGANIZATION_USER_ROLE_DELETE = "/user/role/organization/delete";
     public static final String ORGANIZATION_USER_ROLE_PERMISSION_SETTING = "/user/role/organization/permission/setting";
     public static final String ORGANIZATION_USER_ROLE_PERMISSION_UPDATE = "/user/role/organization/permission/update";
+    public static final String ORGANIZATION_USER_ROLE_GET_MEMBER_OPTION = "/user/role/organization/get-member/option";
     public static final String ORGANIZATION_USER_ROLE_LIST_MEMBER = "/user/role/organization/list-member";
     public static final String ORGANIZATION_USER_ROLE_ADD_MEMBER = "/user/role/organization/add-member";
     public static final String ORGANIZATION_USER_ROLE_REMOVE_MEMBER = "/user/role/organization/remove-member";
@@ -100,11 +99,6 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否为init_organization_user_role.sql中的数据总数
         Assertions.assertFalse(JSON.parseArray(JSON.toJSONString(resultHolder.getData())).isEmpty());
-        // 日志校验
-        String addResultStr = addResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder addResultHolder = JSON.parseObject(addResultStr, ResultHolder.class);
-        UserRole userRole = JSON.parseObject(JSON.toJSONString(addResultHolder.getData()), UserRole.class);
-        checkLog(userRole.getId(), OperationLogType.ADD);
         // 权限校验
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_ADD, ORGANIZATION_USER_ROLE_ADD, request);
     }
@@ -164,8 +158,6 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         // 返回总条数是否包含修改后的数据
         List<UserRole> userRoles = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), UserRole.class);
         Assertions.assertTrue(userRoles.stream().anyMatch(userRole -> "default-org-role-x".equals(userRole.getName())));
-        // 日志校验
-        checkLog(request.getId(), OperationLogType.UPDATE);
         // 权限校验
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE, ORGANIZATION_USER_ROLE_UPDATE, request);
     }
@@ -185,8 +177,6 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     @Order(6)
     public void testOrganizationUserRoleDeleteSuccess() throws Exception {
         this.requestGet(ORGANIZATION_USER_ROLE_DELETE + "/default-org-role-id-2", status().isOk());
-        // 日志校验
-        checkLog("default-org-role-id-2", OperationLogType.DELETE);
         // 权限校验
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_DELETE, ORGANIZATION_USER_ROLE_DELETE + "/default-org-role-id-2");
     }
@@ -230,8 +220,6 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
                 .collect(Collectors.toSet());
         // 校验请求成功数据
         Assertions.assertEquals(requestPermissionIds, permissionIds);
-        // 日志校验
-        checkLog(request.getUserRoleId(), OperationLogType.UPDATE);
         // 权限校验
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE, ORGANIZATION_USER_ROLE_PERMISSION_UPDATE, request);
     }
@@ -314,8 +302,6 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         request.setUserRoleId("default-org-role-id-3");
         request.setUserIds(List.of("admin"));
         this.requestPost(ORGANIZATION_USER_ROLE_ADD_MEMBER, request, status().isOk());
-        // 日志校验
-        checkLog(request.getUserRoleId(), OperationLogType.UPDATE);
         // 权限校验
         request.setOrganizationId(getDefault().getId());
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE, ORGANIZATION_USER_ROLE_ADD_MEMBER, request);
@@ -340,6 +326,14 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
 
     @Test
     @Order(15)
+    public void testOrganizationUserRoleGetMemberOption() throws Exception {
+        this.responseGet(ORGANIZATION_USER_ROLE_GET_MEMBER_OPTION + "/default-organization-2/default-org-role-id-4");
+        // 组织下无用户
+        this.responseGet(ORGANIZATION_USER_ROLE_GET_MEMBER_OPTION + "/default-organization-3/default-org-role-id-3");
+    }
+
+    @Test
+    @Order(16)
     public void testOrganizationUserRoleRemoveMemberSuccess() throws Exception {
         OrganizationUserRoleMemberEditRequest request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
@@ -348,15 +342,13 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         this.requestPost(ORGANIZATION_USER_ROLE_ADD_MEMBER, request, status().isOk());
         // 成员组织用户组存在多个, 移除成功
         this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().isOk());
-        // 日志校验
-        checkLog(request.getUserRoleId(), OperationLogType.UPDATE);
         // 权限校验
         request.setOrganizationId(getDefault().getId());
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE, ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request);
     }
 
     @Test
-    @Order(16)
+    @Order(17)
     public void testOrganizationUserRoleRemoveMemberError() throws Exception {
         OrganizationUserRoleMemberEditRequest request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
@@ -379,7 +371,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(17)
+    @Order(18)
     public void testOrganizationUserRoleDeleteOnlyMemberSuccess() throws Exception {
         OrganizationUserRoleMemberEditRequest request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");

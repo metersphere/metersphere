@@ -27,5 +27,5 @@ public class OrganizationEditRequest implements Serializable {
     private String description;
 
     @Schema(description =  "成员ID集合")
-    private List<String> memberIds;
+    private List<String> userIds;
 }
