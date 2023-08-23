@@ -225,10 +225,10 @@ public class SystemParameterService {
         LogDTO dto = new LogDTO(
                 OperationLogConstants.SYSTEM,
                 OperationLogConstants.SYSTEM,
-                "system-parameter",
+                OperationLogConstants.SYSTEM,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SETTING_SYSTEM_PARAMETER,
+                OperationLogModule.SETTING_SYSTEM_PARAMETER_BASE_CONFIG,
                 "基础设置");
 
         dto.setPath("/system/parameter/save/base-info");
@@ -242,10 +242,10 @@ public class SystemParameterService {
         LogDTO dto = new LogDTO(
                 OperationLogConstants.SYSTEM,
                 OperationLogConstants.SYSTEM,
-                "system-parameter",
+                OperationLogConstants.SYSTEM,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SETTING_SYSTEM_PARAMETER,
+                OperationLogModule.SETTING_SYSTEM_PARAMETER_BASE_CONFIG,
                 "基础设置");
 
         dto.setPath("/system/parameter/edit/email-info");

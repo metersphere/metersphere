@@ -56,6 +56,7 @@ public class OrganizationLogControllerTests extends BaseTest {
         request.setType("add");
         request.setModule("SYSTEM_PARAMETER_SETTING");
         request.setContent("认证配置");
+        request.setOrganizationIds(Arrays.asList("organization_id_001", "organization_id_002"));
         this.requestPostWithOkAndReturn(ORGANIZATION_LOG_LIST, request);
 
         //项目级别 指定项目查询

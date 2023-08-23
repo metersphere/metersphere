@@ -9,6 +9,7 @@ import io.metersphere.sdk.log.vo.OperationLogRequest;
 import io.metersphere.sdk.log.vo.OperationLogResponse;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.response.OrganizationProjectOptionsResponse;
@@ -17,11 +18,13 @@ import io.metersphere.system.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -70,6 +73,10 @@ public class OrganizationLogController {
     public Pager<List<OperationLogResponse>> organizationLogList(@Validated @RequestBody OperationLogRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        if (CollectionUtils.isEmpty(request.getOrganizationIds())) {
+            //未传组织id 获取登录用户当前组织id
+            request.setOrganizationIds(Arrays.asList(SessionUtils.getCurrentOrganizationId()));
+        }
         return PageUtils.setPageInfo(page, operationLogService.list(request));
     }
 
