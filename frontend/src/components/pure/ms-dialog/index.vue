@@ -21,7 +21,8 @@
             <a-tooltip v-if="props.switchProps?.switchTooltip" :content="t(props.switchProps?.switchTooltip)">
               <span class="flex items-center"
                 ><span class="mr-1">{{ props.switchProps?.switchName }}</span>
-                <span><svg-icon width="16px" height="16px" :name="'infotip'" /></span
+                <span class="mt-[2px]"
+                  ><IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" /></span
               ></span>
             </a-tooltip>
           </div>

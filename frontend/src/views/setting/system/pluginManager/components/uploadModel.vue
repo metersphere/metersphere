@@ -16,9 +16,9 @@
               <span class="absolute right-0 top-1 flex items-center">
                 <span class="float-left">{{ t('system.plugin.getPlugin') }}</span>
                 <a-tooltip :content="t('system.plugin.infoTip')" position="bottom">
-                  <a class="float-left mx-2" href="javascript:;">
-                    <svg-icon width="16px" height="16px" :name="'infotip'"
-                  /></a>
+                  <span class="float-left mx-1 mt-[2px]">
+                    <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
+                  </span>
                 </a-tooltip>
               </span>
             </a-form-item>
@@ -81,7 +81,12 @@
               <div class="text-sm">{{ t('system.plugin.statusEnableTip') }}</div>
               <div class="text-sm">{{ t('system.plugin.statusDisableTip') }}</div>
             </template>
-            <a class="mx-2" href="javascript:;"> <svg-icon width="16px" height="16px" :name="'infotip'" /></a>
+            <div class="mx-1 flex h-[32px] items-center">
+              <span class="mr-1">{{ t('system.plugin.pluginStatus') }}</span>
+              <span class="mt-[2px]"
+                ><IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]"
+              /></span>
+            </div>
           </a-tooltip>
         </div>
         <div>
@@ -136,7 +141,6 @@
     return !(fileList.value.length > 0);
   });
   const form = ref({ ...initForm });
-  // const originizeList = ref<SelectOptionData>([]);
 
   const resetForm = () => {
     form.value = { ...initForm };
@@ -211,9 +215,6 @@
   watchEffect(() => {
     fileName.value = fileList.value[0]?.name as string;
   });
-  // onBeforeMount(async () => {
-  //   // originizeList.value = await getAllOrgList();
-  // });
 </script>
 
 <style scoped lang="less">
