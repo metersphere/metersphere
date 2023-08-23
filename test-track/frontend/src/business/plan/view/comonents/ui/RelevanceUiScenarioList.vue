@@ -294,7 +294,7 @@ export default {
     },
     selectCountChange(data) {
       this.selectRows = this.$refs.scenarioTable.selectRows;
-      this.selectAll = this.$refs.scenarioTable.showSelectAll;
+      this.selectAll = this.$refs.scenarioTable.condition.selectAll;
       this.$emit("selectCountChange", data);
       this.initProjectIds();
     },
