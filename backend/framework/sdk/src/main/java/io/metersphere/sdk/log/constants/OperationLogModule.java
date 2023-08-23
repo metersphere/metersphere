@@ -71,5 +71,8 @@ public class OperationLogModule {
     public static final String SETTING_ORGANIZATION = "SETTING_ORGANIZATION";
     public static final String SETTING_ORGANIZATION_MEMBER = "SETTING_ORGANIZATION_MEMBER";
     public static final String SETTING_ORGANIZATION_SERVICE = "SETTING_ORGANIZATION_SERVICE";
+    
+    //系统设置-组织-项目
+    public static final String SETTING_SYSTEM_ORGANIZATION_PROJECT = "SETTING_SYSTEM_ORGANIZATION_PROJECT";
 
 }

@@ -232,7 +232,7 @@ public class CommonProjectService {
                 memberRequest.setProjectIds(List.of(project.getId()));
                 memberRequest.setUserIds(insertIds);
                 this.addProjectAdmin(memberRequest, updateUser, path, OperationLogType.ADD.name(),
-                        Translator.get("update"), module);
+                        Translator.get("add"), module);
             }
         } else {
             if (CollectionUtils.isNotEmpty(orgUserIds)) {

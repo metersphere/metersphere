@@ -46,7 +46,7 @@ public class OrganizationProjectService {
      * @return
      */
     public ProjectExtendDTO add(AddProjectRequest addProjectDTO, String createUser) {
-        return commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.ORGANIZATION_PROJECT);
+        return commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.SETTING_SYSTEM_ORGANIZATION_PROJECT);
     }
 
     public List<ProjectDTO> getProjectList(OrganizationProjectRequest request) {
@@ -57,7 +57,7 @@ public class OrganizationProjectService {
     }
 
     public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
-        return commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.ORGANIZATION_PROJECT);
+        return commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.SETTING_SYSTEM_ORGANIZATION_PROJECT);
     }
 
     public int delete(String id, String deleteUser) {
@@ -76,11 +76,11 @@ public class OrganizationProjectService {
      */
     public void addProjectMember(ProjectAddMemberBatchRequest request, String createUser) {
         commonProjectService.addProjectMember(request, createUser, ADD_MEMBER,
-                OperationLogType.ADD.name(), Translator.get("add"), OperationLogModule.ORGANIZATION_PROJECT);
+                OperationLogType.ADD.name(), Translator.get("add"), OperationLogModule.SETTING_SYSTEM_ORGANIZATION_PROJECT);
     }
 
     public int removeProjectMember(String projectId, String userId, String createUser) {
-        return commonProjectService.removeProjectMember(projectId, userId, createUser,OperationLogModule.ORGANIZATION_PROJECT, StringUtils.join(REMOVE_PROJECT_MEMBER,projectId, "/", userId));
+        return commonProjectService.removeProjectMember(projectId, userId, createUser, OperationLogModule.SETTING_SYSTEM_ORGANIZATION_PROJECT, StringUtils.join(REMOVE_PROJECT_MEMBER, projectId, "/", userId));
     }
 
     public int revoke(String id) {

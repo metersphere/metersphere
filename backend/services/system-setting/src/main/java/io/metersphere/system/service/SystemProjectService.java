@@ -45,7 +45,7 @@ public class SystemProjectService {
      * @return
      */
     public ProjectExtendDTO add(AddProjectRequest addProjectDTO, String createUser) {
-        return commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.SYSTEM_PROJECT);
+        return commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.SETTING_SYSTEM_ORGANIZATION);
     }
 
     public List<ProjectDTO> getProjectList(ProjectRequest request) {
@@ -54,7 +54,7 @@ public class SystemProjectService {
     }
 
     public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
-        return commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.SYSTEM_PROJECT);
+        return commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.SETTING_SYSTEM_ORGANIZATION);
     }
 
     public int delete(String id, String deleteUser) {
@@ -73,11 +73,11 @@ public class SystemProjectService {
      */
     public void addProjectMember(ProjectAddMemberBatchRequest request, String createUser) {
         commonProjectService.addProjectMember(request, createUser, ADD_MEMBER,
-                OperationLogType.ADD.name(), Translator.get("add"), OperationLogModule.SYSTEM_PROJECT);
+                OperationLogType.ADD.name(), Translator.get("add"), OperationLogModule.SETTING_SYSTEM_ORGANIZATION);
     }
 
     public int removeProjectMember(String projectId, String userId, String createUser) {
-        return commonProjectService.removeProjectMember(projectId, userId, createUser,OperationLogModule.SYSTEM_PROJECT, StringUtils.join(REMOVE_PROJECT_MEMBER,projectId, "/", userId));
+        return commonProjectService.removeProjectMember(projectId, userId, createUser, OperationLogModule.SETTING_SYSTEM_ORGANIZATION, StringUtils.join(REMOVE_PROJECT_MEMBER, projectId, "/", userId));
     }
 
     public int revoke(String id) {
