@@ -191,7 +191,6 @@ public class OrganizationService {
             userRoleRelationMapper.batchInsert(userRoleRelations);
         }
     }
-
     /**
      * 删除组织成员
      *

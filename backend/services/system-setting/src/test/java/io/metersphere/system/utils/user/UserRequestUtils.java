@@ -2,7 +2,9 @@ package io.metersphere.system.utils.user;
 
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Pager;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -124,5 +126,14 @@ public class UserRequestUtils {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
+    }
+
+    public Pager<?> selectUserPage(BasePageRequest basePageRequest) throws Exception {
+        MvcResult mvcResult = this.responsePost(this.URL_USER_PAGE, basePageRequest);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        //返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
     }
 }

@@ -52,12 +52,14 @@ public class UserController {
     private OrganizationService organizationService;
     @Resource
     private SystemProjectService systemProjectService;
+    @Resource
+    private UserLogService userLogService;
 
-    @GetMapping("/get/{email}")
-    @Operation(summary = "通过email查找用户")
+    @GetMapping("/get/{keyword}")
+    @Operation(summary = "通过email或id查找用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
-    public UserDTO getUser(@PathVariable String email) {
-        return userService.getUserDTOByEmail(email);
+    public UserDTO getUser(@PathVariable String keyword) {
+        return userService.getUserDTOByKeyword(keyword);
     }
 
     @PostMapping("/add")
@@ -70,7 +72,7 @@ public class UserController {
     @PostMapping("/update")
     @Operation(summary = "修改用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = UserService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = UserLogService.class)
     public UserEditRequest updateUser(@Validated({Updated.class}) @RequestBody UserEditRequest request) {
         return userService.updateUser(request, SessionUtils.getUserId());
     }
@@ -87,7 +89,7 @@ public class UserController {
     @PostMapping("/update/enable")
     @Operation(summary = "启用/禁用用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateLog(#request)", msClass = UserService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateLog(#request)", msClass = UserLogService.class)
     public TableBatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
         return userService.updateUserEnable(request, SessionUtils.getSessionId());
     }
@@ -101,7 +103,7 @@ public class UserController {
 
     @PostMapping("/delete")
     @Operation(summary = "删除用户")
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#request)", msClass = UserService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#request)", msClass = UserLogService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
     public TableBatchProcessResponse deleteUser(@Validated @RequestBody TableBatchProcessDTO request) {
         return userService.deleteUser(request, SessionUtils.getUserId());
@@ -110,7 +112,7 @@ public class UserController {
     @PostMapping("/reset/password")
     @Operation(summary = "重置用户密码")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.resetPasswordLog(#request)", msClass = UserService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.resetPasswordLog(#request)", msClass = UserLogService.class)
     public TableBatchProcessResponse resetPassword(@Validated @RequestBody TableBatchProcessDTO request) {
         return userService.resetPassword(request, SessionUtils.getUserId());
     }
@@ -141,7 +143,7 @@ public class UserController {
     @Operation(summary = "批量添加用户到多个用户组中")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     @Log(type = OperationLogType.ADD, expression = "#msClass.batchAddLog(#request)", msClass = GlobalUserRoleRelationLogService.class)
-    public TableBatchProcessResponse batchAdd(@Validated({Created.class}) @RequestBody UserRoleBatchRelationRequest request) {
+    public TableBatchProcessResponse batchAddUserGroupRole(@Validated({Created.class}) @RequestBody UserRoleBatchRelationRequest request) {
         return globalUserRoleRelationService.batchAdd(request, SessionUtils.getUserId());
     }
 
@@ -153,6 +155,7 @@ public class UserController {
         request.setProjectIds(userRoleBatchRelationRequest.getRoleIds());
         request.setUserIds(userRoleBatchRelationRequest.getSelectIds());
         systemProjectService.addProjectMember(request, SessionUtils.getUserId());
+        userLogService.batchAddProjectLog(userRoleBatchRelationRequest, SessionUtils.getUserId());
         return new TableBatchProcessResponse(userRoleBatchRelationRequest.getSelectIds().size(), userRoleBatchRelationRequest.getSelectIds().size());
     }
 
@@ -166,6 +169,7 @@ public class UserController {
         request.setOrganizationIds(userRoleBatchRelationRequest.getRoleIds());
         request.setUserIds(userRoleBatchRelationRequest.getSelectIds());
         organizationService.addMemberBySystem(request, SessionUtils.getUserId());
+        userLogService.batchAddOrgLog(userRoleBatchRelationRequest, SessionUtils.getUserId());
         return new TableBatchProcessResponse(userRoleBatchRelationRequest.getSelectIds().size(), userRoleBatchRelationRequest.getSelectIds().size());
     }
 }

@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface BaseUserMapper {
-    UserDTO selectByEmail(String email);
+    UserDTO selectDTOByKeyword(String keyword);
 
     UserDTO selectById(String id);
 
