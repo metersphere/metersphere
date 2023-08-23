@@ -345,7 +345,7 @@ public class OrganizationService {
                                 memberId,
                                 createUserId,
                                 type,
-                                OperationLogModule.ORGANIZATION_MEMBER,
+                                OperationLogModule.SETTING_ORGANIZATION_MEMBER,
                                 "成员");
                         setLog(dto, path, logDTOList, userRoleRelation);
                     }
@@ -443,7 +443,7 @@ public class OrganizationService {
                     userRoleWidthProjectRelation.getId(),
                     userRoleWidthProjectRelation.getCreateUser(),
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.ORGANIZATION_MEMBER,
+                    OperationLogModule.SETTING_ORGANIZATION_MEMBER,
                     "成员");
 
             dto.setPath("/organization/remove-member/{organizationId}/{userId}");
@@ -458,7 +458,7 @@ public class OrganizationService {
                     userRoleWidthOrgRelation.getId(),
                     userRoleWidthOrgRelation.getCreateUser(),
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.ORGANIZATION_MEMBER,
+                    OperationLogModule.SETTING_ORGANIZATION_MEMBER,
                     "成员");
 
             dto.setPath("/organization/remove-member/{organizationId}/{userId}");
@@ -531,7 +531,7 @@ public class OrganizationService {
                             memberId,
                             createUserId,
                             OperationLogType.UPDATE.name(),
-                            OperationLogModule.ORGANIZATION_MEMBER,
+                            OperationLogModule.SETTING_ORGANIZATION_MEMBER,
                             "成员");
                     setLog(dto, path, logDTOList, "");
                 }
@@ -564,7 +564,7 @@ public class OrganizationService {
                     memberId,
                     createUserId,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.ORGANIZATION_MEMBER,
+                    OperationLogModule.SETTING_ORGANIZATION_MEMBER,
                     "成员");
             setLog(dto, path, logDTOList, userRoleRelation);
         });
@@ -601,7 +601,7 @@ public class OrganizationService {
                     memberId,
                     createUserId,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.ORGANIZATION_MEMBER,
+                    OperationLogModule.SETTING_ORGANIZATION_MEMBER,
                     "成员");
             setLog(dto, path, logDTOList, userRoleRelation);
         });
