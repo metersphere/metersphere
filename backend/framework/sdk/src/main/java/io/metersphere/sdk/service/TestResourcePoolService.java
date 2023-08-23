@@ -295,7 +295,7 @@ public class TestResourcePoolService {
                 request.getId(),
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
+                OperationLogModule.SETTING_SYSTEM_RESOURCE_POOL,
                 request.getName());
 
         dto.setPath("/test/resource/pool/add");
@@ -313,7 +313,7 @@ public class TestResourcePoolService {
                     id,
                     pool.getCreateUser(),
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
+                    OperationLogModule.SETTING_SYSTEM_RESOURCE_POOL,
                     pool.getName());
 
             dto.setPath("/delete");
@@ -334,7 +334,7 @@ public class TestResourcePoolService {
                     pool.getId(),
                     pool.getCreateUser(),
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
+                    OperationLogModule.SETTING_SYSTEM_RESOURCE_POOL,
                     "更新资源池配置");
 
             dto.setPath("/update");
