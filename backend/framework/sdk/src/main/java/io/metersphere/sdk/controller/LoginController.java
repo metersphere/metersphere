@@ -4,6 +4,7 @@ package io.metersphere.sdk.controller;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.sdk.controller.handler.result.MsHttpResultCode;
 import io.metersphere.sdk.dto.LoginRequest;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,7 +37,7 @@ public class LoginController {
 
     @GetMapping(value = "/is-login")
     @Operation(summary = "是否登录")
-    public ResultHolder isLogin() throws Exception {
+    public ResultHolder isLogin(HttpServletResponse response) throws Exception {
         RsaKey rsaKey = RsaUtil.getRsaKey();
         SessionUser user = SessionUtils.getUser();
         if (user != null) {
@@ -53,7 +55,8 @@ public class LoginController {
             }
             return ResultHolder.success(sessionUser);
         }
-        throw new MSException(rsaKey.getPublicKey());
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        return ResultHolder.error(MsHttpResultCode.UNAUTHORIZED.getCode(), rsaKey.getPublicKey());
     }
 
     @PostMapping(value = "/login")
