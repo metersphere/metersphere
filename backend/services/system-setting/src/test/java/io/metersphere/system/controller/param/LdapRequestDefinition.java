@@ -12,8 +12,8 @@ public class LdapRequestDefinition {
     private String ldapUrl;
 
     @NotBlank(message = "{ldap_dn_is_null}")
-    private String ladpDn;
+    private String ldapDn;
 
     @NotBlank(message = "{ldap_password_is_null}")
-    private String ladpPassword;
+    private String ldapPassword;
 }
