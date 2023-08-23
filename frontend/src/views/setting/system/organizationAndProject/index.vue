@@ -33,13 +33,14 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, onMounted, watch, nextTick } from 'vue';
+  import { ref, watch, nextTick, onBeforeMount } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import AddOrganizationModal from './components/addOrganizationModal.vue';
   import SystemOrganization from './components/systemOrganization.vue';
   import SystemProject from './components/systemProject.vue';
   import AddProjectModal from './components/addProjectModal.vue';
+  import { getOrgAndProjectCount } from '@/api/modules/setting/organizationAndProject';
 
   const { t } = useI18n();
   const currentTable = ref('project');
@@ -94,13 +95,27 @@
     tableSearch();
     organizationVisible.value = false;
   };
+
+  // 初始化项目数量和组织数量
+  const initOrgAndProjectCount = async () => {
+    try {
+      const res = await getOrgAndProjectCount();
+      organizationCount.value = res.organizationTotal;
+      projectCount.value = res.projectTotal;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  };
+
   watch(
     () => currentTable.value,
     () => {
       tableSearch();
     }
   );
-  onMounted(() => {
+  onBeforeMount(() => {
     tableSearch();
+    initOrgAndProjectCount();
   });
 </script>

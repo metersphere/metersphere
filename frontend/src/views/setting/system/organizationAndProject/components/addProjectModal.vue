@@ -85,7 +85,7 @@
   import { reactive, ref, watchEffect, computed } from 'vue';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { createOrUpdateProject, getSystemOrgOption } from '@/api/modules/setting/system/organizationAndProject';
+  import { createOrUpdateProject, getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
   import { Message } from '@arco-design/web-vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
@@ -184,3 +184,4 @@
     }
   });
 </script>
+@/api/modules/setting/organizationAndProject

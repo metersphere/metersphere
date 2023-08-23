@@ -1,5 +1,5 @@
 import MSR from '@/api/http/index';
-import * as orgUrl from '@/api/requrls/setting/system/organizationAndProject';
+import * as orgUrl from '@/api/requrls/setting/organizationAndProject';
 import { TableQueryParams } from '@/models/common';
 import { AddUserToOrgOrProjectParams } from '@/models/setting/systemOrg';
 import {
@@ -90,4 +90,9 @@ export function createOrUpdateProject(data: CreateOrUpdateSystemProjectParams) {
 // 创建项目或组织时获取所有用户
 export function getAllUser() {
   return MSR.get({ url: orgUrl.getOrgOrProjectAdminUrl });
+}
+
+// 获取项目和组织的总数
+export function getOrgAndProjectCount() {
+  return MSR.get({ url: orgUrl.getOrgAndProjectCountUrl });
 }

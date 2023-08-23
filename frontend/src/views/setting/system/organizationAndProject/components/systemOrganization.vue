@@ -61,7 +61,7 @@
     deleteOrg,
     enableOrDisableOrg,
     revokeDeleteOrg,
-  } from '@/api/modules/setting/system/organizationAndProject';
+  } from '@/api/modules/setting/organizationAndProject';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
@@ -285,3 +285,4 @@
     cursor: pointer;
   }
 </style>
+@/api/modules/setting/organizationAndProject

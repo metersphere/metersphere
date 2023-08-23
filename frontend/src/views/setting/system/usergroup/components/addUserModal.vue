@@ -33,7 +33,7 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect, onUnmounted, onMounted } from 'vue';
+  import { reactive, ref, watchEffect, onMounted } from 'vue';
   import { UserTableItem } from '@/models/setting/usergroup';
   import { useUserGroupStore } from '@/store';
   import { getUserList, addUserToUserGroup } from '@/api/modules/setting/usergroup';
@@ -78,29 +78,31 @@
   });
 
   const handleCancel = () => {
+    labelCache.clear();
+    form.name = [];
     emit('cancel');
   };
 
   const handleBeforeOk = () => {
-    loading.value = true;
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (errors) {
-        loading.value = false;
-        return false;
+        return;
       }
-      await addUserToUserGroup({ roleId: store.currentId, userIds: form.name });
-      return true;
+      try {
+        loading.value = true;
+        await addUserToUserGroup({ roleId: store.currentId, userIds: form.name });
+        handleCancel();
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+      } finally {
+        loading.value = false;
+      }
     });
   };
 
   onMounted(() => {
     initUserList();
-  });
-
-  onUnmounted(() => {
-    labelCache.clear();
-    form.name = [];
-    loading.value = false;
   });
 </script>
 

@@ -23,7 +23,7 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
   import { ref, onMounted, watch } from 'vue';
-  import { getUserByOrganizationOrProject, getAllUser } from '@/api/modules/setting/system/organizationAndProject';
+  import { getUserByOrganizationOrProject, getAllUser } from '@/api/modules/setting/organizationAndProject';
 
   export interface MsUserSelectorProps {
     value: string[];
@@ -100,3 +100,4 @@
     }
   );
 </script>
+@/api/modules/setting/organizationAndProject

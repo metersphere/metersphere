@@ -52,3 +52,6 @@ export const getEnableProjectUrl = '/system/project/enable/';
 export const getDisableProjectUrl = '/system/project/disable/';
 // 获取组织或项目的管理员
 export const getOrgOrProjectAdminUrl = '/system/project/user-list';
+
+// 获取项目和组织的总数
+export const getOrgAndProjectCountUrl = '/system/organization/total';

@@ -187,6 +187,7 @@
       item.indeterminate = false;
       item.perChecked = allChecked.value ? item.permissions?.map((ele) => ele.id) : [];
     });
+    if (!canSave.value) canSave.value = true;
   };
 
   // 表格总全选联动触发事件
