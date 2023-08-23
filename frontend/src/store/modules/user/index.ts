@@ -103,12 +103,10 @@ const useUserStore = defineStore('user', {
         if (appStore.currentOrgId === '') {
           appStore.setCurrentOrgId(res.lastOrganizationId || '');
         }
-        return true;
       } catch (err) {
         const { t } = useI18n();
         Message.error(t('message.loginExpired'));
         this.logoutCallBack();
-        return false;
       }
     },
   },

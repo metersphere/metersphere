@@ -68,11 +68,7 @@
       console.log(error);
     }
   });
-  onMounted(async () => {
-    const res = await userStore.isLogin();
-    if (!res) {
-      const router = useRouter();
-      router.push({ name: 'login' });
-    }
+  onMounted(() => {
+    userStore.isLogin();
   });
 </script>
