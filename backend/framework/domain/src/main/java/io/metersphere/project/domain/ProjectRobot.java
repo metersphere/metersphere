@@ -12,26 +12,26 @@ import lombok.Data;
 public class ProjectRobot implements Serializable {
     @Schema(description = "id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_robot.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 255, message = "{project_robot.id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{project_robot.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_robot.project_id.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{project_robot.project_id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{project_robot.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_robot.name.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{project_robot.name.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{project_robot.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(description = "所属平台（飞书，钉钉，企业微信，自定义）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_robot.platform.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{project_robot.platform.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{project_robot.platform.length_range}", groups = {Created.class, Updated.class})
     private String platform;
 
     @Schema(description = "webhook", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_robot.webhook.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{project_robot.webhook.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{project_robot.webhook.length_range}", groups = {Created.class, Updated.class})
     private String webhook;
 
