@@ -10,7 +10,8 @@
     <select id="getUserListByOrgId" resultType="io.metersphere.system.domain.User">
         SELECT DISTINCT
             u.id,
-            u.NAME
+            u.NAME,
+            u.email
         FROM
             `user` u
                 LEFT JOIN user_role_relation urr ON u.id = urr.user_id
