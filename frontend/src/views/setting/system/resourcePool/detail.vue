@@ -346,7 +346,7 @@
   import { downloadStringFile, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { addPool, getPoolInfo, updatePoolInfo } from '@/api/modules/setting/resourcePool';
-  import { getSystemOrgOption } from '@/api/modules/setting/system/organizationAndProject';
+  import { getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
   import useAppStore from '@/store/modules/app';
 
   import type { MsBatchFormInstance, FormItemModel } from '@/components/business/ms-batch-form/types';
