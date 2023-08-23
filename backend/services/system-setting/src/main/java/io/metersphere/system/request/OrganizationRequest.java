@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class OrganizationRequest extends BasePageRequest {
+
     @Schema(description =  "组织ID")
     private String organizationId;
 }

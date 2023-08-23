@@ -5,16 +5,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.AddProjectRequest;
-import io.metersphere.sdk.dto.ProjectDTO;
-import io.metersphere.sdk.dto.ProjectExtendDTO;
-import io.metersphere.sdk.dto.UpdateProjectRequest;
+import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
-import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
@@ -147,10 +143,10 @@ public class SystemProjectController {
     }
 
     @GetMapping("/user-list")
-    @Operation(summary = "获取用户列表")
+    @Operation(summary = "系统-组织及项目, 获取管理员下拉选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public List<User> getUserList() {
-        return userService.getUserList();
+    public List<OptionDTO> getUserList() {
+        return userService.getMemberOption();
     }
 
 }

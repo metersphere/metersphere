@@ -17,6 +17,7 @@ import io.metersphere.system.request.OrganizationRequest;
 import io.metersphere.system.request.ProjectRequest;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SystemProjectService;
+import io.metersphere.system.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -39,6 +40,8 @@ import java.util.Map;
 @RequestMapping("/system/organization")
 public class SystemOrganizationController {
 
+    @Resource
+    private UserService userService;
     @Resource
     private SystemProjectService systemProjectService;
     @Resource
@@ -110,5 +113,13 @@ public class SystemOrganizationController {
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public Map<String, Long> getTotal(@RequestParam(value = "organizationId",required = false) String organizationId) {
         return organizationService.getTotal(organizationId);
+    }
+
+    @GetMapping("/get-option/{sourceId}")
+    @Operation(summary = "系统-组织及项目, 获取成员抽屉下拉用户选项")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ})
+    @Parameter(name = "sourceId", description = "组织ID或项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    public List<UserExtend> getMemberOption(@PathVariable String sourceId) {
+        return userService.getMemberOption(sourceId);
     }
 }

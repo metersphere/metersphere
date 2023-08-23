@@ -13,3 +13,5 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUE
     (uuid(), 'default-org-role-id-3', 'ORGANIZATION_USER_ROLE:READ');
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user) VALUE
     (UUID(), 'default-admin-user', 'default-org-role-id-3', 'default-organization-2', UNIX_TIMESTAMP() * 1000, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user) VALUE
+    (UUID(), 'default-admin-user-x', 'default-org-role-id-4', 'default-organization-2', UNIX_TIMESTAMP() * 1000, 'admin');

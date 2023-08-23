@@ -42,7 +42,7 @@ public class OrganizationDTO extends Organization {
      */
     @Schema(description =  "组织管理员ID集合")
     @NotEmpty(groups = {Created.class, Updated.class}, message = "{member.id.not_empty}")
-    private List<String> memberIds;
+    private List<String> userIds;
 
     /**
      * 创建人是否是管理员

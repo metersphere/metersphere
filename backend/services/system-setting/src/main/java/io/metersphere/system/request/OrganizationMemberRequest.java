@@ -28,5 +28,5 @@ public class OrganizationMemberRequest implements Serializable {
      */
     @Schema(description =  "成员ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{user.id.not_blank}")
-    private List<String> memberIds;
+    private List<String> userIds;
 }
