@@ -206,3 +206,28 @@ export function mapTree<T>(
     })
     .filter(Boolean);
 }
+
+/**
+ * 根据属性 key 查找树形数组中匹配的某个节点
+ * @param trees 属性数组
+ * @param targetKey 需要匹配的属性值
+ * @param customKey 默认为 key，可自定义需要匹配的属性名
+ * @returns 匹配的节点/null
+ */
+export function findNodeByKey<T>(trees: TreeNode<T>[], targetKey: string, customKey = 'key'): TreeNode<T> | null {
+  for (let i = 0; i < trees.length; i++) {
+    const node = trees[i];
+    if (node[customKey] === targetKey) {
+      return node; // 如果当前节点的 key 与目标 key 匹配，则返回当前节点
+    }
+
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      const _node = findNodeByKey(node.children, targetKey); // 递归在子节点中查找
+      if (_node) {
+        return _node; // 如果在子节点中找到了匹配的节点，则返回该节点
+      }
+    }
+  }
+
+  return null; // 如果在整个树形数组中都没有找到匹配的节点，则返回 null
+}

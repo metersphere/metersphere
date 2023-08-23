@@ -23,7 +23,7 @@
 
 <style lang="less" scoped>
   .ms-button {
-    @apply inline-block cursor-pointer align-middle;
+    @apply flex cursor-pointer items-center align-middle;
     &:not(:last-child) {
       @apply mr-4;
     }

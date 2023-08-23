@@ -1,3 +1,5 @@
+import type { BatchApiParams } from '@/models/common';
+
 // 用户所属用户组模型
 export interface UserRoleListItem {
   id: string;
@@ -71,8 +73,7 @@ export interface CreateUserParams {
   userInfoList: SimpleUserInfo[];
   userRoleIdList: string[];
 }
-export interface UpdateUserStatusParams {
-  userIdList: string[];
+export interface UpdateUserStatusParams extends BatchApiParams {
   enable: boolean;
 }
 
@@ -80,9 +81,8 @@ export interface ImportUserParams {
   fileList: (File | undefined)[];
 }
 
-export interface DeleteUserParams {
-  userIdList: string[];
-}
+export type DeleteUserParams = BatchApiParams;
+export type ResetUserPasswordParams = BatchApiParams;
 
 export interface SystemRole {
   id: string;
@@ -97,7 +97,6 @@ export interface ImportResult {
   errorMessages: Record<string, any>;
 }
 
-export interface BatchAddUserGroupParams {
-  userIds: string[]; // 用户 id 集合
+export interface BatchAddUserGroupParams extends BatchApiParams {
   roleIds: string[]; // 用户组 id 集合
 }

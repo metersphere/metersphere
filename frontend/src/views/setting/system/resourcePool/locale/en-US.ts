@@ -118,4 +118,7 @@ export default {
   'system.resourcePool.jobTemplate': 'Job Templates',
   'system.resourcePool.jobTemplateTip':
     'A Kubernetes job template is a text in YAML format, which is used to define the running parameters of the job. You can edit the job template here.',
+  'system.resourcePool.jobTemplateReset': 'Reset Template',
+  'system.resourcePool.addSuccess': 'Added resource pool successfully',
+  'system.resourcePool.updateSuccess': 'Resource pool updated successfully',
 };

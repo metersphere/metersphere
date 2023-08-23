@@ -1,5 +1,4 @@
 import { RouteEnum } from '@/enums/routeEnum';
-import { TreeNode, mapTree } from '@/utils';
 
 export const MENU_LEVEL = ['SYSTEM', 'ORGANIZATION', 'PROJECT'] as const; // 菜单级别
 
@@ -8,8 +7,9 @@ export const MENU_LEVEL = ['SYSTEM', 'ORGANIZATION', 'PROJECT'] as const; // 菜
  * key 是与后台商定的映射 key
  * locale 是国际化的 key
  * route 是路由的 name
+ * routeQuery 是路由的固定参数集合，与routeParamKeys互斥，用于跳转同一个路由但不同 tab 时或其他需要固定参数的情况
  * permission 是权限的 key 集合
- * level 是菜单级别
+ * level 是菜单级别，用于筛选不同级别的路由/tab
  * children 是子路由/tab集合
  */
 export const pathMap = [
@@ -28,9 +28,9 @@ export const pathMap = [
         level: MENU_LEVEL[0],
         children: [
           {
-            key: 'SETTING_SYSTEM_USER', // 系统设置-系统-用户
+            key: 'SETTING_SYSTEM_USER_SINGLE', // 系统设置-系统-用户
             locale: 'menu.settings.system.user',
-            route: RouteEnum.SETTING_SYSTEM_USER,
+            route: RouteEnum.SETTING_SYSTEM_USER_SINGLE,
             permission: [],
             level: MENU_LEVEL[0],
           },
@@ -56,21 +56,30 @@ export const pathMap = [
             level: MENU_LEVEL[0],
             children: [
               {
-                key: 'SETTING_SYSTEM_PARAMETER', // 系统设置-系统-系统参数-基础设置
+                key: 'SETTING_SYSTEM_PARAMETER_BASE_CONFIG', // 系统设置-系统-系统参数-基础设置
                 locale: 'system.config.baseConfig',
                 route: RouteEnum.SETTING_SYSTEM_PARAMETER,
+                permission: [],
                 level: MENU_LEVEL[0],
               },
               {
                 key: 'SETTING_SYSTEM_PARAMETER_PAGE_CONFIG', // 系统设置-系统-系统参数-界面设置
                 locale: 'system.config.pageConfig',
                 route: RouteEnum.SETTING_SYSTEM_PARAMETER,
+                permission: [],
+                routeQuery: {
+                  tab: 'pageConfig',
+                },
                 level: MENU_LEVEL[0],
               },
               {
                 key: 'SETTING_SYSTEM_PARAMETER_AUTH_CONFIG', // 系统设置-系统-系统参数-认证设置
                 locale: 'system.config.authConfig',
                 route: RouteEnum.SETTING_SYSTEM_PARAMETER,
+                permission: [],
+                routeQuery: {
+                  tab: 'authConfig',
+                },
                 level: MENU_LEVEL[0],
               },
             ],
@@ -136,40 +145,6 @@ export const pathMap = [
     route: RouteEnum.PROJECT_MANAGEMENT,
     permission: [],
     level: MENU_LEVEL[2],
-    children: [
-      {
-        key: 'PROJECT_MANAGEMENT_LOG', // 项目管理-日志
-        locale: 'menu.projectManagement.log',
-        route: RouteEnum.PROJECT_MANAGEMENT_LOG,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-    ],
+    children: [],
   },
 ];
-
-/**
- * 根据菜单级别过滤映射树
- * @param level 菜单级别
- * @param customNodeFn 自定义过滤函数
- * @returns 过滤后的映射树
- */
-export const getPathMapByLevel = <T>(
-  level: (typeof MENU_LEVEL)[number],
-  customNodeFn: (node: TreeNode<T>) => TreeNode<T> | null = (node) => node
-) => {
-  return mapTree(pathMap, (e) => {
-    let isValid = true; // 默认是系统级别
-    if (level === MENU_LEVEL[1]) {
-      // 组织级别只展示组织、项目
-      isValid = e.level !== MENU_LEVEL[0];
-    } else if (level === MENU_LEVEL[2]) {
-      // 项目级别只展示项目
-      isValid = e.level !== MENU_LEVEL[0] && e.level !== MENU_LEVEL[1];
-    }
-    if (isValid) {
-      return typeof customNodeFn === 'function' ? customNodeFn(e) : e;
-    }
-    return null;
-  });
-};

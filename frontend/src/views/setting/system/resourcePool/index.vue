@@ -15,13 +15,13 @@
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
       <template #name="{ record }">
-        <a-button type="text" @click="showPoolDetail(record)">{{ record.name }}</a-button>
+        <a-button type="text" @click="showPoolDetail(record.id)">{{ record.name }}</a-button>
       </template>
       <template #action="{ record }">
         <MsButton @click="editPool(record)">{{ t('system.resourcePool.editPool') }}</MsButton>
-        <MsButton v-if="record.enable" @click="disabledPool(record)">{{
-          t('system.resourcePool.tableDisable')
-        }}</MsButton>
+        <MsButton v-if="record.enable" @click="disabledPool(record)">
+          {{ t('system.resourcePool.tableDisable') }}
+        </MsButton>
         <MsButton v-else @click="enablePool(record)">{{ t('system.resourcePool.tableEnable') }}</MsButton>
         <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
       </template>
@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
   import { onMounted, Ref, ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRouter, useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { useI18n } from '@/hooks/useI18n';
   import { getPoolList, delPoolInfo, togglePoolStatus, getPoolInfo } from '@/api/modules/setting/resourcePool';
@@ -77,6 +77,7 @@
 
   const { t } = useI18n();
   const router = useRouter();
+  const route = useRoute();
 
   const columns: MsTableColumn = [
     {
@@ -242,16 +243,16 @@
   const drawerLoading = ref(false);
   /**
    * 查看资源池详情
-   * @param record
+   * @param id 资源池 id
    */
-  async function showPoolDetail(record: any) {
-    if (activePool.value?.id === record.id && showDetailDrawer.value) {
+  async function showPoolDetail(id: string) {
+    if (activePool.value?.id === id && showDetailDrawer.value) {
       return;
     }
     drawerLoading.value = true;
     showDetailDrawer.value = true;
     try {
-      const res = await getPoolInfo(record.id);
+      const res = await getPoolInfo(id);
       if (res) {
         activePool.value = res;
         const poolUses = [
@@ -399,6 +400,13 @@
       drawerLoading.value = false;
     }
   }
+
+  onMounted(() => {
+    if (route.query.id) {
+      // 地址栏携带 id，自动打开资源池详情抽屉
+      showPoolDetail(route.query.id as string);
+    }
+  });
 
   /**
    * 编辑资源池

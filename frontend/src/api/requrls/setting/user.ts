@@ -15,4 +15,4 @@ export const GetSystemRoleUrl = '/system/user/get/global/system/role';
 // 重置用户密码
 export const ResetPasswordUrl = '/system/user/reset/password';
 // 批量添加用户到多个用户组
-export const BatchAddUserGroupUrl = '/user/role/relation/global/add/batch';
+export const BatchAddUserGroupUrl = '/system/user/add/batch/user-role';

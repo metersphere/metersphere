@@ -45,7 +45,7 @@
         <a-option v-for="opt of typeOptions" :key="opt.value" :value="opt.value">{{ t(opt.label) }}</a-option>
       </a-select>
       <MsCascader
-        v-model="_module"
+        v-model:model-value="_module"
         :options="moduleOptions"
         mode="native"
         :prefix="t('system.log.operateTarget')"
@@ -78,6 +78,12 @@
       <template #range="{ record }">
         {{ `${record.organizationName}${record.projectName ? `/${record.projectName}` : ''}` }}
       </template>
+      <template #module="{ record }">
+        {{ getModuleLocale(record.module) }}
+      </template>
+      <template #type="{ record }">
+        {{ t(typeOptions.find((e) => e.value === record.type)?.label || '') }}
+      </template>
       <template #content="{ record }">
         <MsButton @click="handleNameClick(record)">{{ record.content }}</MsButton>
       </template>
@@ -90,6 +96,7 @@
   import dayjs from 'dayjs';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { useI18n } from '@/hooks/useI18n';
+  import usePathMap from '@/hooks/usePathMap';
   import { getLogList, getLogOptions, getLogUsers } from '@/api/modules/setting/log';
   import MsCascader from '@/components/business/ms-cascader/index.vue';
   import useTableStore from '@/store/modules/ms-table';
@@ -97,12 +104,12 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import { MENU_LEVEL, getPathMapByLevel } from '@/config/pathMap';
+  import { MENU_LEVEL } from '@/config/pathMap';
   import MsSearchSelect from '@/components/business/ms-search-select/index';
 
   import type { CascaderOption, SelectOptionData } from '@arco-design/web-vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import type { MsTimeLineListItem } from '@/components/pure/ms-timeline/types';
+  import type { LogItem } from '@/models/setting/log';
 
   const props = defineProps<{
     mode: (typeof MENU_LEVEL)[number]; // 日志展示模式，系统/组织/项目
@@ -228,6 +235,7 @@
 
   const moduleOptions = ref<CascaderOption[]>([]);
   const moduleLocaleMap = ref<Record<string, string>>({});
+  const { getPathMapByLevel, jumpRouteByMapKey } = usePathMap();
 
   function initModuleOptions() {
     moduleOptions.value = getPathMapByLevel(props.mode, (e) => {
@@ -239,6 +247,18 @@
         isLeaf: e.children?.length === 0,
       };
     });
+  }
+
+  /**
+   * 获取操作对象映射的国际化文本，并处理可能不存在的 key 导致报错的情况
+   * @param module 操作对象 key
+   */
+  function getModuleLocale(module: string) {
+    try {
+      return t(moduleLocaleMap.value[module] || '') || module;
+    } catch (error) {
+      return module;
+    }
   }
 
   const typeOptions = [
@@ -330,10 +350,12 @@
     {
       title: 'system.log.operateTarget',
       dataIndex: 'module',
+      slotName: 'module',
     },
     {
       title: 'system.log.operateType',
       dataIndex: 'type',
+      slotName: 'type',
       width: 120,
     },
     {
@@ -353,20 +375,12 @@
   ];
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.SYSTEM_LOG, columns, 'drawer');
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetPagination } = useTable(
-    getLogList,
-    {
-      tableKey: TableKeyEnum.SYSTEM_LOG,
-      columns,
-      selectable: false,
-      showSelectAll: false,
-    },
-    (record) => ({
-      ...record,
-      type: t(typeOptions.find((e) => e.value === record.type)?.label || ''),
-      module: t(moduleLocaleMap.value[record.module] || ''),
-    })
-  );
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetPagination } = useTable(getLogList, {
+    tableKey: TableKeyEnum.SYSTEM_LOG,
+    columns,
+    selectable: false,
+    showSelectAll: false,
+  });
 
   function searchLog() {
     const ranges = operateRange.value.map((e) => e);
@@ -385,8 +399,8 @@
     loadList();
   }
 
-  function handleNameClick(record: MsTimeLineListItem) {
-    console.log(record);
+  function handleNameClick(record: LogItem) {
+    jumpRouteByMapKey(record.module, record.sourceId ? { id: record.sourceId } : {});
   }
 
   onBeforeMount(() => {

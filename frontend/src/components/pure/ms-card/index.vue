@@ -30,7 +30,7 @@
       </div>
       <div
         v-if="!props.hideFooter && !props.simple"
-        class="fixed bottom-0 right-[16px] z-10 bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+        class="fixed bottom-0 right-[16px] z-10 flex items-center bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
         :style="{ width: `calc(100% - ${menuWidth + 16}px)` }"
       >
         <div class="ml-0 mr-auto">

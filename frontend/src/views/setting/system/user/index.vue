@@ -26,10 +26,10 @@
       @batch-action="handleTableBatch"
     >
       <template #organization="{ record }">
-        <a-tooltip :content="record.organizationList.filter((e: any) => e).map((e: any) => e.name).join(',')">
+        <a-tooltip :content="record.organizationList.map((e: any) => e.name).join(',')">
           <div>
             <a-tag
-              v-for="org of record.organizationList.filter((e: any) => e).slice(0, 2)"
+              v-for="org of record.organizationList.slice(0, 2)"
               :key="org.id"
               class="mr-[4px] bg-transparent"
               bordered
@@ -46,19 +46,19 @@
         <a-tooltip :content="record.userRoleList.map((e: any) => e.name).join(',')">
           <div>
             <a-tag
-              v-for="org of record.userRoleList.slice(0, 2)"
-              :key="org.id"
+              v-for="role of record.userRoleList.slice(0, 2)"
+              :key="role.id"
               :class="['mr-[4px]', 'bg-transparent', record.enable ? 'enableTag' : 'disableTag']"
               bordered
             >
-              {{ org.name }}
+              {{ role.name }}
             </a-tag>
             <a-tag
-              v-show="record.organizationList.length > 2"
+              v-show="record.userRoleList.length > 2"
               :class="['mr-[4px]', 'bg-transparent', record.enable ? 'enableTag' : 'disableTag']"
               bordered
             >
-              +{{ record.organizationList.length - 2 }}
+              +{{ record.userRoleList.length - 2 }}
             </a-tag>
           </div>
         </a-tooltip>
@@ -92,7 +92,13 @@
         :default-vals="userForm.list"
         max-height="250px"
       ></MsBatchForm>
-      <a-form-item class="mb-0" field="userGroup" :label="t('system.user.createUserUserGroup')">
+      <a-form-item
+        class="mb-0"
+        field="userGroup"
+        :label="t('system.user.createUserUserGroup')"
+        required
+        asterisk-position="end"
+      >
         <a-select
           v-model="userForm.userGroup"
           multiple
@@ -102,9 +108,9 @@
           <a-option
             v-for="item of userGroupOptions"
             :key="item.id"
-            :tag-props="{ closable: item.closeable }"
+            :tag-props="{ closable: userForm.userGroup.length > 1 }"
             :value="item.id"
-            :disabled="item.selected"
+            :disabled="userForm.userGroup.includes(item.id) && userForm.userGroup.length === 1"
           >
             {{ item.name }}
           </a-option>
@@ -197,7 +203,7 @@
       </a-button>
     </template>
   </a-modal>
-  <inviteModal v-model:visible="inviteVisible"></inviteModal>
+  <inviteModal v-model:visible="inviteVisible" :user-group-options="userGroupOptions"></inviteModal>
   <batchModal
     v-model:visible="showBatchModal"
     :table-selected="tableSelected"
@@ -248,7 +254,6 @@
     {
       title: 'system.user.tableColumnEmail',
       dataIndex: 'email',
-      width: 200,
       showInTable: true,
     },
     {
@@ -283,18 +288,25 @@
       title: 'system.user.tableColumnActions',
       slotName: 'action',
       fixed: 'right',
-      width: 120,
       showInTable: true,
     },
   ];
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.SYSTEM_USER, columns, 'drawer');
-  const { propsRes, propsEvent, loadList, setKeyword } = useTable(getUserList, {
-    tableKey: TableKeyEnum.SYSTEM_USER,
-    columns,
-    scroll: { y: 'auto' },
-    selectable: true,
-  });
+  const { propsRes, propsEvent, loadList, setKeyword } = useTable(
+    getUserList,
+    {
+      tableKey: TableKeyEnum.SYSTEM_USER,
+      columns,
+      scroll: { y: 'auto' },
+      selectable: true,
+    },
+    (record) => ({
+      ...record,
+      organizationList: record.organizationList.filter((e) => e),
+      userRoleList: record.userRoleList.filter((e) => e),
+    })
+  );
 
   const keyword = ref('');
 
@@ -316,12 +328,12 @@
   /**
    * 重置密码
    */
-  function resetPassword(record: any, isbatch?: boolean) {
+  function resetPassword(record: any, isBatch?: boolean) {
     let title = t('system.user.resetPswTip', { name: characterLimit(record?.name) });
-    let userIdList = [record?.id];
-    if (isbatch) {
+    let selectIds = [record?.id];
+    if (isBatch) {
       title = t('system.user.batchResetPswTip', { count: tableSelected.value.length });
-      userIdList = tableSelected.value as string[];
+      selectIds = tableSelected.value as string[];
     }
     openModal({
       type: 'warning',
@@ -331,7 +343,11 @@
       cancelText: t('system.user.resetPswCancel'),
       onBeforeOk: async () => {
         try {
-          await resetUserPassword(userIdList);
+          await resetUserPassword({
+            selectIds,
+            selectAll: false,
+            condition: {},
+          });
           Message.success(t('system.user.resetPswSuccess'));
         } catch (error) {
           console.log(error);
@@ -344,12 +360,12 @@
   /**
    * 禁用用户
    */
-  function disabledUser(record: any, isbatch?: boolean) {
+  function disabledUser(record: any, isBatch?: boolean) {
     let title = t('system.user.disableUserTip', { name: characterLimit(record?.name) });
-    let userIdList = [record?.id];
-    if (isbatch) {
+    let selectIds = [record?.id];
+    if (isBatch) {
       title = t('system.user.batchDisableUserTip', { count: tableSelected.value.length });
-      userIdList = tableSelected.value as string[];
+      selectIds = tableSelected.value as string[];
     }
     openModal({
       type: 'warning',
@@ -361,7 +377,9 @@
       onBeforeOk: async () => {
         try {
           await toggleUserStatus({
-            userIdList,
+            selectIds,
+            selectAll: false,
+            condition: {},
             enable: false,
           });
           Message.success(t('system.user.disableUserSuccess'));
@@ -377,12 +395,12 @@
   /**
    * 启用用户
    */
-  function enableUser(record: any, isbatch?: boolean) {
+  function enableUser(record: any, isBatch?: boolean) {
     let title = t('system.user.enableUserTip', { name: characterLimit(record?.name) });
-    let userIdList = [record?.id];
-    if (isbatch) {
+    let selectIds = [record?.id];
+    if (isBatch) {
       title = t('system.user.batchEnableUserTip', { count: tableSelected.value.length });
-      userIdList = tableSelected.value as string[];
+      selectIds = tableSelected.value as string[];
     }
     openModal({
       type: 'info',
@@ -394,7 +412,9 @@
       onBeforeOk: async () => {
         try {
           await toggleUserStatus({
-            userIdList,
+            selectIds,
+            selectAll: false,
+            condition: {},
             enable: true,
           });
           Message.success(t('system.user.enableUserSuccess'));
@@ -410,12 +430,12 @@
   /**
    * 删除用户
    */
-  function deleteUser(record: any, isbatch?: boolean) {
+  function deleteUser(record: any, isBatch?: boolean) {
     let title = t('system.user.deleteUserTip', { name: characterLimit(record?.name) });
-    let userIdList = [record?.id];
-    if (isbatch) {
+    let selectIds = [record?.id];
+    if (isBatch) {
       title = t('system.user.batchDeleteUserTip', { count: tableSelected.value.length });
-      userIdList = tableSelected.value as string[];
+      selectIds = tableSelected.value as string[];
     }
     openModal({
       type: 'error',
@@ -430,7 +450,9 @@
       onBeforeOk: async () => {
         try {
           await deleteUserInfo({
-            userIdList,
+            selectIds,
+            selectAll: false,
+            condition: {},
           });
           Message.success(t('system.user.deleteUserSuccess'));
           loadList();
@@ -601,7 +623,7 @@
     userGroup: [],
   };
   const userForm = ref<UserForm>(cloneDeep(defaultUserForm));
-  const userGroupOptions = ref();
+  const userGroupOptions = ref<SystemRole[]>([]);
 
   async function init() {
     try {

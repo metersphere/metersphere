@@ -20,6 +20,7 @@ import type {
   SystemRole,
   ImportResult,
   BatchAddUserGroupParams,
+  ResetUserPasswordParams,
 } from '@/models/setting/user';
 import type { CommonList, TableQueryParams } from '@/models/common';
 
@@ -55,12 +56,12 @@ export function importUserInfo(data: ImportUserParams) {
 
 // 获取系统用户组
 export function getSystemRoles() {
-  return MSR.get<SystemRole>({ url: GetSystemRoleUrl });
+  return MSR.get<SystemRole[]>({ url: GetSystemRoleUrl });
 }
 
 // 重置用户密码
-export function resetUserPassword(userIds: string[]) {
-  return MSR.post({ url: ResetPasswordUrl, data: userIds });
+export function resetUserPassword(data: ResetUserPasswordParams) {
+  return MSR.post({ url: ResetPasswordUrl, data });
 }
 
 // 批量添加用户到多个用户组
