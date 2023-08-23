@@ -155,7 +155,7 @@
     </select>
 
     <select id="selectLastReportByTestPlanId" resultType="java.lang.String">
-        select `status` from test_plan_report where  test_plan_id =  #{testPlanId} ORDER BY create_time DESC LIMIT 1
+        select `status` from test_plan_report where  test_plan_id =  #{testPlanId} and trigger_mode = 'SCHEDULE' ORDER BY create_time DESC LIMIT 1
     </select>
 
 
