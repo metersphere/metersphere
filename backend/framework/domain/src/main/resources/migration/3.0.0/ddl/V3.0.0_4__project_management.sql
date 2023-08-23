@@ -383,6 +383,24 @@ CREATE INDEX idx_receiver_type ON notification (`receiver`, `type`);
 CREATE INDEX idx_notification_create_time ON notification (`create_time`);
 
 
+CREATE TABLE IF NOT EXISTS project_robot(
+                              `id` VARCHAR(255) NOT NULL   COMMENT 'id' ,
+                              `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
+                              `name` VARCHAR(255) NOT NULL   COMMENT '名称' ,
+                              `platform` VARCHAR(50) NOT NULL   COMMENT '所属平台（飞书，钉钉，企业微信，自定义）' ,
+                              `webhook` VARCHAR(255) NOT NULL   COMMENT 'webhook' ,
+                              `type` VARCHAR(50)    COMMENT '自定义和内部' ,
+                              `app_key` VARCHAR(50)    COMMENT '钉钉AppKey' ,
+                              `app_secret` VARCHAR(255)    COMMENT '钉钉AppSecret' ,
+                              `description` VARCHAR(255)    COMMENT '描述' ,
+                              PRIMARY KEY (id)
+)  COMMENT = '项目机器人';
+
+
+CREATE INDEX idx_project_id ON project_robot(project_id);
+CREATE INDEX idx_platform ON project_robot(platform);
+CREATE INDEX idx_webhook ON project_robot(webhook);
+
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
