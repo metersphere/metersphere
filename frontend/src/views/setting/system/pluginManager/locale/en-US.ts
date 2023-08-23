@@ -100,6 +100,7 @@ export default {
   'system.resourcePool.useUI': ' UI test',
   'system.plugin.all': 'All',
   'system.plugin.projectManagement': 'Project Management',
+  'system.plugin.pluginStatus': 'Status',
   'system.plugin.deleteContentTip':
     'After deletion, the defects/requirements of the platform cannot be synchronized, and the historical data is automatically switched to other templates. Please exercise caution!',
 };

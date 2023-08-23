@@ -25,7 +25,7 @@
           <a-button type="outline" @click="router.push({ name: 'settingOrganizationService' })">{{
             t('system.plugin.ServiceIntegration')
           }}</a-button>
-          <a-button type="secondary">{{ t('system.plugin.backPluginList') }}</a-button>
+          <a-button type="secondary" @click="emits('close')">{{ t('system.plugin.backPluginList') }}</a-button>
         </a-space>
       </div>
       <div class="mt-4">

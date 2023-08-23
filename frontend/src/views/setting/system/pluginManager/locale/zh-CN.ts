@@ -80,5 +80,6 @@ export default {
   'system.plugin.showScriptTitle': '查看脚本({name})',
   'system.plugin.all': '全部',
   'system.plugin.projectManagement': '项目管理',
+  'system.plugin.pluginStatus': '插件状态',
   'system.plugin.deleteContentTip': '删除后，将无法同步该平台的缺陷/需求，历史数据自动切换为其它模板展示，请谨慎操作！',
 };
