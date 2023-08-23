@@ -229,7 +229,9 @@
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getMemberList, {
     tableKey: TableKeyEnum.ORGANNATIONMEMBER,
     scroll: { x: 1600 },
+    size: 'default',
     selectable: true,
+    showSetting: true,
   });
   const keyword = ref('');
   const tableSelected = ref<(string | number)[]>([]);

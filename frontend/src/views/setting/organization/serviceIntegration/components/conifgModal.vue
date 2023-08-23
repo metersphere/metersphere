@@ -22,15 +22,15 @@
             <icon-question-circle class="ml-2 text-[--color-text-4]" />
           </a-tooltip>
         </div>
-        <a-space>
+        <div>
           <a-button type="secondary" @click="handleCancel">{{ t('organization.service.Cancel') }}</a-button>
-          <a-button type="outline" :loading="testLoading" @click="testLink">{{
+          <a-button class="ml-[12px]" type="outline" :loading="testLoading" @click="testLink">{{
             t('organization.service.testLink')
           }}</a-button>
-          <a-button type="primary" :loading="loading" @click="saveHandler">{{
+          <a-button class="ml-[12px]" type="primary" :loading="loading" @click="saveHandler">{{
             t('organization.service.Confirm')
           }}</a-button>
-        </a-space>
+        </div>
       </div>
     </template>
   </a-modal>

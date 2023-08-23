@@ -55,12 +55,10 @@
       </a-form>
     </div>
     <template #footer>
-      <a-space>
-        <a-button type="secondary" @click="handleCancel">{{ t('organization.member.Cancel') }}</a-button>
-        <a-button type="primary" :loading="confirmLoading" @click="handleOK">
-          {{ t('organization.member.Confirm') }}
-        </a-button>
-      </a-space>
+      <a-button type="secondary" @click="handleCancel">{{ t('organization.member.Cancel') }}</a-button>
+      <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleOK">
+        {{ t('organization.member.Confirm') }}
+      </a-button>
     </template>
   </a-modal>
 </template>
