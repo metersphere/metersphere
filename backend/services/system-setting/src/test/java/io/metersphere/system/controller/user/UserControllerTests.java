@@ -207,36 +207,69 @@ public class UserControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void testPageSuccess() throws Exception {
+        List<String> userRoleIdList = USER_ROLE_LIST.stream().map(UserSelectOption::getId).collect(Collectors.toList());
         this.checkUserList();
         BasePageRequest basePageRequest = UserParamUtils.getDefaultPageRequest();
-        MvcResult mvcResult = userRequestUtils.responsePost(userRequestUtils.URL_USER_PAGE, basePageRequest);
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        //返回请求正常
-        Assertions.assertNotNull(resultHolder);
-        Pager<?> returnPager = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+
+        Pager<?> returnPager = userRequestUtils.selectUserPage(basePageRequest);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
         //返回值的页码和当前页码相同
         Assertions.assertEquals(returnPager.getCurrent(), basePageRequest.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(returnPager.getList())).size() <= basePageRequest.getPageSize());
+        List<UserTableResponse> userList = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserTableResponse.class);
+        //用户组不存在非全局用户组
+        for (UserTableResponse response : userList) {
+            if (CollectionUtils.isNotEmpty(response.getUserRoleList())) {
+                response.getUserRoleList().forEach(role -> {
+                    Assertions.assertTrue(userRoleIdList.contains(role.getId()));
+                });
+            }
+        }
+
+        //页码为50
+        basePageRequest = UserParamUtils.getDefaultPageRequest();
+        basePageRequest.setPageSize(50);
+        returnPager = userRequestUtils.selectUserPage(basePageRequest);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        //返回值的页码和当前页码相同
+        Assertions.assertEquals(returnPager.getCurrent(), basePageRequest.getCurrent());
+        //返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(returnPager.getList())).size() <= basePageRequest.getPageSize());
+        //用户组不存在非全局用户组
+        userList = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserTableResponse.class);
+        for (UserTableResponse response : userList) {
+            if (CollectionUtils.isNotEmpty(response.getUserRoleList())) {
+                response.getUserRoleList().forEach(role -> {
+                    Assertions.assertTrue(userRoleIdList.contains(role.getId()));
+                });
+            }
+        }
 
         //测试根据创建时间倒叙排列
         basePageRequest = UserParamUtils.getDefaultPageRequest();
         basePageRequest.setSort(new HashMap<>() {{
             put("createTime", "desc");
         }});
-        mvcResult = userRequestUtils.responsePost(userRequestUtils.URL_USER_PAGE, basePageRequest);
-        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        returnPager = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        returnPager = userRequestUtils.selectUserPage(basePageRequest);
         //第一个数据的createTime是最大的
         List<UserTableResponse> userInfoList = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserTableResponse.class);
         long firstCreateTime = userInfoList.get(0).getCreateTime();
         for (UserTableResponse userInfo : userInfoList) {
             Assertions.assertFalse(userInfo.getCreateTime() > firstCreateTime);
         }
+        //用户组不存在非全局用户组
+        userList = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserTableResponse.class);
+        for (UserTableResponse response : userList) {
+            if (CollectionUtils.isNotEmpty(response.getUserRoleList())) {
+                response.getUserRoleList().forEach(role -> {
+                    Assertions.assertTrue(userRoleIdList.contains(role.getId()));
+                });
+            }
+        }
+
     }
 
     @Test
@@ -766,9 +799,10 @@ public class UserControllerTests extends BaseTest {
             this.testGetProjectAndOrganization();
         }
 
-        List<UserCreateInfo> last50Users = USER_LIST.subList(USER_LIST.size() - 50, USER_LIST.size());
+        List<String> userIds = this.selectUserTableIds(50);
+
         UserRoleBatchRelationRequest request = new UserRoleBatchRelationRequest();
-        request.setSelectIds(last50Users.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
+        request.setSelectIds(userIds);
         request.setRoleIds(PROJECT_LIST.stream().map(UserSelectOption::getId).collect(Collectors.toList()));
         //排除树结构中的组织ID
         request.getRoleIds().removeAll(ORG_LIST.stream().map(UserSelectOption::getId).collect(Collectors.toList()));
@@ -797,8 +831,9 @@ public class UserControllerTests extends BaseTest {
         for (UserSelectOption option : USER_ROLE_LIST) {
             this.checkLog(option.getId(), OperationLogType.ADD);
         }
+        //检查用户表格不会加载出来非全局用户组
+        this.testPageSuccess();
     }
-
 
     @Test
     @Order(13)
@@ -811,11 +846,12 @@ public class UserControllerTests extends BaseTest {
             this.testGetProjectAndOrganization();
         }
 
-        List<UserCreateInfo> last50Users = USER_LIST.subList(USER_LIST.size() - 50, USER_LIST.size());
+        List<String> userIds = this.selectUserTableIds(50);
+
         UserRoleBatchRelationRequest request = new UserRoleBatchRelationRequest();
-        request.setSelectIds(last50Users.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
+        request.setSelectIds(userIds);
         request.setRoleIds(ORG_LIST.stream().map(UserSelectOption::getId).collect(Collectors.toList()));
-        this.requestPost(userRequestUtils.URL_ADD_ORGANIZATION_MEMBER, request);
+        this.requestPostWithOk(userRequestUtils.URL_ADD_ORGANIZATION_MEMBER, request);
         //检查有权限的数据量是否一致
         UserRoleRelationExample checkExample = new UserRoleRelationExample();
         for (String orgId : request.getRoleIds()) {
@@ -829,9 +865,11 @@ public class UserControllerTests extends BaseTest {
             }
         }
         //检查日志
-        for (UserSelectOption option : USER_ROLE_LIST) {
-            this.checkLog(option.getId(), OperationLogType.ADD);
+        for (String userID : request.getSelectIds()) {
+            this.checkLog(userID, OperationLogType.UPDATE);
         }
+        //检查用户表格加载组织
+        this.testPageSuccess();
     }
 
     @Test
@@ -939,6 +977,16 @@ public class UserControllerTests extends BaseTest {
         //返回值不为空
         Assertions.assertTrue(CollectionUtils.isNotEmpty(userRoleList));
         USER_ROLE_LIST.addAll(userRoleList);
+    }
+
+    //查找表格用户信息的ID
+    private List<String> selectUserTableIds(int pageSize) throws Exception {
+        BasePageRequest basePageRequest = UserParamUtils.getDefaultPageRequest();
+        basePageRequest.setPageSize(pageSize);
+        Pager<?> returnPager = userRequestUtils.selectUserPage(basePageRequest);
+        //用户组不存在非全局用户组
+        List<UserTableResponse> userList = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserTableResponse.class);
+        return userList.stream().map(User::getId).collect(Collectors.toList());
     }
 
     //成功入库的用户保存内存中，其他用例会使用到

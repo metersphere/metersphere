@@ -147,8 +147,8 @@ public class UserService {
     }
 
 
-    public UserDTO getUserDTOByEmail(String email) {
-        UserDTO userDTO = baseUserMapper.selectByEmail(email);
+    public UserDTO getUserDTOByKeyword(String email) {
+        UserDTO userDTO = baseUserMapper.selectDTOByKeyword(email);
         if (userDTO != null) {
             userDTO.setUserRoleRelations(
                     userRoleRelationService.selectByUserId(userDTO.getId())
