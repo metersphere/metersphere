@@ -4,7 +4,7 @@
     <select id="list" resultType="io.metersphere.system.dto.OrganizationDTO">
         select o.id, o.num, o.name, o.description, o.create_time,
         o.update_time, o.create_user, o.deleted, o.delete_user, o.delete_time, o.enable,
-        count(distinct ur.user_id) as memberCount, count(p.id) as projectCount
+        count(distinct ur.user_id) as memberCount, count(distinct p.id) as projectCount
         from organization o left join user_role_relation ur on ur.source_id = o.id
         left join project p on p.organization_id = o.id
         <include refid="queryWhereCondition"/>
