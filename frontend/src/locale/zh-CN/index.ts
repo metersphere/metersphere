@@ -41,6 +41,8 @@ export default {
     'menu.settings.system.log': '系统日志',
     'menu.settings.organization': '组织',
     'menu.settings.organization.member': '成员',
+    'menu.settings.organization.userGroup': '用户组',
+    'menu.settings.organization.project': '项目',
     'menu.settings.organization.serviceIntegration': '服务集成',
     'menu.settings.organization.log': '组织日志',
     'navbar.action.locale': '切换为中文',

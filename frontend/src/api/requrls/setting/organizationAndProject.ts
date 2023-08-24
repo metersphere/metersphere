@@ -31,7 +31,7 @@ export const postModifyProjectUrl = '/system/project/update';
 // 获取项目列表
 export const postProjectTableUrl = '/system/project/page';
 // 获取项目成员
-export const postProjectMemberUrl = '/system/project/member/list';
+export const postProjectMemberUrl = '/system/project/member-list';
 // 添加项目
 export const postAddProjectUrl = '/system/project/add';
 // 添加项目成员
@@ -45,7 +45,7 @@ export const getProjectInfoUrl = '/system/project/get/';
 // 删除项目
 export const getDeleteProjectUrl = '/system/project/delete/';
 // 系统-组织及项目，获取用户下拉选项
-export const getUserByOrgOrProjectUrl = '/system/user/get-option/';
+export const getUserByOrgOrProjectUrl = '/system/organization/get-option/';
 // 启用项目
 export const getEnableProjectUrl = '/system/project/enable/';
 // 禁用项目

@@ -7,13 +7,12 @@
       @search="searchData"
     />
     <div class="mt-2 flex flex-col">
-      <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
+      <div class="flex h-[38px] items-center px-[8px] leading-[24px]">
         <div class="second-color"> {{ t('system.userGroup.global') }}</div>
-        <div class="primary-color"><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup" /></div>
       </div>
       <div>
         <div
-          v-for="element in userGroupList"
+          v-for="element in globalUserGroupList"
           :key="element.id"
           :class="{
             'flex': true,
@@ -24,14 +23,41 @@
           }"
           @click="handleListItemClick(element)"
         >
-          <popconfirm
+          <div class="flex grow flex-row">
+            <div class="usergroup-title leading-[24px]">
+              <span class="n1">{{ element.name }}</span>
+              <span v-if="element.type" class="n4">（{{ t(`system.userGroup.${element.type}`) }}）</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a-divider class="mt-2" />
+    <div class="mt-2 flex flex-col">
+      <AddOrUpdateUserGroupPopup
+        :visible="addUserGroupVisible"
+        :list="customUserGroupList"
+        @cancel="handleAddUserGroupCancel"
+      >
+        <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
+          <div class="second-color"> {{ t('system.userGroup.custom') }}</div>
+          <div class="primary-color"><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup" /></div>
+        </div>
+      </AddOrUpdateUserGroupPopup>
+      <div>
+        <div
+          v-for="element in customUserGroupList"
+          :key="element.id"
+          class="flex h-[38px] items-center px-[8px]"
+          :class="{ 'is-active': element.id === currentId }"
+          @click="handleListItemClick(element)"
+        >
+          <AddOrUpdateUserGroupPopup
+            :id="element.id"
             :visible="popVisible[element.id]"
-            :type="popType"
             :default-name="popDefaultName"
-            :list="userGroupList"
-            position="bl"
+            :list="customUserGroupList"
             @cancel="() => handlePopConfirmCancel(element.id)"
-            @submit="(value: CustomMoreActionItem) => handlePopConfirmSubmit(value,element.id)"
           >
             <div class="draglist-item flex grow flex-row justify-between">
               <div class="usergroup-title leading-[24px]">
@@ -42,45 +68,38 @@
                 <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
               </div>
             </div>
-          </popconfirm>
+          </AddOrUpdateUserGroupPopup>
         </div>
       </div>
     </div>
   </div>
   <AddUserModal :visible="addUserVisible" @cancel="addUserVisible = false" />
-  <AddUserGroupModal
-    :list="userGroupList"
-    :visible="addUserGroupVisible"
-    :loading="addUserGrouploading"
-    @cancel="addUserGroupVisible = false"
-    @submit="handleAddUserGroup"
-  />
 </template>
 
 <script lang="ts" setup>
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, computed } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { CustomMoreActionItem, PopVisibleItem, RenameType, UserGroupItem } from '@/models/setting/usergroup';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AddUserModal from './addUserModal.vue';
-  import AddUserGroupModal from './addUserGroupModal.vue';
+  import AddOrUpdateUserGroupPopup from './addOrUpdateUserGroupPopup.vue';
   import useModal from '@/hooks/useModal';
   import { Message } from '@arco-design/web-vue';
-  import popconfirm from './popconfirm.vue';
-  import useUserGroupStore from '@/store/modules/setting/system/usergroup';
-  import { getUserGroupList, updateOrAddUserGroup, deleteUserGroup } from '@/api/modules/setting/usergroup';
+  import useUserGroupStore from '@/store/modules/setting/organization/usergroup';
+  import { useAppStore } from '@/store';
+  import { getOrgUserGroupList, updateOrAddOrgUserGroup, deleteOrgUserGroup } from '@/api/modules/setting/usergroup';
   import { characterLimit } from '@/utils';
 
   const { t } = useI18n();
 
   const store = useUserGroupStore();
+  const appStore = useAppStore();
   const { openModal } = useModal();
   // 请求loading
   const currentId = ref('');
   const addUserVisible = ref(false);
   const addUserGroupVisible = ref(false);
-  const addUserGrouploading = ref(false);
   // 修改用户组名字，权限范围
   const popVisible = ref<PopVisibleItem>({});
   // 用户组和权限范围的状态
@@ -88,17 +107,20 @@
   const popDefaultName = ref('');
   // 用户列表
   const userGroupList = ref<UserGroupItem[]>([]);
+  const currentOrgId = computed(() => appStore.currentOrgId);
+
+  const globalUserGroupList = computed(() => {
+    return userGroupList.value.filter((ele) => ele.internal);
+  });
+  const customUserGroupList = computed(() => {
+    return userGroupList.value.filter((ele) => !ele.internal);
+  });
 
   const customAction: ActionsItem[] = [
     {
       label: 'system.userGroup.rename',
       danger: false,
       eventTag: 'rename',
-    },
-    {
-      label: 'system.userGroup.changeAuthScope',
-      danger: false,
-      eventTag: 'changeAuthScope',
     },
     {
       isDivider: true,
@@ -126,7 +148,7 @@
   // 用户组数据初始化
   const initData = async () => {
     try {
-      const res = await getUserGroupList();
+      const res = await getOrgUserGroupList(currentOrgId.value);
       if (res.length > 0) {
         userGroupList.value = res;
         handleListItemClick(res[0]);
@@ -144,8 +166,12 @@
   };
   // 新增用户组
   const addUserGroup = () => {
-    // eslint-disable-next-line no-console
     addUserGroupVisible.value = true;
+  };
+  // 关闭创建用户组
+  const handleAddUserGroupCancel = () => {
+    addUserGroupVisible.value = false;
+    initData();
   };
   // 点击更多操作
   const handleMoreAction = (item: ActionsItem, id: string) => {
@@ -155,8 +181,6 @@
       popVisible.value = { ...popVisible.value, [id]: true };
       if (item.eventTag === 'rename') {
         popDefaultName.value = tmpObj.name;
-      } else {
-        popDefaultName.value = tmpObj.scopeId;
       }
     } else {
       openModal({
@@ -170,7 +194,7 @@
         },
         onBeforeOk: async () => {
           try {
-            await deleteUserGroup(id);
+            await deleteOrgUserGroup(id);
             Message.success(t('system.user.deleteUserSuccess'));
             initData();
           } catch (error) {
@@ -185,33 +209,6 @@
 
   // 关闭confirm 弹窗
   const handlePopConfirmCancel = (id: string) => {
-    popVisible.value = { ...popVisible.value, [id]: false };
-  };
-  // 修改用户组名字，权限范围
-  const handlePopConfirmSubmit = async (item: CustomMoreActionItem, id: string) => {
-    if (item.eventKey === 'rename') {
-      // 修改用户组名字
-      try {
-        const res = await updateOrAddUserGroup({ id, name: item.name });
-        if (res) {
-          initData();
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
-      }
-    } else {
-      // 修改权限范围
-      try {
-        const res = await updateOrAddUserGroup({ id, scopeId: item.name });
-        if (res) {
-          initData();
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
-      }
-    }
     popVisible.value = { ...popVisible.value, [id]: false };
     initData();
   };
@@ -234,23 +231,6 @@
     const tmpArr = userGroupList.value.filter((ele) => ele.name.includes(keyword));
     userGroupList.value = tmpArr;
   }
-  // 新增用户组
-  const handleAddUserGroup = async (value: Partial<UserGroupItem>) => {
-    try {
-      addUserGrouploading.value = true;
-      const res = await updateOrAddUserGroup(value);
-      if (res) {
-        Message.success(t('system.userGroup.addUserGroupSuccess'));
-        addUserGroupVisible.value = false;
-        initData();
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    } finally {
-      addUserGrouploading.value = false;
-    }
-  };
 
   onMounted(() => {
     initData();
@@ -302,4 +282,3 @@
     color: var(--color-text-1);
   }
 </style>
-@/models/setting/usergroup @/api/modules/setting/usergroup @/store/modules/setting/system/usergroup

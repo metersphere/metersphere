@@ -56,6 +56,7 @@ export default {
       quickAddUser: 'Quick add user',
       removeName: 'Confirm to remove {name} this user',
       removeTip: 'After removal, the User Group permission will be lost',
+      custom: 'Custom user group',
     },
   },
   permission: {

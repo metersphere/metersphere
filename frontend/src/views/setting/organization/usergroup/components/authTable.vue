@@ -52,9 +52,9 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
   import { RenderFunction, VNodeChild, ref, watchEffect, computed } from 'vue';
-  import { type TableColumnData, type TableData } from '@arco-design/web-vue';
-  import useUserGroupStore from '@/store/modules/setting/system/usergroup';
-  import { getGlobalUSetting, saveGlobalUSetting } from '@/api/modules/setting/usergroup';
+  import { Message, type TableColumnData, type TableData } from '@arco-design/web-vue';
+  import useUserGroupStore from '@/store/modules/setting/organization/usergroup';
+  import { getGlobalUSetting, getOrgUSetting, saveOrgUSetting } from '@/api/modules/setting/usergroup';
   import { UserGroupAuthSetting, AuthTableItem, type AuthScopeType, SavePermissions } from '@/models/setting/usergroup';
 
   export declare type OperationName = 'selection-checkbox' | 'selection-radio' | 'expand' | 'drag-handle';
@@ -163,11 +163,16 @@
     return result;
   };
 
-  const initData = async (id: string) => {
+  const initData = async (id: string, internal: boolean) => {
     try {
       let tmpArr = [];
+      let res: UserGroupAuthSetting[] = [];
       loading.value = true;
-      const res = await getGlobalUSetting(id);
+      if (internal) {
+        res = await getGlobalUSetting(id);
+      } else {
+        res = await getOrgUSetting(id);
+      }
       tmpArr = transformData(res);
       tableData.value = tmpArr;
     } catch (error) {
@@ -262,27 +267,28 @@
       });
     });
     try {
-      await saveGlobalUSetting({
+      await saveOrgUSetting({
         userRoleId: store.currentId,
         permissions,
       });
-      initData(store.currentId);
+      Message.success(t('common.saveSuccess'));
+      initData(store.currentId, store.currentInternal);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.log('error', error);
+      console.log(error);
     }
   };
 
   // 恢复默认值
   const handleReset = () => {
     if (store.currentId) {
-      initData(store.currentId);
+      initData(store.currentId, store.currentInternal);
     }
   };
 
   watchEffect(() => {
     if (store.currentId) {
-      initData(store.currentId);
+      initData(store.currentId, store.currentInternal);
     }
   });
   defineExpose({

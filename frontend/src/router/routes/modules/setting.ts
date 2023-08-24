@@ -149,6 +149,26 @@ const Setting: AppRouteRecordRaw = {
           },
         },
         {
+          path: 'usergroup',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_USER_GROUP,
+          component: () => import('@/views/setting/organization/usergroup/orgUserGroup.vue'),
+          meta: {
+            locale: 'menu.settings.organization.userGroup',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
+        {
+          path: 'project',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_PROJECT,
+          component: () => import('@/views/setting/organization/project/orgProject.vue'),
+          meta: {
+            locale: 'menu.settings.organization.project',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
+        {
           path: 'serviceIntegration',
           name: SettingRouteEnum.SETTING_ORGANIZATION_SERVICE,
           component: () => import('@/views/setting/organization/serviceIntegration/index.vue'),

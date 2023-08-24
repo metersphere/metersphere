@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
-import { UserGroupState } from './types';
+import { UserGroupState } from '../types';
 
-const useUserGroupStore = defineStore('userGroup', {
+const useSystemUserGroupStore = defineStore('systemUserGroup', {
   state: (): UserGroupState => ({
     currentName: '',
     currentTitle: '',
@@ -27,4 +27,4 @@ const useUserGroupStore = defineStore('userGroup', {
   },
 });
 
-export default useUserGroupStore;
+export default useSystemUserGroupStore;

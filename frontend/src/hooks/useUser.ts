@@ -21,7 +21,17 @@ export default function useUser() {
     });
   };
 
+  const setSalt = (salt: string) => {
+    userStore.setSalt(salt);
+  };
+
+  const isLoginPage = () => {
+    return router.currentRoute.value.name === 'login';
+  };
+
   return {
     logout,
+    setSalt,
+    isLoginPage,
   };
 }

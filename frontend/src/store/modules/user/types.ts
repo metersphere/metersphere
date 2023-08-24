@@ -17,4 +17,6 @@ export interface UserState {
   certification?: number;
   role: RoleType;
   lastOrganizationId?: string;
+  // 盐
+  salt: string;
 }

@@ -62,8 +62,8 @@
   import useLoading from '@/hooks/useLoading';
   import { setLoginExpires } from '@/utils/auth';
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
-
   import type { LoginData } from '@/models/user';
+  import { WorkbenchRouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
   const { t } = useI18n();
@@ -121,7 +121,7 @@
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
         setLoginExpires();
         router.push({
-          name: (redirect as string) || 'settingSystemUser',
+          name: (redirect as string) || WorkbenchRouteEnum.WORKBENCH,
           query: {
             ...othersQuery,
           },

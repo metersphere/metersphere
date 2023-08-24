@@ -18,10 +18,13 @@
   import { watchStyle, watchTheme, setFavicon } from '@/utils/theme';
   import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
   import { useUserStore } from '@/store';
+  import { useRouter } from 'vue-router';
+  import { WorkbenchRouteEnum } from './enums/routeEnum';
 
   const appStore = useAppStore();
   const userStore = useUserStore();
   const licenseStore = useLicenseStore();
+  const router = useRouter();
 
   const { currentLocale } = useLocale();
   const locale = computed(() => {
@@ -61,7 +64,15 @@
       console.log(error);
     }
   });
-  onMounted(() => {
-    userStore.isLogin();
+  const checkIsLogin = async () => {
+    const isLogin = await userStore.isLogin();
+    const isLoginPage = window.location.hash === '#/login';
+    if (isLoginPage && isLogin) {
+      // 当前页面为登录页面，且已经登录，跳转到首页
+      router.push(WorkbenchRouteEnum.WORKBENCH);
+    }
+  };
+  onMounted(async () => {
+    await checkIsLogin();
   });
 </script>

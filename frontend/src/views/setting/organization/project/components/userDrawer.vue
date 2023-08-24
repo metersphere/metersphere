@@ -114,12 +114,7 @@
   };
 
   const fetchData = async () => {
-    if (props.organizationId) {
-      setLoadListParams({ organizationId: props.organizationId });
-    }
-    if (props.projectId) {
-      setLoadListParams({ projectId: props.projectId });
-    }
+    setLoadListParams({ organizationId: props.organizationId });
     await loadList();
   };
 
@@ -166,3 +161,4 @@
     }
   );
 </script>
+@/api/modules/setting/organizationAndProject

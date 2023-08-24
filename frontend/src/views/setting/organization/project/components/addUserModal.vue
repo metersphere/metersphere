@@ -1,22 +1,21 @@
 <template>
   <a-modal
     v-model:visible="currentVisible"
+    title-align="start"
     class="ms-modal-form ms-modal-medium"
-    width="680px"
-    text-align="start"
-    :ok-text="t('system.userGroup.add')"
+    :ok-text="t('system.organization.addMember')"
     unmount-on-close
     @cancel="handleCancel"
   >
-    <template #title> {{ t('system.userGroup.addUser') }} </template>
+    <template #title> {{ t('system.organization.addMember') }} </template>
     <div class="form">
       <a-form ref="formRef" :model="form" size="large" :style="{ width: '600px' }" layout="vertical">
         <a-form-item
           field="name"
-          :label="t('system.userGroup.user')"
-          :rules="[{ required: true, message: t('system.userGroup.pleaseSelectUser') }]"
+          :label="t('system.organization.member')"
+          :rules="[{ required: true, message: t('system.organization.addMemberRequired') }]"
         >
-          <MsUserSelector v-model:value="form.name" />
+          <MsUserSelector v-model:value="form.name" type="organization" :source-id="organizationId || projectId" />
         </a-form-item>
       </a-form>
     </div>
@@ -24,7 +23,7 @@
       <a-button type="secondary" :loading="loading" @click="handleCancel">
         {{ t('common.cancel') }}
       </a-button>
-      <a-button type="primary" :loading="loading" :disabled="form.name.length === 0" @click="handleBeforeOk">
+      <a-button type="primary" :loading="loading" :disabled="form.name.length === 0" @click="handleAddMember">
         {{ t('common.add') }}
       </a-button>
     </template>
@@ -33,18 +32,17 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect } from 'vue';
-  import useUserGroupStore from '@/store/modules/setting/system/usergroup';
-  import { addUserToUserGroup } from '@/api/modules/setting/usergroup';
-  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import { reactive, ref, watchEffect, onUnmounted } from 'vue';
+  import { addUserToOrgOrProject } from '@/api/modules/setting/organizationAndProject';
+  import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
+    organizationId?: string;
+    projectId?: string;
   }>();
-
-  const store = useUserGroupStore();
 
   const emit = defineEmits<{
     (e: 'cancel'): void;
@@ -58,8 +56,6 @@
     name: [],
   });
 
-  const labelCache = new Map();
-
   const formRef = ref<FormInstance>();
 
   watchEffect(() => {
@@ -67,28 +63,34 @@
   });
 
   const handleCancel = () => {
-    labelCache.clear();
     form.name = [];
     emit('cancel');
   };
 
-  const handleBeforeOk = () => {
+  const handleAddMember = () => {
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (errors) {
-        return;
+        loading.value = false;
       }
+      const { organizationId, projectId } = props;
       try {
         loading.value = true;
-        await addUserToUserGroup({ roleId: store.currentId, userIds: form.name });
+        await addUserToOrgOrProject({ userIds: form.name, organizationId, projectId });
+        Message.success(t('system.organization.addSuccess'));
         handleCancel();
-      } catch (e) {
+      } catch (error) {
         // eslint-disable-next-line no-console
-        console.log(e);
+        console.error(error);
       } finally {
         loading.value = false;
       }
     });
   };
+
+  onUnmounted(() => {
+    form.name = [];
+    loading.value = false;
+  });
 </script>
 
 <style lang="less" scoped>
@@ -99,3 +101,4 @@
     color: var(--color-text-4);
   }
 </style>
+@/api/modules/setting/organizationAndProject
