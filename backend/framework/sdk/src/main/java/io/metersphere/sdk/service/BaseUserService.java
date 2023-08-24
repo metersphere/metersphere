@@ -107,8 +107,9 @@ public class BaseUserService {
             throw new UnauthorizedException(Translator.get("not_authorized") + e.getMessage());
         }
     }
+
     //保存日志
-    public void saveLog(String userId, String method, String path, String content, String type){
+    public void saveLog(String userId, String method, String path, String content, String type) {
         User user = userMapper.selectByPrimaryKey(userId);
         LogDTO dto = new LogDTO(
                 OperationLogConstants.SYSTEM,
@@ -428,10 +429,29 @@ public class BaseUserService {
         return baseUserMapper.getExcludeSelectOption();
     }
 
+    public List<OptionDTO> getSelectOptionByIds(List<String> ids) {
+        return baseUserMapper.getSelectOptionByIds(ids);
+    }
+
     public Map<String, String> getUserNameMap() {
         List<ExcludeOptionDTO> excludeSelectOption = getExcludeSelectOption();
         Map<String, String> nameMap = new HashMap<>();
         excludeSelectOption.forEach(option -> nameMap.put(option.getId(), option.getName()));
         return nameMap;
+    }
+
+    /**
+     * 根据用户ID列表，获取用户
+     *
+     * @param userIds
+     * @return
+     */
+    public Map<String, String> getUserNameMap(List<String> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return Collections.emptyMap();
+        }
+        return getSelectOptionByIds(userIds)
+                .stream()
+                .collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
     }
 }
