@@ -197,7 +197,7 @@ const useAppStore = defineStore('app', {
     /**
      * 获取系统版本
      */
-    async initSystemversion() {
+    async initSystemVersion() {
       try {
         this.version = await getSystemVersion();
       } catch (error) {
@@ -263,6 +263,7 @@ const useAppStore = defineStore('app', {
           if (hasThemeChange) {
             watchTheme(this.pageConfig.theme, this.pageConfig);
           }
+          window.document.title = this.pageConfig.title;
         }
       } catch (error) {
         console.log(error);

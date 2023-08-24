@@ -65,7 +65,7 @@
         accept="jar"
         :max-size="50"
         size-unit="MB"
-        main-text="system.user.importModalDragtext"
+        main-text="system.user.importModalDragText"
         :sub-text="t('system.plugin.supportFormat')"
         :show-file-list="false"
         :auto-upload="false"

@@ -9,6 +9,10 @@ import {
   GetSystemRoleUrl,
   ResetPasswordUrl,
   BatchAddUserGroupUrl,
+  BatchAddOrgUrl,
+  BatchAddProjectUrl,
+  GetOrgsUrl,
+  GetProjectsUrl,
 } from '@/api/requrls/setting/user';
 import type {
   UserListItem,
@@ -19,8 +23,9 @@ import type {
   ImportUserParams,
   SystemRole,
   ImportResult,
-  BatchAddUserGroupParams,
+  BatchAddParams,
   ResetUserPasswordParams,
+  OrgsItem,
 } from '@/models/setting/user';
 import type { CommonList, TableQueryParams } from '@/models/common';
 
@@ -65,6 +70,26 @@ export function resetUserPassword(data: ResetUserPasswordParams) {
 }
 
 // 批量添加用户到多个用户组
-export function batchAddUserGroup(data: BatchAddUserGroupParams) {
+export function batchAddUserGroup(data: BatchAddParams) {
   return MSR.post({ url: BatchAddUserGroupUrl, data });
+}
+
+// 批量添加用户到多个项目
+export function batchAddProject(data: BatchAddParams) {
+  return MSR.post({ url: BatchAddProjectUrl, data });
+}
+
+// 批量添加用户到多个组织
+export function batchAddOrg(data: BatchAddParams) {
+  return MSR.post({ url: BatchAddOrgUrl, data });
+}
+
+// 获取系统组织组
+export function getSystemOrgs() {
+  return MSR.get<OrgsItem[]>({ url: GetOrgsUrl });
+}
+
+// 获取系统项目
+export function getSystemProjects() {
+  return MSR.get<OrgsItem[]>({ url: GetProjectsUrl });
 }

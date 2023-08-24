@@ -84,11 +84,11 @@
       case 'batchAddProject':
         batchTitle.value = t('system.user.batchAddProject');
         break;
-      case 'batchAddUsergroup':
-        batchTitle.value = t('system.user.batchAddUsergroup');
+      case 'batchAddUserGroup':
+        batchTitle.value = t('system.user.batchAddUserGroup');
         break;
-      case 'batchAddOrgnization':
-        batchTitle.value = t('system.user.batchAddOrgnization');
+      case 'batchAddOrganization':
+        batchTitle.value = t('system.user.batchAddOrganization');
         break;
       default:
         break;
@@ -182,10 +182,10 @@
         case 'batchAddProject':
           emit('addProject', target.value, 'project');
           break;
-        case 'batchAddUsergroup':
+        case 'batchAddUserGroup':
           emit('addUserGroup', target.value, 'usergroup');
           break;
-        case 'batchAddOrgnization':
+        case 'batchAddOrganization':
           emit('addOrgnization', target.value, 'orgnization');
           break;
         default:

@@ -221,8 +221,8 @@
         eventTag: 'batchAddProject',
       },
       {
-        label: 'organization.member.batchActionAddUsergroup',
-        eventTag: 'batchAddUsergroup',
+        label: 'organization.member.batchActionAddUserGroup',
+        eventTag: 'batchAddUserGroup',
       },
     ],
   };
@@ -324,7 +324,7 @@
     treeData.value = [];
     batchAction.value = actionItem.eventTag;
     if (actionItem.eventTag === 'batchAddProject') getData(getProjectList);
-    if (actionItem.eventTag === 'batchAddUsergroup') getData(getGlobalUserGroup);
+    if (actionItem.eventTag === 'batchAddUserGroup') getData(getGlobalUserGroup);
   };
   // 列表编辑更新用户组和项目
   const updateUserOrProject = async (record: MemberItem) => {

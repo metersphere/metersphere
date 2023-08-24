@@ -14,6 +14,7 @@
     :placeholder="props.placeholder"
     :loading="props.loading"
     @change="handleMsCascaderChange"
+    @clear="clearValues"
   >
     <template #prefix>
       {{ props.prefix }}
@@ -222,6 +223,10 @@
         maxTagCount.value = tagCount === 0 ? 1 : tagCount;
       }
     });
+  }
+
+  function clearValues() {
+    innerLevel.value = '';
   }
 
   onMounted(() => {

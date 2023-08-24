@@ -16,3 +16,11 @@ export const GetSystemRoleUrl = '/system/user/get/global/system/role';
 export const ResetPasswordUrl = '/system/user/reset/password';
 // 批量添加用户到多个用户组
 export const BatchAddUserGroupUrl = '/system/user/add/batch/user-role';
+// 批量添加用户到多个项目
+export const BatchAddProjectUrl = '/system/user/add-project-member';
+// 批量添加用户到多个组织
+export const BatchAddOrgUrl = '/system/user/add-org-member';
+// 查找组织
+export const GetOrgsUrl = '/system/user/get/organization';
+// 查找项目
+export const GetProjectsUrl = '/system/user/get/project';
