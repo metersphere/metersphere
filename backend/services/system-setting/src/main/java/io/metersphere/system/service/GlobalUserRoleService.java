@@ -20,8 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static io.metersphere.sdk.constants.InternalUserRole.MEMBER;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
@@ -44,7 +43,20 @@ public class GlobalUserRoleService extends BaseUserRoleService {
     public List<UserRole> list() {
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andScopeIdEqualTo(UserRoleScope.GLOBAL);
-        return userRoleMapper.selectByExample(example);
+        List<UserRole> userRoles = userRoleMapper.selectByExample(example);
+        // 先按照类型排序，再按照创建时间排序
+        userRoles.sort(Comparator.comparingInt(this::getTypeOrder)
+                .thenComparing(UserRole::getCreateTime));
+        return userRoles;
+    }
+
+    private int getTypeOrder(UserRole userRole) {
+        Map<String, Integer> typeOrderMap = new HashMap<>(3) {{
+            put(UserRoleType.SYSTEM.name(), 1);
+            put(UserRoleType.ORGANIZATION.name(), 2);
+            put(UserRoleType.PROJECT.name(), 3);
+        }};
+        return typeOrderMap.getOrDefault(userRole.getType(), 0);
     }
 
     /**
