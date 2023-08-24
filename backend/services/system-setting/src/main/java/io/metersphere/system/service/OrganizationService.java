@@ -10,6 +10,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
+import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -62,8 +63,9 @@ public class OrganizationService {
     @Resource
     private UserRolePermissionMapper userRolePermissionMapper;
     @Resource
-    @Lazy
     private PluginOrganizationService pluginOrganizationService;
+    @Resource
+    private BaseUserService baseUserService;
 
     private static final String ADD_MEMBER_PATH = "/system/organization/add-member";
     private static final String REMOVE_MEMBER_PATH = "/system/organization/remove-member";
@@ -76,7 +78,8 @@ public class OrganizationService {
      */
     public List<OrganizationDTO> list(OrganizationRequest organizationRequest) {
         List<OrganizationDTO> organizationDTOS = extOrganizationMapper.list(organizationRequest);
-        return buildOrgAdminInfo(organizationDTOS);
+        List<OrganizationDTO> organizations = buildUserInfo(organizationDTOS);
+        return buildOrgAdminInfo(organizations);
     }
 
     /**
@@ -782,6 +785,22 @@ public class OrganizationService {
     }
 
     /**
+     * 设置用户信息
+     *
+     * @param organizationDTOS 组织集合
+     * @return 组织集合
+     */
+    private List<OrganizationDTO> buildUserInfo(List<OrganizationDTO> organizationDTOS) {
+        Map<String, String> userMap = baseUserService.getUserNameMap();
+        organizationDTOS.forEach(organizationDTO -> {
+            organizationDTO.setCreateUser(userMap.get(organizationDTO.getCreateUser()));
+            organizationDTO.setDeleteUser(userMap.get(organizationDTO.getDeleteUser()));
+            organizationDTO.setUpdateUser(userMap.get(organizationDTO.getUpdateUser()));
+        });
+        return organizationDTOS;
+    }
+
+    /**
      * 设置操作日志
      *
      * @param organizationId 组织ID
@@ -807,13 +826,6 @@ public class OrganizationService {
         dto.setOriginalValue(JSON.toJSONBytes(originalValue));
         dto.setModifiedValue(JSON.toJSONBytes(modifiedValue));
         logs.add(dto);
-    }
-
-    public List<OptionDTO> getOptionsByIds(List<String> orgIds) {
-        if (CollectionUtils.isEmpty(orgIds)) {
-            return new ArrayList<>(0);
-        }
-        return extOrganizationMapper.getOptionsByIds(orgIds);
     }
 
     public LinkedHashMap<Organization, List<Project>> getOrgProjectMap() {

@@ -3,6 +3,7 @@ package io.metersphere.system.service;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.system.domain.PluginOrganization;
 import io.metersphere.system.domain.PluginOrganizationExample;
+import io.metersphere.system.mapper.ExtOrganizationMapper;
 import io.metersphere.system.mapper.PluginOrganizationMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -19,7 +20,7 @@ public class PluginOrganizationService {
     @Resource
     private PluginOrganizationMapper pluginOrganizationMapper;
     @Resource
-    private OrganizationService organizationService;
+    private ExtOrganizationMapper extOrganizationMapper;
 
     public void add(String pluginId, List<String> orgIds) {
         if (CollectionUtils.isEmpty(orgIds)) {
@@ -69,7 +70,7 @@ public class PluginOrganizationService {
 
         // 查询组织信息
         List<String> orgIds = pluginOrganizations.stream().map(PluginOrganization::getOrganizationId).toList();
-        List<OptionDTO> orgList = organizationService.getOptionsByIds(orgIds);
+        List<OptionDTO> orgList = getOptionsByIds(orgIds);
         Map<String, OptionDTO> orgInfoMap = orgList.stream().collect(Collectors.toMap(OptionDTO::getId, i -> i));
 
         // 组装成 map
@@ -85,5 +86,12 @@ public class PluginOrganizationService {
                     .add(orgInfo);
         }
         return orgMap;
+    }
+
+    public List<OptionDTO> getOptionsByIds(List<String> orgIds) {
+        if (CollectionUtils.isEmpty(orgIds)) {
+            return new ArrayList<>(0);
+        }
+        return extOrganizationMapper.getOptionsByIds(orgIds);
     }
 }
