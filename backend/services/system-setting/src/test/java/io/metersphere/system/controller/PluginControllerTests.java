@@ -5,12 +5,14 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.service.JdbcDriverPluginService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.param.PluginUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.PluginDTO;
+import io.metersphere.system.mapper.ExtPluginMapper;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.PluginOrganizationMapper;
 import io.metersphere.system.mapper.PluginScriptMapper;
@@ -25,10 +27,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.MultiValueMap;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.FILE_NAME_ILLEGAL;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
@@ -47,6 +47,10 @@ public class PluginControllerTests extends BaseTest {
     private static final String PLUGIN_IMAGE = "/image/{0}?imagePath={1}";
     @Resource
     private PluginMapper pluginMapper;
+    @Resource
+    private ExtPluginMapper extPluginMapper;
+    @Resource
+    private BaseUserService baseUserService;
     @Resource
     private PluginOrganizationMapper pluginOrganizationMapper;
     @Resource
@@ -231,7 +235,7 @@ public class PluginControllerTests extends BaseTest {
 
         // @@重名校验异常
         request.setName(anotherAddPlugin.getName());
-        assertErrorCode( this.requestPost(DEFAULT_UPDATE, request), PLUGIN_EXIST);
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), PLUGIN_EXIST);
 
         // @@校验日志
         checkLog(request.getId(), OperationLogType.UPDATE);
@@ -260,10 +264,21 @@ public class PluginControllerTests extends BaseTest {
         // 校验数据是否正确
         List<PluginDTO> pluginList = getResultDataArray(mvcResult, PluginDTO.class);
         Assertions.assertEquals(3, pluginList.size());
+
+        // 获取数据库数据
+        List<String> pluginIds = pluginList.stream().map(PluginDTO::getId).toList();
+        PluginExample example = new PluginExample();
+        example.createCriteria().andPluginIdNotIn(pluginIds);
+        List<Plugin> dbPlugins = pluginMapper.selectByExample(example);
+        List<String> userIds = dbPlugins.stream().map(Plugin::getCreateUser).toList();
+        Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
+        Map<String, Plugin> dbPluginMap = dbPlugins.stream().collect(Collectors.toMap(Plugin::getId, i -> i));
+
         for (PluginDTO pluginDTO : pluginList) {
-            Plugin comparePlugin = pluginMapper.selectByPrimaryKey(pluginDTO.getId());
+            Plugin comparePlugin = dbPluginMap.get(pluginDTO.getId());
             Plugin plugin = JSON.parseObject(JSON.toJSONString(pluginDTO), Plugin.class);
             List<String> scriptIds = pluginDTO.getPluginForms().stream().map(OptionDTO::getId).toList();
+            comparePlugin.setCreateUser(userNameMap.get(comparePlugin.getCreateUser()));
             Assertions.assertEquals(plugin, comparePlugin);
             Assertions.assertEquals(scriptIds, getScriptIdsByPlugId(plugin.getId()));
             List<OptionDTO> orgList = Optional.ofNullable(pluginDTO.getOrganizations()).orElse(new ArrayList<>(0));
@@ -281,7 +296,7 @@ public class PluginControllerTests extends BaseTest {
         mockMvc.perform(getRequestBuilder(PLUGIN_IMAGE, anotherAddPlugin.getId(), "/static/jira.jpg"))
                 .andExpect(status().isOk());
 
-        assertErrorCode( this.requestGet(PLUGIN_IMAGE, anotherAddPlugin.getId(), "/static/jira.doc"), FILE_NAME_ILLEGAL);
+        assertErrorCode(this.requestGet(PLUGIN_IMAGE, anotherAddPlugin.getId(), "/static/jira.doc"), FILE_NAME_ILLEGAL);
     }
 
     @Test

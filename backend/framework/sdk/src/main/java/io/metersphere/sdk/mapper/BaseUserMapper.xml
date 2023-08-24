@@ -96,4 +96,13 @@
         select id, name
         from user
     </select>
+    <select id="getSelectOptionByIds" resultType="io.metersphere.sdk.dto.OptionDTO">
+        SELECT id, name
+        FROM user
+        WHERE id IN
+        <foreach collection="ids" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
