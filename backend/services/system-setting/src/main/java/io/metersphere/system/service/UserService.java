@@ -34,7 +34,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,14 +65,9 @@ public class UserService {
     private SqlSessionFactory sqlSessionFactory;
 
     @Resource
-    @Lazy
     private UserLogService userLogService;
-
-    public List<User> selectByIdList(@NotEmpty List<String> userIdList) {
-        UserExample example = new UserExample();
-        example.createCriteria().andIdIn(userIdList);
-        return userMapper.selectByExample(example);
-    }
+    @Resource
+    private UserToolService userToolService;
 
     private void validateUserInfo(List<UserCreateInfo> userList) {
         //判断参数内是否含有重复邮箱
@@ -146,17 +140,19 @@ public class UserService {
     public List<UserTableResponse> list(BasePageRequest request) {
         List<UserTableResponse> returnList = new ArrayList<>();
         List<User> userList = baseUserMapper.selectByKeyword(request.getKeyword(), false);
-        List<String> userIdList = userList.stream().map(User::getId).collect(Collectors.toList());
-        Map<String, UserTableResponse> roleAndOrganizationMap = userRoleRelationService.selectGlobalUserRoleAndOrganization(userIdList);
-        for (User user : userList) {
-            UserTableResponse userInfo = new UserTableResponse();
-            BeanUtils.copyBean(userInfo, user);
-            UserTableResponse roleOrgModel = roleAndOrganizationMap.get(user.getId());
-            if (roleOrgModel != null) {
-                userInfo.setUserRoleList(roleOrgModel.getUserRoleList());
-                userInfo.setOrganizationList(roleOrgModel.getOrganizationList());
+        if (CollectionUtils.isNotEmpty(userList)) {
+            List<String> userIdList = userList.stream().map(User::getId).collect(Collectors.toList());
+            Map<String, UserTableResponse> roleAndOrganizationMap = userRoleRelationService.selectGlobalUserRoleAndOrganization(userIdList);
+            for (User user : userList) {
+                UserTableResponse userInfo = new UserTableResponse();
+                BeanUtils.copyBean(userInfo, user);
+                UserTableResponse roleOrgModel = roleAndOrganizationMap.get(user.getId());
+                if (roleOrgModel != null) {
+                    userInfo.setUserRoleList(roleOrgModel.getUserRoleList());
+                    userInfo.setOrganizationList(roleOrgModel.getOrganizationList());
+                }
+                returnList.add(userInfo);
             }
-            returnList.add(userInfo);
         }
         return returnList;
     }
@@ -176,7 +172,7 @@ public class UserService {
     }
 
     public TableBatchProcessResponse updateUserEnable(UserChangeEnableRequest request, String operator) {
-        request.setSelectIds(this.getBatchUserIds(request));
+        request.setSelectIds(userToolService.getBatchUserIds(request));
         this.checkUserInDb(request.getSelectIds());
         TableBatchProcessResponse response = new TableBatchProcessResponse();
         response.setTotalCount(request.getSelectIds().size());
@@ -261,7 +257,7 @@ public class UserService {
 
 
     public TableBatchProcessResponse deleteUser(@Valid TableBatchProcessDTO request, String operator) {
-        List<String> userIdList = this.getBatchUserIds(request);
+        List<String> userIdList = userToolService.getBatchUserIds(request);
         this.checkUserInDb(userIdList);
         //检查是否含有Admin
         this.checkAdminAndThrowException(userIdList);
@@ -318,14 +314,14 @@ public class UserService {
     }
 
     public TableBatchProcessResponse resetPassword(TableBatchProcessDTO request, String operator) {
-        request.setSelectIds(this.getBatchUserIds(request));
+        request.setSelectIds(userToolService.getBatchUserIds(request));
         this.checkUserInDb(request.getSelectIds());
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         UserMapper batchUpdateMapper = sqlSession.getMapper(UserMapper.class);
         int insertIndex = 0;
         long updateTime = System.currentTimeMillis();
-        List<User> userList = this.selectByIdList(request.getSelectIds());
+        List<User> userList = userToolService.selectByIdList(request.getSelectIds());
         for (User user : userList) {
             User updateModel = new User();
             updateModel.setId(user.getId());
@@ -362,18 +358,6 @@ public class UserService {
         }
     }
 
-    public List<String> getBatchUserIds(TableBatchProcessDTO request) {
-        if (request.isSelectAll()) {
-            List<User> userList = baseUserMapper.selectByKeyword(request.getCondition().getKeyword(), true);
-            List<String> userIdList = userList.stream().map(User::getId).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                userIdList.removeAll(request.getExcludeIds());
-            }
-            return userIdList;
-        } else {
-            return request.getSelectIds();
-        }
-    }
 
     public List<User> getUserListByOrgId(String organizationId) {
         return extUserMapper.getUserListByOrgId(organizationId);
