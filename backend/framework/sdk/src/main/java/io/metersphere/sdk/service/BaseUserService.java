@@ -7,6 +7,7 @@ import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.mapper.BaseProjectMapper;
@@ -115,8 +116,8 @@ public class BaseUserService {
                 OperationLogConstants.SYSTEM,
                 userId,
                 type,
-                OperationLogConstants.SYSTEM,
-                StringUtils.join(user.getName(),StringUtils.EMPTY, content));
+                OperationLogModule.SETTING_SYSTEM,
+                StringUtils.join(user.getName(), StringUtils.EMPTY, content));
         dto.setMethod(method);
         dto.setPath(path);
         operationLogService.add(dto);
