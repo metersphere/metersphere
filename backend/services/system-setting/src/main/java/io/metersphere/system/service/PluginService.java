@@ -8,6 +8,7 @@ import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.controller.handler.result.CommonResultCode;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.service.JdbcDriverPluginService;
 import io.metersphere.sdk.service.PluginLoadService;
 import io.metersphere.sdk.util.BeanUtils;
@@ -58,18 +59,27 @@ public class PluginService {
     JdbcDriverPluginService jdbcDriverPluginService;
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
+    @Resource
+    private BaseUserService baseUserService;
 
     public List<PluginDTO> list() {
         List<PluginDTO> plugins = extPluginMapper.getPlugins();
         List<String> pluginIds = plugins.stream().map(Plugin::getId).toList();
         Map<String, List<OptionDTO>> scripteMap = pluginScriptService.getScripteMap(pluginIds);
         Map<String, List<OptionDTO>> orgMap = pluginOrganizationService.getOrgMap(pluginIds);
+
+        // 获取用户ID和名称的映射
+        List<String> userIds = plugins.stream().map(PluginDTO::getCreateUser).toList();
+        Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
+
         plugins.forEach(plugin -> {
             List<OptionDTO> pluginForms = scripteMap.get(plugin.getId());
             List<OptionDTO> organizations = orgMap.get(plugin.getId());
             plugin.setPluginForms(pluginForms == null ? new ArrayList<>(0) : pluginForms);
             plugin.setOrganizations(organizations == null ? new ArrayList<>(0) : organizations);
+            plugin.setCreateUser(userNameMap.get(plugin.getCreateUser()));
         });
+
         return plugins;
     }
 

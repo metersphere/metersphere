@@ -13,6 +13,7 @@ import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.mapper.BaseProjectMapper;
 import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.util.CodingUtil;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
@@ -428,10 +429,26 @@ public class BaseUserService {
         return baseUserMapper.getExcludeSelectOption();
     }
 
+    public List<OptionDTO> getSelectOptionByIds(List<String> ids) {
+        return baseUserMapper.getSelectOptionByIds(ids);
+    }
+
     public Map<String, String> getUserNameMap() {
         List<ExcludeOptionDTO> excludeSelectOption = getExcludeSelectOption();
         Map<String, String> nameMap = new HashMap<>();
         excludeSelectOption.forEach(option -> nameMap.put(option.getId(), option.getName()));
         return nameMap;
+    }
+
+    /**
+     * 根据用户ID列表，获取用户
+     * @param userIds
+     * @return
+     */
+    public static Map<String, String> getUserNameMap(List<String> userIds) {
+        BaseUserService userService = CommonBeanFactory.getBean(BaseUserService.class);
+        return userService.getSelectOptionByIds(userIds)
+                .stream()
+                .collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
     }
 }
