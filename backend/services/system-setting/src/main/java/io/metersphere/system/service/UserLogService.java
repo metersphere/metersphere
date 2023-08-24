@@ -29,7 +29,7 @@ public class UserLogService {
     @Resource
     private UserMapper userMapper;
     @Resource
-    private UserService userService;
+    private UserToolService userToolService;
     @Resource
     private OperationLogService operationLogService;
 
@@ -75,8 +75,8 @@ public class UserLogService {
 
     public List<LogDTO> batchUpdateLog(TableBatchProcessDTO request) {
         List<LogDTO> logDTOList = new ArrayList<>();
-        request.setSelectIds(userService.getBatchUserIds(request));
-        List<User> userList = userService.selectByIdList(request.getSelectIds());
+        request.setSelectIds(userToolService.getBatchUserIds(request));
+        List<User> userList = userToolService.selectByIdList(request.getSelectIds());
         for (User user : userList) {
             LogDTO dto = new LogDTO(
                     OperationLogConstants.SYSTEM,
@@ -97,7 +97,7 @@ public class UserLogService {
      * @param request 批量重置密码  用于记录Log使用
      */
     public List<LogDTO> resetPasswordLog(TableBatchProcessDTO request) {
-        request.setSelectIds(userService.getBatchUserIds(request));
+        request.setSelectIds(userToolService.getBatchUserIds(request));
         List<LogDTO> returnList = new ArrayList<>();
         UserExample example = new UserExample();
         example.createCriteria().andIdIn(request.getSelectIds());
@@ -145,13 +145,14 @@ public class UserLogService {
 
     public void batchAddProjectLog(UserRoleBatchRelationRequest request, String operator) {
         List<LogDTO> logs = new ArrayList<>();
-        List<String> userIds = userService.getBatchUserIds(request);
-        List<User> userList = userService.selectByIdList(userIds);
+        List<String> userIds = userToolService.getBatchUserIds(request);
+        List<User> userList = userToolService.selectByIdList(userIds);
         for (User user : userList) {
             //用户管理处修改了用户的组织。
             LogDTO log = LogDTOBuilder.builder()
                     .projectId(OperationLogConstants.SYSTEM)
                     .createUser(operator)
+                    .method(HttpMethodConstants.POST.name())
                     .organizationId(OperationLogConstants.SYSTEM)
                     .sourceId(user.getId())
                     .type(OperationLogType.UPDATE.name())
@@ -167,8 +168,8 @@ public class UserLogService {
 
     public void batchAddOrgLog(UserRoleBatchRelationRequest request, String operator) {
         List<LogDTO> logs = new ArrayList<>();
-        List<String> userIds = userService.getBatchUserIds(request);
-        List<User> userList = userService.selectByIdList(userIds);
+        List<String> userIds = userToolService.getBatchUserIds(request);
+        List<User> userList = userToolService.selectByIdList(userIds);
         for (User user : userList) {
             //用户管理处修改了用户的组织。
             LogDTO log = LogDTOBuilder.builder()

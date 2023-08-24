@@ -22,7 +22,6 @@ import io.metersphere.system.request.user.UserRoleBatchRelationRequest;
 import io.metersphere.system.response.user.UserImportResponse;
 import io.metersphere.system.response.user.UserSelectOption;
 import io.metersphere.system.response.user.UserTableResponse;
-import io.metersphere.system.response.user.UserTreeSelectOption;
 import io.metersphere.system.service.*;
 import io.metersphere.system.utils.TreeNodeParseUtils;
 import io.metersphere.validation.groups.Created;
@@ -44,6 +43,8 @@ import java.util.Map;
 public class UserController {
     @Resource
     private UserService userService;
+    @Resource
+    private UserToolService userToolService;
     @Resource
     private GlobalUserRoleService globalUserRoleService;
     @Resource
@@ -134,7 +135,7 @@ public class UserController {
     @GetMapping("/get/project")
     @Operation(summary = "用户批量操作-查找项目")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_ROLE_READ, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ}, logical = Logical.AND)
-    public List<UserTreeSelectOption> getProject() {
+    public List<BaseTreeNode> getProject() {
         Map<Organization, List<Project>> orgProjectMap = organizationService.getOrgProjectMap();
         return TreeNodeParseUtils.parseOrgProjectMap(orgProjectMap);
     }
@@ -164,7 +165,7 @@ public class UserController {
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_READ_UPDATE, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD}, logical = Logical.AND)
     public TableBatchProcessResponse addMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
         //获取本次处理的用户
-        userRoleBatchRelationRequest.setSelectIds(userService.getBatchUserIds(userRoleBatchRelationRequest));
+        userRoleBatchRelationRequest.setSelectIds(userToolService.getBatchUserIds(userRoleBatchRelationRequest));
         OrganizationMemberBatchRequest request = new OrganizationMemberBatchRequest();
         request.setOrganizationIds(userRoleBatchRelationRequest.getRoleIds());
         request.setUserIds(userRoleBatchRelationRequest.getSelectIds());

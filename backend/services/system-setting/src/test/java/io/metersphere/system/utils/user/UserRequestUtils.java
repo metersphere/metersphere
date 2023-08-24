@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -73,6 +74,7 @@ public class UserRequestUtils {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(param))
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(resultMatcher)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }

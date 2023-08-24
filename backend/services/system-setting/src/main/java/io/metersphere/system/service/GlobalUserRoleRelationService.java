@@ -38,6 +38,8 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
     private GlobalUserRoleService globalUserRoleService;
     @Resource
     private UserService userService;
+    @Resource
+    private UserToolService userToolService;
 
     public List<UserRoleRelationUserDTO> list(GlobalUserRoleRelationQueryRequest request) {
         List<UserRoleRelationUserDTO> userRoleRelationUserDTOS = extUserRoleRelationMapper.listGlobal(request);
@@ -89,7 +91,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         //检查角色的合法性
         this.checkGlobalSystemUserRoleLegality(request.getRoleIds());
         //获取本次处理的用户
-        request.setSelectIds(userService.getBatchUserIds(request));
+        request.setSelectIds(userToolService.getBatchUserIds(request));
         //检查用户的合法性
         userService.checkUserLegality(request.getSelectIds());
         List<UserRoleRelation> savedUserRoleRelation = this.selectByUserIdAndRuleId(request.getSelectIds(), request.getRoleIds());
