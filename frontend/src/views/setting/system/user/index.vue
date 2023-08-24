@@ -14,6 +14,7 @@
         v-model:model-value="keyword"
         :placeholder="t('system.user.searchUser')"
         class="w-[230px]"
+        allow-clear
         @search="searchUser"
         @press-enter="searchUser"
       ></a-input-search>
@@ -204,12 +205,7 @@
     </template>
   </a-modal>
   <inviteModal v-model:visible="inviteVisible" :user-group-options="userGroupOptions"></inviteModal>
-  <batchModal
-    v-model:visible="showBatchModal"
-    :table-selected="tableSelected"
-    :action="batchAction"
-    :tree-data="treeData"
-  ></batchModal>
+  <batchModal v-model:visible="showBatchModal" :table-selected="tableSelected" :action="batchAction"></batchModal>
 </template>
 
 <script setup lang="ts">
@@ -273,7 +269,7 @@
       showInTable: true,
     },
     {
-      title: 'system.user.tableColumnUsergroup',
+      title: 'system.user.tableColumnUserGroup',
       slotName: 'userRole',
       dataIndex: 'userRoleList',
       showInTable: true,
@@ -490,15 +486,19 @@
         eventTag: 'batchAddProject',
       },
       {
-        label: 'system.user.batchActionAddUsergroup',
-        eventTag: 'batchAddUsergroup',
+        label: 'system.user.batchActionAddUserGroup',
+        eventTag: 'batchAddUserGroup',
       },
       {
-        label: 'system.user.batchActionAddOrgnization',
-        eventTag: 'batchAddOrgnization',
+        label: 'system.user.batchActionAddOrganization',
+        eventTag: 'batchAddOrganization',
       },
     ],
     moreAction: [
+      {
+        label: 'system.user.resetPassword',
+        eventTag: 'resetPassword',
+      },
       {
         label: 'system.user.disable',
         eventTag: 'disabled',
@@ -520,40 +520,6 @@
 
   const showBatchModal = ref(false);
   const batchAction = ref(''); // 表格选中批量操作动作
-  const treeData = ref([
-    {
-      title: 'Trunk 0-3',
-      key: '0-3',
-    },
-    {
-      title: 'Trunk 0-0',
-      key: '0-0',
-      children: [
-        {
-          title: 'Leaf 0-0-1',
-          key: '0-0-1',
-        },
-        {
-          title: 'Branch 0-0-2',
-          key: '0-0-2',
-        },
-      ],
-    },
-    {
-      title: 'Trunk 0-1',
-      key: '0-1',
-      children: [
-        {
-          title: 'Branch 0-1-1',
-          key: '0-1-1',
-        },
-        {
-          title: 'Leaf 0-1-2',
-          key: '0-1-2',
-        },
-      ],
-    },
-  ]);
 
   /**
    * 处理表格选中后批量操作
@@ -562,10 +528,13 @@
   function handleTableBatch(event: BatchActionParams) {
     switch (event.eventTag) {
       case 'batchAddProject':
-      case 'batchAddUsergroup':
-      case 'batchAddOrgnization':
+      case 'batchAddUserGroup':
+      case 'batchAddOrganization':
         batchAction.value = event.eventTag;
         showBatchModal.value = true;
+        break;
+      case 'resetPassword':
+        resetPassword(null, true);
         break;
       case 'disabled':
         disabledUser(null, true);
@@ -764,15 +733,18 @@
 
   /**
    * 创建用户
+   * @param isContinue 是否继续创建
    */
-  async function createUser() {
+  async function createUser(isContinue?: boolean) {
     const params = {
       userInfoList: userForm.value.list,
       userRoleIdList: userForm.value.userGroup,
     };
     await batchCreateUser(params);
     Message.success(t('system.user.addUserSuccess'));
-    visible.value = false;
+    if (!isContinue) {
+      visible.value = false;
+    }
     loadList();
   }
 
@@ -815,7 +787,7 @@
    */
   function saveAndContinue() {
     userFormValidate(async () => {
-      await createUser();
+      await createUser(true);
       resetUserForm();
     });
   }
@@ -867,7 +839,7 @@
         loadList();
         break;
       case 'allFail':
-        importResultTitle.value = t('system.user.importAllfailTitle');
+        importResultTitle.value = t('system.user.importAllFailTitle');
         break;
       case 'fail':
         importResultTitle.value = t('system.user.importFailTitle');

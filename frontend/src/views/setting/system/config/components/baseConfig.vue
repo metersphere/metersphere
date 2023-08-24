@@ -18,18 +18,19 @@
       </div>
       <MsDescription :descriptions="emailInfoDescs" :column="2">
         <template #value="{ item }">
-          <div v-if="item.key && ['ssl', 'tsl'].includes(item.key)">
+          <template v-if="item.key && ['ssl', 'tsl'].includes(item.key)">
             <div v-if="item.value === 'true'" class="flex items-center">
               <icon-check-circle-fill class="mr-[8px] text-[rgb(var(--success-6))]" />{{
                 t('system.config.email.open')
               }}
             </div>
-            <div v-else class="flex items-center">
+            <div v-else-if="item.value === 'false'" class="flex items-center">
               <MsIcon type="icon-icon_disable" class="mr-[4px] text-[var(--color-text-4)]" />
               {{ t('system.config.email.close') }}
             </div>
-          </div>
-          <div v-else-if="item.key === 'password' && item.value?.toString() !== ''">
+            <div v-else>-</div>
+          </template>
+          <template v-else-if="item.key === 'password' && item.value !== null">
             <span v-if="pswInVisible">
               {{ item.value }}
               <icon-eye class="cursor-pointer text-[var(--color-text-4)]" @click="togglePswVisible" />
@@ -38,11 +39,14 @@
               {{ desensitize(item.value as string) }}
               <icon-eye-invisible class="cursor-pointer text-[var(--color-text-4)]" @click="togglePswVisible" />
             </span>
-          </div>
-          <div v-else>{{ item.value?.toString() === '' ? '-' : item.value }}</div>
+          </template>
+          <template v-else>
+            {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
+          </template>
         </template>
       </MsDescription>
       <a-button
+        v-if="emailConfigForm.host !== null"
         type="outline"
         size="mini"
         class="arco-btn-outline--secondary"
@@ -451,12 +455,20 @@
     try {
       let params = {} as TestEmailParams;
       if (emailInfo === 'drawer') {
-        drawerTestLoading.value = true;
-        params = makeEmailTestParams({
-          ...emailConfigForm.value,
-          ssl: emailConfigForm.value.ssl?.toString(),
-          tsl: emailConfigForm.value.tsl?.toString(),
+        let validError = false;
+        await emailFormRef.value?.validate((errors: Record<string, ValidatedError> | undefined) => {
+          if (!errors) {
+            drawerTestLoading.value = true;
+            params = makeEmailTestParams({
+              ...emailConfigForm.value,
+              ssl: emailConfigForm.value.ssl?.toString(),
+              tsl: emailConfigForm.value.tsl?.toString(),
+            });
+          } else {
+            validError = true;
+          }
         });
+        if (validError) return;
       } else {
         testLoading.value = true;
         params = makeEmailTestParams({

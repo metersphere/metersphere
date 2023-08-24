@@ -17,6 +17,11 @@ export default mergeConfig(
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front/, ''),
         },
+        '/base-display': {
+          target: 'http://172.16.200.18:8081/',
+          changeOrigin: true,
+          rewrite: (path: string) => path.replace(/^\/front\/base-display/, ''),
+        },
       },
     },
     plugins: [

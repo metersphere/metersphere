@@ -16,7 +16,7 @@
           </div>
           <template v-if="fileList.length === 0">
             <div class="ms-upload-main-text">
-              {{ t(props.mainText || 'ms.upload.importModalDragtext') }}
+              {{ t(props.mainText || 'ms.upload.importModalDragText') }}
             </div>
             <div v-if="showSubText" class="ms-upload-sub-text">
               {{

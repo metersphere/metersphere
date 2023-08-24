@@ -5,7 +5,7 @@ export default {
   'organization.member.remove': '移除',
   'organization.member.edit': '编辑',
   'organization.member.batchActionAddProject': '添加至项目',
-  'organization.member.batchActionAddUsergroup': '添加至用户组',
+  'organization.member.batchActionAddUserGroup': '添加至用户组',
   'organization.member.tableEnable': '正常',
   'organization.member.tableDisable': '禁用',
   'organization.member.tableColunmEmail': '邮箱',

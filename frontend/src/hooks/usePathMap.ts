@@ -34,18 +34,29 @@ export default function usePathMap() {
   /**
    * 根据路由的 key 进行路由跳转，自动携带配置的 routeQuery 和 传入的routeQuery
    * TODO: 权限校验待补充
-   * @param key
+   * @param key 路由的 key
+   * @param routeQuery 路由的参数
+   * @param openNewPage 是否在新页面打开
    */
-  const jumpRouteByMapKey = (key: typeof RouteEnum, routeQuery?: Record<string, any>) => {
+  const jumpRouteByMapKey = (key: typeof RouteEnum, routeQuery?: Record<string, any>, openNewPage = false) => {
     const pathNode = findNodeByKey(pathMap, key as unknown as string);
     if (pathNode) {
-      router.push({
-        name: pathNode?.route,
-        query: {
-          ...routeQuery,
-          ...pathNode?.routeQuery,
-        },
-      });
+      if (openNewPage) {
+        window.open(
+          `${window.location.origin}#${router.resolve({ name: pathNode?.route }).fullPath}?${new URLSearchParams({
+            ...routeQuery,
+            ...pathNode?.routeQuery,
+          }).toString()}`
+        );
+      } else {
+        router.push({
+          name: pathNode?.route,
+          query: {
+            ...routeQuery,
+            ...pathNode?.routeQuery,
+          },
+        });
+      }
     }
   };
 

@@ -168,10 +168,9 @@
     }
   }
 
-  const defaultRange = props.mode === MENU_LEVEL[0] ? props.mode : MENU_LEVEL[2];
-  const operateRange = ref<(string | number | Record<string, any>)[]>([defaultRange]); // 操作范围
+  const operateRange = ref<(string | number | Record<string, any>)[]>([props.mode]); // 操作范围
   const rangeOptions = ref<CascaderOption[]>( // 系统级别才展示系统级别选项
-    props.mode === 'SYSTEM'
+    props.mode === MENU_LEVEL[0]
       ? [
           {
             value: {
@@ -193,7 +192,7 @@
     try {
       rangeLoading.value = true;
       const res = await requestFuncMap[props.mode].optionsFunc(appStore.currentOrgId);
-      if (props.mode === 'SYSTEM') {
+      if (props.mode === MENU_LEVEL[0]) {
         // 系统级别才展示，组织和项目级别不展示
         rangeOptions.value.push({
           value: {
@@ -210,6 +209,14 @@
             label: e.name,
             isLeaf: true,
           })),
+        });
+      } else if (props.mode === MENU_LEVEL[1]) {
+        rangeOptions.value.push({
+          value: {
+            level: 0,
+            value: MENU_LEVEL[1], // 顶级范围-组织，单选
+          },
+          label: t('system.log.organization'),
         });
       }
       rangeOptions.value.push({
@@ -235,7 +242,7 @@
     }
   }
 
-  const level = ref<(typeof MENU_LEVEL)[number]>(defaultRange); // 操作范围级别，系统/组织/项目
+  const level = ref<(typeof MENU_LEVEL)[number]>(props.mode); // 操作范围级别，系统/组织/项目
   const type = ref(''); // 操作类型
   const _module = ref(''); // 操作对象
   const content = ref(''); // 名称
@@ -438,7 +445,7 @@
   }
 
   function handleNameClick(record: LogItem) {
-    jumpRouteByMapKey(record.module, record.sourceId ? { id: record.sourceId } : {});
+    jumpRouteByMapKey(record.module, record.sourceId ? { id: record.sourceId } : {}, true);
   }
 
   onBeforeMount(() => {

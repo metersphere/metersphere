@@ -97,6 +97,12 @@ export interface ImportResult {
   errorMessages: Record<string, any>;
 }
 
-export interface BatchAddUserGroupParams extends BatchApiParams {
-  roleIds: string[]; // 用户组 id 集合
+export interface BatchAddParams extends BatchApiParams {
+  roleIds: string[]; // 用户组/项目/组织 id 集合
+}
+
+export interface OrgsItem {
+  id: string;
+  name: string;
+  children?: OrgsItem[];
 }
