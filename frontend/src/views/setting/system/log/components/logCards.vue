@@ -76,7 +76,11 @@
     </div>
     <ms-base-table v-bind="propsRes" no-disable sticky-header v-on="propsEvent">
       <template #range="{ record }">
-        {{ `${record.organizationName}${record.projectName ? `/${record.projectName}` : ''}` }}
+        {{
+          record.organizationId === 'SYSTEM'
+            ? t('system.log.system')
+            : `${record.organizationName}${record.projectName ? `/${record.projectName}` : ''}`
+        }}
       </template>
       <template #module="{ record }">
         {{ getModuleLocale(record.module) }}

@@ -17,7 +17,7 @@ const BugManagement: AppRouteRecordRaw = {
   children: [
     {
       path: 'index',
-      name: 'BugManagementIndex',
+      name: 'bugManagementIndex',
       component: () => import('@/views/bug-management/index.vue'),
       meta: {
         roles: ['*'],

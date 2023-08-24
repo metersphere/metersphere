@@ -17,7 +17,7 @@ const FeatureTest: AppRouteRecordRaw = {
   children: [
     {
       path: 'index',
-      name: 'FeatureTestIndex',
+      name: 'featureTestIndex',
       component: () => import('@/views/feature-test/index.vue'),
       meta: {
         roles: ['*'],

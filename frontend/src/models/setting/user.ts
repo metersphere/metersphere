@@ -105,4 +105,5 @@ export interface OrgsItem {
   id: string;
   name: string;
   children?: OrgsItem[];
+  leafNode: boolean;
 }
