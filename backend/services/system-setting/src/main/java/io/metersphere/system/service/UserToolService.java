@@ -1,16 +1,12 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.dto.TableBatchProcessDTO;
-import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
-import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.mapper.UserMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,22 +23,6 @@ public class UserToolService {
     private BaseUserMapper baseUserMapper;
     @Resource
     private UserMapper userMapper;
-    @Resource
-    private ExtUserMapper extUserMapper;
-    @Resource
-    private UserRoleRelationService userRoleRelationService;
-    @Resource
-    private OperationLogService operationLogService;
-    @Resource
-    private GlobalUserRoleService globalUserRoleService;
-    @Resource
-    private UserRoleService userRoleService;
-    @Resource
-    private SqlSessionFactory sqlSessionFactory;
-
-    @Resource
-    @Lazy
-    private UserLogService userLogService;
 
     public List<User> selectByIdList(List<String> userIdList) {
         UserExample example = new UserExample();
