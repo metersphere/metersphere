@@ -32,10 +32,4 @@ public class OrganizationUserRoleEditRequest implements Serializable {
     @NotBlank(message = "{user_role.scope_id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{user_role.scope_id.length_range}", groups = {Created.class, Updated.class})
     private String scopeId;
-
-    @Schema(description =  "所属类型 SYSTEM ORGANIZATION PROJECT", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user_role.type.not_blank}", groups = {Created.class, Updated.class})
-    @EnumValue(enumClass = UserRoleType.class, groups = {Created.class, Updated.class})
-    @Size(min = 1, max = 20, message = "{user_role.type.length_range}", groups = {Created.class, Updated.class})
-    private String type;
 }

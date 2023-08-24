@@ -86,7 +86,6 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     public void testOrganizationUserRoleAddSuccess() throws Exception {
         OrganizationUserRoleEditRequest request = new OrganizationUserRoleEditRequest();
         request.setName("default-org-role-5");
-        request.setType(ORGANIZATION_ROLE_TYPE);
         request.setScopeId("default-organization-2");
         MvcResult addResult = this.responsePost(ORGANIZATION_USER_ROLE_ADD, request);
         // 验证是否添加成功
@@ -109,7 +108,6 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         OrganizationUserRoleEditRequest request = new OrganizationUserRoleEditRequest();
         // 同名用户组已存在
         request.setName("default-org-role-2");
-        request.setType(ORGANIZATION_ROLE_TYPE);
         request.setScopeId("default-organization-2");
         this.requestPost(ORGANIZATION_USER_ROLE_ADD, request, status().is5xxServerError());
     }
@@ -133,7 +131,6 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         request = new OrganizationUserRoleEditRequest();
         request.setId("default-org-role-id-2");
         request.setName("组织管理员");
-        request.setType(ORGANIZATION_ROLE_TYPE);
         request.setScopeId("default-organization-2");
         this.requestPost(ORGANIZATION_USER_ROLE_UPDATE, request, status().is5xxServerError());
     }
@@ -144,7 +141,6 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         OrganizationUserRoleEditRequest request = new OrganizationUserRoleEditRequest();
         request.setId("default-org-role-id-2");
         request.setName("default-org-role-x");
-        request.setType(ORGANIZATION_ROLE_TYPE);
         request.setScopeId("default-organization-2");
         this.requestPost(ORGANIZATION_USER_ROLE_UPDATE, request, status().isOk());
         // 验证是否修改成功
