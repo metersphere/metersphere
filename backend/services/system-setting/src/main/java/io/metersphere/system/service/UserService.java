@@ -317,18 +317,6 @@ public class UserService {
         return extUserMapper.getMemberOption(sourceId);
     }
 
-    /**
-     * 获取系统用户选项
-     *
-     * @return 系统用户选项
-     */
-    public List<OptionDTO> getMemberOption() {
-        UserExample example = new UserExample();
-        example.setOrderByClause("update_time desc");
-        List<User> users = userMapper.selectByExample(example);
-        return users.stream().map(user -> new OptionDTO(user.getId(), user.getName())).toList();
-    }
-
     public TableBatchProcessResponse resetPassword(TableBatchProcessDTO request, String operator) {
         request.setSelectIds(this.getBatchUserIds(request));
         this.checkUserInDb(request.getSelectIds());

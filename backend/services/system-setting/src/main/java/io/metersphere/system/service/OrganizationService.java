@@ -123,11 +123,11 @@ public class OrganizationService {
             userRolePermissionExample.createCriteria().andRoleIdIn(roleIds);
             userRolePermissionMapper.deleteByExample(userRolePermissionExample);
         }
-
         // 删除组织和插件的关联关系
         pluginOrganizationService.deleteByOrgId(organizationId);
 
         // TODO: 删除环境组, 删除定时任务
+
         // 删除组织
         organizationMapper.deleteByPrimaryKey(organizationId);
         // 操作记录
