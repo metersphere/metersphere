@@ -17,7 +17,7 @@ const Workbench: AppRouteRecordRaw = {
   children: [
     {
       path: 'index',
-      name: 'WorkbenchIndex',
+      name: 'workbenchIndex',
       component: () => import('@/views/workbench/index.vue'),
       meta: {
         roles: ['*'],

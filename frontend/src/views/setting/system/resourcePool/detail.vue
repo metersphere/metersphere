@@ -631,7 +631,11 @@
     let name = '';
     let yamlStr = '';
     const { nameSpaces, deployName } = form.value.testResourceDTO;
-    const apiImage = `registry.cn-qingdao.aliyuncs.com/metersphere/node-controller:${appStore.version}`;
+    // 镜像内的版本号需要去掉尾部的 -xxx
+    const apiImage = `registry.cn-qingdao.aliyuncs.com/metersphere/node-controller:${appStore.version.substring(
+      0,
+      appStore.version.lastIndexOf('-')
+    )}`;
     switch (type) {
       case 'role':
         name = 'Role.yml';

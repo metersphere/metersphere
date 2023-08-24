@@ -17,7 +17,7 @@ const ApiTest: AppRouteRecordRaw = {
   children: [
     {
       path: 'index',
-      name: 'ApiTestIndex',
+      name: 'apiTestIndex',
       component: () => import('@/views/api-test/index.vue'),
       meta: {
         roles: ['*'],

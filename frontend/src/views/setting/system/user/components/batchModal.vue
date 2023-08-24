@@ -96,7 +96,7 @@
    */
   const getTransferData = (_treeData: OrgsItem[], transferDataSource: TransferDataItem[]) => {
     _treeData.forEach((item) => {
-      if (item.children) getTransferData(item.children, transferDataSource);
+      if (!item.leafNode && item.children) getTransferData(item.children, transferDataSource);
       else transferDataSource.push({ label: item.name, value: item.id, disabled: false });
     });
     return transferDataSource;
@@ -112,8 +112,9 @@
       const treeDataSource: TreeDataItem[] = [];
       _treeData.forEach((item) => {
         // 需要判断当前父节点下的子节点是否全部选中，若选中则不会 push 进穿梭框数组内，否则会出现空的节点无法选中
-        const allSelected = item.children?.every((child) => target.value.includes(child.id));
-        if (!allSelected && (item.children || values.includes(item.id))) {
+        const allSelected =
+          target.value.length > 0 && !item.leafNode && item.children?.every((child) => target.value.includes(child.id));
+        if (!allSelected && !target.value.includes(item.id) && (item.children || values.includes(item.id))) {
           treeDataSource.push({
             title: item.name,
             key: item.id,
