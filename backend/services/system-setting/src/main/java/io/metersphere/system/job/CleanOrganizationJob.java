@@ -14,6 +14,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
+/**
+ * @author song-cc-rock
+ */
 @Component
 public class CleanOrganizationJob {
 
@@ -45,8 +48,6 @@ public class CleanOrganizationJob {
             return;
         }
 
-        organizations.forEach(organization -> {
-            organizationService.deleteOrganization(organization.getId());
-        });
+        organizations.forEach(organization -> organizationService.deleteOrganization(organization.getId()));
     }
 }

@@ -44,6 +44,7 @@
             order by u.update_time desc
         ) temp
         group by temp.id
+        order by adminFlag desc
     </select>
 
     <select id="listMemberByOrg" resultType="io.metersphere.system.dto.OrgUserExtend">

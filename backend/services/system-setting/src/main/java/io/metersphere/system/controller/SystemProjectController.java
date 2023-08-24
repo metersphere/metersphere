@@ -11,6 +11,7 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
@@ -145,8 +146,8 @@ public class SystemProjectController {
     @GetMapping("/user-list")
     @Operation(summary = "系统-组织及项目, 获取管理员下拉选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public List<OptionDTO> getUserList() {
-        return userService.getMemberOption();
+    public List<User> getUserList() {
+        return userService.getUserList();
     }
 
 }
