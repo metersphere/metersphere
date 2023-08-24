@@ -65,27 +65,6 @@ class GlobalUserRoleControllerTests extends BaseTest {
     }
 
     @Test
-    void list() throws Exception {
-        // @@请求成功
-        MvcResult mvcResult = this.requestGetWithOk(DEFAULT_LIST)
-                .andReturn();
-        List<UserRole> userRoles = getResultDataArray(mvcResult, UserRole.class);
-
-        // 校验是否是全局用户组
-        userRoles.forEach(item -> Assertions.assertTrue(StringUtils.equalsIgnoreCase(item.getScopeId(), UserRoleScope.GLOBAL)));
-
-        // 校验是否包含全部的内置用户组
-        List<String> userRoleIds = userRoles.stream().map(UserRole::getId).toList();
-        List<String> internalUserRoleIds = Arrays.stream(InternalUserRole.values())
-                .map(InternalUserRole::getValue)
-                .toList();
-        Assertions.assertTrue(CollectionUtils.isSubCollection(internalUserRoleIds, userRoleIds));
-
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_READ, DEFAULT_LIST);
-    }
-
-    @Test
     @Order(0)
     void add() throws Exception {
         // @@请求成功
@@ -161,6 +140,98 @@ class GlobalUserRoleControllerTests extends BaseTest {
     }
 
     @Test
+    @Order(2)
+    void list() throws Exception {
+        // @@请求成功
+        MvcResult mvcResult = this.requestGetWithOk(DEFAULT_LIST)
+                .andReturn();
+        List<UserRole> userRoles = getResultDataArray(mvcResult, UserRole.class);
+
+        // 校验是否是全局用户组
+        userRoles.forEach(item -> Assertions.assertTrue(StringUtils.equalsIgnoreCase(item.getScopeId(), UserRoleScope.GLOBAL)));
+
+        // 校验是否包含全部的内置用户组
+        List<String> userRoleIds = userRoles.stream().map(UserRole::getId).toList();
+        List<String> internalUserRoleIds = Arrays.stream(InternalUserRole.values())
+                .map(InternalUserRole::getValue)
+                .toList();
+        Assertions.assertTrue(CollectionUtils.isSubCollection(internalUserRoleIds, userRoleIds));
+
+        // 校验排序是否正常
+        Map<String, Integer> typeOrderMap = new HashMap<>(3) {{
+            put(UserRoleType.SYSTEM.name(), 1);
+            put(UserRoleType.ORGANIZATION.name(), 2);
+            put(UserRoleType.PROJECT.name(), 3);
+        }};
+        String userRoleType = UserRoleType.SYSTEM.name();
+        long lastCreateTime = -1;
+        for (UserRole userRole : userRoles) {
+            // 判断是否按照 type 为 SYSTEM，ORGANIZATION， PROJECT 排序
+            if (typeOrderMap.get(userRole.getType()) < typeOrderMap.get(userRoleType)) {
+                Assertions.fail();
+            } else if (typeOrderMap.get(userRole.getType()).equals(typeOrderMap.get(userRoleType))) {
+                // 相等，比较创建时间
+                if (userRole.getCreateTime() < lastCreateTime) {
+                    Assertions.fail();
+                }
+            }
+            lastCreateTime = userRole.getCreateTime();
+            userRoleType = userRole.getType();
+        }
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_READ, DEFAULT_LIST);
+    }
+
+    @Test
+    @Order(3)
+    void updatePermissionSetting() throws Exception {
+        PermissionSettingUpdateRequest request = new PermissionSettingUpdateRequest();
+        request.setPermissions(new ArrayList<>() {{
+            PermissionSettingUpdateRequest.PermissionUpdateRequest permission1
+                    = new PermissionSettingUpdateRequest.PermissionUpdateRequest();
+            permission1.setEnable(true);
+            permission1.setId(PermissionConstants.SYSTEM_USER_READ);
+            add(permission1);
+            PermissionSettingUpdateRequest.PermissionUpdateRequest permission2
+                    = new PermissionSettingUpdateRequest.PermissionUpdateRequest();
+            permission2.setEnable(false);
+            permission2.setId(PermissionConstants.SYSTEM_USER_ROLE_READ);
+            add(permission2);
+        }});
+
+        // @@请求成功
+        request.setUserRoleId(addUserRole.getId());
+        this.requestPostWithOk(PERMISSION_UPDATE, request);
+        // 获取该用户组拥有的权限
+        Set<String> permissionIds = baseUserRolePermissionService.getPermissionIdSetByRoleId(request.getUserRoleId());
+        Set<String> requestPermissionIds = request.getPermissions().stream()
+                .filter(PermissionSettingUpdateRequest.PermissionUpdateRequest::getEnable)
+                .map(PermissionSettingUpdateRequest.PermissionUpdateRequest::getId)
+                .collect(Collectors.toSet());
+        // 校验请求成功数据
+        Assertions.assertEquals(requestPermissionIds, permissionIds);
+
+        // @@校验日志
+        checkLog(request.getUserRoleId(), OperationLogType.UPDATE);
+
+        // @@操作非全局用户组异常
+        request.setUserRoleId(getNonGlobalUserRole().getId());
+        assertErrorCode(this.requestPost(PERMISSION_UPDATE, request), GLOBAL_USER_ROLE_PERMISSION);
+
+        // @@操作内置用户组异常
+        request.setUserRoleId(ADMIN.getValue());
+        assertErrorCode(this.requestPost(PERMISSION_UPDATE, request), INTERNAL_USER_ROLE_PERMISSION);
+
+        // @@异常参数校验
+        paramValidateTest(PermissionSettingUpdateRequestDefinition.class, PERMISSION_UPDATE);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_UPDATE, PERMISSION_UPDATE, request);
+    }
+
+    @Test
+    @Order(4)
     void getPermissionSetting() throws Exception {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOkAndReturn(PERMISSION_SETTING, ADMIN.getValue());
@@ -210,54 +281,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(2)
-    void updatePermissionSetting() throws Exception {
-        PermissionSettingUpdateRequest request = new PermissionSettingUpdateRequest();
-        request.setPermissions(new ArrayList<>() {{
-            PermissionSettingUpdateRequest.PermissionUpdateRequest permission1
-                    = new PermissionSettingUpdateRequest.PermissionUpdateRequest();
-            permission1.setEnable(true);
-            permission1.setId(PermissionConstants.SYSTEM_USER_READ);
-            add(permission1);
-            PermissionSettingUpdateRequest.PermissionUpdateRequest permission2
-                    = new PermissionSettingUpdateRequest.PermissionUpdateRequest();
-            permission2.setEnable(false);
-            permission2.setId(PermissionConstants.SYSTEM_USER_ROLE_READ);
-            add(permission2);
-        }});
-
-        // @@请求成功
-        request.setUserRoleId(addUserRole.getId());
-        this.requestPostWithOk(PERMISSION_UPDATE, request);
-        // 获取该用户组拥有的权限
-        Set<String> permissionIds = baseUserRolePermissionService.getPermissionIdSetByRoleId(request.getUserRoleId());
-        Set<String> requestPermissionIds = request.getPermissions().stream()
-                .filter(PermissionSettingUpdateRequest.PermissionUpdateRequest::getEnable)
-                .map(PermissionSettingUpdateRequest.PermissionUpdateRequest::getId)
-                .collect(Collectors.toSet());
-        // 校验请求成功数据
-        Assertions.assertEquals(requestPermissionIds, permissionIds);
-
-        // @@校验日志
-        checkLog(request.getUserRoleId(), OperationLogType.UPDATE);
-
-        // @@操作非全局用户组异常
-        request.setUserRoleId(getNonGlobalUserRole().getId());
-        assertErrorCode(this.requestPost(PERMISSION_UPDATE, request), GLOBAL_USER_ROLE_PERMISSION);
-
-        // @@操作内置用户组异常
-        request.setUserRoleId(ADMIN.getValue());
-        assertErrorCode(this.requestPost(PERMISSION_UPDATE, request), INTERNAL_USER_ROLE_PERMISSION);
-
-        // @@异常参数校验
-        paramValidateTest(PermissionSettingUpdateRequestDefinition.class, PERMISSION_UPDATE);
-
-        // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_UPDATE, PERMISSION_UPDATE, request);
-    }
-
-    @Test
-    @Order(3)
+    @Order(5)
     void delete() throws Exception {
         // 校验删除该用户组，没有用户组的用户会默认添加系统成员用户组
         UserRoleRelation userRoleRelation = prepareOneLimitTest(addUserRole.getId());
