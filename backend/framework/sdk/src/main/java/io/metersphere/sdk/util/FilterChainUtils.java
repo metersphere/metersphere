@@ -28,7 +28,6 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/sso/callback/**", "anon");
         filterChainDefinitionMap.put("/license/validate", "anon");
         filterChainDefinitionMap.put("/system/version/current", "anon");
-        filterChainDefinitionMap.put("/system/parameter/get/base-info", "anon");
 
         // for swagger
         filterChainDefinitionMap.put("/swagger-ui.html", "anon");

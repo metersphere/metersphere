@@ -3,6 +3,7 @@ package io.metersphere.sdk.dto;
 import io.metersphere.sdk.util.RsaKey;
 import io.metersphere.sdk.util.RsaUtil;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +11,10 @@ import lombok.Setter;
 @Setter
 public class LoginRequest {
     @NotBlank(message = "{user_name_is_null}")
+    @Size(max = 64, message = "{user_name_length_too_long}")
     private String username;
     @NotBlank(message = "{password_is_null}")
+    @Size(max = 256, message = "{password_length_too_long}")
     private String password;
     private String authenticate;
 
