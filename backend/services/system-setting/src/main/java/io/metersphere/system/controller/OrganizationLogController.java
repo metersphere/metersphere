@@ -48,7 +48,7 @@ public class OrganizationLogController {
 
     @GetMapping("/get/options/{organizationId}")
     @Operation(summary = "组织日志-获取项目级联下拉框选项")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_OPERATING_LOG_READ)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_LOG_READ)
     public OrganizationProjectOptionsResponse getOrganizationOptions(@PathVariable(value = "organizationId") String organizationId) {
         //获取全部项目
         List<OrganizationProjectOptionsDTO> projectList = systemProjectService.getProjectOptions(organizationId);
@@ -61,7 +61,7 @@ public class OrganizationLogController {
 
     @GetMapping("/user/list/{organizationId}")
     @Operation(summary = "组织日志-获取用户列表")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_OPERATING_LOG_READ)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_LOG_READ)
     public List<User> getLogUserList(@PathVariable(value = "organizationId") String organizationId) {
         return userService.getUserListByOrgId(organizationId);
     }
@@ -69,7 +69,7 @@ public class OrganizationLogController {
 
     @PostMapping("/list")
     @Operation(summary = "组织菜单下操作日志列表查询")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_OPERATING_LOG_READ)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_LOG_READ)
     public Pager<List<OperationLogResponse>> organizationLogList(@Validated @RequestBody OperationLogRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");

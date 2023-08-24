@@ -138,11 +138,11 @@
         ]
       },
       {
-        "id": "SYSTEM_OPERATION_LOG",
+        "id": "SYSTEM_LOG",
         "name": "permission.system_operation_log.name",
         "permissions": [
           {
-            "id": "SYSTEM_OPERATING_LOG:READ"
+            "id": "SYSTEM_LOG:READ"
           }
         ]
       }
@@ -238,11 +238,11 @@
 
       },
       {
-        "id": "ORGANIZATION_OPERATION_LOG",
+        "id": "ORGANIZATION_LOG",
         "name": "permission.organization_operation_log.name",
         "permissions": [
           {
-            "id": "ORGANIZATION_OPERATING_LOG:READ"
+            "id": "ORGANIZATION_LOG:READ"
           }
         ]
       }

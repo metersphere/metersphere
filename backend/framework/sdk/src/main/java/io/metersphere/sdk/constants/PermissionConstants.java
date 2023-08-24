@@ -105,7 +105,7 @@ public class PermissionConstants {
     public static final String SYSTEM_AUTH_READ = "SYSTEM_AUTH:READ";
     public static final String SYSTEM_AUTH_READ_UPDATE = "SYSTEM_AUTH:READ+UPDATE";
 
-    public static final String SYSTEM_OPERATING_LOG_READ = "SYSTEM_OPERATING_LOG:READ";
+    public static final String SYSTEM_LOG_READ = "SYSTEM_LOG:READ";
 
     public static final String ORGANIZATION_SERVICE_READ = "ORGANIZATION_SERVICE:READ";
     public static final String ORGANIZATION_SERVICE_READ_UPDATE = "ORGANIZATION_SERVICE:READ+UPDATE";
@@ -123,7 +123,7 @@ public class PermissionConstants {
     public static final String ORGANIZATION_PROJECT_ENVIRONMENT_READ_IMPORT = "ORGANIZATION_PROJECT_ENVIRONMENT:READ+IMPORT";
     public static final String ORGANIZATION_PROJECT_ENVIRONMENT_READ_EXPORT = "ORGANIZATION_PROJECT_ENVIRONMENT:READ+EXPORT";
 
-    public static final String ORGANIZATION_OPERATING_LOG_READ = "ORGANIZATION_OPERATING_LOG:READ";
+    public static final String ORGANIZATION_LOG_READ = "ORGANIZATION_LOG:READ";
 
     public static final String PROJECT_USER_READ = "PROJECT_USER:READ";
     public static final String PROJECT_USER_READ_ADD = "PROJECT_USER:READ+ADD";

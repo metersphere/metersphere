@@ -69,7 +69,7 @@ public class OrganizationLogControllerTests extends BaseTest {
         // @@异常参数校验
         updatedGroupParamValidateTest(OperationLogRequestDefinition.class, ORGANIZATION_LOG_LIST);
 
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_OPERATING_LOG_READ, ORGANIZATION_LOG_LIST, request);
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_LOG_READ, ORGANIZATION_LOG_LIST, request);
 
     }
 

@@ -60,7 +60,7 @@ public class OperationLogControllerTests extends BaseTest {
         // @@异常参数校验
         updatedGroupParamValidateTest(OperationLogRequestDefinition.class, OPERATION_LOG_LIST);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_OPERATING_LOG_READ, OPERATION_LOG_LIST, request);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_LOG_READ, OPERATION_LOG_LIST, request);
 
     }
 
@@ -92,7 +92,7 @@ public class OperationLogControllerTests extends BaseTest {
         // @@异常参数校验
         updatedGroupParamValidateTest(OperationLogRequestDefinition.class, OPERATION_LOG_LIST);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_OPERATING_LOG_READ, OPERATION_LOG_LIST, request);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_LOG_READ, OPERATION_LOG_LIST, request);
     }
 
 
@@ -122,7 +122,7 @@ public class OperationLogControllerTests extends BaseTest {
         // @@异常参数校验
         updatedGroupParamValidateTest(OperationLogRequestDefinition.class, OPERATION_LOG_LIST);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_OPERATING_LOG_READ, OPERATION_LOG_LIST, request);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_LOG_READ, OPERATION_LOG_LIST, request);
     }
 
 
@@ -132,7 +132,7 @@ public class OperationLogControllerTests extends BaseTest {
         this.requestGetWithOkAndReturn(OPTIONS_LIST);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_OPERATING_LOG_READ, OPTIONS_LIST);
+        requestGetPermissionTest(PermissionConstants.SYSTEM_LOG_READ, OPTIONS_LIST);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class OperationLogControllerTests extends BaseTest {
         this.requestGetWithOkAndReturn(USER_LIST);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_OPERATING_LOG_READ, USER_LIST);
+        requestGetPermissionTest(PermissionConstants.SYSTEM_LOG_READ, USER_LIST);
     }
 
     @Test

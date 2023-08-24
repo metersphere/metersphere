@@ -45,7 +45,7 @@ public class OperationLogController {
 
     @GetMapping("/get/options")
     @Operation(summary = "获取组织/项目级联下拉框选项")
-    @RequiresPermissions(PermissionConstants.SYSTEM_OPERATING_LOG_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_LOG_READ)
     public OrganizationProjectOptionsResponse getOptions() {
 
         //获取全部组织
@@ -63,7 +63,7 @@ public class OperationLogController {
 
     @PostMapping("/list")
     @Operation(summary = "系统操作日志列表查询")
-    @RequiresPermissions(PermissionConstants.SYSTEM_OPERATING_LOG_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_LOG_READ)
     public Pager<List<OperationLogResponse>> list(@Validated @RequestBody OperationLogRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
@@ -73,7 +73,7 @@ public class OperationLogController {
 
     @GetMapping("/user/list")
     @Operation(summary = "系统日志页面，获取用户列表")
-    @RequiresPermissions(PermissionConstants.SYSTEM_OPERATING_LOG_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_LOG_READ)
     public List<User> getUserList() {
         List<User> userList = userService.getUserList();
         return userList;
