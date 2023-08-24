@@ -15,9 +15,6 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
-    <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
-    <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="description" jdbcType="VARCHAR" property="description" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -80,8 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, platform, webhook, `type`, app_key, app_secret, `enable`, 
-    create_user, create_time, update_user, update_time, delete_user, delete_time, deleted, 
-    description
+    create_user, create_time, update_user, update_time, description
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.ProjectRobotExample" resultMap="BaseResultMap">
     select
@@ -118,14 +114,12 @@
       platform, webhook, `type`, 
       app_key, app_secret, `enable`, 
       create_user, create_time, update_user, 
-      update_time, delete_user, delete_time, 
-      deleted, description)
+      update_time, description)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{platform,jdbcType=VARCHAR}, #{webhook,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{appKey,jdbcType=VARCHAR}, #{appSecret,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, 
       #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, 
-      #{updateTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
-      #{deleted,jdbcType=BIT}, #{description,jdbcType=VARCHAR})
+      #{updateTime,jdbcType=BIGINT}, #{description,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.ProjectRobot">
     insert into project_robot
@@ -168,15 +162,6 @@
       </if>
       <if test="updateTime != null">
         update_time,
-      </if>
-      <if test="deleteUser != null">
-        delete_user,
-      </if>
-      <if test="deleteTime != null">
-        delete_time,
-      </if>
-      <if test="deleted != null">
-        deleted,
       </if>
       <if test="description != null">
         description,
@@ -221,15 +206,6 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="deleteUser != null">
-        #{deleteUser,jdbcType=VARCHAR},
-      </if>
-      <if test="deleteTime != null">
-        #{deleteTime,jdbcType=BIGINT},
-      </if>
-      <if test="deleted != null">
-        #{deleted,jdbcType=BIT},
       </if>
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
@@ -284,15 +260,6 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.deleteUser != null">
-        delete_user = #{record.deleteUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.deleteTime != null">
-        delete_time = #{record.deleteTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.deleted != null">
-        deleted = #{record.deleted,jdbcType=BIT},
-      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
@@ -316,9 +283,6 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      delete_user = #{record.deleteUser,jdbcType=VARCHAR},
-      delete_time = #{record.deleteTime,jdbcType=BIGINT},
-      deleted = #{record.deleted,jdbcType=BIT},
       description = #{record.description,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -363,15 +327,6 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="deleteUser != null">
-        delete_user = #{deleteUser,jdbcType=VARCHAR},
-      </if>
-      <if test="deleteTime != null">
-        delete_time = #{deleteTime,jdbcType=BIGINT},
-      </if>
-      <if test="deleted != null">
-        deleted = #{deleted,jdbcType=BIT},
-      </if>
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
@@ -392,25 +347,20 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_user = #{updateUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
-      delete_user = #{deleteUser,jdbcType=VARCHAR},
-      delete_time = #{deleteTime,jdbcType=BIGINT},
-      deleted = #{deleted,jdbcType=BIT},
       description = #{description,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into project_robot
     (id, project_id, `name`, platform, webhook, `type`, app_key, app_secret, `enable`, 
-      create_user, create_time, update_user, update_time, delete_user, delete_time, deleted, 
-      description)
+      create_user, create_time, update_user, update_time, description)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
         #{item.platform,jdbcType=VARCHAR}, #{item.webhook,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
         #{item.appKey,jdbcType=VARCHAR}, #{item.appSecret,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, 
-        #{item.deleted,jdbcType=BIT}, #{item.description,jdbcType=VARCHAR})
+        #{item.updateTime,jdbcType=BIGINT}, #{item.description,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -461,15 +411,6 @@
         </if>
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
-        </if>
-        <if test="'delete_user'.toString() == column.value">
-          #{item.deleteUser,jdbcType=VARCHAR}
-        </if>
-        <if test="'delete_time'.toString() == column.value">
-          #{item.deleteTime,jdbcType=BIGINT}
-        </if>
-        <if test="'deleted'.toString() == column.value">
-          #{item.deleted,jdbcType=BIT}
         </if>
         <if test="'description'.toString() == column.value">
           #{item.description,jdbcType=VARCHAR}
