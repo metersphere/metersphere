@@ -299,6 +299,7 @@ public class UserService {
 
     public List<User> getUserList() {
         UserExample example = new UserExample();
+        example.createCriteria().andDeletedEqualTo(false);
         example.setOrderByClause("update_time desc");
         return userMapper.selectByExample(example);
     }
