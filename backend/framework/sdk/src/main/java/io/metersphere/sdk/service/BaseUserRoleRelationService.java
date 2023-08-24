@@ -6,11 +6,11 @@ import io.metersphere.sdk.mapper.BaseUserRoleRelationMapper;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +35,7 @@ public class BaseUserRoleRelationService {
     @Resource
     protected BaseUserRoleRelationMapper baseUserRoleRelationMapper;
     @Resource
-    @Lazy
-    protected BaseUserRoleService baseUserRoleService;
+    protected UserRoleMapper userRoleMapper;
     @Resource
     private BaseUserService baseUserService;
 
@@ -65,7 +64,7 @@ public class BaseUserRoleRelationService {
 
     public UserRole getUserRole(String id) {
         UserRoleRelation userRoleRelation = userRoleRelationMapper.selectByPrimaryKey(id);
-        return baseUserRoleService.get(userRoleRelation.getRoleId());
+        return userRoleMapper.selectByPrimaryKey(userRoleRelation.getRoleId());
     }
 
     protected void delete(String id) {
@@ -101,7 +100,7 @@ public class BaseUserRoleRelationService {
     public String getLogDetails(String id) {
         UserRoleRelation userRoleRelation = userRoleRelationMapper.selectByPrimaryKey(id);
         if (userRoleRelation != null) {
-            UserRole userRole = baseUserRoleService.get(userRoleRelation.getRoleId());
+            UserRole userRole = userRoleMapper.selectByPrimaryKey(userRoleRelation.getRoleId());
             return userRole == null ? null : userRole.getName();
         }
         return null;
