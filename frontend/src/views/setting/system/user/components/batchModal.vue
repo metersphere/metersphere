@@ -10,23 +10,16 @@
       <a-alert v-if="batchModalMode === 'project'" class="mb-[16px]">
         {{ t('system.user.batchModalTip') }}
       </a-alert>
-      <a-transfer
+      <MsTransfer
         v-model="target"
-        :title="[t('system.user.batchOptional'), t('system.user.batchChosen')]"
-        :data="transferData"
-        show-search
-      >
-        <template #source="{ data, selectedKeys, onSelect }">
-          <a-tree
-            :checkable="true"
-            checked-strategy="child"
-            :checked-keys="selectedKeys"
-            :data="getTreeData(data)"
-            block-node
-            @check="onSelect"
-          />
-        </template>
-      </a-transfer>
+        :data="treeData"
+        :tree-filed="{
+          key: 'id',
+          title: 'name',
+          children: 'children',
+          disabled: 'disabled',
+        }"
+      />
     </a-spin>
     <template #footer>
       <a-button type="secondary" :disabled="batchLoading" @click="cancelBatch">{{
@@ -51,22 +44,11 @@
     getSystemProjects,
     getSystemRoles,
   } from '@/api/modules/setting/user';
+  import MsTransfer from '@/components/pure/ms-transfer/index.vue';
 
   import type { OrgsItem } from '@/models/setting/user';
 
   const { t } = useI18n();
-
-  interface TreeDataItem {
-    key: string;
-    title: string;
-    children?: TreeDataItem[];
-  }
-
-  interface TransferDataItem {
-    value: string;
-    label: string;
-    disabled: boolean;
-  }
 
   const props = withDefaults(
     defineProps<{
@@ -87,46 +69,6 @@
   const batchModalMode = ref<'project' | 'userGroup' | 'organization'>('project');
   const treeData = ref<OrgsItem[]>([]);
   const loading = ref(false);
-  const transferData = ref<TransferDataItem[]>([]);
-
-  /**
-   * 获取穿梭框数据，根据树结构获取
-   * @param _treeData 树结构
-   * @param transferDataSource 穿梭框数组
-   */
-  const getTransferData = (_treeData: OrgsItem[], transferDataSource: TransferDataItem[]) => {
-    _treeData.forEach((item) => {
-      if (!item.leafNode && item.children) getTransferData(item.children, transferDataSource);
-      else transferDataSource.push({ label: item.name, value: item.id, disabled: false });
-    });
-    return transferDataSource;
-  };
-
-  /**
-   * 获取树结构数据，根据穿梭框过滤的数据获取
-   */
-  const getTreeData = (data: TransferDataItem[]) => {
-    const values = data.map((item) => item.value);
-
-    const travel = (_treeData: OrgsItem[]) => {
-      const treeDataSource: TreeDataItem[] = [];
-      _treeData.forEach((item) => {
-        // 需要判断当前父节点下的子节点是否全部选中，若选中则不会 push 进穿梭框数组内，否则会出现空的节点无法选中
-        const allSelected =
-          target.value.length > 0 && !item.leafNode && item.children?.every((child) => target.value.includes(child.id));
-        if (!allSelected && !target.value.includes(item.id) && (item.children || values.includes(item.id))) {
-          treeDataSource.push({
-            title: item.name,
-            key: item.id,
-            children: item.children ? travel(item.children) : [],
-          });
-        }
-      });
-      return treeDataSource;
-    };
-
-    return travel(treeData.value);
-  };
 
   async function handleTableBatch(action: string) {
     showBatchModal.value = true;
@@ -153,7 +95,6 @@
           break;
       }
       treeData.value = resTree;
-      transferData.value = getTransferData(treeData.value, []);
     } catch (error) {
       console.log(error);
     } finally {
