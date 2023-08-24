@@ -397,9 +397,6 @@ CREATE TABLE IF NOT EXISTS project_robot(
                               `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
                               `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
                               `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-                              `delete_user` VARCHAR(50)    COMMENT '删除人' ,
-                              `delete_time` BIGINT(255)    COMMENT '删除时间' ,
-                              `deleted` BIT NOT NULL  DEFAULT 0 COMMENT '是否删除' ,
                               `description` VARCHAR(255)    COMMENT '描述' ,
                               PRIMARY KEY (id)
 )  COMMENT = '项目机器人';

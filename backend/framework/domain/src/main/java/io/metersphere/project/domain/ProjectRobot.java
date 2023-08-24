@@ -16,22 +16,22 @@ public class ProjectRobot implements Serializable {
     private String id;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_robot.project_id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{project_robot.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{project_robot.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_robot.name.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{project_robot.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{project_robot.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(description = "所属平台（飞书，钉钉，企业微信，自定义）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_robot.platform.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{project_robot.platform.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{project_robot.platform.length_range}", groups = {Created.class, Updated.class})
     private String platform;
 
     @Schema(description = "webhook", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_robot.webhook.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{project_robot.webhook.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{project_robot.webhook.length_range}", groups = {Created.class, Updated.class})
     private String webhook;
 
@@ -59,16 +59,6 @@ public class ProjectRobot implements Serializable {
     @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description = "删除人")
-    private String deleteUser;
-
-    @Schema(description = "删除时间")
-    private Long deleteTime;
-
-    @Schema(description = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{project_robot.deleted.not_blank}", groups = {Created.class})
-    private Boolean deleted;
-
     @Schema(description = "描述")
     private String description;
 
@@ -88,9 +78,6 @@ public class ProjectRobot implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        deleteUser("delete_user", "deleteUser", "VARCHAR", false),
-        deleteTime("delete_time", "deleteTime", "BIGINT", false),
-        deleted("deleted", "deleted", "BIT", false),
         description("description", "description", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
