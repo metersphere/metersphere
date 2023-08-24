@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -61,7 +62,7 @@ public class LoginController {
 
     @PostMapping(value = "/login")
     @Operation(summary = "登录")
-    public ResultHolder login(@RequestBody LoginRequest request) {
+    public ResultHolder login(@Validated @RequestBody LoginRequest request) {
         SessionUser sessionUser = SessionUtils.getUser();
         if (sessionUser != null) {
             if (!StringUtils.equals(sessionUser.getId(), request.getUsername())) {
