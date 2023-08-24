@@ -35,7 +35,7 @@
             <a-button
               class="ml-3"
               type="primary"
-              :loading="props.loading"
+              :loading="confirmLoading"
               :disabled="props.disabledOk"
               @click="confirmHandler"
             >
@@ -74,7 +74,6 @@
     title: string;
     confirm?: (enable: boolean | undefined) => void; // 确定
     visible: boolean;
-    loading: boolean;
     close: () => void;
   };
 
@@ -118,9 +117,19 @@
     props?.close();
   };
 
+  const confirmLoading = ref<boolean>(false);
+
   const confirmHandler = async () => {
     if (props.confirm) {
-      props.confirm(switchEnable.value);
+      confirmLoading.value = true;
+      try {
+        await props.confirm(switchEnable.value);
+        confirmLoading.value = false;
+      } catch (error) {
+        console.log(error);
+      } finally {
+        confirmLoading.value = false;
+      }
     }
   };
 </script>

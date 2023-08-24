@@ -40,4 +40,7 @@ export default {
   'common.admin': 'Admin',
   'common.revokeDelete': 'Revoke delete',
   'common.revokeDeleteSuccess': 'Revoke delete success',
+  'common.unSaveLeaveTitle': 'Leave this page?',
+  'common.unSaveLeaveContent': 'The system may not save your changes',
+  'common.leave': 'Leave',
 };
