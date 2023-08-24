@@ -34,7 +34,7 @@
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
   import { reactive, ref, watchEffect } from 'vue';
-  import useUserGroupStore from '@/store/modules/setting/system/usergroup';
+  import useUserGroupStore from '@/store/modules/setting/organization/usergroup';
   import { addUserToUserGroup } from '@/api/modules/setting/usergroup';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';

@@ -1,47 +1,59 @@
 <template>
-  <MsBaseTable v-bind="propsRes" v-on="propsEvent">
-    <template #name="{ record }">
-      <span>{{ record.name }}</span>
-      <a-tooltip background-color="#FFFFFF">
-        <template #content>
-          <span class="text-[var(--color-text-1)]">{{ t('system.project.revokeDeleteToolTip') }}</span>
-          <MsButton class="ml-[8px]" @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
+  <MsCard simple>
+    <div class="mb-4 flex items-center justify-between">
+      <a-button type="primary" @click="showAddProject">{{ t('system.organization.createProject') }}</a-button>
+      <a-input-search
+        v-model="keyword"
+        :placeholder="t('system.user.searchUser')"
+        class="w-[240px]"
+        @press-enter="fetchData"
+        @search="fetchData"
+      ></a-input-search>
+    </div>
+    <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+      <template #name="{ record }">
+        <span>{{ record.name }}</span>
+        <a-tooltip background-color="#FFFFFF">
+          <template #content>
+            <span class="text-[var(--color-text-1)]">{{ t('system.organization.revokeDeleteToolTip') }}</span>
+            <MsButton class="ml-[8px]" @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
+          </template>
+          <MsIcon v-if="record.deleted" type="icon-icon_alarm_clock" class="ml-[4px] text-[rgb(var(--danger-6))]" />
+        </a-tooltip>
+      </template>
+      <template #creator="{ record }">
+        <span>{{ record.createUser }}</span>
+        <span v-if="record.projectCreateUserIsAdmin" class="ml-[8px] text-[var(--color-text-4)]">{{
+          `(${t('common.admin')})`
+        }}</span>
+      </template>
+      <template #memberCount="{ record }">
+        <span class="primary-color" @click="showUserDrawer(record)">{{ record.memberCount }}</span>
+      </template>
+      <template #operation="{ record }">
+        <template v-if="record.deleted">
+          <MsButton @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
         </template>
-        <MsIcon v-if="record.deleted" type="icon-icon_alarm_clock" class="ml-[4px] text-[rgb(var(--danger-6))]" />
-      </a-tooltip>
-    </template>
-    <template #creator="{ record }">
-      <span>{{ record.createUser }}</span>
-      <span v-if="record.projectCreateUserIsAdmin" class="ml-[8px] text-[var(--color-text-4)]">{{
-        `(${t('common.admin')})`
-      }}</span>
-    </template>
-    <template #memberCount="{ record }">
-      <span class="primary-color" @click="showUserDrawer(record)">{{ record.memberCount }}</span>
-    </template>
-    <template #operation="{ record }">
-      <template v-if="record.deleted">
-        <MsButton @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
+        <template v-else-if="!record.enable">
+          <MsButton @click="handleEnableOrDisableProject(record)">{{ t('common.enable') }}</MsButton>
+          <MsButton @click="handleDelete(record)">{{ t('common.delete') }}</MsButton>
+        </template>
+        <template v-else>
+          <MsButton @click="showAddProjectModal(record)">{{ t('common.edit') }}</MsButton>
+          <MsButton @click="showAddUserModal(record)">{{ t('system.organization.addMember') }}</MsButton>
+          <MsButton @click="handleEnableOrDisableProject(record, false)">{{ t('common.end') }}</MsButton>
+          <MsTableMoreAction :list="tableActions" @select="handleMoreAction($event, record)"></MsTableMoreAction>
+        </template>
       </template>
-      <template v-else-if="!record.enable">
-        <MsButton @click="handleEnableOrDisableProject(record)">{{ t('common.enable') }}</MsButton>
-        <MsButton @click="handleDelete(record)">{{ t('common.delete') }}</MsButton>
-      </template>
-      <template v-else>
-        <MsButton @click="showAddProjectModal(record)">{{ t('common.edit') }}</MsButton>
-        <MsButton @click="showAddUserModal(record)">{{ t('system.organization.addMember') }}</MsButton>
-        <MsButton @click="handleEnableOrDisableProject(record, false)">{{ t('common.end') }}</MsButton>
-        <MsTableMoreAction :list="tableActions" @select="handleMoreAction($event, record)"></MsTableMoreAction>
-      </template>
-    </template>
-  </MsBaseTable>
-  <AddProjectModal
-    :current-project="currentUpdateProject"
-    :visible="addProjectVisible"
-    @cancel="handleAddProjectModalCancel"
-  />
-  <AddUserModal :project-id="currentProjectId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
-  <UserDrawer :project-id="currentProjectId" v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
+    </MsBaseTable>
+    <AddProjectModal
+      :current-project="currentUpdateProject"
+      :visible="addProjectVisible"
+      @cancel="handleAddProjectModalCancel"
+    />
+    <AddUserModal :project-id="currentProjectId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
+    <UserDrawer :project-id="currentProjectId" v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
+  </MsCard>
 </template>
 
 <script lang="ts" setup>
@@ -62,18 +74,13 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { Message, TableData } from '@arco-design/web-vue';
-  import UserDrawer from './userDrawer.vue';
-  import AddUserModal from './addUserModal.vue';
+  import UserDrawer from './components/userDrawer.vue';
+  import AddUserModal from './components/addUserModal.vue';
   import useModal from '@/hooks/useModal';
   import { CreateOrUpdateSystemProjectParams } from '@/models/setting/system/orgAndProject';
-  import AddProjectModal from './addProjectModal.vue';
+  import AddProjectModal from './components/addProjectModal.vue';
   import { UserItem } from '@/components/business/ms-user-selector/index.vue';
-
-  export interface SystemOrganizationProps {
-    keyword: string;
-  }
-
-  const props = defineProps<SystemOrganizationProps>();
+  import MsCard from '@/components/pure/ms-card/index.vue';
 
   const { t } = useI18n();
   const tableStore = useTableStore();
@@ -82,6 +89,8 @@
   const currentProjectId = ref('');
   const currentUpdateProject = ref<CreateOrUpdateSystemProjectParams>();
   const { openDeleteModal, openModal } = useModal();
+
+  const keyword = ref('');
 
   const organizationColumns: MsTableColumn = [
     {
@@ -145,7 +154,7 @@
   });
 
   const fetchData = async () => {
-    setKeyword(props.keyword);
+    setKeyword(keyword.value);
     await loadList();
   };
 
@@ -161,6 +170,10 @@
       danger: true,
     },
   ];
+
+  const showAddProject = () => {
+    addProjectVisible.value = true;
+  };
 
   const handleDelete = (record: TableData) => {
     openDeleteModal({
@@ -252,7 +265,7 @@
       type: 'error',
       cancelText: t('common.cancel'),
       title: t('system.project.revokeDeleteTitle', { name: record.name }),
-      content: t('system.project.enableContent'),
+      content: t('system.organization.enableContent'),
       okText: t('common.revokeDelete'),
       onBeforeOk: async () => {
         try {
@@ -267,9 +280,6 @@
       hideCancel: false,
     });
   };
-  defineExpose({
-    fetchData,
-  });
 </script>
 
 <style lang="scss" scoped>
@@ -278,4 +288,3 @@
     cursor: pointer;
   }
 </style>
-@/api/modules/setting/organizationAndProject

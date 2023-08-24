@@ -129,6 +129,20 @@ export const pathMap = [
             level: MENU_LEVEL[1],
           },
           {
+            key: 'SETTING_ORGANIZATION_USER_ROLE', // 系统设置-组织-用户组
+            locale: 'menu.settings.organization.userGroup',
+            route: RouteEnum.SETTING_ORGANIZATION_USER_GROUP,
+            permission: [],
+            level: MENU_LEVEL[1],
+          },
+          {
+            key: 'SETTING_ORGANIZATION_PROJECT', // 系统设置-组织-项目
+            locale: 'menu.settings.organization.project',
+            route: RouteEnum.SETTING_ORGANIZATION_PROJECT,
+            permission: [],
+            level: MENU_LEVEL[1],
+          },
+          {
             key: 'SETTING_ORGANIZATION_SERVICE', // 系统设置-组织-服务集成
             locale: 'menu.settings.organization.serviceIntegration',
             route: RouteEnum.SETTING_ORGANIZATION_SERVICE,

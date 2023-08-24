@@ -48,7 +48,7 @@
   import { ref, computed, watchEffect } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import useUserGroupStore from '@/store/modules/setting/system/usergroup';
+  import useUserGroupStore from '@/store/modules/setting/organization/usergroup';
   import UserGroupLeft from './components/index.vue';
   import UserTable from './components/userTable.vue';
   import AuthTable from './components/authTable.vue';
@@ -75,7 +75,7 @@
   };
 
   const store = useUserGroupStore();
-  const couldShowUser = computed(() => store.userGroupInfo.currentType === 'SYSTEM');
+  const couldShowUser = computed(() => store.userGroupInfo.currentType === 'ORGANIZATION');
   const couldShowAuth = computed(() => store.userGroupInfo.currentId !== 'admin');
   const handleCollapse = () => {
     store.setCollapse(!store.collapse);

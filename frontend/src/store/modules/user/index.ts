@@ -8,7 +8,6 @@ import { useI18n } from '@/hooks/useI18n';
 
 import type { LoginData } from '@/models/user';
 import type { UserState } from './types';
-import { Message } from '@arco-design/web-vue';
 
 const useUserStore = defineStore('user', {
   // 开启数据持久化
@@ -30,6 +29,7 @@ const useUserStore = defineStore('user', {
     accountId: undefined,
     certification: undefined,
     role: '',
+    salt: '',
   }),
 
   getters: {
@@ -100,11 +100,14 @@ const useUserStore = defineStore('user', {
         if (appStore.currentOrgId === '') {
           appStore.setCurrentOrgId(res.lastOrganizationId || '');
         }
+        return true;
       } catch (err) {
-        const { t } = useI18n();
-        Message.error(t('message.loginExpired'));
-        this.logoutCallBack();
+        return false;
       }
+    },
+    // 加盐
+    setSalt(salt: string) {
+      this.$patch({ salt });
     },
   },
 });

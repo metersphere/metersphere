@@ -155,7 +155,6 @@ const transform: AxiosTransform = {
     } catch (e) {
       throw new Error(e as unknown as string);
     }
-
     checkStatus(error?.response?.status, msg, errorMessageMode);
     return Promise.reject(error);
   },

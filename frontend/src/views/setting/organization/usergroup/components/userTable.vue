@@ -17,7 +17,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { useTableStore } from '@/store';
-  import useUserGroupStore from '@/store/modules/setting/system/usergroup';
+  import useUserGroupStore from '@/store/modules/setting/organization/usergroup';
   import { watchEffect, ref, watch } from 'vue';
   import { postUserByUserGroup, deleteUserFromUserGroup } from '@/api/modules/setting/usergroup';
   import { UserTableItem } from '@/models/setting/usergroup';

@@ -100,4 +100,3 @@
     }
   );
 </script>
-@/api/modules/setting/organizationAndProject

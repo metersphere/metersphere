@@ -43,4 +43,5 @@ export default {
   'common.unSaveLeaveTitle': 'Leave this page?',
   'common.unSaveLeaveContent': 'The system may not save your changes',
   'common.leave': 'Leave',
+  'common.rename': 'Rename',
 };

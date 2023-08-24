@@ -42,6 +42,8 @@ export default {
     'menu.settings.system.log': 'System Log',
     'menu.settings.organization': 'Organization',
     'menu.settings.organization.member': 'Member',
+    'menu.settings.organization.userGroup': 'User Group',
+    'menu.settings.organization.project': 'Project',
     'menu.settings.organization.serviceIntegration': 'Service Integration',
     'menu.settings.organization.log': 'Org Log',
     'navbar.action.locale': 'Switch to English',

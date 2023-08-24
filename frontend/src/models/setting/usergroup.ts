@@ -40,6 +40,18 @@ export interface UserGroupItem {
   pos: number;
 }
 
+export interface SystemUserGroupParams {
+  id?: string; // 组ID
+  name?: string; // 名称
+  scopeId?: string; // 组织ID
+  type?: string; // 组类型：SYSTEM | PROJECT | ORGANIZATION
+}
+export interface OrgUserGroupParams {
+  id?: string; // 组ID
+  name: string;
+  scopeId: string; // 组织ID
+}
+
 export interface UserGroupPermissionItem {
   id: string;
   name: string;

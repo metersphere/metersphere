@@ -46,6 +46,8 @@ export enum SettingRouteEnum {
   SETTING_SYSTEM_PLUGIN_MANAGEMENT = 'settingSystemPluginManagement',
   SETTING_ORGANIZATION = 'settingOrganization',
   SETTING_ORGANIZATION_MEMBER = 'settingOrganizationMember',
+  SETTING_ORGANIZATION_USER_GROUP = 'settingOrganizationUserGroup',
+  SETTING_ORGANIZATION_PROJECT = 'settingOrganizationProject',
   SETTING_ORGANIZATION_SERVICE = 'settingOrganizationService',
   SETTING_ORGANIZATION_LOG = 'settingOrganizationLog',
 }
