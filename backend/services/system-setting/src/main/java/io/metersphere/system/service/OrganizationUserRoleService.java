@@ -59,6 +59,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     @Override
     public UserRole add(UserRole userRole) {
         userRole.setInternal(false);
+        userRole.setType(ORGANIZATION_ROLE_TYPE);
         checkNewRoleExist(userRole);
         return super.add(userRole);
     }
@@ -69,6 +70,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
         // 非组织用户组不允许修改, 内置用户组不允许修改
         checkOrgUserRole(oldRole);
         checkInternalUserRole(oldRole);
+        userRole.setType(ORGANIZATION_ROLE_TYPE);
         checkNewRoleExist(userRole);
         return super.update(userRole);
     }
