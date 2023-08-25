@@ -1,7 +1,7 @@
 package io.metersphere.project.controller;
 
-import com.jayway.jsonpath.JsonPath;
 import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import jakarta.annotation.Resource;
@@ -22,28 +22,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
-public class ProjectApplicationControllerTests {
+public class ProjectApplicationControllerTests extends BaseTest {
     @Resource
     private MockMvc mockMvc;
-    private static String sessionId;
-    private static String csrfToken;
-
 
     @Test
     @Order(0)
-    public void login() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
-                        .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
-        csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
-    }
-
-    @Test
-    @Order(1)
     public void testAddApp() throws Exception {
         ProjectApplication projectApplication = new ProjectApplication();
         projectApplication.setProjectId("1");
@@ -60,7 +44,7 @@ public class ProjectApplicationControllerTests {
     }
 
     @Test
-    @Order(2)
+    @Order(1)
     public void testUpdateApp() throws Exception {
         ProjectApplication projectApplication = new ProjectApplication();
         projectApplication.setProjectId("1");
@@ -77,7 +61,7 @@ public class ProjectApplicationControllerTests {
     }
 
     @Test
-    @Order(3)
+    @Order(2)
     public void testListApp() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/project/application/list/1")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
