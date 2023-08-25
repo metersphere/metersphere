@@ -31,7 +31,7 @@ import java.util.List;
  * @date : 2023-6-12
  */
 @RestController
-@Tag(name = "全局用户组与用户的关联关系")
+@Tag(name = "系统设置-用户组与用户关联关系")
 @RequestMapping("/user/role/relation/global")
 public class GlobalUserRoleRelationController {
 
@@ -39,7 +39,7 @@ public class GlobalUserRoleRelationController {
     private GlobalUserRoleRelationService globalUserRoleRelationService;
 
     @PostMapping("/list")
-    @Operation(summary = "获取全局用户组对应的用户列表")
+    @Operation(summary = "系统设置-用户组与用户关联关系-获取全局用户组对应的用户列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
     public Pager<List<UserRoleRelationUserDTO>> list(@Validated @RequestBody GlobalUserRoleRelationQueryRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
@@ -47,7 +47,7 @@ public class GlobalUserRoleRelationController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "创建全局用户组和用户的关联关系")
+    @Operation(summary = "系统设置-用户组与用户关联关系-创建全局用户组和用户的关联关系")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = GlobalUserRoleRelationLogService.class)
     public void add(@Validated({Created.class}) @RequestBody GlobalUserRoleRelationUpdateRequest request) {
@@ -56,7 +56,7 @@ public class GlobalUserRoleRelationController {
     }
 
     @GetMapping("/delete/{id}")
-    @Operation(summary = "删除全局用户组和用户的关联关系")
+    @Operation(summary = "系统设置-用户组与用户关联关系-删除全局用户组和用户的关联关系")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = GlobalUserRoleRelationLogService.class)
     public void delete(@PathVariable String id) {
@@ -64,7 +64,7 @@ public class GlobalUserRoleRelationController {
     }
 
     @GetMapping("/user/option/{roleId}")
-    @Operation(summary = "系统用户组-用户下拉选项")
+    @Operation(summary = "系统设置-用户组与用户关联关系-获取需要关联的用户选项")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_ROLE_READ})
     public List<ExcludeOptionDTO> getSelectOption(@Parameter(description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
                                                   @PathVariable String roleId) {

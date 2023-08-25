@@ -12,7 +12,6 @@ import io.metersphere.system.controller.param.PluginUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.PluginDTO;
-import io.metersphere.system.mapper.ExtPluginMapper;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.PluginOrganizationMapper;
 import io.metersphere.system.mapper.PluginScriptMapper;
@@ -47,8 +46,6 @@ public class PluginControllerTests extends BaseTest {
     private static final String PLUGIN_IMAGE = "/image/{0}?imagePath={1}";
     @Resource
     private PluginMapper pluginMapper;
-    @Resource
-    private ExtPluginMapper extPluginMapper;
     @Resource
     private BaseUserService baseUserService;
     @Resource
