@@ -53,7 +53,7 @@
             </span>
           </el-tooltip>
           <el-row class="ms-el-link">
-            <el-link @click="batchAdd" style="margin-right: 5px;" :disabled="isReadOnly">
+            <el-link @click="batchAdd" style="margin-right: 5px" :disabled="isReadOnly">
               {{ $t('commons.batch_add') }}
             </el-link>
             <api-params-config
@@ -109,6 +109,19 @@
 
         <!--请求体-->
         <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body">
+          <el-tooltip
+            class="item-tabs"
+            effect="dark"
+            :content="$t('api_test.request.body')"
+            placement="top-start"
+            slot="label">
+            <span>
+              {{ $t('api_test.request.body') }}
+              <div class="el-step__icon is-text ms-api-col ms-header" v-if="showSubscript()">
+                <div class="el-step__icon-inner">1</div>
+              </div>
+            </span>
+          </el-tooltip>
           <ms-api-body
             @editScenarioAdvance="editScenarioAdvance"
             :scenario-definition="scenarioDefinition"
@@ -129,7 +142,12 @@
             :content="$t('api_test.definition.request.auth_config_info')"
             placement="top-start"
             slot="label">
-            <span>{{ $t('api_test.definition.request.auth_config') }}</span>
+            <span>
+              {{ $t('api_test.definition.request.auth_config') }}
+              <div class="el-step__icon is-text ms-api-col ms-header" v-if="showAuthSubscript()">
+                <div class="el-step__icon-inner">1</div>
+              </div>
+            </span>
           </el-tooltip>
 
           <ms-api-auth-config :is-read-only="isReadOnly" :request="request" v-if="activeName === 'authConfig'" />
@@ -349,6 +367,21 @@ export default {
         });
       });
     },
+    showAuthSubscript() {
+      return this.request.authManager && this.request.authManager.verification !== 'No Auth';
+    },
+    showSubscript() {
+      return (
+        (this.request.body.kvs && this.request.body.kvs.length > 1) ||
+        this.request.body.raw ||
+        this.request.body.xml ||
+        this.request.body.json ||
+        this.request.body.jsonSchema ||
+        (this.request.body.binary &&
+          this.request.body.binary.length > 0 &&
+          this.request.body.binary[0].files.length > 0)
+      );
+    },
     refreshApiParamsField() {
       let oldActiveName = this.activeName;
       this.activeName = 'refreshing';
@@ -512,7 +545,7 @@ export default {
         params.forEach((item) => {
           if (item) {
             let line = item.split(/：|:/);
-            let values = item.substr(line[0].length +1).trim();
+            let values = item.substr(line[0].length + 1).trim();
 
             let required = false;
             keyValues.push(
@@ -527,7 +560,6 @@ export default {
                 enable: true,
                 isEdit: false,
                 contentType: 'text/plain',
-
               })
             );
           }
