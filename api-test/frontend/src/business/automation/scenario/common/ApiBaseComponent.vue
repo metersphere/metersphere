@@ -62,26 +62,24 @@
         </slot>
       </span>
 
-      <div
-        v-if="!ifFromVariableAdvance"
-        class="header-right"
-        @click.stop>
-        <slot name="message" v-show="!isMax"></slot>
+      <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop>
+        <div v-show="!isMax">
+          <slot name="message"></slot>
+        </div>
         <slot name="debugStepCode"></slot>
 
         <slot name="button" v-if="showVersion"></slot>
 
-        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn"
-                    v-permission="[
-          'PROJECT_API_SCENARIO:READ+EDIT',
-          'PROJECT_API_SCENARIO:READ+CREATE',
-          'PROJECT_API_SCENARIO:READ+COPY',
-        ]">
-          <el-switch
-            v-model="data.enable"
-            class="enable-switch"
-            size="mini"
-            :disabled="isEnabled()" />
+        <el-tooltip
+          :content="$t('test_resource_pool.enable_disable')"
+          placement="top"
+          v-if="showBtn"
+          v-permission="[
+            'PROJECT_API_SCENARIO:READ+EDIT',
+            'PROJECT_API_SCENARIO:READ+CREATE',
+            'PROJECT_API_SCENARIO:READ+COPY',
+          ]">
+          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="isEnabled()" />
         </el-tooltip>
 
         <el-button
@@ -92,10 +90,10 @@
           @click="copyRow"
           style="padding: 5px"
           v-permission="[
-          'PROJECT_API_SCENARIO:READ+EDIT',
-          'PROJECT_API_SCENARIO:READ+CREATE',
-          'PROJECT_API_SCENARIO:READ+COPY',
-        ]"
+            'PROJECT_API_SCENARIO:READ+EDIT',
+            'PROJECT_API_SCENARIO:READ+CREATE',
+            'PROJECT_API_SCENARIO:READ+COPY',
+          ]"
           :disabled="isEnabled()" />
 
         <el-button
@@ -108,10 +106,10 @@
           @click="remove"
           :disabled="isEnabled()"
           v-permission="[
-          'PROJECT_API_SCENARIO:READ+EDIT',
-          'PROJECT_API_SCENARIO:READ+CREATE',
-          'PROJECT_API_SCENARIO:READ+COPY',
-          ]"/>
+            'PROJECT_API_SCENARIO:READ+EDIT',
+            'PROJECT_API_SCENARIO:READ+CREATE',
+            'PROJECT_API_SCENARIO:READ+COPY',
+          ]" />
 
         <step-extend-btns
           style="display: contents"
@@ -125,10 +123,10 @@
           @remove="remove"
           @openScenario="openScenario"
           v-permission="[
-          'PROJECT_API_SCENARIO:READ+EDIT',
-          'PROJECT_API_SCENARIO:READ+CREATE',
-          'PROJECT_API_SCENARIO:READ+COPY',
-        ]"
+            'PROJECT_API_SCENARIO:READ+EDIT',
+            'PROJECT_API_SCENARIO:READ+CREATE',
+            'PROJECT_API_SCENARIO:READ+COPY',
+          ]"
           v-show="isMoreButton" />
       </div>
     </div>
@@ -165,7 +163,6 @@ export default {
   data() {
     return {
       isShowInput: false,
-      colorStyle: '',
       stepFilter: new STEP(),
     };
   },
@@ -238,21 +235,12 @@ export default {
       default: false,
     },
   },
-  watch: {
-    selectStep() {
-      if (store.selectStep && store.selectStep.resourceId === this.data.resourceId) {
-        this.colorStyle = this.color;
-      } else {
-        this.colorStyle = '';
-      }
-    },
-  },
   created() {
-    let typeArray = ["LoopController", "IfController","TransactionController"];
+    let typeArray = ['LoopController', 'IfController', 'TransactionController'];
     if (typeArray.includes(this.data.type) && !this.data.disabled) {
-      this.data.hashTree.forEach(item => {
+      this.data.hashTree.forEach((item) => {
         item.isCopy = true;
-      })
+      });
     }
     if (!this.data.name) {
       this.isShowInput = true;
@@ -272,6 +260,13 @@ export default {
     selectStep() {
       return store.selectStep;
     },
+    colorStyle() {
+      if (this.selectStep?.resourceId === this.data.resourceId) {
+        return this.color;
+      } else {
+        return '';
+      }
+    },
     forceRerenderIndex() {
       return store.forceRerenderIndex;
     },
@@ -285,12 +280,13 @@ export default {
     },
     isMoreButton() {
       if (this.data.type === 'ConstantTimer' || this.data.type === 'Assertions') {
-        return !this.data.caseEnable && (
-          !this.innerStep ||
-          (this.showBtn &&
-            (!this.data.disabled || this.data.root || this.data.isCopy || this.data.showExtend) &&
-            this.showVersion &&
-            this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1)
+        return (
+          !this.data.caseEnable &&
+          (!this.innerStep ||
+            (this.showBtn &&
+              (!this.data.disabled || this.data.root || this.data.isCopy || this.data.showExtend) &&
+              this.showVersion &&
+              this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1))
         );
       }
       return (

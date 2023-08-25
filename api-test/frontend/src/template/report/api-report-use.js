@@ -21,13 +21,13 @@ import chart from 'metersphere-frontend/src/chart';
 import filters from 'metersphere-frontend/src/filters';
 import icons from 'metersphere-frontend/src/icons';
 import plugins from 'metersphere-frontend/src/plugins';
-import VueEasyTree from "@ba1q1/vue-easy-tree";
+import VueVirtualTree from '@fit2cloud-ui/vue-virtual-tree';
 function apiReportUse(id, template) {
   Vue.use(ElementUI, {
     i18n: (key, value) => i18n.t(key, value),
   });
 
-  Vue.use(VueEasyTree);
+  Vue.use(VueVirtualTree);
   Vue.use(Row);
   Vue.use(Col);
   Vue.use(Form);

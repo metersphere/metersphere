@@ -271,7 +271,7 @@
             <el-row>
               <!-- 场景步骤内容 -->
               <div ref="stepInfo" style="height: calc(100vh - 170px)">
-                <vue-easy-tree
+                <vue-virtual-tree
                   node-key="id"
                   height="calc(100vh - 170px)"
                   :minItemSize="43"
@@ -353,7 +353,7 @@
                       {{ hideNode(node) }}
                     </div>
                   </el-row>
-                </vue-easy-tree>
+                </vue-virtual-tree>
               </div>
             </el-row>
             <el-row>
@@ -1464,7 +1464,7 @@ export default {
       }
       this.selectedTreeNode = data;
       this.selectedNode = node;
-      store.selectStep = data;
+      store.selectStep = node.data;
       this.buttonData = buttons(this);
       this.initPlugins();
       if (this.buttonData.length === 0 && this.$refs.refFab && this.$refs.refFab.active) {
