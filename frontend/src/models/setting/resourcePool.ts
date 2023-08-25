@@ -19,7 +19,7 @@ export interface TestResourceDTO {
   nodesList: NodesListItem[]; // node资源
   ip: string; // k8s ip
   token: string; // k8s token
-  nameSpaces: string; // k8s 命名空间
+  namespace: string; // k8s 命名空间
   concurrentNumber: number; // k8s 最大并发数
   podThreads: number; // k8s 单pod最大线程数
   jobDefinition: string; // k8s job自定义模板

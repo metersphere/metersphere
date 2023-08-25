@@ -94,7 +94,7 @@ export default {
   'system.resourcePool.testResourceDTO.token': 'Token',
   'system.resourcePool.testResourceDTO.tokenRequired': 'Please fill in the Token',
   'system.resourcePool.testResourceDTO.tokenPlaceholder': 'Please fill in the Token',
-  'system.resourcePool.testResourceDTO.nameSpaces': 'NameSpaces',
+  'system.resourcePool.testResourceDTO.namespace': 'NameSpaces',
   'system.resourcePool.testResourceDTO.nameSpacesRequired': 'Please fill in the namespace',
   'system.resourcePool.testResourceDTO.nameSpacesPlaceholder':
     'To use the K8S resource pool, you need to deploy the Role.yaml file',

@@ -6,6 +6,7 @@ import { isString } from '@/utils/is';
 import { getToken } from '@/utils/auth';
 import { setObjToUrlParams, deepMerge } from '@/utils';
 import { useI18n } from '@/hooks/useI18n';
+import useLocale from '@/locale/useLocale';
 import { joinTimestamp } from './helper';
 
 import type { AxiosResponse } from 'axios';
@@ -110,10 +111,17 @@ const transform: AxiosTransform = {
    */
   requestInterceptors: (config) => {
     // 请求之前处理config
+    const { currentLocale } = useLocale();
     const token = getToken();
     if (token && (config as Recordable)?.requestOptions?.withToken !== false) {
       const { sessionId, csrfToken } = token;
-      (config as Recordable).headers = { 'X-AUTH-TOKEN': sessionId, 'CSRF-TOKEN': csrfToken };
+
+      (config as Recordable).headers = {
+        ...config.headers,
+        'X-AUTH-TOKEN': sessionId,
+        'CSRF-TOKEN': csrfToken,
+        'Accept-Language': currentLocale.value,
+      };
     }
     return config;
   },
