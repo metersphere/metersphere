@@ -1,6 +1,8 @@
 <template>
   <div>
-    <el-button type="primary" @click="relateTestCase">{{$t('test_track.review_view.relevance_case')}}</el-button>
+    <el-button type="primary" @click="relateTestCase">{{
+      $t("test_track.review_view.relevance_case")
+    }}</el-button>
 
     <ms-table
       v-loading="result.loading"
@@ -9,53 +11,42 @@
       :data="tableData"
       :screen-height="null"
       @refresh="initTableData"
-      ref="table">
+      ref="table"
+    >
+      <ms-table-column :label="$t('commons.id')" prop="num"> </ms-table-column>
 
-      <ms-table-column
-        :label="$t('commons.id')"
-        prop="num">
+      <ms-table-column :label="$t('commons.name')" prop="name">
       </ms-table-column>
 
-      <ms-table-column
-        :label="$t('commons.name')"
-        prop="name">
-      </ms-table-column>
-
-      <ms-table-column
-        :label="$t('test_track.case.priority')"
-        prop="name">
+      <ms-table-column :label="$t('test_track.case.priority')" prop="name">
         <template v-slot:default="scope">
-          <priority-table-item :value="scope.row.priority" ref="priority"/>
+          <priority-table-item :value="scope.row.priority" ref="priority" />
         </template>
       </ms-table-column>
 
-      <ms-table-column
-        :label="$t('test_track.case.type')"
-        prop="type">
+      <ms-table-column :label="$t('test_track.case.type')" prop="type">
         <template v-slot:default="scope">
-          <type-table-item :value="scope.row.type"/>
+          <type-table-item :value="scope.row.type" />
         </template>
       </ms-table-column>
 
-      <ms-table-column
-        :label="$t('test_track.case.module')"
-        prop="nodePath">
+      <ms-table-column :label="$t('test_track.case.module')" prop="nodePath">
       </ms-table-column>
 
       <ms-table-column
         :label="$t('test_track.plan.plan_project')"
-        prop="projectName">
+        prop="projectName"
+      >
       </ms-table-column>
-
     </ms-table>
 
     <test-case-relate-list
       :test-case-contain-ids="testCaseContainIds"
       @refresh="initTableData"
       @save="handleRelate"
-      ref="testCaseRelevance"/>
+      ref="testCaseRelevance"
+    />
   </div>
-
 </template>
 
 <script>
@@ -64,27 +55,47 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "@/business/common/tableItems/planview/TypeTableItem";
 import TestCaseRelateList from "@/business/issue/TestCaseRelateList";
-import {getTestCaseIssueList} from "@/api/testCase";
+import { getTestCaseIssueList } from "@/api/testCase";
 export default {
   name: "TestCaseIssueList",
-  components: {TestCaseRelateList, TypeTableItem, PriorityTableItem, MsTableColumn, MsTable},
+  components: {
+    TestCaseRelateList,
+    TypeTableItem,
+    PriorityTableItem,
+    MsTableColumn,
+    MsTable,
+  },
   data() {
     return {
-      result: {},
+      result: {
+        loading: false,
+      },
       tableData: [],
       deleteIds: new Set(),
       addIds: new Set(),
       testCaseContainIds: new Set(),
       operators: [
         {
-          tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-          exec: this.handleDelete
-        }
+          tip: this.$t("commons.delete"),
+          icon: "el-icon-delete",
+          type: "danger",
+          exec: this.handleDelete,
+        },
       ],
     };
   },
   props: {
     issuesId: String,
+  },
+  watch: {
+    issuesId: {
+      handler(val) {
+        if (val) {
+          this.initTableData();
+        }
+      },
+      immediate: true,
+    },
   },
   methods: {
     handleDelete(item, index) {
@@ -99,17 +110,18 @@ export default {
     initTableData() {
       this.tableData = [];
       let condition = {
-        issuesId: this.issuesId
+        issuesId: this.issuesId,
       };
       if (this.issuesId) {
-        getTestCaseIssueList(condition)
-          .then((response) => {
-            this.tableData = response.data;
-            this.tableData.forEach(item => {
-              this.testCaseContainIds.add(item.id);
-            });
-            this.$refs.table.reloadTable();
-          })
+        this.result.loading = true;
+        getTestCaseIssueList(condition).then((response) => {
+          this.tableData = response.data;
+          this.tableData.forEach((item) => {
+            this.testCaseContainIds.add(item.id);
+          });
+          this.$refs.table.reloadTable();
+          this.result.loading = false;
+        });
       }
     },
     relateTestCase() {
@@ -117,7 +129,7 @@ export default {
     },
     handleRelate(selectRows) {
       let selectData = Array.from(selectRows);
-      selectRows.forEach(i => {
+      selectRows.forEach((i) => {
         if (i.id) {
           this.testCaseContainIds.add(i.id);
         }
@@ -127,10 +139,8 @@ export default {
       this.tableData.push(...selectData);
       this.testCaseContainIds = new Set();
     },
-  }
-}
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
