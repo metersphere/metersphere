@@ -4,8 +4,9 @@
     <select id="list" resultType="io.metersphere.system.dto.OrganizationDTO">
         select o.id, o.num, o.name, o.description, o.create_time,
         o.update_time, o.create_user, o.deleted, o.delete_user, o.delete_time, o.enable,
-        count(distinct ur.user_id) as memberCount, count(distinct p.id) as projectCount
+        count(distinct u.id) as memberCount, count(distinct p.id) as projectCount
         from organization o left join user_role_relation ur on ur.source_id = o.id
+        left join user u on u.id = ur.user_id and u.deleted = 0
         left join project p on p.organization_id = o.id
         <include refid="queryWhereCondition"/>
         group by o.id
@@ -34,8 +35,9 @@
             from user_role_relation urr
             join `user` u on urr.user_id = u.id
             <where>
+                u.deleted = 0
                 <if test="request.organizationId != null">
-                    urr.source_id = #{request.organizationId}
+                    and urr.source_id = #{request.organizationId}
                 </if>
                 <if test="request.keyword != null">
                     and u.name like concat('%', #{request.keyword},'%')
