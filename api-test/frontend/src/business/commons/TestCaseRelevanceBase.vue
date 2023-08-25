@@ -205,3 +205,8 @@ export default {
   margin-bottom: 10px;
 }
 </style>
+<style>
+.el-select-dropdown__wrap {
+  max-width: 500px;
+}
+</style>
