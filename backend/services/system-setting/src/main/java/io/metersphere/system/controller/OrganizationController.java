@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * @author guoyuqi
  */
-@Tag(name = "组织-成员")
+@Tag(name = "系统设置-组织-成员")
 @RestController
 @RequestMapping("/organization")
 public class OrganizationController {
@@ -39,7 +39,7 @@ public class OrganizationController {
     private OrganizationService organizationService;
 
     @PostMapping("/member/list")
-    @Operation(summary = "组织级别获取组织成员")
+    @Operation(summary = "系统设置-组织-成员-获取组织成员列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_READ)
     public Pager<List<OrgUserExtend>> getMemberList(@Validated @RequestBody OrganizationRequest organizationRequest) {
         Page<Object> page = PageHelper.startPage(organizationRequest.getCurrent(), organizationRequest.getPageSize());
@@ -47,35 +47,35 @@ public class OrganizationController {
     }
 
     @PostMapping("/add-member")
-    @Operation(summary = "添加组织成员")
+    @Operation(summary = "系统设置-组织-成员-添加组织成员")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_ADD)
     public void addMemberByList(@Validated @RequestBody OrganizationMemberExtendRequest organizationMemberExtendRequest) {
         organizationService.addMemberByOrg(organizationMemberExtendRequest, SessionUtils.getUserId());
     }
 
     @PostMapping("/role/update-member")
-    @Operation(summary = "添加组织成员至用户组")
+    @Operation(summary = "系统设置-组织-成员-添加组织成员至用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
     public void addMemberRole(@Validated @RequestBody OrganizationMemberExtendRequest organizationMemberExtendRequest) {
         organizationService.addMemberRole(organizationMemberExtendRequest, SessionUtils.getUserId());
     }
 
     @PostMapping("/update-member")
-    @Operation(summary = "更新用户")
+    @Operation(summary = "系统设置-组织-成员-更新用户")
     @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_MEMBER_UPDATE, PermissionConstants.PROJECT_USER_READ_ADD, PermissionConstants.PROJECT_USER_READ_DELETE}, logical = Logical.OR)
     public void updateMember(@Validated @RequestBody OrganizationMemberUpdateRequest organizationMemberExtendRequest) {
         organizationService.updateMember(organizationMemberExtendRequest, SessionUtils.getUserId());
     }
 
     @PostMapping("/project/add-member")
-    @Operation(summary = "添加组织成员至项目")
+    @Operation(summary = "系统设置-组织-成员-添加组织成员至项目")
     @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_MEMBER_UPDATE, PermissionConstants.PROJECT_USER_READ_ADD})
     public void addMemberToProject(@Validated @RequestBody OrgMemberExtendProjectRequest orgMemberExtendProjectRequest) {
         organizationService.addMemberToProject(orgMemberExtendProjectRequest, SessionUtils.getUserId());
     }
 
     @GetMapping("/remove-member/{organizationId}/{userId}")
-    @Operation(summary = "删除组织成员")
+    @Operation(summary = "系统设置-组织-成员-删除组织成员")
     @Parameters({
             @Parameter(name = "organizationId", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
             @Parameter(name = "userId", description = "成员ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
@@ -87,21 +87,21 @@ public class OrganizationController {
     }
 
     @GetMapping("/project/list/{organizationId}")
-    @Operation(summary = "获取当前组织下的所有项目")
+    @Operation(summary = "系统设置-组织-成员-获取当前组织下的所有项目")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     public List<IdNameStructureDTO> getProjectList(@PathVariable(value = "organizationId") String organizationId) {
         return organizationService.getProjectList(organizationId);
     }
 
     @GetMapping("/user/role/list/{organizationId}")
-    @Operation(summary = "获取当前组织下的所有自定义用户组以及组织级别的用户组")
+    @Operation(summary = "系统设置-组织-成员-获取当前组织下的所有自定义用户组以及组织级别的用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_READ)
     public List<IdNameStructureDTO> getUserRoleList(@PathVariable(value = "organizationId") String organizationId) {
         return organizationService.getUserRoleList(organizationId);
     }
 
     @GetMapping("/not-exist/user/list/{organizationId}")
-    @Operation(summary = "获取不在当前组织的所有用户")
+    @Operation(summary = "系统设置-组织-成员-获取不在当前组织的所有用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
     public List<IdNameStructureDTO> getUserList(@PathVariable(value = "organizationId") String organizationId) {
         return organizationService.getUserList(organizationId);
