@@ -2,134 +2,94 @@
   <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase, $event)" v-loading="saveLoading">
     <el-container>
       <el-header style="margin-bottom: 20px">
-        <div @click="active(apiCase)" v-if="type !== 'detail'" ref="elementHeader">
-          <el-row>
-            <el-col
-              :span="api.protocol === 'HTTP' ? 4 : 8"
-              v-loading="loading && !(apiCase.active || type === 'detail')">
-              <span @click.stop>
-                <i class="icon el-icon-arrow-right" :class="{ 'is-active': apiCase.active }" @click="active(apiCase)" />
-                <el-input
-                  v-if="!apiCase.id || isShowInput"
-                  size="small"
-                  v-model="apiCase.name"
-                  :name="index"
-                  :key="index"
-                  class="ms-api-header-select"
-                  style="width: 180px"
-                  :readonly="
-                    !hasPermissions(
-                      'PROJECT_API_DEFINITION:READ+EDIT_CASE',
-                      'PROJECT_API_DEFINITION:READ+CREATE_CASE',
-                      'PROJECT_API_DEFINITION:READ+COPY_CASE'
-                    )
-                  "
-                  :placeholder="$t('commons.input_name')"
-                  ref="nameEdit" />
-                <span v-else>
-                  <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
-                    <span>{{ apiCase.id ? apiCase.name : '' | ellipsis }}</span>
-                  </el-tooltip>
-
-                  <i class="el-icon-edit" style="cursor: pointer" @click="showInput(apiCase)" />
-                </span>
-
-                <el-link type="primary" style="margin-left: 10px" @click="openHis(apiCase)" v-if="apiCase.id">{{
-                  $t('operating_log.change_history')
-                }}</el-link>
-              </span>
-              <div v-if="apiCase.id" style="color: #999999; font-size: 12px">
-                <span style="margin-left: 10px">
-                  {{ apiCase.updateTime | datetimeFormat }}
-                  {{ apiCase.updateUser }}
-                  {{ $t('api_test.definition.request.update_info') }}
-                </span>
-              </div>
-            </el-col>
-            <el-col :span="2">
-              <el-select
-                size="mini"
-                v-model="apiCase.priority"
-                class="ms-api-select"
-                @change="changePriority(apiCase)"
-                :disabled="readonly">
-                <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id" />
-              </el-select>
-            </el-col>
-            <el-col :span="api.protocol === 'HTTP' ? 4 : 0">
-              <span v-if="api.protocol === 'HTTP'">
-                <el-tag
-                  size="mini"
-                  :style="{
-                    'background-color': getColor(true, apiCase.request.method),
-                    border: getColor(true, apiCase.request.method),
-                  }"
-                  class="api-el-tag">
-                  {{ apiCase.request.method }}
-                </el-tag>
-                <el-tooltip :content="apiCase.request.path">
-                  <span class="ms-col-name">{{ apiCase.request.path }}</span>
+        <div @click="active(apiCase)" v-if="type !== 'detail'" ref="elementHeader" class="case-header">
+          <div v-loading="loading && !(apiCase.active || type === 'detail')">
+            <span @click.stop>
+              <i class="icon el-icon-arrow-right" :class="{ 'is-active': apiCase.active }" @click="active(apiCase)" />
+              <el-input
+                v-if="!apiCase.id || isShowInput"
+                size="small"
+                v-model="apiCase.name"
+                :name="index"
+                :key="index"
+                class="ms-api-header-select"
+                style="width: 180px"
+                :readonly="
+                  !hasPermissions(
+                    'PROJECT_API_DEFINITION:READ+EDIT_CASE',
+                    'PROJECT_API_DEFINITION:READ+CREATE_CASE',
+                    'PROJECT_API_DEFINITION:READ+COPY_CASE'
+                  )
+                "
+                :placeholder="$t('commons.input_name')"
+                ref="nameEdit" />
+              <span v-else>
+                <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
+                  <span>{{ apiCase.id ? apiCase.name : '' | ellipsis }}</span>
                 </el-tooltip>
-              </span>
-            </el-col>
-            <el-col :span="5">
-              <el-row>
-                <el-col :span="8">
-                  <el-select
-                    size="small"
-                    v-model="apiCase.caseStatus"
-                    style="margin-right: 5px"
-                    @change="saveTestCase(apiCase, true)"
-                    :disabled="readonly">
-                    <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id" />
-                  </el-select>
-                </el-col>
-                <el-col :span="16">
-                  <div class="tag-item" @click.stop>
-                    <el-tooltip
-                      :content="$t('commons.follow')"
-                      placement="bottom"
-                      effect="dark"
-                      v-if="!showFollow"
-                      :disabled="true">
-                      <i
-                        class="el-icon-star-off"
-                        style="
-                          color: var(--primary_color);
-                          font-size: 25px;
-                          margin-top: 2px;
-                          margin-right: 15px;
-                          cursor: pointer;
-                        "
-                        @click="saveFollow" />
-                    </el-tooltip>
-                    <el-tooltip
-                      :content="$t('commons.cancel')"
-                      placement="bottom"
-                      effect="dark"
-                      v-if="showFollow"
-                      :disabled="true">
-                      <i
-                        class="el-icon-star-on"
-                        style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px; cursor: pointer"
-                        @click="saveFollow"
-                        v-if="showFollow" />
-                    </el-tooltip>
-                  </div>
-                </el-col>
-              </el-row>
-              <el-row style="margin-top: 5px">
-                <div class="tag-item" @click.stop>
-                  <ms-input-tag
-                    :currentScenario="apiCase"
-                    ref="tag"
-                    @keyup.enter.native="saveTestCase(apiCase, true)"
-                    :read-only="readonly" />
-                </div>
-              </el-row>
-            </el-col>
 
-            <el-col :span="3">
+                <i class="el-icon-edit" style="cursor: pointer" @click="showInput(apiCase)" />
+              </span>
+            </span>
+            <div v-if="apiCase.id" style="color: #999999; font-size: 12px;margin-top: 8px;">
+              <span style="margin-left: 10px">
+                {{ apiCase.updateTime | datetimeFormat }}
+                {{ apiCase.updateUser }}
+                {{ $t('api_test.definition.request.update_info') }}
+              </span>
+            </div>
+          </div>
+          <div class="flex-item">
+            <el-select
+              size="mini"
+              v-model="apiCase.priority"
+              class="ms-api-select"
+              @change="changePriority(apiCase)"
+              :disabled="readonly">
+              <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id" />
+            </el-select>
+            <el-select
+              size="mini"
+              v-model="apiCase.caseStatus"
+              style="margin: 0 12px; width: 100px"
+              @change="saveTestCase(apiCase, true)"
+              :disabled="readonly">
+              <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id" />
+            </el-select>
+          </div>
+          <div class="flex-item">
+            <div @click.stop>
+              <el-tooltip
+                :content="$t('commons.follow')"
+                placement="bottom"
+                effect="dark"
+                v-if="!showFollow"
+                :disabled="true">
+                <i
+                  class="el-icon-star-off"
+                  style="
+                    color: var(--primary_color);
+                    font-size: 25px;
+                    margin-top: 2px;
+                    margin-right: 15px;
+                    cursor: pointer;
+                  "
+                  @click="saveFollow" />
+              </el-tooltip>
+              <el-tooltip
+                :content="$t('commons.cancel')"
+                placement="bottom"
+                effect="dark"
+                v-if="showFollow"
+                :disabled="true">
+                <i
+                  class="el-icon-star-on"
+                  style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px; cursor: pointer"
+                  @click="saveFollow"
+                  v-if="showFollow" />
+              </el-tooltip>
+            </div>
+            <div class="flex-item">
               <span @click.stop v-if="!loaded">
                 <ms-tip-button
                   @click="singleRun(apiCase)"
@@ -155,24 +115,35 @@
                   </el-button>
                 </el-tooltip>
               </span>
-              <span @click.stop>
+              <span style="margin-right: 12px" @click.stop>
                 <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" />
               </span>
-            </el-col>
-
-            <el-col :span="4">
               <ms-api-report-status :status="apiCase.execResult" />
-              <div v-if="apiCase.id" style="color: #999999; font-size: 12px; padding: 5px">
-                <span> {{ apiCase.execTime | datetimeFormat }}</span>
-                {{ apiCase.updateUser }}
-              </div>
-            </el-col>
-            <el-col :span="2">
-              <el-link style="float: right" type="primary" @click.stop @click="showHistory(apiCase.id)">
-                {{ $t('commons.execute_history') }}
-              </el-link>
-            </el-col>
-          </el-row>
+            </div>
+            <div v-if="apiCase.id" style="color: #999999; font-size: 12px; padding: 5px; margin-left: 12px">
+              <span> {{ apiCase.execTime | datetimeFormat }}</span>
+              {{ apiCase.updateUser }}
+            </div>
+          </div>
+          <div class="flex-item">
+            <el-link type="primary" style="margin: 0 10px" @click="openHis(apiCase)" v-if="apiCase.id">{{
+              $t('operating_log.change_history')
+            }}</el-link>
+            <el-link style="float: right" type="primary" @click.stop @click="showHistory(apiCase.id)">
+              {{ $t('commons.execute_history') }}
+            </el-link>
+          </div>
+          <div class="flex-item" style="margin-top: 12px; width: 100%">
+            <div class="tag-item" style="width: 100%" @click.stop>
+              <ms-input-tag
+                :currentScenario="apiCase"
+                ref="tag"
+                style="width: 100%"
+                @keyup.enter.native="saveTestCase(apiCase, true)"
+                :maxShowTagLength="10"
+                :read-only="readonly" />
+            </div>
+          </div>
         </div>
       </el-header>
       <el-main :style="{ height: componentHeight + 'px' }">
@@ -1011,7 +982,16 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.flex-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.case-header {
+  @extend .flex-item;
+}
 .ms-api-select {
   margin-left: 10px;
   width: 65px;
