@@ -322,7 +322,7 @@ public class CommonProjectService {
     private Map<String, String> addUserPre(ProjectAddMemberBatchRequest request, String createUser, String path, String module, String projectId, Project project) {
         checkProjectNotExist(projectId);
         UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(request.getUserIds());
+        userExample.createCriteria().andIdIn(request.getUserIds()).andDeletedEqualTo(false);
         List<User> users = userMapper.selectByExample(userExample);
         if (request.getUserIds().size() != users.size()) {
             throw new MSException(Translator.get("user_not_exist"));
@@ -376,7 +376,10 @@ public class CommonProjectService {
 
     public int removeProjectMember(String projectId, String userId, String createUser, String module, String path) {
         checkProjectNotExist(projectId);
-        User user = userMapper.selectByPrimaryKey(userId);
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdEqualTo(userId).andDeletedEqualTo(false);
+        List<User> users = userMapper.selectByExample(userExample);
+        User user = CollectionUtils.isNotEmpty(users) ? users.get(0) : null;
         if (user == null) {
             throw new MSException(Translator.get("user_not_exist"));
         }

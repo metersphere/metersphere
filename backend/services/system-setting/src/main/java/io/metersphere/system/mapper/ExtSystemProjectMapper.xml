@@ -39,7 +39,8 @@
                o.name as organizationName,
                p.module_setting
         FROM project p
-        LEFT JOIN user_role_relation u on p.id = u.source_id
+        LEFT JOIN user_role_relation ur on p.id = ur.source_id
+        left join user u on u.id = ur.user_id and u.deleted = 0
         INNER JOIN organization o on p.organization_id = o.id
         <include refid="queryWhereCondition"/>
             group by p.id
@@ -47,7 +48,7 @@
     <select id="getProjectAdminList" resultType="io.metersphere.system.domain.User">
         SELECT `user`.*
         FROM user_role_relation
-               LEFT JOIN `user` ON user_role_relation.user_id = `user`.id
+               LEFT JOIN `user` ON user_role_relation.user_id = `user`.id and `user`.deleted = 0
         <where>
             user_role_relation.source_id = #{projectId}
             and user_role_relation.role_id = 'project_admin'
