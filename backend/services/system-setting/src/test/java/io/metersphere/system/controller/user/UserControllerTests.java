@@ -772,6 +772,18 @@ public class UserControllerTests extends BaseTest {
     }
 
     @Test
+    @Order(9)
+    public void testGetEmptyProject() throws Exception {
+        String str = userRequestUtils.responseGet(UserRequestUtils.URL_GET_PROJECT).getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder rh = JSON.parseObject(str, ResultHolder.class);
+        List<BaseTreeNode> userTreeSelectOptions = JSON.parseArray(
+                JSON.toJSONString(rh.getData()),
+                BaseTreeNode.class);
+        //有可能在整体运行过程中，会被默认插入了项目数据。所以这里不判断一定为空
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(userTreeSelectOptions));
+    }
+
+    @Test
     @Order(10)
     @Sql(scripts = {"/dml/init_user_org_project.sql"},
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),

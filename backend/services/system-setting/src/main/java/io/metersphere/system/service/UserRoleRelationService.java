@@ -14,11 +14,8 @@ import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.response.user.UserTableResponse;
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +25,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -81,11 +77,7 @@ public class UserRoleRelationService {
         return logs;
     }
 
-    public void batchSave(@Validated({Created.class, Updated.class})
-                          @NotEmpty(groups = {Created.class, Updated.class}, message = "{user_role.id.not_blank}")
-                          List<@Valid @NotBlank(message = "{user_role.id.not_blank}", groups = {Created.class, Updated.class}) String> userRoleIdList,
-                          @NotEmpty(groups = {Created.class, Updated.class}, message = "{user.info.not_empty}")
-                          List<@Valid User> userList) {
+    public void batchSave(List<String> userRoleIdList, List<User> userList) {
         long operationTime = System.currentTimeMillis();
         List<UserRoleRelation> userRoleRelationSaveList = new ArrayList<>();
         //添加用户组织关系
@@ -113,11 +105,6 @@ public class UserRoleRelationService {
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        //记录添加日志
-        for (User user : userList) {
-            operationLogService.batchAdd(this.getBatchLogs(userRoleIdList, user, "addUser", user.getCreateUser(), OperationLogType.ADD.name()));
-        }
-
     }
 
     public Map<String, UserTableResponse> selectGlobalUserRoleAndOrganization(@Valid @NotEmpty List<String> userIdList) {

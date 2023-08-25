@@ -26,7 +26,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -832,22 +831,22 @@ public class OrganizationService {
         ProjectExample projectExample = new ProjectExample();
         projectExample.setOrderByClause("name asc");
         List<Project> allProject = projectMapper.selectByExample(projectExample);
-
-        OrganizationExample orgExample = new OrganizationExample();
-        orgExample.createCriteria().andIdIn(allProject.stream().map(Project::getOrganizationId).distinct().collect(Collectors.toList()));
-        orgExample.setOrderByClause("name asc");
-        List<Organization> orgList = organizationMapper.selectByExample(orgExample);
-
         LinkedHashMap<Organization, List<Project>> returnMap = new LinkedHashMap<>();
-        for (Organization org : orgList) {
-            List<Project> projectsInOrg = new ArrayList<>();
-            for (Project project : allProject) {
-                if (StringUtils.equals(project.getOrganizationId(), org.getId())) {
-                    projectsInOrg.add(project);
+        if (CollectionUtils.isNotEmpty(allProject)) {
+            OrganizationExample orgExample = new OrganizationExample();
+            orgExample.createCriteria().andIdIn(allProject.stream().map(Project::getOrganizationId).distinct().collect(Collectors.toList()));
+            orgExample.setOrderByClause("name asc");
+            List<Organization> orgList = organizationMapper.selectByExample(orgExample);
+            for (Organization org : orgList) {
+                List<Project> projectsInOrg = new ArrayList<>();
+                for (Project project : allProject) {
+                    if (StringUtils.equals(project.getOrganizationId(), org.getId())) {
+                        projectsInOrg.add(project);
+                    }
                 }
+                allProject.remove(projectsInOrg);
+                returnMap.put(org, projectsInOrg);
             }
-            allProject.remove(projectsInOrg);
-            returnMap.put(org, projectsInOrg);
         }
         return returnMap;
     }
