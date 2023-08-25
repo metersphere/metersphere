@@ -54,7 +54,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserControllerTests extends BaseTest {
 
-
     @Resource
     private UserService userService;
     @Resource
@@ -405,7 +404,7 @@ public class UserControllerTests extends BaseTest {
     @Order(6)
     public void testUserChangeEnableSuccess() throws Exception {
         this.checkUserList();
-        //单独修改状态
+        //修改状态关闭
         UserCreateInfo userInfo = USER_LIST.get(0);
         UserChangeEnableRequest userChangeEnableRequest = new UserChangeEnableRequest();
         userChangeEnableRequest.setSelectIds(new ArrayList<>() {{
@@ -418,6 +417,16 @@ public class UserControllerTests extends BaseTest {
         }
 
         UserDTO userDTO = this.getUserByEmail(userInfo.getEmail());
+        Assertions.assertEquals(userDTO.getEnable(), userChangeEnableRequest.isEnable());
+
+        //修改状态开启
+        userChangeEnableRequest.setEnable(true);
+        this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, status().isOk());
+        for (String item : userChangeEnableRequest.getSelectIds()) {
+            checkLog(item, OperationLogType.UPDATE);
+        }
+
+        userDTO = this.getUserByEmail(userInfo.getEmail());
         Assertions.assertEquals(userDTO.getEnable(), userChangeEnableRequest.isEnable());
     }
 
@@ -722,8 +731,8 @@ public class UserControllerTests extends BaseTest {
                 request.getSelectIds().size() * request.getRoleIds().size()
         );
         //检查日志
-        for (UserSelectOption option : USER_ROLE_LIST) {
-            this.checkLog(option.getId(), OperationLogType.ADD);
+        for (String userID : request.getSelectIds()) {
+            this.checkLog(userID, OperationLogType.ADD);
         }
 
         //测试重复添加用户权限。预期结果：不会额外增加数据
@@ -733,10 +742,6 @@ public class UserControllerTests extends BaseTest {
                 globalUserRoleRelationService.selectByUserIdAndRuleId(request.getSelectIds(), request.getRoleIds()).size(),
                 request.getSelectIds().size() * request.getRoleIds().size()
         );
-        //检查日志
-        for (UserSelectOption option : USER_ROLE_LIST) {
-            this.checkLog(option.getId(), OperationLogType.ADD);
-        }
     }
 
     @Test
@@ -769,6 +774,32 @@ public class UserControllerTests extends BaseTest {
         request.setRoleIds(USER_ROLE_LIST.stream().map(UserSelectOption::getId).collect(Collectors.toList()));
         request.getRoleIds().add("none role");
         userRequestUtils.requestPost(UserRequestUtils.URL_USER_ROLE_RELATION, request, ERROR_REQUEST_MATCHER);
+    }
+
+    @Test
+    @Order(9)
+    public void testGetEmptyProject() throws Exception {
+        //测试如果没有项目系统不会报错
+        List<Project> allProjectList = projectMapper.selectByExample(null);
+        projectMapper.deleteByExample(null);
+        String str = userRequestUtils.responseGet(UserRequestUtils.URL_GET_PROJECT).getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder rh = JSON.parseObject(str, ResultHolder.class);
+        List<BaseTreeNode> userTreeSelectOptions = JSON.parseArray(
+                JSON.toJSONString(rh.getData()),
+                BaseTreeNode.class);
+        Assertions.assertTrue(CollectionUtils.isEmpty(userTreeSelectOptions));
+        //还原数据
+        for (Project project : allProjectList) {
+            projectMapper.insert(project);
+        }
+
+        //开始正常获取数据。 有可能在整体运行单元测试的过程中，会被默认插入了项目测试数据。所以这里根据上面数据库查到的来做判断
+        str = userRequestUtils.responseGet(UserRequestUtils.URL_GET_PROJECT).getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(str, ResultHolder.class);
+        userTreeSelectOptions = JSON.parseArray(
+                JSON.toJSONString(resultHolder.getData()),
+                BaseTreeNode.class);
+        Assertions.assertEquals(CollectionUtils.isEmpty(userTreeSelectOptions), CollectionUtils.isEmpty(allProjectList));
     }
 
     @Test
@@ -834,8 +865,8 @@ public class UserControllerTests extends BaseTest {
             }
         }
         //检查日志
-        for (UserSelectOption option : USER_ROLE_LIST) {
-            this.checkLog(option.getId(), OperationLogType.ADD);
+        for (String userID : request.getSelectIds()) {
+            this.checkLog(userID, OperationLogType.UPDATE);
         }
         //检查用户表格不会加载出来非全局用户组
         this.testPageSuccess();
