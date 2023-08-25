@@ -1,45 +1,43 @@
 <template>
   <el-dialog
-      destroy-on-close
-      :title="$t('load_test.runtime_config')"
-      width="550px"
-      style="margin-top: -8.65vh; max-height: 87.3vh"
-      @close="close"
-      :visible.sync="runModeVisible"
+    destroy-on-close
+    :title="$t('load_test.runtime_config')"
+    width="550px"
+    @close="close"
+    :visible.sync="runModeVisible"
   >
-
     <div class="env-container">
       <div>
         <div>{{ $t("commons.environment") }}：</div>
         <env-select-popover
-            :project-ids="projectIds"
-            :project-list="projectList"
-            :project-env-map="projectEnvListMap"
-            :environment-type.sync="runConfig.environmentType"
-            :has-option-group="true"
-            :is-env-saved="isEnvSaved"
-            :group-id="runConfig.environmentGroupId"
-            @setProjectEnvMap="setProjectEnvMap"
-            @setDefaultEnv="setDefaultEnv"
-            @setEnvGroup="setEnvGroup"
-            ref="envSelectPopover"
-            class="mode-row"
+          :project-ids="projectIds"
+          :project-list="projectList"
+          :project-env-map="projectEnvListMap"
+          :environment-type.sync="runConfig.environmentType"
+          :has-option-group="true"
+          :is-env-saved="isEnvSaved"
+          :group-id="runConfig.environmentGroupId"
+          @setProjectEnvMap="setProjectEnvMap"
+          @setDefaultEnv="setDefaultEnv"
+          @setEnvGroup="setEnvGroup"
+          ref="envSelectPopover"
+          class="mode-row"
         ></env-select-popover>
       </div>
       <div v-if="haveUICase">
         <div>{{ $t("ui.browser") }}：</div>
         <div>
           <el-select
-              size="mini"
-              v-model="runConfig.browser"
-              style="width: 100%"
-              class="mode-row"
+            size="mini"
+            v-model="runConfig.browser"
+            style="width: 100%"
+            class="mode-row"
           >
             <el-option
-                v-for="b in browsers"
-                :key="b.value"
-                :value="b.value"
-                :label="b.label"
+              v-for="b in browsers"
+              :key="b.value"
+              :value="b.value"
+              :label="b.label"
             ></el-option>
           </el-select>
         </div>
@@ -48,10 +46,10 @@
         <div class="mode-row">{{ $t("run_mode.title") }}：</div>
         <div>
           <el-radio-group
-              v-model="runConfig.mode"
-              @change="changeMode"
-              style="width: 100%"
-              class="radio-change mode-row"
+            v-model="runConfig.mode"
+            @change="changeMode"
+            style="width: 100%"
+            class="radio-change mode-row"
           >
             <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
             <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
@@ -62,24 +60,18 @@
         <div class="mode-row">{{ $t("run_mode.other_config") }}：</div>
         <div>
           <!-- 资源池 -->
-          <div
-              class="mode-row"
-              v-if="
-              testType === 'API' &&
-              (haveOtherExecCase)
-            "
-          >
+          <div class="mode-row" v-if="testType === 'API' && haveOtherExecCase">
             <span>{{ $t("run_mode.run_with_resource_pool") }}: </span>
             <el-select
-                v-model="runConfig.resourcePoolId"
-                size="mini"
-                style="width: 100%; margin-top: 8px"
+              v-model="runConfig.resourcePoolId"
+              size="mini"
+              style="width: 100%; margin-top: 8px"
             >
               <el-option
-                  v-for="item in resourcePools"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
+                v-for="item in resourcePools"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
               >
               </el-option>
             </el-select>
@@ -88,8 +80,8 @@
           <!-- 失败重试 -->
           <div class="mode-row">
             <el-checkbox
-                v-model="runConfig.retryEnable"
-                class="radio-change ms-failure-div-right"
+              v-model="runConfig.retryEnable"
+              class="radio-change ms-failure-div-right"
             >
               {{ $t("run_mode.retry_on_failure") }}
             </el-checkbox>
@@ -97,19 +89,19 @@
               <el-tooltip placement="top" style="margin: 0 4px 0 2px">
                 <div slot="content">{{ $t("run_mode.retry_message") }}</div>
                 <i
-                    class="el-icon-question"
-                    style="cursor: pointer"
+                  class="el-icon-question"
+                  style="cursor: pointer"
                 /> </el-tooltip
-              ><br/>
+              ><br />
               <span>
                 {{ $t("run_mode.retry") }}
                 <el-input-number
-                    :value="runConfig.retryNum"
-                    v-model="runConfig.retryNum"
-                    :min="1"
-                    :max="10000000"
-                    size="mini"
-                    style="width: 103px; margin-top: 8px"
+                  :value="runConfig.retryNum"
+                  v-model="runConfig.retryNum"
+                  :min="1"
+                  :max="10000000"
+                  size="mini"
+                  style="width: 103px; margin-top: 8px"
                 />
                 &nbsp;
                 {{ $t("run_mode.retry_frequency") }}
@@ -119,14 +111,14 @@
 
           <div class="mode-row" v-if="runConfig.mode === 'serial'">
             <el-checkbox v-model="runConfig.onSampleError" class="radio-change"
-            >{{ $t("api_test.fail_to_stop") }}
+              >{{ $t("api_test.fail_to_stop") }}
             </el-checkbox>
           </div>
 
           <div class="mode-row" v-if="haveUICase">
             <el-checkbox
-                v-model="runConfig.headlessEnabled"
-                class="radio-change"
+              v-model="runConfig.headlessEnabled"
+              class="radio-change"
             >
               {{ $t("ui.performance_mode") }}
             </el-checkbox>
@@ -140,42 +132,48 @@
         <el-button @click="close">{{ $t("commons.cancel") }}</el-button>
         <el-dropdown @command="handleCommand" style="margin-left: 5px">
           <el-button type="primary">
-            {{
-              $t("api_test.run")
+            {{ $t("api_test.run")
             }}<i class="el-icon-arrow-down el-icon--right"></i>
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="run"
-            >{{ $t("api_test.run") }}
+              >{{ $t("api_test.run") }}
             </el-dropdown-item>
             <el-dropdown-item command="runAndSave"
-            >{{ $t("load_test.save_and_run") }}
+              >{{ $t("load_test.save_and_run") }}
             </el-dropdown-item>
             <el-dropdown-item command="save"
-            >{{ $t("commons.save") }}
+              >{{ $t("commons.save") }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
-      <ms-dialog-footer v-else @cancel="close" @confirm="handleRunBatch"/>
+      <ms-dialog-footer v-else @cancel="close" @confirm="handleRunBatch" />
     </template>
   </el-dialog>
 </template>
 
 <script>
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {strMapToObj} from "metersphere-frontend/src/utils";
+import { strMapToObj } from "metersphere-frontend/src/utils";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
-import {getCurrentProjectID, getOwnerProjects,} from "@/business/utils/sdk-utils";
-import {getQuotaValidResourcePools} from "@/api/remote/resource-pool";
+import { ENV_TYPE } from "metersphere-frontend/src/utils/constants";
+import {
+  getCurrentProjectID,
+  getOwnerProjects,
+} from "@/business/utils/sdk-utils";
+import { getQuotaValidResourcePools } from "@/api/remote/resource-pool";
 import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
-import {getApiCaseEnv} from "@/api/remote/plan/test-plan-api-case";
-import {getApiScenarioEnv, getPlanCaseEnv, getPlanCaseProjectIds,} from "@/api/remote/plan/test-plan";
+import { getApiCaseEnv } from "@/api/remote/plan/test-plan-api-case";
+import {
+  getApiScenarioEnv,
+  getPlanCaseEnv,
+  getPlanCaseProjectIds,
+} from "@/api/remote/plan/test-plan";
 import EnvGroupWithOption from "../env/EnvGroupWithOption";
 import EnvironmentGroup from "@/business/plan/env/EnvironmentGroupList";
 import EnvSelectPopover from "@/business/plan/env/EnvSelectPopover";
-import {getProjectConfig} from "@/api/project";
+import { getProjectConfig } from "@/api/project";
 
 export default {
   name: "MsTestPlanRunModeWithEnv",
@@ -197,7 +195,7 @@ export default {
       btnStyle: {
         width: "260px",
       },
-      result: {loading: false},
+      result: { loading: false },
       runModeVisible: false,
       testType: null,
       resourcePools: [],
@@ -267,10 +265,13 @@ export default {
   methods: {
     open(testType, runModeConfig) {
       this.defaultEnvMap = {};
-      if (this.type === 'plan') {
+      if (this.type === "plan") {
         if (runModeConfig) {
           this.runConfig = JSON.parse(runModeConfig);
-          if (!this.runConfig.envMap || JSON.stringify(this.runConfig.envMap) === "{}") {
+          if (
+            !this.runConfig.envMap ||
+            JSON.stringify(this.runConfig.envMap) === "{}"
+          ) {
             this.isEnvSaved = false;
           } else {
             this.isEnvSaved = true;
@@ -278,8 +279,8 @@ export default {
           this.runConfig.envMap = new Map();
           this.runConfig.testPlanDefaultEnvMap = {};
           this.runConfig.onSampleError =
-              this.runConfig.onSampleError === "true" ||
-              this.runConfig.onSampleError === true;
+            this.runConfig.onSampleError === "true" ||
+            this.runConfig.onSampleError === true;
         } else {
           this.isEnvSaved = false;
         }
@@ -338,7 +339,8 @@ export default {
     handleRunBatch() {
       if (this.runConfig.resourcePoolId == null && this.haveOtherExecCase) {
         this.$warning(
-            this.$t("workspace.env_group.please_select_run_within_resource_pool"));
+          this.$t("workspace.env_group.please_select_run_within_resource_pool")
+        );
         return;
       }
       this.runConfig.testPlanDefaultEnvMap = this.defaultEnvMap;
@@ -398,13 +400,13 @@ export default {
           }
         });
       } else if (this.type === "plan") {
-        param = {id: this.planId};
+        param = { id: this.planId };
         getPlanCaseEnv(param).then((res) => {
           let data = res.data;
           if (data) {
             this.projectEnvListMap = data;
           }
-          param = {id: this.planId};
+          param = { id: this.planId };
           getPlanCaseProjectIds(param).then((res) => {
             let data = res.data;
             if (data) {
@@ -418,12 +420,9 @@ export default {
       }
     },
     handleCommand(command) {
-      if (
-          this.runConfig.resourcePoolId == null &&
-          this.haveOtherExecCase
-      ) {
+      if (this.runConfig.resourcePoolId == null && this.haveOtherExecCase) {
         this.$warning(
-            this.$t("workspace.env_group.please_select_run_within_resource_pool")
+          this.$t("workspace.env_group.please_select_run_within_resource_pool")
         );
         return;
       }
@@ -442,6 +441,10 @@ export default {
 </script>
 
 <style scoped>
+:deep(.el-dialog__body) {
+  overflow-y: auto;
+  max-height: 350px;
+}
 .env-container {
   max-height: 400px;
   overflow-y: auto;
