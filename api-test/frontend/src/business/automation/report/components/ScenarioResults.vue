@@ -9,7 +9,7 @@
       </el-tooltip>
     </div>
     <div style="height: calc(100vh - 400px)">
-      <vue-easy-tree
+      <vue-virtual-tree
         :data="treeData"
         node-key="resourceId"
         :sizeDependencies="['expanded']"
@@ -33,7 +33,7 @@
             :is-share="isShare"
             :share-id="shareId" />
         </span>
-      </vue-easy-tree>
+      </vue-virtual-tree>
     </div>
   </el-card>
 </template>
