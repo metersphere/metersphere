@@ -45,7 +45,7 @@ public class TestResourceDTO {
      *  type为 k8s 时，接口测试，性能测试的命名空间
      */
     @Schema(description =  "type为k8s时，接口测试，性能测试的命名空间")
-    private String nameSpaces;
+    private String namespace;
     /**
      *  type为 k8s 时，接口测试，性能测试，UI测试的最大并发数
      */
