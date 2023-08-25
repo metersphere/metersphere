@@ -252,7 +252,7 @@
     .arco-menu-inner {
       @apply flex flex-col;
 
-      padding: 16px 32px 16px 16px !important;
+      padding: 16px 28px 16px 16px !important;
       .arco-menu-inline {
         &--bottom {
           @apply mt-auto;

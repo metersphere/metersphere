@@ -49,7 +49,7 @@
         v-if="emailConfigForm.host !== null"
         type="outline"
         size="mini"
-        class="arco-btn-outline--secondary"
+        class="arco-btn-outline--secondary mt-[16px]"
         :loading="testLoading"
         @click="testLink('page')"
       >

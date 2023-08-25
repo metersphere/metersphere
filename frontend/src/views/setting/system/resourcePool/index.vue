@@ -15,7 +15,7 @@
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
       <template #name="{ record }">
-        <a-button type="text" @click="showPoolDetail(record.id)">{{ record.name }}</a-button>
+        <a-button type="text" class="px-0" @click="showPoolDetail(record.id)">{{ record.name }}</a-button>
       </template>
       <template #action="{ record }">
         <MsButton @click="editPool(record)">{{ t('system.resourcePool.editPool') }}</MsButton>
