@@ -63,11 +63,6 @@ public class TestResourceDTO {
      */
     @Schema(description =  " type为k8s时，性能测试自定义JOB模版string")
     private String jobDefinition;
-    /**
-     *  type为 k8s 时，接口测试镜像
-     */
-    @Schema(description =  "type为k8s时，接口测试镜像")
-    private String apiTestImage;
 
     /**
      *  type为 k8s 时，接口测试deployName
