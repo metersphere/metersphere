@@ -26,15 +26,10 @@
         >
           <a-input v-model="form.name" :placeholder="t('system.project.projectNamePlaceholder')" />
         </a-form-item>
-        <a-form-item
-          required
-          field="organizationId"
-          :label="t('system.project.affiliatedOrg')"
-          :rules="[{ required: true, message: t('system.project.affiliatedOrgRequired') }]"
-        >
+        <a-form-item field="organizationId" :label="t('system.project.affiliatedOrg')">
           <a-select
             v-model="form.organizationId"
-            :disabled="!isXpack"
+            disabled
             allow-search
             :options="affiliatedOrgOption"
             :default-value="isXpack ? '' : 'default_organization'"
@@ -85,11 +80,12 @@
   import { reactive, ref, watchEffect, computed } from 'vue';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { createOrUpdateProject, getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
+  import { createOrUpdateProjectByOrg, getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
   import { Message } from '@arco-design/web-vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
   import useLicenseStore from '@/store/modules/setting/license';
+  import { useAppStore } from '@/store';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -102,6 +98,8 @@
   const loading = ref(false);
   const isEdit = computed(() => !!props.currentProject?.id);
   const affiliatedOrgOption = ref<SystemOrgOption[]>([]);
+  const appStore = useAppStore();
+  const currentOrgId = computed(() => appStore.currentOrgId);
   const licenseStore = useLicenseStore();
   const moduleOption = [
     { label: 'menu.workbench', value: 'workstation' },
@@ -120,7 +118,7 @@
   const form = reactive<CreateOrUpdateSystemProjectParams>({
     name: '',
     userIds: [],
-    organizationId: '',
+    organizationId: currentOrgId.value,
     description: '',
     enable: true,
     moduleIds: [],
@@ -147,7 +145,7 @@
       }
       try {
         loading.value = true;
-        await createOrUpdateProject({ id: props.currentProject?.id, ...form });
+        await createOrUpdateProjectByOrg({ id: props.currentProject?.id, ...form });
         Message.success(
           isEdit.value
             ? t('system.organization.updateOrganizationSuccess')
@@ -184,4 +182,3 @@
     }
   });
 </script>
-@/api/modules/setting/organizationAndProject

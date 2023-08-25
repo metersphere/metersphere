@@ -47,10 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-  import {
-    postUserTableByOrgIdOrProjectId,
-    deleteUserFromOrgOrProject,
-  } from '@/api/modules/setting/organizationAndProject';
+  import { postProjectMemberByProjectId, deleteProjectMemberByOrg } from '@/api/modules/setting/organizationAndProject';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { useI18n } from '@/hooks/useI18n';
@@ -95,7 +92,7 @@
     { title: 'system.organization.operation', slotName: 'operation' },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserTableByOrgIdOrProjectId, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postProjectMemberByProjectId, {
     columns: projectColumn,
     showSetting: false,
     scroll: { y: 'auto', x: '600px' },
@@ -114,7 +111,6 @@
   };
 
   const fetchData = async () => {
-    setLoadListParams({ organizationId: props.organizationId });
     await loadList();
   };
 
@@ -128,11 +124,8 @@
 
   const handleRemove = async (record: TableData) => {
     try {
-      if (props.organizationId) {
-        await deleteUserFromOrgOrProject(props.organizationId, record.id);
-      }
       if (props.projectId) {
-        await deleteUserFromOrgOrProject(props.projectId, record.id, true);
+        await deleteProjectMemberByOrg(props.projectId, record.id);
       }
       Message.success(t('common.removeSuccess'));
       fetchData();
@@ -141,16 +134,10 @@
       console.error(error);
     }
   };
-
-  watch(
-    () => props.organizationId,
-    () => {
-      fetchData();
-    }
-  );
   watch(
     () => props.projectId,
     () => {
+      setLoadListParams({ projectId: props.projectId });
       fetchData();
     }
   );
@@ -161,4 +148,3 @@
     }
   );
 </script>
-@/api/modules/setting/organizationAndProject

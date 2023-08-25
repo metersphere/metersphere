@@ -79,7 +79,7 @@
 <script lang="ts" setup>
   import { ref, onMounted, computed } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { CustomMoreActionItem, PopVisibleItem, RenameType, UserGroupItem } from '@/models/setting/usergroup';
+  import { PopVisibleItem, RenameType, UserGroupItem } from '@/models/setting/usergroup';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AddUserModal from './addUserModal.vue';
@@ -88,7 +88,7 @@
   import { Message } from '@arco-design/web-vue';
   import useUserGroupStore from '@/store/modules/setting/organization/usergroup';
   import { useAppStore } from '@/store';
-  import { getOrgUserGroupList, updateOrAddOrgUserGroup, deleteOrgUserGroup } from '@/api/modules/setting/usergroup';
+  import { getOrgUserGroupList, deleteOrgUserGroup } from '@/api/modules/setting/usergroup';
   import { characterLimit } from '@/utils';
 
   const { t } = useI18n();

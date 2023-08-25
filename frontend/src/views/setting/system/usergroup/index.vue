@@ -26,7 +26,7 @@
           </div>
         </div>
         <div class="mt-[16px]">
-          <user-table v-if="currentTable === 'user' && couldShowUser" :keyword="currentKeyword" />
+          <user-table v-if="currentTable === 'user' && couldShowUser" ref="userRef" :keyword="currentKeyword" />
           <auth-table v-if="currentTable === 'auth' && couldShowAuth" ref="authRef" />
         </div>
       </div>
@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, watchEffect } from 'vue';
+  import { ref, computed, watchEffect, nextTick } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import useUserGroupStore from '@/store/modules/setting/system/usergroup';
@@ -65,13 +65,26 @@
     handleSave: () => void;
     canSave: boolean;
   }>();
+  const userRef = ref();
   const appStore = useAppStore();
+
+  const tableSearch = () => {
+    if (currentTable.value === 'user' && userRef.value) {
+      userRef.value.fetchData();
+    } else if (!userRef.value) {
+      nextTick(() => {
+        userRef.value.fetchData();
+      });
+    }
+  };
 
   const handleSearch = (value: string) => {
     currentKeyword.value = value;
+    tableSearch();
   };
   const handleEnter = (eve: Event) => {
     currentKeyword.value = (eve.target as HTMLInputElement).value;
+    tableSearch();
   };
 
   const store = useUserGroupStore();

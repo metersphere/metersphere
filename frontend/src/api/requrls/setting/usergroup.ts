@@ -1,3 +1,4 @@
+/** 系统 */
 /** 修改用户组 */
 export const updateUserGroupU = `/user/role/global/update`;
 /** 编辑用户组对应的权限配置 */
@@ -20,25 +21,24 @@ export const addUserToUserGroupUrl = `/user/role/relation/global/add`;
 /** 删除用户组用户 */
 export const deleteUserFromUserGroupUrl = `/user/role/relation/global/delete/`;
 
-// 组织下的用户组
-
+/** 组织 */
+// 组织-修改用户组
 export const updateOrgUserGroupU = `/user/role/organization/update`;
-/** 编辑用户组对应的权限配置 */
+/** 组织-编辑用户组对应的权限配置 */
 export const editOrgUSettingUrl = `/user/role/organization/permission/update`;
-/** 添加用户组 */
+/** 组织-创建用户组 */
 export const addOrgUserGroupU = `/user/role/organization/add`;
-/** 获取用户组对应的权限配置 */
+/** 组织-获取用户组对应的权限配置 */
 export const getOrgUSettingUrl = `/user/role/organization/permission/setting/`;
-/** 获取用户组 */
+/** 组织-获取用户组 */
 export const getOrgUserGroupU = `/user/role/organization/list/`;
 /** 获取单个用户组信息 */
 export const getOrgUsergroupInfoU = `/user/role/organization/get/`;
-/** 删除用户组 */
+/** 组织-删除用户组 */
 export const deleteOrgUserGroupU = `/user/role/organization/delete/`;
-
-/** 根据用户组获取用户列表 */
-export const postOrgUserByUserGroupUrl = `/user/role/relation/organization/list`;
-/** 创建用户组添加用户 */
-export const addOrgUserToUserGroupUrl = `/user/role/relation/organization/add`;
-/** 删除用户组用户 */
-export const deleteOrgUserFromUserGroupUrl = `/user/role/relation/organization/delete/`;
+/** 组织-根据用户组获取用户列表 */
+export const postOrgUserByUserGroupUrl = `/user/role/organization/list-member`;
+/** 组织-用户组添加用户 */
+export const addOrgUserToUserGroupUrl = `/user/role/organization/add-member`;
+/** 组织-删除用户组用户 */
+export const deleteOrgUserFromUserGroupUrl = `/user/role/organization/delete/`;

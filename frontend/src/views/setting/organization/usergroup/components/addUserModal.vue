@@ -33,10 +33,11 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect } from 'vue';
+  import { reactive, ref, watchEffect, computed } from 'vue';
   import useUserGroupStore from '@/store/modules/setting/organization/usergroup';
-  import { addUserToUserGroup } from '@/api/modules/setting/usergroup';
-  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import { useAppStore } from '@/store';
+  import { addOrgUserToUserGroup } from '@/api/modules/setting/usergroup';
+  import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
 
   const { t } = useI18n();
@@ -45,6 +46,8 @@
   }>();
 
   const store = useUserGroupStore();
+  const appStore = useAppStore();
+  const currentOrgId = computed(() => appStore.currentOrgId);
 
   const emit = defineEmits<{
     (e: 'cancel'): void;
@@ -79,8 +82,13 @@
       }
       try {
         loading.value = true;
-        await addUserToUserGroup({ roleId: store.currentId, userIds: form.name });
+        await addOrgUserToUserGroup({
+          userRoleId: store.currentId,
+          userIds: form.name,
+          organizationId: currentOrgId.value,
+        });
         handleCancel();
+        Message.success(t('common.addSuccess'));
       } catch (e) {
         // eslint-disable-next-line no-console
         console.log(e);
