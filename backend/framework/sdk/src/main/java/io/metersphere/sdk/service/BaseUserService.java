@@ -429,12 +429,16 @@ public class BaseUserService {
         return baseUserMapper.getExcludeSelectOption();
     }
 
-    public List<OptionDTO> getSelectOptionByIds(List<String> ids) {
-        return baseUserMapper.getSelectOptionByIds(ids);
+    public List<OptionDTO> getSelectOptionWithDeleted() {
+        return baseUserMapper.getSelectOptionWithDeleted();
+    }
+
+    public List<OptionDTO> getSelectOptionByIdsWithDeleted(List<String> ids) {
+        return baseUserMapper.getSelectOptionByIdsWithDeleted(ids);
     }
 
     public Map<String, String> getUserNameMap() {
-        List<ExcludeOptionDTO> excludeSelectOption = getExcludeSelectOption();
+        List<OptionDTO> excludeSelectOption = getSelectOptionWithDeleted();
         Map<String, String> nameMap = new HashMap<>();
         excludeSelectOption.forEach(option -> nameMap.put(option.getId(), option.getName()));
         return nameMap;
@@ -450,7 +454,7 @@ public class BaseUserService {
         if (CollectionUtils.isEmpty(userIds)) {
             return Collections.emptyMap();
         }
-        return getSelectOptionByIds(userIds)
+        return getSelectOptionByIdsWithDeleted(userIds)
                 .stream()
                 .collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
     }

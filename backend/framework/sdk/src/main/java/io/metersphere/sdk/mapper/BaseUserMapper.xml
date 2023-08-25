@@ -27,6 +27,7 @@
     <select id="findAll" resultType="io.metersphere.system.domain.User">
         SELECT *
         FROM user
+        where deleted IS FALSE
     </select>
 
     <insert id="batchSave">
@@ -95,8 +96,9 @@
     <select id="getExcludeSelectOption" resultType="io.metersphere.sdk.dto.ExcludeOptionDTO">
         select id, name
         from user
+        where deleted is false
     </select>
-    <select id="getSelectOptionByIds" resultType="io.metersphere.sdk.dto.OptionDTO">
+    <select id="getSelectOptionByIdsWithDeleted" resultType="io.metersphere.sdk.dto.OptionDTO">
         SELECT id, name
         FROM user
         WHERE id IN
@@ -104,5 +106,9 @@
                  open="(" close=")" separator=",">
             #{id}
         </foreach>
+    </select>
+    <select id="getSelectOptionWithDeleted" resultType="io.metersphere.sdk.dto.OptionDTO">
+        select id, name
+        from user
     </select>
 </mapper>
