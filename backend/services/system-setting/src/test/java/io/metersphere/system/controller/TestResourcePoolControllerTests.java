@@ -74,7 +74,7 @@ class TestResourcePoolControllerTests extends BaseTest {
             "   }],\n" +
             "\"ip\":\"172.2.130.1\",\n" +
             "\"token\":\"dsdfssdsvgsd\",\n" +
-            "\"nameSpaces\":\"测试\",\n" +
+            "\"namespace\":\"测试\",\n" +
             "\"concurrentNumber\":3,\n" +
             "\"podThreads\":2,\n" +
             "\"jobDefinition\":\"jsfsjs\",\n" +
@@ -97,7 +97,7 @@ class TestResourcePoolControllerTests extends BaseTest {
             "  \"orgIds\": [\"sys_default_organization_2\",\"sys_default_organization_3\"],\n" +
             "  \"ip\": \"172.2.130.1\",\n" +
             "  \"token\": \"dsdfssdsvgsd\",\n" +
-            "  \"nameSpaces\": \"测试\",\n" +
+            "  \"namespace\": \"测试\",\n" +
             "  \"concurrentNumber\": 3,\n" +
             "  \"podThreads\": 2,\n" +
             "  \"jobDefinition\": \"jsfsjs\",\n" +
@@ -311,7 +311,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         if (testResourcePoolRequest1.getApiTest()) {
             Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getIp());
             Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getToken());
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNameSpaces());
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNamespace());
             Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getDeployName());
             Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getConcurrentNumber() > 0);
             Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getPodThreads() > 0);
@@ -320,7 +320,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         if (testResourcePoolRequest1.getLoadTest()) {
             Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getIp());
             Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getToken());
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNameSpaces());
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNamespace());
             Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getConcurrentNumber() > 0);
             Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getPodThreads() > 0);
         }
