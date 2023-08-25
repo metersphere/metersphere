@@ -54,6 +54,7 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'o
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT:READ+RECOVER');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_MEMBER:ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_PROJECT_MEMBER:DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_LOG:READ');
 
 -- 组织成员权限
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_USER_ROLE:READ');
