@@ -5,7 +5,10 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.*;
+import io.metersphere.sdk.dto.AddProjectRequest;
+import io.metersphere.sdk.dto.ProjectDTO;
+import io.metersphere.sdk.dto.ProjectExtendDTO;
+import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
@@ -36,7 +39,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(name = "系统-项目")
+@Tag(name = "系统设置-系统-组织与项目-项目")
 @RequestMapping("/system/project")
 public class SystemProjectController {
     @Resource
@@ -47,14 +50,14 @@ public class SystemProjectController {
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#project)", msClass = SystemProjectLogService.class)
-    @Operation(summary = "添加项目")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-创建项目")
     public ProjectExtendDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
         return systemProjectService.add(project, SessionUtils.getUserId());
     }
 
 
     @GetMapping("/get/{id}")
-    @Operation(summary = "根据ID获取项目信息")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-根据ID获取项目信息")
     @Parameter(name = "id", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public Project getProject(@PathVariable @NotBlank String id) {
@@ -63,7 +66,7 @@ public class SystemProjectController {
 
     @PostMapping("/page")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    @Operation(summary = "获取项目列表")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-获取项目列表")
     public Pager<List<ProjectDTO>> getProjectList(@Validated @RequestBody ProjectRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
@@ -72,7 +75,7 @@ public class SystemProjectController {
 
     @PostMapping("/update")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = SystemProjectLogService.class)
-    @Operation(summary = "更新项目信息")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-编辑")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     public ProjectExtendDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
         return systemProjectService.update(project, SessionUtils.getUserId());
@@ -80,7 +83,7 @@ public class SystemProjectController {
 
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_DELETE)
-    @Operation(summary = "删除项目")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-删除")
     @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = SystemProjectLogService.class)
     public int deleteProject(@PathVariable String id) {
@@ -88,7 +91,7 @@ public class SystemProjectController {
     }
 
     @GetMapping("/revoke/{id}")
-    @Operation(summary = "撤销项目")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-撤销删除")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.recoverLog(#id)", msClass = SystemProjectLogService.class)
     @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
@@ -97,7 +100,7 @@ public class SystemProjectController {
     }
 
     @GetMapping("/enable/{id}")
-    @Operation(summary = "启用项目")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-启用")
     @Parameter(name = "id", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = SystemProjectLogService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
@@ -106,7 +109,7 @@ public class SystemProjectController {
     }
 
     @GetMapping("/disable/{id}")
-    @Operation(summary = "禁用项目")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-禁用")
     @Parameter(name = "id", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = SystemProjectLogService.class)
@@ -116,7 +119,7 @@ public class SystemProjectController {
 
     @PostMapping("/member-list")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    @Operation(summary = "获取项目下成员列表")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-成员列表")
     public Pager<List<UserExtend>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
@@ -125,7 +128,7 @@ public class SystemProjectController {
 
     @PostMapping("/add-member")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD)
-    @Operation(summary = "添加项目成员")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-添加成员")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
         ProjectAddMemberBatchRequest batchRequest = new ProjectAddMemberBatchRequest();
         batchRequest.setProjectIds(List.of(request.getProjectId()));
@@ -134,7 +137,7 @@ public class SystemProjectController {
     }
 
     @GetMapping("/remove-member/{projectId}/{userId}")
-    @Operation(summary = "移除项目成员")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-移除成员")
     @Parameter(name = "userId", description = "用户id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Parameter(name = "projectId", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_DELETE)
@@ -144,7 +147,7 @@ public class SystemProjectController {
     }
 
     @GetMapping("/user-list")
-    @Operation(summary = "系统-组织及项目, 获取管理员下拉选项")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-系统-组织及项目, 获取管理员下拉选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public List<User> getUserList() {
         return userService.getUserList();
