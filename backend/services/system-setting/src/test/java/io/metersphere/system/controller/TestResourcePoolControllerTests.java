@@ -78,7 +78,6 @@ class TestResourcePoolControllerTests extends BaseTest {
             "\"concurrentNumber\":3,\n" +
             "\"podThreads\":2,\n" +
             "\"jobDefinition\":\"jsfsjs\",\n" +
-            "\"apiTestImage\":\"ddgd\",\n" +
             "\"deployName\":\"hello\",\n" +
             "\"uiGrid\":\"localhost:4444\",\n" +
             "\"girdConcurrentNumber\":2\n" +
@@ -102,7 +101,6 @@ class TestResourcePoolControllerTests extends BaseTest {
             "  \"concurrentNumber\": 3,\n" +
             "  \"podThreads\": 2,\n" +
             "  \"jobDefinition\": \"jsfsjs\",\n" +
-            "  \"apiTestImage\": \"ddgd\",\n" +
             "  \"deployName\": \"hello\",\n" +
             "  \"uiGrid\": \"localhost:4444\",\n" +
             "\"girdConcurrentNumber\":2\n" +
