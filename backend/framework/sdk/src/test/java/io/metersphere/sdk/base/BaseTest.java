@@ -12,8 +12,10 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRolePermission;
 import io.metersphere.system.domain.UserRolePermissionExample;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRolePermissionMapper;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -43,10 +45,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -65,12 +64,17 @@ public abstract class BaseTest {
     private OperationLogMapper operationLogMapper;
     @Resource
     private UserRolePermissionMapper userRolePermissionMapper;
+    @Resource
+    private UserMapper userMapper;
 
     protected static final String DEFAULT_LIST = "list";
     protected static final String DEFAULT_GET = "get/{0}";
     protected static final String DEFAULT_ADD = "add";
     protected static final String DEFAULT_UPDATE = "update";
     protected static final String DEFAULT_DELETE = "delete/{0}";
+    protected static final String DEFAULT_USER_PASSWORD = "metersphere";
+    protected static final String DEFAULT_PROJECT_ID = "default_project";
+    protected static final String DEFAULT_ORGANIZATION_ID = "default_organization";
 
     /**
      * 可以重写该方法定义 BASE_PATH
@@ -82,16 +86,20 @@ public abstract class BaseTest {
     @BeforeEach
     public void login() throws Exception {
         if (this.adminAuthInfo == null) {
-            this.adminAuthInfo = initAuthInfo("admin", "metersphere");
+            this.adminAuthInfo = initAuthInfo("admin", DEFAULT_USER_PASSWORD);
             this.sessionId = this.adminAuthInfo.getSessionId();
             this.csrfToken = this.adminAuthInfo.getCsrfToken();
         }
         if (permissionAuthInfoMap.isEmpty()) {
             // 获取系统，组织，项目对应的权限测试用户的认证信息
-            // 暂时只支持 SYSTEM, ORGANIZATION
-            // todo 补充 PROJECT
-            permissionAuthInfoMap.put(UserRoleType.SYSTEM.name(), initAuthInfo(UserRoleType.SYSTEM.name(), "metersphere"));
-            permissionAuthInfoMap.put(UserRoleType.ORGANIZATION.name(), initAuthInfo(UserRoleType.ORGANIZATION.name(), "metersphere"));
+            List<String> permissionUserNames = Arrays.asList(UserRoleType.SYSTEM.name(), UserRoleType.ORGANIZATION.name(), UserRoleType.PROJECT.name());
+            for (String permissionUserName : permissionUserNames) {
+                User permissionUser = userMapper.selectByPrimaryKey(permissionUserName);
+                // 有对应用户才初始化认证信息
+                if (permissionUser != null) {
+                    permissionAuthInfoMap.put(permissionUserName, initAuthInfo(permissionUserName, DEFAULT_USER_PASSWORD));
+                }
+            }
         }
     }
 
@@ -448,7 +456,7 @@ public abstract class BaseTest {
     }
 
     private void refreshUserPermissionByRoleId(String roleId) throws Exception {
-        AuthInfo authInfo = permissionAuthInfoMap.get(roleId);
+        AuthInfo authInfo = getPermissionAuthInfo(roleId);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/is-login")
                 .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
@@ -505,7 +513,11 @@ public abstract class BaseTest {
     }
 
     private AuthInfo getPermissionAuthInfo(String roleId) {
-        return permissionAuthInfoMap.get(roleId);
+        AuthInfo authInfo = permissionAuthInfoMap.get(roleId);
+        if (authInfo == null) {
+            throw new MSException("没有初始化权限认证用户信息!");
+        }
+        return authInfo;
     }
 
     private MockHttpServletRequestBuilder getPermissionRequestBuilder(String roleId, String url, Object... uriVariables) {
