@@ -230,7 +230,7 @@
           <a-input-password
             v-model:model-value="form.testResourceDTO.token"
             :placeholder="t('system.resourcePool.testResourceDTO.tokenPlaceholder')"
-            :max-length="250"
+            :max-length="1500"
             autocomplete="new-password"
           />
         </a-form-item>

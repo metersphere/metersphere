@@ -4,7 +4,7 @@
     <MsCard class="mb-[16px]" :loading="pageloading" simple auto-height>
       <div class="config-title">
         {{ t('system.config.page.theme') }}
-        <a-tooltip :content="t('system.config.page.themeTip')" position="tl" mini>
+        <a-tooltip :content="t('system.config.page.themeTip')" position="tl" class="themeTip">
           <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
         </a-tooltip>
       </div>
@@ -665,5 +665,11 @@
         }
       }
     }
+  }
+</style>
+
+<style>
+  .arco-tooltip-content {
+    max-width: 100%;
   }
 </style>
