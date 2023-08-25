@@ -98,7 +98,15 @@ public class PermissionConstants {
 
     /*------ end: SYSTEM_PARAMETER_SETTING ------*/
 
-
+    /**
+     * 项目成员权限
+     */
+    /*------ start: PROJECT_MEMBER ------*/
+    public static final String PROJECT_MEMBER_READ = "PROJECT_MEMBER:READ";
+    public static final String PROJECT_MEMBER_ADD = "PROJECT_MEMBER:READ+ADD";
+    public static final String PROJECT_MEMBER_UPDATE = "PROJECT_MEMBER:READ+UPDATE";
+    public static final String PROJECT_MEMBER_DELETE = "PROJECT_MEMBER:READ+DELETE";
+    /*------ end: PROJECT_MEMBER ------*/
 
     public static final String SYSTEM_QUOTA_READ = "SYSTEM_QUOTA:READ";
     public static final String SYSTEM_QUOTA_READ_UPDATE = "SYSTEM_QUOTA:READ+UPDATE";

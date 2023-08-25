@@ -1,6 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.InternalUserRole;
+import io.metersphere.sdk.constants.UserRoleEnum;
+import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
@@ -35,9 +37,6 @@ import static io.metersphere.system.controller.result.SystemResultCode.NO_ORG_US
 @Transactional(rollbackFor = Exception.class)
 public class OrganizationUserRoleService extends BaseUserRoleService {
 
-    public static final String ORGANIZATION_ROLE_TYPE = "ORGANIZATION";
-    public static final String ORGANIZATION_ROLE_SCOPE = "global";
-
     @Resource
     UserMapper userMapper;
     @Resource
@@ -51,15 +50,15 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
 
     public List<UserRole> list(String organizationId) {
         UserRoleExample example = new UserRoleExample();
-        example.createCriteria().andTypeEqualTo(ORGANIZATION_ROLE_TYPE)
-                .andScopeIdIn(Arrays.asList(organizationId, ORGANIZATION_ROLE_SCOPE));
+        example.createCriteria().andTypeEqualTo(UserRoleType.ORGANIZATION.name())
+                .andScopeIdIn(Arrays.asList(organizationId, UserRoleEnum.GLOBAL.toString()));
         return userRoleMapper.selectByExample(example);
     }
 
     @Override
     public UserRole add(UserRole userRole) {
         userRole.setInternal(false);
-        userRole.setType(ORGANIZATION_ROLE_TYPE);
+        userRole.setType(UserRoleType.ORGANIZATION.name());
         checkNewRoleExist(userRole);
         return super.add(userRole);
     }
@@ -70,7 +69,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
         // 非组织用户组不允许修改, 内置用户组不允许修改
         checkOrgUserRole(oldRole);
         checkInternalUserRole(oldRole);
-        userRole.setType(ORGANIZATION_ROLE_TYPE);
+        userRole.setType(UserRoleType.ORGANIZATION.name());
         checkNewRoleExist(userRole);
         return super.update(userRole);
     }
@@ -175,7 +174,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
      * @param userRole 用户组
      */
     private void checkOrgUserRole(UserRole userRole) {
-        if (!ORGANIZATION_ROLE_TYPE.equals(userRole.getType())) {
+        if (!UserRoleType.ORGANIZATION.name().equals(userRole.getType())) {
             throw new MSException(NO_ORG_USER_ROLE_PERMISSION);
         }
     }
@@ -187,7 +186,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     private void checkNewRoleExist(UserRole userRole) {
         UserRoleExample example = new UserRoleExample();
         UserRoleExample.Criteria criteria = example.createCriteria().andNameEqualTo(userRole.getName())
-                .andScopeIdIn(Arrays.asList(userRole.getScopeId(), ORGANIZATION_ROLE_SCOPE))
+                .andScopeIdIn(Arrays.asList(userRole.getScopeId(), UserRoleEnum.GLOBAL.toString()))
                 .andTypeEqualTo(userRole.getType());
         if (userRole.getId() != null) {
             criteria.andIdNotEqualTo(userRole.getId());
