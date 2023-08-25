@@ -15,7 +15,7 @@
           :label="t('system.organization.member')"
           :rules="[{ required: true, message: t('system.organization.addMemberRequired') }]"
         >
-          <MsUserSelector v-model:value="form.name" type="organization" :source-id="organizationId || projectId" />
+          <MsUserSelector v-model:value="form.name" type="organization" :source-id="projectId" />
         </a-form-item>
       </a-form>
     </div>
@@ -33,14 +33,13 @@
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
   import { reactive, ref, watchEffect, onUnmounted } from 'vue';
-  import { addUserToOrgOrProject } from '@/api/modules/setting/organizationAndProject';
+  import { addProjectMemberByOrg } from '@/api/modules/setting/organizationAndProject';
   import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
-    organizationId?: string;
     projectId?: string;
   }>();
 
@@ -72,10 +71,10 @@
       if (errors) {
         loading.value = false;
       }
-      const { organizationId, projectId } = props;
+      const { projectId } = props;
       try {
         loading.value = true;
-        await addUserToOrgOrProject({ userIds: form.name, organizationId, projectId });
+        await addProjectMemberByOrg({ userIds: form.name, projectId });
         Message.success(t('system.organization.addSuccess'));
         handleCancel();
       } catch (error) {
@@ -101,4 +100,3 @@
     color: var(--color-text-4);
   }
 </style>
-@/api/modules/setting/organizationAndProject

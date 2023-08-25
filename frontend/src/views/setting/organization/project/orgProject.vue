@@ -15,7 +15,7 @@
         <span>{{ record.name }}</span>
         <a-tooltip background-color="#FFFFFF">
           <template #content>
-            <span class="text-[var(--color-text-1)]">{{ t('system.organization.revokeDeleteToolTip') }}</span>
+            <span class="text-[var(--color-text-1)]">{{ t('system.project.revokeDeleteToolTip') }}</span>
             <MsButton class="ml-[8px]" @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
           </template>
           <MsIcon v-if="record.deleted" type="icon-icon_alarm_clock" class="ml-[4px] text-[rgb(var(--danger-6))]" />
@@ -52,7 +52,7 @@
       @cancel="handleAddProjectModalCancel"
     />
     <AddUserModal :project-id="currentProjectId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
-    <UserDrawer :project-id="currentProjectId" v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
+    <UserDrawer v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
   </MsCard>
 </template>
 
@@ -60,14 +60,14 @@
   import { useI18n } from '@/hooks/useI18n';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { useTableStore } from '@/store';
-  import { ref, reactive } from 'vue';
+  import { useTableStore, useAppStore } from '@/store';
+  import { ref, reactive, onMounted, computed } from 'vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import {
-    postProjectTable,
-    deleteProject,
-    enableOrDisableProject,
-    revokeDeleteProject,
+    postProjectTableByOrg,
+    deleteProjectByOrg,
+    enableOrDisableProjectByOrg,
+    revokeDeleteProjectByOrg,
   } from '@/api/modules/setting/organizationAndProject';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -89,6 +89,8 @@
   const currentProjectId = ref('');
   const currentUpdateProject = ref<CreateOrUpdateSystemProjectParams>();
   const { openDeleteModal, openModal } = useModal();
+  const appStore = useAppStore();
+  const currentOrgId = computed(() => appStore.currentOrgId);
 
   const keyword = ref('');
 
@@ -144,7 +146,7 @@
 
   tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
 
-  const { propsRes, propsEvent, loadList, setKeyword } = useTable(postProjectTable, {
+  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(postProjectTableByOrg, {
     tableKey: TableKeyEnum.SYSTEM_PROJECT,
     scroll: { y: 'auto', x: '1300px' },
     selectable: false,
@@ -160,7 +162,7 @@
 
   const currentUserDrawer = reactive({
     visible: false,
-    organizationId: '',
+    projectId: '',
   });
 
   const tableActions: ActionsItem[] = [
@@ -181,7 +183,7 @@
       content: t('system.organization.deleteTip'),
       onBeforeOk: async () => {
         try {
-          await deleteProject(record.id);
+          await deleteProjectByOrg(record.id);
           Message.success(t('common.deleteSuccess'));
           fetchData();
         } catch (error) {
@@ -210,7 +212,7 @@
       okText,
       onBeforeOk: async () => {
         try {
-          await enableOrDisableProject(record.id, isEnable);
+          await enableOrDisableProjectByOrg(record.id, isEnable);
           Message.success(isEnable ? t('common.enableSuccess') : t('common.closeSuccess'));
           fetchData();
         } catch (error) {
@@ -243,7 +245,7 @@
 
   const showUserDrawer = (record: TableData) => {
     currentUserDrawer.visible = true;
-    currentUserDrawer.organizationId = record.id;
+    currentUserDrawer.projectId = record.id;
   };
 
   const handleUserDrawerCancel = () => {
@@ -265,11 +267,11 @@
       type: 'error',
       cancelText: t('common.cancel'),
       title: t('system.project.revokeDeleteTitle', { name: record.name }),
-      content: t('system.organization.enableContent'),
+      content: t('system.project.enableContent'),
       okText: t('common.revokeDelete'),
       onBeforeOk: async () => {
         try {
-          await revokeDeleteProject(record.id);
+          await revokeDeleteProjectByOrg(record.id);
           Message.success(t('common.revokeDeleteSuccess'));
           fetchData();
         } catch (error) {
@@ -280,6 +282,10 @@
       hideCancel: false,
     });
   };
+  onMounted(() => {
+    setLoadListParams({ organizationId: currentOrgId.value });
+    fetchData();
+  });
 </script>
 
 <style lang="scss" scoped>

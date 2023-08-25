@@ -8,6 +8,14 @@ import {
   SystemGetUserByOrgOrProjectIdParams,
 } from '@/models/setting/system/orgAndProject';
 
+// 组织与项目-公共
+// 系统-组织及项目，获取管理员下拉选项
+export function getAdminByOrgOrProject() {
+  return MSR.get({ url: orgUrl.getAdminByOrgOrProjectUrl });
+}
+
+// 系统-组织
+
 // 获取组织列表
 export function postOrgTable(data: TableQueryParams) {
   return MSR.post({ url: orgUrl.postOrgTableUrl, data });
@@ -43,7 +51,9 @@ export function enableOrDisableOrg(id: string, isEnable = true) {
   return MSR.get({ url: `${isEnable ? orgUrl.getEnableOrgUrl : orgUrl.getDisableOrgUrl}${id}` });
 }
 
-// 获取项目列表
+// 系统-项目
+
+// 系统-获取项目列表
 export function postProjectTable(data: TableQueryParams) {
   return MSR.post({ url: orgUrl.postProjectTableUrl, data });
 }
@@ -95,4 +105,45 @@ export function getAllUser() {
 // 获取项目和组织的总数
 export function getOrgAndProjectCount() {
   return MSR.get({ url: orgUrl.getOrgAndProjectCountUrl });
+}
+
+// 组织-项目
+// 组织-获取项目列表
+export function postProjectTableByOrg(data: TableQueryParams) {
+  return MSR.post({ url: orgUrl.postProjectTableByOrgIdUrl, data });
+}
+
+// 组织-启用或禁用项目
+export function enableOrDisableProjectByOrg(id: string, isEnable = true) {
+  return MSR.get({ url: `${isEnable ? orgUrl.getEnableProjectByOrgUrl : orgUrl.getDisableProjectByOrgUrl}${id}` });
+}
+
+// 组织-删除项目
+export function deleteProjectByOrg(id: string) {
+  return MSR.get({ url: `${orgUrl.getDeleteProjectByOrgUrl}${id}` });
+}
+
+// 组织-撤销删除项目
+export function revokeDeleteProjectByOrg(id: string) {
+  return MSR.get({ url: `${orgUrl.getRecoverProjectByOrgUrl}${id}` });
+}
+
+// 组织-创建或更新项目
+export function createOrUpdateProjectByOrg(data: CreateOrUpdateSystemProjectParams) {
+  return MSR.post({ url: data.id ? orgUrl.postModifyProjectByOrgUrl : orgUrl.postAddProjectByOrgUrl, data });
+}
+
+// 组织-获取项目下的成员列表
+export function postProjectMemberByProjectId(data: TableQueryParams) {
+  return MSR.post({ url: orgUrl.postProjectMemberByOrgIdUrl, data });
+}
+
+// 组织-移除项目成员
+export function deleteProjectMemberByOrg(projectId: string, userId: string) {
+  return MSR.get({ url: `${orgUrl.getDeleteProjectMemberByOrgUrl}${projectId}/${userId}` });
+}
+
+// 组织-添加项目成员
+export function addProjectMemberByOrg(data: AddUserToOrgOrProjectParams) {
+  return MSR.post({ url: orgUrl.postAddProjectMemberByOrgUrl, data });
 }

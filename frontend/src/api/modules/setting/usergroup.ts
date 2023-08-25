@@ -72,14 +72,28 @@ export function saveOrgUSetting(data: SaveGlobalUSettingData) {
   return MSR.post<UserGroupAuthSetting[]>({ url: ugUrl.editOrgUSettingUrl, data });
 }
 
+// 系统-获取用户组对应的用户列表
 export function postUserByUserGroup(data: TableQueryParams) {
   return MSR.post<CommonList<UserTableItem[]>>({ url: ugUrl.postUserByUserGroupUrl, data });
 }
+// 组织-获取用户组对应的用户列表
+export function postOrgUserByUserGroup(data: TableQueryParams) {
+  return MSR.post<CommonList<UserTableItem[]>>({ url: ugUrl.postOrgUserByUserGroupUrl, data });
+}
 
+// 系统-删除用户组对应的用户
 export function deleteUserFromUserGroup(id: string) {
   return MSR.get<string>({ url: `${ugUrl.deleteUserFromUserGroupUrl}${id}` });
 }
-
+// 组织-删除用户组对应的用户
+export function deleteOrgUserFromUserGroup(id: string) {
+  return MSR.get<string>({ url: `${ugUrl.deleteOrgUserFromUserGroupUrl}${id}` });
+}
+// 系统-添加用户到用户组
 export function addUserToUserGroup(data: { roleId: string; userIds: string[] }) {
   return MSR.post<string>({ url: ugUrl.addUserToUserGroupUrl, data });
+}
+// 组织-添加用户到用户组
+export function addOrgUserToUserGroup(data: { userRoleId: string; userIds: string[]; organizationId: string }) {
+  return MSR.post<string>({ url: ugUrl.addOrgUserToUserGroupUrl, data });
 }

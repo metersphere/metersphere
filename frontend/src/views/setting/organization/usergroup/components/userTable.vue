@@ -16,10 +16,10 @@
   import { useI18n } from '@/hooks/useI18n';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { useTableStore } from '@/store';
+  import { useTableStore, useAppStore } from '@/store';
   import useUserGroupStore from '@/store/modules/setting/organization/usergroup';
-  import { watchEffect, ref, watch } from 'vue';
-  import { postUserByUserGroup, deleteUserFromUserGroup } from '@/api/modules/setting/usergroup';
+  import { watchEffect, ref, watch, computed } from 'vue';
+  import { postOrgUserByUserGroup, deleteOrgUserFromUserGroup } from '@/api/modules/setting/usergroup';
   import { UserTableItem } from '@/models/setting/usergroup';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -29,6 +29,8 @@
   const { t } = useI18n();
   const store = useUserGroupStore();
   const tableStore = useTableStore();
+  const appStore = useAppStore();
+  const currentOrgId = computed(() => appStore.currentOrgId);
   const userVisible = ref(false);
   const props = defineProps<{
     keyword: string;
@@ -57,7 +59,7 @@
 
   tableStore.initColumn(TableKeyEnum.USERGROUPUSER, userGroupUsercolumns, 'drawer');
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserByUserGroup, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postOrgUserByUserGroup, {
     tableKey: TableKeyEnum.USERGROUPUSER,
     scroll: { x: '600px' },
     selectable: true,
@@ -70,7 +72,7 @@
   };
   const handleRemove = async (record: UserTableItem) => {
     try {
-      await deleteUserFromUserGroup(record.id);
+      await deleteOrgUserFromUserGroup(record.id);
       await fetchData();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -85,15 +87,12 @@
     userVisible.value = false;
   };
   watchEffect(() => {
-    if (store.currentId) {
-      setLoadListParams({ roleId: store.currentId });
+    if (store.currentId && currentOrgId.value) {
+      setLoadListParams({ userRoleId: store.currentId, organizationId: currentOrgId.value });
       fetchData();
     }
   });
-  watch(
-    () => props.keyword,
-    () => {
-      fetchData();
-    }
-  );
+  defineExpose({
+    fetchData,
+  });
 </script>

@@ -76,7 +76,7 @@
                   @press-enter="handleEditInputEnter(record)"
                 />
                 <slot v-else :name="item.slotName" v-bind="{ record, rowIndex, column }">
-                  <span>{{ record[item.dataIndex as string] }}</span>
+                  <span>{{ record[item.dataIndex as string] || '-' }}</span>
                 </slot>
                 <MsIcon
                   v-if="item.editable && item.dataIndex === editKey"
