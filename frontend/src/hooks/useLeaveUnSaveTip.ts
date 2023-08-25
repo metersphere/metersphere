@@ -11,7 +11,6 @@ export default function useLeaveUnSaveTip() {
     if (to.path === from.path) {
       return;
     }
-    console.log(from);
     openModal({
       type: 'error',
       title: t('common.unSaveLeaveTitle'),
@@ -23,10 +22,6 @@ export default function useLeaveUnSaveTip() {
       },
       onBeforeOk: async () => {
         next();
-      },
-      onCancel: () => {
-        console.log('取消取消');
-        console.log(from);
       },
       hideCancel: false,
     });

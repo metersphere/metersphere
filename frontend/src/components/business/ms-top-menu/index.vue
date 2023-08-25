@@ -4,7 +4,7 @@
     v-model:selected-keys="activeMenus"
     class="bg-transparent"
     mode="horizontal"
-    @menu-item-click="setCurrentTopMenu"
+    @menu-item-click="menuClickHandler"
   >
     <a-menu-item v-for="menu of appStore.topMenus" :key="(menu.name as string)" @click="jumpPath(menu.name)">
       {{ t(menu.meta?.locale || '') }}
@@ -91,6 +91,9 @@
 
   function jumpPath(route: RouteRecordName | undefined) {
     router.push({ name: route });
+  }
+  function menuClickHandler() {
+    activeMenus.value = [appStore.getCurrentTopMenu?.name || ''];
   }
 </script>
 
