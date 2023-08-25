@@ -3,8 +3,8 @@
     class="el-input-tag input-tag-wrapper"
     :class="[size ? 'el-input-tag--' + size : '']"
     style="height: auto"
-    @click="focusTagInput">
-
+    @click="focusTagInput"
+  >
     <el-tag
       class="ms-top"
       v-for="(tag, idx) in innerTags"
@@ -14,12 +14,20 @@
       :size="size"
       :closable="!readOnly"
       :disable-transitions="false"
-      @close="remove(idx)">
-      <span v-if="tag && tag.length > 10">
-        <el-tooltip class="item" effect="light" :content="tag" placement="top" :enterable="false">
-          <span>{{ tag && tag.length > 10 ? tag.substring(0, 10) + "..." : tag }}</span>
-        </el-tooltip>
-      </span>
+      @close="remove(idx)"
+    >
+      <el-tooltip
+        v-if="tag && tag.length > 10"
+        class="item"
+        effect="light"
+        :content="tag"
+        placement="top"
+        :enterable="false"
+      >
+        <span>{{
+          tag && tag.length > 10 ? tag.substring(0, 10) + "..." : tag
+        }}</span>
+      </el-tooltip>
       <span v-else>
         {{ tag }}
       </span>
@@ -28,16 +36,17 @@
       :disabled="readOnly"
       class="tag-input el-input"
       v-model="newTag"
-      :placeholder=defaultPlaceHolder
+      :placeholder="defaultPlaceHolder"
       @keydown.delete.stop="removeLastTag"
       @keydown="addNew"
-      @blur="addNew"/>
+      @blur="addNew"
+    />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'MsInputTag',
+  name: "MsInputTag",
   props: {
     currentScenario: {},
     placeholder: {
@@ -46,17 +55,17 @@ export default {
     errorInfo: String,
     addTagOnKeys: {
       type: Array,
-      default: () => [13, 188, 9]
+      default: () => [13, 188, 9],
     },
     readOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    size: {type: String, default: "small"},
+    size: { type: String, default: "small" },
     prop: {
       type: String,
-      default: "tags"
-    }
+      default: "tags",
+    },
   },
   created() {
     if (!this.currentScenario[this.prop]) {
@@ -68,74 +77,79 @@ export default {
   },
   data() {
     return {
-      defaultPlaceHolder: this.$t('commons.tag_tip'),
-      newTag: '',
-      innerTags: this.currentScenario[this.prop] ? [...this.currentScenario[this.prop]] : []
-    }
+      defaultPlaceHolder: this.$t("commons.tag_tip"),
+      newTag: "",
+      innerTags: this.currentScenario[this.prop]
+        ? [...this.currentScenario[this.prop]]
+        : [],
+    };
   },
   watch: {
     innerTags() {
       this.currentScenario[this.prop] = this.innerTags;
       this.tagChange();
     },
-    'currentScenario.tags'() {
-      if (this.prop === 'tags') {
-        if (!this.currentScenario[this.prop] || this.currentScenario[this.prop] === '' || this.currentScenario[this.prop].length === 0) {
+    "currentScenario.tags"() {
+      if (this.prop === "tags") {
+        if (
+          !this.currentScenario[this.prop] ||
+          this.currentScenario[this.prop] === "" ||
+          this.currentScenario[this.prop].length === 0
+        ) {
           if (this.innerTags.length !== 0) {
             this.innerTags = [];
           }
         }
       }
-
     },
   },
   methods: {
     focusTagInput() {
-      if (!this.readOnly && this.$el.querySelector('.tag-input')) {
-        this.$el.querySelector('.tag-input').focus()
+      if (!this.readOnly && this.$el.querySelector(".tag-input")) {
+        this.$el.querySelector(".tag-input").focus();
       }
     },
     addNew(e) {
-      if (e && (!this.addTagOnKeys.includes(e.keyCode)) && (e.type !== 'blur')) {
-        return
+      if (e && !this.addTagOnKeys.includes(e.keyCode) && e.type !== "blur") {
+        return;
       }
       if (e) {
-        e.stopPropagation()
-        e.preventDefault()
+        e.stopPropagation();
+        e.preventDefault();
       }
-      let addSuccess = false
-      if (this.newTag.includes(',')) {
-        this.newTag.split(',').forEach(item => {
+      let addSuccess = false;
+      if (this.newTag.includes(",")) {
+        this.newTag.split(",").forEach((item) => {
           if (this.addTag(item.trim())) {
-            addSuccess = true
+            addSuccess = true;
           }
-        })
+        });
       } else {
         if (this.addTag(this.newTag.trim())) {
-          addSuccess = true
+          addSuccess = true;
         }
       }
       if (addSuccess) {
-        this.tagChange()
-        this.newTag = ''
+        this.tagChange();
+        this.newTag = "";
       }
       this.$emit("onblur");
     },
     addTag(tag) {
-      tag = tag.trim()
+      tag = tag.trim();
       if (tag && !this.innerTags.includes(tag)) {
         if (tag.length > 15) {
-          this.$error(this.$t('commons.tag_length_tip'));
-          return false
+          this.$error(this.$t("commons.tag_length_tip"));
+          return false;
         }
         this.innerTags.push(tag);
-        return true
+        return true;
       } else {
         if (tag !== "" && this.errorInfo) {
           this.$error(this.errorInfo);
         }
       }
-      return false
+      return false;
     },
     remove(index) {
       this.innerTags.splice(index, 1);
@@ -147,16 +161,16 @@ export default {
     },
     removeLastTag() {
       if (this.newTag) {
-        return
+        return;
       }
-      this.innerTags.pop()
-      this.tagChange()
+      this.innerTags.pop();
+      this.tagChange();
     },
     tagChange() {
-      this.$emit('input', this.innerTags)
-    }
-  }
-}
+      this.$emit("input", this.innerTags);
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -172,7 +186,7 @@ export default {
   display: inline-block;
   outline: none;
   padding: 0 10px 0 5px;
-  transition: border-color .2s cubic-bezier(.645, .045, .355, 1);
+  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   width: 100%;
 }
 
@@ -185,7 +199,8 @@ export default {
   border: 0;
   color: #303133;
   font-size: 12px;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+    Arial, sans-serif;
   outline: none;
   padding-left: 0;
   width: 100px;
@@ -210,5 +225,4 @@ export default {
   height: 36px;
   line-height: 36px;
 }
-
 </style>
