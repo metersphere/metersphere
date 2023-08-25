@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS ui_element(
                            `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
                            `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
                            PRIMARY KEY (id)
-)  COMMENT = '元素';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '元素';
 
 
 CREATE INDEX idx_pos ON ui_element(pos);
@@ -44,7 +46,9 @@ CREATE TABLE IF NOT EXISTS ui_element_module(
                                   `pos` DOUBLE NOT NULL   COMMENT '自定义排序' ,
                                   `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
                                   PRIMARY KEY (id)
-)  COMMENT = '元素模块';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '元素模块';
 
 
 CREATE INDEX idx_project_id ON ui_element_module(project_id);
@@ -60,7 +64,9 @@ CREATE TABLE IF NOT EXISTS ui_element_scenario_reference(
                                               `scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景ID' ,
                                               `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
                                               PRIMARY KEY (id)
-)  COMMENT = '元素场景关系表';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '元素场景关系表';
 
 
 CREATE INDEX idx_element_id ON ui_element_scenario_reference(element_id);
@@ -94,7 +100,9 @@ CREATE TABLE IF NOT EXISTS ui_scenario(
                             `latest` BIT NOT NULL  DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是' ,
                             `description` VARCHAR(500)    COMMENT '描述' ,
                             PRIMARY KEY (id)
-)  COMMENT = '场景';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '场景';
 
 
 CREATE INDEX idx_ref_id ON ui_scenario(ref_id);
@@ -118,7 +126,9 @@ CREATE TABLE IF NOT EXISTS ui_scenario_reference(
                                       `reference_id` VARCHAR(50) NOT NULL   COMMENT '被引用的ID' ,
                                       `data_type` VARCHAR(20) NOT NULL   COMMENT '引用的数据类型（场景，指令）' ,
                                       PRIMARY KEY (id)
-)  COMMENT = '场景引用关系';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '场景引用关系';
 
 
 CREATE INDEX idx_ui_scenario_id ON ui_scenario_reference(ui_scenario_id);
@@ -143,7 +153,9 @@ CREATE TABLE IF NOT EXISTS ui_scenario_report(
                                    `relevance_test_plan_report_id` VARCHAR(50)    COMMENT '关联的测试计划报告ID（可以为空)' ,
                                    `report_source` VARCHAR(64) NOT NULL   COMMENT '报告生成来源(生成报告，后端调试，本地调试)' ,
                                    PRIMARY KEY (id)
-)  COMMENT = '场景报告';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '场景报告';
 
 
 CREATE INDEX idx_project_id ON ui_scenario_report(project_id);
@@ -168,7 +180,9 @@ CREATE TABLE IF NOT EXISTS ui_scenario_report_detail(
                                           `content` LONGBLOB NOT NULL   COMMENT '执行结果' ,
                                           `base_info` LONGBLOB    COMMENT '记录截图断言等结果' ,
                                           PRIMARY KEY (id)
-)  COMMENT = '报告结果';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '报告结果';
 
 
 CREATE INDEX idx_resource_id ON ui_scenario_report_detail(resource_id);
@@ -182,7 +196,9 @@ CREATE TABLE IF NOT EXISTS ui_scenario_report_structure(
                                              `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
                                              `resource_tree` LONGBLOB NOT NULL   COMMENT '资源步骤结构树' ,
                                              PRIMARY KEY (id)
-)  COMMENT = '报告结构';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '报告结构';
 
 
 CREATE INDEX idx_report_id ON ui_scenario_report_structure(report_id);
@@ -212,7 +228,9 @@ CREATE TABLE IF NOT EXISTS ui_custom_command(
                                   `latest` BIT NOT NULL  DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是' ,
                                   `description` VARCHAR(500)    COMMENT '描述' ,
                                   PRIMARY KEY (id)
-)  COMMENT = '自定义指令';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '自定义指令';
 
 
 CREATE INDEX idx_ref_id ON ui_custom_command(ref_id);
@@ -240,7 +258,9 @@ CREATE TABLE IF NOT EXISTS ui_scenario_module(
                                    `pos` DOUBLE NOT NULL   COMMENT '自定义排序' ,
                                    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
                                    PRIMARY KEY (id)
-)  COMMENT = '场景模块';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '场景模块';
 
 
 CREATE INDEX idx_project_id ON ui_scenario_module(project_id);
@@ -260,7 +280,9 @@ CREATE TABLE IF NOT EXISTS ui_custom_command_module(
                                          `pos` DOUBLE NOT NULL   COMMENT '自定义排序' ,
                                          `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
                                          PRIMARY KEY (id)
-)  COMMENT = '自定义指令模块';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '自定义指令模块';
 
 
 CREATE INDEX idx_project_id ON ui_custom_command_module(project_id);
@@ -274,7 +296,9 @@ CREATE TABLE IF NOT EXISTS ui_scenario_blob(
                                  `scenario_definition` LONGBLOB    COMMENT '场景定义' ,
                                  `environment_json` BLOB    COMMENT '环境' ,
                                  PRIMARY KEY (id)
-)  COMMENT = '场景大字段';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '场景大字段';
 
 
 CREATE INDEX idx_scenario_id ON ui_scenario_blob(id);
@@ -284,7 +308,9 @@ CREATE TABLE IF NOT EXISTS ui_scenario_report_environment(
                                                `project_id` VARCHAR(50)    COMMENT '项目ID' ,
                                                `environment_id` VARCHAR(50)    COMMENT '环境ID' ,
                                                PRIMARY KEY (report_id)
-)  COMMENT = '场景报告和环境关系';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '场景报告和环境关系';
 
 
 CREATE INDEX idx_report_id ON ui_scenario_report_environment(report_id);
@@ -294,7 +320,9 @@ CREATE TABLE IF NOT EXISTS ui_custom_command_blob(
                                        `scenario_definition` LONGBLOB    COMMENT '场景定义' ,
                                        `command_view_struct` LONGBLOB    COMMENT '自定义结构' ,
                                        PRIMARY KEY (id)
-)  COMMENT = '自定义指令大字段';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '自定义指令大字段';
 
 
 CREATE INDEX idx_command_id ON ui_custom_command_blob(id);
@@ -305,7 +333,9 @@ CREATE TABLE IF NOT EXISTS ui_scenario_report_log(
                                        `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
                                        `console` LONGBLOB NOT NULL   COMMENT '执行日志' ,
                                        PRIMARY KEY (id)
-)  COMMENT = '报告日志';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '报告日志';
 
 
 CREATE INDEX idx_report_id ON ui_scenario_report_log(report_id);
@@ -317,7 +347,9 @@ CREATE TABLE IF NOT EXISTS ui_element_command_reference(
                                              `command_id` VARCHAR(50) NOT NULL   COMMENT '指令ID' ,
                                              `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
                                              PRIMARY KEY (id)
-)  COMMENT = '元素指令关系表';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '元素指令关系表';
 
 
 CREATE INDEX idx_element_id ON ui_element_command_reference(element_id);
@@ -329,7 +361,9 @@ CREATE TABLE IF NOT EXISTS ui_scenario_follower(
                                      `scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景ID' ,
                                      `user_id` VARCHAR(50) NOT NULL   COMMENT '关注人ID' ,
                                      PRIMARY KEY (scenario_id,user_id)
-)  COMMENT = '场景用例关注表';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '场景用例关注表';
 
 
 CREATE INDEX idx_user_id ON ui_scenario_follower(user_id);
@@ -343,7 +377,9 @@ CREATE TABLE ui_scenario_variable(
                                      `name` VARCHAR(255) NOT NULL   COMMENT '变量名称' ,
                                      `description` VARCHAR(500)    COMMENT '描述' ,
                                      PRIMARY KEY (resource_id)
-)  COMMENT = '场景变量';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '场景变量';
 
 
 CREATE INDEX idx_resource_id ON ui_scenario_variable(resource_id);
@@ -361,7 +397,9 @@ CREATE TABLE ui_custom_variable(
                                    `out_put` BIT NOT NULL  DEFAULT 0 COMMENT '是否是出参' ,
                                    `enable` BIT NOT NULL  DEFAULT 1 COMMENT '启用禁用' ,
                                    PRIMARY KEY (resource_id)
-)  COMMENT = '指令初入参变量';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '指令初入参变量';
 
 
 CREATE INDEX idx_resource_id ON ui_custom_variable(resource_id);

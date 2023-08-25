@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS case_review(
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `review_pass_rule` VARCHAR(64) NOT NULL  DEFAULT 'Single' COMMENT '评审规则：单人通过/全部通过' ,
     PRIMARY KEY (id)
-    )  ENGINE = InnoDB
+)  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '用例评审';
 

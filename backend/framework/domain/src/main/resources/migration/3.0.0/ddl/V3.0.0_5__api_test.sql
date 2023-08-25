@@ -29,7 +29,9 @@ CREATE TABLE IF NOT EXISTS api_definition(
                                `ref_id` VARCHAR(50)    COMMENT '版本引用fk' ,
                                `description` VARCHAR(500)    COMMENT '描述' ,
                                PRIMARY KEY (id)
-)  COMMENT = '接口定义';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '接口定义';
 
 
 CREATE INDEX idx_project_id ON api_definition(project_id);
@@ -51,7 +53,9 @@ CREATE TABLE IF NOT EXISTS api_definition_blob(
                                     `response` LONGBLOB    COMMENT '响应内容' ,
                                     `remark` BLOB    COMMENT '备注' ,
                                     PRIMARY KEY (id)
-)  COMMENT = '接口定义详情内容';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '接口定义详情内容';
 
 
 

@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS custom_field
     `project_id`  VARCHAR(50) COMMENT '项目ID',
     `third_part`  BIT          NOT NULL DEFAULT 0 COMMENT '是否关联第三方',
     PRIMARY KEY (id)
-    ) COMMENT = '自定义字段';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '自定义字段';
 
 
 CREATE INDEX idx_global ON custom_field (global);
@@ -40,7 +42,9 @@ CREATE TABLE IF NOT EXISTS custom_field_template
     `custom_data`   VARCHAR(255) COMMENT '自定义数据',
     `key`           VARCHAR(1) COMMENT '自定义表头',
     PRIMARY KEY (id)
-    ) COMMENT = '自定义模版';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '自定义模版';
 
 
 CREATE INDEX custom_field_template_field_id_index ON custom_field_template (field_id);
@@ -53,7 +57,9 @@ CREATE TABLE IF NOT EXISTS custom_function
     `tags`        VARCHAR(1000) COMMENT '标签',
     `description` VARCHAR(500) COMMENT '函数描述',
     PRIMARY KEY (id)
-    ) COMMENT = '自定义函数-代码片段';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '自定义函数-代码片段';
 
 
 CREATE INDEX name ON custom_function (name);
@@ -70,7 +76,9 @@ CREATE TABLE IF NOT EXISTS fake_error
     `match_type`  VARCHAR(255) NOT NULL COMMENT '匹配类型',
     `status`      BIT COMMENT '状态',
     PRIMARY KEY (id)
-    ) COMMENT = '误报库';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '误报库';
 
 
 CREATE INDEX idx_project_id ON fake_error (project_id);
@@ -90,7 +98,9 @@ CREATE TABLE IF NOT EXISTS file_association
     `file_type`        VARCHAR(50) NOT NULL COMMENT '文件类型',
     `project_id`       VARCHAR(50) NOT NULL COMMENT '项目id',
     PRIMARY KEY (id)
-    ) COMMENT = '文件关联资源关系(分散到模块)';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '文件关联资源关系(分散到模块)';
 
 
 CREATE INDEX idx_file_metadata_id ON file_association (file_metadata_id);
@@ -118,7 +128,9 @@ CREATE TABLE IF NOT EXISTS file_metadata
     `latest`        BIT          NOT NULL DEFAULT 1 COMMENT '是否是最新版',
     `ref_id`        VARCHAR(50)  NOT NULL COMMENT '同版本数据关联的ID',
     PRIMARY KEY (id)
-    ) COMMENT = '文件基础信息';
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '文件基础信息';
 
 
 CREATE INDEX idx_file_name ON file_metadata (name);
@@ -141,7 +153,9 @@ CREATE TABLE IF NOT EXISTS file_module
     `create_user` VARCHAR(50) COMMENT '创建人',
     `module_type` VARCHAR(20) DEFAULT 'module' COMMENT '模块类型: module/repository',
     PRIMARY KEY (id)
-    ) COMMENT = '文件管理模块';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci  COMMENT = '文件管理模块';
 
 
 CREATE INDEX idx_project_id ON file_module (project_id);
@@ -169,7 +183,9 @@ CREATE TABLE IF NOT EXISTS project
     `module_setting`  VARCHAR(255)    COMMENT '模块设置' ,
     PRIMARY KEY (id),
     CONSTRAINT idx_num UNIQUE (num)
-    ) COMMENT = '项目';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '项目';
 
 
 CREATE INDEX idx_organization_id ON project (organization_id);
@@ -186,7 +202,9 @@ CREATE TABLE IF NOT EXISTS project_application
     `type`       VARCHAR(50) NOT NULL COMMENT '配置项',
     `type_value` VARCHAR(255) COMMENT '配置值',
     PRIMARY KEY (project_id, type)
-    ) COMMENT = '项目应用';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '项目应用';
 
 
 CREATE INDEX idx_project_application_type ON project_application (type);
@@ -205,7 +223,9 @@ CREATE TABLE IF NOT EXISTS project_version
     `create_time`  BIGINT       NOT NULL COMMENT '创建时间',
     `create_user`  VARCHAR(50)  NOT NULL COMMENT '创建人',
     PRIMARY KEY (id)
-    ) COMMENT = '版本管理';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '版本管理';
 
 
 CREATE INDEX idx_project_id ON project_version (project_id);
@@ -222,7 +242,9 @@ CREATE TABLE IF NOT EXISTS file_module_blob
     `repository_user_name` VARCHAR(255) COMMENT '存储库Token',
     `repository_token`     VARCHAR(255) COMMENT '存储库Token',
     PRIMARY KEY (id)
-    ) COMMENT = '文件管理模块大字段';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '文件管理模块大字段';
 
 CREATE TABLE IF NOT EXISTS custom_function_blob
 (
@@ -231,7 +253,9 @@ CREATE TABLE IF NOT EXISTS custom_function_blob
     `script` LONGBLOB COMMENT '函数体',
     `result` LONGBLOB COMMENT '执行结果',
     PRIMARY KEY (id)
-    ) COMMENT = '自定义函数-代码片段大字段';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '自定义函数-代码片段大字段';
 
 CREATE TABLE IF NOT EXISTS fake_error_blob
 (
@@ -239,14 +263,18 @@ CREATE TABLE IF NOT EXISTS fake_error_blob
     `content`     LONGBLOB COMMENT '内容',
     `description` LONGBLOB COMMENT '报告内容',
     PRIMARY KEY (id)
-    ) COMMENT = '误报库大字段';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '误报库大字段';
 
 CREATE TABLE IF NOT EXISTS file_metadata_blob
 (
     `id`       VARCHAR(50) NOT NULL COMMENT '文件ID',
     `git_info` LONGBLOB COMMENT '储存库',
     PRIMARY KEY (id)
-    ) COMMENT = '文件基础信息大字段';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '文件基础信息大字段';
 
 CREATE TABLE IF NOT EXISTS functional_case_template
 (
@@ -258,7 +286,9 @@ CREATE TABLE IF NOT EXISTS functional_case_template
     `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
     PRIMARY KEY (id)
-    ) COMMENT = '功能用例模版';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '功能用例模版';
 
 
 CREATE INDEX idx_name ON functional_case_template (name);
@@ -278,7 +308,9 @@ CREATE TABLE IF NOT EXISTS functional_case_template_extend
     `step_model`       VARCHAR(64) NOT NULL DEFAULT 'Step' COMMENT '编辑模式模板：步骤模式/文本模式',
     `steps`            TEXT COMMENT '用例步骤',
     PRIMARY KEY (id)
-    ) COMMENT = '功能用例模版扩展';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '功能用例模版扩展';
 
 CREATE TABLE IF NOT EXISTS bug_template_extend
 (
@@ -286,7 +318,9 @@ CREATE TABLE IF NOT EXISTS bug_template_extend
     `title`   VARCHAR(255) COMMENT '缺陷标题模板',
     `content` TEXT COMMENT '缺陷内容模板',
     PRIMARY KEY (id)
-    ) COMMENT = '缺陷模板扩展';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '缺陷模板扩展';
 
 CREATE TABLE IF NOT EXISTS bug_template
 (
@@ -298,7 +332,9 @@ CREATE TABLE IF NOT EXISTS bug_template
     `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
     PRIMARY KEY (id)
-    ) COMMENT = '缺陷模版';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '缺陷模版';
 
 
 CREATE INDEX idx_name ON bug_template (name);
@@ -317,7 +353,9 @@ CREATE TABLE IF NOT EXISTS api_template
     `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
     PRIMARY KEY (id)
-    ) COMMENT = '接口定义模板';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '接口定义模板';
 
 
 CREATE INDEX idx_name ON api_template (name);
@@ -339,7 +377,7 @@ CREATE TABLE IF NOT EXISTS message_task
     `create_time` BIGINT       NOT NULL DEFAULT 0 COMMENT '创建时间',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
     PRIMARY KEY (id)
-    ) ENGINE = InnoDB
+) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务';
 
@@ -354,7 +392,7 @@ CREATE TABLE IF NOT EXISTS message_task_blob
     `id`       VARCHAR(50) NOT NULL COMMENT '',
     `template` TEXT COMMENT '消息模版',
     PRIMARY KEY (id)
-    ) ENGINE = InnoDB
+) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务大字段';
 
@@ -373,7 +411,7 @@ CREATE TABLE IF NOT EXISTS notification
     `resource_type` VARCHAR(50)  NOT NULL COMMENT '资源类型',
     `resource_name` VARCHAR(255) NOT NULL COMMENT '资源名称',
     PRIMARY KEY (id)
-    ) ENGINE = InnoDB
+) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '消息通知';
 
@@ -399,7 +437,9 @@ CREATE TABLE IF NOT EXISTS project_robot(
                               `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
                               `description` VARCHAR(255)    COMMENT '描述' ,
                               PRIMARY KEY (id)
-)  COMMENT = '项目机器人';
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '项目机器人';
 
 
 CREATE INDEX idx_project_id ON project_robot(project_id);
