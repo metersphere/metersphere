@@ -51,7 +51,6 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     @Resource
     private OrganizationService organizationService;
 
-    public static final String ORGANIZATION_ROLE_TYPE = "ORGANIZATION";
     public static final String ORGANIZATION_USER_ROLE_LIST = "/user/role/organization/list";
     public static final String ORGANIZATION_USER_ROLE_ADD = "/user/role/organization/add";
     public static final String ORGANIZATION_USER_ROLE_UPDATE = "/user/role/organization/update";
@@ -243,7 +242,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         OrganizationUserRoleMemberRequest request = new OrganizationUserRoleMemberRequest();
         request.setOrganizationId("default-organization-2");
         request.setUserRoleId("default-org-role-id-3");
-        request.setKeyword("admin");
+        request.setUserKeyWord("admin");
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.responsePost(ORGANIZATION_USER_ROLE_LIST_MEMBER, request);
@@ -259,12 +258,12 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
-        // 返回值中取出第一条数据, 并判断是否包含关键字default
+        // 返回值中取出第一条数据, 并判断是否包含关键字
         List<User> userList = JSON.parseArray(JSON.toJSONString(pageData.getList()), User.class);
         if(CollectionUtils.isNotEmpty(userList)) {
             User user = userList.get(0);
-            Assertions.assertTrue(StringUtils.contains(user.getName(), request.getKeyword())
-                    || StringUtils.contains(user.getId(), request.getKeyword()));
+            Assertions.assertTrue(StringUtils.contains(user.getName(), request.getUserKeyWord())
+                    || StringUtils.contains(user.getId(), request.getUserKeyWord()));
         }
         // 权限校验
         request.setOrganizationId(getDefault().getId());
