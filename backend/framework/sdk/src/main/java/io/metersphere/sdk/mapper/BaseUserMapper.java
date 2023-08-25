@@ -33,5 +33,7 @@ public interface BaseUserMapper {
 
     List<ExcludeOptionDTO> getExcludeSelectOption();
 
-    List<OptionDTO> getSelectOptionByIds(List<String> ids);
+    List<OptionDTO> getSelectOptionByIdsWithDeleted(List<String> ids);
+
+    List<OptionDTO> getSelectOptionWithDeleted();
 }

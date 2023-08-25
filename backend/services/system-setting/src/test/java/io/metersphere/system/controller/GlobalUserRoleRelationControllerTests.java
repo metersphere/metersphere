@@ -12,10 +12,12 @@ import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationQueryRequestDefinition;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationUpdateRequestDefinition;
+import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.request.GlobalUserRoleRelationQueryRequest;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
@@ -50,6 +52,8 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
 
     @Resource
     private UserRoleMapper userRoleMapper;
+    @Resource
+    private UserMapper userMapper;
     @Resource
     private BaseUserService baseUserService;
     @Resource
@@ -156,6 +160,13 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
                 .collect(Collectors.toSet());
         // 校验数量
         Assertions.assertTrue(options.size() == excludeSelectOption.size());
+
+        UserExample example = new UserExample();
+        example.createCriteria().andIdIn(excludeUserIds.stream().toList())
+                        .andDeletedEqualTo(true);
+        // 校验获取的用户是不是都是未删除的用户
+        Assertions.assertTrue(CollectionUtils.isEmpty(userMapper.selectByExample(example)));
+
         options.forEach(item -> {
             // 校验 exclude 字段
             Assertions.assertTrue(item.getExclude() == excludeUserIds.contains(item.getId()));
