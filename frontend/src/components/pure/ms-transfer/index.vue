@@ -5,12 +5,12 @@
     :data="transferData"
     show-search
   >
-    <template #source="{ data: tData, selectedKeys, onSelect }">
+    <template #source="{ selectedKeys, onSelect }">
       <a-tree
         :checkable="true"
         checked-strategy="child"
         :checked-keys="selectedKeys"
-        :data="getTreeData(tData)"
+        :data="getTreeData()"
         block-node
         @check="onSelect"
       />
@@ -96,9 +96,7 @@
   /**
    * 获取树结构数据，根据穿梭框过滤的数据获取
    */
-  const getTreeData = (data: TransferDataItem[]) => {
-    const values = data.map((item) => item[props.treeFiled.key]);
-
+  const getTreeData = () => {
     const travel = (_treeData: TreeDataItem[]) => {
       const treeDataSource: TreeDataItem[] = [];
       _treeData.forEach((item) => {
@@ -111,7 +109,7 @@
           Array.isArray(itemChildren) &&
           itemChildren.length > 0 &&
           itemChildren?.every((child: TreeDataItem) => innerTarget.value.includes(child[props.treeFiled.key]));
-        if (!allSelected && !innerTarget.value.includes(itemKey) && (itemChildren || values.includes(itemKey))) {
+        if (!allSelected && !innerTarget.value.includes(itemKey)) {
           // 非选中父节点时，需要判断每个子节点是否已经在右侧的选中的数组内，不在才渲染到左侧
           treeDataSource.push({
             title: itemTitle,

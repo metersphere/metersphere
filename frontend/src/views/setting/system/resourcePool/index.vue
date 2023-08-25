@@ -264,7 +264,7 @@
         const {
           ip,
           token, // k8s token
-          nameSpaces, // k8s 命名空间
+          namespace, // k8s 命名空间
           concurrentNumber, // k8s 最大并发数
           podThreads, // k8s 单pod最大线程数
           deployName, // k8s api测试部署名称
@@ -298,8 +298,8 @@
                   value: token,
                 },
                 {
-                  label: t('system.resourcePool.testResourceDTO.nameSpaces'),
-                  value: nameSpaces,
+                  label: t('system.resourcePool.testResourceDTO.namespace'),
+                  value: namespace,
                 },
                 {
                   label: t('system.resourcePool.testResourceDTO.deployName'),

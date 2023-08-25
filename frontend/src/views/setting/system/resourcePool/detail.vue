@@ -235,14 +235,14 @@
           />
         </a-form-item>
         <a-form-item
-          :label="t('system.resourcePool.testResourceDTO.nameSpaces')"
-          field="testResourceDTO.nameSpaces"
+          :label="t('system.resourcePool.testResourceDTO.namespace')"
+          field="testResourceDTO.namespace"
           class="form-item"
           :rules="[{ required: true, message: t('system.resourcePool.testResourceDTO.nameSpacesRequired') }]"
           asterisk-position="end"
         >
           <a-input
-            v-model:model-value="form.testResourceDTO.nameSpaces"
+            v-model:model-value="form.testResourceDTO.namespace"
             :placeholder="t('system.resourcePool.testResourceDTO.nameSpacesPlaceholder')"
             :max-length="250"
             class="mr-[8px] flex-1"
@@ -379,7 +379,7 @@
       nodesList: [] as NodesListItem[],
       ip: '',
       token: '',
-      nameSpaces: '',
+      namespace: '',
       jobDefinition: job,
       deployName: '',
       orgIds: [] as string[],
@@ -483,7 +483,7 @@
   // 是否显示K8S资源配置信息
   const isShowK8SResources = computed(() => form.value.type === 'Kubernetes' && isShowTypeItem.value);
   // 是否填写了命名空间
-  const isFillNameSpaces = computed(() => form.value.testResourceDTO.nameSpaces?.trim() !== '');
+  const isFillNameSpaces = computed(() => form.value.testResourceDTO.namespace?.trim() !== '');
   // 是否填写了命名空间及Deploy Name
   const isFillNameSpacesAndDeployName = computed(
     () => isFillNameSpaces.value && form.value.testResourceDTO.deployName?.trim() !== ''
@@ -630,7 +630,7 @@
   function downloadYaml(type: YamlType) {
     let name = '';
     let yamlStr = '';
-    const { nameSpaces, deployName } = form.value.testResourceDTO;
+    const { namespace, deployName } = form.value.testResourceDTO;
     // 镜像内的版本号需要去掉尾部的 -xxx
     const apiImage = `registry.cn-qingdao.aliyuncs.com/metersphere/task-runner:${appStore.version.substring(
       0,
@@ -639,15 +639,15 @@
     switch (type) {
       case 'role':
         name = 'Role.yml';
-        yamlStr = getYaml('role', '', nameSpaces, '');
+        yamlStr = getYaml('role', '', namespace, '');
         break;
       case 'Deployment':
         name = 'Deployment.yml';
-        yamlStr = getYaml('Deployment', deployName, nameSpaces, apiImage);
+        yamlStr = getYaml('Deployment', deployName, namespace, apiImage);
         break;
       case 'DaemonSet':
         name = 'Daemonset.yml';
-        yamlStr = getYaml('DaemonSet', deployName, nameSpaces, apiImage);
+        yamlStr = getYaml('DaemonSet', deployName, namespace, apiImage);
         break;
       default:
         throw new Error('文件类型不在可选范围');
@@ -673,7 +673,7 @@
     const {
       ip,
       token, // k8s token
-      nameSpaces, // k8s 命名空间
+      namespace, // k8s 命名空间
       concurrentNumber, // k8s 最大并发数
       podThreads, // k8s 单pod最大线程数
       jobDefinition, // k8s job自定义模板
@@ -694,7 +694,7 @@
         ? {
             ip,
             token,
-            nameSpaces,
+            namespace,
             concurrentNumber,
             podThreads,
             deployName: isCheckedAPI.value ? deployName : null, // 勾选了接口测试才需要传

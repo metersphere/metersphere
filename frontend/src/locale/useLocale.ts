@@ -53,6 +53,7 @@ async function changeLocale(locale: LocaleType) {
   loadLocalePool.push(locale);
 
   setI18nLanguage(locale);
+  window.location.reload();
   return locale;
 }
 

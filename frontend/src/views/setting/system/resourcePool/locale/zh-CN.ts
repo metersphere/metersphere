@@ -91,7 +91,7 @@ export default {
   'system.resourcePool.testResourceDTO.token': 'Token',
   'system.resourcePool.testResourceDTO.tokenRequired': 'Token 不能为空',
   'system.resourcePool.testResourceDTO.tokenPlaceholder': '请输入 Token',
-  'system.resourcePool.testResourceDTO.nameSpaces': '命名空间',
+  'system.resourcePool.testResourceDTO.namespace': '命名空间',
   'system.resourcePool.testResourceDTO.nameSpacesRequired': '命名空间不能为空',
   'system.resourcePool.testResourceDTO.nameSpacesPlaceholder': '使用K8S资源池需要部署Role.yaml文件',
   'system.resourcePool.testResourceDTO.deployName': 'Deploy Name',
