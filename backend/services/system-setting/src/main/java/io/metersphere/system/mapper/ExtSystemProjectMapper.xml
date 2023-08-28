@@ -36,12 +36,11 @@
                p.delete_user,
                p.update_user,
                p.enable,
-               count(distinct u.id) as memberCount,
+               count(distinct temp.id) as memberCount,
                o.name as organizationName,
                p.module_setting
         FROM project p
-        LEFT JOIN user_role_relation ur on p.id = ur.source_id
-        left join user u on u.id = p.create_user
+        LEFT JOIN (SELECT ur.source_id, u.id from user_role_relation ur  left join user u on u.id = ur.user_id where u.deleted = 0) temp on p.id = temp.source_id
         INNER JOIN organization o on p.organization_id = o.id
         <include refid="queryWhereCondition"/>
             group by p.id
@@ -71,9 +70,8 @@
 
     <sql id="queryWhereCondition">
         <where>
-            u.deleted = 0
             <if test="request.organizationId != null">
-              and p.organization_id = #{request.organizationId}
+               p.organization_id = #{request.organizationId}
             </if>
             <if test="request.keyword != null">
                 and (

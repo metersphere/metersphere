@@ -21,7 +21,6 @@ import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.service.OrganizationProjectLogService;
 import io.metersphere.system.service.OrganizationProjectService;
-import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,8 +42,6 @@ import java.util.List;
 public class OrganizationProjectController {
     @Resource
     private OrganizationProjectService organizationProjectService;
-    @Resource
-    private UserService userService;
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_ADD)
