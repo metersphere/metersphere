@@ -27,6 +27,7 @@ export default {
     'menu.uiTest': 'UI test',
     'menu.performanceTest': 'Performance test',
     'menu.projectManagement': 'Project management',
+    'menu.projectManagement.projectPermission': 'Project Permission',
     'menu.projectManagement.log': 'Log',
     'menu.settings': 'Settings',
     'menu.settings.system': 'System',

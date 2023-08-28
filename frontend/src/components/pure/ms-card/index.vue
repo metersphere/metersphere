@@ -19,11 +19,13 @@
           class="pr-[5px]"
           :style="{
             overflow: 'auto',
-            width: props.width ? props.width : `calc(100vw - ${menuWidth}px - 58px)`,
+            width: props.otherWidth
+              ? `calc(100vw - ${menuWidth}px - ${props.otherWidth}px)`
+              : `calc(100vw - ${menuWidth}px - 58px)`,
             height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight}px)`,
           }"
         >
-          <div class="min-w-[1000px]">
+          <div :class="[`min-w-[${props.minWidth || 1000}px]`]">
             <slot></slot>
           </div>
         </a-scrollbar>
@@ -70,7 +72,8 @@
         specialHeight: number; // 特殊高度，例如某些页面有面包屑
         hideBack: boolean; // 隐藏返回按钮
         autoHeight: boolean; // 内容区域高度是否自适应
-        width?: string; // 卡片宽度
+        otherWidth?: number; // 该宽度为卡片外部同级容器的宽度
+        minWidth?: number; // 卡片最小宽度
         hasBreadcrumb: boolean; // 是否有面包屑，如果有面包屑，高度需要减去面包屑的高度
         noContentPadding: boolean; // 内容区域是否有padding
         handleBack: () => void; // 自定义返回按钮触发事件
