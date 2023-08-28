@@ -675,9 +675,11 @@ public class OrganizationService {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         List<String> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().toList();
         UserExample userExample = new UserExample();
+        UserExample.Criteria criteria = userExample.createCriteria();
         if (CollectionUtils.isNotEmpty(userIds)) {
-            userExample.createCriteria().andIdNotIn(userIds);
+            criteria.andIdNotIn(userIds);
         }
+        criteria.andDeletedEqualTo(false);
         List<User> users = userMapper.selectByExample(userExample);
         List<IdNameStructureDTO> userList = new ArrayList<>();
         for (User user : users) {
