@@ -107,6 +107,23 @@ public class UserRoleRelationService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
+    public void batchSave(List<String> userRoleIdList, User user) {
+        long operationTime = System.currentTimeMillis();
+        List<UserRoleRelation> userRoleRelationSaveList = new ArrayList<>();
+        //添加用户组织关系
+        for (String userRoleId : userRoleIdList) {
+            UserRoleRelation userRoleRelation = new UserRoleRelation();
+            userRoleRelation.setId(UUID.randomUUID().toString());
+            userRoleRelation.setUserId(user.getId());
+            userRoleRelation.setRoleId(userRoleId);
+            userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
+            userRoleRelation.setCreateTime(operationTime);
+            userRoleRelation.setCreateUser(user.getCreateUser());
+            userRoleRelationSaveList.add(userRoleRelation);
+        }
+        userRoleRelationMapper.batchInsert(userRoleRelationSaveList);
+    }
+
     public Map<String, UserTableResponse> selectGlobalUserRoleAndOrganization(@Valid @NotEmpty List<String> userIdList) {
         List<UserRoleRelation> userRoleRelationList = extUserRoleRelationMapper.selectGlobalRoleByUserIdList(userIdList);
         List<String> userRoleIdList = userRoleRelationList.stream().map(UserRoleRelation::getRoleId).distinct().collect(Collectors.toList());

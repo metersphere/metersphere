@@ -4,6 +4,7 @@ import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.TableBatchProcessDTO;
 import io.metersphere.system.dto.UserCreateInfo;
+import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.request.user.UserChangeEnableRequest;
 import io.metersphere.system.request.user.UserRoleBatchRelationRequest;
 import io.metersphere.system.response.user.UserSelectOption;
@@ -111,6 +112,12 @@ public class UserControllerPermissionTests extends BaseTest {
         this.requestPostPermissionsTest(addMemberPermissionList, UserRequestUtils.URL_ADD_PROJECT_MEMBER, roleBatchRelationRequest);
         //        批量添加用户到组织
         this.requestPostPermissionsTest(addMemberPermissionList, UserRequestUtils.URL_ADD_ORGANIZATION_MEMBER, roleBatchRelationRequest);
+
+        //  邀请用户
+        UserInviteRequest userInviteRequest = new UserInviteRequest();
+        userInviteRequest.setUserRoleIds(Collections.singletonList("member"));
+        userInviteRequest.setInviteEmails(Collections.singletonList("tianyang.song.invite.permission.1@test.email"));
+        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_ADD, UserRequestUtils.URL_INVITE, userInviteRequest);
     }
 
 }
