@@ -36,10 +36,10 @@
             join `user` u on urr.user_id = u.id
             <where>
                 u.deleted = 0
-                <if test="request.organizationId != null">
+                <if test="request.organizationId != null and request.organizationId != ''">
                     and urr.source_id = #{request.organizationId}
                 </if>
-                <if test="request.keyword != null">
+                <if test="request.keyword != null and request.keyword != ''">
                     and u.name like concat('%', #{request.keyword},'%')
                 </if>
             </where>
@@ -56,10 +56,10 @@
         from user_role_relation urr
         join `user` u on urr.user_id = u.id
         <where>
-            <if test="request.organizationId != null">
+            <if test="request.organizationId != null and request.organizationId != ''">
                 urr.source_id = #{request.organizationId}
             </if>
-            <if test="request.keyword != null">
+            <if test="request.keyword != null and request.keyword != ''">
                 and (u.name like CONCAT('%', #{request.keyword},'%')
                 or u.email like CONCAT('%', #{request.keyword},'%')
                 or u.phone like CONCAT('%', #{request.keyword},'%'))
