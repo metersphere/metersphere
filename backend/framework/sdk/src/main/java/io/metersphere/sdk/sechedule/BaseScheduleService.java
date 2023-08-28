@@ -1,15 +1,20 @@
 package io.metersphere.sdk.sechedule;
 
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.mapper.ScheduleMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobKey;
+import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Transactional(rollbackFor = Exception.class)
@@ -76,5 +81,24 @@ public class BaseScheduleService {
 
     private void removeJob(String key, String job) {
         scheduleManager.removeJob(new JobKey(key, job), new TriggerKey(key, job));
+    }
+
+    public void addOrUpdateCronJob(Schedule request, JobKey jobKey, TriggerKey triggerKey, Class clazz) {
+        Boolean enable = request.getEnable();
+        String cronExpression = request.getValue();
+        if (Optional.ofNullable(enable).isPresent() && StringUtils.isNotBlank(cronExpression)) {
+            try {
+                scheduleManager.addOrUpdateCronJob(jobKey, triggerKey, clazz, cronExpression,
+                        scheduleManager.getDefaultJobDataMap(request, cronExpression, SessionUtils.getUser().getId()));
+            } catch (SchedulerException e) {
+                throw new MSException("定时任务开启异常: " + e.getMessage());
+            }
+        } else {
+            try {
+                scheduleManager.removeJob(jobKey, triggerKey);
+            } catch (Exception e) {
+                throw new MSException("定时任务关闭异常: " + e.getMessage());
+            }
+        }
     }
 }

@@ -5,4 +5,11 @@ package io.metersphere.sdk.service;
  */
 public interface CleanupProjectResourceService {
     void deleteResources(String projectId);
+
+
+    /**
+     * 清理报告资源
+     * @param projectId
+     */
+    void cleanReportResources(String projectId);
 }

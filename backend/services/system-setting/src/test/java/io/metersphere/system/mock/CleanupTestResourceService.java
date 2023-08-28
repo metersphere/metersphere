@@ -11,4 +11,9 @@ public class CleanupTestResourceService implements CleanupProjectResourceService
     public void deleteResources(String projectId) {
         LogUtils.info("删除当前项目[" + projectId + "]TEST资源");
     }
+
+    @Override
+    public void cleanReportResources(String projectId) {
+        LogUtils.info("清理当前项目[" + projectId + "]TEST报告资源");
+    }
 }

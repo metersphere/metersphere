@@ -23,4 +23,9 @@ public class CleanupResourceTests {
         resourceService.deleteResources("test");
     }
 
+    @Test
+    @Order(2)
+    public void testCleanupReportResource() throws Exception {
+        resourceService.cleanReportResources("test");
+    }
 }
