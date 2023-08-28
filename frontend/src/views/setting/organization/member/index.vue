@@ -26,7 +26,7 @@
         <a-tooltip :content="(record.projectIdNameMap||[]).map((e: any) => e.name).join(',')">
           <div v-if="!record.showProjectSelect">
             <a-tag
-              v-for="pro of record.projectIdNameMap"
+              v-for="pro of (record.projectIdNameMap || []).slice(0, 3)"
               :key="pro.id"
               class="mr-[4px] bg-transparent"
               bordered
@@ -229,7 +229,6 @@
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getMemberList, {
     tableKey: TableKeyEnum.ORGANNATIONMEMBER,
     scroll: { x: 1600 },
-    size: 'default',
     selectable: true,
     showSetting: true,
   });

@@ -3,34 +3,37 @@
     <template #title> {{ t('system.plugin.uploadPlugin') }} </template>
     <div class="form grid grid-cols-1">
       <a-row class="grid-demo">
-        <a-form ref="pluginFormRef" :model="form" size="small" :style="{ width: '600px' }" layout="vertical">
-          <div class="relative">
-            <a-form-item field="pluginName" :label="t('system.plugin.name')" asterisk-position="end">
-              <a-input
-                v-model="form.name"
-                size="small"
-                :max-length="250"
-                :placeholder="t('system.plugin.defaultJarNameTip')"
-                allow-clear
-              />
-              <span class="absolute right-0 top-1 flex items-center">
-                <span class="float-left">{{ t('system.plugin.getPlugin') }}</span>
-                <a-tooltip :content="t('system.plugin.infoTip')" position="bottom">
-                  <span class="float-left mx-1 mt-[2px]">
-                    <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
-                  </span>
-                </a-tooltip>
-              </span>
-            </a-form-item>
-          </div>
+        <a-form ref="pluginFormRef" :model="form" :style="{ width: '600px' }" layout="vertical">
+          <a-form-item field="pluginName" :label="t('system.plugin.name')" asterisk-position="end">
+            <a-input
+              v-model="form.name"
+              :max-length="250"
+              :placeholder="t('system.plugin.defaultJarNameTip')"
+              allow-clear
+            />
+            <span class="absolute right-0 top-1 flex items-center">
+              <span class="float-left text-[rgb(var(--primary-5))]">{{ t('system.plugin.getPlugin') }}</span>
+              <a-tooltip :content="t('system.plugin.infoTip')" position="bottom">
+                <span class="float-right ml-1 mt-[2px]">
+                  <IconQuestionCircle class="h-[16px] w-[16px] text-[--color-text-4]" />
+                </span>
+              </a-tooltip>
+            </span>
+          </a-form-item>
           <a-form-item
             field="global"
             :label="t('system.plugin.appOrganize')"
             asterisk-position="end"
             :rules="[{ required: true, message: 'must select one' }]"
           >
-            <a-radio-group v-model="form.global" size="small">
-              <a-radio :value="true">{{ t('system.plugin.allOrganize') }}</a-radio>
+            <a-radio-group v-model="form.global">
+              <a-radio :value="true"
+                >{{ t('system.plugin.allOrganize') }}
+                <span class="float-right mx-1 mt-[1px]">
+                  <a-tooltip :content="t('system.plugin.allOrganizeTip')" position="top">
+                    <IconQuestionCircle class="h-[16px] w-[16px] text-[--color-text-4]"
+                  /></a-tooltip> </span
+              ></a-radio>
               <a-radio :value="false">{{ t('system.plugin.theOrganize') }}</a-radio>
             </a-radio-group>
           </a-form-item>
@@ -51,12 +54,7 @@
             </a-select>
           </a-form-item>
           <a-form-item field="describe" :label="t('system.plugin.description')" asterisk-position="end">
-            <a-textarea
-              v-model="form.description"
-              size="small"
-              :placeholder="t('system.plugin.pluginDescription')"
-              allow-clear
-            />
+            <a-textarea v-model="form.description" :placeholder="t('system.plugin.pluginDescription')" allow-clear />
           </a-form-item>
         </a-form>
       </a-row>

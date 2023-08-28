@@ -104,4 +104,5 @@ export default {
   'system.plugin.databaseDriver': 'Database Driver',
   'system.plugin.deleteContentTip':
     'After deletion, the defects/requirements of the platform cannot be synchronized, and the historical data is automatically switched to other templates. Please exercise caution!',
+  'system.plugin.allOrganizeTip': 'This rule is common to new organizations',
 };

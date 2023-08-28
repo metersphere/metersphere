@@ -6,7 +6,7 @@
     :footer="false"
     @open="BeforeOpen"
   >
-    <template #title> {{ t(title as string) }} </template>
+    <template #title> {{ t('system.plugin.uploadPlugin') }} </template>
     <div class="flex w-full flex-col items-center justify-center">
       <div class="mb-5"><svg-icon :width="'60px'" :height="'60px'" :name="'success'" /></div>
       <div class="font-semibold">{{ t('system.plugin.uploadSuccess') }}</div>
@@ -36,26 +36,37 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
-  import { useDialog } from '@/hooks/useDialog';
+  import { ref, watch, watchEffect } from 'vue';
   import useVisit from '@/hooks/useVisit';
   import { useI18n } from '@/hooks/useI18n';
   import { useRouter } from 'vue-router';
 
-  const { t } = useI18n();
   const router = useRouter();
   const visitedKey = 'doNotShowAgain';
+  const { t } = useI18n();
   const { addVisited } = useVisit(visitedKey);
+
   const props = defineProps<{
     visible: boolean;
-    title?: string;
-    onOpen: (visible: boolean) => void;
   }>();
   const emits = defineEmits<{
     (event: 'update:visible', visible: boolean): void;
     (event: 'close'): void;
+    (event: 'openUploadModal'): void;
   }>();
-  const { dialogVisible } = useDialog(props, emits);
+
+  const dialogVisible = ref<boolean>(false);
+
+  watchEffect(() => {
+    dialogVisible.value = props.visible;
+  });
+
+  watch(
+    () => dialogVisible.value,
+    (val) => {
+      emits('update:visible', val);
+    }
+  );
   const isTip = ref(false);
   const countDown = ref<number>(5);
   const timer = ref<any>(null);
@@ -78,9 +89,10 @@
   watch(isTip, () => {
     isDoNotShowAgainChecked();
   });
+
   const continueAdd = () => {
     emits('close');
-    props.onOpen(true);
+    emits('openUploadModal');
   };
 </script>
 

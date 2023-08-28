@@ -83,4 +83,5 @@ export default {
   'system.plugin.pluginStatus': '插件状态',
   'system.plugin.databaseDriver': '数据库驱动',
   'system.plugin.deleteContentTip': '删除后，将无法同步该平台的缺陷/需求，历史数据自动切换为其它模板展示，请谨慎操作！',
+  'system.plugin.allOrganizeTip': '新建组织通用此规则',
 };
