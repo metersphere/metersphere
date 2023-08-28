@@ -14,6 +14,9 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.dto.UserBatchCreateDTO;
+import io.metersphere.system.dto.request.UserInviteRequest;
+import io.metersphere.system.dto.request.UserRegisterRequest;
+import io.metersphere.system.dto.response.UserInviteResponse;
 import io.metersphere.system.request.OrganizationMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.user.UserChangeEnableRequest;
@@ -175,5 +178,18 @@ public class UserController {
         organizationService.addMemberBySystem(request, SessionUtils.getUserId());
         userLogService.batchAddOrgLog(userRoleBatchRelationRequest, SessionUtils.getUserId());
         return new TableBatchProcessResponse(userRoleBatchRelationRequest.getSelectIds().size(), userRoleBatchRelationRequest.getSelectIds().size());
+    }
+
+    @PostMapping("/invite")
+    @Operation(summary = "系统设置-系统-用户-用户邀请")
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
+    public UserInviteResponse invite(@Validated @RequestBody UserInviteRequest request) {
+        return userService.saveInviteRecord(request, SessionUtils.getUser());
+    }
+
+    @PostMapping("/register-by-invite")
+    @Operation(summary = "系统设置-系统-用户-用户邀请")
+    public UserDTO registerByInvite(@Validated @RequestBody UserRegisterRequest request) {
+        return userService.registerByInvite(request);
     }
 }

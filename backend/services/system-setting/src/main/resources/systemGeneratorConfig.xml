@@ -69,29 +69,30 @@
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="auth_source"/>
-        <table tableName="license"/>
-        <table tableName="message_task"/>
-        <table tableName="message_task_blob"/>
-        <table tableName="notification"/>
-        <table tableName="novice_statistics"/>
-        <table tableName="operating_log"/>
-        <table tableName="operating_log_resource"/>
-        <table tableName="plugin"/>
-        <table tableName="plugin_script"/>
-        <table tableName="plugin_organization"/>
-        <table tableName="schedule"/>
-        <table tableName="service_integration"/>
-        <table tableName="system_parameter"/>
-        <table tableName="test_resource"/>
-        <table tableName="test_resource_pool"/>
-        <table tableName="user"/>
-        <table tableName="user_extend"/>
-        <table tableName="user_key"/>
-        <table tableName="user_role"/>
-        <table tableName="user_role_permission"/>
-        <table tableName="user_role_relation"/>
-        <table tableName="organization"/>
+        <table tableName="user_invite"/>
+        <!--        <table tableName="auth_source"/>-->
+        <!--        <table tableName="license"/>-->
+        <!--        <table tableName="message_task"/>-->
+        <!--        <table tableName="message_task_blob"/>-->
+        <!--        <table tableName="notification"/>-->
+        <!--        <table tableName="novice_statistics"/>-->
+        <!--        <table tableName="operating_log"/>-->
+        <!--        <table tableName="operating_log_resource"/>-->
+        <!--        <table tableName="plugin"/>-->
+        <!--        <table tableName="plugin_script"/>-->
+        <!--        <table tableName="plugin_organization"/>-->
+        <!--        <table tableName="schedule"/>-->
+        <!--        <table tableName="service_integration"/>-->
+        <!--        <table tableName="system_parameter"/>-->
+        <!--        <table tableName="test_resource"/>-->
+        <!--        <table tableName="test_resource_pool"/>-->
+        <!--        <table tableName="user"/>-->
+        <!--        <table tableName="user_extend"/>-->
+        <!--        <table tableName="user_key"/>-->
+        <!--        <table tableName="user_role"/>-->
+        <!--        <table tableName="user_role_permission"/>-->
+        <!--        <table tableName="user_role_relation"/>-->
+        <!--        <table tableName="organization"/>-->
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">

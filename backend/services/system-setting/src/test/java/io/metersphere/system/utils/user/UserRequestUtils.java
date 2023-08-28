@@ -39,8 +39,13 @@ public class UserRequestUtils {
     public static final String URL_ADD_PROJECT_MEMBER = "/system/user/add-project-member";
     public static final String URL_ADD_ORGANIZATION_MEMBER = "/system/user/add-org-member";
 
+    //用户邀请
+    public static final String URL_INVITE = "/system/user/invite";
+    //用户邀请
+    public static final String URL_INVITE_REGISTER = "/system/user/register-by-invite";
+
     private final MockMvc mockMvc;
-    private final String sessionId;
+    public final String sessionId;
     private final String csrfToken;
 
     public UserRequestUtils(MockMvc mockMvc, String sessionId, String csrfToken) {
@@ -48,6 +53,7 @@ public class UserRequestUtils {
         this.sessionId = sessionId;
         this.csrfToken = csrfToken;
     }
+
 
     //解析返回值
     public <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
