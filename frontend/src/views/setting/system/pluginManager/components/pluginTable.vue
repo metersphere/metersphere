@@ -450,4 +450,7 @@
   :deep(.arco-table-content + .arco-scrollbar-track-direction-vertical .arco-scrollbar-thumb-direction-vertical) {
     height: 0 !important;
   }
+  :deep(.arco-table-content + .arco-scrollbar-track-direction-horizontal .arco-scrollbar-thumb-direction-horizontal) {
+    width: 0 !important;
+  }
 </style>
