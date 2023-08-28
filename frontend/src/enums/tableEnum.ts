@@ -8,7 +8,6 @@ export enum TableModuleEnum {
 
 export enum TableKeyEnum {
   API_TEST = 'apiTest',
-  USERGROUPUSER = 'userGroupUser',
   SYSTEM_USER = 'systemUser',
   SYSTEM_RESOURCEPOOL = 'systemResourcePool',
   SYSTEM_AUTH = 'systemAuth',
@@ -16,6 +15,8 @@ export enum TableKeyEnum {
   SYSTEM_ORGANIZATION = 'systemOrganization',
   SYSTEM_PROJECT = 'systemProject',
   SYSTEM_LOG = 'systemLog',
+  ORGANIZATION_MEMBER = 'organizationMember',
+  ORGANIZATION_PROJECT = 'organizationProject',
 }
 
 // 具有特殊功能的列

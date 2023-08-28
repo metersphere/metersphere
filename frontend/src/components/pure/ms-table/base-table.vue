@@ -46,12 +46,12 @@
               class="flex flex-row flex-nowrap items-center"
             >
               <slot :name="item.titleSlotName">
-                <div class="title">{{ t(item.title as string) }}</div>
+                <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
               </slot>
               <ColumnSelector :table-key="(attrs.tableKey as string)" @close="handleColumnSelectorClose" />
             </div>
             <slot v-else :name="item.titleSlotName">
-              <div class="title">{{ t(item.title as string) }}</div>
+              <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
             </slot>
           </template>
           <template #cell="{ column, record, rowIndex }">
@@ -344,14 +344,8 @@
       line-height: 40px;
       cursor: pointer;
     }
-    .title {
-      color: var(--color-text-3);
-    }
     .batch-action {
       justify-content: flex-start;
-    }
-    .pop-title {
-      color: var(--color-text-1);
     }
     .ms-table-edit-active {
       color: rgb(var(--primary-5));

@@ -3,30 +3,30 @@
     <a-input-search
       class="w-[252px]"
       :placeholder="t('system.userGroup.searchHolder')"
+      allow-clear
       @press-enter="enterData"
       @search="searchData"
     />
     <div class="mt-2 flex flex-col">
       <div class="flex h-[38px] items-center px-[8px] leading-[24px]">
-        <div class="second-color"> {{ t('system.userGroup.global') }}</div>
+        <div class="text-[var(--color-text-input-border)]"> {{ t('system.userGroup.global') }}</div>
       </div>
       <div>
         <div
           v-for="element in globalUserGroupList"
           :key="element.id"
+          class="flex h-[38px] cursor-pointer items-center px-[8px]"
           :class="{
-            'flex': true,
-            'h-[38px]': true,
-            'items-center': true,
-            'px-[8px]': true,
-            'is-active': element.id === currentId,
+            'bg-[rgb(var(--primary-1))]': element.id === currentId,
           }"
           @click="handleListItemClick(element)"
         >
           <div class="flex grow flex-row">
-            <div class="usergroup-title leading-[24px]">
-              <span class="n1">{{ element.name }}</span>
-              <span v-if="element.type" class="n4">（{{ t(`system.userGroup.${element.type}`) }}）</span>
+            <div class="leading-[24px] text-[var(--color-text-1)]">
+              <span class="text-[var(--color-text-1)]">{{ element.name }}</span>
+              <span v-if="element.type" class="text-[var(--color-text-4)]"
+                >（{{ t(`system.userGroup.${element.type}`) }}）</span
+              >
             </div>
           </div>
         </div>
@@ -38,18 +38,21 @@
         :visible="addUserGroupVisible"
         :list="customUserGroupList"
         @cancel="handleAddUserGroupCancel"
+        @search="initData"
       >
         <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
-          <div class="second-color"> {{ t('system.userGroup.custom') }}</div>
-          <div class="primary-color"><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup" /></div>
+          <div class="text-[var(--color-text-input-border)]"> {{ t('system.userGroup.custom') }}</div>
+          <div class="cursor-pointer text-[rgb(var(--primary-5))]"
+            ><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup"
+          /></div>
         </div>
       </AddOrUpdateUserGroupPopup>
       <div>
         <div
           v-for="element in customUserGroupList"
           :key="element.id"
-          class="flex h-[38px] items-center px-[8px]"
-          :class="{ 'is-active': element.id === currentId }"
+          class="flex h-[38px] cursor-pointer items-center px-[8px]"
+          :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
           @click="handleListItemClick(element)"
         >
           <AddOrUpdateUserGroupPopup
@@ -59,10 +62,12 @@
             :list="customUserGroupList"
             @cancel="() => handlePopConfirmCancel(element.id)"
           >
-            <div class="draglist-item flex grow flex-row justify-between">
-              <div class="usergroup-title leading-[24px]">
-                <span class="n1">{{ element.name }}</span>
-                <span v-if="element.type" class="n4">（{{ t(`system.userGroup.${element.type}`) }}）</span>
+            <div class="flex grow flex-row justify-between">
+              <div class="leading-[24px] text-[var(--color-text-1)]">
+                <span class="text-[var(--color-text-1)]">{{ element.name }}</span>
+                <span v-if="element.type" class="text-[var(--color-text-4)]"
+                  >（{{ t(`system.userGroup.${element.type}`) }}）</span
+                >
               </div>
               <div v-if="element.id === currentId && !element.internal">
                 <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
@@ -171,7 +176,6 @@
   // 关闭创建用户组
   const handleAddUserGroupCancel = () => {
     addUserGroupVisible.value = false;
-    initData();
   };
   // 点击更多操作
   const handleMoreAction = (item: ActionsItem, id: string) => {
@@ -236,49 +240,3 @@
     initData();
   });
 </script>
-
-<style scoped lang="less">
-  .primary-color {
-    color: rgb(var(--primary-5));
-  }
-  .n1 {
-    color: var(--color-text-1);
-  }
-  .n4 {
-    color: var(--color-text-4);
-  }
-  .second-color {
-    color: var(--color-text-input-border);
-  }
-  .handle {
-    cursor: move;
-    opacity: 0.3;
-  }
-  .is-active {
-    background-color: rgb(var(--primary-1));
-  }
-  .custom-empty {
-    padding: 8px;
-    font-size: 12px;
-    font-family: 'PingFang SC';
-    font-weight: 400;
-    border-radius: 4px;
-    color: #8f959e;
-    background: #f7f9fc;
-    font-style: normal;
-    line-height: 20px;
-    overflow-wrap: break-word;
-  }
-  .button-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 24px;
-    height: 24px;
-    color: rgb(var(--primary-5));
-    background-color: rgb(var(--primary-9));
-  }
-  .usergroup-title {
-    color: var(--color-text-1);
-  }
-</style>

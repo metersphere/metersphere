@@ -14,6 +14,7 @@
           v-model:model-value="keyword"
           :placeholder="t('system.user.searchUser')"
           class="w-[230px]"
+          allow-clear
           @search="searchUser"
           @press-enter="searchUser"
         ></a-input-search>

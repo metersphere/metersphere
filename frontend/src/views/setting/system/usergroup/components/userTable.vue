@@ -5,6 +5,7 @@
       <MsRemoveButton
         :title="t('system.userGroup.removeName', { name: record.name })"
         :sub-title-tip="t('system.userGroup.removeTip')"
+        :loading="removeLoading"
         @ok="handleRemove(record)"
       />
     </template>
@@ -16,20 +17,18 @@
   import { useI18n } from '@/hooks/useI18n';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { useTableStore } from '@/store';
   import useUserGroupStore from '@/store/modules/setting/system/usergroup';
   import { watchEffect, ref } from 'vue';
   import { postUserByUserGroup, deleteUserFromUserGroup } from '@/api/modules/setting/usergroup';
   import { UserTableItem } from '@/models/setting/usergroup';
-  import { TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import AddUserModal from './addUserModal.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
 
   const { t } = useI18n();
   const store = useUserGroupStore();
-  const tableStore = useTableStore();
   const userVisible = ref(false);
+  const removeLoading = ref(false);
   const props = defineProps<{
     keyword: string;
   }>();
@@ -55,12 +54,9 @@
     },
   ];
 
-  tableStore.initColumn(TableKeyEnum.USERGROUPUSER, userGroupUsercolumns, 'drawer');
-
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserByUserGroup, {
-    tableKey: TableKeyEnum.USERGROUPUSER,
+    columns: userGroupUsercolumns,
     scroll: { x: '600px' },
-    selectable: true,
     noDisable: true,
   });
 
@@ -70,11 +66,14 @@
   };
   const handleRemove = async (record: UserTableItem) => {
     try {
+      removeLoading.value = true;
       await deleteUserFromUserGroup(record.id);
       await fetchData();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      removeLoading.value = false;
     }
   };
   const handleAddUser = () => {

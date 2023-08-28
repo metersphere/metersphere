@@ -6,6 +6,7 @@
         v-model="keyword"
         :placeholder="t('system.user.searchUser')"
         class="w-[240px]"
+        allow-clear
         @press-enter="fetchData"
         @search="fetchData"
       ></a-input-search>

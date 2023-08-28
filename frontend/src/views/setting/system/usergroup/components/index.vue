@@ -1,6 +1,7 @@
 <template>
   <div class="user-group-left">
     <a-input-search
+      allow-clear
       class="w-[252px]"
       :placeholder="t('system.userGroup.searchHolder')"
       @press-enter="enterData"
@@ -8,24 +9,22 @@
     />
     <div class="mt-2 flex flex-col">
       <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
-        <div class="second-color"> {{ t('system.userGroup.global') }}</div>
-        <div class="primary-color"><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup" /></div>
+        <div class="text-[var(--color-text-input-border)]"> {{ t('system.userGroup.global') }}</div>
+        <div class="cursor-pointer text-[rgb(var(--primary-5))]"
+          ><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup"
+        /></div>
       </div>
       <div>
         <div
           v-for="element in userGroupList"
           :key="element.id"
-          :class="{
-            'flex': true,
-            'h-[38px]': true,
-            'items-center': true,
-            'px-[8px]': true,
-            'is-active': element.id === currentId,
-          }"
+          class="flex h-[38px] cursor-pointer items-center px-[8px]"
+          :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
           @click="handleListItemClick(element)"
         >
           <popconfirm
             :visible="popVisible[element.id]"
+            :loading="popLoading[element.id]"
             :type="popType"
             :default-name="popDefaultName"
             :list="userGroupList"
@@ -34,9 +33,11 @@
             @submit="(value: CustomMoreActionItem) => handlePopConfirmSubmit(value,element.id)"
           >
             <div class="draglist-item flex grow flex-row justify-between">
-              <div class="usergroup-title leading-[24px]">
-                <span class="n1">{{ element.name }}</span>
-                <span v-if="element.type" class="n4">（{{ t(`system.userGroup.${element.type}`) }}）</span>
+              <div class="leading-[24px] text-[var(--color-text-1)]">
+                <span class="text-[var(--color-text-1)]">{{ element.name }}</span>
+                <span v-if="element.type" class="text-[var(--color-text-4)]"
+                  >（{{ t(`system.userGroup.${element.type}`) }}）</span
+                >
               </div>
               <div v-if="element.id === currentId && !element.internal">
                 <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
@@ -83,6 +84,7 @@
   const addUserGrouploading = ref(false);
   // 修改用户组名字，权限范围
   const popVisible = ref<PopVisibleItem>({});
+  const popLoading = ref<PopVisibleItem>({});
   // 用户组和权限范围的状态
   const popType = ref<RenameType>('rename');
   const popDefaultName = ref('');
@@ -94,11 +96,6 @@
       label: 'system.userGroup.rename',
       danger: false,
       eventTag: 'rename',
-    },
-    {
-      label: 'system.userGroup.changeAuthScope',
-      danger: false,
-      eventTag: 'changeAuthScope',
     },
     {
       isDivider: true,
@@ -135,7 +132,8 @@
         res.forEach((element) => {
           tmpObj[element.id] = false;
         });
-        popVisible.value = tmpObj;
+        popVisible.value = { ...tmpObj };
+        popLoading.value = { ...tmpObj };
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -192,6 +190,7 @@
     if (item.eventKey === 'rename') {
       // 修改用户组名字
       try {
+        popLoading.value = { ...popLoading.value, [id]: true };
         const res = await updateOrAddUserGroup({ id, name: item.name });
         if (res) {
           initData();
@@ -199,6 +198,8 @@
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
+      } finally {
+        popLoading.value = { ...popLoading.value, [id]: false };
       }
     } else {
       // 修改权限范围
@@ -256,50 +257,3 @@
     initData();
   });
 </script>
-
-<style scoped lang="less">
-  .primary-color {
-    color: rgb(var(--primary-5));
-  }
-  .n1 {
-    color: var(--color-text-1);
-  }
-  .n4 {
-    color: var(--color-text-4);
-  }
-  .second-color {
-    color: var(--color-text-input-border);
-  }
-  .handle {
-    cursor: move;
-    opacity: 0.3;
-  }
-  .is-active {
-    background-color: rgb(var(--primary-1));
-  }
-  .custom-empty {
-    padding: 8px;
-    font-size: 12px;
-    font-family: 'PingFang SC';
-    font-weight: 400;
-    border-radius: 4px;
-    color: #8f959e;
-    background: #f7f9fc;
-    font-style: normal;
-    line-height: 20px;
-    overflow-wrap: break-word;
-  }
-  .button-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 24px;
-    height: 24px;
-    color: rgb(var(--primary-5));
-    background-color: rgb(var(--primary-9));
-  }
-  .usergroup-title {
-    color: var(--color-text-1);
-  }
-</style>
-@/models/setting/usergroup @/api/modules/setting/usergroup @/store/modules/setting/system/usergroup

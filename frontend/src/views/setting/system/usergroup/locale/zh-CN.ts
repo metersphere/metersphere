@@ -2,6 +2,7 @@ export default {
   system: {
     userGroup: {
       addUserGroupSuccess: '添加用户组成功',
+      updateUserGroupSuccess: '更新用户组成功',
       global: '全局用户组',
       searchHolder: '请输入用户组名称',
       inSystem: '系统内置',

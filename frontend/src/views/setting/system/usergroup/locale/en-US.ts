@@ -2,6 +2,7 @@ export default {
   system: {
     userGroup: {
       addUserGroupSuccess: 'Add user group success',
+      updateUserGroupSuccess: 'Update user group success',
       searchHolder: 'Please input user group name',
       inSystem: 'In system',
       customUserGroup: 'Custom user group',

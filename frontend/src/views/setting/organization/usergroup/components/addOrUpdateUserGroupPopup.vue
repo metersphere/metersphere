@@ -58,6 +58,7 @@
   }>();
   const emit = defineEmits<{
     (e: 'cancel', value: boolean): void;
+    (e: 'search'): void;
   }>();
 
   const formRef = ref<FormInstance>();
@@ -104,7 +105,7 @@
           Message.success(
             props.id ? t('system.userGroup.updateUserGroupSuccess') : t('system.userGroup.addUserGroupSuccess')
           );
-          loading.value = false;
+          emit('search');
           handleCancel();
         }
       } catch (error) {
@@ -117,5 +118,6 @@
   };
   watchEffect(() => {
     currentVisible.value = props.visible;
+    form.name = props.defaultName || '';
   });
 </script>
