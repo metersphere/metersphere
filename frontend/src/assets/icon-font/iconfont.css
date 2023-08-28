@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1692250847167') format('woff2'), url('iconfont.woff?t=1692250847167') format('woff'),
-    url('iconfont.ttf?t=1692250847167') format('truetype'), url('iconfont.svg?t=1692250847167#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1693190889145') format('woff2'), url('iconfont.woff?t=1693190889145') format('woff'),
+    url('iconfont.ttf?t=1693190889145') format('truetype'), url('iconfont.svg?t=1693190889145#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,12 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-a-icon_file-jar_colorful_ash::before {
+  content: '\e753';
+}
+.icon-icon_git::before {
+  content: '\e752';
 }
 .icon-icon_time_axis::before {
   content: '\e751';

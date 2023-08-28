@@ -284,7 +284,7 @@
       title: 'system.user.tableColumnActions',
       slotName: 'action',
       fixed: 'right',
-      width: 80,
+      width: 90,
       showInTable: true,
     },
   ];

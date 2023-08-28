@@ -18,7 +18,7 @@ export const pathMap = [
     locale: 'menu.settings',
     route: RouteEnum.SETTING,
     permission: [],
-    level: MENU_LEVEL[0],
+    level: MENU_LEVEL[1], // 系统设置里有系统级别也有组织级别，按最低权限级别配置
     children: [
       {
         key: 'SETTING_SYSTEM', // 系统设置-系统

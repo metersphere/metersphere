@@ -89,7 +89,8 @@
         {{ t(typeOptions.find((e) => e.value === record.type)?.label || '') }}
       </template>
       <template #content="{ record }">
-        <MsButton @click="handleNameClick(record)">{{ record.content }}</MsButton>
+        <div v-if="record.module === 'SYSTEM'">{{ record.content }}</div>
+        <MsButton v-else @click="handleNameClick(record)">{{ record.content }}</MsButton>
       </template>
     </ms-base-table>
   </div>
@@ -130,6 +131,7 @@
   const { t } = useI18n();
   const appStore = useAppStore();
 
+  // 系统/组织/项目 三种级别的接口映射
   const requestFuncMap: Record<
     (typeof MENU_LEVEL)[number],
     {
@@ -158,6 +160,9 @@
   const operUser = ref(''); // 操作人
   const userList = ref<SelectOptionData[]>([]); // 操作人列表
 
+  /**
+   * 初始化用户选项列表
+   */
   async function initUserList() {
     try {
       const res = await requestFuncMap[props.mode].usersFunc(appStore.currentOrgId);
