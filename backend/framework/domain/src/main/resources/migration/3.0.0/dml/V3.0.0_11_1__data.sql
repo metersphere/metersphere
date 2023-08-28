@@ -34,6 +34,7 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'm
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_PARAMETER_SETTING_DISPLAY:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_PARAMETER_SETTING_AUTH:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_AUTH:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_LOG:READ');
 
 -- 组织管理员权限
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ');
@@ -62,6 +63,8 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'o
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_MEMBER:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'SYSTEM_SERVICE_INTEGRATION:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_PROJECT:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_LOG:READ');
+
 
 -- 项目管理员权限
 
