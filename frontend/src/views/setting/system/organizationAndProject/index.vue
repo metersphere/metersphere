@@ -12,6 +12,7 @@
         <a-input-search
           :placeholder="t('system.user.searchUser')"
           class="w-[240px]"
+          allow-clear
           @press-enter="handleEnter"
           @search="handleSearch"
         ></a-input-search>

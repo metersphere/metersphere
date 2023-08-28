@@ -5,6 +5,7 @@
     type="error"
     :title="props.title"
     :sub-title-tip="props.subTitleTip"
+    :loading="props.loading"
     @confirm="handleOk"
   >
     <MsButton>{{ t('common.remove') }}</MsButton>
@@ -19,6 +20,7 @@
   const props = defineProps<{
     title: string;
     subTitleTip: string;
+    loading?: boolean;
   }>();
 
   const emit = defineEmits<{

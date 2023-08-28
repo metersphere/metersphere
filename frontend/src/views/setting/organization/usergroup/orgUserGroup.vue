@@ -16,6 +16,7 @@
               v-if="currentTable === 'user'"
               :placeholder="t('system.user.searchUser')"
               class="w-[240px]"
+              allow-clear
               @press-enter="handleEnter"
               @search="handleSearch"
             ></a-input-search>
@@ -56,7 +57,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { useAppStore } from '@/store';
 
-  const currentTable = ref('auth');
+  const currentTable = ref('user');
 
   const { t } = useI18n();
   const currentKeyword = ref('');

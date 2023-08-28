@@ -16,19 +16,17 @@
   import { useI18n } from '@/hooks/useI18n';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { useTableStore, useAppStore } from '@/store';
+  import { useAppStore } from '@/store';
   import useUserGroupStore from '@/store/modules/setting/organization/usergroup';
-  import { watchEffect, ref, watch, computed } from 'vue';
+  import { watchEffect, ref, computed } from 'vue';
   import { postOrgUserByUserGroup, deleteOrgUserFromUserGroup } from '@/api/modules/setting/usergroup';
   import { UserTableItem } from '@/models/setting/usergroup';
-  import { TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import AddUserModal from './addUserModal.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
 
   const { t } = useI18n();
   const store = useUserGroupStore();
-  const tableStore = useTableStore();
   const appStore = useAppStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
   const userVisible = ref(false);
@@ -57,13 +55,13 @@
     },
   ];
 
-  tableStore.initColumn(TableKeyEnum.USERGROUPUSER, userGroupUsercolumns, 'drawer');
-
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postOrgUserByUserGroup, {
-    tableKey: TableKeyEnum.USERGROUPUSER,
-    scroll: { x: '600px' },
-    selectable: true,
-    noDisable: true,
+    columns: userGroupUsercolumns,
+    scroll: { y: 'auto', x: '600px' },
+    selectable: false,
+    noDisable: false,
+    size: 'default',
+    showSetting: false,
   });
 
   const fetchData = async () => {

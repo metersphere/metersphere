@@ -15,6 +15,7 @@
           v-model="searchKeys.name"
           :max-length="250"
           :placeholder="t('system.plugin.searchPlugin')"
+          allow-clear
           @search="searchHandler"
           @press-enter="searchHandler"
         ></a-input-search>

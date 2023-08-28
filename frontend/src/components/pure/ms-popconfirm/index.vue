@@ -1,5 +1,11 @@
 <template>
-  <a-popconfirm v-bind="attrs" :type="props.type" class="w-[352px]" @before-ok="handleConfirm">
+  <a-popconfirm
+    v-bind="attrs"
+    :type="props.type"
+    class="w-[352px]"
+    :ok-loading="props.loading"
+    @before-ok="handleConfirm"
+  >
     <template v-if="props.type === 'error'" #icon>
       <MsIcon type="icon-icon_warning_filled" class="mr-[2px] text-xl text-[rgb(var(--danger-6))]" />
     </template>
@@ -26,6 +32,7 @@
       title: string;
       subTitleTip: string;
       type: types;
+      loading?: boolean;
     }>(),
     {
       type: 'warning',

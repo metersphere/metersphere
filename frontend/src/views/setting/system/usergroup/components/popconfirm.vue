@@ -3,6 +3,7 @@
     :popup-visible="renameVisible"
     :ok-text="t('system.userGroup.confirm')"
     :cancel-text="t('system.userGroup.cancel')"
+    :ok-loading="props.loading"
     @before-ok="handleSubmit"
     @cancel="handleCancel"
     @popup-visible-change="() => (form.name = '')"
@@ -44,6 +45,7 @@
     defaultName: string;
     type: RenameType;
     list: UserGroupItem[];
+    loading: boolean;
   }>();
 
   const validateName = (value: string | undefined, callback: (error?: string) => void) => {
