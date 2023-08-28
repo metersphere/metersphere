@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.project.mapper.ExtProjectMemberMapper">
+    <select id="listMember" resultType="java.lang.String">
+        select distinct u.id
+        from user_role_relation urr
+        join `user` u on urr.user_id = u.id
+        <where>
+            urr.source_id = #{request.projectId} and u.deleted = 0
+            <if test="request.keyword != null and request.keyword != ''">
+                and (u.name like CONCAT('%', #{request.keyword},'%')
+                or u.email like CONCAT('%', #{request.keyword},'%')
+                or u.phone like CONCAT('%', #{request.keyword},'%'))
+            </if>
+        </where>
+    </select>
+</mapper>
