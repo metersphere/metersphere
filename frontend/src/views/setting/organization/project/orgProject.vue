@@ -122,9 +122,6 @@
     {
       title: 'system.organization.subordinateOrg',
       dataIndex: 'organizationName',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-      },
     },
     {
       title: 'system.organization.creator',
@@ -135,6 +132,10 @@
       title: 'system.organization.createTime',
       dataIndex: 'createTime',
       width: 230,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'system.organization.operation',

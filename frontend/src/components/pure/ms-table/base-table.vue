@@ -12,7 +12,9 @@
       :row-class="getRowClass"
       :selected-keys="props.selectedKeys"
       :span-method="spanMethod"
+      :columns="currentColumns"
       @selection-change="(e) => selectionChange(e, true)"
+      @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
     >
       <template #optional="{ rowIndex, record }">
         <slot name="optional" v-bind="{ rowIndex, record }" />
@@ -39,12 +41,18 @@
           :tooltip="item.tooltip"
         >
           <template #title>
-            <div v-if="attrs.showSetting && idx === currentColumns.length - 1" class="column-selector">
-              <div class="title">{{ t(item.title as string) }}</div>
+            <div
+              v-if="props.showSetting && idx === currentColumns.length - 1"
+              class="flex flex-row flex-nowrap items-center"
+            >
+              <slot :name="item.titleSlotName">
+                <div class="title">{{ t(item.title as string) }}</div>
+              </slot>
               <ColumnSelector :table-key="(attrs.tableKey as string)" @close="handleColumnSelectorClose" />
             </div>
-            <slot v-else-if="item.titleSlotName" :name="item.titleSlotName" />
-            <div v-else class="title">{{ t(item.title as string) }}</div>
+            <slot v-else :name="item.titleSlotName">
+              <div class="title">{{ t(item.title as string) }}</div>
+            </slot>
           </template>
           <template #cell="{ column, record, rowIndex }">
             <div class="flex flex-row flex-nowrap items-center" :class="item.isTag ? 'max-w-[360px]' : 'max-w-[300px]'">
@@ -153,6 +161,7 @@
     (e: 'pageChange', value: number): void;
     (e: 'pageSizeChange', value: number): void;
     (e: 'rowNameChange', value: TableData): void;
+    (e: 'sorterChange', value: { [key: string]: string }): void;
   }>();
   const isSelectAll = ref(false);
   const attrs = useAttrs();
@@ -209,6 +218,7 @@
     }
     currentColumns.value = tmpArr;
   };
+
   // 选择公共执行方法
   const selectionChange = (arr: (string | number)[], setCurrentSelect: boolean, isAll = false) => {
     setSelectAllTotal(isAll);
@@ -268,6 +278,24 @@
     editActiveKey.value = -1;
   };
 
+  // 排序change事件
+  const handleSortChange = (dataIndex: string, direction: string) => {
+    const regex = /^__arco_data_index_(\d+)$/;
+    const match = dataIndex.match(regex);
+    const lastDigit = match && (match[1] as unknown as number);
+    if (lastDigit) {
+      dataIndex = currentColumns.value[lastDigit].dataIndex as string;
+    }
+    let sortOrder = '';
+    if (direction === 'ascend') {
+      sortOrder = 'asc';
+    } else if (direction === 'descend') {
+      sortOrder = 'desc';
+    }
+
+    emit('sorterChange', sortOrder ? { [dataIndex]: sortOrder } : {});
+  };
+
   // 编辑单元格的input
   const handleEdit = (rowIndex: number) => {
     editActiveKey.value = rowIndex;
@@ -315,11 +343,6 @@
       border-radius: 2px;
       line-height: 40px;
       cursor: pointer;
-    }
-    .column-selector {
-      display: flex;
-      flex-flow: row nowrap;
-      align-items: center;
     }
     .title {
       color: var(--color-text-3);
