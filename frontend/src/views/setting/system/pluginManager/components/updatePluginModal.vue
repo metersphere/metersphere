@@ -13,7 +13,13 @@
         </a-form-item>
         <a-form-item field="global" :label="t('system.plugin.appOrganize')" asterisk-position="end">
           <a-radio-group v-model="form.global">
-            <a-radio :value="true">{{ t('system.plugin.allOrganize') }}</a-radio>
+            <a-radio :value="true"
+              >{{ t('system.plugin.allOrganize')
+              }}<span class="float-right mx-1 mt-[1px]">
+                <a-tooltip :content="t('system.plugin.allOrganizeTip')" position="top">
+                  <IconQuestionCircle class="h-[16px] w-[16px] text-[--color-text-4]"
+                /></a-tooltip> </span
+            ></a-radio>
             <a-radio :value="false">{{ t('system.plugin.theOrganize') }}</a-radio>
           </a-radio-group>
         </a-form-item>

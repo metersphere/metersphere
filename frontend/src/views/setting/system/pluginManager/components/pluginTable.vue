@@ -24,7 +24,7 @@
       <a-table
         :data="filterData"
         :pagination="false"
-        :scroll="{ y: 360, x: 2000, maxHeight: 200 }"
+        :scroll="{ y: 380, x: 2000, maxHeight: 200 }"
         :expandable="expandable"
         :loading="loading"
         row-key="id"
@@ -146,7 +146,7 @@
       </a-table>
     </div>
     <div class="ms-footerNum"
-      >{{ t('system.plugin.totalNum') }}<span class="mx-2">{{ totalNum }}</span
+      >{{ t('system.plugin.totalNum') }}<span class="mx-2 text-[rgb(var(--primary-5))]">{{ totalNum }}</span
       >{{ t('system.plugin.dataList') }}</div
     >
     <UploadModel
@@ -160,6 +160,11 @@
       v-model:visible="updateVisible"
       :organize-list="organizeList"
       @success="loadData()"
+    />
+    <UploadSuccessModal
+      v-model:visible="uploadSuccessVisible"
+      @open-upload-modal="uploadPlugin()"
+      @close="closeHandler"
     />
     <scriptDetailDrawer v-model:visible="showDrawer" :value="detailYaml" :config="config" :read-only="true" />
   </div>
@@ -175,20 +180,12 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import UploadModel from './uploadModel.vue';
   import UpdatePluginModal from './updatePluginModal.vue';
-  import uploadSuccessModal from './uploadSuccessModal.vue';
+  import UploadSuccessModal from './uploadSuccessModal.vue';
   import scriptDetailDrawer from './scriptDetailDrawer.vue';
-  import { useCommandComponent } from '@/hooks/useCommandComponent';
   import useModal from '@/hooks/useModal';
   import { Message, TableData, SelectOptionData } from '@arco-design/web-vue';
   import useVisit from '@/hooks/useVisit';
-  import type {
-    PluginForms,
-    PluginList,
-    PluginItem,
-    Options,
-    DrawerConfig,
-    UpdatePluginModel,
-  } from '@/models/setting/plugin';
+  import type { PluginForms, PluginList, PluginItem, DrawerConfig, UpdatePluginModel } from '@/models/setting/plugin';
   import dayjs from 'dayjs';
   import TableExpand from './tableExpand.vue';
   import { characterLimit } from '@/utils';
@@ -242,6 +239,7 @@
   const uploadVisible = ref<boolean>(false);
   const updateVisible = ref<boolean>(false);
   const updateModalRef = ref();
+
   const getTime = (time: string): string => {
     return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
   };
@@ -316,25 +314,22 @@
     updateVisible.value = true;
     updateModalRef.value.open(record);
   }
-  const myUploadSuccessDialog = useCommandComponent(uploadSuccessModal);
-  const uploadSuccessOptions = reactive({
-    title: 'system.plugin.uploadPlugin',
-    visible: false,
-    onOpen: () => uploadPlugin(),
-    onClose: () => {
-      myUploadSuccessDialog.close();
-    },
-  });
-  const dialogOpen = (options: Options) => {
-    options.visible = true;
-    myUploadSuccessDialog(uploadSuccessOptions);
+
+  const uploadSuccessVisible = ref<boolean>(false);
+
+  const dialogSuccessOpen = () => {
+    uploadSuccessVisible.value = true;
+  };
+  const closeHandler = () => {
+    uploadSuccessVisible.value = false;
   };
   const okHandler = () => {
     const isOpen = getIsVisited();
     if (!isOpen) {
-      dialogOpen(uploadSuccessOptions);
+      dialogSuccessOpen();
     }
   };
+
   const disableHandler = (record: PluginItem) => {
     openModal({
       type: 'info',

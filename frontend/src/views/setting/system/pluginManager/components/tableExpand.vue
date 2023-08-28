@@ -8,7 +8,7 @@
   >
     <div class="ms-scroll">
       <div v-for="(item, index) in record.pluginForms" :key="item.id" class="ms-self"
-        ><span class="circle"> {{ index + 1 }} </span
+        ><span class="circle text-xs leading-[16px]"> {{ index + 1 }} </span
         ><span class="cursor-pointer text-[rgb(var(--primary-6))]" @click="emit('MessageEvent', record, item)">{{
           item.name
         }}</span></div
@@ -36,9 +36,11 @@
     width: 100%;
   }
   .circle {
+    width: 16px;
+    height: 16px;
     color: var(--color-text-3);
     background: var(--color-fill-3);
-    @apply ml-6 mr-10 inline-block h-4 w-4 text-center text-xs leading-4;
+    @apply ml-6 mr-10 text-center;
   }
   :deep(.arco-table-tr-expand .arco-table-cell) {
     padding: 0 !important;

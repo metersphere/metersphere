@@ -58,7 +58,9 @@
               >
             </li>
             <li>
-              <MsButton @click="authChecking">{{ t('system.authorized.authorityChecking') }}</MsButton>
+              <MsButton class="font-medium" @click="authChecking">{{
+                t('system.authorized.authorityChecking')
+              }}</MsButton>
             </li>
           </ul>
         </div>
@@ -228,6 +230,9 @@
           @apply flex justify-between;
           div {
             width: 100px;
+            span {
+              font-weight: 500;
+            }
           }
         }
       }
