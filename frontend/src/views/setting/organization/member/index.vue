@@ -9,6 +9,7 @@
       <a-input-search
         v-model="keyword"
         :max-length="250"
+        allow-clear
         :placeholder="t('organization.member.searchMember')"
         class="w-[230px]"
         @search="searchHandler"
@@ -304,7 +305,7 @@
     },
   ];
   // 添加到项目和用户组
-  const addProjectOrAddUserGroup = (target: string[], type: string) => {
+  const addProjectOrAddUserGroup = async (target: string[], type: string) => {
     const currentType = batchList.find((item) => item.type === type);
     const params: BatchAddProjectModel = {
       organizationId: lastOrganizationId,
@@ -315,7 +316,8 @@
     } else {
       params.userRoleIds = target;
     }
-    if (currentType) batchModalRef.value.batchRequestFun(currentType.request, params);
+    if (currentType) await batchModalRef.value.batchRequestFun(currentType.request, params);
+    loadList();
   };
   // 批量操作
   const handleTableBatch = (actionItem: any) => {
