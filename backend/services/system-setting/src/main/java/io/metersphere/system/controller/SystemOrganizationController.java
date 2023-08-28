@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * @author song-cc-rock
  */
-@Tag(name = "系统-组织")
+@Tag(name = "系统设置-系统-组织与项目-组织")
 @RestController
 @RequestMapping("/system/organization")
 public class SystemOrganizationController {
@@ -48,7 +48,7 @@ public class SystemOrganizationController {
     private OrganizationService organizationService;
 
     @PostMapping("/list")
-    @Operation(summary = "获取组织列表")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-获取组织列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public Pager<List<OrganizationDTO>> list(@Validated @RequestBody OrganizationRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -57,14 +57,14 @@ public class SystemOrganizationController {
     }
 
     @PostMapping("/option/all")
-    @Operation(summary = "获取系统所有组织下拉选项")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-获取系统所有组织下拉选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public List<OptionDTO> listAll() {
         return organizationService.listAll();
     }
 
     @PostMapping("/list-member")
-    @Operation(summary = "获取组织成员")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-获取组织成员列表")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ})
     public Pager<List<UserExtend>> listMember(@Validated @RequestBody OrganizationRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
@@ -72,14 +72,14 @@ public class SystemOrganizationController {
     }
 
     @PostMapping("/add-member")
-    @Operation(summary = "添加组织成员")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-添加组织成员")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD)
     public void addMember(@Validated @RequestBody OrganizationMemberRequest request) {
         organizationService.addMemberBySystem(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/remove-member/{organizationId}/{userId}")
-    @Operation(summary = "删除组织成员")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-删除组织成员")
     @Parameters({
             @Parameter(name = "organizationId", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
             @Parameter(name = "userId", description = "成员ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
@@ -90,14 +90,14 @@ public class SystemOrganizationController {
     }
 
     @GetMapping("/default")
-    @Operation(summary = "获取系统默认组织")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-获取系统默认组织")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public OrganizationDTO getDefault() {
         return organizationService.getDefault();
     }
 
     @PostMapping("/list-project")
-    @Operation(summary = "获取组织下的项目列表")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-获取组织下的项目列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public Pager<List<ProjectDTO>> listProject(@Validated @RequestBody OrganizationProjectRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -108,14 +108,14 @@ public class SystemOrganizationController {
     }
 
     @GetMapping("/total")
-    @Operation(summary = "获取组织和项目总数")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-获取组织和项目总数")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public Map<String, Long> getTotal(@RequestParam(value = "organizationId",required = false) String organizationId) {
         return organizationService.getTotal(organizationId);
     }
 
     @GetMapping("/get-option/{sourceId}")
-    @Operation(summary = "系统-组织及项目, 获取成员抽屉下拉用户选项")
+    @Operation(summary = "系统设置-系统-组织与项目-获取成员下拉选项")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ})
     @Parameter(name = "sourceId", description = "组织ID或项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public List<UserExtend> getMemberOption(@PathVariable String sourceId) {
