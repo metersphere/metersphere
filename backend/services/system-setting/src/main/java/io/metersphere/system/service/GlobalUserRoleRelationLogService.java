@@ -10,15 +10,12 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
-import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
-import io.metersphere.system.request.user.UserRoleBatchRelationRequest;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,10 +31,6 @@ public class GlobalUserRoleRelationLogService {
     private BaseUserMapper baseUserMapper;
     @Resource
     private UserRoleMapper userRoleMapper;
-    @Resource
-    private UserService userService;
-    @Resource
-    private UserToolService userToolService;
 
     /**
      * 添加接口日志
@@ -54,37 +47,12 @@ public class GlobalUserRoleRelationLogService {
                 OperationLogConstants.SYSTEM,
                 userRole.getId(),
                 null,
-                OperationLogType.ADD.name(),
-                OperationLogModule.SYSTEM_USER_ROLE_RELATION,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.SETTING_SYSTEM_USER_GROUP,
                 userRole.getName());
 
         dto.setOriginalValue(JSON.toJSONBytes(users));
         return dto;
-    }
-
-    public List<LogDTO> batchAddLog(UserRoleBatchRelationRequest request) {
-        UserRoleExample example = new UserRoleExample();
-        example.createCriteria().andIdIn(request.getRoleIds());
-        List<UserRole> userRoles = userRoleMapper.selectByExample(example);
-        List<String> userIds = userToolService.getBatchUserIds(request);
-        List<OptionDTO> users = baseUserMapper.selectUserOptionByIds(userIds);
-
-        List<LogDTO> returnList = new ArrayList<>();
-        for (UserRole userRole : userRoles) {
-            LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
-                    userRole.getId(),
-                    null,
-                    OperationLogType.ADD.name(),
-                    OperationLogModule.SYSTEM_USER_ROLE_RELATION,
-                    userRole.getName());
-
-            dto.setOriginalValue(JSON.toJSONBytes(users));
-            returnList.add(dto);
-
-        }
-        return returnList;
     }
 
     /**
@@ -101,8 +69,8 @@ public class GlobalUserRoleRelationLogService {
                 OperationLogConstants.SYSTEM,
                 userRole.getId(),
                 null,
-                OperationLogType.DELETE.name(),
-                OperationLogModule.SYSTEM_USER_ROLE_RELATION,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.SETTING_SYSTEM_USER_GROUP,
                 userRole.getName());
 
         UserDTO userDTO = baseUserMapper.selectById(userRoleRelation.getUserId());

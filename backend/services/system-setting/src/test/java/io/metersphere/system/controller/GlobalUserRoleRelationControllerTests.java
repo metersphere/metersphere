@@ -122,7 +122,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         addUserRoleRelation = userRoleRelations.get(0);
 
         // @@校验日志
-        checkLog(addUserRoleRelation.getRoleId(), OperationLogType.ADD);
+        checkLog(addUserRoleRelation.getRoleId(), OperationLogType.UPDATE);
 
         // @@重复添加校验
         request.setUserIds(Arrays.asList(ADMIN.getValue()));
@@ -182,7 +182,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         Assertions.assertNull(userRoleRelation);
 
         // @@校验日志
-        checkLog(addUserRoleRelation.getRoleId(), OperationLogType.DELETE);
+        checkLog(addUserRoleRelation.getRoleId(), OperationLogType.UPDATE);
 
         // @@操作非系统级别用户组异常
         assertErrorCode(this.requestGet(DEFAULT_DELETE, getNonSystemUserRoleRelation().getId()),
