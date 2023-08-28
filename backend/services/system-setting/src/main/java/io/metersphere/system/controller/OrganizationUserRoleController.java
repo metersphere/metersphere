@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * @author song-cc-rock
  */
-@Tag(name = "组织-用户组与权限")
+@Tag(name = "系统设置-组织-用户组")
 @RestController
 @RequestMapping("/user/role/organization")
 public class OrganizationUserRoleController {
@@ -42,7 +42,7 @@ public class OrganizationUserRoleController {
     OrganizationUserRoleService organizationUserRoleService;
 
     @GetMapping("/list/{organizationId}")
-    @Operation(summary = "获取组织用户组列表")
+    @Operation(summary = "系统设置-组织-用户组-获取用户组列表")
     @Parameter(name = "organizationId", description = "当前组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ)
     public List<UserRole> list(@PathVariable String organizationId) {
@@ -50,7 +50,7 @@ public class OrganizationUserRoleController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "添加组织用户组")
+    @Operation(summary = "系统设置-组织-用户组-添加用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public UserRole add(@Validated @RequestBody OrganizationUserRoleEditRequest request) {
@@ -61,7 +61,7 @@ public class OrganizationUserRoleController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "修改组织用户组")
+    @Operation(summary = "系统设置-组织-用户组-修改用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public UserRole update(@Validated @RequestBody OrganizationUserRoleEditRequest request) {
@@ -71,7 +71,7 @@ public class OrganizationUserRoleController {
     }
 
     @GetMapping("/delete/{id}")
-    @Operation(summary = "删除组织用户组")
+    @Operation(summary = "系统设置-组织-用户组-删除用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_DELETE)
     @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = OrganizationUserRoleLogService.class)
@@ -80,7 +80,7 @@ public class OrganizationUserRoleController {
     }
 
     @GetMapping("/permission/setting/{id}")
-    @Operation(summary = "获取组织用户组对应的权限配置")
+    @Operation(summary = "系统设置-组织-用户组-获取用户组对应的权限配置")
     @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ)
     public List<PermissionDefinitionItem> getPermissionSetting(@PathVariable String id) {
@@ -88,7 +88,7 @@ public class OrganizationUserRoleController {
     }
 
     @PostMapping("/permission/update")
-    @Operation(summary = "编辑组织用户组对应的权限配置")
+    @Operation(summary = "系统设置-组织-用户组-修改用户组对应的权限配置")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePermissionSettingLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
@@ -96,14 +96,14 @@ public class OrganizationUserRoleController {
     }
 
     @GetMapping("/get-member/option/{organizationId}/{roleId}")
-    @Operation(summary = "获取组织用户组-成员下拉选项")
+    @Operation(summary = "系统设置-组织-用户组-获取成员下拉选项")
     @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_USER_ROLE_READ})
     public List<UserExtend> getMember(@PathVariable String organizationId, @PathVariable String roleId) {
         return organizationUserRoleService.getMember(organizationId, roleId);
     }
 
     @PostMapping("/list-member")
-    @Operation(summary = "获取组织用户组-成员")
+    @Operation(summary = "系统设置-组织-用户组-获取成员列表")
     @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_USER_ROLE_READ})
     public Pager<List<User>> listMember(@Validated @RequestBody OrganizationUserRoleMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
@@ -111,7 +111,7 @@ public class OrganizationUserRoleController {
     }
 
     @PostMapping("/add-member")
-    @Operation(summary = "添加组织用户组成员")
+    @Operation(summary = "系统设置-组织-用户组-添加用户组成员")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.editMemberLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public void addMember(@Validated @RequestBody OrganizationUserRoleMemberEditRequest request) {
@@ -119,7 +119,7 @@ public class OrganizationUserRoleController {
     }
 
     @PostMapping("/remove-member")
-    @Operation(summary = "删除组织用户组成员")
+    @Operation(summary = "系统设置-组织-用户组-删除用户组成员")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.editMemberLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public void removeMember(@Validated @RequestBody OrganizationUserRoleMemberEditRequest request) {
