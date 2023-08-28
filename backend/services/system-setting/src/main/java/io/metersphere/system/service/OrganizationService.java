@@ -548,10 +548,14 @@ public class OrganizationService {
 
     private void updateProjectUserRelation(String createUserId, String organizationId, String memberId, List<String> projectIds, SqlSession sqlSession, List<LogDTO> logDTOList) {
         Map<String, Project> projectMap = checkProjectExist(projectIds, organizationId);
-        List<String> projectInDBInOrgIds = projectMap.values().stream().map(Project::getId).collect(Collectors.toList());
+        List<String> projectInDBInOrgIds = projectMap.values().stream().map(Project::getId).toList();
         //删除旧的关系
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andOrganizationIdEqualTo(organizationId);
+        List<Project> projects = projectMapper.selectByExample(projectExample);
+        List<String> projectIdsAll = projects.stream().map(Project::getId).toList();
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
-        userRoleRelationExample.createCriteria().andUserIdEqualTo(memberId).andSourceIdIn(projectInDBInOrgIds);
+        userRoleRelationExample.createCriteria().andUserIdEqualTo(memberId).andSourceIdIn(projectIdsAll);
         userRoleRelationMapper.deleteByExample(userRoleRelationExample);
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         projectInDBInOrgIds.forEach(projectId -> {
