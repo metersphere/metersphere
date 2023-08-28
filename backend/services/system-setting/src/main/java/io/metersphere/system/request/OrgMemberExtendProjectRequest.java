@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class OrgMemberExtendProjectRequest extends OrganizationMemberRequest{
+public class OrgMemberExtendProjectRequest extends OrganizationMemberRequestByOrg{
 
     /**
      * 项目ID集合

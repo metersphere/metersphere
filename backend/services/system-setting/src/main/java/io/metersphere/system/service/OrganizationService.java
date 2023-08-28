@@ -315,7 +315,7 @@ public class OrganizationService {
     public void addMemberByOrg(OrganizationMemberExtendRequest organizationMemberExtendRequest, String createUserId) {
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
         checkOrgExistById(organizationId);
-        Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getUserIds());
+        Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getMemberIds());
         Map<String, UserRole> userRoleMap = checkUseRoleExist(organizationMemberExtendRequest.getUserRoleIds(), organizationId);
         setRelationByMemberAndGroupIds(organizationMemberExtendRequest, createUserId, userMap, userRoleMap, true);
     }
@@ -325,7 +325,7 @@ public class OrganizationService {
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         List<LogDTO> logDTOList = new ArrayList<>();
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
-        organizationMemberExtendRequest.getUserIds().forEach(memberId -> {
+        organizationMemberExtendRequest.getMemberIds().forEach(memberId -> {
             if (userMap.get(memberId) == null) {
                 throw new MSException("id:" + memberId + Translator.get("user.not.exist"));
             }
@@ -376,7 +376,7 @@ public class OrganizationService {
     public void addMemberRole(OrganizationMemberExtendRequest organizationMemberExtendRequest, String userId) {
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
         checkOrgExistById(organizationId);
-        Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getUserIds());
+        Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getMemberIds());
         Map<String, UserRole> userRoleMap = checkUseRoleExist(organizationMemberExtendRequest.getUserRoleIds(), organizationId);
         //在新增组织成员与用户组和组织的关系
         setRelationByMemberAndGroupIds(organizationMemberExtendRequest, userId, userMap, userRoleMap, false);
@@ -390,7 +390,7 @@ public class OrganizationService {
         List<LogDTO> logDTOList = new ArrayList<>();
         List<String> projectIds = orgMemberExtendProjectRequest.getProjectIds();
         //用户不在当前组织内过掉
-        Map<String, User> userMap = checkUserExist(orgMemberExtendProjectRequest.getUserIds());
+        Map<String, User> userMap = checkUserExist(orgMemberExtendProjectRequest.getMemberIds());
         List<String> userIds = userMap.values().stream().map(User::getId).toList();
         userIds.forEach(memberId -> {
             projectIds.forEach(projectId -> {

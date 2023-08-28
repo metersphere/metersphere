@@ -56,7 +56,7 @@ public class OrganizationControllerTests extends BaseTest {
     public void addMemberByOrgSuccess() throws Exception {
         OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
         organizationMemberRequest.setOrganizationId("sys_default_organization_3");
-        organizationMemberRequest.setUserIds(Arrays.asList("sys_default_user", "sys_default_user2"));
+        organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user", "sys_default_user2"));
         organizationMemberRequest.setUserRoleIds(Arrays.asList("sys_default_org_role_id_3", "sys_default_project_role_id_1"));
         this.requestPost(ORGANIZATION_LIST_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
@@ -127,7 +127,7 @@ public class OrganizationControllerTests extends BaseTest {
     public void updateOrgMemberSuccessWithNoSysProjectIds() throws Exception {
         OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
         organizationMemberRequest.setOrganizationId("sys_default_organization_7");
-        organizationMemberRequest.setUserIds(Arrays.asList("sys_default_user", "sys_default_user2"));
+        organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user", "sys_default_user2"));
         organizationMemberRequest.setUserRoleIds(Arrays.asList("sys_default_org_role_id_7", "sys_default_project_role_id_8"));
         this.requestPost(ORGANIZATION_LIST_ADD_MEMBER, organizationMemberRequest, status().isOk());
 
@@ -180,7 +180,7 @@ public class OrganizationControllerTests extends BaseTest {
     public void updateOrgMemberToRoleSuccess() throws Exception {
         OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
         organizationMemberRequest.setOrganizationId("sys_default_organization_3");
-        organizationMemberRequest.setUserIds(Arrays.asList("sys_default_user", "sys_default_user2"));
+        organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user", "sys_default_user2"));
         organizationMemberRequest.setUserRoleIds(List.of("sys_default_org_role_id_4"));
         this.requestPost(ORGANIZATION_UPDATE_MEMBER_TO_ROLE, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
@@ -221,7 +221,7 @@ public class OrganizationControllerTests extends BaseTest {
     public void addOrgMemberToProjectSuccess() throws Exception {
         OrgMemberExtendProjectRequest organizationMemberRequest = new OrgMemberExtendProjectRequest();
         organizationMemberRequest.setOrganizationId("sys_default_organization_3");
-        organizationMemberRequest.setUserIds(Arrays.asList("sys_default_user", "sys_default_user2"));
+        organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user", "sys_default_user2"));
         organizationMemberRequest.setProjectIds(Arrays.asList("sys_org_projectId2", "sys_org_projectId3"));
         this.requestPost(ORGANIZATION_PROJECT_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
@@ -516,7 +516,7 @@ public class OrganizationControllerTests extends BaseTest {
     private void addOrganizationMemberError(String url, String organizationId, List<String> userIds, List<String> userGroupIds, ResultMatcher resultMatcher) throws Exception {
         OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
         organizationMemberRequest.setOrganizationId(organizationId);
-        organizationMemberRequest.setUserIds(userIds);
+        organizationMemberRequest.setMemberIds(userIds);
         organizationMemberRequest.setUserRoleIds(userGroupIds);
         this.requestPost(url, organizationMemberRequest, resultMatcher);
     }
@@ -534,7 +534,7 @@ public class OrganizationControllerTests extends BaseTest {
     private void addOrUpdateOrganizationProjectMemberError(String url, String organizationId, List<String> userIds, List<String> projectIds, ResultMatcher resultMatcher) throws Exception {
         OrgMemberExtendProjectRequest organizationMemberRequest = new OrgMemberExtendProjectRequest();
         organizationMemberRequest.setOrganizationId(organizationId);
-        organizationMemberRequest.setUserIds(userIds);
+        organizationMemberRequest.setMemberIds(userIds);
         organizationMemberRequest.setProjectIds(projectIds);
         this.requestPost(url, organizationMemberRequest, resultMatcher);
     }
