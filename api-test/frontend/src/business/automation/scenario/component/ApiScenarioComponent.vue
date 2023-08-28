@@ -75,7 +75,7 @@
     <template v-slot:button v-if="!ifFromVariableAdvance">
       <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!scenario.run">
         <el-button
-          :disabled="!scenario.enable"
+          :disabled="stepDisabled()"
           @click="run"
           icon="el-icon-video-play"
           style="padding: 5px"
@@ -160,11 +160,13 @@ export default {
     },
   },
   created() {
-    this.isShowNum = this.scenario.num ? true : false;
-    if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
+    this.isShowNum = !!this.scenario.num;
+    if (
+      (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) ||
+      this.refStepDeleted
+    ) {
       this.scenario.disabled = true;
-      this.scenario.showExtend =
-        this.node.parent && this.node.parent.data && this.node.parent.data.disabled ? false : true;
+      this.scenario.showExtend = !(this.node.parent && this.node.parent.data && this.node.parent.data.disabled);
       this.recursiveEnable(this.scenario.hashTree);
     }
     if (this.scenario.id && this.scenario.referenced === 'Copy' && !this.scenario.isCopy && !this.scenario.disabled) {
@@ -191,8 +193,14 @@ export default {
     isDeletedOrRef() {
       return (this.scenario.referenced && this.scenario.referenced === 'Deleted') || this.scenario.referenced === 'REF';
     },
+    refStepDeleted() {
+      return this.scenario.referenced === 'REF' && !this.isShowNum;
+    },
   },
   methods: {
+    stepDisabled() {
+      return !this.scenario.enable || this.refStepDeleted || this.scenario.deleted === 'Deleted';
+    },
     run() {
       if (!this.scenario.enable) {
         this.$warning(this.$t('api_test.automation.debug_message'));
@@ -283,6 +291,7 @@ export default {
       for (let i in arr) {
         arr[i].disabled = true;
         arr[i].caseEnable = true;
+        arr[i].deleted = this.refStepDeleted;
         if (arr[i].hashTree && arr[i].hashTree.length > 0) {
           this.recursiveEnable(arr[i].hashTree);
         }

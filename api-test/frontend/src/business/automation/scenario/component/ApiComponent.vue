@@ -89,7 +89,7 @@
       <template v-slot:button v-if="!ifFromVariableAdvance">
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!request.testing">
           <el-button
-            :disabled="!request.enable"
+            :disabled="!request.enable || request.deleted"
             @click="run"
             icon="el-icon-video-play"
             class="ms-btn"
