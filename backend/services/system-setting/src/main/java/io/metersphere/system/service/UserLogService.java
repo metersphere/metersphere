@@ -1,5 +1,8 @@
 package io.metersphere.system.service;
 
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
@@ -9,19 +12,23 @@ import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserExample;
+import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.*;
+import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.mapper.UserRoleMapper;
+import io.metersphere.system.request.user.UserChangeEnableRequest;
 import io.metersphere.system.request.user.UserEditRequest;
 import io.metersphere.system.request.user.UserRoleBatchRelationRequest;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -32,23 +39,29 @@ public class UserLogService {
     private UserToolService userToolService;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private OrganizationMapper organizationMapper;
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
     //批量添加用户记录日志
     public List<LogDTO> getBatchAddLogs(@Valid List<User> userList) {
         List<LogDTO> logs = new ArrayList<>();
         userList.forEach(user -> {
-            LogDTO log = new LogDTO();
-            log.setId(UUID.randomUUID().toString());
-            log.setCreateUser(user.getCreateUser());
-            log.setProjectId(OperationLogConstants.SYSTEM);
-            log.setOrganizationId(OperationLogConstants.SYSTEM);
-            log.setType(OperationLogType.ADD.name());
-            log.setModule(OperationLogModule.SYSTEM_USER);
-            log.setMethod("addUser");
-            log.setCreateTime(user.getCreateTime());
-            log.setSourceId(user.getId());
-            log.setContent(user.getName() + "(" + user.getEmail() + ")");
-            log.setOriginalValue(JSON.toJSONBytes(user));
+            LogDTO log = LogDTOBuilder.builder()
+                    .projectId(OperationLogConstants.SYSTEM)
+                    .organizationId(OperationLogConstants.SYSTEM)
+                    .type(OperationLogType.ADD.name())
+                    .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
+                    .method(HttpMethodConstants.POST.name())
+                    .path("/addUser")
+                    .sourceId(user.getId())
+                    .content(user.getName() + "(" + user.getEmail() + ")")
+                    .originalValue(JSON.toJSONBytes(user))
+                    .createUser(user.getCreateUser())
+                    .build().getLogDTO();
             logs.add(log);
         });
         return logs;
@@ -57,45 +70,45 @@ public class UserLogService {
     public LogDTO updateLog(UserEditRequest request) {
         User user = userMapper.selectByPrimaryKey(request.getId());
         if (user != null) {
-            LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
-                    request.getId(),
-                    null,
-                    OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_USER,
-                    JSON.toJSONString(user));
-            dto.setPath("/update");
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(user));
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(OperationLogConstants.SYSTEM)
+                    .organizationId(OperationLogConstants.SYSTEM)
+                    .type(OperationLogType.UPDATE.name())
+                    .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
+                    .method(HttpMethodConstants.POST.name())
+                    .path("/update")
+                    .sourceId(request.getId())
+                    .content(user.getName())
+                    .originalValue(JSON.toJSONBytes(user))
+                    .build().getLogDTO();
             return dto;
         }
         return null;
     }
 
-    public List<LogDTO> batchUpdateLog(TableBatchProcessDTO request) {
+    //批量开启和关闭
+    public List<LogDTO> batchUpdateEnableLog(UserChangeEnableRequest request) {
         List<LogDTO> logDTOList = new ArrayList<>();
         request.setSelectIds(userToolService.getBatchUserIds(request));
         List<User> userList = userToolService.selectByIdList(request.getSelectIds());
         for (User user : userList) {
-            LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
-                    user.getId(),
-                    null,
-                    OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_USER,
-                    JSON.toJSONString(user));
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(user));
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(OperationLogConstants.SYSTEM)
+                    .organizationId(OperationLogConstants.SYSTEM)
+                    .type(OperationLogType.UPDATE.name())
+                    .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
+                    .method(HttpMethodConstants.POST.name())
+                    .path("/update/enable")
+                    .sourceId(user.getId())
+                    .content((request.isEnable() ? Translator.get("user.enable") : Translator.get("user.disable")) + ":" + user.getName())
+                    .originalValue(JSON.toJSONBytes(user))
+                    .build().getLogDTO();
             logDTOList.add(dto);
         }
         return logDTOList;
     }
 
-    /**
-     * @param request 批量重置密码  用于记录Log使用
-     */
+    //批量重置密码
     public List<LogDTO> resetPasswordLog(TableBatchProcessDTO request) {
         request.setSelectIds(userToolService.getBatchUserIds(request));
         List<LogDTO> returnList = new ArrayList<>();
@@ -103,41 +116,41 @@ public class UserLogService {
         example.createCriteria().andIdIn(request.getSelectIds());
         List<User> userList = userMapper.selectByExample(example);
         for (User user : userList) {
-            LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
-                    user.getId(),
-                    null,
-                    OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_USER,
-                    user.getName());
-            dto.setPath("/reset/password");
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(user));
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(OperationLogConstants.SYSTEM)
+                    .organizationId(OperationLogConstants.SYSTEM)
+                    .type(OperationLogType.UPDATE.name())
+                    .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
+                    .method(HttpMethodConstants.POST.name())
+                    .path("/reset/password")
+                    .sourceId(user.getId())
+                    .content(Translator.get("user.reset.password") + " : " + user.getName())
+                    .originalValue(JSON.toJSONBytes(user))
+                    .build().getLogDTO();
             returnList.add(dto);
         }
         return returnList;
     }
 
+    //删除日志
     public List<LogDTO> deleteLog(TableBatchProcessDTO request) {
         List<LogDTO> logDTOList = new ArrayList<>();
         request.getSelectIds().forEach(item -> {
             User user = userMapper.selectByPrimaryKey(item);
             if (user != null) {
-
-                LogDTO dto = new LogDTO(
-                        OperationLogConstants.SYSTEM,
-                        OperationLogConstants.SYSTEM,
-                        user.getId(),
-                        user.getCreateUser(),
-                        OperationLogType.DELETE.name(),
-                        OperationLogModule.SYSTEM_PROJECT,
-                        user.getName());
-
-                dto.setPath("/delete");
-                dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(user));
+                LogDTO dto = LogDTOBuilder.builder()
+                        .projectId(OperationLogConstants.SYSTEM)
+                        .organizationId(OperationLogConstants.SYSTEM)
+                        .type(OperationLogType.UPDATE.name())
+                        .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
+                        .method(HttpMethodConstants.POST.name())
+                        .path("/delete")
+                        .sourceId(user.getId())
+                        .content(Translator.get("user.delete") + " : " + user.getName())
+                        .originalValue(JSON.toJSONBytes(user))
+                        .build().getLogDTO();
                 logDTOList.add(dto);
+
             }
         });
         return logDTOList;
@@ -147,6 +160,11 @@ public class UserLogService {
         List<LogDTO> logs = new ArrayList<>();
         List<String> userIds = userToolService.getBatchUserIds(request);
         List<User> userList = userToolService.selectByIdList(userIds);
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andIdIn(request.getRoleIds());
+        List<String> projectNameList = projectMapper.selectByExample(projectExample)
+                .stream().map(Project::getName).collect(Collectors.toList());
+        String projectNames = StringUtils.join(projectNameList, ",");
         for (User user : userList) {
             //用户管理处修改了用户的组织。
             LogDTO log = LogDTOBuilder.builder()
@@ -156,8 +174,8 @@ public class UserLogService {
                     .organizationId(OperationLogConstants.SYSTEM)
                     .sourceId(user.getId())
                     .type(OperationLogType.UPDATE.name())
-                    .module(OperationLogModule.SYSTEM_USER)
-                    .content(user.getName())
+                    .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
+                    .content(user.getName() + Translator.get("user.add.project") + ":" + projectNames)
                     .path("/system/user/add-project-member")
                     .modifiedValue(JSON.toJSONBytes(request.getRoleIds()))
                     .build().getLogDTO();
@@ -166,20 +184,56 @@ public class UserLogService {
         operationLogService.batchAdd(logs);
     }
 
-    public void batchAddOrgLog(UserRoleBatchRelationRequest request, String operator) {
+    public void batchAddUserRoleLog(UserRoleBatchRelationRequest request, String operator) {
         List<LogDTO> logs = new ArrayList<>();
         List<String> userIds = userToolService.getBatchUserIds(request);
         List<User> userList = userToolService.selectByIdList(userIds);
+
+        UserRoleExample example = new UserRoleExample();
+        example.createCriteria().andIdIn(request.getRoleIds());
+        List<String> roleNameList = userRoleMapper.selectByExample(example)
+                .stream().map(UserRole::getName).collect(Collectors.toList());
+        String roleNames = StringUtils.join(roleNameList, ",");
+
         for (User user : userList) {
             //用户管理处修改了用户的组织。
             LogDTO log = LogDTOBuilder.builder()
                     .projectId(OperationLogConstants.SYSTEM)
-                    .module(OperationLogModule.SYSTEM_USER)
+                    .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
                     .createUser(operator)
                     .organizationId(OperationLogConstants.SYSTEM)
                     .sourceId(user.getId())
                     .type(OperationLogType.UPDATE.name())
-                    .content(user.getName())
+                    .content(user.getName() + Translator.get("user.add.group") + ":" + roleNames)
+                    .path("/system/user/add-org-member")
+                    .method(HttpMethodConstants.POST.name())
+                    .modifiedValue(JSON.toJSONBytes(request.getRoleIds()))
+                    .build().getLogDTO();
+            logs.add(log);
+        }
+        operationLogService.batchAdd(logs);
+    }
+    public void batchAddOrgLog(UserRoleBatchRelationRequest request, String operator) {
+        List<LogDTO> logs = new ArrayList<>();
+        List<String> userIds = userToolService.getBatchUserIds(request);
+        List<User> userList = userToolService.selectByIdList(userIds);
+
+        OrganizationExample example = new OrganizationExample();
+        example.createCriteria().andIdIn(request.getRoleIds());
+        List<String> roleNameList = organizationMapper.selectByExample(example)
+                .stream().map(Organization::getName).collect(Collectors.toList());
+        String roleNames = StringUtils.join(roleNameList, ",");
+
+        for (User user : userList) {
+            //用户管理处修改了用户的组织。
+            LogDTO log = LogDTOBuilder.builder()
+                    .projectId(OperationLogConstants.SYSTEM)
+                    .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
+                    .createUser(operator)
+                    .organizationId(OperationLogConstants.SYSTEM)
+                    .sourceId(user.getId())
+                    .type(OperationLogType.UPDATE.name())
+                    .content(user.getName() + Translator.get("user.add.org") + ":" + roleNames)
                     .path("/system/user/add-org-member")
                     .method(HttpMethodConstants.POST.name())
                     .modifiedValue(JSON.toJSONBytes(request.getRoleIds()))

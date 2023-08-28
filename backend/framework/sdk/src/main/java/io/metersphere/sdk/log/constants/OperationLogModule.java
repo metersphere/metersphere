@@ -57,7 +57,7 @@ public class OperationLogModule {
 
     public static final String SETTING = "SETTING";
     public static final String SETTING_SYSTEM = "SETTING_SYSTEM";
-    public static final String SETTING_SYSTEM_USER_SINGLE = "SETTING_SYSTEM_USER";
+    public static final String SETTING_SYSTEM_USER_SINGLE = "SETTING_SYSTEM_USER_SINGLE";
     public static final String SETTING_SYSTEM_USER_GROUP = "SETTING_SYSTEM_USER_GROUP";
     public static final String SETTING_SYSTEM_ORGANIZATION = "SETTING_SYSTEM_ORGANIZATION";
     public static final String SETTING_SYSTEM_PARAMETER = "SETTING_SYSTEM_PARAMETER";
