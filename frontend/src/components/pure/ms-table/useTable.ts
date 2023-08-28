@@ -46,7 +46,7 @@ export default function useTableProps<T>(
     selectedAll: false,
     enableDrag: false,
     showSelectAll: true,
-    showSetting: true,
+    showSetting: false,
     columnResizable: true,
     // 禁用 arco-table 的分页
     pagination: false,
@@ -211,9 +211,8 @@ export default function useTableProps<T>(
   // 事件触发组
   const propsEvent = ref({
     // 排序触发
-    sorterChange: (dataIndex: string, direction: string) => {
-      // eslint-disable-next-line no-console
-      sortItem.value = { [dataIndex]: direction };
+    sorterChange: (sortObj: { [key: string]: string }) => {
+      sortItem.value = sortObj;
       loadList();
     },
 
@@ -255,6 +254,10 @@ export default function useTableProps<T>(
       if (saveCallBack) {
         saveCallBack(record);
       }
+    },
+    // 重置排序
+    resetSort: () => {
+      sortItem.value = {};
     },
   });
 
