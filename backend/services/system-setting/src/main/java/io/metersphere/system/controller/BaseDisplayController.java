@@ -20,26 +20,26 @@ public class BaseDisplayController {
     private BaseDisplayService baseDisplayService;
 
 
-    @Operation(summary = "获取icon图片")
+    @Operation(summary = "首页-获取icon图片")
     @GetMapping("/get/icon")
     public ResponseEntity<byte[]> getIcon() throws IOException {
         return baseDisplayService.getFile("icon");
     }
 
 
-    @Operation(summary = "获取loginImage图片")
+    @Operation(summary = "首页-获取loginImage图片")
     @GetMapping("/get/login-image")
     public ResponseEntity<byte[]> getLoginImage() throws IOException {
         return baseDisplayService.getFile("loginImage");
     }
 
-    @Operation(summary = "获取loginLogo图片")
+    @Operation(summary = "首页-获取loginLogo图片")
     @GetMapping("/get/login-logo")
     public ResponseEntity<byte[]> getLoginLogo() throws IOException {
         return baseDisplayService.getFile("loginLogo");
     }
 
-    @Operation(summary = "获取logoPlatform图片")
+    @Operation(summary = "首页-获取logoPlatform图片")
     @GetMapping("/get/logo-platform")
     public ResponseEntity<byte[]> getLogoPlatform() throws IOException {
         return baseDisplayService.getFile("logoPlatform");
