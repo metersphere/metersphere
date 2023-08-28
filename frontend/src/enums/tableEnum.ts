@@ -16,6 +16,7 @@ export enum TableKeyEnum {
   SYSTEM_ORGANIZATION = 'systemOrganization',
   SYSTEM_PROJECT = 'systemProject',
   SYSTEM_LOG = 'systemLog',
+  PROJECT_MEMBER = 'projectMember',
 }
 
 // 具有特殊功能的列
