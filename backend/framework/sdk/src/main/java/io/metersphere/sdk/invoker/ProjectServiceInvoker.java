@@ -20,4 +20,10 @@ public class ProjectServiceInvoker {
             service.deleteResources(projectId);
         }
     }
+
+    public void invokeReportServices(String projectId) {
+        for (CleanupProjectResourceService service : cleanupProjectResourceServices) {
+            service.cleanReportResources(projectId);
+        }
+    }
 }

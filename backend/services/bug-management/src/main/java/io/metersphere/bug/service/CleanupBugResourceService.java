@@ -11,4 +11,9 @@ public class CleanupBugResourceService implements CleanupProjectResourceService 
     public void deleteResources(String projectId) {
         LogUtils.info("删除当前项目[" + projectId + "]相关缺陷资源");
     }
+
+    @Override
+    public void cleanReportResources(String projectId) {
+        LogUtils.info("清理当前项目[" + projectId + "]相关缺陷报告资源");
+    }
 }

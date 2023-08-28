@@ -113,6 +113,21 @@
             "id": "PROJECT_FAKE_ERROR:READ+DELETE"
           }
         ]
+      },
+      {
+        "id": "PROJECT_APPLICATION",
+        "name": "permission.project_application.name",
+        "license": true,
+        "permissions": [
+          {
+            "id": "PROJECT_APPLICATION_TEST_PLAN:READ",
+            "name": "permission.project_application_test_plan.read"
+          },
+          {
+            "id": "PROJECT_APPLICATION_TEST_PLAN:UPDATE",
+            "name": "permission.project_application_test_plan.update"
+          }
+        ]
       }
     ]
   }
