@@ -28,7 +28,7 @@ public class SystemParameterController {
 
 
     @PostMapping("/save/base-info")
-    @Operation(summary = "保存基本信息")
+    @Operation(summary = "系统参数-基础设置-基本信息-保存")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateBaseLog(#systemParameter)", msClass = SystemParameterService.class)
     public void saveBaseParameter(@Validated @RequestBody List<SystemParameter> systemParameter) {
@@ -37,7 +37,7 @@ public class SystemParameterController {
 
 
     @GetMapping("/get/base-info")
-    @Operation(summary = "获取基本信息")
+    @Operation(summary = "系统参数-基本设置-基本信息-获取")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ)
     public BaseSystemConfigDTO getBaseInfo() {
         return systemParameterService.getBaseInfo();
@@ -45,7 +45,7 @@ public class SystemParameterController {
 
 
     @GetMapping("/get/email-info")
-    @Operation(summary = "获取邮件信息")
+    @Operation(summary = "系统参数-基本设置-邮件设置-获取邮件信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ)
     public EMailInfoDto getEmailInfo() {
         return systemParameterService.getEmailInfo();
@@ -53,7 +53,7 @@ public class SystemParameterController {
 
 
     @PostMapping("/edit/email-info")
-    @Operation(summary = "保存邮件信息")
+    @Operation(summary = "系统参数-基本设置-邮件设置-保存邮件信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#systemParameter)", msClass = SystemParameterService.class)
     public void editEMailInfo(@Validated @RequestBody List<SystemParameter> systemParameter) {
@@ -62,7 +62,7 @@ public class SystemParameterController {
 
 
     @PostMapping("/test/email")
-    @Operation(summary = "测试连接")
+    @Operation(summary = "系统参数-基本设置-邮件设置-测试连接")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ)
     public void testEmailConnection(@RequestBody HashMap<String, String> hashMap) {
         systemParameterService.testEmailConnection(hashMap);
@@ -70,6 +70,7 @@ public class SystemParameterController {
 
 
     @GetMapping("/save/base-url")
+    @Operation(summary = "系统参数-默认站点替换接口")
     public void saveBaseurl(@RequestParam("baseUrl") String baseUrl) {
         systemParameterService.saveBaseUrl(baseUrl);
     }
