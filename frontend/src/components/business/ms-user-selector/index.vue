@@ -11,10 +11,6 @@
     <template #label="{ data }">
       <span class="option-name"> {{ data.value.name }} </span>
     </template>
-    <!-- <template #option="{ data }">
-      <span class="option-name"> {{ data.name }} </span>
-      <span class="option-email"> {{ `(${data.email})` }} </span>
-    </template> -->
     <a-option v-for="data in userOptions" :key="data.id" :disabled="(data.disabled as boolean)" :value="data">
       <span class="option-name"> {{ data.name }} </span>
       <span class="option-email"> {{ `(${data.email})` }} </span>
