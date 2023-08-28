@@ -1,6 +1,6 @@
 export default {
   'organization.member.addMember': '添加成员',
-  'organization.member.updateMember': '更新成员',
+  'organization.member.updateMember': '更新成员（{name}）',
   'organization.member.searchMember': '通过名称或邮箱搜索搜索',
   'organization.member.remove': '移除',
   'organization.member.edit': '编辑',

@@ -6,7 +6,7 @@
         <a-button class="mr-3" type="primary" @click="uploadPlugin">{{ t('system.plugin.uploadPlugin') }}</a-button>
       </a-col>
       <a-col :span="5" :offset="9">
-        <a-select v-model="searchKeys.scene">
+        <a-select v-model="searchKeys.scene" @change="searchHandler">
           <a-option v-for="item of sceneList" :key="item.value" :value="item.value">{{ t(item.label) }}</a-option>
         </a-select>
       </a-col>
@@ -15,6 +15,7 @@
           v-model="searchKeys.name"
           :max-length="250"
           :placeholder="t('system.plugin.searchPlugin')"
+          allow-clear
           @search="searchHandler"
           @press-enter="searchHandler"
         ></a-input-search>

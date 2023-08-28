@@ -109,7 +109,7 @@
           const { id, name, organizationIds, global, description } = form.value;
           const params = {
             id,
-            name,
+            name: name || title.value,
             organizationIds,
             global,
             description,
