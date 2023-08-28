@@ -105,7 +105,7 @@
       <template v-slot:button v-if="allSampler.indexOf(request.type) !== -1">
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
           <el-button
-            :disabled="!request.enable"
+            :disabled="!request.enable || request.deleted"
             @click="run"
             icon="el-icon-video-play"
             style="padding: 5px"

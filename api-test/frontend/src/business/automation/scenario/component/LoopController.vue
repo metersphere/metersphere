@@ -63,7 +63,7 @@
 
       <template v-slot:button>
         <el-button
-          :disabled="!controller.enable"
+          :disabled="!controller.enable || controller.deleted"
           :tip="$t('api_test.run')"
           @click="conn"
           icon="el-icon-video-play"
@@ -75,7 +75,7 @@
         <el-row>
           <el-col :span="9">
             <span class="ms-span ms-radio">{{ $t('loop.loops') }}</span>
-            <el-input size="small" v-model="controller.countController.loops" style="width: auto"/>
+            <el-input size="small" v-model="controller.countController.loops" style="width: auto" />
             <span class="ms-span ms-radio">次</span>
           </el-col>
           <el-col :span="9">
@@ -91,13 +91,13 @@
             <span class="ms-span ms-radio">ms</span>
           </el-col>
           <el-col :span="6">
-              <el-switch
-                :inactive-text="$t('loop.proceed')"
-                :disabled="controller.disabled"
-                v-model="controller.countController.proceed"
-                class="ms-span ms-radio"
-                style="margin-top: 6px"
-                @change="switchChange" />
+            <el-switch
+              :inactive-text="$t('loop.proceed')"
+              :disabled="controller.disabled"
+              v-model="controller.countController.proceed"
+              class="ms-span ms-radio"
+              style="margin-top: 6px"
+              @change="switchChange" />
           </el-col>
         </el-row>
       </div>
@@ -177,17 +177,13 @@
         <span
           class="ms-step-debug-code"
           :class="'ms-req-error-report'"
-          v-if="
-            !loading && !node.data.testing && node.data.debug &&
-            node.data.code === 'FAKE_ERROR'
-          ">
+          v-if="!loading && !node.data.testing && node.data.debug && node.data.code === 'FAKE_ERROR'">
           FakeError
         </span>
         <span
           class="ms-step-debug-code"
           :class="node.data.code && node.data.code.toUpperCase() === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
-          v-if="!loading && !node.data.testing && node.data.debug &&
-                  node.data.code !== 'FAKE_ERROR'">
+          v-if="!loading && !node.data.testing && node.data.debug && node.data.code !== 'FAKE_ERROR'">
           {{ getCode() }}
         </span>
       </template>
@@ -345,12 +341,14 @@ export default {
         if (!this.node.data.code) {
           this.node.data.code = 'SUCCESS';
         }
-        if (this.node.data.code ==='SUCCESS' && data.status && data.status === 'SUCCESS') {
+        if (this.node.data.code === 'SUCCESS' && data.status && data.status === 'SUCCESS') {
           this.node.data.code = 'SUCCESS';
         }
-        if ((this.node.data.code ==='SUCCESS' ||
-            this.node.data.code === 'FAKE_ERROR') &&
-          data.status && data.status === 'FAKE_ERROR') {
+        if (
+          (this.node.data.code === 'SUCCESS' || this.node.data.code === 'FAKE_ERROR') &&
+          data.status &&
+          data.status === 'FAKE_ERROR'
+        ) {
           this.node.data.code = 'FAKE_ERROR';
         }
         if (data.status && data.status === 'ERROR') {
@@ -513,7 +511,7 @@ export default {
   font-size: 13px;
   font-weight: normal;
 }
-:deep(.el-switch__label *){
+:deep(.el-switch__label *) {
   color: #606266;
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   font-size: 13px;
