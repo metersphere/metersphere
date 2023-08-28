@@ -67,14 +67,14 @@ public class UserController {
 
     @PostMapping("/add")
     @Operation(summary = "系统设置-系统-用户-添加用户")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ADD)
     public UserBatchCreateDTO addUser(@Validated({Created.class}) @RequestBody UserBatchCreateDTO userCreateDTO) {
         return userService.addUser(userCreateDTO, UserSource.LOCAL.name(), SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
     @Operation(summary = "系统设置-系统-用户-修改用户")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = UserLogService.class)
     public UserEditRequest updateUser(@Validated({Updated.class}) @RequestBody UserEditRequest request) {
         return userService.updateUser(request, SessionUtils.getUserId());
@@ -91,7 +91,7 @@ public class UserController {
 
     @PostMapping("/update/enable")
     @Operation(summary = "系统设置-系统-用户-启用/禁用用户")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateEnableLog(#request)", msClass = UserLogService.class)
     public TableBatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
         return userService.updateUserEnable(request, SessionUtils.getSessionId());
@@ -99,7 +99,7 @@ public class UserController {
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @Operation(summary = "系统设置-系统-用户-导入用户")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_IMPORT)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_IMPORT)
     public UserImportResponse importUser(@RequestPart(value = "file", required = false) MultipartFile excelFile) {
         return userService.importByExcel(excelFile, UserSource.LOCAL.name(), SessionUtils.getSessionId());
     }
@@ -107,14 +107,14 @@ public class UserController {
     @PostMapping("/delete")
     @Operation(summary = "系统设置-系统-用户-删除用户")
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#request)", msClass = UserLogService.class)
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_DELETE)
     public TableBatchProcessResponse deleteUser(@Validated @RequestBody TableBatchProcessDTO request) {
         return userService.deleteUser(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/reset/password")
     @Operation(summary = "系统设置-系统-用户-重置用户密码")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.resetPasswordLog(#request)", msClass = UserLogService.class)
     public TableBatchProcessResponse resetPassword(@Validated @RequestBody TableBatchProcessDTO request) {
         return userService.resetPassword(request, SessionUtils.getUserId());
@@ -144,7 +144,7 @@ public class UserController {
 
     @PostMapping("/add/batch/user-role")
     @Operation(summary = "系统设置-系统-用户-批量添加用户到多个用户组中")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_UPDATE)
     public TableBatchProcessResponse batchAddUserGroupRole(@Validated({Created.class}) @RequestBody UserRoleBatchRelationRequest request) {
         TableBatchProcessResponse returnResponse = globalUserRoleRelationService.batchAdd(request, SessionUtils.getUserId());
         userLogService.batchAddUserRoleLog(request, SessionUtils.getUserId());
@@ -153,7 +153,7 @@ public class UserController {
 
     @PostMapping("/add-project-member")
     @Operation(summary = "系统设置-系统-用户-批量添加用户到项目")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_READ_UPDATE, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD}, logical = Logical.AND)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_UPDATE, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD}, logical = Logical.AND)
     public TableBatchProcessResponse addProjectMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
         ProjectAddMemberBatchRequest request = new ProjectAddMemberBatchRequest();
         request.setProjectIds(userRoleBatchRelationRequest.getRoleIds());
@@ -165,7 +165,7 @@ public class UserController {
 
     @PostMapping("/add-org-member")
     @Operation(summary = "系统设置-系统-用户-批量添加用户到组织")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_READ_UPDATE, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD}, logical = Logical.AND)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_UPDATE, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD}, logical = Logical.AND)
     public TableBatchProcessResponse addMember(@Validated @RequestBody UserRoleBatchRelationRequest userRoleBatchRelationRequest) {
         //获取本次处理的用户
         userRoleBatchRelationRequest.setSelectIds(userToolService.getBatchUserIds(userRoleBatchRelationRequest));

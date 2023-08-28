@@ -46,7 +46,7 @@ public class UserControllerPermissionTests extends BaseTest {
                         this.setName("member");
                     }});
         }};
-        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_ADD, UserRequestUtils.URL_USER_CREATE, UserParamUtils.getUserCreateDTO(
+        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ADD, UserRequestUtils.URL_USER_CREATE, UserParamUtils.getUserCreateDTO(
                 paramRoleList,
                 new ArrayList<>() {{
                     add(paramUserInfo);
@@ -54,7 +54,7 @@ public class UserControllerPermissionTests extends BaseTest {
         ));
 
         //校验权限：修改用户
-        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_UPDATE, UserRequestUtils.URL_USER_UPDATE, UserParamUtils.getUserUpdateDTO(paramUserInfo, paramRoleList));
+        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_UPDATE, UserRequestUtils.URL_USER_UPDATE, UserParamUtils.getUserUpdateDTO(paramUserInfo, paramRoleList));
 
         //校验权限：分页查询用户列表
         this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ, UserRequestUtils.URL_USER_PAGE, UserParamUtils.getDefaultPageRequest());
@@ -65,7 +65,7 @@ public class UserControllerPermissionTests extends BaseTest {
         userChangeEnableRequest.setSelectIds(new ArrayList<>() {{
             this.add("admin");
         }});
-        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_UPDATE, UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest);
+        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_UPDATE, UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest);
 
         //用户导入
         File jarFile = new File(
@@ -73,25 +73,25 @@ public class UserControllerPermissionTests extends BaseTest {
 
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", jarFile);
-        this.requestMultipartPermissionTest(PermissionConstants.SYSTEM_USER_READ_IMPORT, UserRequestUtils.URL_USER_IMPORT, paramMap);
+        this.requestMultipartPermissionTest(PermissionConstants.SYSTEM_USER_IMPORT, UserRequestUtils.URL_USER_IMPORT, paramMap);
 
         //用户删除
         TableBatchProcessDTO request = new TableBatchProcessDTO();
         request.setSelectIds(new ArrayList<>() {{
             this.add("testId");
         }});
-        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_DELETE, UserRequestUtils.URL_USER_DELETE, request);
+        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_DELETE, UserRequestUtils.URL_USER_DELETE, request);
 
         //重置密码
         request = new TableBatchProcessDTO();
         request.setSelectIds(Collections.singletonList("admin"));
-        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD, request);
+        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD, request);
 
         //批量添加用户到用户组
         UserRoleBatchRelationRequest userAndRoleBatchRequest = new UserRoleBatchRelationRequest();
         userAndRoleBatchRequest.setSelectIds(Collections.singletonList("admin"));
         userAndRoleBatchRequest.setRoleIds(Collections.singletonList("member"));
-        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_READ_UPDATE, UserRequestUtils.URL_USER_ROLE_RELATION, userAndRoleBatchRequest);
+        this.requestPostPermissionTest(PermissionConstants.SYSTEM_USER_UPDATE, UserRequestUtils.URL_USER_ROLE_RELATION, userAndRoleBatchRequest);
 
 
         //校验权限：系统全局用户组获取
@@ -106,7 +106,7 @@ public class UserControllerPermissionTests extends BaseTest {
         roleBatchRelationRequest.setSelectIds(Collections.singletonList("admin"));
         roleBatchRelationRequest.setRoleIds(Collections.singletonList("member"));
         List<String> addMemberPermissionList = new ArrayList<>();
-        addMemberPermissionList.add(PermissionConstants.SYSTEM_USER_READ_UPDATE);
+        addMemberPermissionList.add(PermissionConstants.SYSTEM_USER_UPDATE);
         addMemberPermissionList.add(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD);
         this.requestPostPermissionsTest(addMemberPermissionList, UserRequestUtils.URL_ADD_PROJECT_MEMBER, roleBatchRelationRequest);
         //        批量添加用户到组织

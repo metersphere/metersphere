@@ -5,6 +5,27 @@
     "type": "SYSTEM",
     "children": [
       {
+        "id": "SYSTEM_USER",
+        "name": "permission.system_user.name",
+        "permissions": [
+          {
+            "id": "SYSTEM_USER:READ"
+          },
+          {
+            "id": "SYSTEM_USER:READ+ADD"
+          },
+          {
+            "id": "SYSTEM_USER:READ+IMPORT"
+          },
+          {
+            "id": "SYSTEM_USER:READ+UPDATE"
+          },
+          {
+            "id": "SYSTEM_USER:READ+DELETE"
+          }
+        ]
+      },
+      {
         "id": "SYSTEM_ORGANIZATION_PROJECT",
         "name": "permission.system_organization_project.name",
         "permissions": [
