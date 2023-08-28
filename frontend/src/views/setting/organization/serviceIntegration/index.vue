@@ -31,9 +31,7 @@
                       size="mini"
                       class="ml-3 px-0 text-sm"
                       type="text"
-                      :href="links.src"
-                      target="_blank"
-                      @click="jumpHandler(links)"
+                      @click.stop="jumpHandler(links)"
                     >
                       {{ t(links.name) }}
                     </a-button>
@@ -59,6 +57,9 @@
   import ServiceList from './components/serviceList.vue';
   import { useRouter } from 'vue-router';
   import type { StepListType, SkipTitle } from '@/models/setting/serviceIntegration';
+  import { openWindow } from '@/utils/index';
+  import { SettingRouteEnum } from '@/enums/routeEnum';
+  import settings from '@/locale/zh-CN/settings';
 
   const { t } = useI18n();
   const router = useRouter();
@@ -108,8 +109,12 @@
   const jumpHandler = (links: SkipTitle) => {
     if (links.active)
       router.push({
-        name: 'settingSystemPluginManger',
+        name: SettingRouteEnum.SETTING_SYSTEM_PLUGIN_MANAGEMENT,
       });
+
+    if (links.src && !links.active) {
+      openWindow(links.src);
+    }
   };
 </script>
 
