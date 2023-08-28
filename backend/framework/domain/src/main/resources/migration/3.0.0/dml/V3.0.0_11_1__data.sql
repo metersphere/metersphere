@@ -25,6 +25,7 @@ INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, cr
 -- 系统管理员拥有所有的权限，不用初始化
 
 -- 系统成员的权限
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_USER:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_ORGANIZATION_PROJECT:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_USER_ROLE:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'member', 'SYSTEM_TEST_RESOURCE_POOL:READ');
