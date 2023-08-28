@@ -3,20 +3,22 @@
     v-model="currentValue"
     :disabled="props.disabled"
     multiple
-    :virtual-list-props="{ height: 200 }"
     :placeholder="props.placeholder ? t(props.placeholder) : t('common.pleaseSelectMember')"
-    :options="userOptions"
-    :field-names="fieldNames"
+    value-key="id"
     @search="handleSearch"
     @change="handleChange"
   >
     <template #label="{ data }">
-      <span class="option-name"> {{ data.name }} </span>
+      <span class="option-name"> {{ data.value.name }} </span>
     </template>
-    <template #option="{ data }">
+    <!-- <template #option="{ data }">
       <span class="option-name"> {{ data.name }} </span>
       <span class="option-email"> {{ `(${data.email})` }} </span>
-    </template>
+    </template> -->
+    <a-option v-for="data in userOptions" :key="data.id" :disabled="(data.disabled as boolean)" :value="data">
+      <span class="option-name"> {{ data.name }} </span>
+      <span class="option-email"> {{ `(${data.email})` }} </span>
+    </a-option>
   </a-select>
 </template>
 
@@ -31,18 +33,16 @@
     placeholder?: string;
     type?: 'organization' | 'usergroup';
     sourceId?: string;
-    disabledKey?: 'disabled' | 'memberFlag';
+    disabledKey?: string;
   }
 
   export interface UserItem {
     id: string;
     name: string;
     email: string;
-    disabled?: boolean;
-    memberFlag?: boolean;
+    [key: string]: boolean | string;
   }
 
-  const fieldNames = { value: 'id', label: 'name' };
   const { t } = useI18n();
   const props = withDefaults(defineProps<MsUserSelectorProps>(), {
     disabled: false,
@@ -68,20 +68,22 @@
       res = await getAllUser();
     }
     res.forEach((item) => {
-      item.disabled = item[props.disabledKey];
+      item.disabled = item[props.disabledKey as string];
     });
     allOption.value = [...res];
     userOptions.value = [...res];
   };
 
   const handleSearch = (value: string) => {
+    let timmer = null;
     if (value) {
-      window.setTimeout(() => {
+      timmer = window.setTimeout(() => {
         userOptions.value = userOptions.value.filter(
           (item) => item.name.includes(value) || currentValue.value.includes(item.id)
         );
       }, 60);
     } else {
+      if (timmer) window.clearTimeout(timmer);
       userOptions.value = allOption.value;
     }
   };
