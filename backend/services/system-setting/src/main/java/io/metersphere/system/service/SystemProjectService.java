@@ -62,7 +62,6 @@ public class SystemProjectService {
     }
 
     public List<UserExtend> getProjectMember(ProjectMemberRequest request) {
-        commonProjectService.checkProjectNotExist(request.getProjectId());
         return extSystemProjectMapper.getProjectMemberList(request);
     }
 

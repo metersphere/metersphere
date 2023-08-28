@@ -10,8 +10,9 @@
                  FROM user_role_relation
                         LEFT JOIN `user` ON user_role_relation.user_id = `user`.id
         <where>
+            `user`.deleted = 0
             <if test="request.projectId != null">
-                user_role_relation.source_id = #{request.projectId}
+               and user_role_relation.source_id = #{request.projectId}
             </if>
             <if test="request.keyword != null">
                and (user.name like CONCAT('%', #{request.keyword},'%')
@@ -19,7 +20,7 @@
                 or user.phone like CONCAT('%', #{request.keyword},'%'))
             </if>
         </where>
-                 ORDER BY `user`.update_time DESC) temp
+                 ORDER BY `user`.update_time DESC) temp GROUP BY temp.id
     </select>
     <select id="getProjectList" resultType="io.metersphere.sdk.dto.ProjectDTO">
         select p.id,
@@ -40,17 +41,18 @@
                p.module_setting
         FROM project p
         LEFT JOIN user_role_relation ur on p.id = ur.source_id
-        left join user u on u.id = ur.user_id and u.deleted = 0
+        left join user u on u.id = p.create_user
         INNER JOIN organization o on p.organization_id = o.id
         <include refid="queryWhereCondition"/>
             group by p.id
     </select>
-    <select id="getProjectAdminList" resultType="io.metersphere.system.domain.User">
+    <select id="getProjectAdminList" resultType="io.metersphere.system.dto.UserExtend">
         SELECT `user`.*
         FROM user_role_relation
-               LEFT JOIN `user` ON user_role_relation.user_id = `user`.id and `user`.deleted = 0
+        LEFT JOIN `user` ON user_role_relation.user_id = `user`.id
         <where>
-            user_role_relation.source_id = #{projectId}
+            `user`.deleted = 0
+            and user_role_relation.source_id = #{projectId}
             and user_role_relation.role_id = 'project_admin'
         </where>
     </select>
@@ -69,8 +71,9 @@
 
     <sql id="queryWhereCondition">
         <where>
+            u.deleted = 0
             <if test="request.organizationId != null">
-                p.organization_id = #{request.organizationId}
+              and p.organization_id = #{request.organizationId}
             </if>
             <if test="request.keyword != null">
                 and (
@@ -110,4 +113,43 @@
             </if>
         </if>
     </sql>
+
+    <select id="getUserAdminList" resultType="io.metersphere.system.dto.UserExtend">
+        select distinct u.*, MAX( if (temp.role_id = 'project_admin', true, false)) as adminFlag from
+         user u left join (select * from user_role_relation urr where urr.source_id = #{projectId}) temp on temp.user_id = u.id
+        <where>
+            u.deleted = 0
+            <if test="userIds != null and userIds.size > 0 ">
+                and u.id in
+            <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+            </if>
+        </where>
+
+        group by u.id
+
+
+    </select>
+
+    <select id="getUserMemberList" resultType="io.metersphere.system.dto.UserExtend">
+        select distinct u.*, count(temp.id) > 0 as memberFlag from
+        user u left join (select * from user_role_relation urr where urr.source_id = #{projectId}) temp on temp.user_id = u.id
+        <where>
+            u.deleted = 0
+            <if test="userIds != null and userIds.size > 0 ">
+                and u.id in
+                <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                    #{userId}
+                </foreach>
+            </if>
+        </where>
+
+        group by u.id
+
+
+    </select>
+
+
+
 </mapper>
