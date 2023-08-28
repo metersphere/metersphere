@@ -80,11 +80,23 @@
     <select id="selectOrganizationOptions" resultType="io.metersphere.system.dto.OrganizationProjectOptionsDTO">
         select id, name from organization order by create_time desc
     </select>
+
     <select id="getOptionsByIds" resultType="io.metersphere.sdk.dto.OptionDTO">
         select id, name from organization where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </select>
+
+    <select id="getMemberByOrg" resultType="io.metersphere.system.dto.UserExtend">
+        select distinct u.* from user_role_relation urr join `user` u on urr.user_id = u.id
+        <where>
+            u.deleted = 0
+            <if test="organizationId != null and organizationId != ''">
+                and urr.source_id = #{organizationId}
+            </if>
+        </where>
+        order by u.create_time desc
     </select>
 
     <sql id="queryWhereCondition">
