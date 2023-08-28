@@ -59,7 +59,7 @@ public class UserControllerTests extends BaseTest {
     @Resource
     private UserToolService userToolService;
     @Resource
-    private UserMapper userMapper;
+    private UserMapper userMapper;d
     @Resource
     private GlobalUserRoleRelationService globalUserRoleRelationService;
     @Resource
