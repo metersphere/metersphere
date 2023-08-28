@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.service.PluginLoadService;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.sdk.constants.OperationLogConstants;
@@ -20,18 +21,24 @@ public class ServiceIntegrationLogService {
 
     @Resource
     private ServiceIntegrationService serviceIntegrationService;
+    @Resource
+    private PluginLoadService pluginLoadService;
 
     public LogDTO addLog(ServiceIntegrationUpdateRequest request) {
         LogDTO dto = new LogDTO(
-                OperationLogConstants.SYSTEM,
-                OperationLogConstants.SYSTEM,
+                OperationLogConstants.ORGANIZATION,
+                null,
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.ORGANIZATION_SERVICE_INTEGRATION,
-                "创建服务集成");
+                OperationLogModule.SETTING_ORGANIZATION_SERVICE,
+                getName(request.getPluginId()));
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
+    }
+
+    private String getName(String pluginId) {
+        return pluginLoadService.getPlatformPluginInstance(pluginId).getName();
     }
 
     public LogDTO updateLog(ServiceIntegrationUpdateRequest request) {
@@ -39,13 +46,13 @@ public class ServiceIntegrationLogService {
         LogDTO dto = null;
         if (serviceIntegration != null) {
             dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.ORGANIZATION,
+                    null,
                     serviceIntegration.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.ORGANIZATION_SERVICE_INTEGRATION,
-                    "更新服务集成");
+                    OperationLogModule.SETTING_ORGANIZATION_SERVICE,
+                    getName(serviceIntegration.getPluginId()));
             dto.setOriginalValue(JSON.toJSONBytes(serviceIntegration));
         }
         return dto;
@@ -57,13 +64,13 @@ public class ServiceIntegrationLogService {
             return null;
         }
         LogDTO dto = new LogDTO(
-                OperationLogConstants.SYSTEM,
-                OperationLogConstants.SYSTEM,
+                OperationLogConstants.ORGANIZATION,
+                null,
                 serviceIntegration.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.ORGANIZATION_SERVICE_INTEGRATION,
-                "删除服务集成");
+                OperationLogModule.SETTING_ORGANIZATION_SERVICE,
+                getName(serviceIntegration.getPluginId()));
         dto.setOriginalValue(JSON.toJSONBytes(serviceIntegration));
         return dto;
     }

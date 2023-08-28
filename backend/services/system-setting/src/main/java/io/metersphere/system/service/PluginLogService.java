@@ -29,7 +29,7 @@ public class PluginLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SYSTEM_PLUGIN,
+                OperationLogModule.SETTING_SYSTEM_PLUGIN_MANAGEMENT,
                 request.getName());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
@@ -43,7 +43,7 @@ public class PluginLogService {
                 plugin.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.SYSTEM_PLUGIN,
+                OperationLogModule.SETTING_SYSTEM_PLUGIN_MANAGEMENT,
                 plugin.getName());
         dto.setOriginalValue(JSON.toJSONBytes(plugin));
         return dto;
@@ -60,7 +60,7 @@ public class PluginLogService {
                 plugin.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.SYSTEM_PLUGIN,
+                OperationLogModule.SETTING_SYSTEM_PLUGIN_MANAGEMENT,
                 plugin.getName());
         dto.setOriginalValue(JSON.toJSONBytes(plugin));
         return dto;

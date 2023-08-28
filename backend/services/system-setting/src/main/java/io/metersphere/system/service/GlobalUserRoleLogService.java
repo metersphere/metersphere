@@ -38,7 +38,7 @@ public class GlobalUserRoleLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SYSTEM_PROJECT,
+                OperationLogModule.SETTING_SYSTEM_USER_GROUP,
                 request.getName());
 
         dto.setOriginalValue(JSON.toJSONBytes(request));
@@ -59,7 +59,7 @@ public class GlobalUserRoleLogService {
                     userRole.getId(),
                     userRole.getCreateUser(),
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_PROJECT,
+                    OperationLogModule.SETTING_SYSTEM_USER_GROUP,
                     userRole.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(userRole));
@@ -77,7 +77,7 @@ public class GlobalUserRoleLogService {
                     request.getUserRoleId(),
                     userRole.getCreateUser(),
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_PROJECT,
+                    OperationLogModule.SETTING_SYSTEM_USER_GROUP,
                     userRole.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(request));
@@ -103,7 +103,7 @@ public class GlobalUserRoleLogService {
                 userRole.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.SYSTEM_PROJECT,
+                OperationLogModule.SETTING_SYSTEM_USER_GROUP,
                 userRole.getName());
 
         dto.setOriginalValue(JSON.toJSONBytes(userRole));

@@ -6,15 +6,12 @@ public class OperationLogModule {
     public static final String SYSTEM_TEST_RESOURCE = "SYSTEM_TEST_RESOURCE";
     public static final String SYSTEM_TEST_RESOURCE_POOL = "SYSTEM_TEST_RESOURCE_POOL";
     public static final String SYSTEM_USER = "SYSTEM_USER";
-    public static final String SYSTEM_USER_ROLE = "SYSTEM_USER_ROLE";
-    public static final String SYSTEM_USER_ROLE_RELATION = "SYSTEM_USER_ROLE_RELATION";
     public static final String SYSTEM_ORGANIZATION = "SYSTEM_ORGANIZATION";
     public static final String ORGANIZATION_USER_ROLE = "ORGANIZATION_USER_ROLE";
     public static final String ORGANIZATION_TEMPLATE_SETTINGS = "ORGANIZATION_TEMPLATE_SETTINGS";
     public static final String ORGANIZATION_MESSAGE_SETTINGS = "ORGANIZATION_MESSAGE_SETTINGS";
     public static final String ORGANIZATION_TEMPLATE_SETTINGS_FIELD = "ORGANIZATION_TEMPLATE_SETTINGS_FIELD";
     public static final String ORGANIZATION_TEMPLATE_SETTINGS_ISSUE = "ORGANIZATION_TEMPLATE_SETTINGS_ISSUE";
-    public static final String ORGANIZATION_SERVICE_INTEGRATION = "ORGANIZATION_SERVICE_INTEGRATION";
     public static final String ORGANIZATION_TEMPLATE_SETTINGS_CASE = "ORGANIZATION_TEMPLATE_SETTINGS_CASE";
     public static final String ORGANIZATION_TEMPLATE_SETTINGS_API = "ORGANIZATION_TEMPLATE_SETTINGS_API";
     public static final String ORGANIZATION_MEMBER = "ORGANIZATION_MEMBER";
@@ -49,7 +46,6 @@ public class OperationLogModule {
     public static final String UI_AUTOMATION = "UI_AUTOMATION";
     public static final String UI_AUTOMATION_REPORT = "UI_AUTOMATION_REPORT";
     public static final String UI_AUTOMATION_SCHEDULE = "UI_AUTOMATION_SCHEDULE";
-    public static final String SYSTEM_PLUGIN = "SYSTEM_PLUGIN";
     public static final String SYSTEM_PROJECT = "SYSTEM_PROJECT";
     public static final String SYSTEM_PROJECT_MEMBER = "SYSTEM_PROJECT_MEMBER";
     public static final String ORGANIZATION_PROJECT = "ORGANIZATION_PROJECT";
