@@ -67,8 +67,7 @@ public class SystemOrganizationController {
     @Operation(summary = "获取组织成员")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ})
     public Pager<List<UserExtend>> listMember(@Validated @RequestBody OrganizationRequest request) {
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
         return PageUtils.setPageInfo(page, organizationService.getMemberListBySystem(request));
     }
 
