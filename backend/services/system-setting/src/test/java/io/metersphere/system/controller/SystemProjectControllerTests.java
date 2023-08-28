@@ -590,7 +590,9 @@ public class SystemProjectControllerTests extends BaseTest {
         memberRequest.setCurrent(1);
         memberRequest.setPageSize(5);
         memberRequest.setProjectId("projectId111");
-        this.requestPost(getProjectMemberList, memberRequest, ERROR_REQUEST_MATCHER);
+        MvcResult mvcResult = this.responsePost(getProjectMemberList, memberRequest);
+        Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        Assertions.assertEquals(0, returnPager.getTotal());
         //排序字段不合法
         memberRequest = new ProjectMemberRequest();
         memberRequest.setCurrent(1);
