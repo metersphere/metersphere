@@ -4,22 +4,29 @@ import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.ProjectExtendDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
+import io.metersphere.system.mapper.OrganizationMapper;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.OrganizationProjectRequest;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -29,6 +36,10 @@ public class OrganizationProjectService {
     private ExtSystemProjectMapper extSystemProjectMapper;
     @Resource
     private CommonProjectService commonProjectService;
+    @Resource
+    private UserRoleRelationMapper userRoleRelationMapper;
+    @Resource
+    private OrganizationMapper organizationMapper;
 
 
     private final static String PREFIX = "/organization-project";
@@ -65,7 +76,6 @@ public class OrganizationProjectService {
     }
 
     public List<UserExtend> getProjectMember(ProjectMemberRequest request) {
-        commonProjectService.checkProjectNotExist(request.getProjectId());
         return extSystemProjectMapper.getProjectMemberList(request);
     }
 
@@ -93,5 +103,39 @@ public class OrganizationProjectService {
 
     public void disable(String id) {
         commonProjectService.disable(id);
+    }
+
+    public List<UserExtend> getUserAdminList(String organizationId, String projectId) {
+        checkOrgIsExist(organizationId);
+        commonProjectService.checkProjectNotExist(projectId);
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andSourceIdEqualTo(organizationId);
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
+        List<String> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(userIds)) {
+            return extSystemProjectMapper.getUserAdminList(userIds, projectId);
+        } else {
+            return null;
+        }
+    }
+
+    public List<UserExtend> getUserMemberList(String organizationId, String projectId) {
+        checkOrgIsExist(organizationId);
+        commonProjectService.checkProjectNotExist(projectId);
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andSourceIdEqualTo(organizationId);
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
+        List<String> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(userIds)) {
+            return extSystemProjectMapper.getUserMemberList(userIds, projectId);
+        } else {
+            return null;
+        }
+    }
+
+    public void checkOrgIsExist(String organizationId) {
+        if (organizationMapper.selectByPrimaryKey(organizationId) == null) {
+            throw new MSException(Translator.get("organization_not_exists"));
+        }
     }
 }

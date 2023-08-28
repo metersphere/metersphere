@@ -14,7 +14,6 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
-import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.OrganizationProjectRequest;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
@@ -146,11 +145,18 @@ public class OrganizationProjectController {
         return organizationProjectService.removeProjectMember(projectId, userId, SessionUtils.getUserId());
     }
 
-    @GetMapping("/user-list")
-    @Operation(summary = "系统设置-组织-项目-获取用户列表")
+    @GetMapping("/user-admin-list/{organizationId}/{projectId}")
+    @Operation(summary = "系统设置-组织-项目-获取管理员列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
-    public List<User> getUserList() {
-        return userService.getUserList();
+    public List<UserExtend> getUserAdminList(@PathVariable String organizationId, @PathVariable String projectId) {
+        return organizationProjectService.getUserAdminList(organizationId, projectId);
+    }
+
+    @GetMapping("/user-member-list/{organizationId}/{projectId}")
+    @Operation(summary = "系统设置-组织-项目-获取成员列表")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
+    public List<UserExtend> getUserMemberList(@PathVariable String organizationId, @PathVariable String projectId) {
+        return organizationProjectService.getUserMemberList(organizationId, projectId);
     }
 
 }

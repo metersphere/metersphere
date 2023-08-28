@@ -8,10 +8,7 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
-import io.metersphere.sdk.dto.AddProjectRequest;
-import io.metersphere.sdk.dto.ProjectDTO;
-import io.metersphere.sdk.dto.ProjectExtendDTO;
-import io.metersphere.sdk.dto.UpdateProjectRequest;
+import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
@@ -68,7 +65,8 @@ public class OrganizationProjectControllerTests extends BaseTest {
     private final static String removeProjectMember = prefix + "/remove-member/";
     private final static String disableProject = prefix + "/disable/";
     private final static String enableProject = prefix + "/enable/";
-    private final static String userList = prefix + "/user-list";
+    private final static String getAdminList = prefix + "/user-admin-list/";
+    private final static String getMemberList = prefix + "/user-member-list/";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -591,6 +589,13 @@ public class OrganizationProjectControllerTests extends BaseTest {
         Assertions.assertEquals(returnPager.getCurrent(), memberRequest.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(((List<UserExtend>) returnPager.getList()).size() <= memberRequest.getPageSize());
+        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId);
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        //去重
+        List<String> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().toList();
+        //返回的数据量和数据库中的数据量相同
+        Assertions.assertEquals(returnPager.getTotal(), userIds.size());
         memberRequest.setSort(new HashMap<>() {{
             put("createTime", "desc");
         }});
@@ -713,11 +718,62 @@ public class OrganizationProjectControllerTests extends BaseTest {
 
     @Test
     @Order(21)
-    public void testUserList() throws Exception {
-        this.requestGetWithOkAndReturn(userList);
-
+    public void testGetAdminList() throws Exception {
+        //组织下面有成员 返回不为空
+        String organizationId = getDefault().getId();
+        String projectId = "projectId4";
+        MvcResult mvcResult = responseGet(getAdminList + organizationId + "/" + projectId);
+        List<UserDTO> userDTOS = parseObjectFromMvcResult(mvcResult, List.class);
+        assert userDTOS != null;
+        Assertions.assertFalse(userDTOS.isEmpty());
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, userList);
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getAdminList + organizationId + "/" + projectId);
+        //组织下面没有成员 返回为空
+        organizationId = "default-organization-20";
+        projectId = "projectId4";
+        mvcResult = responseGet(getAdminList + organizationId + "/" + projectId);
+        userDTOS = parseObjectFromMvcResult(mvcResult, List.class);
+        Assertions.assertNull(userDTOS);
+
+        //组织不存在
+        organizationId = "organizationId111";
+        projectId = "projectId4";
+        this.responseGet(getAdminList + organizationId + "/" + projectId, ERROR_REQUEST_MATCHER);
+        //项目不存在
+        organizationId = getDefault().getId();
+        projectId = "projectId111";
+        this.responseGet(getAdminList + organizationId + "/" + projectId, ERROR_REQUEST_MATCHER);
+
+    }
+
+    @Test
+    @Order(22)
+    public void testGetMemberList() throws Exception {
+        //组织下面有成员 返回不为空
+        String organizationId = getDefault().getId();
+        String projectId = "projectId4";
+        MvcResult mvcResult = responseGet(getMemberList + organizationId + "/" + projectId);
+        List<UserDTO> userDTOS = parseObjectFromMvcResult(mvcResult, List.class);
+        assert userDTOS != null;
+        Assertions.assertFalse(userDTOS.isEmpty());
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getMemberList + organizationId + "/" + projectId);
+        //组织下面没有成员 返回为空
+        organizationId = "default-organization-20";
+        projectId = "projectId4";
+        mvcResult = responseGet(getMemberList + organizationId + "/" + projectId);
+        userDTOS = parseObjectFromMvcResult(mvcResult, List.class);
+        Assertions.assertNull(userDTOS);
+
+        //组织不存在
+        organizationId = "organizationId111";
+        projectId = "projectId4";
+        this.responseGet(getMemberList + organizationId + "/" + projectId, ERROR_REQUEST_MATCHER);
+        //项目不存在
+        organizationId = getDefault().getId();
+        projectId = "projectId111";
+        this.responseGet(getMemberList + organizationId + "/" + projectId, ERROR_REQUEST_MATCHER);
+
     }
 
 }
