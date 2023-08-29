@@ -339,6 +339,110 @@ CREATE TABLE IF NOT EXISTS test_resource_pool_organization
 CREATE INDEX idx_test_resource_pool_id ON test_resource_pool_organization(`test_resource_pool_id`);
 CREATE INDEX idx_org_id ON test_resource_pool_organization(`org_id`);
 
+
+CREATE TABLE IF NOT EXISTS custom_field(
+    `id` VARCHAR(50) NOT NULL   COMMENT '自定义字段ID' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '自定义字段名称' ,
+    `scene` VARCHAR(30) NOT NULL   COMMENT '使用场景' ,
+    `type` VARCHAR(30) NOT NULL   COMMENT '自定义字段类型' ,
+    `remark` VARCHAR(500)    COMMENT '自定义字段备注' ,
+    `internal` BIT NOT NULL  DEFAULT 0 COMMENT '是否是内置字段' ,
+    `scope_type` VARCHAR(50) NOT NULL  DEFAULT 0 COMMENT '组织或项目级别字段（PROJECT, ORGANIZATION）' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `scope_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
+    PRIMARY KEY (id)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '自定义字段';
+
+CREATE INDEX idx_scope_id ON custom_field(scope_id);
+
+CREATE TABLE IF NOT EXISTS custom_field_option(
+    `field_id` VARCHAR(50) NOT NULL   COMMENT '自定义字段ID' ,
+    `value` VARCHAR(50) NOT NULL   COMMENT '选项值' ,
+    `text` VARCHAR(255) NOT NULL   COMMENT '选项值名称' ,
+    `internal` BIT NOT NULL  DEFAULT 0 COMMENT '是否内置' ,
+    PRIMARY KEY (field_id,value)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '自定义字段选项';
+
+CREATE TABLE IF NOT EXISTS template(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '名称' ,
+    `remark` VARCHAR(500)    COMMENT '备注' ,
+    `internal` BIT NOT NULL  DEFAULT 0 COMMENT '是否是内置模板' ,
+    `update_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `scope_type` VARCHAR(50) NOT NULL  COMMENT '组织或项目级别字段（PROJECT, ORGANIZATION）' ,
+    `scope_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
+    `enable_third_part` BIT NOT NULL  DEFAULT 0 COMMENT '是否开启api字段名配置' ,
+    `scene` VARCHAR(30) NOT NULL   COMMENT '使用场景' ,
+    PRIMARY KEY (id)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci
+    COMMENT = '模版';
+
+CREATE INDEX idx_scope_id ON template(scope_id);
+
+CREATE TABLE IF NOT EXISTS template_custom_field(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `field_id` VARCHAR(50) NOT NULL   COMMENT '字段ID' ,
+    `template_id` VARCHAR(50) NOT NULL   COMMENT '模版ID' ,
+    `required` BIT NOT NULL  DEFAULT 0 COMMENT '是否必填' ,
+    `pos` INT NOT NULL  DEFAULT 0 COMMENT '排序字段' ,
+    `api_field_id` VARCHAR(255)    COMMENT 'api字段名' ,
+    `default_value` VARCHAR(500)    COMMENT '默认值' ,
+    PRIMARY KEY (id)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci
+    COMMENT = '模板和字段的关联关系';
+
+CREATE INDEX idx_template_id ON template_custom_field(template_id);
+
+CREATE TABLE IF NOT EXISTS status_item(
+    `id` VARCHAR(50) NOT NULL   COMMENT '状态ID' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '状态名称' ,
+    `scene` VARCHAR(30) NOT NULL   COMMENT '使用场景' ,
+    `remark` VARCHAR(500)    COMMENT '状态说明' ,
+    `internal` BIT NOT NULL  DEFAULT 0 COMMENT '是否是内置字段' ,
+    `scope_type` VARCHAR(50) NOT NULL  DEFAULT 0 COMMENT '组织或项目级别字段（PROJECT, ORGANIZATION）' ,
+    `scope_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci
+    COMMENT = '状态流的状态项';
+
+CREATE INDEX idx_scope_id ON status_item(scope_id);
+
+CREATE TABLE IF NOT EXISTS status_definition(
+    `id` VARCHAR(50) NOT NULL   COMMENT '状态ID' ,
+    `status_id` VARCHAR(50) NOT NULL   COMMENT '状态ID' ,
+    `definition_id` VARCHAR(500)    COMMENT '状态定义ID' ,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci
+    COMMENT = '状态定义';
+
+CREATE INDEX idx_status_id ON status_definition(status_id);
+
+CREATE TABLE IF NOT EXISTS status_flow(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `from_id` VARCHAR(50) NOT NULL   COMMENT '起始状态ID' ,
+    `to_id` VARCHAR(50) NOT NULL   COMMENT '目的状态ID' ,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci
+    COMMENT = '状态流转';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 

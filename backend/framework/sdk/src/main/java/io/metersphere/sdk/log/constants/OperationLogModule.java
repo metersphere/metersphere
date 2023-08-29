@@ -72,6 +72,9 @@ public class OperationLogModule {
     
     //系统设置-组织-项目
     public static final String SETTING_ORGANIZATION_PROJECT = "SETTING_ORGANIZATION_PROJECT";
+    // 模板管理
+    public static final String SETTING_SYSTEM_ORGANIZATION_CUSTOM_FIELD = "SETTING_SYSTEM_ORGANIZATION_CUSTOM_FIELD";
+    public static final String SETTING_SYSTEM_ORGANIZATION_TEMPLATE = "SETTING_SYSTEM_ORGANIZATION_TEMPLATE";
 
     //项目管理
     public static final String PROJECT_MANAGEMENT = "PROJECT_MANAGEMENT"; // 项目管理

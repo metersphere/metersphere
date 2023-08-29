@@ -14,6 +14,7 @@ import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.UserExtend;
@@ -893,5 +894,9 @@ public class OrganizationService {
             total.put("organizationTotal", 1L);
         }
         return total;
+    }
+
+    public Organization checkResourceExist(String id) {
+        return ServiceUtils.checkResourceExist(organizationMapper.selectByPrimaryKey(id), "permission.system_organization_project.name");
     }
 }
