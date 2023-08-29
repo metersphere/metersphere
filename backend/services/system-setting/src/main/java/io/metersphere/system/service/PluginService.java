@@ -12,6 +12,7 @@ import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.service.JdbcDriverPluginService;
 import io.metersphere.sdk.service.PluginLoadService;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.ServiceUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.PluginExample;
 import io.metersphere.system.dto.PluginDTO;
@@ -34,6 +35,7 @@ import java.io.OutputStream;
 import java.sql.Driver;
 import java.util.*;
 
+import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_EXIST;
 import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_TYPE_EXIST;
 
@@ -157,6 +159,10 @@ public class PluginService {
         }
     }
 
+    public Plugin checkResourceExist(String id) {
+        return ServiceUtils.checkResourceExist(pluginMapper.selectByPrimaryKey(id), "permission.system_plugin.name");
+    }
+
     private void checkPluginAddExist(Plugin plugin) {
         PluginExample example = new PluginExample();
         example.createCriteria()
@@ -192,6 +198,7 @@ public class PluginService {
     }
 
     public Plugin update(PluginUpdateRequest request) {
+        checkResourceExist(request.getId());
         request.setCreateUser(null);
         Plugin plugin = new Plugin();
         BeanUtils.copyBean(plugin, request);
@@ -222,6 +229,7 @@ public class PluginService {
     }
 
     public void delete(String id) {
+        checkResourceExist(id);
         pluginMapper.deleteByPrimaryKey(id);
         // 删除插件脚本
         pluginScriptService.deleteByPluginId(id);

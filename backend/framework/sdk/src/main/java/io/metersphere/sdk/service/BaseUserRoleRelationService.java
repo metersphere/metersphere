@@ -64,7 +64,7 @@ public class BaseUserRoleRelationService {
 
     public UserRole getUserRole(String id) {
         UserRoleRelation userRoleRelation = userRoleRelationMapper.selectByPrimaryKey(id);
-        return userRoleMapper.selectByPrimaryKey(userRoleRelation.getRoleId());
+        return userRoleRelation == null ? null : userRoleMapper.selectByPrimaryKey(userRoleRelation.getRoleId());
     }
 
     protected void delete(String id) {

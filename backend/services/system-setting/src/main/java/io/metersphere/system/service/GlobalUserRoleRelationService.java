@@ -1,11 +1,13 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.UserRoleScope;
+import io.metersphere.sdk.dto.ExcludeOptionDTO;
 import io.metersphere.sdk.dto.TableBatchProcessResponse;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserRoleRelationService;
+import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
@@ -40,6 +42,8 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
     private UserService userService;
     @Resource
     private UserToolService userToolService;
+    @Resource
+    private BaseUserRoleService baseUserRoleService;
 
     public List<UserRoleRelationUserDTO> list(GlobalUserRoleRelationQueryRequest request) {
         List<UserRoleRelationUserDTO> userRoleRelationUserDTOS = extUserRoleRelationMapper.listGlobal(request);
@@ -127,6 +131,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
     @Override
     public void delete(String id) {
         UserRole userRole = getUserRole(id);
+        baseUserRoleService.checkResourceExist(userRole);
         UserRoleRelation userRoleRelation = userRoleRelationMapper.selectByPrimaryKey(id);
         globalUserRoleService.checkSystemUserGroup(userRole);
         globalUserRoleService.checkGlobalUserRole(userRole);
@@ -138,5 +143,10 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         if (CollectionUtils.isEmpty(userRoleRelationMapper.selectByExample(example))) {
             throw new MSException(GLOBAL_USER_ROLE_LIMIT);
         }
+    }
+
+    public List<ExcludeOptionDTO> getExcludeSelectOption(String roleId) {
+        baseUserRoleService.getWithCheck(roleId);
+        return super.getExcludeSelectOption(roleId);
     }
 }

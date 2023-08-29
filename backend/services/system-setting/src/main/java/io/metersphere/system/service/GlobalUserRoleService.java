@@ -6,6 +6,7 @@ import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserRoleService;
+import io.metersphere.sdk.util.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
@@ -102,7 +103,7 @@ public class GlobalUserRoleService extends BaseUserRoleService {
 
     @Override
     public UserRole update(UserRole userRole) {
-        UserRole originUserRole = get(userRole.getId());
+        UserRole originUserRole = getWithCheck(userRole.getId());
         checkGlobalUserRole(originUserRole);
         checkInternalUserRole(originUserRole);
         userRole.setInternal(false);
@@ -111,7 +112,7 @@ public class GlobalUserRoleService extends BaseUserRoleService {
     }
 
     public void delete(String id, String currentUserId) {
-        UserRole userRole = get(id);
+        UserRole userRole = getWithCheck(id);
         checkGlobalUserRole(userRole);
         super.delete(userRole, MEMBER.getValue(), currentUserId);
     }
@@ -141,14 +142,14 @@ public class GlobalUserRoleService extends BaseUserRoleService {
 
 
     public List<PermissionDefinitionItem> getPermissionSetting(String id) {
-        UserRole userRole = get(id);
+        UserRole userRole = getWithCheck(id);
         checkGlobalUserRole(userRole);
         return getPermissionSetting(userRole);
     }
 
     @Override
     public void updatePermissionSetting(PermissionSettingUpdateRequest request) {
-        UserRole userRole = get(request.getUserRoleId());
+        UserRole userRole = getWithCheck(request.getUserRoleId());
         checkGlobalUserRole(userRole);
         checkInternalUserRole(userRole);
         super.updatePermissionSetting(request);

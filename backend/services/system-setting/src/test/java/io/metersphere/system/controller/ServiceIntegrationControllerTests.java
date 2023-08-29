@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
+import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.SERVICE_INTEGRATION_EXIST;
 import static io.metersphere.system.service.ServiceIntegrationService.PLUGIN_IMAGE_GET_PATH;
 import static org.mockserver.model.HttpRequest.request;
@@ -150,6 +151,11 @@ public class ServiceIntegrationControllerTests extends BaseTest {
 
         // @@校验日志
         checkLog(request.getId(), OperationLogType.UPDATE);
+
+        // @@校验 NOT_FOUND 异常
+        request.setId("1111");
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), NOT_FOUND);
+
         // @@异常参数校验
         updatedGroupParamValidateTest(ServiceIntegrationUpdateRequestDefinition.class, DEFAULT_UPDATE);
         // @@校验权限
@@ -200,6 +206,10 @@ public class ServiceIntegrationControllerTests extends BaseTest {
 
         // @@请求成功
         this.requestGetWithOk(VALIDATE_GET, addServiceIntegration.getId());
+
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(VALIDATE_GET, "1111"), NOT_FOUND);
+
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_UPDATE, VALIDATE_GET, addServiceIntegration.getId());
     }
@@ -212,6 +222,8 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
         // @@请求成功
         this.requestPostWithOk(VALIDATE_POST, integrationConfigMap, plugin.getId());
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestPost(VALIDATE_POST, integrationConfigMap, "1111"), NOT_FOUND);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_UPDATE, VALIDATE_POST, integrationConfigMap, plugin.getId());
     }
@@ -223,6 +235,8 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(SCRIPT_GET, plugin.getId());
         // 校验请求成功数据
         Assertions.assertTrue(StringUtils.isNotBlank(mvcResult.getResponse().getContentAsString()));
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(SCRIPT_GET, "1111"), NOT_FOUND);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_READ, SCRIPT_GET, plugin.getId());
     }
@@ -240,6 +254,10 @@ public class ServiceIntegrationControllerTests extends BaseTest {
 
         // @@校验日志
         checkLog(addServiceIntegration.getId(), OperationLogType.DELETE);
+
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, "1111"), NOT_FOUND);
+
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_DELETE, DEFAULT_DELETE, addServiceIntegration.getId());
     }
@@ -270,8 +288,8 @@ public class ServiceIntegrationControllerTests extends BaseTest {
      * 删除插件
      * @throws Exception
      */
-    public void deletePlugin() throws Exception {
-        this.requestGetWithOk(DEFAULT_DELETE, plugin.getId());
+    public void deletePlugin() {
+        pluginService.delete(plugin.getId());
     }
 
     @Getter

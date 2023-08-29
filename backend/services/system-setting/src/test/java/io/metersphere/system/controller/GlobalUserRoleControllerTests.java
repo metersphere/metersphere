@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.sdk.constants.InternalUserRole.MEMBER;
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
+import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_USER_ROLE_EXIST;
 import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_USER_ROLE_PERMISSION;
 
@@ -132,6 +133,11 @@ class GlobalUserRoleControllerTests extends BaseTest {
         request.setName("系统管理员");
         assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), GLOBAL_USER_ROLE_EXIST);
 
+        // @@校验 NOT_FOUND 异常
+        request.setId("1111");
+        request.setName("系统管理员1");
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), NOT_FOUND);
+
         // @@异常参数校验
         updatedGroupParamValidateTest(UserRoleUpdateRequestDefinition.class, DEFAULT_UPDATE);
 
@@ -223,6 +229,10 @@ class GlobalUserRoleControllerTests extends BaseTest {
         request.setUserRoleId(ADMIN.getValue());
         assertErrorCode(this.requestPost(PERMISSION_UPDATE, request), INTERNAL_USER_ROLE_PERMISSION);
 
+        // @@校验 NOT_FOUND 异常
+        request.setUserRoleId("1111");
+        assertErrorCode(this.requestPost(PERMISSION_UPDATE, request), NOT_FOUND);
+
         // @@异常参数校验
         paramValidateTest(PermissionSettingUpdateRequestDefinition.class, PERMISSION_UPDATE);
 
@@ -276,6 +286,9 @@ class GlobalUserRoleControllerTests extends BaseTest {
         // @@操作非全局用户组异常
         assertErrorCode(this.requestGet(PERMISSION_SETTING, getNonGlobalUserRole().getId()), GLOBAL_USER_ROLE_PERMISSION);
 
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(PERMISSION_SETTING, "111"), NOT_FOUND);
+
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_READ, PERMISSION_SETTING, ADMIN.getValue());
     }
@@ -313,6 +326,9 @@ class GlobalUserRoleControllerTests extends BaseTest {
 
         // @@操作内置用户组异常
         assertErrorCode(this.requestGet(DEFAULT_DELETE, ADMIN.getValue()), INTERNAL_USER_ROLE_PERMISSION);
+
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, "111"), NOT_FOUND);
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_DELETE, DEFAULT_DELETE, addUserRole.getId());
