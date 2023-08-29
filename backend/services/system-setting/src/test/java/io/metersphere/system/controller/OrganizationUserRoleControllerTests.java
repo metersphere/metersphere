@@ -86,7 +86,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         OrganizationUserRoleEditRequest request = new OrganizationUserRoleEditRequest();
         request.setName("default-org-role-5");
         request.setScopeId("default-organization-2");
-        MvcResult addResult = this.responsePost(ORGANIZATION_USER_ROLE_ADD, request);
+        this.requestPost(ORGANIZATION_USER_ROLE_ADD, request);
         // 验证是否添加成功
         String organizationId = "default-organization-2";
         MvcResult mvcResult = this.responseGet(ORGANIZATION_USER_ROLE_LIST + "/" + organizationId);

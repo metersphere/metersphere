@@ -98,13 +98,13 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
                 User user = userMap.get(k);
                 if (user != null) {
                     BeanUtils.copyBean(userExtend, user);
+                    v.forEach(roleItem -> {
+                        if (StringUtils.equals(roleItem, roleId)) {
+                            userExtend.setCheckRoleFlag(true);
+                        }
+                    });
+                    userExtends.add(userExtend);
                 }
-                v.forEach(roleItem -> {
-                    if (StringUtils.equals(roleItem, roleId)) {
-                        userExtend.setCheckRoleFlag(true);
-                    }
-                });
-                userExtends.add(userExtend);
             });
         }
         return userExtends;
