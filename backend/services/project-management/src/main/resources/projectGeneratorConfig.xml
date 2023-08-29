@@ -70,8 +70,6 @@
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="custom_field"/>
-        <table tableName="custom_field_template"/>
         <table tableName="custom_function"/>
         <table tableName="fake_error"/>
         <table tableName="file_metadata"/>
@@ -84,11 +82,6 @@
         <table tableName="fake_error_blob"/>
         <table tableName="file_metadata_blob"/>
         <table tableName="project_extend"/>
-        <table tableName="functional_case_template"/>
-        <table tableName="functional_case_template_extend"/>
-        <table tableName="bug_template_extend"/>
-        <table tableName="bug_template"/>
-        <table tableName="api_template"/>
         <table tableName="message_task"/>
         <table tableName="message_task_blob"/>
         <table tableName="notification"/>

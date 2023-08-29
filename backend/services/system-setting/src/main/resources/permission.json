@@ -259,6 +259,42 @@
 
       },
       {
+        "id": "ORGANIZATION_CUSTOM_FIELD",
+        "name": "permission.organization_custom_field.name",
+        "permissions": [
+          {
+            "id": "ORGANIZATION_CUSTOM_FIELD:READ"
+          },
+          {
+            "id": "ORGANIZATION_CUSTOM_FIELD:READ+ADD"
+          },
+          {
+            "id": "ORGANIZATION_CUSTOM_FIELD:READ+UPDATE"
+          },
+          {
+            "id": "ORGANIZATION_CUSTOM_FIELD:READ+DELETE"
+          }
+        ]
+      },
+      {
+        "id": "ORGANIZATION_TEMPLATE",
+        "name": "permission.organization_template.name",
+        "permissions": [
+          {
+            "id": "ORGANIZATION_TEMPLATE:READ"
+          },
+          {
+            "id": "ORGANIZATION_TEMPLATE:READ+ADD"
+          },
+          {
+            "id": "ORGANIZATION_TEMPLATE:READ+UPDATE"
+          },
+          {
+            "id": "ORGANIZATION_TEMPLATE:READ+DELETE"
+          }
+        ]
+      },
+      {
         "id": "ORGANIZATION_LOG",
         "name": "permission.organization_operation_log.name",
         "permissions": [

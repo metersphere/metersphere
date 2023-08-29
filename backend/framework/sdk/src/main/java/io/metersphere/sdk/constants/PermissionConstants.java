@@ -87,6 +87,20 @@ public class PermissionConstants {
 
     /*------ end: SYSTEM_PARAMETER_SETTING ------*/
 
+    /*------ start: ORGANIZATION_CUSTOM_FIELD ------*/
+    public static final String ORGANIZATION_CUSTOM_FIELD_READ = "ORGANIZATION_CUSTOM_FIELD:READ";
+    public static final String ORGANIZATION_CUSTOM_FIELD_ADD = "ORGANIZATION_CUSTOM_FIELD:READ+ADD";
+    public static final String ORGANIZATION_CUSTOM_FIELD_UPDATE = "ORGANIZATION_CUSTOM_FIELD:READ+UPDATE";
+    public static final String ORGANIZATION_CUSTOM_FIELD_DELETE = "ORGANIZATION_CUSTOM_FIELD:READ+DELETE";
+    /*------ end: ORGANIZATION_CUSTOM_FIELD ------*/
+
+    /*------ start: ORGANIZATION_TEMPLATE ------*/
+    public static final String ORGANIZATION_TEMPLATE_READ = "ORGANIZATION_TEMPLATE:READ";
+    public static final String ORGANIZATION_TEMPLATE_ADD = "ORGANIZATION_TEMPLATE:READ+ADD";
+    public static final String ORGANIZATION_TEMPLATE_UPDATE = "ORGANIZATION_TEMPLATE:READ+UPDATE";
+    public static final String ORGANIZATION_TEMPLATE_DELETE = "ORGANIZATION_TEMPLATE:READ+DELETE";
+    /*------ end: ORGANIZATION_TEMPLATE ------*/
+
     /**
      * 项目成员权限
      */

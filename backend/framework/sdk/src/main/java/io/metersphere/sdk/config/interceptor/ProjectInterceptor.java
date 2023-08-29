@@ -1,6 +1,5 @@
 package io.metersphere.sdk.config.interceptor;
 
-import io.metersphere.project.domain.CustomFieldTemplate;
 import io.metersphere.project.domain.CustomFunctionBlob;
 import io.metersphere.project.domain.FakeErrorBlob;
 import io.metersphere.project.domain.FileMetadataBlob;
@@ -24,7 +23,6 @@ public class ProjectInterceptor {
         configList.add(new MybatisInterceptorConfig(CustomFunctionBlob.class, "script", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(CustomFunctionBlob.class, "result", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(CustomFunctionBlob.class, "params", CompressUtils.class, "zip", "unzip"));
-        configList.add(new MybatisInterceptorConfig(CustomFieldTemplate.class, "defaultValue", CompressUtils.class, "zip", "unzip"));
 
         return configList;
     }

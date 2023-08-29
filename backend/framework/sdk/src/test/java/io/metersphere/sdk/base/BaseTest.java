@@ -29,6 +29,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -123,6 +124,7 @@ public abstract class BaseTest {
         return MockMvcRequestBuilders.post(getBasePath() + url, uriVariables)
                 .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken())
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN")
                 .content(JSON.toJSONString(param))
                 .contentType(MediaType.APPLICATION_JSON);
     }
