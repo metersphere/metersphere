@@ -3,9 +3,11 @@ package io.metersphere.sdk.controller.handler;
 import io.metersphere.sdk.controller.handler.result.IResultCode;
 import io.metersphere.sdk.controller.handler.result.MsHttpResultCode;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.http.HttpStatus;
@@ -74,15 +76,38 @@ public class RestControllerExceptionHandler {
                     .body(ResultHolder.error(MsHttpResultCode.FAILED.getCode(), e.getMessage()));
         }
 
+        int code = errorCode.getCode();
+        String message = errorCode.getMessage();
+        message = Translator.get(message, message);
+
         if (errorCode instanceof MsHttpResultCode) {
             // 如果是 MsHttpResultCode，则设置响应的状态码，取状态码的后三位
-            return ResponseEntity.status(errorCode.getCode() % 1000)
-                    .body(ResultHolder.error(errorCode.getCode(), Translator.get(errorCode.getMessage(), errorCode.getMessage())));
+            if (errorCode.equals(MsHttpResultCode.NOT_FOUND)) {
+                message = getNotFoundMessage(message);
+            }
+            return ResponseEntity.status(code % 1000)
+                    .body(ResultHolder.error(code, message));
         } else {
             // 响应码返回 500，设置业务状态码
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ResultHolder.error(errorCode.getCode(), Translator.get(errorCode.getMessage(), errorCode.getMessage()), e.getMessage()));
+                    .body(ResultHolder.error(code, Translator.get(message, message), e.getMessage()));
         }
+    }
+
+    /**
+     * 当抛出 NOT_FOUND，拼接资源名称
+     * @param message
+     * @return
+     */
+    private static String getNotFoundMessage(String message) {
+        String resourceName = ServiceUtils.getResourceName();
+        if (StringUtils.isNotBlank(resourceName)) {
+            message = String.format(message, Translator.get(resourceName, resourceName));
+        } else {
+            message = String.format(message, Translator.get("resource.name"));
+        }
+        ServiceUtils.clearResourceName();
+        return message;
     }
 
     @ExceptionHandler({Exception.class})

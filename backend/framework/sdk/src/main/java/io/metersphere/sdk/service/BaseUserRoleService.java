@@ -6,6 +6,7 @@ import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.PermissionCache;
+import io.metersphere.sdk.util.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
@@ -140,6 +141,10 @@ public class BaseUserRoleService {
         return userRole;
     }
 
+    public UserRole checkResourceExist(UserRole userRole) {
+        return ServiceUtils.checkResourceExist(userRole, "permission.system_user_role.name");
+    }
+
     /**
      * 删除用户组，并且删除用户组与用户的关联关系，用户组与权限的关联关系
      *
@@ -173,6 +178,10 @@ public class BaseUserRoleService {
 
     public UserRole get(String id) {
         return userRoleMapper.selectByPrimaryKey(id);
+    }
+
+    public UserRole getWithCheck(String id) {
+        return checkResourceExist(userRoleMapper.selectByPrimaryKey(id));
     }
 
     public List<UserRole> getList(List<String> idList) {

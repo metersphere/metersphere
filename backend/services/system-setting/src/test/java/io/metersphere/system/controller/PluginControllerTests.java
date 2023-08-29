@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.FILE_NAME_ILLEGAL;
+import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -236,6 +237,11 @@ public class PluginControllerTests extends BaseTest {
 
         // @@校验日志
         checkLog(request.getId(), OperationLogType.UPDATE);
+
+        // @@校验 NOT_FOUND 异常
+        request.setId("1111");
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), NOT_FOUND);
+
         // @@异常参数校验
         updatedGroupParamValidateTest(PluginUpdateRequestDefinition.class, DEFAULT_UPDATE);
         // @@校验权限
@@ -307,6 +313,9 @@ public class PluginControllerTests extends BaseTest {
         Assertions.assertEquals(new ArrayList<>(0), getOrgIdsByPlugId(addPlugin.getId()));
         Assertions.assertEquals(new ArrayList<>(0), getScriptIdsByPlugId(addPlugin.getId()));
         this.requestGetWithOk(DEFAULT_DELETE, anotherAddPlugin.getId());
+
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, "1111"), NOT_FOUND);
 
         // @@校验日志
         checkLog(addPlugin.getId(), OperationLogType.DELETE);

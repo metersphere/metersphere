@@ -7,6 +7,7 @@ import io.metersphere.sdk.service.PlatformPluginService;
 import io.metersphere.sdk.service.PluginLoadService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.ServiceUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.domain.ServiceIntegrationExample;
@@ -39,6 +40,8 @@ public class ServiceIntegrationService {
     private PluginLoadService pluginLoadService;
     @Resource
     private PlatformPluginService platformPluginService;
+    @Resource
+    private PluginService pluginService;
 
     public static final String PLUGIN_IMAGE_GET_PATH = "/plugin/image/%s?imagePath=%s";
 
@@ -88,6 +91,7 @@ public class ServiceIntegrationService {
     }
 
     public ServiceIntegration update(ServiceIntegrationUpdateRequest request) {
+        checkResourceExist(request.getId());
         ServiceIntegration serviceIntegration = new ServiceIntegration();
         // 组织不能修改
         serviceIntegration.setOrganizationId(null);
@@ -99,7 +103,12 @@ public class ServiceIntegrationService {
         return serviceIntegration;
     }
 
+    private ServiceIntegration checkResourceExist(String id) {
+        return ServiceUtils.checkResourceExist(serviceIntegrationMapper.selectByPrimaryKey(id), "permission.service_integration.name");
+    }
+
     public void delete(String id) {
+        checkResourceExist(id);
         serviceIntegrationMapper.deleteByPrimaryKey(id);
     }
 
@@ -114,12 +123,13 @@ public class ServiceIntegrationService {
     }
 
     public void validate(String pluginId, Map<String, String> serviceIntegrationInfo) {
+        pluginService.checkResourceExist(pluginId);
         Platform platform = platformPluginService.getPlatform(pluginId, StringUtils.EMPTY, JSON.toJSONString(serviceIntegrationInfo));
         platform.validateIntegrationConfig();
     }
 
     public void validate(String id) {
-        ServiceIntegration serviceIntegration = serviceIntegrationMapper.selectByPrimaryKey(id);
+        ServiceIntegration serviceIntegration = checkResourceExist(id);;
         Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), StringUtils.EMPTY);
         platform.validateIntegrationConfig();
     }
@@ -129,6 +139,7 @@ public class ServiceIntegrationService {
     }
 
     public Object getPluginScript(String pluginId) {
+        pluginService.checkResourceExist(pluginId);
         AbstractPlatformPlugin platformPlugin = pluginLoadService.getImplInstance(pluginId, AbstractPlatformPlugin.class);
         return pluginLoadService.getPluginScriptContent(pluginId, platformPlugin.getIntegrationScriptId());
     }

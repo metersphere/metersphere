@@ -37,6 +37,7 @@ import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.sdk.constants.InternalUserRole.ORG_ADMIN;
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.USER_ROLE_RELATION_EXIST;
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION;
+import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
 
 @SpringBootTest
@@ -171,6 +172,9 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
             // 校验 exclude 字段
             Assertions.assertTrue(item.getExclude() == excludeUserIds.contains(item.getId()));
         });
+
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(USER_OPTION, "111"), NOT_FOUND);
     }
 
     @Test
@@ -199,6 +203,9 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         List<UserRoleRelation> userRoleRelations = getUserRoleRelationByRoleIdAndUserId(ADMIN.getValue(), ADMIN.getValue());
         assertErrorCode(this.requestGet(DEFAULT_DELETE, userRoleRelations.get(0).getId()),
                 USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION);
+
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, "111"), NOT_FOUND);
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_UPDATE, DEFAULT_DELETE, addUserRoleRelation.getId());
