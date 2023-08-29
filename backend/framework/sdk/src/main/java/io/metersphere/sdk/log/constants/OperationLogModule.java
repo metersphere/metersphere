@@ -73,4 +73,10 @@ public class OperationLogModule {
     //系统设置-组织-项目
     public static final String SETTING_SYSTEM_ORGANIZATION_PROJECT = "SETTING_SYSTEM_ORGANIZATION_PROJECT";
 
+    //项目管理
+    public static final String PROJECT_MANAGEMENT = "PROJECT_MANAGEMENT"; // 项目管理
+    public static final String PROJECT_MANAGEMENT_PERMISSION = "PROJECT_MANAGEMENT_PERMISSION"; // 项目管理-项目与权限
+    public static final String PROJECT_MANAGEMENT_PERMISSION_MEMBER = "PROJECT_MANAGEMENT_PERMISSION_MEMBER";// 项目管理-项目与权限-成员
+
+
 }
