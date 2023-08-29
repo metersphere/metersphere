@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class PlatformCustomFieldItemDTO extends CustomFieldDTO {
+public class PlatformCustomFieldItemDTO extends PlatformCustomFieldDTO {
     private Object value;
     private String key;
     private String customData;
