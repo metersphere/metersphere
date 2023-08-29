@@ -296,6 +296,7 @@
                 {
                   label: t('system.resourcePool.testResourceDTO.token'),
                   value: token,
+                  showCopy: true,
                 },
                 {
                   label: t('system.resourcePool.testResourceDTO.namespace'),

@@ -29,7 +29,13 @@
           :descriptions="props.descriptions"
           :show-skeleton="props.showSkeleton"
           :skeleton-line="10"
-        ></MsDescription>
+        >
+          <template #value="{ item }">
+            <slot name="descValue" :item="item">
+              {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
+            </slot>
+          </template>
+        </MsDescription>
       </slot>
     </a-scrollbar>
     <template #footer>

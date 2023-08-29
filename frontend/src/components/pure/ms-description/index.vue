@@ -32,11 +32,30 @@
             <span v-show="Array.isArray(item.value) && item.value.length === 0">-</span>
           </template>
           <a-button v-else-if="item.isButton" type="text" @click="handleItemClick(item)">{{ item.value }}</a-button>
-          <div v-else>
+          <template v-else>
             <slot name="value" :item="item">
               {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
             </slot>
-          </div>
+            <template v-if="item.showCopy">
+              <MsButton
+                v-if="item.copyTimer !== null && item.copyTimer !== undefined"
+                class="absolute bottom-0 right-0 bg-white pl-[16px] !text-[rgb(var(--success-6))]"
+                type="text"
+              >
+                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px]"></MsIcon>
+                {{ t('ms.description.copySuccess') }}
+              </MsButton>
+              <MsButton
+                v-else
+                class="absolute bottom-0 right-0 bg-white pl-[16px]"
+                type="text"
+                @click="copyValue(item)"
+              >
+                <MsIcon type="icon-icon_copy_outlined" class="mr-[4px]"></MsIcon>
+                {{ t('ms.description.copy') }}
+              </MsButton>
+            </template>
+          </template>
         </slot>
       </div>
     </div>
@@ -44,12 +63,20 @@
 </template>
 
 <script setup lang="ts">
+  import { Message } from '@arco-design/web-vue';
+  import { useClipboard } from '@vueuse/core';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import { useI18n } from '@/hooks/useI18n';
+
   export interface Description {
     label: string;
     value: (string | number) | (string | number)[];
     key?: string;
     isTag?: boolean;
     isButton?: boolean;
+    showCopy?: boolean;
+    copyTimer?: any | null;
     onClick?: () => void;
   }
 
@@ -65,6 +92,21 @@
     }
   );
 
+  const { t } = useI18n();
+  const { copy } = useClipboard();
+
+  async function copyValue(item: Description) {
+    try {
+      await copy(Array.isArray(item.value) ? item.value.join(',') : item.value.toString());
+      item.copyTimer = setTimeout(() => {
+        item.copyTimer = null;
+      }, 3000);
+    } catch (error) {
+      console.log(error);
+      Message.error(t('ms.description.copyFail'));
+    }
+  }
+
   function handleItemClick(item: Description) {
     if (typeof item.onClick === 'function') {
       item.onClick();
@@ -76,7 +118,7 @@
   .ms-description {
     @apply flex flex-wrap;
     .ms-description-item {
-      @apply flex items-center;
+      @apply flex;
 
       width: calc(100% / v-bind(column));
     }
@@ -89,7 +131,13 @@
       word-wrap: break-word;
     }
     .ms-description-item-value {
-      @apply !pr-0 align-top;
+      @apply relative flex-1 overflow-hidden break-all align-top;
+
+      /* stylelint-disable-next-line value-no-vendor-prefix */
+      display: -webkit-box;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
     }
   }
 </style>

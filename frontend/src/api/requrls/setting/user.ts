@@ -4,6 +4,8 @@ export const GetUserListUrl = '/system/user/page';
 export const CreateUserUrl = '/system/user/add';
 // 更新用户
 export const UpdateUserUrl = '/system/user/update';
+// 获取用户详情
+export const GetUserInfoUrl = '/system/user/get';
 // 删除用户
 export const DeleteUserUrl = '/system/user/delete';
 // 导入用户
