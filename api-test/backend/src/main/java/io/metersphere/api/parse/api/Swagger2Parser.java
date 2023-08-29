@@ -22,6 +22,7 @@ import io.swagger.models.properties.*;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -392,13 +393,11 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private JsonSchemaItem parseProperty(Property property, HashSet<String> refSet) {
         JsonSchemaItem item = new JsonSchemaItem();
-        item.setDescription(property.getDescription());
-        if (property instanceof ObjectProperty) {
-            ObjectProperty objectProperty = (ObjectProperty) property;
+        item.setDescription(ObjectUtils.isNotEmpty(property) ? property.getDescription() : StringUtils.EMPTY);
+        if (property instanceof ObjectProperty objectProperty) {
             item.setType(PropertyConstant.OBJECT);
             item.setProperties(parseSchemaProperties(objectProperty.getProperties(), refSet));
-        } else if (property instanceof ArrayProperty) {
-            ArrayProperty arrayProperty = (ArrayProperty) property;
+        } else if (property instanceof ArrayProperty arrayProperty) {
             handleArrayItemProperties(item, arrayProperty.getItems(), refSet);
         } else if (property instanceof RefProperty) {
             item.setType(PropertyConstant.OBJECT);
@@ -406,7 +405,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         } else {
             handleBaseProperties(item, property);
         }
-        if (property.getExample() != null) {
+        if (ObjectUtils.isNotEmpty(property) && property.getExample() != null) {
             item.getMock().put(PropertyConstant.MOCK, property.getExample());
         } else {
             item.getMock().put(PropertyConstant.MOCK, StringUtils.EMPTY);
