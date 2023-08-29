@@ -23,6 +23,7 @@ import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -52,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -120,17 +122,15 @@ public abstract class BaseTest {
     }
 
     protected MockHttpServletRequestBuilder getPostRequestBuilder(String url, Object param, Object... uriVariables) {
-        return MockMvcRequestBuilders.post(getBasePath() + url, uriVariables)
-                .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
-                .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken())
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(getBasePath() + url, uriVariables);
+        return setRequestBuilderHeader(requestBuilder, adminAuthInfo)
                 .content(JSON.toJSONString(param))
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
     protected MockHttpServletRequestBuilder getRequestBuilder(String url, Object... uriVariables) {
-        return MockMvcRequestBuilders.get(getBasePath() + url, uriVariables)
-                .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
-                .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(getBasePath() + url, uriVariables);
+        return setRequestBuilderHeader(requestBuilder, adminAuthInfo);
     }
 
     protected ResultActions requestPost(String url, Object param, Object... uriVariables) throws Exception {
@@ -192,15 +192,15 @@ public abstract class BaseTest {
                                                                                MultiValueMap<String, Object> paramMap,
                                                                                Object[] uriVariables) {
         AuthInfo authInfo = getPermissionAuthInfo(roleId);
-        return getMultipartRequestBuilderWithParam(url, paramMap, uriVariables)
-                .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
-                .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
+        MockMultipartHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilderWithParam(url, paramMap, uriVariables);
+        return setRequestBuilderHeader(requestBuilder, authInfo);
     }
 
     private MockHttpServletRequestBuilder getMultipartRequestBuilder(String url,
                                                                      MultiValueMap<String, Object> paramMap,
                                                                      Object[] uriVariables) {
-        return getMultipartRequestBuilderWithParam(url, paramMap, uriVariables)
+        MockMultipartHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilderWithParam(url, paramMap, uriVariables);
+        return setRequestBuilderHeader(requestBuilder, adminAuthInfo)
                 .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken());
     }
@@ -467,17 +467,15 @@ public abstract class BaseTest {
      */
     private void refreshUserPermission(String roleId) throws Exception {
         AuthInfo authInfo = getPermissionAuthInfo(roleId);
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/is-login")
-                .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
-                .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/is-login");
+        requestBuilder = setRequestBuilderHeader(requestBuilder, authInfo);
         mockMvc.perform(requestBuilder);
     }
 
     private void refreshUserPermissionByRoleId(String roleId) throws Exception {
         AuthInfo authInfo = getPermissionAuthInfo(roleId);
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/is-login")
-                .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
-                .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/is-login");
+        requestBuilder = setRequestBuilderHeader(requestBuilder, authInfo);
         mockMvc.perform(requestBuilder);
     }
 
@@ -523,11 +521,17 @@ public abstract class BaseTest {
 
     private MockHttpServletRequestBuilder getPermissionPostRequestBuilder(String roleId, String url, Object param, Object... uriVariables) {
         AuthInfo authInfo = getPermissionAuthInfo(roleId);
-        return MockMvcRequestBuilders.post(getBasePath() + url, uriVariables)
-                .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
-                .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken())
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(getBasePath() + url, uriVariables);
+        return setRequestBuilderHeader(requestBuilder, authInfo)
                 .content(JSON.toJSONString(param))
                 .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    private MockHttpServletRequestBuilder setRequestBuilderHeader(MockHttpServletRequestBuilder requestBuilder, AuthInfo authInfo) {
+        return requestBuilder
+               .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
+               .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken())
+               .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN");
     }
 
     private AuthInfo getPermissionAuthInfo(String roleId) {
@@ -540,9 +544,8 @@ public abstract class BaseTest {
 
     private MockHttpServletRequestBuilder getPermissionRequestBuilder(String roleId, String url, Object... uriVariables) {
         AuthInfo authInfo = getPermissionAuthInfo(roleId);
-        return MockMvcRequestBuilders.get(getBasePath() + url, uriVariables)
-                .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
-                .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(getBasePath() + url, uriVariables);
+        return setRequestBuilderHeader(requestBuilder, authInfo);
     }
 
     public String getSessionId() {

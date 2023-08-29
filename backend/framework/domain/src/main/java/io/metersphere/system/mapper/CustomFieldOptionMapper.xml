@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.CustomFieldOptionMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.CustomFieldOption">
+    <id column="field_id" jdbcType="VARCHAR" property="fieldId" />
+    <id column="value" jdbcType="VARCHAR" property="value" />
+    <result column="text" jdbcType="VARCHAR" property="text" />
+    <result column="internal" jdbcType="BIT" property="internal" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    field_id, `value`, `text`, internal
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.system.domain.CustomFieldOptionExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from custom_field_option
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from custom_field_option
+    where field_id = #{fieldId,jdbcType=VARCHAR}
+      and `value` = #{value,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from custom_field_option
+    where field_id = #{fieldId,jdbcType=VARCHAR}
+      and `value` = #{value,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.CustomFieldOptionExample">
+    delete from custom_field_option
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.system.domain.CustomFieldOption">
+    insert into custom_field_option (field_id, `value`, `text`, 
+      internal)
+    values (#{fieldId,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR}, 
+      #{internal,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.system.domain.CustomFieldOption">
+    insert into custom_field_option
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="fieldId != null">
+        field_id,
+      </if>
+      <if test="value != null">
+        `value`,
+      </if>
+      <if test="text != null">
+        `text`,
+      </if>
+      <if test="internal != null">
+        internal,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="fieldId != null">
+        #{fieldId,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        #{value,jdbcType=VARCHAR},
+      </if>
+      <if test="text != null">
+        #{text,jdbcType=VARCHAR},
+      </if>
+      <if test="internal != null">
+        #{internal,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.system.domain.CustomFieldOptionExample" resultType="java.lang.Long">
+    select count(*) from custom_field_option
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update custom_field_option
+    <set>
+      <if test="record.fieldId != null">
+        field_id = #{record.fieldId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.value != null">
+        `value` = #{record.value,jdbcType=VARCHAR},
+      </if>
+      <if test="record.text != null">
+        `text` = #{record.text,jdbcType=VARCHAR},
+      </if>
+      <if test="record.internal != null">
+        internal = #{record.internal,jdbcType=BIT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update custom_field_option
+    set field_id = #{record.fieldId,jdbcType=VARCHAR},
+      `value` = #{record.value,jdbcType=VARCHAR},
+      `text` = #{record.text,jdbcType=VARCHAR},
+      internal = #{record.internal,jdbcType=BIT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.CustomFieldOption">
+    update custom_field_option
+    <set>
+      <if test="text != null">
+        `text` = #{text,jdbcType=VARCHAR},
+      </if>
+      <if test="internal != null">
+        internal = #{internal,jdbcType=BIT},
+      </if>
+    </set>
+    where field_id = #{fieldId,jdbcType=VARCHAR}
+      and `value` = #{value,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.CustomFieldOption">
+    update custom_field_option
+    set `text` = #{text,jdbcType=VARCHAR},
+      internal = #{internal,jdbcType=BIT}
+    where field_id = #{fieldId,jdbcType=VARCHAR}
+      and `value` = #{value,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into custom_field_option
+    (field_id, `value`, `text`, internal)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.fieldId,jdbcType=VARCHAR}, #{item.value,jdbcType=VARCHAR}, #{item.text,jdbcType=VARCHAR}, 
+        #{item.internal,jdbcType=BIT})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into custom_field_option (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'field_id'.toString() == column.value">
+          #{item.fieldId,jdbcType=VARCHAR}
+        </if>
+        <if test="'value'.toString() == column.value">
+          #{item.value,jdbcType=VARCHAR}
+        </if>
+        <if test="'text'.toString() == column.value">
+          #{item.text,jdbcType=VARCHAR}
+        </if>
+        <if test="'internal'.toString() == column.value">
+          #{item.internal,jdbcType=BIT}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+</mapper>
