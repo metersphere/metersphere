@@ -14,7 +14,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.StandardReflectionParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -37,7 +37,7 @@ public class SendNoticeAspect {
     private AfterReturningNoticeSendService afterReturningNoticeSendService;
 
     private ExpressionParser parser = new SpelExpressionParser();
-    private LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
+    private StandardReflectionParameterNameDiscoverer discoverer = new StandardReflectionParameterNameDiscoverer();
     private ThreadLocal<String> source = new ThreadLocal<>();
 
     @Pointcut("@annotation(io.metersphere.notice.annotation.SendNotice)")
