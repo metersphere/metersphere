@@ -26,7 +26,7 @@ import java.util.List;
  * @author : jianxing
  * @date : 2023-6-9
  */
-@Tag(name = "系统设置-用户组")
+@Tag(name = "系统设置-系统-用户组")
 @RestController
 @RequestMapping("/user/role/global")
 public class GlobalUserRoleController {
@@ -35,21 +35,21 @@ public class GlobalUserRoleController {
     private GlobalUserRoleService globalUserRoleService;
 
     @GetMapping("/list")
-    @Operation(summary = "系统设置-用户组-获取全局用户组列表")
+    @Operation(summary = "系统设置-系统-用户组-获取全局用户组列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
     public List<UserRole> list() {
         return globalUserRoleService.list();
     }
 
     @GetMapping("/permission/setting/{id}")
-    @Operation(summary = "系统设置-用户组-获取全局用户组对应的权限配置")
+    @Operation(summary = "系统设置-系统-用户组-获取全局用户组对应的权限配置")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
     public List<PermissionDefinitionItem> getPermissionSetting(@PathVariable String id) {
         return globalUserRoleService.getPermissionSetting(id);
     }
 
     @PostMapping("/permission/update")
-    @Operation(summary = "系统设置-用户组-编辑全局用户组对应的权限配置")
+    @Operation(summary = "系统设置-系统-用户组-编辑全局用户组对应的权限配置")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = GlobalUserRoleLogService.class)
     public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
@@ -57,7 +57,7 @@ public class GlobalUserRoleController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "系统设置-用户组-添加自定义全局用户组")
+    @Operation(summary = "系统设置-系统-用户组-添加自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = GlobalUserRoleLogService.class)
     public UserRole add(@Validated({Created.class}) @RequestBody UserRoleUpdateRequest request) {
@@ -68,7 +68,7 @@ public class GlobalUserRoleController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "系统设置-用户组-更新自定义全局用户组")
+    @Operation(summary = "系统设置-系统-用户组-更新自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = GlobalUserRoleLogService.class)
     public UserRole update(@Validated({Updated.class}) @RequestBody UserRoleUpdateRequest request) {
@@ -78,7 +78,7 @@ public class GlobalUserRoleController {
     }
 
     @GetMapping("/delete/{id}")
-    @Operation(summary = "系统设置-用户组-删除自定义全局用户组")
+    @Operation(summary = "系统设置-系统-用户组-删除自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = GlobalUserRoleLogService.class)
     public void delete(@PathVariable String id) {

@@ -31,21 +31,21 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/plugin")
-@Tag(name = "系统设置-插件")
+@Tag(name = "系统设置-系统-插件管理")
 public class PluginController {
 
     @Resource
     private PluginService pluginService;
 
     @GetMapping("/list")
-    @Operation(summary = "系统设置-插件-获取插件列表")
+    @Operation(summary = "系统设置-系统-插件管理-获取插件列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_READ)
     public List<PluginDTO> list() {
         return pluginService.list();
     }
 
     @PostMapping("/add")
-    @Operation(summary = "系统设置-插件-创建插件")
+    @Operation(summary = "系统设置-系统-插件管理-创建插件")
     @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_ADD)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.addLog(#request)", msClass = PluginLogService.class)
     public Plugin add(@Validated({Created.class}) @RequestPart(value = "request") PluginUpdateRequest request,
@@ -55,7 +55,7 @@ public class PluginController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "系统设置-插件-更新插件")
+    @Operation(summary = "系统设置-系统-插件管理-更新插件")
     @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_UPDATE)
     @Log(type = OperationLogType.ADD, expression = "#msClass.updateLog(#request)", msClass = PluginLogService.class)
     public Plugin update(@Validated({Updated.class}) @RequestBody PluginUpdateRequest request) {
@@ -65,7 +65,7 @@ public class PluginController {
     }
 
     @GetMapping("/delete/{id}")
-    @Operation(summary = "系统设置-插件-删除插件")
+    @Operation(summary = "系统设置-系统-插件管理-删除插件")
     @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = PluginLogService.class)
     public void delete(@PathVariable String id) {
@@ -73,14 +73,14 @@ public class PluginController {
     }
 
     @GetMapping("/script/get/{pluginId}/{scriptId}")
-    @Operation(summary = "系统设置-插件-获取插件对应表单的脚本内容")
+    @Operation(summary = "系统设置-系统-插件管理-获取插件对应表单的脚本内容")
     @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_READ)
     public String getScript(@PathVariable String pluginId, @PathVariable String scriptId) {
         return pluginService.getScript(pluginId, scriptId);
     }
 
     @GetMapping("/image/{pluginId}")
-    @Operation(summary = "系统设置-插件-获取插件的图片资源")
+    @Operation(summary = "系统设置-系统-插件管理-获取插件的图片资源")
     public void getPluginImg(
             @Schema(description =  "插件ID", requiredMode = Schema.RequiredMode.REQUIRED)
             @PathVariable("pluginId")

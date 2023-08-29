@@ -44,7 +44,7 @@ public class OperationLogController {
 
 
     @GetMapping("/get/options")
-    @Operation(summary = "系统-日志-获取组织/项目级联下拉框选项")
+    @Operation(summary = "系统设置-系统-日志-获取组织/项目级联下拉框选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_LOG_READ)
     public OrganizationProjectOptionsResponse getOptions() {
 
@@ -62,7 +62,7 @@ public class OperationLogController {
 
 
     @PostMapping("/list")
-    @Operation(summary = "系统-日志-系统操作日志列表查询")
+    @Operation(summary = "系统设置-系统-日志-系统操作日志列表查询")
     @RequiresPermissions(PermissionConstants.SYSTEM_LOG_READ)
     public Pager<List<OperationLogResponse>> list(@Validated @RequestBody OperationLogRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -72,7 +72,7 @@ public class OperationLogController {
 
 
     @GetMapping("/user/list")
-    @Operation(summary = "系统-日志-系统日志页面，获取用户列表")
+    @Operation(summary = "系统设置-系统-日志-系统日志页面，获取用户列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_LOG_READ)
     public List<User> getUserList() {
         List<User> userList = userService.getUserList();

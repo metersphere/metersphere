@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "系统设置-认证设置")
+@Tag(name = "系统设置-系统-系统参数-认证设置")
 @RestController
 @RequestMapping("/system/authsource")
 @Data
@@ -40,7 +40,7 @@ public class AuthSourceController {
     private LdapService ldapService;
 
     @PostMapping("/list")
-    @Operation(summary = "系统设置-认证设置-列表查询")
+    @Operation(summary = "系统设置-系统-系统参数-认证设置-列表查询")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ)
     public Pager<List<AuthSource>> list(@Validated @RequestBody BasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -49,7 +49,7 @@ public class AuthSourceController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "系统设置-认证设置-新增")
+    @Operation(summary = "系统设置-系统-系统参数-认证设置-新增")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#authSource)", msClass = AuthSourceLogService.class)
     public AuthSource add(@Validated @RequestBody AuthSourceRequest authSource) {
@@ -57,7 +57,7 @@ public class AuthSourceController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "系统设置-认证设置-更新")
+    @Operation(summary = "系统设置-系统-系统参数-认证设置-更新")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#authSource)", msClass = AuthSourceLogService.class)
     public AuthSourceRequest update(@Validated @RequestBody AuthSourceRequest authSource) {
@@ -65,14 +65,14 @@ public class AuthSourceController {
     }
 
     @GetMapping("/get/{id}")
-    @Operation(summary = "系统设置-认证设置-详细信息")
+    @Operation(summary = "系统设置-系统-系统参数-认证设置-详细信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ)
     public AuthSourceDTO get(@PathVariable(value = "id") String id) {
         return authSourceService.getAuthSource(id);
     }
 
     @GetMapping("/delete/{id}")
-    @Operation(summary = "系统设置-认证设置-删除")
+    @Operation(summary = "系统设置-系统-系统参数-认证设置-删除")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = AuthSourceLogService.class)
     public void delete(@PathVariable(value = "id") String id) {
@@ -81,7 +81,7 @@ public class AuthSourceController {
 
 
     @PostMapping("/update/status")
-    @Operation(summary = "系统设置-认证设置-更新状态")
+    @Operation(summary = "系统设置-系统-系统参数-认证设置-更新状态")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request.getId())", msClass = AuthSourceLogService.class)
     public AuthSource updateStatus(@Validated @RequestBody AuthSourceStatusRequest request) {
@@ -90,14 +90,14 @@ public class AuthSourceController {
 
 
     @PostMapping("/ldap/test-connect")
-    @Operation(summary = "系统设置-认证设置-ldap测试连接")
+    @Operation(summary = "系统设置-系统-系统参数-认证设置-ldap测试连接")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     public void ldapTestConnect(@Validated @RequestBody LdapRequest request) {
         ldapService.testConnect(request);
     }
 
     @PostMapping("/ldap/test-login")
-    @Operation(summary = "系统设置-认证设置-ldap测试登录")
+    @Operation(summary = "系统设置-系统-系统参数-认证设置-ldap测试登录")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     public void testLogin(@RequestBody LdapLoginRequest request) {
         ldapService.testLogin(request);
