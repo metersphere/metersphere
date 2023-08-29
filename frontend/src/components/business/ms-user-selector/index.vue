@@ -1,100 +1,130 @@
 <template>
   <a-select
-    v-model="currentValue"
-    :disabled="props.disabled"
+    :model-value="currentValue"
+    :placeholder="t(props.placeholder || 'common.pleaseSelectMember')"
     multiple
-    :placeholder="props.placeholder ? t(props.placeholder) : t('common.pleaseSelectMember')"
-    value-key="id"
-    @search="handleSearch"
-    @change="handleChange"
+    :value-key="props.valueKey"
+    :disabled="props.disabled"
+    allow-clear
+    @change="change"
+    @search="search"
   >
     <template #label="{ data }">
-      <span class="option-name"> {{ data.value.name }} </span>
+      <span class="text-[var(--color-text-1)]"> {{ data.value.name }} </span>
     </template>
-    <a-option v-for="data in userOptions" :key="data.id" :disabled="(data.disabled as boolean)" :value="data">
-      <span class="option-name"> {{ data.name }} </span>
-      <span class="option-email"> {{ `(${data.email})` }} </span>
+    <a-option v-for="data in currentOptions" :key="data.id" :disabled="data.disabled" :value="data">
+      <span :class="data.disabled ? 'text-[var(--color-text-4)]' : 'text-[var(--color-text-1)]'">
+        {{ data.name }}
+      </span>
+      <span v-if="data.email" class="text-[var(--color-text-4)]"> {{ `(${data.email})` }} </span>
     </a-option>
   </a-select>
 </template>
 
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
-  import { ref, onMounted, watch } from 'vue';
-  import { getUserByOrganizationOrProject, getAllUser } from '@/api/modules/setting/organizationAndProject';
+  import { ref, onMounted, computed } from 'vue';
+  import initOptionsFunc, { UserRequesetTypeEnum } from './utils';
 
-  export interface MsUserSelectorProps {
-    value: string[];
-    disabled?: boolean;
-    placeholder?: string;
-    type?: 'organization' | 'usergroup';
-    sourceId?: string;
-    disabledKey?: string;
-  }
-
-  export interface UserItem {
+  export interface MsUserSelectorOption {
     id: string;
     name: string;
     email: string;
-    [key: string]: boolean | string;
+    disabled?: boolean;
+    [key: string]: string | number | boolean | undefined;
   }
 
-  const { t } = useI18n();
-  const props = withDefaults(defineProps<MsUserSelectorProps>(), {
-    disabled: false,
-    type: 'usergroup',
-    disabledKey: 'disabled',
-  });
+  const props = withDefaults(
+    defineProps<{
+      value: string[] | string; // 选中的值
+      disabled?: boolean; // 是否禁用
+      disabledKey?: string; // 禁用的key
+      valueKey?: string; // value的key
+      placeholder?: string;
+      firstLabelKey?: string; // 首要的的字段key
+      secondLabelKey?: string; // 次要的字段key
+      loadOptionParams?: Record<string, any>; // 加载选项的参数
+      type?: UserRequesetTypeEnum; // 加载选项的类型
+    }>(),
+    {
+      disabled: false,
+      disabledKey: 'disabled',
+      valueKey: 'id',
+      firstLabelKey: 'name',
+      secondLabelKey: 'email',
+      type: UserRequesetTypeEnum.SYSTEM_USER_GROUP,
+    }
+  );
+
   const emit = defineEmits<{
     (e: 'update:value', value: string[]): void;
   }>();
-  const currentValue = ref(props.value);
+  const { t } = useI18n();
 
-  const allOption = ref<UserItem[]>([]);
-  const userOptions = ref<UserItem[]>([]);
+  const currentOptions = ref<MsUserSelectorOption[]>([]);
+  const oldOptions = ref<MsUserSelectorOption[]>([]);
 
-  const initUserList = async () => {
-    let res: UserItem[] = [];
-    if (props.type === 'organization') {
-      if (!props.sourceId) {
-        return;
-      }
-      res = await getUserByOrganizationOrProject(props.sourceId);
-    } else {
-      res = await getAllUser();
+  const currentValue = computed(() => {
+    return currentOptions.value.filter((item) => props.value.includes(item.id)) || [];
+  });
+
+  const change = (value: string | number | Record<string, any> | (string | number | Record<string, any>)[]) => {
+    const tmpArr = Array.isArray(value) ? value : [value];
+    const { valueKey } = props;
+    emit(
+      'update:value',
+      tmpArr.map((item) => item[valueKey])
+    );
+  };
+  const loadList = async () => {
+    try {
+      const list = (await initOptionsFunc(props.type, props.loadOptionParams || {})) || [];
+      const { firstLabelKey, secondLabelKey, disabledKey, valueKey } = props;
+      list.forEach((item: MsUserSelectorOption) => {
+        if (firstLabelKey) {
+          item.name = (item[firstLabelKey] as string) || '';
+        }
+        if (secondLabelKey) {
+          item.email = (item[secondLabelKey] as string) || '';
+        }
+        if (disabledKey) {
+          item.disabled = item[disabledKey] as boolean;
+        }
+        if (valueKey) {
+          item.id = item[valueKey] as string;
+        }
+      });
+      currentOptions.value = [...list];
+      oldOptions.value = [...list];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      currentOptions.value = [];
+      oldOptions.value = [];
     }
-    res.forEach((item) => {
-      item.disabled = item[props.disabledKey as string];
-    });
-    allOption.value = [...res];
-    userOptions.value = [...res];
   };
 
-  const handleSearch = (value: string) => {
-    let timmer = null;
+  const idInSelected = (id: string) => {
+    return props.value.includes(id);
+  };
+
+  const search = async (value: string) => {
+    let timeout = null;
     if (value) {
-      timmer = window.setTimeout(() => {
-        userOptions.value = userOptions.value.filter(
-          (item) => item.name.includes(value) || currentValue.value.includes(item.id)
+      timeout = window.setTimeout(() => {
+        currentOptions.value = currentOptions.value.filter(
+          (item) => item.name.includes(value) || item.email.includes(value) || idInSelected(item.id)
         );
       }, 60);
     } else {
-      if (timmer) window.clearTimeout(timmer);
-      userOptions.value = allOption.value;
+      if (timeout) {
+        window.clearTimeout(timeout);
+      }
+      currentOptions.value = [...oldOptions.value];
     }
   };
 
-  const handleChange = (value: string | number | Record<string, any> | (string | number | Record<string, any>)[]) => {
-    emit('update:value', value as string[]);
-  };
-
-  onMounted(() => {
-    initUserList();
+  onMounted(async () => {
+    await loadList();
   });
-  watch(
-    () => props.value,
-    (value) => {
-      currentValue.value = value;
-    }
-  );
 </script>

@@ -119,8 +119,11 @@
     userVisible.value = true;
   };
 
-  const handleHideUserModal = () => {
+  const handleHideUserModal = (shouldSearch: boolean) => {
     userVisible.value = false;
+    if (shouldSearch) {
+      fetchData();
+    }
   };
 
   const handleRemove = async (record: TableData) => {

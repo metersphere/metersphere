@@ -30,6 +30,7 @@
           <MsUserSelector
             v-model:value="form.memberIds"
             placeholder="system.organization.organizationAdminPlaceholder"
+            :type="UserRequesetTypeEnum.SYSTEM_ORGANIZATION_ADMIN"
           />
         </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">
@@ -56,6 +57,7 @@
   import { createOrUpdateOrg } from '@/api/modules/setting/organizationAndProject';
   import { Message } from '@arco-design/web-vue';
   import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
+  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -69,6 +71,7 @@
 
   const emit = defineEmits<{
     (e: 'cancel'): void;
+    (e: 'submit'): void;
   }>();
 
   const form = reactive<{ name: string; memberIds: string[]; description: string }>({
@@ -86,6 +89,11 @@
     emit('cancel');
   };
 
+  const handleSubmit = () => {
+    handleCancel();
+    emit('submit');
+  };
+
   const handleBeforeOk = () => {
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (errors) {
@@ -99,7 +107,7 @@
             ? t('system.organization.updateOrganizationSuccess')
             : t('system.organization.createOrganizationSuccess')
         );
-        handleCancel();
+        handleSubmit();
         return true;
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -119,4 +127,3 @@
   });
   const isEdit = computed(() => !!props.currentOrganization?.id);
 </script>
-@/api/modules/setting/organizationAndProject

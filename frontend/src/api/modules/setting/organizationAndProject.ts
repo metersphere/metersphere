@@ -75,6 +75,11 @@ export function addUserToOrgOrProject(data: AddUserToOrgOrProjectParams) {
 export function getUserByOrganizationOrProject(sourceId: string) {
   return MSR.get({ url: `${orgUrl.getUserByOrgOrProjectUrl}${sourceId}` });
 }
+
+// 系统-获取管理员下拉选项
+export function getAdminByOrganizationOrProject() {
+  return MSR.get({ url: `${orgUrl.getAdminByOrgOrProjectUrl}` });
+}
 // 删除组织或项目成员
 export function deleteUserFromOrgOrProject(sourceId: string, userId: string, isOrg = true) {
   return MSR.get({
@@ -146,4 +151,14 @@ export function deleteProjectMemberByOrg(projectId: string, userId: string) {
 // 组织-添加项目成员
 export function addProjectMemberByOrg(data: AddUserToOrgOrProjectParams) {
   return MSR.post({ url: orgUrl.postAddProjectMemberByOrgUrl, data });
+}
+
+// 组织-获取项目下的管理员选项
+export function getAdminByProjectByOrg(organizationId: string) {
+  return MSR.get({ url: `${orgUrl.getAdminByOrganizationOrProjectUrl}${organizationId}` });
+}
+
+// 组织-获取成员下的成员选项
+export function getUserByProjectByOrg(organizationId: string, projectId: string) {
+  return MSR.get({ url: `${orgUrl.getUserByOrganizationOrProjectUrl}${organizationId}/${projectId}` });
 }

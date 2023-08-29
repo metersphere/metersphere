@@ -64,6 +64,7 @@
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import type { LoginData } from '@/models/user';
   import { WorkbenchRouteEnum } from '@/enums/routeEnum';
+  import JSEncrypt from 'jsencrypt';
 
   const router = useRouter();
   const { t } = useI18n();
@@ -99,6 +100,13 @@
     password: 'metersphere',
   });
 
+  const encrypted = (input: string, publicKey: string) => {
+    const encrypt = new JSEncrypt({ default_key_size: '1024' });
+    debugger;
+    encrypt.setPublicKey(publicKey);
+    return encrypt.encrypt(input);
+  };
+
   const handleSubmit = async ({
     errors,
     values,
@@ -110,12 +118,15 @@
     if (!errors) {
       setLoading(true);
       try {
-        await userStore.login(values as LoginData);
+        const publicKey = userStore.salt;
+        await userStore.login({
+          username: encrypted(values.username, publicKey),
+          password: encrypted(values.password, publicKey),
+          authenticate: values.authenticate,
+        } as LoginData);
         Message.success(t('login.form.login.success'));
         const { rememberPassword } = loginConfig.value;
         const { username, password } = values;
-        // 实际生产环境需要进行加密存储。
-        // The actual production environment requires encrypted storage.
         loginConfig.value.username = rememberPassword ? username : '';
         loginConfig.value.password = rememberPassword ? password : '';
         const { redirect, ...othersQuery } = router.currentRoute.value.query;

@@ -5,7 +5,7 @@
     class="ms-modal-form ms-modal-medium"
     :ok-text="t('system.organization.addMember')"
     unmount-on-close
-    @cancel="handleCancel"
+    @cancel="handleCancel(false)"
   >
     <template #title> {{ t('system.organization.addMember') }} </template>
     <div class="form">
@@ -15,12 +15,17 @@
           :label="t('system.organization.member')"
           :rules="[{ required: true, message: t('system.organization.addMemberRequired') }]"
         >
-          <MsUserSelector v-model:value="form.name" type="organization" :source-id="projectId" />
+          <MsUserSelector
+            v-model:value="form.name"
+            :type="UserRequesetTypeEnum.ORGANIZATION_PROJECT"
+            :load-option-params="{ organizationId: currentOrgId, projectId: props.projectId }"
+            disabled-key="memberFlag"
+          />
         </a-form-item>
       </a-form>
     </div>
     <template #footer>
-      <a-button type="secondary" :loading="loading" @click="handleCancel">
+      <a-button type="secondary" :loading="loading" @click="handleCancel(false)">
         {{ t('common.cancel') }}
       </a-button>
       <a-button type="primary" :loading="loading" :disabled="form.name.length === 0" @click="handleAddMember">
@@ -32,20 +37,24 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect, onUnmounted } from 'vue';
+  import { reactive, ref, watchEffect, onUnmounted, computed } from 'vue';
   import { addProjectMemberByOrg } from '@/api/modules/setting/organizationAndProject';
   import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
+  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import { useAppStore } from '@/store';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
     projectId?: string;
   }>();
+  const appStore = useAppStore();
+
+  const currentOrgId = computed(() => appStore.currentOrgId);
 
   const emit = defineEmits<{
-    (e: 'cancel'): void;
-    (e: 'submit', value: string[]): void;
+    (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
   const currentVisible = ref(props.visible);
@@ -61,9 +70,9 @@
     currentVisible.value = props.visible;
   });
 
-  const handleCancel = () => {
+  const handleCancel = (shouldSearch: boolean) => {
     form.name = [];
-    emit('cancel');
+    emit('cancel', shouldSearch);
   };
 
   const handleAddMember = () => {
@@ -76,7 +85,7 @@
         loading.value = true;
         await addProjectMemberByOrg({ userIds: form.name, projectId });
         Message.success(t('system.organization.addSuccess'));
-        handleCancel();
+        handleCancel(true);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);

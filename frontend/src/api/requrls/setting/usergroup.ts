@@ -20,6 +20,8 @@ export const postUserByUserGroupUrl = `/user/role/relation/global/list`;
 export const addUserToUserGroupUrl = `/user/role/relation/global/add`;
 /** 删除用户组用户 */
 export const deleteUserFromUserGroupUrl = `/user/role/relation/global/delete/`;
+/** 获取需要关联的用户选项 */
+export const getSystemUserGroupOptionUrl = `/user/role/relation//global/user/option/`;
 
 /** 组织 */
 // 组织-修改用户组
@@ -41,4 +43,6 @@ export const postOrgUserByUserGroupUrl = `/user/role/organization/list-member`;
 /** 组织-用户组添加用户 */
 export const addOrgUserToUserGroupUrl = `/user/role/organization/add-member`;
 /** 组织-删除用户组用户 */
-export const deleteOrgUserFromUserGroupUrl = `/user/role/organization/delete/`;
+export const deleteOrgUserFromUserGroupUrl = `/user/role/organization/remove-member`;
+/** 组织-给用户组添加用户下拉选项 */
+export const getOrgUserGroupOptionUrl = `/user/role/organization/get-member/option/`;

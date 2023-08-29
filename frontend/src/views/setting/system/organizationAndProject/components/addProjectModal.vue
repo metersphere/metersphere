@@ -44,7 +44,11 @@
           </a-select>
         </a-form-item>
         <a-form-item field="userIds" :label="t('system.project.projectAdmin')">
-          <MsUserSelector v-model:value="form.userIds" placeholder="system.project.projectAdminPlaceholder" />
+          <MsUserSelector
+            v-model:value="form.userIds"
+            :type="UserRequesetTypeEnum.SYSTEM_PROJECT_ADMIN"
+            placeholder="system.project.projectAdminPlaceholder"
+          />
         </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">
           <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
@@ -90,6 +94,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
   import useLicenseStore from '@/store/modules/setting/license';
+  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -115,6 +120,7 @@
 
   const emit = defineEmits<{
     (e: 'cancel'): void;
+    (e: 'submit'): void;
   }>();
 
   const form = reactive<CreateOrUpdateSystemProjectParams>({
@@ -153,7 +159,9 @@
             ? t('system.organization.updateOrganizationSuccess')
             : t('system.organization.createOrganizationSuccess')
         );
+
         handleCancel();
+        emit('submit');
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);

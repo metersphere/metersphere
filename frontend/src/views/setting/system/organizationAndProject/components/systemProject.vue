@@ -39,8 +39,14 @@
     :current-project="currentUpdateProject"
     :visible="addProjectVisible"
     @cancel="handleAddProjectModalCancel"
+    @submit="fetchData"
   />
-  <AddUserModal :project-id="currentProjectId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
+  <AddUserModal
+    :project-id="currentProjectId"
+    :visible="userVisible"
+    @submit="fetchData"
+    @cancel="handleAddUserModalCancel"
+  />
   <UserDrawer :project-id="currentProjectId" v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
 </template>
 
@@ -67,7 +73,7 @@
   import useModal from '@/hooks/useModal';
   import { CreateOrUpdateSystemProjectParams } from '@/models/setting/system/orgAndProject';
   import AddProjectModal from './addProjectModal.vue';
-  import { UserItem } from '@/components/business/ms-user-selector/index.vue';
+  import { UserItem } from '@/models/setting/log';
 
   export interface SystemOrganizationProps {
     keyword: string;
@@ -235,16 +241,13 @@
 
   const handleUserDrawerCancel = () => {
     currentUserDrawer.visible = false;
-    fetchData();
   };
 
   const handleAddUserModalCancel = () => {
     userVisible.value = false;
-    fetchData();
   };
   const handleAddProjectModalCancel = () => {
     addProjectVisible.value = false;
-    fetchData();
   };
 
   const handleRevokeDelete = async (record: TableData) => {
@@ -278,4 +281,3 @@
     cursor: pointer;
   }
 </style>
-@/api/modules/setting/organizationAndProject

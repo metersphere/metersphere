@@ -6,7 +6,7 @@
     text-align="start"
     :ok-text="t('system.userGroup.add')"
     unmount-on-close
-    @cancel="handleCancel"
+    @cancel="handleCancel(false)"
   >
     <template #title> {{ t('system.userGroup.addUser') }} </template>
     <div class="form">
@@ -16,12 +16,20 @@
           :label="t('system.userGroup.user')"
           :rules="[{ required: true, message: t('system.userGroup.pleaseSelectUser') }]"
         >
-          <MsUserSelector v-model:value="form.name" />
+          <MsUserSelector
+            v-model:value="form.name"
+            :type="UserRequesetTypeEnum.ORGANIZATION_USER_GROUP"
+            :load-option-params="{
+              roleId: store.currentId,
+              organizationId: currentOrgId,
+            }"
+            disabled-key="checkRoleFlag"
+          />
         </a-form-item>
       </a-form>
     </div>
     <template #footer>
-      <a-button type="secondary" :loading="loading" @click="handleCancel">
+      <a-button type="secondary" :loading="loading" @click="handleCancel(false)">
         {{ t('common.cancel') }}
       </a-button>
       <a-button type="primary" :loading="loading" :disabled="form.name.length === 0" @click="handleBeforeOk">
@@ -39,6 +47,7 @@
   import { addOrgUserToUserGroup } from '@/api/modules/setting/usergroup';
   import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
+  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -50,8 +59,7 @@
   const currentOrgId = computed(() => appStore.currentOrgId);
 
   const emit = defineEmits<{
-    (e: 'cancel'): void;
-    (e: 'submit', value: string[]): void;
+    (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
   const currentVisible = ref(props.visible);
@@ -69,10 +77,10 @@
     currentVisible.value = props.visible;
   });
 
-  const handleCancel = () => {
+  const handleCancel = (shouldSearch = false) => {
     labelCache.clear();
     form.name = [];
-    emit('cancel');
+    emit('cancel', shouldSearch);
   };
 
   const handleBeforeOk = () => {
@@ -87,7 +95,7 @@
           userIds: form.name,
           organizationId: currentOrgId.value,
         });
-        handleCancel();
+        handleCancel(true);
         Message.success(t('common.addSuccess'));
       } catch (e) {
         // eslint-disable-next-line no-console
