@@ -12,7 +12,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.StandardReflectionParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -37,7 +37,7 @@ public class MsLogAspect {
     /**
      * 将方法参数纳入Spring管理
      */
-    LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
+    StandardReflectionParameterNameDiscoverer discoverer = new StandardReflectionParameterNameDiscoverer();
     @Resource
     private OperatingLogService operatingLogService;
 
