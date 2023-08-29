@@ -46,6 +46,7 @@ export interface UserListItem {
   updateUser: string;
   organizationList: OrganizationListItem[]; // 用户所属组织
   userRoleList: UserRoleListItem[]; // 用户所属用户组
+  userRoles?: UserRoleListItem[]; // 用户所属用户组
 }
 
 export interface Filter {

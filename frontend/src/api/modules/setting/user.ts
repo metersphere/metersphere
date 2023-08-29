@@ -13,6 +13,7 @@ import {
   BatchAddProjectUrl,
   GetOrgsUrl,
   GetProjectsUrl,
+  GetUserInfoUrl,
 } from '@/api/requrls/setting/user';
 import type {
   UserListItem,
@@ -47,6 +48,12 @@ export function updateUserInfo(data: UpdateUserInfoParams) {
 // 更新用户启用/禁用状态
 export function toggleUserStatus(data: UpdateUserStatusParams) {
   return MSR.post({ url: EnableUserUrl, data });
+}
+
+// 获取用户详情
+export function getUserInfo(keyword: string) {
+  // keyword 可以是邮箱或者用户 ID
+  return MSR.get<UserListItem>({ url: GetUserInfoUrl, params: keyword });
 }
 
 // 删除用户

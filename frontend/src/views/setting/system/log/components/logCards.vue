@@ -418,7 +418,7 @@
       title: 'system.log.time',
       dataIndex: 'createTime',
       fixed: 'right',
-      width: 160,
+      width: 170,
       sortable: {
         sortDirections: ['ascend', 'descend'],
       },

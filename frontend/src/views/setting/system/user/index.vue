@@ -210,6 +210,7 @@
 
 <script setup lang="ts">
   import { onBeforeMount, Ref, ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import useModal from '@/hooks/useModal';
@@ -245,6 +246,7 @@
   import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
 
   const { t } = useI18n();
+  const route = useRoute();
 
   const columns: MsTableColumn = [
     {
@@ -609,6 +611,9 @@
   }
 
   onBeforeMount(async () => {
+    if (route.query.id) {
+      keyword.value = route.query.id as string;
+    }
     setKeyword(keyword.value);
     init();
     loadList();
