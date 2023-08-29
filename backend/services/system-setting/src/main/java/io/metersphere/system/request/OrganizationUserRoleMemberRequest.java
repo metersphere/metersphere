@@ -20,7 +20,4 @@ public class OrganizationUserRoleMemberRequest extends BasePageRequest {
     @NotBlank(message = "{organization.id.not_blank}")
     @Size(min = 1, max = 50, message = "{organization.id.length_range}")
     private String organizationId;
-
-    @Schema(description =  "搜索关键字")
-    private String userKeyWord;
 }

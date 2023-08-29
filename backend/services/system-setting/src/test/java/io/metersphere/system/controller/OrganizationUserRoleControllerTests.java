@@ -242,7 +242,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         OrganizationUserRoleMemberRequest request = new OrganizationUserRoleMemberRequest();
         request.setOrganizationId("default-organization-2");
         request.setUserRoleId("default-org-role-id-3");
-        request.setUserKeyWord("admin");
+        request.setKeyword("admin");
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.responsePost(ORGANIZATION_USER_ROLE_LIST_MEMBER, request);
@@ -262,8 +262,8 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         List<User> userList = JSON.parseArray(JSON.toJSONString(pageData.getList()), User.class);
         if(CollectionUtils.isNotEmpty(userList)) {
             User user = userList.get(0);
-            Assertions.assertTrue(StringUtils.contains(user.getName(), request.getUserKeyWord())
-                    || StringUtils.contains(user.getId(), request.getUserKeyWord()));
+            Assertions.assertTrue(StringUtils.contains(user.getName(), request.getKeyword())
+                    || StringUtils.contains(user.getId(), request.getKeyword()));
         }
         // 权限校验
         request.setOrganizationId(getDefault().getId());
