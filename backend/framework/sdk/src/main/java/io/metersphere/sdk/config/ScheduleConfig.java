@@ -5,8 +5,10 @@ import io.metersphere.sdk.sechedule.ScheduleManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
+@EnableScheduling
 public class ScheduleConfig {
 
     @Bean
