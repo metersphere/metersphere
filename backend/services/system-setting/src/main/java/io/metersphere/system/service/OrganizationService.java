@@ -347,7 +347,7 @@ public class OrganizationService {
                                 createUserId,
                                 type,
                                 OperationLogModule.SETTING_ORGANIZATION_MEMBER,
-                                "成员");
+                                userMap.get(memberId).getName());
                         setLog(dto, path, logDTOList, userRoleRelation);
                     }
                 }
@@ -437,21 +437,24 @@ public class OrganizationService {
         example.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
         List<UserRoleRelation> userRoleWidthOrgRelations = userRoleRelationMapper.selectByExample(example);
         List<LogDTO> dtoList = new ArrayList<>();
+        User user = userMapper.selectByPrimaryKey(userId);
+        //记录项目日志
         for (UserRoleRelation userRoleWidthProjectRelation : userRoleWidthProjectRelations) {
             LogDTO dto = new LogDTO(
                     userRoleWidthProjectRelation.getSourceId(),
                     organizationId,
-                    userRoleWidthProjectRelation.getId(),
+                    userId,
                     userRoleWidthProjectRelation.getCreateUser(),
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.SETTING_ORGANIZATION_MEMBER,
-                    "成员");
+                    OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER,
+                    user.getName());
 
             dto.setPath("/organization/remove-member/{organizationId}/{userId}");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(userRoleWidthProjectRelation));
             dtoList.add(dto);
         }
+        //记录组织日志
         for (UserRoleRelation userRoleWidthOrgRelation : userRoleWidthOrgRelations) {
             LogDTO dto = new LogDTO(
                     OperationLogConstants.ORGANIZATION,
@@ -460,14 +463,13 @@ public class OrganizationService {
                     userRoleWidthOrgRelation.getCreateUser(),
                     OperationLogType.DELETE.name(),
                     OperationLogModule.SETTING_ORGANIZATION_MEMBER,
-                    "成员");
+                    user.getName());
 
             dto.setPath("/organization/remove-member/{organizationId}/{userId}");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(userRoleWidthOrgRelation));
             dtoList.add(dto);
         }
-
         return dtoList;
     }
 
@@ -509,11 +511,11 @@ public class OrganizationService {
         List<LogDTO> logDTOList = new ArrayList<>();
         //更新用户组
         List<String> userRoleIds = organizationMemberUpdateRequest.getUserRoleIds();
-        updateUserRoleRelation(createUserId, organizationId, memberId, userRoleIds, sqlSession, logDTOList);
+        updateUserRoleRelation(createUserId, organizationId, user, userRoleIds, sqlSession, logDTOList);
         //更新项目
         List<String> projectIds = organizationMemberUpdateRequest.getProjectIds();
         if (CollectionUtils.isNotEmpty(projectIds)) {
-            updateProjectUserRelation(createUserId, organizationId, memberId, projectIds, sqlSession, logDTOList);
+            updateProjectUserRelation(createUserId, organizationId, user, projectIds, sqlSession, logDTOList);
         } else {
             ProjectExample projectExample = new ProjectExample();
             projectExample.createCriteria().andOrganizationIdEqualTo(organizationId);
@@ -532,8 +534,8 @@ public class OrganizationService {
                             memberId,
                             createUserId,
                             OperationLogType.UPDATE.name(),
-                            OperationLogModule.SETTING_ORGANIZATION_MEMBER,
-                            "成员");
+                            OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER,
+                            user.getName());
                     setLog(dto, path, logDTOList, "");
                 }
 
@@ -546,10 +548,11 @@ public class OrganizationService {
         operationLogService.batchAdd(logDTOList);
     }
 
-    private void updateProjectUserRelation(String createUserId, String organizationId, String memberId, List<String> projectIds, SqlSession sqlSession, List<LogDTO> logDTOList) {
+    private void updateProjectUserRelation(String createUserId, String organizationId, User user, List<String> projectIds, SqlSession sqlSession, List<LogDTO> logDTOList) {
         Map<String, Project> projectMap = checkProjectExist(projectIds, organizationId);
         List<String> projectInDBInOrgIds = projectMap.values().stream().map(Project::getId).toList();
         //删除旧的关系
+        String memberId = user.getId();
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(organizationId);
         List<Project> projects = projectMapper.selectByExample(projectExample);
@@ -569,8 +572,8 @@ public class OrganizationService {
                     memberId,
                     createUserId,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SETTING_ORGANIZATION_MEMBER,
-                    "成员");
+                    OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER,
+                    user.getName());
             setLog(dto, path, logDTOList, userRoleRelation);
         });
     }
@@ -586,10 +589,11 @@ public class OrganizationService {
         return userRoleRelation;
     }
 
-    private void updateUserRoleRelation(String createUserId, String organizationId, String memberId, List<String> userRoleIds, SqlSession sqlSession, List<LogDTO> logDTOList) {
+    private void updateUserRoleRelation(String createUserId, String organizationId, User user, List<String> userRoleIds, SqlSession sqlSession, List<LogDTO> logDTOList) {
         //检查用户组是否是组织级别用户组
+        String memberId = user.getId();
         Map<String, UserRole> userRoleMap = checkUseRoleExist(userRoleIds, organizationId);
-        List<String> userRoleInDBInOrgIds = userRoleMap.values().stream().map(UserRole::getId).collect(Collectors.toList());
+        List<String> userRoleInDBInOrgIds = userRoleMap.values().stream().map(UserRole::getId).toList();
         //删除旧的关系
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andUserIdEqualTo(memberId).andSourceIdEqualTo(organizationId);
@@ -607,7 +611,7 @@ public class OrganizationService {
                     createUserId,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_ORGANIZATION_MEMBER,
-                    "成员");
+                    user.getName());
             setLog(dto, path, logDTOList, userRoleRelation);
         });
     }
