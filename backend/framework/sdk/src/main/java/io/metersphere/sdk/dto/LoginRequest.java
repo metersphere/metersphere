@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class LoginRequest {
     @NotBlank(message = "{user_name_is_null}")
-    @Size(max = 64, message = "{user_name_length_too_long}")
+    @Size(max = 256, message = "{user_name_length_too_long}")
     private String username;
     @NotBlank(message = "{password_is_null}")
     @Size(max = 256, message = "{password_length_too_long}")
