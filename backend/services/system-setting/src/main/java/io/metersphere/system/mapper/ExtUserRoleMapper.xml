@@ -16,10 +16,10 @@
     <select id="listOrganizationRoleMember" resultType="io.metersphere.system.domain.User">
         select u.*
         from user_role_relation urr left join user u on urr.user_id = u.id
-        where urr.source_id = #{request.organizationId}
+        where u.deleted = 0 and urr.source_id = #{request.organizationId}
           and urr.role_id = #{request.userRoleId}
-        <if test="request.userKeyWord != null and request.userKeyWord != ''">
-            and u.name like concat('%', #{request.userKeyWord}, '%')
+        <if test="request.keyword != null and request.keyword != ''">
+            and u.name like concat('%', #{request.keyword}, '%')
         </if>
     </select>
 </mapper>
