@@ -15,7 +15,11 @@
           :label="t('system.organization.member')"
           :rules="[{ required: true, message: t('system.organization.addMemberRequired') }]"
         >
-          <MsUserSelector v-model:value="form.name" type="organization" :source-id="organizationId || projectId" />
+          <MsUserSelector
+            v-model:value="form.name"
+            :type="UserRequesetTypeEnum.SYSTEM_ORGANIZATION"
+            :load-option-params="{ sourceId: props.organizationId || props.projectId }"
+          />
         </a-form-item>
       </a-form>
     </div>
@@ -36,6 +40,7 @@
   import { addUserToOrgOrProject } from '@/api/modules/setting/organizationAndProject';
   import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
+  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -46,7 +51,7 @@
 
   const emit = defineEmits<{
     (e: 'cancel'): void;
-    (e: 'submit', value: string[]): void;
+    (e: 'submit'): void;
   }>();
 
   const currentVisible = ref(props.visible);
@@ -78,6 +83,7 @@
         await addUserToOrgOrProject({ userIds: form.name, organizationId, projectId });
         Message.success(t('system.organization.addSuccess'));
         handleCancel();
+        emit('submit');
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);

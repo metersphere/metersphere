@@ -120,4 +120,5 @@ export interface UserTableItem {
   createUser: string;
   updateUser: string;
   deleted: boolean;
+  [key: string]: string | boolean | number;
 }

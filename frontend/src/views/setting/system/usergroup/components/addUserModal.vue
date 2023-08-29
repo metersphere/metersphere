@@ -15,8 +15,13 @@
           field="name"
           :label="t('system.userGroup.user')"
           :rules="[{ required: true, message: t('system.userGroup.pleaseSelectUser') }]"
+          asterisk-position="end"
         >
-          <MsUserSelector v-model:value="form.name" />
+          <MsUserSelector
+            v-model:value="form.name"
+            disabled-key="exclude"
+            :load-option-params="{ roleId: store.currentId }"
+          />
         </a-form-item>
       </a-form>
     </div>

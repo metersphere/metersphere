@@ -67,6 +67,16 @@ export function saveGlobalUSetting(data: SaveGlobalUSettingData) {
   return MSR.post<UserGroupAuthSetting[]>({ url: ugUrl.editGlobalUSettingUrl, data });
 }
 
+// 系统-获取需要关联的用户选项
+export function getSystemUserGroupOption(id: string) {
+  return MSR.get<UserTableItem[]>({ url: `${ugUrl.getSystemUserGroupOptionUrl}${id}` });
+}
+
+// 组织-获取需要关联的用户选项
+export function getOrgUserGroupOption(organizationId: string, roleId: string) {
+  return MSR.get<UserTableItem[]>({ url: `${ugUrl.getOrgUserGroupOptionUrl}${organizationId}/${roleId}` });
+}
+
 // 组织-编辑用户组对应的权限配置
 export function saveOrgUSetting(data: SaveGlobalUSettingData) {
   return MSR.post<UserGroupAuthSetting[]>({ url: ugUrl.editOrgUSettingUrl, data });
@@ -86,8 +96,8 @@ export function deleteUserFromUserGroup(id: string) {
   return MSR.get<string>({ url: `${ugUrl.deleteUserFromUserGroupUrl}${id}` });
 }
 // 组织-删除用户组对应的用户
-export function deleteOrgUserFromUserGroup(id: string) {
-  return MSR.get<string>({ url: `${ugUrl.deleteOrgUserFromUserGroupUrl}${id}` });
+export function deleteOrgUserFromUserGroup(data: { userRoleId: string; userIds: string[]; organizationId: string }) {
+  return MSR.post<CommonList<UserTableItem[]>>({ url: ugUrl.deleteOrgUserFromUserGroupUrl, data });
 }
 // 系统-添加用户到用户组
 export function addUserToUserGroup(data: { roleId: string; userIds: string[] }) {

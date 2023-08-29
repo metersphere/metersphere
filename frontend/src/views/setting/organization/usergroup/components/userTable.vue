@@ -70,7 +70,11 @@
   };
   const handleRemove = async (record: UserTableItem) => {
     try {
-      await deleteOrgUserFromUserGroup(record.id);
+      await deleteOrgUserFromUserGroup({
+        organizationId: currentOrgId.value,
+        userRoleId: store.currentId,
+        userIds: [record.id],
+      });
       await fetchData();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -80,8 +84,10 @@
   const handleAddUser = () => {
     userVisible.value = true;
   };
-  const handleAddUserModalCancel = () => {
-    fetchData();
+  const handleAddUserModalCancel = (shouldSearch: boolean) => {
+    if (shouldSearch) {
+      fetchData();
+    }
     userVisible.value = false;
   };
   watchEffect(() => {

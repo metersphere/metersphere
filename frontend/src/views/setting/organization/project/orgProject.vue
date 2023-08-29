@@ -80,8 +80,8 @@
   import useModal from '@/hooks/useModal';
   import { CreateOrUpdateSystemProjectParams } from '@/models/setting/system/orgAndProject';
   import AddProjectModal from './components/addProjectModal.vue';
-  import { UserItem } from '@/components/business/ms-user-selector/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import { UserItem } from '@/models/setting/log';
 
   const { t } = useI18n();
   const tableStore = useTableStore();
@@ -255,13 +255,17 @@
     fetchData();
   };
 
-  const handleAddUserModalCancel = () => {
+  const handleAddUserModalCancel = (shouldSearch: boolean) => {
     userVisible.value = false;
-    fetchData();
+    if (shouldSearch) {
+      fetchData();
+    }
   };
-  const handleAddProjectModalCancel = () => {
+  const handleAddProjectModalCancel = (shouldSearch: boolean) => {
     addProjectVisible.value = false;
-    fetchData();
+    if (shouldSearch) {
+      fetchData();
+    }
   };
 
   const handleRevokeDelete = async (record: TableData) => {

@@ -44,6 +44,7 @@
     :organization-id="props.organizationId"
     :visible="userVisible"
     @cancel="handleHideUserModal"
+    @submit="fetchData"
   />
 </template>
 

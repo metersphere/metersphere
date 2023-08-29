@@ -14,6 +14,7 @@ export default {
   'common.enable': 'Enable',
   'common.close': 'Close',
   'common.create': 'Create',
+  'common.update': 'Update',
   'common.confirmEnable': 'Confirm enable',
   'common.confirmClose': 'Confirm close',
   'common.enableSuccess': 'Enable success',

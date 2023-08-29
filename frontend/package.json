@@ -47,6 +47,7 @@
     "dayjs": "^1.11.8",
     "echarts": "^5.4.2",
     "hotbox-minder": "1.0.15",
+    "jsencrypt": "^3.3.2",
     "jsonpath-picker-vanilla": "^1.2.4",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",

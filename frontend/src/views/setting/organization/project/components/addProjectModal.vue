@@ -5,7 +5,7 @@
     class="ms-modal-form ms-modal-medium"
     :ok-text="isEdit ? t('common.update') : t('common.create')"
     unmount-on-close
-    @cancel="handleCancel"
+    @cancel="handleCancel(false)"
   >
     <template #title>
       <span v-if="isEdit">
@@ -39,7 +39,14 @@
           </a-select>
         </a-form-item>
         <a-form-item field="userIds" :label="t('system.project.projectAdmin')">
-          <MsUserSelector v-model:value="form.userIds" placeholder="system.project.projectAdminPlaceholder" />
+          <MsUserSelector
+            v-model:value="form.userIds"
+            :type="UserRequesetTypeEnum.ORGANIZATION_PROJECT_ADMIN"
+            placeholder="system.project.projectAdminPlaceholder"
+            :load-option-params="{
+              organizationId: currentOrgId,
+            }"
+          />
         </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">
           <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
@@ -63,7 +70,7 @@
           </a-tooltip>
         </div>
         <div class="flex flex-row gap-[14px]">
-          <a-button type="secondary" :loading="loading" @click="handleCancel">
+          <a-button type="secondary" :loading="loading" @click="handleCancel(false)">
             {{ t('common.cancel') }}
           </a-button>
           <a-button type="primary" :loading="loading" @click="handleBeforeOk">
@@ -86,6 +93,7 @@
   import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
   import useLicenseStore from '@/store/modules/setting/license';
   import { useAppStore } from '@/store';
+  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -112,7 +120,7 @@
   ];
 
   const emit = defineEmits<{
-    (e: 'cancel'): void;
+    (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
   const form = reactive<CreateOrUpdateSystemProjectParams>({
@@ -133,9 +141,9 @@
   watchEffect(() => {
     currentVisible.value = props.visible;
   });
-  const handleCancel = () => {
+  const handleCancel = (shouldSearch: boolean) => {
     formRef.value?.resetFields();
-    emit('cancel');
+    emit('cancel', shouldSearch);
   };
 
   const handleBeforeOk = async () => {
@@ -151,7 +159,7 @@
             ? t('system.organization.updateOrganizationSuccess')
             : t('system.organization.createOrganizationSuccess')
         );
-        handleCancel();
+        handleCancel(true);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);

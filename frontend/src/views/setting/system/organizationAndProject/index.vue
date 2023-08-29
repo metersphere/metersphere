@@ -29,8 +29,8 @@
       <SystemProject v-if="currentTable === 'project'" ref="projectTabeRef" :keyword="currentKeyword" />
     </div>
   </MsCard>
-  <AddOrganizationModal :visible="organizationVisible" @cancel="handleAddOrganizationCancel" />
-  <AddProjectModal :visible="projectVisible" @cancel="handleAddProjectCancel" />
+  <AddOrganizationModal :visible="organizationVisible" @submit="tableSearch" @cancel="handleAddOrganizationCancel" />
+  <AddProjectModal :visible="projectVisible" @submit="tableSearch" @cancel="handleAddProjectCancel" />
 </template>
 
 <script lang="ts" setup>
@@ -89,11 +89,9 @@
   };
 
   const handleAddProjectCancel = () => {
-    tableSearch();
     projectVisible.value = false;
   };
   const handleAddOrganizationCancel = () => {
-    tableSearch();
     organizationVisible.value = false;
   };
 

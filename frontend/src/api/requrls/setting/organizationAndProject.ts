@@ -48,7 +48,7 @@ export const getDeleteProjectUrl = '/system/project/delete/';
 // 系统-组织及项目，获取用户下拉选项
 export const getUserByOrgOrProjectUrl = '/system/organization/get-option/';
 // 系统-组织及项目，获取管理员下拉选项
-export const getAdminByOrgOrProjectUrl = '/system/organization/get-admin-option/';
+export const getAdminByOrgOrProjectUrl = '/system/project/user-list';
 // 启用项目
 export const getEnableProjectUrl = '/system/project/enable/';
 // 禁用项目
@@ -82,3 +82,7 @@ export const getEnableProjectByOrgUrl = '/organization/project/enable/';
 export const getDisableProjectByOrgUrl = '/organization/project/disable/';
 // 删除项目
 export const getDeleteProjectByOrgUrl = '/organization/project/delete/';
+// 获取成员下拉选项
+export const getUserByOrganizationOrProjectUrl = '/organization/project/user-member-list/';
+// 获取管理员下拉选项
+export const getAdminByOrganizationOrProjectUrl = '/organization/project/user-admin-list/';
