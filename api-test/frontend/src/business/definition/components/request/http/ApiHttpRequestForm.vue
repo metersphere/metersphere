@@ -379,6 +379,7 @@ export default {
         this.request.body.jsonSchema ||
         (this.request.body.binary &&
           this.request.body.binary.length > 0 &&
+          this.request.body.binary[0].files &&
           this.request.body.binary[0].files.length > 0)
       );
     },
