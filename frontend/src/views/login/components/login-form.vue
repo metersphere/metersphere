@@ -102,7 +102,6 @@
 
   const encrypted = (input: string, publicKey: string) => {
     const encrypt = new JSEncrypt({ default_key_size: '1024' });
-    debugger;
     encrypt.setPublicKey(publicKey);
     return encrypt.encrypt(input);
   };
