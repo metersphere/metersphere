@@ -7,7 +7,11 @@
     :cancel-text="t('organization.member.Cancel')"
   >
     <template #title>
-      {{ type === 'add' ? t('organization.member.addMember') : t('organization.member.updateMember') }}
+      {{
+        type === 'add'
+          ? t('organization.member.addMember')
+          : t('organization.member.updateMember', { name: memberName })
+      }}
     </template>
     <div class="form">
       <a-form ref="memberFormRef" :model="form" size="large" layout="vertical">
@@ -102,11 +106,15 @@
     form.value = { ...initFormValue };
     dialogVisible.value = false;
   };
+
+  const memberName = ref<string>('');
+
   const edit = (record: MemberItem) => {
     const { userRoleIdNameMap, projectIdNameMap } = record;
     form.value.memberIds = [record.id as string];
     form.value.userRoleIds = (userRoleIdNameMap || []).map((item) => item.id);
     form.value.projectIds = (projectIdNameMap || []).map((item) => item.id);
+    memberName.value = record.name;
   };
   const handleOK = () => {
     memberFormRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {

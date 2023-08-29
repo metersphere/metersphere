@@ -54,7 +54,7 @@
         from (
         select u.*, urr.role_id
         from user_role_relation urr
-        join `user` u on urr.user_id = u.id
+        join `user` u on urr.user_id = u.id and u.deleted = false
         <where>
             <if test="request.organizationId != null and request.organizationId != ''">
                 urr.source_id = #{request.organizationId}
