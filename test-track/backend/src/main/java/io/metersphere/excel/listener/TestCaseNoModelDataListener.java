@@ -481,7 +481,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                     break;
                 }
             }
-            //增加字数校验，每一层不能超过100字
+            //增加字数校验，每一层不能超过100个字
             for (int i = 0; i < nodes.length; i++) {
                 String nodeStr = nodes[i];
                 if (StringUtils.isNotEmpty(nodeStr)) {
@@ -723,30 +723,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private List<Map<String, Object>> getSingleRowSteps(String cellDesc, String cellResult, Integer startStepIndex) {
         List<Map<String, Object>> steps = new ArrayList<>();
 
-        List<String> stepDescList = new ArrayList<>();
-        List<String> stepResList = new ArrayList<>();
-        if (StringUtils.isNotEmpty(cellDesc)) {
-            // 根据[1], [2]...分割步骤描述, 开头空字符去掉, 末尾保留
-            String[] stepDesc = cellDesc.split("\\[\\d+]", -1);
-            if (StringUtils.isEmpty(stepDesc[0])) {
-                stepDesc = Arrays.copyOfRange(stepDesc, 1, stepDesc.length);
-            }
-
-            stepDescList.addAll(Arrays.asList(stepDesc));
-        } else {
-            stepDescList.add(StringUtils.EMPTY);
-        }
-
-        if (StringUtils.isNotEmpty(cellResult)) {
-            // 根据[1], [2]...分割步骤描述, 开头空字符去掉, 末尾保留
-            String[] stepRes = cellResult.split("\\[\\d+]", -1);
-            if (StringUtils.isEmpty(stepRes[0])) {
-                stepRes = Arrays.copyOfRange(stepRes, 1, stepRes.length);
-            }
-            stepResList.addAll(Arrays.asList(stepRes));
-        } else {
-            stepResList.add(StringUtils.EMPTY);
-        }
+        List<String> stepDescList = parseStepCell(cellDesc);
+        List<String> stepResList = parseStepCell(cellResult);
 
         int index = Math.max(stepDescList.size(), stepResList.size());
         for (int i = 0; i < index; i++) {
@@ -887,6 +865,29 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             }
         }
         return result;
+    }
+
+    /**
+     * 解析步骤类型的单元格内容
+     *
+     * @param cellContent 单元格内容
+     * @return 解析后的字符文本
+     */
+    private List<String> parseStepCell(String cellContent) {
+        List<String> cellStepContentList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(cellContent)) {
+            // 根据[1], [2]...分割步骤描述, 开头空字符去掉, 末尾保留
+            String[] cellContentArr = cellContent.split("\\[\\d+]", -1);
+            if (StringUtils.isEmpty(cellContentArr[0])) {
+                cellContentArr = Arrays.copyOfRange(cellContentArr, 1, cellContentArr.length);
+            }
+            for (String stepContent : cellContentArr) {
+                cellStepContentList.add(stepContent.replaceAll("^\n*|\n*$", StringUtils.EMPTY));
+            }
+        } else {
+            cellStepContentList.add(StringUtils.EMPTY);
+        }
+        return cellStepContentList;
     }
 
     class RowInfo {
