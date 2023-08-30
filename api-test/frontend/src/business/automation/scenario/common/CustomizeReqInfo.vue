@@ -170,7 +170,7 @@ export default {
       if (reg.test(urlStr)) {
         let url = this.getURL(urlStr);
         if (url && url.pathname) {
-          this.request.path = url.pathname;
+          this.request.path = decodeURIComponent(url.pathname);
         }
       } else {
         this.request.path = this.request.url;
