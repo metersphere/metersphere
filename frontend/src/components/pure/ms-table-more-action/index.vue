@@ -1,6 +1,8 @@
 <template>
   <a-dropdown trigger="hover" @select="selectHandler">
-    <MsButton><icon-more /></MsButton>
+    <MsButton>
+      <slot><icon-more /></slot>
+    </MsButton>
     <template #content>
       <template v-for="item of props.list">
         <a-divider v-if="item.isDivider" :key="`${item.label}-divider`" class="ms-dropdown-divider" />

@@ -38,7 +38,6 @@
   import { ref } from 'vue';
   import MsDialog from '@/components/pure/ms-dialog/index.vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { addOrUpdate } from '@/api/modules/setting/serviceIntegration';
   import { FormInstance, Message } from '@arco-design/web-vue';
 
   const { t } = useI18n();

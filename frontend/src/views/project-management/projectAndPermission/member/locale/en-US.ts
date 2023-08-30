@@ -35,5 +35,8 @@ export default {
   'project.member.selectUserScope': 'Please select a user group for the above members',
   'project.member.statusEnable': 'Normal',
   'project.member.statusDisable': 'Disabled',
-  'project.member.subTitle': 'When removed, you lose your organization privileges',
+  'project.member.subTitle': 'When removed, you lose your project privileges',
+  'project.member.batchActionRemove': 'Batch Remove',
+  'project.member.batchRemoveTip': 'Are you sure to remove {number} selected members?',
+  'project.member.batchRemoveContent': 'When removed, project permissions are lost',
 };

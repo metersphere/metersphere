@@ -9,7 +9,7 @@
   >
     <MsCodeEditor
       v-model:model-value="pluginScript"
-      title="YAML"
+      title="JSON"
       width="100%"
       height="calc(100vh - 155px)"
       theme="MS-text"

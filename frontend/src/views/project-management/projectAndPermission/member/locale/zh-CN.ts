@@ -34,5 +34,8 @@ export default {
   'project.member.selectUserScope': '请为以上成员选择用户组',
   'project.member.statusEnable': '正常',
   'project.member.statusDisable': '禁用',
-  'project.member.subTitle': '移除后，将失去组织权限',
+  'project.member.subTitle': '移除后，将失去项目权限',
+  'project.member.batchActionRemove': '从项目移除',
+  'project.member.batchRemoveTip': '确认移除已选中的 {number} 个成员吗？',
+  'project.member.batchRemoveContent': '移除后，将失去项目权限',
 };

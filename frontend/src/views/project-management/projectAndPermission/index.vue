@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper flex" :style="{ height: 'calc(100vh - 90px)' }">
+  <div class="wrapper flex min-h-[500px]" :style="{ height: 'calc(100vh - 90px)' }">
     <div class="left-menu-wrapper mr-[16px] w-[208px] min-w-[208px] bg-white p-[24px]">
       <div class="left-content">
         <div class="mb-2 font-medium">{{ t('project.permission.projectAndPermission') }}</div>
