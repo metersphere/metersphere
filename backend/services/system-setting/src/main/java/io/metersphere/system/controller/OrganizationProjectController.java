@@ -142,11 +142,11 @@ public class OrganizationProjectController {
         return organizationProjectService.removeProjectMember(projectId, userId, SessionUtils.getUserId());
     }
 
-    @GetMapping("/user-admin-list/{organizationId}/{projectId}")
+    @GetMapping("/user-admin-list/{organizationId}")
     @Operation(summary = "系统设置-组织-项目-获取管理员列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
-    public List<UserExtend> getUserAdminList(@PathVariable String organizationId, @PathVariable String projectId) {
-        return organizationProjectService.getUserAdminList(organizationId, projectId);
+    public List<UserExtend> getUserAdminList(@PathVariable String organizationId) {
+        return organizationProjectService.getUserAdminList(organizationId);
     }
 
     @GetMapping("/user-member-list/{organizationId}/{projectId}")

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/license")
-@Tag(name="license校验")
+@Tag(name = "系统设置-系统-授权管理")
 public class LicenseController {
     @GetMapping("/validate")
     @Operation(summary = "license校验")
