@@ -203,11 +203,11 @@ public class MsScenario extends MsTestElement {
                 this.setProjectId(scenario.getProjectId());
                 LinkedList<MsTestElement> sourceHashTree = JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE));
                 // 场景变量
-                if (StringUtils.isNotEmpty(element.optString("variables")) && (this.variableEnable == null || this.variableEnable)) {
+                if (StringUtils.isNotEmpty(element.optString("variables"))) {
                     this.setVariables(JSONUtil.parseArray(element.optString("variables"), ScenarioVariable.class));
                 }
                 // 场景请求头
-                if (StringUtils.isNotEmpty(element.optString("headers")) && (this.variableEnable == null || this.variableEnable)) {
+                if (StringUtils.isNotEmpty(element.optString("headers"))) {
                     this.setHeaders(JSONUtil.parseArray(element.optString("headers"), KeyValue.class));
                 }
                 this.setHashTree(sourceHashTree);
