@@ -96,7 +96,7 @@
   const memberFormRef = ref<FormInstance | null>(null);
   const initFormValue = {
     organizationId: userStore.$state?.lastOrganizationId,
-    userRoleIds: [],
+    userRoleIds: ['org_member'],
     memberIds: [],
     projectIds: [],
   };

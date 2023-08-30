@@ -17,6 +17,7 @@
       <a-input-search
         :max-length="250"
         :placeholder="t('project.member.searchMember')"
+        allow-clear
         @search="searchHandler"
         @press-enter="searchHandler"
       ></a-input-search
@@ -72,6 +73,15 @@
     </template>
   </ms-base-table>
   <AddMemberModal v-model:visible="addMemberVisible" />
+  <MSBatchModal
+    ref="batchModalRef"
+    v-model:visible="batchVisible"
+    :table-selected="tableSelected"
+    :action="batchAction"
+    :tree-data="treeData"
+    :select-data="selectData"
+    @add-user-group="addUserGroup"
+  />
 </template>
 
 <script setup lang="ts">
@@ -83,11 +93,15 @@
   import { getMemberList } from '@/api/modules/setting/member';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { useTableStore, useUserStore } from '@/store';
+  import useModal from '@/hooks/useModal';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import { characterLimit } from '@/utils';
   import AddMemberModal from './components/addMemberModal.vue';
+  import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
+  import type { TreeDataItem } from '@/models/projectManagement/member';
 
   const { t } = useI18n();
+  const { openModal } = useModal();
 
   const tableStore = useTableStore();
   const userStore = useUserStore();
@@ -150,12 +164,12 @@
   const tableBatchActions = {
     baseAction: [
       {
-        label: 'project.member.batchActionAddProject',
-        eventTag: 'batchAddProject',
-      },
-      {
         label: 'project.member.batchActionAddUserGroup',
         eventTag: 'batchAddUserGroup',
+      },
+      {
+        label: 'project.member.batchActionRemove',
+        eventTag: 'batchActionRemove',
       },
     ],
   };
@@ -186,7 +200,39 @@
 
   const searchHandler = () => {};
 
-  const handleTableBatch = (actionItem: any) => {};
+  // 批量移除成员
+  const batchRemoveMember = () => {
+    openModal({
+      type: 'error',
+      title: t('project.member.batchRemoveTip', { number: tableSelected.value.length }),
+      content: t('project.member.batchRemoveContent'),
+      okText: t('project.member.deleteMemberConfirm'),
+      cancelText: t('project.member.Cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {},
+      hideCancel: false,
+    });
+  };
+
+  const batchVisible = ref<boolean>(false);
+  const selectData = ref<string[]>([]);
+  const batchAction = ref('');
+  const treeData = ref<TreeDataItem[]>([]);
+
+  // 添加到用户组
+  const addUserGroup = () => {};
+
+  const handleTableBatch = (actionItem: any) => {
+    if (actionItem.eventTag === 'batchActionRemove') {
+      batchRemoveMember();
+    }
+    if (actionItem.eventTag === 'batchAddUserGroup') {
+      batchVisible.value = true;
+      addUserGroup();
+    }
+  };
 
   const userGroupOptions = ref([
     {
