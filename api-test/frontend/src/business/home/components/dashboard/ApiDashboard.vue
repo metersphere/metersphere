@@ -24,7 +24,7 @@
           </div>
           <div class="addition-info">
             <el-row :gutter="16" style="margin: 0">
-              <el-col :span="12" style="padding-left: 0">
+              <el-col :span="12" style="padding-left: 0" v-loading="coveredLoading">
                 <hover-card
                   :title="$t('home.dashboard.api.covered_rate')"
                   :main-info="apiData.apiCoveredRate"
@@ -277,8 +277,8 @@
 <script>
 import countChart from '@/business/home/components/chart/CountChart';
 import hoverCard from '@/business/home/components/card/HoverCard';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { apiCountByProjectId, formatNumber } from '@/api/home';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
+import {apiCountByProjectId, apiCoveredByProjectId, formatNumber} from '@/api/home';
 
 export default {
   name: 'ApiDashboard',
@@ -286,6 +286,7 @@ export default {
   data() {
     return {
       loading: false,
+      coveredLoading: false,
       loadError: false,
       apiCoveredRageToolTip: this.$t('api_test.home_page.formula.api_coverage'),
       completedRageToolTip: this.$t('api_test.home_page.formula.completion'),
@@ -317,14 +318,17 @@ export default {
   methods: {
     search(versionId) {
       this.loading = true;
+      this.coveredLoading = true;
       this.loadError = false;
       this.versionId = versionId;
       let selectProjectId = getCurrentProjectID();
+
       apiCountByProjectId(selectProjectId, versionId)
         .then((response) => {
           this.loading = false;
           this.loadError = false;
-          this.apiData = response.data;
+          this.parseApiData(response.data, false);
+          // this.apiData = response.data;
           this.$refs.countChart.reload();
         })
         .catch(() => {
@@ -332,7 +336,47 @@ export default {
           this.loadError = true;
           this.$refs.countChart.reload();
         });
+
+      apiCoveredByProjectId(selectProjectId, versionId)
+        .then((response) => {
+          this.coveredLoading = false;
+          this.loadError = false;
+          this.parseApiData(response.data, true);
+          // this.apiData = response.data;
+        })
+        .catch(() => {
+          this.coveredLoading = false;
+          this.loadError = true;
+        });
     },
+
+    parseApiData(apiResponse, isCovered) {
+      if (isCovered) {
+        this.apiData.apiCoveredRate = apiResponse.apiCoveredRate;
+        this.apiData.httpCovered = apiResponse.httpCovered;
+        this.apiData.rpcCovered = apiResponse.rpcCovered;
+        this.apiData.tcpCovered = apiResponse.tcpCovered;
+        this.apiData.sqlCovered = apiResponse.sqlCovered;
+        this.apiData.httpNotCovered = apiResponse.httpNotCovered;
+        this.apiData.rpcNotCovered = apiResponse.rpcNotCovered;
+        this.apiData.tcpNotCovered = apiResponse.tcpNotCovered;
+        this.apiData.sqlNotCovered = apiResponse.sqlNotCovered;
+        this.apiData.coveredCount = apiResponse.coveredCount;
+        this.apiData.notCoveredCount = apiResponse.notCoveredCount;
+      } else {
+        this.apiData.httpCount = apiResponse.httpCount;
+        this.apiData.tcpCount = apiResponse.tcpCount;
+        this.apiData.rpcCount = apiResponse.rpcCount;
+        this.apiData.sqlCount = apiResponse.sqlCount;
+        this.apiData.createdInWeek = apiResponse.createdInWeek;
+        this.apiData.apiCoveredRate = apiResponse.apiCoveredRate;
+        this.apiData.completedRate = apiResponse.completedRate;
+        this.apiData.runningCount = apiResponse.runningCount;
+        this.apiData.finishedCount = apiResponse.finishedCount;
+        this.apiData.notRunCount = apiResponse.notRunCount;
+      }
+    },
+
     formatAmount(number) {
       return formatNumber(number);
     },

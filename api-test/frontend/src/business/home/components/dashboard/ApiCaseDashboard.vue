@@ -31,7 +31,7 @@
                   :link-permission="['PROJECT_API_DEFINITION:READ']"
                   @redirectPage="redirectPage" />
               </el-col>
-              <el-col :span="12">
+              <el-col :span="12" v-loading="coveredLoading">
                 <main-info-card
                   :title="$t('home.dashboard.public.executed_times_in_week')"
                   :count-data="apiCaseData"
@@ -40,7 +40,7 @@
             </el-row>
           </div>
           <div class="addition-info">
-            <el-row :gutter="16" style="margin: 0">
+            <el-row :gutter="16" style="margin: 0" v-loading="coveredLoading">
               <!--接口覆盖率-->
               <el-col :span="8" style="padding-left: 0">
                 <hover-card
@@ -175,8 +175,8 @@
 <script>
 import hoverCard from '@/business/home/components/card/HoverCard';
 import mainInfoCard from '@/business/home/components/card/MainInfoCard';
-import { apiCaseCountByProjectId, formatNumber } from '@/api/home';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import {apiCaseCountByProjectId, apiCaseCoveredByProjectId, formatNumber} from '@/api/home';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
 
 export default {
   name: 'ApiCaseDashboard',
@@ -184,6 +184,7 @@ export default {
   data() {
     return {
       loading: false,
+      coveredLoading: false,
       loadError: false,
       apiCoveredRateToolTip: this.$t('api_test.home_page.formula.coverage'),
       executeRateToolTip: this.$t('api_test.home_page.formula.case_execute'),
@@ -209,18 +210,47 @@ export default {
   methods: {
     search(versionId) {
       this.loading = true;
+      this.coveredLoading = false;
       this.loadError = false;
       let selectProjectId = getCurrentProjectID();
       apiCaseCountByProjectId(selectProjectId, versionId)
         .then((response) => {
           this.loading = false;
           this.loadError = false;
-          this.apiCaseData = response.data;
+          this.formatApiCaseData(response.data, false);
         })
         .catch(() => {
           this.loading = false;
           this.loadError = true;
         });
+      apiCaseCoveredByProjectId(selectProjectId, versionId)
+        .then((response) => {
+          this.coveredLoading = false;
+          this.formatApiCaseData(response.data, true);
+        })
+        .catch(() => {
+          this.coveredLoading = false;
+          this.loadError = true;
+        });
+    },
+    formatApiCaseData(apiCaseResponse, isCovered) {
+      if (isCovered) {
+        this.apiCaseData.coveredCount = apiCaseResponse.coveredCount;
+        this.apiCaseData.notCoveredCount = apiCaseResponse.notCoveredCount;
+        this.apiCaseData.executedCount = apiCaseResponse.executedCount;
+        this.apiCaseData.notExecutedCount = apiCaseResponse.notExecutedCount;
+        this.apiCaseData.passCount = apiCaseResponse.passCount;
+        this.apiCaseData.unPassCount = apiCaseResponse.unPassCount;
+        this.apiCaseData.fakeErrorCount = apiCaseResponse.fakeErrorCount;
+        this.apiCaseData.executedRate = apiCaseResponse.executedRate;
+        this.apiCaseData.passRate = apiCaseResponse.passRate;
+        this.apiCaseData.apiCoveredRate = apiCaseResponse.apiCoveredRate;
+      } else {
+        this.apiCaseData.total = apiCaseResponse.total;
+        this.apiCaseData.createdInWeek = apiCaseResponse.createdInWeek;
+        this.apiCaseData.executedTimesInWeek = apiCaseResponse.executedTimesInWeek;
+        this.apiCaseData.executedTimes = apiCaseResponse.executedTimes;
+      }
     },
     formatAmount(number) {
       return formatNumber(number);

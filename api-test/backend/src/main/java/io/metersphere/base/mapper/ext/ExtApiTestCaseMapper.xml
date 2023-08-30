@@ -1053,6 +1053,7 @@
         WHERE id IN (
         SELECT last_result_id FROM api_test_case testCase
         WHERE ( testCase.`status` IS NULL OR testCase.`status` != 'Trash')
+        AND last_result_id IS NOT NULL
         AND testCase.api_definition_id IN (
         SELECT id FROM api_definition WHERE project_id = #{projectId}
         <if test="versionId != null">

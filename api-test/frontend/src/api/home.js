@@ -1,16 +1,28 @@
-import { fileUpload } from '@/api/base-network';
-import { get, post } from 'metersphere-frontend/src/plugins/request';
+import {fileUpload} from '@/api/base-network';
+import {get, post} from 'metersphere-frontend/src/plugins/request';
 
 export function apiCountByProjectId(projectId, versionId) {
   return get('/home/api/count/' + projectId + '/' + versionId);
+}
+
+export function apiCoveredByProjectId(projectId, versionId) {
+  return get('/home/api/covered/' + projectId + '/' + versionId);
 }
 
 export function scenarioCountByProjectId(projectId, versionId) {
   return get('/home/scenario/count/' + projectId + '/' + versionId);
 }
 
+export function scenarioCoveredByProjectId(projectId, versionId) {
+  return get('/home/scenario/covered/' + projectId + '/' + versionId);
+}
+
 export function apiCaseCountByProjectId(projectId, versionId) {
   return get('/home/api/case/count/' + projectId + '/' + versionId);
+}
+
+export function apiCaseCoveredByProjectId(projectId, versionId) {
+  return get('/home/api/case/covered/' + projectId + '/' + versionId);
 }
 
 export function scheduleTaskCountByProjectId(projectId, versionId) {

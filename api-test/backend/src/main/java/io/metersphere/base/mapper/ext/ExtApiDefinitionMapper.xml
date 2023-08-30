@@ -117,15 +117,10 @@
         </foreach>
     </select>
 
-    <select id="selectByIdsAndStatusIsNotTrash" resultType="io.metersphere.api.dto.definition.ApiComputeResult">
-        SELECT t1.api_definition_id apiDefinitionId,count(t1.id) caseTotal,
-        SUM(case when t2.status ='SUCCESS' then 1 else 0 end) as SUCCESS ,SUM(case when t2.status in
-        ('ERROR','FAKE_ERROR') then 1 else 0
-        end) as ERROR,
-        CONCAT(FORMAT(SUM(IF (t2.`status`='SUCCESS',1,0))/COUNT(t1.id)*100,2),'%') passRate
+    <select id="countByApiIdAndStatusIsNotTrash" resultType="io.metersphere.api.dto.definition.ApiComputeResult">
+        SELECT t1.api_definition_id apiDefinitionId,count(t1.id) caseTotal
         FROM api_test_case t1
-        LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id=t2.id
-        WHERE t1.project_id = #{projectId} and (t1.status is null or t1.status != 'Trash')
+        WHERE (t1.status is null or t1.status != 'Trash')
         group by t1.api_definition_id having t1.api_definition_id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
@@ -368,13 +363,12 @@
         api_definition.description,api_definition.environment_id,
         api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time,
         project.name as
-        project_name, user.name as user_name,deleteUser.name AS delete_user,api_definition.delete_time,
+        project_name, user.name as user_name,api_definition.delete_user_id AS delete_user,api_definition.delete_time,
         api_definition.remark
         from (select * from api_definition where update_time >= #{startTimestamp} order by update_time
         desc)api_definition
-        left join project on api_definition.project_id = project.id
-        left join user on api_definition.user_id = user.id
-        left join user deleteUser on api_definition.delete_user_id = deleteUser.id
+        INNER join project on api_definition.project_id = project.id
+        INNER join user on api_definition.user_id = user.id
         <include refid="queryWhereConditionWidthProject"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
@@ -1134,7 +1128,7 @@
     <select id="scenarioList" resultType="io.metersphere.base.domain.ApiScenario">
         SELECT DISTINCT t1.id
         FROM api_scenario t1
-                 JOIN api_scenario_reference_id t2 ON t1.id = t2.api_scenario_id AND t1.`status` != 'Trash'
+                 INNER JOIN api_scenario_reference_id t2 ON t1.id = t2.api_scenario_id AND t1.`status` != 'Trash'
         WHERE t2.reference_id = #{apiDefinitionId}
     </select>
     <select id="countByIds" resultType="java.lang.Integer">

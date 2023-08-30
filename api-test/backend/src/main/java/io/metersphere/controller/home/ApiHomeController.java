@@ -35,6 +35,7 @@ import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 @RestController
 @RequestMapping(value = "/home")
@@ -79,27 +80,6 @@ public class ApiHomeController {
             //没有任何接口数据
             apiCountResult.setCoveredCount(0);
             apiCountResult.setNotCoveredCount(0);
-        } else {
-
-            //统计覆盖率. 覆盖：接口下挂有用例/接口路径被场景引用
-            //带有用例的接口
-            List<ApiDefinition> apiDefinitionHasCase = apiDefinitionService.selectBaseInfoByProjectIdAndHasCase(projectId, versionId);
-            //没有case的接口
-            List<ApiDefinition> apiNoCaseList = apiDefinitionService.getAPiNotInCollection(protocolAllDefinitionMap, apiDefinitionHasCase);
-            Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, null);
-            List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(projectId, scenarioUrlList, apiNoCaseList);
-
-            Map<String, List<ApiDefinition>> unCoverageApiMap = apiDefinitionService.getUnCoverageApiMap(apiNoCaseList, apiIdInScenario);
-            Map<String, List<ApiDefinition>> coverageApiMap = apiDefinitionService.filterMap(protocolAllDefinitionMap, unCoverageApiMap);
-            apiCountResult.countCovered(coverageApiMap, false);
-            apiCountResult.countCovered(unCoverageApiMap, true);
-            try {
-                float coveredRateNumber = (float) apiCountResult.getCoveredCount() * 100 / apiCountResult.getTotal();
-                DecimalFormat df = new DecimalFormat("0.0");
-                apiCountResult.setApiCoveredRate(df.format(coveredRateNumber) + "%");
-            } catch (Exception e) {
-                LogUtil.error("转化通过率失败：[" + apiCountResult.getCoveredCount() + "，" + apiCountResult.getTotal() + "]", e);
-            }
         }
         return apiCountResult;
     }
@@ -108,7 +88,6 @@ public class ApiHomeController {
     public ApiDataCountDTO apiCaseCount(@PathVariable String projectId, @PathVariable String versionId) {
         versionId = this.initializationVersionId(versionId);
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
-        //todo 性能优化
         List<ApiDataCountResult> countResultList = apiTestCaseService.countProtocolByProjectID(projectId, versionId);
         apiCountResult.countProtocol(countResultList);
         //本周创建、本周执行、总执行
@@ -118,31 +97,6 @@ public class ApiHomeController {
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
         long executedCount = apiTestCaseService.countExecutedTimesByProjectId(projectId, ExecutionExecuteTypeEnum.BASIC.name(), versionId);
         apiCountResult.setExecutedTimes(executedCount);
-        //未覆盖 已覆盖： 统计当前接口下是否含有案例
-        List<ApiDataCountResult> countResultByApiCoverageList = apiDefinitionService.countApiCoverageByProjectID(projectId, versionId);
-        apiCountResult.countApiCoverage(countResultByApiCoverageList);
-        long allCount = apiCountResult.getCoveredCount() + apiCountResult.getNotCoveredCount();
-        if (allCount != 0) {
-            float coveredRateNumber = (float) apiCountResult.getCoveredCount() * 100 / allCount;
-            DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setApiCoveredRate(df.format(coveredRateNumber) + "%");
-        }
-        //计算用例的通过率和执行率
-        List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(apiCountResult.getTotal(), projectId, versionId);
-        apiCountResult.countApiCaseRunResult(apiCaseExecResultList);
-        if (apiCountResult.getExecutedCount() > 0) {
-            //通过率
-            float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / apiCountResult.getTotal();
-            DecimalFormat coveredRateFormat = new DecimalFormat("0.0");
-            apiCountResult.setPassRate(coveredRateFormat.format(coveredRateNumber) + "%");
-
-            float executedRateNumber = (float) apiCountResult.getExecutedData() * 100 / apiCountResult.getTotal();
-            DecimalFormat executedRateFormat = new DecimalFormat("0.0");
-            apiCountResult.setExecutedRate(executedRateFormat.format(executedRateNumber) + "%");
-        } else {
-            apiCountResult.setPassRate("0%");
-            apiCountResult.setExecutedRate("0%");
-        }
         return apiCountResult;
     }
 
@@ -173,6 +127,90 @@ public class ApiHomeController {
             apiCountResult.setExecutedRate(df.format(executedRateNumber) + "%");
         }
 
+        return apiCountResult;
+    }
+
+    @GetMapping("/api/covered/{projectId}/{versionId}")
+    public ApiDataCountDTO apiCovered(@PathVariable String projectId, @PathVariable String versionId) {
+        versionId = this.initializationVersionId(versionId);
+        ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
+        Map<String, List<ApiDefinition>> protocolAllDefinitionMap = apiDefinitionService.countEffectiveByProjectId(projectId, versionId);
+        //统计覆盖率. 覆盖：接口下挂有用例/接口路径被场景引用
+        //带有用例的接口
+        List<ApiDefinition> apiDefinitionHasCase = apiDefinitionService.selectBaseInfoByProjectIdAndHasCase(projectId, versionId);
+        //没有case的接口
+        List<ApiDefinition> apiNoCaseList = apiDefinitionService.getAPiNotInCollection(protocolAllDefinitionMap, apiDefinitionHasCase);
+        Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, null);
+        List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(projectId, scenarioUrlList, apiNoCaseList);
+
+        Map<String, List<ApiDefinition>> unCoverageApiMap = apiDefinitionService.getUnCoverageApiMap(apiNoCaseList, apiIdInScenario);
+        Map<String, List<ApiDefinition>> coverageApiMap = apiDefinitionService.filterMap(protocolAllDefinitionMap, unCoverageApiMap);
+        apiCountResult.countCovered(coverageApiMap, false);
+        apiCountResult.countCovered(unCoverageApiMap, true);
+
+        long total = apiCountResult.getCoveredCount() + apiCountResult.getNotCoveredCount();
+        if (total > 0) {
+            try {
+                float coveredRateNumber = (float) apiCountResult.getCoveredCount() * 100 / total;
+                DecimalFormat df = new DecimalFormat("0.0");
+                apiCountResult.setApiCoveredRate(df.format(coveredRateNumber) + "%");
+            } catch (Exception e) {
+                LogUtil.error("转化通过率失败：[" + apiCountResult.getCoveredCount() + "，" + apiCountResult.getTotal() + "]", e);
+            }
+        }
+
+        return apiCountResult;
+    }
+
+    @GetMapping("/api/case/covered/{projectId}/{versionId}")
+    public ApiDataCountDTO caseCovered(@PathVariable String projectId, @PathVariable String versionId) throws Exception {
+        versionId = this.initializationVersionId(versionId);
+        ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
+        //两个大数据量下耗时比较长的查询同时进行
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        try {
+            //未覆盖 已覆盖： 统计当前接口下是否含有案例
+            List<ApiDataCountResult> countResultByApiCoverageList = apiDefinitionService.countApiCoverageByProjectID(projectId, versionId);
+            apiCountResult.countApiCoverage(countResultByApiCoverageList);
+            long allCount = apiCountResult.getCoveredCount() + apiCountResult.getNotCoveredCount();
+            if (allCount != 0) {
+                float coveredRateNumber = (float) apiCountResult.getCoveredCount() * 100 / allCount;
+                DecimalFormat df = new DecimalFormat("0.0");
+                apiCountResult.setApiCoveredRate(df.format(coveredRateNumber) + "%");
+            }
+        } finally {
+            countDownLatch.countDown();
+        }
+        try {
+            //计算用例的通过率和执行率
+            List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(apiCountResult.getTotal(), projectId, versionId);
+            apiCountResult.countApiCaseRunResult(apiCaseExecResultList);
+            long allCount = apiCountResult.getExecutedCount() + apiCountResult.getNotExecutedCount();
+            if (apiCountResult.getExecutedCount() > 0) {
+                //通过率
+                float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / allCount;
+                DecimalFormat coveredRateFormat = new DecimalFormat("0.0");
+                apiCountResult.setPassRate(coveredRateFormat.format(coveredRateNumber) + "%");
+
+                float executedRateNumber = (float) apiCountResult.getExecutedData() * 100 / allCount;
+                DecimalFormat executedRateFormat = new DecimalFormat("0.0");
+                apiCountResult.setExecutedRate(executedRateFormat.format(executedRateNumber) + "%");
+            } else {
+                apiCountResult.setPassRate("0%");
+                apiCountResult.setExecutedRate("0%");
+            }
+        } finally {
+            countDownLatch.countDown();
+        }
+
+        countDownLatch.await();
+        return apiCountResult;
+    }
+
+    @GetMapping("/scenario/covered/{projectId}/{versionId}")
+    public ApiDataCountDTO scenarioCovered(@PathVariable String projectId, @PathVariable String versionId) {
+        versionId = this.initializationVersionId(versionId);
+        ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
         //统计覆盖率
         CoveredDTO coveredDTO = new CoveredDTO();
         Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, versionId);
