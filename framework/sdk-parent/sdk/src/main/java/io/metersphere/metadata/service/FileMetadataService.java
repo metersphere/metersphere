@@ -465,7 +465,7 @@ public class FileMetadataService {
                 MSException.throwException("文件不存在！");
             }
             if (request.isCsv()) {
-                this.saveFile(file, request.getFileName());
+                this.saveFile(file, request.getFileName(), request.getModuleId());
             } else {
                 this.saveFile(file);
             }
@@ -523,10 +523,10 @@ public class FileMetadataService {
         return null;
     }
 
-    public void saveFile(File file, String name) {
+    public void saveFile(File file, String name, String moduleId) {
         if (file.exists()) {
             byte[] bytes = FileUtils.fileToByte(file);
-            this.saveFile(bytes, name, file.length());
+            this.saveLocalFile(bytes, name, file.length(), moduleId);
         }
     }
 
@@ -551,6 +551,29 @@ public class FileMetadataService {
             fileMetadata.setRefId(fileMetadata.getId());
             fileMetadataMapper.insert(fileMetadata);
             return fileMetadata;
+        }
+    }
+
+    public void saveLocalFile(byte[] fileByte, String fileName, Long fileSize, String moduleId) {
+        final FileMetadataWithBLOBs fileMetadata = new FileMetadataWithBLOBs();
+        fileMetadata.setModuleId(moduleId);
+        this.initBase(fileMetadata);
+        fileMetadata.setName(fileName);
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andProjectIdEqualTo(fileMetadata.getProjectId()).andNameEqualTo(fileMetadata.getName());
+        List<FileMetadata> list = fileMetadataMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+        } else {
+            fileMetadata.setSize(fileSize);
+            String fileType = MetadataUtils.getFileType(fileName);
+            fileMetadata.setType(fileType);
+            checkName(fileMetadata);
+            FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
+            String path = fileManagerService.upload(fileByte, request);
+            fileMetadata.setPath(path);
+            fileMetadata.setLatest(true);
+            fileMetadata.setRefId(fileMetadata.getId());
+            fileMetadataMapper.insert(fileMetadata);
         }
     }
 
