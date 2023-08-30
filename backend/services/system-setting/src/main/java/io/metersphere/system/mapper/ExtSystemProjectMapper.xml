@@ -37,7 +37,7 @@
                p.update_user,
                p.enable,
                count(distinct temp.id) as memberCount,
-               o.name as organizationName,
+               o.name as organization_name,
                p.module_setting
         FROM project p
         LEFT JOIN (SELECT ur.source_id, u.id from user_role_relation ur  left join user u on u.id = ur.user_id where u.deleted = 0) temp on p.id = temp.source_id
