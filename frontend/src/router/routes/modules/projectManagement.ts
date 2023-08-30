@@ -38,7 +38,7 @@ const ProjectManagement: AppRouteRecordRaw = {
         // 基本信息
         {
           path: 'basicInfo',
-          name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASICINFO,
+          name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO,
           component: () => import('@/views/project-management/projectAndPermission/basicInfos/index.vue'),
           meta: {
             locale: 'project.permission.basicInfo',
@@ -48,7 +48,7 @@ const ProjectManagement: AppRouteRecordRaw = {
         // 菜单管理
         {
           path: 'menuManagement',
-          name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENUMANAGEMENT,
+          name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
           component: () => import('@/views/project-management/projectAndPermission/menuManagement/index.vue'),
           meta: {
             locale: 'project.permission.menuManagement',
@@ -78,7 +78,7 @@ const ProjectManagement: AppRouteRecordRaw = {
         // 用户组
         {
           path: 'projectUserGroup',
-          name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_USERGROUP,
+          name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_USER_GROUP,
           component: () => import('@/views/project-management/projectAndPermission/userGroup/index.vue'),
           meta: {
             locale: 'project.permission.userGroup',

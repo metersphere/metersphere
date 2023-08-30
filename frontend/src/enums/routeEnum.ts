@@ -19,10 +19,10 @@ export enum ProjectManagementRouteEnum {
   PROJECT_MANAGEMENT_INDEX = 'projectManagementIndex',
   PROJECT_MANAGEMENT_LOG = 'projectManagementLog',
   PROJECT_MANAGEMENT_PERMISSION = 'projectManagementPermission',
-  PROJECT_MANAGEMENT_PERMISSION_BASICINFO = 'projectManagementPermissionBasicInfo',
-  PROJECT_MANAGEMENT_PERMISSION_MENUMANAGEMENT = 'projectManagementPermissionMenuManagement',
+  PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO = 'projectManagementPermissionBasicInfo',
+  PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT = 'projectManagementPermissionMenuManagement',
   PROJECT_MANAGEMENT_PERMISSION_VERSION = 'projectManagementPermissionVersion',
-  PROJECT_MANAGEMENT_PERMISSION_USERGROUP = 'projectManagementPermissionUserGroup',
+  PROJECT_MANAGEMENT_PERMISSION_USER_GROUP = 'projectManagementPermissionUserGroup',
   PROJECT_MANAGEMENT_PERMISSION_MEMBER = 'projectManagementPermissionMember',
 }
 

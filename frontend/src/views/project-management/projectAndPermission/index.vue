@@ -50,13 +50,13 @@
       key: 'projectBasicInfo',
       title: 'project.permission.basicInfo',
       level: 2,
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASICINFO,
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO,
     },
     {
       key: 'projectMenuManage',
       title: 'project.permission.menuManagement',
       level: 2,
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENUMANAGEMENT,
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
     },
     {
       key: 'projectVersion',
@@ -80,7 +80,7 @@
       key: 'projectUserGroup',
       title: 'project.permission.userGroup',
       level: 2,
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_USERGROUP,
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_USER_GROUP,
     },
   ]);
 
