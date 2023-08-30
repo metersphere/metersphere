@@ -67,6 +67,32 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'o
 
 
 -- 项目管理员权限
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_USER:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_USER:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_USER:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_USER:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_GROUP:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_GROUP:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_GROUP:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_GROUP:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_FILE:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_TEMPLATE:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_MESSAGE:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_MESSAGE:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_MESSAGE:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_MESSAGE:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_FAKE_ERROR:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_FAKE_ERROR:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_FAKE_ERROR:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_FAKE_ERROR:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_APPLICATION_TEST_PLAN:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'project_admin', 'PROJECT_APPLICATION_TEST_PLAN:UPDATE');
+
 
 -- 项目成员权限
 
