@@ -22,7 +22,7 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
-    List<ApiComputeResult> selectByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids, @Param("projectId") String projectId);
+    List<ApiComputeResult> countByApiIdAndStatusIsNotTrash(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
     int removeToGcByExample(ApiDefinitionExampleWithOperation example);
 

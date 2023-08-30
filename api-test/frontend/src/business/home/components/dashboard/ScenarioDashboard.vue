@@ -43,7 +43,7 @@
           <div class="addition-info">
             <el-row :gutter="16" style="margin: 0">
               <!--接口覆盖率-->
-              <el-col :span="8" style="padding-left: 0">
+              <el-col :span="8" style="padding-left: 0" v-loading="coveredLoading">
                 <hover-card
                   :title="$t('home.dashboard.scenario.covered_rate')"
                   :main-info="scenarioData.apiCoveredRate"
@@ -176,8 +176,8 @@
 <script>
 import hoverCard from '@/business/home/components/card/HoverCard';
 import mainInfoCard from '@/business/home/components/card/MainInfoCard';
-import { formatNumber, scenarioCountByProjectId } from '@/api/home';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import {formatNumber, scenarioCountByProjectId, scenarioCoveredByProjectId} from '@/api/home';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
 
 export default {
   name: 'ScenarioDashboard',
@@ -185,6 +185,7 @@ export default {
   data() {
     return {
       loading: false,
+      coveredLoading: false,
       loadError: false,
       apiCoveredRateToolTip: this.$t('api_test.home_page.formula.interface_coverage'),
       executeRateToolTip: this.$t('api_test.home_page.formula.scenario_execute'),
@@ -210,18 +211,48 @@ export default {
   methods: {
     search(versionId) {
       this.loading = true;
+      this.coveredLoading = true;
       this.loadError = false;
       let selectProjectId = getCurrentProjectID();
       scenarioCountByProjectId(selectProjectId, versionId)
         .then((response) => {
           this.loading = false;
           this.loadError = false;
-          this.scenarioData = response.data;
+          this.parserScenarioData(response.data, false);
         })
         .catch(() => {
           this.loading = false;
           this.loadError = true;
         });
+      scenarioCoveredByProjectId(selectProjectId, versionId)
+        .then((response) => {
+          this.coveredLoading = false;
+          this.loadError = false;
+          this.parserScenarioData(response.data, true);
+        })
+        .catch(() => {
+          this.coveredLoading = false;
+          this.loadError = true;
+        });
+    },
+    parserScenarioData(scenarioResponse, isCovered) {
+      if (isCovered) {
+        this.scenarioData.apiCoveredRate = scenarioResponse.apiCoveredRate;
+        this.scenarioData.coveredCount = scenarioResponse.coveredCount;
+        this.scenarioData.notCoveredCount = scenarioResponse.notCoveredCount;
+      } else {
+        this.scenarioData.total = scenarioResponse.total;
+        this.scenarioData.createdInWeek = scenarioResponse.createdInWeek;
+        this.scenarioData.executedTimesInWeek = scenarioResponse.executedTimesInWeek;
+        this.scenarioData.executedTimes = scenarioResponse.executedTimes;
+        this.scenarioData.executedRate = scenarioResponse.executedRate;
+        this.scenarioData.passRate = scenarioResponse.passRate;
+        this.scenarioData.executedCount = scenarioResponse.executedCount;
+        this.scenarioData.notExecutedCount = scenarioResponse.notExecutedCount;
+        this.scenarioData.passCount = scenarioResponse.passCount;
+        this.scenarioData.unPassCount = scenarioResponse.unPassCount;
+        this.scenarioData.fakeErrorCount = scenarioResponse.fakeErrorCount;
+      }
     },
     formatAmount(number) {
       return formatNumber(number);
