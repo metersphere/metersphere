@@ -342,6 +342,35 @@ public class SystemProjectControllerTests extends BaseTest {
         List<String> createUsers = projectDTOS.stream().map(ProjectDTO::getCreateUser).toList();
         User user = userMapper.selectByPrimaryKey("test");
         Assertions.assertTrue(List.of(user.getName()).containsAll(createUsers));
+
+        //排序
+        projectRequest.setSort(new HashMap<>() {{
+            put("organizationName", "asc");
+        }});
+        mvcResult = this.responsePost(getProjectList, projectRequest);
+        returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //第一个数据的organizationName是最小的
+        assert returnPager != null;
+        projectDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ProjectDTO.class);
+        String firstOrganizationName = projectDTOS.get(0).getOrganizationName();
+        for (ProjectDTO projectDTO : projectDTOS) {
+            Assertions.assertFalse(projectDTO.getOrganizationName().compareTo(firstOrganizationName) < 0);
+        }
+
+        projectRequest.setSort(new HashMap<>() {{
+            put("organizationName", "desc");
+        }});
+        mvcResult = this.responsePost(getProjectList, projectRequest);
+        returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //第一个数据的organizationName是最大的
+        assert returnPager != null;
+        projectDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ProjectDTO.class);
+        firstOrganizationName = projectDTOS.get(0).getOrganizationName();
+        for (ProjectDTO projectDTO : projectDTOS) {
+            Assertions.assertFalse(projectDTO.getOrganizationName().compareTo(firstOrganizationName) > 0);
+        }
+
+
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProjectList, projectRequest);
     }
