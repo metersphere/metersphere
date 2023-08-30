@@ -27,3 +27,4 @@ VALUES ('ORGANIZATION', '组织级别权限校验', '', 1, 'ORGANIZATION', 16206
 -- 初始化用户和组的关系
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user)
 SELECT 'ORGANIZATION', 'ORGANIZATION', 'ORGANIZATION', id, 1684747668375, 'admin' FROM organization WHERE num = 100001;
+

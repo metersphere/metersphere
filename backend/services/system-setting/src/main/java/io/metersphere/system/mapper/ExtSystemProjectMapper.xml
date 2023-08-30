@@ -20,7 +20,7 @@
                 or user.phone like CONCAT('%', #{request.keyword},'%'))
             </if>
         </where>
-                 ORDER BY `user`.update_time DESC) temp GROUP BY temp.id
+                 ORDER BY `user`.update_time DESC) temp GROUP BY temp.id ORDER BY adminFlag DESC
     </select>
     <select id="getProjectList" resultType="io.metersphere.sdk.dto.ProjectDTO">
         select p.id,
@@ -113,20 +113,9 @@
     </sql>
 
     <select id="getUserAdminList" resultType="io.metersphere.system.dto.UserExtend">
-        select distinct u.*, MAX( if (temp.role_id = 'project_admin', true, false)) as adminFlag from
-         user u left join (select * from user_role_relation urr where urr.source_id = #{projectId}) temp on temp.user_id = u.id
-        <where>
-            u.deleted = 0
-            <if test="userIds != null and userIds.size > 0 ">
-                and u.id in
-            <foreach collection="userIds" item="userId" open="(" separator="," close=")">
-                #{userId}
-            </foreach>
-            </if>
-        </where>
-
-        group by u.id
-
+        select distinct u.*
+        from `user` u left join user_role_relation urr on urr.user_id = u.id
+        where u.deleted = 0 and urr.source_id = #{organizationId}
 
     </select>
 
