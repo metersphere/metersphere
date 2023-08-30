@@ -98,7 +98,7 @@
   import { characterLimit } from '@/utils';
   import AddMemberModal from './components/addMemberModal.vue';
   import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
-  import type { TreeDataItem } from '@/models/projectManagement/member';
+  import type { ProjectTreeData } from '@/models/projectManagement/projectAndPermission';
 
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -219,7 +219,7 @@
   const batchVisible = ref<boolean>(false);
   const selectData = ref<string[]>([]);
   const batchAction = ref('');
-  const treeData = ref<TreeDataItem[]>([]);
+  const treeData = ref<ProjectTreeData[]>([]);
 
   // 添加到用户组
   const addUserGroup = () => {};

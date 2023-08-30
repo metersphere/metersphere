@@ -4,11 +4,9 @@
   </div>
   <div class="wrapper mb-6 flex justify-between">
     <span class="font-medium text-[var(--color-text-000)]">{{ t('project.basicInfo.basicInfo') }}</span>
-    <span>
-      <MsTableMoreAction :list="tableActions" @select="handleSelect($event)">
-        <a-button type="outline">{{ t('project.basicInfo.action') }}</a-button>
-      </MsTableMoreAction>
-    </span>
+    <MsTableMoreAction :list="tableActions" @select="handleSelect($event)">
+      <a-button type="outline">{{ t('project.basicInfo.action') }}</a-button>
+    </MsTableMoreAction>
   </div>
   <div class="project-info mb-6 h-[112px] bg-white p-1">
     <div class="inner-wrapper p-4">
