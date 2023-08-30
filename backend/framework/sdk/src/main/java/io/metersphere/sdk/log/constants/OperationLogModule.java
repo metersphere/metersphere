@@ -71,7 +71,7 @@ public class OperationLogModule {
     public static final String SETTING_ORGANIZATION_USER_ROLE = "SETTING_ORGANIZATION_USER_ROLE";
     
     //系统设置-组织-项目
-    public static final String SETTING_SYSTEM_ORGANIZATION_PROJECT = "SETTING_SYSTEM_ORGANIZATION_PROJECT";
+    public static final String SETTING_ORGANIZATION_PROJECT = "SETTING_ORGANIZATION_PROJECT";
 
     //项目管理
     public static final String PROJECT_MANAGEMENT = "PROJECT_MANAGEMENT"; // 项目管理

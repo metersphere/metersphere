@@ -309,7 +309,6 @@ public class OrganizationProjectControllerTests extends BaseTest {
     @Order(4)
     public void testGetProjectError() throws Exception {
         //项目不存在
-        //项目不存在
         MvcResult mvcResult = this.responseGet(getProject + "111111");
         ProjectExtendDTO project = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
         Assertions.assertNull(project);
@@ -721,28 +720,16 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testGetAdminList() throws Exception {
         //组织下面有成员 返回不为空
         String organizationId = getDefault().getId();
-        String projectId = "projectId4";
-        MvcResult mvcResult = responseGet(getAdminList + organizationId + "/" + projectId);
+        MvcResult mvcResult = responseGet(getAdminList + organizationId);
         List<UserDTO> userDTOS = parseObjectFromMvcResult(mvcResult, List.class);
         assert userDTOS != null;
         Assertions.assertFalse(userDTOS.isEmpty());
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getAdminList + organizationId + "/" + projectId);
-        //组织下面没有成员 返回为空
-        organizationId = "default-organization-20";
-        projectId = "projectId4";
-        mvcResult = responseGet(getAdminList + organizationId + "/" + projectId);
-        userDTOS = parseObjectFromMvcResult(mvcResult, List.class);
-        Assertions.assertNull(userDTOS);
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getAdminList + organizationId);
 
         //组织不存在
         organizationId = "organizationId111";
-        projectId = "projectId4";
-        this.responseGet(getAdminList + organizationId + "/" + projectId, ERROR_REQUEST_MATCHER);
-        //项目不存在
-        organizationId = getDefault().getId();
-        projectId = "projectId111";
-        this.responseGet(getAdminList + organizationId + "/" + projectId, ERROR_REQUEST_MATCHER);
+        this.responseGet(getAdminList + organizationId, ERROR_REQUEST_MATCHER);
 
     }
 

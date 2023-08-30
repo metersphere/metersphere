@@ -117,4 +117,5 @@ public class PermissionConstants {
 
     public static final String PROJECT_APPLICATION_TEST_PLAN_READ = "PROJECT_APPLICATION_TEST_PLAN:READ";
     public static final String PROJECT_APPLICATION_TEST_PLAN_UPDATE = "PROJECT_APPLICATION_TEST_PLAN:UPDATE";
+    public static final String PROJECT_BASE_INFO_READ = "PROJECT_BASE_INFO:READ";
 }

@@ -32,7 +32,7 @@ public class OrganizationProjectLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_PROJECT,
+                OperationLogModule.SETTING_ORGANIZATION_PROJECT,
                 project.getName());
 
         dto.setOriginalValue(JSON.toJSONBytes(project));
@@ -52,7 +52,7 @@ public class OrganizationProjectLogService {
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SETTING_SYSTEM_ORGANIZATION_PROJECT,
+                    OperationLogModule.SETTING_ORGANIZATION_PROJECT,
                     project.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
@@ -95,7 +95,7 @@ public class OrganizationProjectLogService {
                     id,
                     project.getCreateUser(),
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.SETTING_SYSTEM_ORGANIZATION_PROJECT,
+                    OperationLogModule.SETTING_ORGANIZATION_PROJECT,
                     project.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
@@ -118,7 +118,7 @@ public class OrganizationProjectLogService {
                     id,
                     null,
                     OperationLogType.RECOVER.name(),
-                    OperationLogModule.SETTING_SYSTEM_ORGANIZATION_PROJECT,
+                    OperationLogModule.SETTING_ORGANIZATION_PROJECT,
                     project.getName());
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;

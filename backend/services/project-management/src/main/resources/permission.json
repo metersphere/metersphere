@@ -5,6 +5,15 @@
     "type": "PROJECT",
     "children": [
       {
+        "id": "PROJECT_BASE_INFO",
+        "name": "permission.project.read",
+        "permissions": [
+          {
+            "id": "PROJECT:READ"
+          }
+        ]
+      },
+      {
         "id": "PROJECT_USER",
         "name": "permission.project_user.name",
         "permissions": [

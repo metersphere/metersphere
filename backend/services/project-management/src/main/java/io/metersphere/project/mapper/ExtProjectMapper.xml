@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.project.mapper.ExtProjectMapper">
+
+
+    <select id="getUserProject" resultType="io.metersphere.project.domain.Project">
+        SELECT DISTINCT p.*
+        FROM user_role u
+        JOIN user_role_relation urr ON u.id = urr.role_id
+        JOIN project p ON p.id = urr.source_id
+        JOIN user on urr.user_id = user.id
+        where urr.user_id = #{userId} and  u.type = 'PROJECT'
+          AND p.organization_id = #{organizationId} and p.enable = 1 and user.deleted = 0
+    </select>
+</mapper>
