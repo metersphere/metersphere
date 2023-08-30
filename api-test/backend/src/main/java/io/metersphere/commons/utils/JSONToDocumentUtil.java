@@ -26,6 +26,7 @@ public class JSONToDocumentUtil {
                 List<DocumentElement> childrenElements = new LinkedList<>();
                 DocumentElement documentElement = new DocumentElement(StringUtils.EMPTY, PropertyConstant.ARRAY, StringUtils.EMPTY, childrenElements);
                 documentElement.setArrayVerification(true);
+                documentElement.setName(String.valueOf(i));
                 children.add(documentElement);
                 jsonDataFormatting((JSONArray) value, childrenElements);
             } else {

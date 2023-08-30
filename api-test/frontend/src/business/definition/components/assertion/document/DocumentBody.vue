@@ -618,6 +618,9 @@ export default {
         row.type = 'object';
       }
       let newRow = this.getNewRow();
+      if (row.type === 'array') {
+        newRow.name = !this.mapData.get(row.id) ? 0 : this.mapData.get(row.id).length;
+      }
       newRow.idList = [row.id, newRow.id];
       newRow.parentId = row.id;
       if (this.mapData.has(row.id)) {
