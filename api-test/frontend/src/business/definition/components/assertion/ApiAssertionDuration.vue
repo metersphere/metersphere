@@ -11,7 +11,6 @@
           type="number"
           @change="change"
           @input="input"
-          :min="1"
           :placeholder="$t('api_test.request.assertions.response_in_time')"
           onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))" />
       </el-col>
