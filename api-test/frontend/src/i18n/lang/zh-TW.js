@@ -137,6 +137,9 @@ const message = {
     project_env_info: '更多項目環境',
     project_env_info_tips:
       '1.當前場景涉及到跨項目的步驟可以指定其所屬項目的環境執行，不指定則默認使用當前項目環境執行。 \n 2.如跨項目的步驟在場景設置中配置了使用原場景環境，則默認使用原場景環境執行。 ',
+    default_environment: '默認環境',
+    default_environment_tips: '用例自身保存的環境',
+    select_new_environment: '指定新環境',
   },
 };
 

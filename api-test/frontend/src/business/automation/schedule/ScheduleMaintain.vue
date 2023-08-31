@@ -53,7 +53,10 @@
             <div style="padding-top: 10px">
               <span class="ms-mode-span">{{ $t('commons.environment') }}：</span>
               <el-radio-group v-model="runConfig.defaultEnv" style="margin-right: 20px">
-                <el-radio :label="true">{{ $t('automation.default_environment') }}</el-radio>
+                <el-radio :label="true">{{ $t('automation.default_environment') }}
+                  <el-tooltip class="item" effect="dark" :content="$t('automation.default_environment_tips')" placement="right">
+                    <i class="el-icon-info"/>
+                  </el-tooltip></el-radio>
                 <el-radio :label="false">{{ $t('automation.select_new_environment') }}</el-radio>
               </el-radio-group>
               <env-popover

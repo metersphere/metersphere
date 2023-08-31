@@ -145,6 +145,9 @@ const message = {
     project_env_info_tips:
       '1. Steps involving cross-projects in the current scenario can be executed in the environment of the project to which they belong. If not specified, the current project environment will be used by default.\n' +
       ' 2. If the cross-project steps are configured to use the original scene environment in the scene settings, the original scene environment will be used by default to execute.',
+    default_environment: 'Default environment',
+    default_environment_tips: 'Environment saved by the case itself',
+    select_new_environment: 'Specify new environment',
   },
 };
 export default {
