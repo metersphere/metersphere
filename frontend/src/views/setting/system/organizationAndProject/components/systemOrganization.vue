@@ -1,7 +1,7 @@
 <template>
   <MsBaseTable v-bind="propsRes" v-on="propsEvent">
     <template #name="{ record }">
-      <span>{{ record.name }}</span>
+      <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ record.name }}</span>
       <a-tooltip background-color="#FFFFFF">
         <template #content>
           <span class="text-[var(--color-text-1)]">{{ t('system.organization.revokeDeleteToolTip') }}</span>
@@ -11,10 +11,7 @@
       </a-tooltip>
     </template>
     <template #creator="{ record }">
-      <span>{{ record.createUser }}</span>
-      <span v-if="record.orgCreateUserIsAdmin" class="ml-[8px] text-[var(--color-text-4)]">{{
-        `(${t('common.admin')})`
-      }}</span>
+      <MsUserAdminDiv :is-admin="record.projectCreateUserIsAdmin" :name="record.createUser" />
     </template>
     <template #memberCount="{ record }">
       <span class="primary-color" @click="showUserDrawer(record)">{{ record.memberCount }}</span>
@@ -66,6 +63,7 @@
     deleteOrg,
     enableOrDisableOrg,
     revokeDeleteOrg,
+    createOrUpdateOrg,
   } from '@/api/modules/setting/organizationAndProject';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -77,7 +75,9 @@
   import UserDrawer from './userDrawer.vue';
   import AddUserModal from './addUserModal.vue';
   import useModal from '@/hooks/useModal';
-  import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
+  import { CreateOrUpdateSystemOrgParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
+  import MsUserAdminDiv from '@/components/pure/ms-user-admin-div/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   export interface SystemOrganizationProps {
     keyword: string;
@@ -102,7 +102,10 @@
     {
       title: 'system.organization.name',
       slotName: 'name',
+      dataIndex: 'name',
+      width: 200,
       editable: true,
+      showTooltip: true,
     },
     {
       title: 'system.organization.member',
@@ -115,6 +118,7 @@
     {
       title: 'system.organization.status',
       dataIndex: 'enable',
+      disableTitle: 'common.end',
     },
     {
       title: 'system.organization.description',
@@ -128,26 +132,39 @@
     {
       title: 'system.organization.createTime',
       dataIndex: 'createTime',
-      width: 230,
+      width: 180,
     },
     {
       title: 'system.organization.operation',
       slotName: 'operation',
       fixed: 'right',
-      width: 208,
+      width: 230,
     },
   ];
 
+  const handleNameChange = async (record: OrgProjectTableItem) => {
+    try {
+      await createOrUpdateOrg(record);
+      Message.success(t('common.updateSuccess'));
+    } catch (error) {
+      Message.error(t('common.updateFailed'));
+    }
+  };
+
   tableStore.initColumn(TableKeyEnum.SYSTEM_ORGANIZATION, organizationColumns, 'drawer');
 
-  const { propsRes, propsEvent, loadList, setKeyword, setLoading } = useTable(postOrgTable, {
-    tableKey: TableKeyEnum.SYSTEM_ORGANIZATION,
-    scroll: { y: 'auto', x: '1300px' },
-    selectable: false,
-    noDisable: false,
-    size: 'default',
-    showSetting: true,
-  });
+  const { propsRes, propsEvent, loadList, setKeyword, setLoading } = useTable(
+    postOrgTable,
+    {
+      tableKey: TableKeyEnum.SYSTEM_ORGANIZATION,
+      selectable: false,
+      noDisable: false,
+      size: 'default',
+      showSetting: true,
+    },
+    undefined,
+    handleNameChange
+  );
 
   const fetchData = async () => {
     setKeyword(props.keyword);

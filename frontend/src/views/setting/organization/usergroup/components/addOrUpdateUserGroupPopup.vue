@@ -1,16 +1,5 @@
 <template>
-  <a-popconfirm
-    :popup-visible="currentVisible"
-    :ok-text="props.id ? t('common.rename') : t('common.create')"
-    unmount-on-close
-    :on-before-ok="handleBeforeOk"
-    :ok-loading="loading"
-    :cancel-button-props="{ disabled: loading }"
-    position="bl"
-    class="w-[276px]"
-    @cancel="handleCancel"
-  >
-    <template #icon>{{ null }}</template>
+  <a-popover :popup-visible="currentVisible" position="bl" trigger="click" class="w-[276px]">
     <template #content>
       <div class="form">
         <a-form
@@ -22,7 +11,7 @@
           :wrapper-col-props="{ span: 24 }"
         >
           <a-form-item>
-            <div class="text-[var(color-text-1)]">{{
+            <div class="text-[14px] text-[var(--color-text-1)]">{{
               props.id ? t('system.userGroup.rename') : t('system.userGroup.createUserGroup')
             }}</div>
           </a-form-item>
@@ -35,9 +24,23 @@
           </a-form-item>
         </a-form>
       </div>
+      <div class="flex flex-row flex-nowrap justify-end gap-2">
+        <a-button type="secondary" size="mini" :disabled="loading" @click="handleCancel">
+          {{ t('common.cancel') }}
+        </a-button>
+        <a-button
+          type="primary"
+          size="mini"
+          :loading="loading"
+          :disabled="form.name.length === 0"
+          @click="handleBeforeOk"
+        >
+          {{ props.id ? t('common.rename') : t('common.create') }}
+        </a-button>
+      </div>
     </template>
     <slot></slot>
-  </a-popconfirm>
+  </a-popover>
 </template>
 
 <script lang="ts" setup>
@@ -90,6 +93,7 @@
 
   const handleCancel = () => {
     form.name = '';
+    loading.value = false;
     emit('cancel', false);
   };
 

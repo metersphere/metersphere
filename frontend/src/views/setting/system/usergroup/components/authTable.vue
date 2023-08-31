@@ -14,7 +14,7 @@
         <a-table-column :width="150" :title="t('system.userGroup.operationObject')" data-index="operationObject" />
         <a-table-column :title="t('system.userGroup.auth')">
           <template #cell="{ record, rowIndex }">
-            <a-checkbox-group v-model="record.perChecked" @change="(v) => handleAuthChange(v, rowIndex)">
+            <a-checkbox-group v-model="record.perChecked" @change="(v) => handleCellAuthChange(v, rowIndex)">
               <a-checkbox
                 v-for="item in record.permissions"
                 :key="item.id"
@@ -32,7 +32,7 @@
               :model-value="allChecked"
               :indeterminate="allIndeterminate"
               :disabled="currentInternal"
-              @change="handleAllChangeByCheckbox"
+              @change="handleAllAuthChangeByCheckbox"
             ></a-checkbox>
           </template>
           <template #cell="{ record, rowIndex }">
@@ -40,7 +40,7 @@
               :model-value="record.enable"
               :indeterminate="record.indeterminate"
               :disabled="currentInternal"
-              @change="(value) => handleActionChangeAll(value, rowIndex)"
+              @change="(value) => handleRowAuthChange(value, rowIndex)"
             />
           </template>
         </a-table-column>
@@ -116,8 +116,8 @@
 
   /**
    * 生成数据
+   * @param item
    * @param type
-   * @param idx
    */
   const makeData = (item: UserGroupAuthSetting, type: AuthScopeType) => {
     const result: AuthTableItem[] = [];
@@ -129,12 +129,17 @@
           }
           return acc;
         }, []) || [];
+      const perCheckedLength = perChecked.length;
+      let indeterminate = false;
+      if (child?.permissions) {
+        indeterminate = perCheckedLength > 0 && perCheckedLength < child?.permissions?.length;
+      }
       result.push({
         id: child?.id,
         license: child?.license,
         enable: child?.enable,
         permissions: child?.permissions,
-        indeterminate: perChecked?.length > 0,
+        indeterminate,
         perChecked,
         ability: index === 0 ? t(`system.userGroup.${type}`) : undefined,
         operationObject: t(child.name),
@@ -145,7 +150,7 @@
     });
     return result;
   };
-
+  // 转换数据 计算系统，组织，项目的合并行数
   const transformData = (data: UserGroupAuthSetting[]) => {
     const result: AuthTableItem[] = [];
     data.forEach((item) => {
@@ -163,21 +168,8 @@
     return result;
   };
 
-  const initData = async (id: string) => {
-    try {
-      let tmpArr = [];
-      loading.value = true;
-      const res = await getGlobalUSetting(id);
-      tmpArr = transformData(res);
-      tableData.value = tmpArr;
-    } catch (error) {
-      tableData.value = [];
-    } finally {
-      loading.value = false;
-    }
-  };
   // 表格总全选change事件
-  const handleAllChangeByCheckbox = () => {
+  const handleAllAuthChangeByCheckbox = () => {
     if (!tableData.value) return;
     allChecked.value = !allChecked.value;
     allIndeterminate.value = false;
@@ -191,7 +183,7 @@
   };
 
   // 表格总全选联动触发事件
-  const handleAllChange = () => {
+  const handleAllChange = (isInit = false) => {
     if (!tableData.value) return;
     const tmpArr = tableData.value;
     const { length: allLength } = tmpArr;
@@ -206,11 +198,11 @@
       allChecked.value = false;
       allIndeterminate.value = true;
     }
-    if (!canSave.value) canSave.value = true;
+    if (!isInit && !canSave.value) canSave.value = true;
   };
 
   // 表格最后一列的复选框change事件
-  const handleActionChangeAll = (value: boolean | (string | number | boolean)[], rowIndex: number) => {
+  const handleRowAuthChange = (value: boolean | (string | number | boolean)[], rowIndex: number) => {
     if (!tableData.value) return;
     const tmpArr = tableData.value;
     tmpArr[rowIndex].indeterminate = false;
@@ -227,23 +219,34 @@
   };
 
   // 表格第三列的复选框change事件
-  const handleAuthChange = (values: (string | number | boolean)[], rowIndex: number) => {
+  const handleCellAuthChange = (values: (string | number | boolean)[], rowIndex: number) => {
     if (!tableData.value) return;
     const tmpArr = tableData.value;
     const length = tmpArr[rowIndex].permissions?.length || 0;
     if (values.length === length) {
       tmpArr[rowIndex].enable = true;
       tmpArr[rowIndex].indeterminate = false;
-      handleAllChange();
     } else if (values.length === 0) {
       tmpArr[rowIndex].enable = false;
       tmpArr[rowIndex].indeterminate = false;
-      handleAllChange();
     } else {
       tmpArr[rowIndex].enable = false;
       tmpArr[rowIndex].indeterminate = true;
     }
-    if (!canSave.value) canSave.value = true;
+    handleAllChange();
+  };
+
+  const initData = async (id: string) => {
+    try {
+      loading.value = true;
+      const res = await getGlobalUSetting(id);
+      tableData.value = transformData(res);
+      handleAllChange(true);
+    } catch (error) {
+      tableData.value = [];
+    } finally {
+      loading.value = false;
+    }
   };
 
   // 保存
@@ -313,4 +316,3 @@
     }
   }
 </style>
-@/store/modules/setting/system/usergroup

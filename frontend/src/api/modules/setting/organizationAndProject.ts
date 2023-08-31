@@ -1,10 +1,12 @@
 import MSR from '@/api/http/index';
 import * as orgUrl from '@/api/requrls/setting/organizationAndProject';
-import { TableQueryParams } from '@/models/common';
+import { CommonList, TableQueryParams } from '@/models/common';
 import { AddUserToOrgOrProjectParams } from '@/models/setting/systemOrg';
 import {
+  CreateOrUpdateOrgProjectParams,
   CreateOrUpdateSystemOrgParams,
   CreateOrUpdateSystemProjectParams,
+  OrgProjectTableItem,
   SystemGetUserByOrgOrProjectIdParams,
 } from '@/models/setting/system/orgAndProject';
 
@@ -98,7 +100,7 @@ export function getSystemOrgOption() {
 }
 
 // 创建或更新项目
-export function createOrUpdateProject(data: CreateOrUpdateSystemProjectParams) {
+export function createOrUpdateProject(data: Partial<OrgProjectTableItem>) {
   return MSR.post({ url: data.id ? orgUrl.postModifyProjectUrl : orgUrl.postAddProjectUrl, data });
 }
 
@@ -115,7 +117,7 @@ export function getOrgAndProjectCount() {
 // 组织-项目
 // 组织-获取项目列表
 export function postProjectTableByOrg(data: TableQueryParams) {
-  return MSR.post({ url: orgUrl.postProjectTableByOrgIdUrl, data });
+  return MSR.post<CommonList<OrgProjectTableItem>>({ url: orgUrl.postProjectTableByOrgIdUrl, data });
 }
 
 // 组织-启用或禁用项目
@@ -134,7 +136,7 @@ export function revokeDeleteProjectByOrg(id: string) {
 }
 
 // 组织-创建或更新项目
-export function createOrUpdateProjectByOrg(data: CreateOrUpdateSystemProjectParams) {
+export function createOrUpdateProjectByOrg(data: CreateOrUpdateOrgProjectParams) {
   return MSR.post({ url: data.id ? orgUrl.postModifyProjectByOrgUrl : orgUrl.postAddProjectByOrgUrl, data });
 }
 

@@ -3,10 +3,8 @@
     v-model:visible="currentVisible"
     width="680px"
     :ok-text="t('system.userGroup.create')"
-    :loading="props.loading"
     unmount-on-close
-    :on-before-ok="handleBeforeOk"
-    @cancel="handleCancel"
+    @cancel="handleCancel(false)"
   >
     <template #title> {{ t('system.userGroup.createUserGroup') }} </template>
     <div class="form">
@@ -35,6 +33,14 @@
         </a-form-item>
       </a-form>
     </div>
+    <template #footer>
+      <a-button type="secondary" :disabled="loading" @click="handleCancel(false)">
+        {{ t('common.cancel') }}
+      </a-button>
+      <a-button type="primary" :loading="loading" :disabled="form.name.length === 0" @click="handleOK">
+        {{ t('common.add') }}
+      </a-button>
+    </template>
   </a-modal>
 </template>
 
@@ -42,20 +48,20 @@
   import { useI18n } from '@/hooks/useI18n';
   import { reactive, ref, watchEffect } from 'vue';
   import { UserGroupItem } from '@/models/setting/usergroup';
-  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
+  import { updateOrAddUserGroup } from '@/api/modules/setting/usergroup';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
     list: UserGroupItem[];
-    loading: boolean;
   }>();
 
   const formRef = ref<FormInstance>();
+  const loading = ref(false);
 
   const emit = defineEmits<{
-    (e: 'cancel'): void;
-    (e: 'submit', value: Partial<UserGroupItem>): void;
+    (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
   const form = reactive({
@@ -78,17 +84,29 @@
   watchEffect(() => {
     currentVisible.value = props.visible;
   });
-  const handleCancel = () => {
-    emit('cancel');
+  const handleCancel = (shouldSearch: boolean) => {
+    emit('cancel', shouldSearch);
   };
 
-  const handleBeforeOk = () => {
-    formRef.value?.validate((errors: undefined | Record<string, ValidatedError>) => {
+  const handleOK = () => {
+    formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (errors) {
-        return false;
+        return;
       }
-      emit('submit', form);
-      return true;
+      try {
+        loading.value = true;
+        const res = await updateOrAddUserGroup(form);
+        if (res) {
+          Message.success(t('system.userGroup.addUserGroupSuccess'));
+          loading.value = false;
+          handleCancel(true);
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      } finally {
+        loading.value = false;
+      }
     });
   };
 </script>
