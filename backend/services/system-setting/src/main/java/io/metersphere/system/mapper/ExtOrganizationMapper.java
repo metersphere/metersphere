@@ -83,11 +83,4 @@ public interface ExtOrganizationMapper {
      * @return 组织下拉选项
      */
     List<OptionDTO> getOptionsByIds(@Param("ids") List<String> ids);
-
-    /**
-     * 获取所有组织成员
-     * @param organizationId 组织ID
-     * @return 成员
-     */
-    List<UserExtend> getMemberByOrg(String organizationId);
 }
