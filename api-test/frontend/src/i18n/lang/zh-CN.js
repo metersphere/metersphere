@@ -138,6 +138,7 @@ const message = {
     project_env_info_tips:
       '1.当前场景涉及到跨项目的步骤可以指定其所属项目的环境执行，不指定则默认使用当前项目环境执行。\n 2.如跨项目的步骤在场景设置中配置了使用原场景环境，则默认使用原场景环境执行。',
     default_environment: '默认环境',
+    default_environment_tips: '用例自身保存的环境',
     select_new_environment: '指定新环境',
   },
 };
