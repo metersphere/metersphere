@@ -350,6 +350,9 @@ export default {
     save() {
       this.$refs['environment'].validate((valid) => {
         if (valid && this.$refs.commonConfig.validate() && this.$refs.httpConfig.validate()) {
+          if (this.$refs.commonConfig) {
+            this.$refs.commonConfig.mergeData();
+          }
           this._save(this.environment);
         }
       });

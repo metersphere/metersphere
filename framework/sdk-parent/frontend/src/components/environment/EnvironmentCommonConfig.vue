@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-form :model="commonConfig" :rules="rules" ref="commonConfig" :disabled="isReadOnly" label-width="30px">
-      <ms-api-scenario-variables :show-copy="false" :items="commonConfig.variables" :is-read-only="isReadOnly"/>
+      <ms-api-scenario-variables :show-copy="false" :items="commonConfig.variables" :is-read-only="isReadOnly" ref="apiScenario"/>
       <el-form-item>
         <el-switch v-model="commonConfig.enableHost" active-text="Hosts"/>
         <el-tooltip class="hostItem" effect="dark" :content="$t('api_test.home_page.host_config')" placement="right">
@@ -70,6 +70,11 @@ export default {
     }
   },
   methods: {
+    mergeData() {
+      if (this.$refs.apiScenario) {
+        this.commonConfig.variables = this.$refs['apiScenario'].allData;
+      }
+    },
     validate() {
       let isValidate = false;
       this.$refs['commonConfig'].validate((valid) => {
