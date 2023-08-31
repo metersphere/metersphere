@@ -35,7 +35,7 @@ public class DocumentUtils {
                             isTrue = StringUtils.contains(resValue, expectedValue);
                             break;
                         case "length_eq":
-                            isTrue = getLength(resValue, decimalFormatter) == numberOf(item.getValue());
+                            isTrue = getLength(subj, decimalFormatter) == numberOf(item.getValue());
                             break;
                         case "length_not_eq":
                             isTrue = getLength(subj, decimalFormatter) != numberOf(item.getValue());
