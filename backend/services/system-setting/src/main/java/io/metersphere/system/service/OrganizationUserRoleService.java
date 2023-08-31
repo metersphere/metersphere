@@ -78,7 +78,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
         UserRole userRole = get(roleId);
         // 非组织用户组不允许删除, 内置用户组不允许删除
         checkOrgUserRole(userRole);
-        super.delete(userRole, InternalUserRole.ORG_MEMBER.getValue(), currentUserId);
+        super.delete(userRole, InternalUserRole.ORG_MEMBER.getValue(), currentUserId, userRole.getScopeId());
     }
 
     public List<UserExtend> getMember(String organizationId, String roleId) {
@@ -124,6 +124,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
             relation.setSourceId(request.getOrganizationId());
             relation.setCreateTime(System.currentTimeMillis());
             relation.setCreateUser(createUserId);
+            relation.setOrganizationId(request.getOrganizationId());
             userRoleRelationMapper.insert(relation);
         });
     }

@@ -22,6 +22,8 @@ VALUES ('test', 'test', 'admin3@metersphere.io', MD5('admin2@metersphere.io'),
         UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin');
 
 replace
-INTO user_role_relation VALUES ('c3bb9b4f-46d8-4952-9681-8889974487w','admin1','project_admin','projectId1','1684747668375','1684747668375');
+INTO user_role_relation(id, user_id, role_id, source_id, organization_id, create_time, create_user)
+    VALUES ('c3bb9b4f-46d8-4952-9681-8889974487w','admin1','project_admin','projectId1', (SELECT id FROM organization WHERE name LIKE '默认组织'), '1684747668375','1684747668375');
 replace
-INTO user_role_relation VALUES ('c3bb9b4f-46d8-4952-9681-8889974487q','admin2','project_admin','projectId1','1684747668321','1684747668336');
+INTO user_role_relation(id, user_id, role_id, source_id, organization_id, create_time, create_user)
+    VALUES ('c3bb9b4f-46d8-4952-9681-8889974487q','admin2','project_admin','projectId1', (SELECT id FROM organization WHERE name LIKE '默认组织'), '1684747668321','1684747668336');

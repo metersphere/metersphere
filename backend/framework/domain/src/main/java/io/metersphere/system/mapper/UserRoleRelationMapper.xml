@@ -6,6 +6,7 @@
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
     <result column="role_id" jdbcType="VARCHAR" property="roleId" />
     <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
+    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
@@ -68,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, user_id, role_id, source_id, create_time, create_user
+    id, user_id, role_id, source_id, organization_id, create_time, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.UserRoleRelationExample" resultMap="BaseResultMap">
     select
@@ -102,11 +103,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.UserRoleRelation">
     insert into user_role_relation (id, user_id, role_id, 
-      source_id, create_time, create_user
-      )
+      source_id, organization_id, create_time, 
+      create_user)
     values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR}, 
-      #{sourceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}
-      )
+      #{sourceId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{createUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.UserRoleRelation">
     insert into user_role_relation
@@ -122,6 +123,9 @@
       </if>
       <if test="sourceId != null">
         source_id,
+      </if>
+      <if test="organizationId != null">
+        organization_id,
       </if>
       <if test="createTime != null">
         create_time,
@@ -142,6 +146,9 @@
       </if>
       <if test="sourceId != null">
         #{sourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -172,6 +179,9 @@
       <if test="record.sourceId != null">
         source_id = #{record.sourceId,jdbcType=VARCHAR},
       </if>
+      <if test="record.organizationId != null">
+        organization_id = #{record.organizationId,jdbcType=VARCHAR},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -189,6 +199,7 @@
       user_id = #{record.userId,jdbcType=VARCHAR},
       role_id = #{record.roleId,jdbcType=VARCHAR},
       source_id = #{record.sourceId,jdbcType=VARCHAR},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -207,6 +218,9 @@
       <if test="sourceId != null">
         source_id = #{sourceId,jdbcType=VARCHAR},
       </if>
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
@@ -221,18 +235,19 @@
     set user_id = #{userId,jdbcType=VARCHAR},
       role_id = #{roleId,jdbcType=VARCHAR},
       source_id = #{sourceId,jdbcType=VARCHAR},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into user_role_relation
-    (id, user_id, role_id, source_id, create_time, create_user)
+    (id, user_id, role_id, source_id, organization_id, create_time, create_user)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.userId,jdbcType=VARCHAR}, #{item.roleId,jdbcType=VARCHAR}, 
-        #{item.sourceId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}
-        )
+        #{item.sourceId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.createUser,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -256,6 +271,9 @@
         </if>
         <if test="'source_id'.toString() == column.value">
           #{item.sourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'organization_id'.toString() == column.value">
+          #{item.organizationId,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}

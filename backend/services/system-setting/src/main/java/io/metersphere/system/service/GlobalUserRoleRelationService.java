@@ -79,6 +79,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
             checkExist(userRoleRelation);
             userRoleRelation.setCreateTime(System.currentTimeMillis());
             userRoleRelation.setId(UUID.randomUUID().toString());
+            userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
             userRoleRelations.add(userRoleRelation);
         });
         userRoleRelationMapper.batchInsert(userRoleRelations);
@@ -116,6 +117,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
                 userRoleRelation.setCreateTime(createTime);
                 userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
                 userRoleRelation.setId(UUID.randomUUID().toString());
+                userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
                 saveList.add(userRoleRelation);
             }
         }

@@ -114,7 +114,7 @@ public class GlobalUserRoleService extends BaseUserRoleService {
     public void delete(String id, String currentUserId) {
         UserRole userRole = getWithCheck(id);
         checkGlobalUserRole(userRole);
-        super.delete(userRole, MEMBER.getValue(), currentUserId);
+        super.delete(userRole, MEMBER.getValue(), currentUserId, UserRoleScope.SYSTEM);
     }
 
     public void checkRoleIsGlobalAndHaveMember(@Valid @NotEmpty List<String> roleIdList, boolean isSystem) {

@@ -21,10 +21,10 @@ replace INTO project (id, num, organization_id, name, description, create_user, 
 
 
 # 插入测试数据  给组织增加成员
-replace INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user )VALUES ('user_role_relation1','admin1','org_admin','default_organization','1684747668321','admin');
-replace INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user )VALUES ('user_role_relation2','delete','org_admin','default_organization','1684747668321','admin');
-replace INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user )VALUES ('user_role_relation6','delete','project_member','projectId1','1684747668321','admin');
-replace INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user )VALUES ('user_role_relation3','admin1','project_member','projectId1','1684747668321','admin');
-replace INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user )VALUES ('user_role_relation4','admin1','project_member','projectId2','1684747668321','admin');
-replace INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user )VALUES ('user_role_relation5','admin1','project_member','projectId3','1684747668321','admin');
+replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user )VALUES ('user_role_relation1','admin1','org_admin','default_organization','default_organization','1684747668321','admin');
+replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user )VALUES ('user_role_relation2','delete','org_admin','default_organization','default_organization','1684747668321','admin');
+replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user )VALUES ('user_role_relation6','delete','project_member','projectId1','default_organization','1684747668321','admin');
+replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user )VALUES ('user_role_relation3','admin1','project_member','projectId1','default_organization','1684747668321','admin');
+replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user )VALUES ('user_role_relation4','admin1','project_member','projectId2','default_organization','1684747668321','admin');
+replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user )VALUES ('user_role_relation5','admin1','project_member','projectId3','default_organization','1684747668321','admin');
 replace INTO user_role_permission(id, role_id, permission_id) VALUES ('user_role_permission1','project_member','PROJECT_BASE_INFO:READ');
