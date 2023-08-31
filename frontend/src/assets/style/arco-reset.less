@@ -570,16 +570,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 5px 0;
-    width: 32px;
+    padding: 5px 10px;
+    min-width: 32px;
     height: 32px;
     box-sizing: border-box;
     cursor: pointer;
     &-previous {
       margin-left: 14px !important;
     }
+    &-ellipsis {
+      padding: 5px 0;
+    }
     &-ellipsis:hover {
-      width: 32px;
+      min-width: 32px;
       height: 32px;
     }
     &:not(:last-child):not(:first-child):not(.arco-pagination-item-ellipsis) {

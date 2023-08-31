@@ -21,7 +21,7 @@ export const addUserToUserGroupUrl = `/user/role/relation/global/add`;
 /** 删除用户组用户 */
 export const deleteUserFromUserGroupUrl = `/user/role/relation/global/delete/`;
 /** 获取需要关联的用户选项 */
-export const getSystemUserGroupOptionUrl = `/user/role/relation//global/user/option/`;
+export const getSystemUserGroupOptionUrl = `/user/role/relation/global/user/option/`;
 
 /** 组织 */
 // 组织-修改用户组

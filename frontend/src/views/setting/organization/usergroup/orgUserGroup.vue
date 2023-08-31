@@ -137,6 +137,8 @@
   }
   .user-group-left {
     position: relative;
+    width: 300px;
+    height: calc(100vh - 125px);
     border-right: 1px solid var(--color-border);
     .usergroup-collapse {
       position: absolute;
