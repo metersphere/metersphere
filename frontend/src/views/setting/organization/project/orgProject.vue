@@ -13,7 +13,7 @@
     </div>
     <MsBaseTable v-bind="propsRes" v-on="propsEvent">
       <template #name="{ record }">
-        <span>{{ record.name }}</span>
+        <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ record.name }}</span>
         <a-tooltip background-color="#FFFFFF">
           <template #content>
             <span class="text-[var(--color-text-1)]">{{ t('system.project.revokeDeleteToolTip') }}</span>
@@ -23,10 +23,7 @@
         </a-tooltip>
       </template>
       <template #creator="{ record }">
-        <span>{{ record.createUser }}</span>
-        <span v-if="record.projectCreateUserIsAdmin" class="ml-[8px] text-[var(--color-text-4)]">{{
-          `(${t('common.admin')})`
-        }}</span>
+        <MsUserAdminDiv :is-admin="record.projectCreateUserIsAdmin" :name="record.createUser" />
       </template>
       <template #memberCount="{ record }">
         <span class="primary-color" @click="showUserDrawer(record)">{{ record.memberCount }}</span>
@@ -47,11 +44,7 @@
         </template>
       </template>
     </MsBaseTable>
-    <AddProjectModal
-      :current-project="currentUpdateProject"
-      :visible="addProjectVisible"
-      @cancel="handleAddProjectModalCancel"
-    />
+    <AddProjectModal :visible="addProjectVisible" @cancel="handleAddProjectModalCancel" />
     <AddUserModal :project-id="currentProjectId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
     <UserDrawer v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
   </MsCard>
@@ -69,6 +62,7 @@
     deleteProjectByOrg,
     enableOrDisableProjectByOrg,
     revokeDeleteProjectByOrg,
+    createOrUpdateProjectByOrg,
   } from '@/api/modules/setting/organizationAndProject';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -78,10 +72,12 @@
   import UserDrawer from './components/userDrawer.vue';
   import AddUserModal from './components/addUserModal.vue';
   import useModal from '@/hooks/useModal';
-  import { CreateOrUpdateSystemProjectParams } from '@/models/setting/system/orgAndProject';
+  import { CreateOrUpdateSystemProjectParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
   import AddProjectModal from './components/addProjectModal.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { UserItem } from '@/models/setting/log';
+  import MsUserAdminDiv from '@/components/pure/ms-user-admin-div/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   const { t } = useI18n();
   const tableStore = useTableStore();
@@ -105,6 +101,8 @@
       title: 'system.organization.name',
       slotName: 'name',
       editable: true,
+      dataIndex: 'name',
+      showTooltip: true,
     },
     {
       title: 'system.organization.member',
@@ -113,6 +111,7 @@
     {
       title: 'system.organization.status',
       dataIndex: 'enable',
+      disableTitle: 'common.end',
     },
     {
       title: 'system.organization.description',
@@ -127,35 +126,44 @@
     {
       title: 'system.organization.creator',
       slotName: 'creator',
-      dataIndex: 'createUser',
+      width: 180,
     },
     {
       title: 'system.organization.createTime',
       dataIndex: 'createTime',
-      width: 230,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
+      width: 180,
     },
     {
       title: 'system.organization.operation',
       slotName: 'operation',
       fixed: 'right',
-      width: 208,
+      width: 230,
     },
   ];
 
+  const handleNameChange = async (record: OrgProjectTableItem) => {
+    try {
+      await createOrUpdateProjectByOrg(record);
+      Message.success(t('common.updateSuccess'));
+    } catch (error) {
+      Message.error(t('common.updateFailed'));
+    }
+  };
+
   tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
 
-  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(postProjectTableByOrg, {
-    tableKey: TableKeyEnum.SYSTEM_PROJECT,
-    scroll: { y: 'auto', x: '1300px' },
-    selectable: false,
-    noDisable: false,
-    size: 'default',
-    showSetting: true,
-  });
+  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(
+    postProjectTableByOrg,
+    {
+      tableKey: TableKeyEnum.SYSTEM_PROJECT,
+      selectable: false,
+      noDisable: false,
+      size: 'default',
+      showSetting: true,
+    },
+    undefined,
+    (record) => handleNameChange(record)
+  );
 
   const fetchData = async () => {
     setKeyword(keyword.value);
@@ -288,6 +296,7 @@
       hideCancel: false,
     });
   };
+
   onMounted(() => {
     setLoadListParams({ organizationId: currentOrgId.value });
     fetchData();

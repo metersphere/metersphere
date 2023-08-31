@@ -28,7 +28,6 @@
             :type="popType"
             :default-name="popDefaultName"
             :list="userGroupList"
-            position="bl"
             @cancel="() => handlePopConfirmCancel(element.id)"
             @submit="(value: CustomMoreActionItem) => handlePopConfirmSubmit(value,element.id)"
           >
@@ -49,13 +48,7 @@
     </div>
   </div>
   <AddUserModal :visible="addUserVisible" @cancel="addUserVisible = false" />
-  <AddUserGroupModal
-    :list="userGroupList"
-    :visible="addUserGroupVisible"
-    :loading="addUserGrouploading"
-    @cancel="addUserGroupVisible = false"
-    @submit="handleAddUserGroup"
-  />
+  <AddUserGroupModal :list="userGroupList" :visible="addUserGroupVisible" @cancel="handleAddUserGroupModalCancel" />
 </template>
 
 <script lang="ts" setup>
@@ -81,7 +74,6 @@
   const currentId = ref('');
   const addUserVisible = ref(false);
   const addUserGroupVisible = ref(false);
-  const addUserGrouploading = ref(false);
   // 修改用户组名字，权限范围
   const popVisible = ref<PopVisibleItem>({});
   const popLoading = ref<PopVisibleItem>({});
@@ -235,21 +227,11 @@
     const tmpArr = userGroupList.value.filter((ele) => ele.name.includes(keyword));
     userGroupList.value = tmpArr;
   }
-  // 新增用户组
-  const handleAddUserGroup = async (value: Partial<UserGroupItem>) => {
-    try {
-      addUserGrouploading.value = true;
-      const res = await updateOrAddUserGroup(value);
-      if (res) {
-        Message.success(t('system.userGroup.addUserGroupSuccess'));
-        addUserGroupVisible.value = false;
-        initData();
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    } finally {
-      addUserGrouploading.value = false;
+
+  const handleAddUserGroupModalCancel = (shouldSearch: boolean) => {
+    addUserGroupVisible.value = false;
+    if (shouldSearch) {
+      initData();
     }
   };
 

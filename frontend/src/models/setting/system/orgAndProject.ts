@@ -1,4 +1,5 @@
 import { TableQueryParams } from '@/models/common';
+import { UserItem } from '../log';
 
 export interface CreateOrUpdateSystemOrgParams {
   id?: string;
@@ -23,6 +24,15 @@ export interface CreateOrUpdateSystemProjectParams {
   // 列表里的
 }
 
+export interface CreateOrUpdateOrgProjectParams {
+  id?: string;
+  name: string;
+  description?: string;
+  enable?: boolean;
+  userIds?: string[];
+  organizationId?: string;
+}
+
 export interface SystemOrgOption {
   id: string;
   name: string;
@@ -30,4 +40,18 @@ export interface SystemOrgOption {
 export interface SystemGetUserByOrgOrProjectIdParams extends TableQueryParams {
   projectId?: string;
   organizationId?: string;
+}
+export interface OrgProjectTableItem {
+  id: string;
+  name: string;
+  description: string;
+  enable: boolean;
+  adminList: UserItem[];
+  organizationId: string;
+  organizationName: string;
+  num: number;
+  updateTime: number;
+  createTime: number;
+  memberCount: number;
+  userIds: string[];
 }

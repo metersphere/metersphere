@@ -21,6 +21,8 @@ export default {
   'common.enableFailed': 'Enable failed',
   'common.closeSuccess': 'Close success',
   'common.closeFailed': 'Close failed',
+  'common.updateSuccess': 'Update success',
+  'common.updateFailed': 'Update failed',
   'common.all': 'All',
   'common.operation': 'Operation',
   'common.remove': 'Remove',

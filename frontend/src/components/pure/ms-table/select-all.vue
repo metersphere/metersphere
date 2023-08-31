@@ -1,8 +1,8 @@
 <template>
-  <div class="ms-table-select-all items-center text-base">
+  <div class="ms-table-select-all">
     <a-checkbox v-model="checked" class="text-base" :indeterminate="indeterminate" @change="handleCheckChange" />
     <a-dropdown position="bl" @select="handleSelect">
-      <MsIcon type="icon-icon_down_outlined" class="ml-0.5" />
+      <MsIcon type="icon-icon_down_outlined" class="dropdown-icon" />
       <template #content>
         <a-doption :value="SelectAllEnum.CURRENT">{{ t('msTable.current') }}</a-doption>
         <a-doption :value="SelectAllEnum.ALL">{{ t('msTable.all') }}</a-doption>
@@ -65,7 +65,12 @@
 
 <style lang="less" scoped>
   .ms-table-select-all {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
     .dropdown-icon {
+      margin-left: 2px;
+      font-size: 12px;
       color: rgb(var(--primary-6));
     }
     .dropdown-icon:hover {

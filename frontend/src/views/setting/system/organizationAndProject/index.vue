@@ -44,7 +44,7 @@
   import { getOrgAndProjectCount } from '@/api/modules/setting/organizationAndProject';
 
   const { t } = useI18n();
-  const currentTable = ref('project');
+  const currentTable = ref('organization');
   const organizationVisible = ref(false);
   const organizationCount = ref(0);
   const projectCount = ref(0);

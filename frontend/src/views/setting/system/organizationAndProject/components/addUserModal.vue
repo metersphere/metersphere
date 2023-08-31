@@ -18,6 +18,7 @@
           <MsUserSelector
             v-model:value="form.name"
             :type="UserRequesetTypeEnum.SYSTEM_ORGANIZATION"
+            disabled-key="memberFlag"
             :load-option-params="{ sourceId: props.organizationId || props.projectId }"
           />
         </a-form-item>

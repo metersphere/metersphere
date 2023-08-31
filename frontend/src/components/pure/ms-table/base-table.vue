@@ -64,15 +64,31 @@
                   </div>
                   <div v-else class="flex items-center text-[var(--color-text-4)]">
                     <MsIcon type="icon-icon_disable" class="mr-[2px]" />
-                    {{ item.disableTitle ? t(item.disableTitle) : t('msTable.disable') }}
+                    <span class="text-[var(--color-text-1)]">
+                      {{ item.disableTitle ? t(item.disableTitle) : t('msTable.disable') }}
+                    </span>
                   </div>
                 </slot>
               </template>
               <template v-else-if="item.showTooltip">
                 <a-tooltip placement="top" :content="record[item.dataIndex as string]">
-                  <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                  <a-input
+                    v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
+                    ref="currentInputRef"
+                    v-model="record[item.dataIndex as string]"
+                    @blur="handleEditInputBlur()"
+                    @press-enter="handleEditInputEnter(record)"
+                  />
+                  <slot v-else :name="item.slotName" v-bind="{ record, rowIndex, column }">
                     <span>{{ record[item.dataIndex as string] }}</span>
                   </slot>
+                  <MsIcon
+                    v-if="item.editable && item.dataIndex === editKey && !record.deleted"
+                    class="ml-2 cursor-pointer"
+                    :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
+                    type="icon-icon_edit_outlined"
+                    @click="handleEdit(rowIndex)"
+                  />
                 </a-tooltip>
               </template>
               <template v-else>
@@ -87,7 +103,7 @@
                   <span>{{ record[item.dataIndex as string] || '-' }}</span>
                 </slot>
                 <MsIcon
-                  v-if="item.editable && item.dataIndex === editKey"
+                  v-if="item.editable && item.dataIndex === editKey && !record.deleted"
                   class="ml-2 cursor-pointer"
                   :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
                   type="icon-icon_edit_outlined"
@@ -120,6 +136,7 @@
         v-else-if="attrs.showPagination"
         size="small"
         v-bind="attrs.msPagination"
+        hide-on-single-page
         @change="pageChange"
         @page-size-change="pageSizeChange"
       />
@@ -129,7 +146,7 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { useAttrs, computed, ref, onMounted } from 'vue';
+  import { useAttrs, computed, ref, onMounted, nextTick } from 'vue';
   import { useAppStore, useTableStore } from '@/store';
   import selectAll from './select-all.vue';
   import { SpecialColumnEnum, SelectAllEnum } from '@/enums/tableEnum';
@@ -172,7 +189,7 @@
   // 编辑按钮的Active状态
   const editActiveKey = ref(-1);
   // 编辑input的Ref
-  const currentInputRef = ref(null);
+  const currentInputRef = ref();
   const { rowKey, editKey }: Partial<MsTableProps<any>> = attrs;
   // 第一行表格合并
   const currentSpanMethod = ({
@@ -275,6 +292,7 @@
   };
 
   const handleEditInputBlur = () => {
+    currentInputRef.value = null;
     editActiveKey.value = -1;
   };
 
@@ -299,6 +317,13 @@
   // 编辑单元格的input
   const handleEdit = (rowIndex: number) => {
     editActiveKey.value = rowIndex;
+    if (currentInputRef.value) {
+      currentInputRef.value[0].focus();
+    } else {
+      nextTick(() => {
+        currentInputRef.value[0].focus();
+      });
+    }
   };
 
   // 根据参数获取全选按钮的位置
@@ -337,7 +362,7 @@
     position: relative;
     .custom-action {
       position: absolute;
-      top: 3px;
+      top: 13px;
       left: v-bind(batchleft);
       z-index: 99;
       border-radius: 2px;

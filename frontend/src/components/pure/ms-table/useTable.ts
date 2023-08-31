@@ -36,7 +36,7 @@ export default function useTableProps<T>(
     bordered: true,
     showPagination: true,
     size: 'small',
-    scroll: { maxHeight: '600px', x: '1400px' },
+    scroll: { maxHeight: '800px', minWidth: '1600px', x: '1400px', y: '600px' },
     checkable: true,
     loading: false,
     data: [],
@@ -56,6 +56,7 @@ export default function useTableProps<T>(
     // 表格的错误状态
     tableErrorStatus: false,
     debug: false,
+    // 展示第一行的操作
     showFirstOperation: false,
     ...props,
   };
