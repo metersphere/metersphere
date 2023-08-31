@@ -122,6 +122,7 @@
       title: 'system.organization.subordinateOrg',
       dataIndex: 'organizationName',
       sortable: {
+        sorter: true,
         sortDirections: ['ascend', 'descend'],
       },
     },

@@ -116,6 +116,5 @@
   );
   onBeforeMount(() => {
     tableSearch();
-    initOrgAndProjectCount();
   });
 </script>

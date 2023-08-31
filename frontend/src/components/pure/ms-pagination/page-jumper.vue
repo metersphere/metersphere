@@ -15,7 +15,7 @@
       @change="handleChange"
     />
     <span v-if="$slots['jumper-append']" :class="`${prefixCls}-append`"><slot name="jumper-append" /></span>
-    <span :class="`${prefixCls}-total-page`" :style="{ width: totalPageWidth }">{{
+    <span :class="`${prefixCls}-total-page`" :style="{ 'min-width': totalPageWidth }">{{
       t('msPagination.page', { page: pages })
     }}</span>
   </span>

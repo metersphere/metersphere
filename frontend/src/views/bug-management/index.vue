@@ -1,7 +1,7 @@
 <template>
   <MsCard simple>
     <h1>BugManagement is waiting for development </h1>
-    <ms-pagination size="small" :total="100" show-total show-jumper show-page-size />
+    <ms-pagination size="small" :total="100000" show-total show-jumper show-page-size />
   </MsCard>
 </template>
 
