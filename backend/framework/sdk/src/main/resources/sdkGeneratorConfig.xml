@@ -70,13 +70,8 @@
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="execution_queue"/>
-        <table tableName="execution_queue_detail"/>
-        <table tableName="environment"/>
-        <table tableName="relationship_edge"/>
-        <table tableName="share_info"/>
-        <table tableName="environment_group_project"/>
-        <table tableName="environment_group"/>
+        <table tableName="operation_log"/>
+        <table tableName="operation_log_blob"/>
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">

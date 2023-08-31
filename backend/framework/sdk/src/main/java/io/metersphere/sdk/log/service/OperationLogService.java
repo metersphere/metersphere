@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,9 +69,6 @@ public class OperationLogService {
             long currentTimeMillis = System.currentTimeMillis();
             logs.forEach(item -> {
                 item.setCreateTime(currentTimeMillis);
-                if (StringUtils.isBlank(item.getId())) {
-                    item.setId(UUID.randomUUID().toString());
-                }
                 // 限制长度
                 saveBlob(logMapper, logBlobMapper, item);
             });

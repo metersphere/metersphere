@@ -2,16 +2,15 @@ package io.metersphere.sdk.mapper;
 
 import io.metersphere.sdk.domain.OperationLogBlob;
 import io.metersphere.sdk.domain.OperationLogBlobExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface OperationLogBlobMapper {
     long countByExample(OperationLogBlobExample example);
 
     int deleteByExample(OperationLogBlobExample example);
 
-    int deleteByPrimaryKey(String id);
+    int deleteByPrimaryKey(Long id);
 
     int insert(OperationLogBlob record);
 
@@ -21,7 +20,7 @@ public interface OperationLogBlobMapper {
 
     List<OperationLogBlob> selectByExample(OperationLogBlobExample example);
 
-    OperationLogBlob selectByPrimaryKey(String id);
+    OperationLogBlob selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") OperationLogBlob record, @Param("example") OperationLogBlobExample example);
 
@@ -32,4 +31,8 @@ public interface OperationLogBlobMapper {
     int updateByPrimaryKeySelective(OperationLogBlob record);
 
     int updateByPrimaryKeyWithBLOBs(OperationLogBlob record);
+
+    int batchInsert(@Param("list") List<OperationLogBlob> list);
+
+    int batchInsertSelective(@Param("list") List<OperationLogBlob> list, @Param("selective") OperationLogBlob.Column ... selective);
 }

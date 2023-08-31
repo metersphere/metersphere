@@ -6,11 +6,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ModuleOpenApiConfig {
+    private static final String prePackages = "io.metersphere.";
+
     @Bean
     public GroupedOpenApi systemApi() {
         return GroupedOpenApi.builder()
                 .group("system-setting")
-                .packagesToScan("io.metersphere.system")
+                .packagesToScan(prePackages + "system")
                 .build();
     }
 
@@ -18,7 +20,7 @@ public class ModuleOpenApiConfig {
     public GroupedOpenApi projectApi() {
         return GroupedOpenApi.builder()
                 .group("project-management")
-                .packagesToScan("io.metersphere.project")
+                .packagesToScan(prePackages + "project")
                 .build();
     }
 
@@ -26,7 +28,7 @@ public class ModuleOpenApiConfig {
     public GroupedOpenApi apiTestApi() {
         return GroupedOpenApi.builder()
                 .group("api-test")
-                .packagesToScan("io.metersphere.api")
+                .packagesToScan(prePackages + "api")
                 .build();
     }
 
@@ -34,7 +36,7 @@ public class ModuleOpenApiConfig {
     public GroupedOpenApi bugApi() {
         return GroupedOpenApi.builder()
                 .group("bug-management")
-                .packagesToScan("io.metersphere.bug")
+                .packagesToScan(prePackages + "bug")
                 .build();
     }
 
@@ -42,7 +44,7 @@ public class ModuleOpenApiConfig {
     public GroupedOpenApi caseApi() {
         return GroupedOpenApi.builder()
                 .group("case-management")
-                .packagesToScan("io.metersphere.functional")
+                .packagesToScan(prePackages + "functional")
                 .build();
     }
 
@@ -50,7 +52,7 @@ public class ModuleOpenApiConfig {
     public GroupedOpenApi loadApi() {
         return GroupedOpenApi.builder()
                 .group("load-test")
-                .packagesToScan("io.metersphere.load")
+                .packagesToScan(prePackages + "load")
                 .build();
     }
 
@@ -59,7 +61,7 @@ public class ModuleOpenApiConfig {
     public GroupedOpenApi planApi() {
         return GroupedOpenApi.builder()
                 .group("test-plan")
-                .packagesToScan("io.metersphere.plan")
+                .packagesToScan(prePackages + "plan")
                 .build();
     }
 
@@ -67,7 +69,7 @@ public class ModuleOpenApiConfig {
     public GroupedOpenApi uiApi() {
         return GroupedOpenApi.builder()
                 .group("ui-test")
-                .packagesToScan("io.metersphere.ui")
+                .packagesToScan(prePackages + "ui")
                 .build();
     }
 
@@ -75,7 +77,7 @@ public class ModuleOpenApiConfig {
     public GroupedOpenApi workstationApi() {
         return GroupedOpenApi.builder()
                 .group("workstation")
-                .packagesToScan("io.metersphere.workstation")
+                .packagesToScan(prePackages + "workstation")
                 .build();
     }
 
@@ -83,7 +85,7 @@ public class ModuleOpenApiConfig {
     public GroupedOpenApi xpackApi() {
         return GroupedOpenApi.builder()
                 .group("xpack")
-                .packagesToScan("io.metersphere.xpack")
+                .packagesToScan(prePackages + "xpack")
                 .build();
     }
 
@@ -91,7 +93,7 @@ public class ModuleOpenApiConfig {
     public GroupedOpenApi sdkApi() {
         return GroupedOpenApi.builder()
                 .group("sdk")
-                .packagesToScan("io.metersphere.sdk")
+                .packagesToScan(prePackages + "sdk")
                 .build();
     }
 }

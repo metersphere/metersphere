@@ -3,7 +3,7 @@ SET SESSION innodb_lock_wait_timeout = 7200;
 
 CREATE TABLE IF NOT EXISTS operation_log
 (
-    `id`          VARCHAR(50)  NOT NULL COMMENT '主键',
+    `id` BIGINT NOT NULL AUTO_INCREMENT  COMMENT '主键' ,
     `project_id`  VARCHAR(50)  NOT NULL DEFAULT 'NONE' COMMENT '项目id',
     `organization_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '组织id',
     `create_time` BIGINT       NOT NULL COMMENT '操作时间',
@@ -31,7 +31,7 @@ CREATE INDEX idx_source_id ON operation_log(source_id);
 
 DROP TABLE IF EXISTS operation_log_blob;
 CREATE TABLE operation_log_blob(
-   `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
+   `id` BIGINT NOT NULL  COMMENT '主键' ,
    `original_value` LONGBLOB    COMMENT '变更前内容' ,
    `modified_value` LONGBLOB    COMMENT '变更后内容' ,
    PRIMARY KEY (id)
