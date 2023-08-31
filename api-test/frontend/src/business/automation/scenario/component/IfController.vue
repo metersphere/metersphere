@@ -148,6 +148,9 @@ export default {
   watch: {
     message() {
       this.reload();
+      if(this.message === 'stop') {
+        this.node.data.testing = false;
+      }
     },
   },
   methods: {
