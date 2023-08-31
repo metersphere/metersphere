@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtOrganizationMapper">
-    <select id="list" resultType="io.metersphere.system.dto.OrganizationDTO">
-        select o.id, o.num, o.name, o.description, o.create_time,
-        o.update_time, o.create_user, o.deleted, o.delete_user, o.delete_time, o.enable,
-        count(distinct u.id) as memberCount, count(distinct p.id) as projectCount
-        from organization o left join user_role_relation ur on ur.source_id = o.id
-        left join user u on u.id = ur.user_id and u.deleted = 0
-        left join project p on p.organization_id = o.id
+     <select id="list" resultType="io.metersphere.system.dto.OrganizationDTO">
+         select o.id, o.num, o.name, o.description, o.create_time,
+         o.update_time, o.create_user, o.deleted, o.delete_user, o.delete_time, o.enable,
+         coalesce(membercount, 0) as memberCount, coalesce(projectcount, 0) as projectCount
+         from organization o
+         left join (
+             select source_id, count(distinct u.id) as membercount from user_role_relation ur
+             join user u on ur.user_id = u.id and u.deleted = 0
+             group by source_id
+         ) as members_group on o.id = members_group.source_id
+         left join (
+             select organization_id, count(project.id) as projectcount from project
+             group by organization_id
+         ) as projects_group on o.id = projects_group.organization_id
         <include refid="queryWhereCondition"/>
-        group by o.id
     </select>
 
     <select id="listAll" resultType="io.metersphere.system.dto.OrganizationDTO">
@@ -86,17 +92,6 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
-    </select>
-
-    <select id="getMemberByOrg" resultType="io.metersphere.system.dto.UserExtend">
-        select distinct u.* from user_role_relation urr join `user` u on urr.user_id = u.id
-        <where>
-            u.deleted = 0
-            <if test="organizationId != null and organizationId != ''">
-                and urr.source_id = #{organizationId}
-            </if>
-        </where>
-        order by u.create_time desc
     </select>
 
     <sql id="queryWhereCondition">

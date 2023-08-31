@@ -12,6 +12,33 @@
                 or u.email like CONCAT('%', #{request.keyword},'%')
                 or u.phone like CONCAT('%', #{request.keyword},'%'))
             </if>
+            <include refid="filter"/>
         </where>
     </select>
+
+    <select id="getMemberByOrg" resultType="io.metersphere.system.dto.UserExtend">
+        select distinct u.* from user_role_relation urr join `user` u on urr.user_id = u.id
+        <where>
+            u.deleted = 0
+            <if test="organizationId != null and organizationId != ''">
+                and urr.source_id = #{organizationId}
+            </if>
+        </where>
+        order by u.create_time desc
+    </select>
+
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key == 'roleIds'">
+                            and urr.id in
+                            <include refid="io.metersphere.sdk.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
 </mapper>

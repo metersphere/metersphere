@@ -20,7 +20,6 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -89,7 +88,7 @@ public class ProjectMemberController {
     @Operation(summary = "项目管理-成员-批量添加至用户组")
     @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_UPDATE)
     public void addMemberRole(@RequestBody ProjectMemberAddRequest request) {
-        projectMemberService.addMemberRole(request, SessionUtils.getUserId());
+        projectMemberService.addRole(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch/remove")

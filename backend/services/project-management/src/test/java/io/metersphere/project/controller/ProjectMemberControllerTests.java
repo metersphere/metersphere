@@ -6,8 +6,10 @@ import io.metersphere.project.request.ProjectMemberBatchDeleteRequest;
 import io.metersphere.project.request.ProjectMemberEditRequest;
 import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import org.apache.commons.lang3.StringUtils;
@@ -68,10 +70,24 @@ public class ProjectMemberControllerTests extends BaseTest {
         Assertions.assertTrue(StringUtils.contains(projectUserDTO.getName(), request.getKeyword())
                 || StringUtils.contains(projectUserDTO.getEmail(), request.getKeyword())
                 || StringUtils.contains(projectUserDTO.getPhone(), request.getKeyword()));
+        // 权限校验
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_MEMBER_READ, LIST_MEMBER, request);
     }
 
     @Test
     @Order(2)
+    public void testListMemberEmpty() throws Exception {
+        // 空数据覆盖
+        ProjectMemberRequest request = new ProjectMemberRequest();
+        request.setProjectId("default-project-member-x");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPost(LIST_MEMBER, request, status().isOk());
+    }
+
+    @Test
+    @Order(3)
     public void testListMemberError() throws Exception {
         // 页码有误
         ProjectMemberRequest request = new ProjectMemberRequest();
@@ -86,31 +102,40 @@ public class ProjectMemberControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void testGetMemberOption() throws Exception {
         this.requestGet(GET_MEMBER + "/default-project-member-test", status().isOk());
         // 覆盖空数据
         this.requestGet(GET_MEMBER + "/default-project-member-x", status().isOk());
-    }
-
-    @Test
-    @Order(4)
-    public void testGetRoleOption() throws Exception {
-        this.requestGet(GET_ROLE + "/default-project-member-test", status().isOk());
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.PROJECT_MEMBER_ADD, GET_MEMBER + "/" + DEFAULT_PROJECT_ID);
     }
 
     @Test
     @Order(5)
+    public void testGetRoleOption() throws Exception {
+        this.requestGet(GET_ROLE + "/default-project-member-test", status().isOk());
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.PROJECT_MEMBER_ADD, GET_ROLE + "/" + DEFAULT_PROJECT_ID);
+    }
+
+    @Test
+    @Order(6)
     public void testAddMemberSuccess() throws Exception {
         ProjectMemberAddRequest request = new ProjectMemberAddRequest();
         request.setProjectId("default-project-member-test");
         request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-del"));
         request.setRoleIds(List.of("project_admin", "project_admin_x", "project_member"));
         this.requestPost(ADD_MEMBER, request, status().isOk());
+        // 日志
+        checkLog("default-project-member-user-1", OperationLogType.ADD);
+        // 权限校验
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_MEMBER_ADD, ADD_MEMBER, request);
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void testAddMemberRepeat() throws Exception {
         ProjectMemberAddRequest request = new ProjectMemberAddRequest();
         request.setProjectId("default-project-member-test");
@@ -120,7 +145,7 @@ public class ProjectMemberControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     public void testAddMemberError() throws Exception {
         ProjectMemberAddRequest request = new ProjectMemberAddRequest();
         request.setProjectId("default-project-member-x");
@@ -130,7 +155,7 @@ public class ProjectMemberControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     public void testUpdateMemberSuccess() throws Exception {
         // 不存在的用户组
         ProjectMemberEditRequest request = new ProjectMemberEditRequest();
@@ -141,10 +166,15 @@ public class ProjectMemberControllerTests extends BaseTest {
         // 存在的用户组
         request.setRoleIds(List.of("project_admin", "project_member"));
         this.requestPost(UPDATE_MEMBER, request, status().isOk());
+        // 日志
+        checkLog("default-project-member-user-1", OperationLogType.UPDATE);
+        // 权限校验
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_MEMBER_UPDATE, UPDATE_MEMBER, request);
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     public void testUpdateMemberError() throws Exception {
         ProjectMemberEditRequest request = new ProjectMemberEditRequest();
         request.setProjectId("default-project-member-x");
@@ -154,29 +184,38 @@ public class ProjectMemberControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     public void testRemoveMemberSuccess() throws Exception {
         this.requestGet(REMOVE_MEMBER + "/default-project-member-test/default-project-member-user-1", status().isOk());
+        // 日志
+        checkLog("default-project-member-user-1", OperationLogType.DELETE);
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.PROJECT_MEMBER_DELETE, REMOVE_MEMBER + "/" + DEFAULT_PROJECT_ID + "/default-project-member-user-1");
     }
 
     @Test
-    @Order(11)
+    @Order(12)
     public void testRemoveMemberError() throws Exception {
         this.requestGet(REMOVE_MEMBER + "/default-project-member-x/default-project-member-user-1", status().is5xxServerError());
     }
 
     @Test
-    @Order(12)
+    @Order(13)
     public void testAddMemberRoleSuccess() throws Exception {
         ProjectMemberAddRequest request = new ProjectMemberAddRequest();
         request.setProjectId("default-project-member-test");
         request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
         request.setRoleIds(List.of("project_admin", "project_member"));
         this.requestPost(ADD_ROLE, request, status().isOk());
+        // 日志
+        checkLog("default-project-member-user-2", OperationLogType.UPDATE);
+        // 权限校验
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_MEMBER_UPDATE, ADD_ROLE, request);
     }
 
     @Test
-    @Order(13)
+    @Order(14)
     public void testAddMemberRoleError() throws Exception {
         ProjectMemberAddRequest request = new ProjectMemberAddRequest();
         request.setProjectId("default-project-member-x");
@@ -186,16 +225,21 @@ public class ProjectMemberControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(14)
+    @Order(15)
     public void testBatchRemoveMemberSuccess() throws Exception {
         ProjectMemberBatchDeleteRequest request = new ProjectMemberBatchDeleteRequest();
         request.setProjectId("default-project-member-test");
         request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
         this.requestPost(BATCH_REMOVE_MEMBER, request, status().isOk());
+        // 日志
+        checkLog("default-project-member-user-1", OperationLogType.DELETE);
+        // 权限校验
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_MEMBER_DELETE, BATCH_REMOVE_MEMBER, request);
     }
 
     @Test
-    @Order(15)
+    @Order(16)
     public void testBatchRemoveMember() throws Exception {
         ProjectMemberBatchDeleteRequest request = new ProjectMemberBatchDeleteRequest();
         request.setProjectId("default-project-member-x");
