@@ -48,6 +48,20 @@
         <api-report-notification @noticeSize="getNoticeSize" :receiver-options="reviewReceiverOptions"
                                  :receive-type-options="receiveTypeOptions"/>
       </el-collapse-item>
+      <el-collapse-item name="5" v-xpack>
+        <template v-slot:title>
+          <span style="width: 200px">
+            {{ $t('organization.message.ui') }}
+          </span>
+          <span>
+            {{ $t('organization.message.notice_count') }}: <span class="primary-text">{{ uiNoticeSize }}</span>
+          </span>
+        </template>
+        <ui-automation-notification @noticeSize="getNoticeSize" :receiver-options="reviewReceiverOptions"
+                                     :receive-type-options="receiveTypeOptions"/>
+        <ui-report-notification @noticeSize="getNoticeSize" :receiver-options="reviewReceiverOptions"
+                                 :receive-type-options="receiveTypeOptions"/>
+      </el-collapse-item>
       <el-collapse-item name="4">
         <template v-slot:title>
           <span style="width: 200px">
@@ -94,6 +108,8 @@ import ApiReportNotification from "./api/ApiReportNotification";
 import PerformanceTestNotification from "./performance/PerformanceTestNotification";
 import PerformanceReportNotification from "./performance/PerformanceReportNotification";
 import ApiHomeNotification from "./api/ApiHomeNotification";
+import UiAutomationNotification from "./ui/UiAutomationNotification";
+import UiReportNotification from "./ui/UiReportNotification";
 import {getUserProjectMemberList} from "../../../api/user";
 
 let taskData = {
@@ -101,6 +117,7 @@ let taskData = {
   api: [],
   performance: [],
   track: [],
+  ui: [],
 };
 
 export default {
@@ -118,6 +135,8 @@ export default {
     HomeNotification,
     DefectTaskNotification, TestReviewNotification, TestPlanTaskNotification, JenkinsNotification, MsContainer,
     MsMainContainer,
+    UiAutomationNotification,
+    UiReportNotification
   },
   data() {
 
@@ -126,6 +145,7 @@ export default {
       apiNoticeSize: 0,
       performanceNoticeSize: 0,
       trackNoticeSize: 0,
+      uiNoticeSize: 0,
       jenkinsReceiverOptions: [],
       //测试计划
       testPlanReceiverOptions: [],
@@ -189,6 +209,11 @@ export default {
           taskData.track = taskData.track.filter(t => t.taskType !== config.taskType);
           taskData.track = taskData.track.concat(config.data);
           this.trackNoticeSize = taskData.track.length;
+          break;
+        case 'ui':
+          taskData.ui = taskData.ui.filter(t => t.taskType !== config.taskType);
+          taskData.ui = taskData.ui.concat(config.data);
+          this.uiNoticeSize = taskData.ui.length;
           break;
         default:
           break;

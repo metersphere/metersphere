@@ -2394,6 +2394,7 @@ const message = {
         definition: "Api Definition",
         automation: "Api Automation",
         report: "Test Report",
+        ui_automation: "Ui Automation",
     },
     ldap: {
         url: "LDAP URL",
@@ -2720,6 +2721,8 @@ const message = {
             TRACK_TEST_CASE_TASK: " TestCase",
             TRACK_HOME_TASK: " Tracking HomePage",
             TRACK_REPORT_TASK: " Tracking Report",
+            UI_AUTOMATION_TASK: " UI Automation",
+            UI_REPORT_TASK: " UI Report",
         },
         result: {
             EXECUTE_SUCCESSFUL: " Success",
@@ -3528,6 +3531,19 @@ const message = {
         smart_variable_enable: "Use the current scene variables first",
         use_origin_variable_scene: "Use original scene variables",
         use_origin_env_run: "Use original scene environment to execute",
+        automation: {
+          scenario: {
+            module_id: "Scenario Module ID",
+            principal: "Principal",
+            step_total: "Step total",
+            schedule: "Schedule",
+            last_result: "Last result",
+            order: "Order",
+            environment_type: "Environment type",
+            environment_json: "Environment json",
+            environment_group_id: "Environment group ID",
+          }
+        }
     },
     project_application: {
         workstation: {

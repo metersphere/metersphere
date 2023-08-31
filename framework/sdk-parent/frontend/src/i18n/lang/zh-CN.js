@@ -782,6 +782,7 @@ const message = {
             api: "接口测试任务通知",
             performance: "性能测试任务通知",
             notice_count: "通知数",
+            ui: "UI自动化消息配置",
         },
         integration: {
             select_defect_platform: "请选择要集成的缺陷管理平台：",
@@ -2300,6 +2301,7 @@ const message = {
         definition: "接口定义",
         automation: "接口自动化",
         report: "测试报告",
+        ui_automation: "UI自动化",
     },
     ldap: {
         url: "LDAP地址",
@@ -2623,6 +2625,8 @@ const message = {
             TRACK_TEST_CASE_TASK: "测试用例",
             TRACK_HOME_TASK: "测试跟踪首页",
             TRACK_REPORT_TASK: "测试跟踪报告",
+            UI_AUTOMATION_TASK: "UI自动化",
+            UI_REPORT_TASK: "UI测试报告",
         },
         result: {
             EXECUTE_SUCCESSFUL: "成功",
@@ -3399,6 +3403,19 @@ const message = {
         null: "空",
         not_null: "非空",
         assertion_configuration: "断言配置",
+        automation: {
+          scenario: {
+            module_id: "场景模块ID",
+            principal: "责任人",
+            step_total: "步骤总数",
+            schedule: "定时任务",
+            last_result: "执行结果",
+            order: "排序方式",
+            environment_type: "环境类型",
+            environment_json: "环境配置",
+            environment_group_id: "环境组ID",
+          }
+        }
     },
     project_application: {
         workstation: {

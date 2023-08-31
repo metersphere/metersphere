@@ -2299,6 +2299,7 @@ const message = {
         definition: "接口定義",
         automation: "接口自動化",
         report: "測試報告",
+        ui_automation: "UI自動化",
     },
     ldap: {
         url: "LDAP地址",
@@ -2618,6 +2619,8 @@ const message = {
             TRACK_TEST_CASE_TASK: "測試用例",
             TRACK_HOME_TASK: "測試跟蹤首頁",
             TRACK_REPORT_TASK: "測試跟蹤報告",
+            UI_AUTOMATION_TASK: "UI自動化",
+            UI_REPORT_TASK: "UI測試報告",
         },
         result: {
             EXECUTE_SUCCESSFUL: "成功",
@@ -3399,6 +3402,19 @@ const message = {
         use_origin_env_run: "使用原場景環境執行",
         open_new: "追加頁面",
         open_new_tip: "追加頁面，在新的頁面打開url，不勾選覆蓋當前url",
+        automation: {
+          scenario: {
+            module_id: "場景模塊ID",
+            principal: "責任人",
+            step_total: "步驟總數",
+            schedule: "定時任務",
+            last_result: "執行結果",
+            order: "排序方式",
+            environment_type: "環境類型",
+            environment_json: "環境配置",
+            environment_group_id: "環境組ID",
+          }
+        }
     },
     project_application: {
         workstation: {
