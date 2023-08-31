@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.sdk.mapper.OperationLogMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.OperationLog">
-    <id column="id" jdbcType="VARCHAR" property="id" />
+    <id column="id" jdbcType="BIGINT" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -90,15 +90,15 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from operation_log
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from operation_log
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.sdk.domain.OperationLogExample">
     delete from operation_log
@@ -106,17 +106,17 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.sdk.domain.OperationLog">
-    insert into operation_log (id, project_id, organization_id, 
+  <insert id="insert" parameterType="io.metersphere.sdk.domain.OperationLog" useGeneratedKeys="true" keyProperty="id">
+    insert into operation_log (project_id, organization_id,
       create_time, create_user, source_id, 
       `method`, `type`, `module`, 
       content, `path`)
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, 
+    values (#{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR},
       #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, 
       #{method,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{module,jdbcType=VARCHAR}, 
       #{content,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.OperationLog">
+  <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.OperationLog" useGeneratedKeys="true" keyProperty="id">
     insert into operation_log
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -155,7 +155,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=VARCHAR},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
@@ -199,7 +199,7 @@
     update operation_log
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
+        id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
@@ -238,7 +238,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update operation_log
-    set id = #{record.id,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       organization_id = #{record.organizationId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -287,7 +287,7 @@
         `path` = #{path,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.sdk.domain.OperationLog">
     update operation_log
@@ -301,21 +301,21 @@
       `module` = #{module,jdbcType=VARCHAR},
       content = #{content,jdbcType=VARCHAR},
       `path` = #{path,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </update>
-  <insert id="batchInsert" parameterType="map">
+  <insert id="batchInsert" parameterType="map" useGeneratedKeys="true" keyProperty="id">
     insert into operation_log
-    (id, project_id, organization_id, create_time, create_user, source_id, `method`, 
+    (project_id, organization_id, create_time, create_user, source_id, `method`,
       `type`, `module`, content, `path`)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, 
+      ( #{item.projectId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR},
         #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.sourceId,jdbcType=VARCHAR}, 
         #{item.method,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.module,jdbcType=VARCHAR}, 
         #{item.content,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR})
     </foreach>
   </insert>
-  <insert id="batchInsertSelective" parameterType="map">
+  <insert id="batchInsertSelective" parameterType="map" useGeneratedKeys="true" keyProperty="id">
     insert into operation_log (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
@@ -326,7 +326,7 @@
       (
       <foreach collection="selective" item="column" separator=",">
         <if test="'id'.toString() == column.value">
-          #{item.id,jdbcType=VARCHAR}
+          #{item.id,jdbcType=BIGINT}
         </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}

@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.sdk.mapper.OperationLogBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.OperationLogBlob">
-    <id column="id" jdbcType="VARCHAR" property="id" />
+    <id column="id" jdbcType="BIGINT" property="id" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.sdk.domain.OperationLogBlob">
     <result column="original_value" jdbcType="LONGVARBINARY" property="originalValue" />
@@ -102,17 +102,17 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
     from operation_log_blob
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from operation_log_blob
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.sdk.domain.OperationLogBlobExample">
     delete from operation_log_blob
@@ -123,7 +123,7 @@
   <insert id="insert" parameterType="io.metersphere.sdk.domain.OperationLogBlob">
     insert into operation_log_blob (id, original_value, modified_value
       )
-    values (#{id,jdbcType=VARCHAR}, #{originalValue,jdbcType=LONGVARBINARY}, #{modifiedValue,jdbcType=LONGVARBINARY}
+    values (#{id,jdbcType=BIGINT}, #{originalValue,jdbcType=LONGVARBINARY}, #{modifiedValue,jdbcType=LONGVARBINARY}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.OperationLogBlob">
@@ -141,7 +141,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=VARCHAR},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="originalValue != null">
         #{originalValue,jdbcType=LONGVARBINARY},
@@ -161,7 +161,7 @@
     update operation_log_blob
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
+        id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.originalValue != null">
         original_value = #{record.originalValue,jdbcType=LONGVARBINARY},
@@ -176,7 +176,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update operation_log_blob
-    set id = #{record.id,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=BIGINT},
       original_value = #{record.originalValue,jdbcType=LONGVARBINARY},
       modified_value = #{record.modifiedValue,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
@@ -185,7 +185,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update operation_log_blob
-    set id = #{record.id,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -200,12 +200,44 @@
         modified_value = #{modifiedValue,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.sdk.domain.OperationLogBlob">
     update operation_log_blob
     set original_value = #{originalValue,jdbcType=LONGVARBINARY},
       modified_value = #{modifiedValue,jdbcType=LONGVARBINARY}
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into operation_log_blob
+    (id, original_value, modified_value)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=BIGINT}, #{item.originalValue,jdbcType=LONGVARBINARY}, #{item.modifiedValue,jdbcType=LONGVARBINARY}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into operation_log_blob (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=BIGINT}
+        </if>
+        <if test="'original_value'.toString() == column.value">
+          #{item.originalValue,jdbcType=LONGVARBINARY}
+        </if>
+        <if test="'modified_value'.toString() == column.value">
+          #{item.modifiedValue,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

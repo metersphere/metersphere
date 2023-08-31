@@ -10,7 +10,7 @@ public interface OperationLogMapper {
 
     int deleteByExample(OperationLogExample example);
 
-    int deleteByPrimaryKey(String id);
+    int deleteByPrimaryKey(Long id);
 
     int insert(OperationLog record);
 
@@ -18,7 +18,7 @@ public interface OperationLogMapper {
 
     List<OperationLog> selectByExample(OperationLogExample example);
 
-    OperationLog selectByPrimaryKey(String id);
+    OperationLog selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") OperationLog record, @Param("example") OperationLogExample example);
 
