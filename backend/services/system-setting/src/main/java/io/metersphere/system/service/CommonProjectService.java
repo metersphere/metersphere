@@ -176,15 +176,20 @@ public class CommonProjectService {
     }
 
     public List<ProjectDTO> buildUserInfo(List<ProjectDTO> projectList) {
-        Map<String, String> userMap = baseUserService.getUserNameMap();
+        //取项目的创建人  修改人  删除人到一个list中
+        List<String> userIds = new ArrayList<>();
+        userIds.addAll(projectList.stream().map(ProjectDTO::getCreateUser).toList());
+        userIds.addAll(projectList.stream().map(ProjectDTO::getUpdateUser).toList());
+        userIds.addAll(projectList.stream().map(ProjectDTO::getDeleteUser).toList());
+        Map<String, String> userMap = baseUserService.getUserNameMap(userIds.stream().distinct().toList());
         projectList.forEach(projectDTO -> {
             if (StringUtils.isNotBlank(projectDTO.getModuleSetting())) {
                 projectDTO.setModuleIds(JSON.parseArray(projectDTO.getModuleSetting(), String.class));
             }
             List<User> users = extSystemProjectMapper.getProjectAdminList(projectDTO.getId());
             projectDTO.setAdminList(users);
-            List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(userIds) && userIds.contains(projectDTO.getCreateUser())) {
+            List<String> userIdList = users.stream().map(User::getId).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(userIdList) && userIdList.contains(projectDTO.getCreateUser())) {
                 projectDTO.setProjectCreateUserIsAdmin(true);
             }
             projectDTO.setCreateUser(userMap.get(projectDTO.getCreateUser()));

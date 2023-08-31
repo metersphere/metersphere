@@ -44,7 +44,12 @@ public class CleanProjectJob {
         example.createCriteria().andDeletedEqualTo(true).andDeleteTimeLessThanOrEqualTo(timestamp);
         List<Project> projects = projectMapper.selectByExample(example);
         if (!CollectionUtils.isEmpty(projects)) {
-            commonProjectService.deleteProject(projects);
+            for (int i = 0; i < projects.size(); i++) {
+                //对项目进行分批处理
+                if (i % 100 == 0) {
+                    commonProjectService.deleteProject(projects.subList(i, Math.min(i + 100, projects.size())));
+                }
+            }
         }
     }
 }
