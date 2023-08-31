@@ -800,7 +800,11 @@ public class OrganizationService {
      * @return 组织集合
      */
     private List<OrganizationDTO> buildUserInfo(List<OrganizationDTO> organizationDTOS) {
-        Map<String, String> userMap = baseUserService.getUserNameMap();
+        List<String> userIds = new ArrayList<>();
+        userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getCreateUser).toList());
+        userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getUpdateUser).toList());
+        userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getDeleteUser).toList());
+        Map<String, String> userMap = baseUserService.getUserNameMap(userIds.stream().distinct().toList());
         organizationDTOS.forEach(organizationDTO -> {
             organizationDTO.setCreateUser(userMap.get(organizationDTO.getCreateUser()));
             organizationDTO.setDeleteUser(userMap.get(organizationDTO.getDeleteUser()));

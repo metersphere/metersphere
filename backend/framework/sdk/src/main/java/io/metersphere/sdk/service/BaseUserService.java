@@ -437,13 +437,6 @@ public class BaseUserService {
         return baseUserMapper.getSelectOptionByIdsWithDeleted(ids);
     }
 
-    public Map<String, String> getUserNameMap() {
-        List<OptionDTO> excludeSelectOption = getSelectOptionWithDeleted();
-        Map<String, String> nameMap = new HashMap<>();
-        excludeSelectOption.forEach(option -> nameMap.put(option.getId(), option.getName()));
-        return nameMap;
-    }
-
     /**
      * 根据用户ID列表，获取用户
      *
