@@ -694,6 +694,21 @@
         </if>
         GROUP BY apiDef.protocol
     </select>
+
+    <select id="countByProjectID" resultType="java.lang.Long">
+        SELECT COUNT(testCase.id) AS countNumber
+        FROM api_test_case testCase
+        INNER JOIN api_definition apiDef ON testCase.api_definition_id = apiDef.id
+        WHERE testCase.project_id = #{projectId}
+        AND (testCase.status IS NULL or testCase.status != "Trash")
+        <if test="versionId != null">
+            AND apiDef.version_id = #{versionId}
+        </if>
+        <if test="versionId == null">
+            AND apiDef.latest = 1
+        </if>
+    </select>
+
     <select id="findApiUrlAndMethodById" resultType="io.metersphere.base.domain.ApiDefinition">
         SELECT method, path
         FROM api_definition
