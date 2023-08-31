@@ -10,7 +10,9 @@
       </div>
       <div class="relative w-[100%] overflow-x-scroll p-[24px]">
         <div class="flex flex-row items-center justify-between">
-          <div class="title">{{ store.userGroupInfo.currentName }}</div>
+          <a-tooltip :content="store.userGroupInfo.currentName">
+            <div class="one-line-text max-w-[300px]">{{ store.userGroupInfo.currentName }}</div>
+          </a-tooltip>
           <div class="flex items-center">
             <a-input-search
               v-if="currentTable === 'user'"
@@ -127,14 +129,10 @@
 </script>
 
 <style lang="scss" scoped>
-  .title {
-    color: var(--color-text-1);
-  }
-  .user-group {
-    height: calc(100vh - 72px);
-  }
   .user-group-left {
     position: relative;
+    width: 300px;
+    height: calc(100vh - 125px);
     border-right: 1px solid var(--color-border);
     .usergroup-collapse {
       position: absolute;

@@ -1,49 +1,49 @@
 <template>
-  <div class="user-group-left">
-    <a-input-search
-      allow-clear
-      class="w-[252px]"
-      :placeholder="t('system.userGroup.searchHolder')"
-      @press-enter="enterData"
-      @search="searchData"
-    />
-    <div class="mt-2 flex flex-col">
-      <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
-        <div class="text-[var(--color-text-input-border)]"> {{ t('system.userGroup.global') }}</div>
-        <div class="cursor-pointer text-[rgb(var(--primary-5))]"
-          ><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup"
-        /></div>
-      </div>
-      <div>
-        <div
-          v-for="element in userGroupList"
-          :key="element.id"
-          class="flex h-[38px] cursor-pointer items-center px-[8px]"
-          :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
-          @click="handleListItemClick(element)"
+  <a-input-search
+    allow-clear
+    class="w-[252px]"
+    :placeholder="t('system.userGroup.searchHolder')"
+    @press-enter="enterData"
+    @search="searchData"
+  />
+  <div class="mt-2 flex flex-col">
+    <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
+      <div class="text-[var(--color-text-input-border)]"> {{ t('system.userGroup.global') }}</div>
+      <div class="cursor-pointer text-[rgb(var(--primary-5))]"
+        ><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup"
+      /></div>
+    </div>
+    <div>
+      <div
+        v-for="element in userGroupList"
+        :key="element.id"
+        class="flex h-[38px] cursor-pointer items-center"
+        :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
+        @click="handleListItemClick(element)"
+      >
+        <popconfirm
+          :visible="popVisible[element.id]"
+          :loading="popLoading[element.id]"
+          :type="popType"
+          :default-name="popDefaultName"
+          :list="userGroupList"
+          @cancel="() => handlePopConfirmCancel(element.id)"
+          @submit="(value: CustomMoreActionItem) => handlePopConfirmSubmit(value,element.id)"
         >
-          <popconfirm
-            :visible="popVisible[element.id]"
-            :loading="popLoading[element.id]"
-            :type="popType"
-            :default-name="popDefaultName"
-            :list="userGroupList"
-            @cancel="() => handlePopConfirmCancel(element.id)"
-            @submit="(value: CustomMoreActionItem) => handlePopConfirmSubmit(value,element.id)"
-          >
-            <div class="draglist-item flex grow flex-row justify-between">
-              <div class="leading-[24px] text-[var(--color-text-1)]">
-                <span class="text-[var(--color-text-1)]">{{ element.name }}</span>
-                <span v-if="element.type" class="text-[var(--color-text-4)]"
-                  >（{{ t(`system.userGroup.${element.type}`) }}）</span
+          <div class="flex grow flex-row justify-between px-[8px]">
+            <a-tooltip :content="element.name">
+              <div class="flex flex-row flex-nowrap">
+                <div class="one-line-text max-w-[156px] text-[var(--color-text-1)]">{{ element.name }}</div>
+                <div v-if="element.type" class="text-[var(--color-text-4)]"
+                  >（{{ t(`system.userGroup.${element.type}`) }}）</div
                 >
               </div>
-              <div v-if="element.id === currentId && !element.internal">
-                <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
-              </div>
+            </a-tooltip>
+            <div v-if="element.id === currentId && !element.internal">
+              <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
             </div>
-          </popconfirm>
-        </div>
+          </div>
+        </popconfirm>
       </div>
     </div>
   </div>

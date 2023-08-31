@@ -1,14 +1,14 @@
 <template>
   <MsPopconfirm
-    :ok-text="t('common.remove')"
-    :cancel-text="t('common.cancel')"
     type="error"
     :title="props.title"
     :sub-title-tip="props.subTitleTip"
     :loading="props.loading"
+    :visible="currentVisible"
     @confirm="handleOk"
+    @cancel="handleCancel"
   >
-    <MsButton>{{ t('common.remove') }}</MsButton>
+    <MsButton @click="showPopover">{{ t('common.remove') }}</MsButton>
   </MsPopconfirm>
 </template>
 
@@ -16,6 +16,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
+  import { ref } from 'vue';
 
   const props = defineProps<{
     title: string;
@@ -27,9 +28,17 @@
     (e: 'ok'): void;
   }>();
 
+  const { t } = useI18n();
+  const currentVisible = ref(false);
+
   const handleOk = () => {
     emit('ok');
   };
+  const handleCancel = () => {
+    currentVisible.value = false;
+  };
 
-  const { t } = useI18n();
+  const showPopover = () => {
+    currentVisible.value = true;
+  };
 </script>

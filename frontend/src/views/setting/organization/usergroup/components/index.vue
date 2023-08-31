@@ -1,80 +1,78 @@
 <template>
-  <div class="user-group-left">
-    <a-input-search
-      class="w-[252px]"
-      :placeholder="t('system.userGroup.searchHolder')"
-      allow-clear
-      @press-enter="enterData"
-      @search="searchData"
-    />
-    <div class="mt-2 flex flex-col">
-      <div class="flex h-[38px] items-center px-[8px] leading-[24px]">
-        <div class="text-[var(--color-text-input-border)]"> {{ t('system.userGroup.global') }}</div>
-      </div>
-      <div>
-        <div
-          v-for="element in globalUserGroupList"
-          :key="element.id"
-          class="flex h-[38px] cursor-pointer items-center px-[8px]"
-          :class="{
-            'bg-[rgb(var(--primary-1))]': element.id === currentId,
-          }"
-          @click="handleListItemClick(element)"
-        >
-          <div class="flex grow flex-row">
-            <div class="leading-[24px] text-[var(--color-text-1)]">
-              <span class="text-[var(--color-text-1)]">{{ element.name }}</span>
-              <span v-if="element.type" class="text-[var(--color-text-4)]"
-                >（{{ t(`system.userGroup.${element.type}`) }}）</span
-              >
-            </div>
-          </div>
+  <a-input-search
+    class="w-[252px]"
+    :placeholder="t('system.userGroup.searchHolder')"
+    allow-clear
+    @press-enter="enterData"
+    @search="searchData"
+  />
+  <div class="mt-2 flex flex-col">
+    <div class="flex h-[38px] items-center px-[8px] leading-[24px]">
+      <div class="text-[var(--color-text-input-border)]"> {{ t('system.userGroup.global') }}</div>
+    </div>
+    <div>
+      <div
+        v-for="element in globalUserGroupList"
+        :key="element.id"
+        class="flex h-[38px] cursor-pointer items-center px-[8px]"
+        :class="{
+          'bg-[rgb(var(--primary-1))]': element.id === currentId,
+        }"
+        @click="handleListItemClick(element)"
+      >
+        <div class="flex flex-row flex-nowrap">
+          <div class="one-line-text max-w-[156px] text-[var(--color-text-1)]">{{ element.name }}</div>
+          <div v-if="element.type" class="text-[var(--color-text-4)]"
+            >（{{ t(`system.userGroup.${element.type}`) }}）</div
+          >
         </div>
       </div>
     </div>
-    <a-divider class="mt-2" />
-    <div class="mt-2 flex flex-col">
-      <AddOrUpdateUserGroupPopup
-        :visible="addUserGroupVisible"
-        :list="customUserGroupList"
-        @cancel="handleAddUserGroupCancel"
-        @search="initData"
+  </div>
+  <a-divider class="mt-2" />
+  <div class="mt-2 flex flex-col">
+    <AddOrUpdateUserGroupPopup
+      :visible="addUserGroupVisible"
+      :list="customUserGroupList"
+      @cancel="handleAddUserGroupCancel"
+      @search="initData"
+    >
+      <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
+        <div class="text-[var(--color-text-input-border)]"> {{ t('system.userGroup.custom') }}</div>
+        <div class="cursor-pointer text-[rgb(var(--primary-5))]"
+          ><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup"
+        /></div>
+      </div>
+    </AddOrUpdateUserGroupPopup>
+    <div>
+      <div
+        v-for="element in customUserGroupList"
+        :key="element.id"
+        class="flex h-[38px] cursor-pointer items-center"
+        :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
+        @click="handleListItemClick(element)"
       >
-        <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
-          <div class="text-[var(--color-text-input-border)]"> {{ t('system.userGroup.custom') }}</div>
-          <div class="cursor-pointer text-[rgb(var(--primary-5))]"
-            ><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup"
-          /></div>
-        </div>
-      </AddOrUpdateUserGroupPopup>
-      <div>
-        <div
-          v-for="element in customUserGroupList"
-          :key="element.id"
-          class="flex h-[38px] cursor-pointer items-center px-[8px]"
-          :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
-          @click="handleListItemClick(element)"
+        <AddOrUpdateUserGroupPopup
+          :id="element.id"
+          :visible="popVisible[element.id]"
+          :default-name="popDefaultName"
+          :list="customUserGroupList"
+          @cancel="() => handlePopConfirmCancel(element.id)"
         >
-          <AddOrUpdateUserGroupPopup
-            :id="element.id"
-            :visible="popVisible[element.id]"
-            :default-name="popDefaultName"
-            :list="customUserGroupList"
-            @cancel="() => handlePopConfirmCancel(element.id)"
-          >
-            <div class="flex grow flex-row justify-between">
-              <div class="leading-[24px] text-[var(--color-text-1)]">
-                <span class="text-[var(--color-text-1)]">{{ element.name }}</span>
-                <span v-if="element.type" class="text-[var(--color-text-4)]"
-                  >（{{ t(`system.userGroup.${element.type}`) }}）</span
+          <div class="flex grow flex-row justify-between px-[8px]">
+            <a-tooltip :content="element.name">
+              <div class="flex flex-row flex-nowrap">
+                <div class="one-line-text max-w-[156px] text-[var(--color-text-1)]">{{ element.name }}</div>
+                <div v-if="element.type" class="text-[var(--color-text-4)]"
+                  >（{{ t(`system.userGroup.${element.type}`) }}）</div
                 >
               </div>
-              <div v-if="element.id === currentId && !element.internal">
-                <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
-              </div>
+            </a-tooltip>
+            <div v-if="element.id === currentId && !element.internal">
+              <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
             </div>
-          </AddOrUpdateUserGroupPopup>
-        </div>
+          </div>
+        </AddOrUpdateUserGroupPopup>
       </div>
     </div>
   </div>

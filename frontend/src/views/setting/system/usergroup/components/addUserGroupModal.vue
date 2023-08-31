@@ -85,6 +85,8 @@
     currentVisible.value = props.visible;
   });
   const handleCancel = (shouldSearch: boolean) => {
+    form.name = '';
+    form.type = '';
     emit('cancel', shouldSearch);
   };
 

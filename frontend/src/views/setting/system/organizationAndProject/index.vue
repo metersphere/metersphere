@@ -53,6 +53,18 @@
   const projectTabeRef = ref();
   const projectVisible = ref(false);
 
+  // 初始化项目数量和组织数量
+  const initOrgAndProjectCount = async () => {
+    try {
+      const res = await getOrgAndProjectCount();
+      organizationCount.value = res.organizationTotal;
+      projectCount.value = res.projectTotal;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  };
+
   const tableSearch = () => {
     if (currentTable.value === 'organization') {
       if (orgTableRef.value) {
@@ -69,6 +81,7 @@
         projectTabeRef.value?.fetchData();
       });
     }
+    initOrgAndProjectCount();
   };
 
   const handleSearch = (value: string) => {
@@ -93,18 +106,6 @@
   };
   const handleAddOrganizationCancel = () => {
     organizationVisible.value = false;
-  };
-
-  // 初始化项目数量和组织数量
-  const initOrgAndProjectCount = async () => {
-    try {
-      const res = await getOrgAndProjectCount();
-      organizationCount.value = res.organizationTotal;
-      projectCount.value = res.projectTotal;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    }
   };
 
   watch(

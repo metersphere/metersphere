@@ -13,7 +13,7 @@
     </div>
     <MsBaseTable v-bind="propsRes" v-on="propsEvent">
       <template #name="{ record }">
-        <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ record.name }}</span>
+        <span class="one-text-line">{{ record.name }}</span>
         <a-tooltip background-color="#FFFFFF">
           <template #content>
             <span class="text-[var(--color-text-1)]">{{ t('system.project.revokeDeleteToolTip') }}</span>

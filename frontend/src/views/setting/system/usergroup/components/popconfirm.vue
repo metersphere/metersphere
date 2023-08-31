@@ -18,7 +18,7 @@
           <div class="title">{{ message.title }}</div>
         </a-form-item>
         <a-form-item field="name" :rules="[{ validator: validateName }]">
-          <a-input v-if="props.type === 'rename'" v-model="form.name" class="w-[245px]" />
+          <a-input v-if="props.type === 'rename'" v-model="form.name" class="w-[234px]" />
           <a-select v-else v-model="form.name" class="w-[176px]">
             <a-option value="SYSTEM">{{ t('system.userGroup.SYSTEM') }}</a-option>
             <a-option value="ORGANIZATION">{{ t('system.userGroup.ORGANIZATION') }}</a-option>
