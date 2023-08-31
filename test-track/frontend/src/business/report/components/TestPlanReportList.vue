@@ -143,7 +143,7 @@
           <template v-slot:default="scope">
             <span v-if="scope.row.status  === 'RUNNING' || scope.row.status  === 'Running'"> - </span>
             <span v-else> {{
-                (scope.row.passRate ? (scope.row.passRate * 100).toFixed(1) : 0) + "%"
+                (scope.row.passRate ? (scope.row.passRate * 100).toFixed(2) : 0) + "%"
               }}</span>
           </template>
         </ms-table-column>
