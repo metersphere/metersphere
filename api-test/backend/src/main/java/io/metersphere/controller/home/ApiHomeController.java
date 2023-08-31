@@ -166,13 +166,13 @@ public class ApiHomeController {
     public ApiDataCountDTO caseCovered(@PathVariable String projectId, @PathVariable String versionId) throws Exception {
         versionId = this.initializationVersionId(versionId);
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
+        long allCount = apiTestCaseService.countByProjectID(projectId, versionId);
         //两个大数据量下耗时比较长的查询同时进行
         CountDownLatch countDownLatch = new CountDownLatch(2);
         try {
             //未覆盖 已覆盖： 统计当前接口下是否含有案例
             List<ApiDataCountResult> countResultByApiCoverageList = apiDefinitionService.countApiCoverageByProjectID(projectId, versionId);
             apiCountResult.countApiCoverage(countResultByApiCoverageList);
-            long allCount = apiCountResult.getCoveredCount() + apiCountResult.getNotCoveredCount();
             if (allCount != 0) {
                 float coveredRateNumber = (float) apiCountResult.getCoveredCount() * 100 / allCount;
                 DecimalFormat df = new DecimalFormat("0.0");
@@ -183,9 +183,8 @@ public class ApiHomeController {
         }
         try {
             //计算用例的通过率和执行率
-            List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(apiCountResult.getTotal(), projectId, versionId);
+            List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(allCount, projectId, versionId);
             apiCountResult.countApiCaseRunResult(apiCaseExecResultList);
-            long allCount = apiCountResult.getExecutedCount() + apiCountResult.getNotExecutedCount();
             if (apiCountResult.getExecutedCount() > 0) {
                 //通过率
                 float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / allCount;

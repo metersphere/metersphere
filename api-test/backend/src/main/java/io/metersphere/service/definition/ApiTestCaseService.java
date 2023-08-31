@@ -631,6 +631,10 @@ public class ApiTestCaseService {
         return extApiTestCaseMapper.countProtocolByProjectID(projectId, versionId);
     }
 
+    public long countByProjectID(String projectId, String versionId) {
+        return extApiTestCaseMapper.countByProjectID(projectId, versionId);
+    }
+
     public long countByProjectIDAndCreateInThisWeek(String projectId, String versionId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
