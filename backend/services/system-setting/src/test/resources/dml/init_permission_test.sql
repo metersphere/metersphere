@@ -10,8 +10,8 @@ INSERT INTO user_role (id, name, description, internal, type, create_time, updat
 VALUES ('SYSTEM', '系统级别权限校验', '', 1, 'SYSTEM', 1620674220005, 1620674220000, 'admin', 'global');
 
 -- 初始化用户和组的关系
-INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user)
-VALUES ('SYSTEM', 'SYSTEM', 'SYSTEM', 'system', 1684747668375, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user)
+VALUES ('SYSTEM', 'SYSTEM', 'SYSTEM', 'system', 'system', 1684747668375, 'admin');
 
 -- 初始化用于权限测试的组织用户
 INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
@@ -25,6 +25,5 @@ INSERT INTO user_role (id, name, description, internal, type, create_time, updat
 VALUES ('ORGANIZATION', '组织级别权限校验', '', 1, 'ORGANIZATION', 1620674220005, 1620674220000, 'admin', 'global');
 
 -- 初始化用户和组的关系
-INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user)
-SELECT 'ORGANIZATION', 'ORGANIZATION', 'ORGANIZATION', id, 1684747668375, 'admin' FROM organization WHERE num = 100001;
-
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user)
+SELECT 'ORGANIZATION', 'ORGANIZATION', 'ORGANIZATION', id, id, 1684747668375, 'admin' FROM organization WHERE num = 100001;

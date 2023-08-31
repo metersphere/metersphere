@@ -10,14 +10,14 @@ INSERT INTO user(id, name, email, password, create_time, update_time, language, 
     ('default-project-member-user-2', 'default-project-member-user2', 'project-member2@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', 0),
     ('default-project-member-user-del', 'default-project-member-userDel', 'project-member-del@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', 1);
 
-INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user) VALUES
-    (UUID(), 'default-project-member-user-1', 'org_member', 'default-organization-member-test', UNIX_TIMESTAMP() * 1000, 'admin'),
-    (UUID(), 'default-project-member-user-2', 'org_member', 'default-organization-member-test', UNIX_TIMESTAMP() * 1000, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES
+    (UUID(), 'default-project-member-user-1', 'org_member', 'default-organization-member-test', 'default_organization', UNIX_TIMESTAMP() * 1000, 'admin'),
+    (UUID(), 'default-project-member-user-2', 'org_member', 'default-organization-member-test', 'default_organization', UNIX_TIMESTAMP() * 1000, 'admin');
 
-INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user) VALUES
-   (UUID(), 'default-project-member-user-1', 'project_admin', 'default-project-member-test', UNIX_TIMESTAMP() * 1000, 'admin'),
-   (UUID(), 'default-project-member-user-2', 'project_admin', 'default-project-member-test', UNIX_TIMESTAMP() * 1000, 'admin'),
-   (UUID(), 'default-project-member-user-del', 'project_admin', 'default-project-member-test', UNIX_TIMESTAMP() * 1000, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES
+   (UUID(), 'default-project-member-user-1', 'project_admin', 'default-project-member-test', 'default_organization', UNIX_TIMESTAMP() * 1000, 'admin'),
+   (UUID(), 'default-project-member-user-2', 'project_admin', 'default-project-member-test', 'default_organization', UNIX_TIMESTAMP() * 1000, 'admin'),
+   (UUID(), 'default-project-member-user-del', 'project_admin', 'default-project-member-test', 'default_organization', UNIX_TIMESTAMP() * 1000, 'admin');
 
 
 

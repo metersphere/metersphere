@@ -89,6 +89,7 @@ public class UserRoleRelationService {
                 userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
                 userRoleRelation.setCreateTime(operationTime);
                 userRoleRelation.setCreateUser(user.getCreateUser());
+                userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
                 userRoleRelationSaveList.add(userRoleRelation);
             }
         }
@@ -170,6 +171,7 @@ public class UserRoleRelationService {
                 userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
                 userRoleRelation.setCreateTime(System.currentTimeMillis());
                 userRoleRelation.setCreateUser(operator);
+                userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
                 saveList.add(userRoleRelation);
             }
         }

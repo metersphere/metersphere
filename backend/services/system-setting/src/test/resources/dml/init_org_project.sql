@@ -25,7 +25,7 @@ replace INTO project (id, num, organization_id, name, description, create_user, 
 
 
 # 插入测试数据  给组织增加成员
-replace INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user )VALUES ('c3bb9b4f-46d8-4952-9681-1213333131','admin2','org_member',(SELECT id FROM organization WHERE name LIKE '默认组织'),'1684747668321','admin');
-replace INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user )VALUES ('c3bb9b4f-46d8-4952-9681-3124121332','admin1','org_member',(SELECT id FROM organization WHERE name LIKE '默认组织'),'1684747668321','admin');
+replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user )VALUES ('c3bb9b4f-46d8-4952-9681-1213333131','admin2','org_member', (SELECT id FROM organization WHERE name LIKE '默认组织'), (SELECT id FROM organization WHERE name LIKE '默认组织'), '1684747668321','admin');
+replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user )VALUES ('c3bb9b4f-46d8-4952-9681-3124121332','admin1','org_member', (SELECT id FROM organization WHERE name LIKE '默认组织'), (SELECT id FROM organization WHERE name LIKE '默认组织'), '1684747668321','admin');
 INSERT INTO organization(id,num, name, description, create_time, update_time, create_user, update_user, delete_user, delete_time) VALUE
     ('default-organization-20',null, 'default-20', 'XXX-1', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'admin', null, null);

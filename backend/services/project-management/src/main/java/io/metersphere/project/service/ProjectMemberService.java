@@ -146,7 +146,7 @@ public class ProjectMemberService {
         // 操作记录
         List<LogDTO> logs = new ArrayList<>();
         // 项目不存在
-        checkProjectExist(request.getProjectId());
+        Project project = checkProjectExist(request.getProjectId());
         // 移除已经存在的用户组
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(request.getProjectId())
@@ -168,6 +168,7 @@ public class ProjectMemberService {
             relation.setSourceId(request.getProjectId());
             relation.setCreateTime(System.currentTimeMillis());
             relation.setCreateUser(currentUserId);
+            relation.setOrganizationId(project.getOrganizationId());
             relations.add(relation);
         });
         if (!CollectionUtils.isEmpty(relations)) {
@@ -230,7 +231,7 @@ public class ProjectMemberService {
         // 操作记录
         List<LogDTO> logs = new ArrayList<>();
         // 项目不存在, 则不添加
-        checkProjectExist(request.getProjectId());
+        Project project = checkProjectExist(request.getProjectId());
         // 获取已经存在的用户组
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(request.getProjectId())
@@ -260,6 +261,7 @@ public class ProjectMemberService {
                 relation.setSourceId(request.getProjectId());
                 relation.setCreateTime(System.currentTimeMillis());
                 relation.setCreateUser(currentUserId);
+                relation.setOrganizationId(project.getOrganizationId());
                 relations.add(relation);
                 isLog.set(true);
                 roleIds.add(roleId);
@@ -306,11 +308,12 @@ public class ProjectMemberService {
      * 查看项目是否存在
      * @param projectId 项目ID
      */
-    private void checkProjectExist(String projectId) {
+    private Project checkProjectExist(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         if (project == null) {
             throw new MSException(Translator.get("project_not_exist"));
         }
+        return project;
     }
 
     /**

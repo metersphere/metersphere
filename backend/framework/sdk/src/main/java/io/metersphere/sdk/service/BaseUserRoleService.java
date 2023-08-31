@@ -150,7 +150,7 @@ public class BaseUserRoleService {
      *
      * @param userRole
      */
-    public void delete(UserRole userRole, String defaultRoleId, String currentUserId) {
+    public void delete(UserRole userRole, String defaultRoleId, String currentUserId, String orgId) {
         String id = userRole.getId();
         checkInternalUserRole(userRole);
 
@@ -161,7 +161,7 @@ public class BaseUserRoleService {
         userRoleMapper.deleteByPrimaryKey(id);
 
         // 检查是否只有一个用户组，如果是则添加系统成员等默认用户组
-        checkOneLimitRole(id, defaultRoleId, currentUserId);
+        checkOneLimitRole(id, defaultRoleId, currentUserId, orgId);
 
         // 删除用户组与用户的关联关系
         baseUserRoleRelationService.deleteByRoleId(id);
@@ -206,7 +206,7 @@ public class BaseUserRoleService {
      * @param defaultRoleId 默认用户组id
      * @param currentUserId 当前用户id
      */
-    public void checkOneLimitRole(String roleId, String defaultRoleId, String currentUserId) {
+    public void checkOneLimitRole(String roleId, String defaultRoleId, String currentUserId, String orgId) {
 
         // 查询要删除的用户组关联的用户ID
         List<String> userIds = baseUserRoleRelationService.getUserIdByRoleId(roleId);
@@ -232,6 +232,7 @@ public class BaseUserRoleService {
                 relation.setRoleId(defaultRoleId);
                 relation.setCreateTime(System.currentTimeMillis());
                 relation.setCreateUser(currentUserId);
+                relation.setOrganizationId(orgId);
                 addRelations.add(relation);
             }
         });

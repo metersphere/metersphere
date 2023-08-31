@@ -236,16 +236,17 @@ CREATE INDEX idx_create_user ON user (`create_user`);
 CREATE INDEX idx_update_user ON user (`update_user`);
 
 CREATE TABLE IF NOT EXISTS user_role_relation(
-`id` VARCHAR(50) NOT NULL   COMMENT '用户组关系ID' ,
-`user_id` VARCHAR(50) NOT NULL   COMMENT '用户ID' ,
-`role_id` VARCHAR(50) NOT NULL   COMMENT '组ID' ,
-`source_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
-`create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-`create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-PRIMARY KEY (id)
+    `id` VARCHAR(50) NOT NULL   COMMENT '用户组关系ID' ,
+    `user_id` VARCHAR(50) NOT NULL   COMMENT '用户ID' ,
+    `role_id` VARCHAR(50) NOT NULL   COMMENT '组ID' ,
+    `source_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
+    `organization_id` VARCHAR(50) NOT NULL   COMMENT '记录所在的组织ID' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '用户组关系';
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '用户组关系';
 
 
 

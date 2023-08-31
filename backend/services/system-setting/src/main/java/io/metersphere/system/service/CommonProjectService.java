@@ -143,6 +143,7 @@ public class CommonProjectService {
                     memberRole.setSourceId(orgId);
                     memberRole.setCreateTime(System.currentTimeMillis());
                     memberRole.setCreateUser(createUser);
+                    memberRole.setOrganizationId(orgId);
                     userRoleRelation.add(memberRole);
                     LogDTO logDTO = new LogDTO(orgId, orgId, memberRole.getId(), createUser, OperationLogType.ADD.name(), module, Translator.get("add") + Translator.get("organization_member") + ": " + nameMap.get(id));
                     setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
@@ -312,6 +313,7 @@ public class CommonProjectService {
                     adminRole.setSourceId(projectId);
                     adminRole.setCreateTime(System.currentTimeMillis());
                     adminRole.setCreateUser(createUser);
+                    adminRole.setOrganizationId(project.getOrganizationId());
                     userRoleRelations.add(adminRole);
                     LogDTO logDTO = new LogDTO(projectId, project.getOrganizationId(), adminRole.getId(), createUser, type, module, content + Translator.get("project_admin") + ": " + nameMap.get(userId));
                     setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
@@ -367,6 +369,7 @@ public class CommonProjectService {
                     memberRole.setSourceId(projectId);
                     memberRole.setCreateTime(System.currentTimeMillis());
                     memberRole.setCreateUser(createUser);
+                    memberRole.setOrganizationId(project.getOrganizationId());
                     userRoleRelations.add(memberRole);
                     LogDTO logDTO = new LogDTO(projectId, project.getOrganizationId(), memberRole.getId(), createUser, type, module, content + Translator.get("project_member") + ": " + userMap.get(userId));
                     setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
