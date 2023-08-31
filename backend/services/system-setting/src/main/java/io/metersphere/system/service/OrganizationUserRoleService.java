@@ -124,6 +124,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
             relation.setSourceId(request.getOrganizationId());
             relation.setCreateTime(System.currentTimeMillis());
             relation.setCreateUser(createUserId);
+            relation.setOrganizationId(request.getOrganizationId());
             userRoleRelationMapper.insert(relation);
         });
     }

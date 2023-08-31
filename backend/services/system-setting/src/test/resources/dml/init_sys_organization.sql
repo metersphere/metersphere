@@ -48,6 +48,6 @@ INSERT INTO user_role(id, name, description, internal, type, create_time, update
 INSERT INTO user_role(id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUE
     ('sys_default_org_role_id_8', 'sys_default_org_role_id_8', 'XXX', FALSE, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'sys_default_organization_7');
 
-INSERT INTO user_role_relation(id, user_id, role_id, source_id, create_time, create_user) VALUE
-    ('gyq_user_role_relation_test', 'sys_default_user4', 'sys_default_org_role_id_5', 'sys_default_organization_6', UNIX_TIMESTAMP() * 1000, 'admin');
+INSERT INTO user_role_relation(id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUE
+    ('gyq_user_role_relation_test', 'sys_default_user4', 'sys_default_org_role_id_5', 'sys_default_organization_6', 'sys_default_organization_6', UNIX_TIMESTAMP() * 1000, 'admin');
 

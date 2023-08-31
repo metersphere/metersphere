@@ -10,5 +10,5 @@ INSERT INTO user_role (id, name, description, internal, type, create_time, updat
 VALUES ('PROJECT', '项目级别权限校验', '', 1, 'PROJECT', 1620674220005, 1620674220000, 'admin', 'global');
 
 -- 初始化用户和组的关系
-INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user)
-SELECT 'PROJECT', 'PROJECT', 'PROJECT', id, 1684747668375, 'admin' FROM project WHERE num = 100001;
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user)
+SELECT 'PROJECT', 'PROJECT', 'PROJECT', id, organization_id, 1684747668375, 'admin' FROM project WHERE num = 100001;

@@ -374,6 +374,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
         roleRelation.setCreateUser(ADMIN.getValue());
         roleRelation.setUserId(user.getId());
         roleRelation.setSourceId(UserRoleScope.SYSTEM);
+        roleRelation.setOrganizationId(UserRoleScope.SYSTEM);
         userRoleRelationMapper.insert(roleRelation);
         return roleRelation;
     }

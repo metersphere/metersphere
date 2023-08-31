@@ -121,6 +121,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         List<UserRoleRelation> userRoleRelations = getUserRoleRelationByRoleIdAndUserId(request.getRoleId(), ADMIN.getValue());
         Assertions.assertTrue(CollectionUtils.isNotEmpty(userRoleRelations));
         addUserRoleRelation = userRoleRelations.get(0);
+        Assertions.assertEquals(addUserRoleRelation.getOrganizationId(), UserRoleScope.SYSTEM);
 
         // @@校验日志
         checkLog(addUserRoleRelation.getRoleId(), OperationLogType.UPDATE);
@@ -223,6 +224,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         userRoleRelation.setUserId(ADMIN.getValue());
         userRoleRelation.setCreateTime(System.currentTimeMillis());
         userRoleRelation.setSourceId(UUID.randomUUID().toString());
+        userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
         userRoleRelationMapper.insert(userRoleRelation);
         return userRoleRelation;
     }
@@ -238,6 +240,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         userRoleRelation.setCreateUser(ADMIN.getValue());
         userRoleRelation.setCreateTime(System.currentTimeMillis());
         userRoleRelation.setSourceId(UUID.randomUUID().toString());
+        userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
         userRoleRelationMapper.insert(userRoleRelation);
         return userRoleRelation;
     }

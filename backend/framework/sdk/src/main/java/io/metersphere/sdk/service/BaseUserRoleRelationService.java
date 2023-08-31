@@ -17,11 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
-import static io.metersphere.sdk.controller.handler.result.CommonResultCode.*;
+import static io.metersphere.sdk.controller.handler.result.CommonResultCode.USER_ROLE_RELATION_EXIST;
+import static io.metersphere.sdk.controller.handler.result.CommonResultCode.USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION;
 
 /**
  * @author jianxing
@@ -38,14 +38,6 @@ public class BaseUserRoleRelationService {
     protected UserRoleMapper userRoleMapper;
     @Resource
     private BaseUserService baseUserService;
-
-    protected UserRoleRelation add(UserRoleRelation userRoleRelation) {
-        checkExist(userRoleRelation);
-        userRoleRelation.setCreateTime(System.currentTimeMillis());
-        userRoleRelation.setId(UUID.randomUUID().toString());
-        userRoleRelationMapper.insert(userRoleRelation);
-        return userRoleRelation;
-    }
 
     /**
      * 校验用户是否已在当前用户组

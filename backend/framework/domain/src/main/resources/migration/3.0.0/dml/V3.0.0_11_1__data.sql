@@ -19,7 +19,7 @@ INSERT INTO user_role (id, name, description, internal, type, create_time, updat
 INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_member', '项目成员', '项目成员', 1, 'PROJECT', 1620674220005, 1620674220000, 'admin', 'global');
 
 -- 初始化用户和组的关系
-INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user) VALUES (uuid(), 'admin', 'admin', 'system', 1684747668375, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES (uuid(), 'admin', 'admin', 'system', 'system', 1684747668375, 'admin');
 
 -- 初始化用户组权限
 -- 系统管理员拥有所有的权限，不用初始化

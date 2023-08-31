@@ -170,6 +170,7 @@ public class UserRoleRelationService {
                 userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
                 userRoleRelation.setCreateTime(System.currentTimeMillis());
                 userRoleRelation.setCreateUser(operator);
+                userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
                 saveList.add(userRoleRelation);
             }
         }

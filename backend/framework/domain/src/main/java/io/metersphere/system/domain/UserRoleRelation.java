@@ -10,30 +10,35 @@ import lombok.Data;
 
 @Data
 public class UserRoleRelation implements Serializable {
-    @Schema(description =  "用户组关系ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "用户组关系ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_role_relation.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.user_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user_role_relation.user_id.length_range}", groups = {Created.class, Updated.class})
     private String userId;
 
-    @Schema(description =  "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.role_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user_role_relation.role_id.length_range}", groups = {Created.class, Updated.class})
     private String roleId;
 
-    @Schema(description =  "组织或项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "组织或项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.source_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user_role_relation.source_id.length_range}", groups = {Created.class, Updated.class})
     private String sourceId;
 
-    @Schema(description =  "创建时间")
+    @Schema(title = "记录所在的组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{user_role_relation.organization_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{user_role_relation.organization_id.length_range}", groups = {Created.class, Updated.class})
+    private String organizationId;
+
+    @Schema(title = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "创建人")
+    @Schema(title = "创建人")
     private String createUser;
 
     private static final long serialVersionUID = 1L;
@@ -43,6 +48,7 @@ public class UserRoleRelation implements Serializable {
         userId("user_id", "userId", "VARCHAR", false),
         roleId("role_id", "roleId", "VARCHAR", false),
         sourceId("source_id", "sourceId", "VARCHAR", false),
+        organizationId("organization_id", "organizationId", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false);
 

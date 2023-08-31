@@ -336,6 +336,7 @@ public class OrganizationService {
                     List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
                     if (CollectionUtils.isEmpty(userRoleRelations)) {
                         UserRoleRelation userRoleRelation = buildUserRoleRelation(createUserId, memberId, organizationId, userRoleId);
+                        userRoleRelation.setOrganizationId(organizationId);
                         userRoleRelationMapper.insert(userRoleRelation);
                         //add Log
                         String path = add ? "/organization/add-member" : "/organization/role/update-member";
@@ -399,6 +400,7 @@ public class OrganizationService {
                 List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
                 if (CollectionUtils.isEmpty(userRoleRelations)) {
                     UserRoleRelation userRoleRelation = buildUserRoleRelation(userId, memberId, projectId, InternalUserRole.PROJECT_MEMBER.getValue());
+                    userRoleRelation.setOrganizationId(orgMemberExtendProjectRequest.getOrganizationId());
                     userRoleRelationMapper.insert(userRoleRelation);
                     //add Log
                     LogDTO dto = new LogDTO(
@@ -563,6 +565,7 @@ public class OrganizationService {
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         projectInDBInOrgIds.forEach(projectId -> {
             UserRoleRelation userRoleRelation = buildUserRoleRelation(createUserId, memberId, projectId, InternalUserRole.PROJECT_MEMBER.getValue());
+            userRoleRelation.setOrganizationId(organizationId);
             userRoleRelationMapper.insert(userRoleRelation);
             //add Log
             String path = "/organization/update-member";
@@ -601,6 +604,7 @@ public class OrganizationService {
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         userRoleInDBInOrgIds.forEach(userRoleId -> {
             UserRoleRelation userRoleRelation = buildUserRoleRelation(createUserId, memberId, organizationId, userRoleId);
+            userRoleRelation.setOrganizationId(organizationId);
             userRoleRelationMapper.insert(userRoleRelation);
             //add Log
             String path = "/organization/update-member";
