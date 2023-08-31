@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.UUID;
-
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class LogDTO extends OperationLog {
@@ -26,7 +24,6 @@ public class LogDTO extends OperationLog {
         this.setType(type);
         this.setModule(module);
         this.setContent(content);
-        this.setId(UUID.randomUUID().toString());
         this.setCreateTime(System.currentTimeMillis());
     }
 }

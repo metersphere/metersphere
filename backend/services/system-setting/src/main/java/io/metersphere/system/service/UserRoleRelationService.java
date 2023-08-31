@@ -58,7 +58,6 @@ public class UserRoleRelationService {
         List<UserRole> userRoleList = userRoleMapper.selectByExample(example);
         userRoleList.forEach(userRole -> {
             LogDTO log = new LogDTO();
-            log.setId(UUID.randomUUID().toString());
             log.setProjectId(OperationLogConstants.SYSTEM);
             log.setOrganizationId(OperationLogConstants.SYSTEM);
             log.setType(operationType);

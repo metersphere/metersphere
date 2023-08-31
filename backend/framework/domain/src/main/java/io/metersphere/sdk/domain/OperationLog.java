@@ -5,17 +5,17 @@ import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class OperationLog implements Serializable {
-    @Schema(description =  "主键", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "主键", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_log.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{operation_log.id.length_range}", groups = {Created.class, Updated.class})
-    private String id;
+    private Long id;
 
     @Schema(description =  "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_log.project_id.not_blank}", groups = {Created.class})
@@ -137,4 +137,5 @@ public class OperationLog implements Serializable {
             return this.getEscapedColumnName();
         }
     }
+
 }

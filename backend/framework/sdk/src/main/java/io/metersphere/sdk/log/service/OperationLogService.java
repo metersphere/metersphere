@@ -17,12 +17,12 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,47 +54,49 @@ public class OperationLogService {
         if (StringUtils.isBlank(log.getCreateUser())) {
             log.setCreateUser("admin");
         }
-        // 限制长度
-        saveBlob(operationLogMapper, operationLogBlobMapper, log);
+        log.setContent(subStrContent(log.getContent()));
+        operationLogMapper.insert(log);
+        operationLogBlobMapper.insert(getBlob(log));
     }
 
+    private OperationLogBlob getBlob(LogDTO log) {
+        OperationLogBlob blob = new OperationLogBlob();
+        blob.setId(log.getId());
+        blob.setOriginalValue(log.getOriginalValue());
+        blob.setModifiedValue(log.getModifiedValue());
+        return blob;
+    }
+
+    private String subStrContent(String content) {
+        if (StringUtils.isNotBlank(content) && content.length() > 500) {
+            return content.substring(0, 499);
+        }
+        return content;
+    }
+
+    @Async
     public void batchAdd(List<LogDTO> logs) {
         if (CollectionUtils.isEmpty(logs)) {
             return;
         }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        OperationLogMapper logMapper = sqlSession.getMapper(OperationLogMapper.class);
         OperationLogBlobMapper logBlobMapper = sqlSession.getMapper(OperationLogBlobMapper.class);
 
         if (CollectionUtils.isNotEmpty(logs)) {
             long currentTimeMillis = System.currentTimeMillis();
             logs.forEach(item -> {
+                item.setContent(subStrContent(item.getContent()));
                 item.setCreateTime(currentTimeMillis);
-                if (StringUtils.isBlank(item.getId())) {
-                    item.setId(UUID.randomUUID().toString());
-                }
                 // 限制长度
-                saveBlob(logMapper, logBlobMapper, item);
+                operationLogMapper.insert(item);
+                logBlobMapper.insert(getBlob(item));
             });
         }
         sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
+        if (sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
-
-    private void saveBlob(OperationLogMapper logMapper, OperationLogBlobMapper logBlobMapper, LogDTO item) {
-        if (StringUtils.isNotBlank(item.getContent()) && item.getContent().length() > 500) {
-            item.setContent(item.getContent().substring(0, 499));
-        }
-        logMapper.insert(item);
-        OperationLogBlob blob = new OperationLogBlob();
-        blob.setId(item.getId());
-        blob.setOriginalValue(item.getOriginalValue());
-        blob.setModifiedValue(item.getModifiedValue());
-        logBlobMapper.insert(blob);
-    }
-
 
     public List<OperationLogResponse> list(OperationLogRequest request) {
         int compare = Long.compare(request.getStartTime(), request.getEndTime());
@@ -118,10 +120,7 @@ public class OperationLogService {
                 item.setProjectName(projectMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
                 item.setOrganizationName(organizationMap.getOrDefault(item.getOrganizationId(), StringUtils.EMPTY));
             });
-
-
         }
-
         return list;
     }
 }
