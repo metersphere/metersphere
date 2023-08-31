@@ -35,6 +35,9 @@ export function getResource(d) {
     case "API_DEFINITION_TASK" :
       resourceType = i18n.t('notice.api_case') + i18n.t('notice.result.' + d.operation);
       break;
+    case "UI_AUTOMATION_TASK" :
+      resourceType += i18n.t('notice.result.' + d.operation);
+      break;
     default:
       break;
   }
@@ -126,6 +129,12 @@ export function getUrl(d) {
       break;
     case "TRACK_REPORT_TASK" :
       url += "/track/testPlan/reportList";
+      break;
+    case "UI_AUTOMATION_TASK" :
+      url += "/ui/automation";
+      break;
+    case "UI_REPORT_TASK" :
+      url += "ui/report";
       break;
       case"ENV_TASK" :
       url += "/project/env?resourceId=" + d.resourceId;

@@ -263,6 +263,10 @@
                 UNION
                 SELECT project_id
                 FROM api_test_environment
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM ui_scenario
                 WHERE id = #{resourceId})
         LIMIT 1
     </select>
