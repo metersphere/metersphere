@@ -1,11 +1,11 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
-import io.metersphere.plugin.sdk.util.JSON;
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.PluginLoadService;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.param.ServiceIntegrationUpdateRequestDefinition;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.Plugin;
