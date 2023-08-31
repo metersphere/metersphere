@@ -1758,7 +1758,7 @@ public class TestPlanService {
             if (report.getExecuteCount() != 0 && report.getCaseCount() != null) {
                 double executeRate = Double.parseDouble(rateFormat.format((double) report.getExecuteCount() / (double) report.getCaseCount()));
                 if (executeRate == 1 && report.getExecuteCount() < report.getCaseCount()) {
-                    report.setExecuteRate(0.99);
+                    report.setExecuteRate(0.9999);
                 } else {
                     report.setExecuteRate(executeRate);
                 }
@@ -1768,7 +1768,7 @@ public class TestPlanService {
             if (report.getPassCount() != 0 && report.getCaseCount() != null) {
                 double passRate = Double.parseDouble(rateFormat.format((double) report.getPassCount() / (double) report.getCaseCount()));
                 if (passRate == 1 && report.getPassCount() < report.getCaseCount()) {
-                    report.setPassRate(0.99);
+                    report.setPassRate(0.9999);
                 } else {
                     report.setPassRate(passRate);
                 }
