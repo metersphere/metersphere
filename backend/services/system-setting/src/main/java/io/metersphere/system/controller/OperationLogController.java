@@ -4,6 +4,7 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.log.vo.OperationLogRequest;
 import io.metersphere.sdk.log.vo.OperationLogResponse;
@@ -71,11 +72,13 @@ public class OperationLogController {
     }
 
 
-    @GetMapping("/user/list")
+    @PostMapping("/user/list")
     @Operation(summary = "系统设置-系统-日志-系统日志页面，获取用户列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_LOG_READ)
-    public List<User> getUserList() {
-        List<User> userList = userService.getUserList();
-        return userList;
+    public Pager<List<User>> getUserList(@Validated @RequestBody BasePageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        List<User> userList = userService.getUserList(request);
+        return PageUtils.setPageInfo(page, userList);
     }
 }

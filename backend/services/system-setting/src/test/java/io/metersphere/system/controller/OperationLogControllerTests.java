@@ -2,6 +2,7 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.log.vo.OperationLogRequest;
 import io.metersphere.system.controller.param.OperationLogRequestDefinition;
 import org.junit.jupiter.api.MethodOrderer;
@@ -15,6 +16,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -138,10 +140,18 @@ public class OperationLogControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void testUserList() throws Exception {
-        this.requestGetWithOkAndReturn(USER_LIST);
+        BasePageRequest request = new BasePageRequest();
+        request.setKeyword("a");
+        request.setCurrent(1);
+        request.setPageSize(100);
+        this.requestPostWithOkAndReturn(USER_LIST, request);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        this.requestPostWithOkAndReturn(USER_LIST, request);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_LOG_READ, USER_LIST);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_LOG_READ, USER_LIST, request);
     }
 
     @Test

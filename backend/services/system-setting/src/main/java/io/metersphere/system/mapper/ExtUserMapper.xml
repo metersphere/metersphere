@@ -19,4 +19,20 @@
         WHERE
             urr.source_id = #{sourceId} and u.deleted = false
     </select>
+
+    <select id="selectUserList" resultType="io.metersphere.system.domain.User">
+        SELECT DISTINCT
+            u.id,
+            u.NAME,
+            u.email
+        FROM
+            `user` u
+        WHERE
+            u.deleted = false
+        <if test="request.keyword != null and request.keyword != ''">
+            and (LOCATE(#{request.keyword},name)>0 or LOCATE(#{request.keyword},email)>0)
+        </if>
+    </select>
+
+
 </mapper>

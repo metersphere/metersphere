@@ -8,10 +8,7 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
-import io.metersphere.sdk.dto.AddProjectRequest;
-import io.metersphere.sdk.dto.ProjectDTO;
-import io.metersphere.sdk.dto.ProjectExtendDTO;
-import io.metersphere.sdk.dto.UpdateProjectRequest;
+import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
@@ -708,9 +705,17 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(21)
     public void testUserList() throws Exception {
-        this.requestGetWithOkAndReturn(userList);
+        BasePageRequest request = new BasePageRequest();
+        request.setKeyword("a");
+        request.setCurrent(1);
+        request.setPageSize(100);
+        this.requestPostWithOkAndReturn(userList, request);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        this.requestPostWithOkAndReturn(userList, request);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, userList);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, userList, request);
     }
 }
