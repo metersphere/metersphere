@@ -425,12 +425,8 @@ public class BaseUserService {
         return false;
     }
 
-    public List<ExcludeOptionDTO> getExcludeSelectOption() {
-        return baseUserMapper.getExcludeSelectOption();
-    }
-
-    public List<OptionDTO> getSelectOptionWithDeleted() {
-        return baseUserMapper.getSelectOptionWithDeleted();
+    public List<UserExcludeOptionDTO> getExcludeSelectOptionWithLimit(String keyword) {
+        return baseUserMapper.getExcludeSelectOptionWithLimit(keyword);
     }
 
     public List<OptionDTO> getSelectOptionByIdsWithDeleted(List<String> ids) {

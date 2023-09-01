@@ -1,6 +1,6 @@
 package io.metersphere.sdk.service;
 
-import io.metersphere.sdk.dto.ExcludeOptionDTO;
+import io.metersphere.sdk.dto.UserExcludeOptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.BaseUserRoleRelationMapper;
 import io.metersphere.system.domain.UserRole;
@@ -122,9 +122,9 @@ public class BaseUserRoleRelationService {
      * @param roleId
      * @return
      */
-    public List<ExcludeOptionDTO> getExcludeSelectOption(String roleId) {
+    public List<UserExcludeOptionDTO> getExcludeSelectOptionWithLimit(String roleId, String keyword) {
         // 查询所有用户选项
-        List<ExcludeOptionDTO> selectOptions = baseUserService.getExcludeSelectOption();
+        List<UserExcludeOptionDTO> selectOptions = baseUserService.getExcludeSelectOptionWithLimit(keyword);
         // 查询已经关联的用户ID
         Set<String> excludeUserIds = baseUserRoleRelationMapper.getUserIdByRoleId(roleId)
                 .stream()

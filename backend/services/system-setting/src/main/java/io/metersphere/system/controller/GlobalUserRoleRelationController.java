@@ -3,7 +3,7 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.ExcludeOptionDTO;
+import io.metersphere.sdk.dto.UserExcludeOptionDTO;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.annotation.Log;
@@ -16,7 +16,6 @@ import io.metersphere.system.service.GlobalUserRoleRelationLogService;
 import io.metersphere.system.service.GlobalUserRoleRelationService;
 import io.metersphere.validation.groups.Created;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -66,8 +65,10 @@ public class GlobalUserRoleRelationController {
     @GetMapping("/user/option/{roleId}")
     @Operation(summary = "系统设置-系统-用户组-用户关联关系-获取需要关联的用户选项")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_ROLE_READ})
-    public List<ExcludeOptionDTO> getSelectOption(@Parameter(description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-                                                  @PathVariable String roleId) {
-        return globalUserRoleRelationService.getExcludeSelectOption(roleId);
+    public List<UserExcludeOptionDTO> getSelectOption(@Schema(description = "用户组ID", requiredMode = Schema.RequiredMode.REQUIRED)
+                                                      @PathVariable String roleId,
+                                                      @Schema(description = "查询关键字，根据邮箱和用户名查询", requiredMode = Schema.RequiredMode.REQUIRED)
+                                                      @RequestParam(value = "keyword", required = false) String keyword) {
+        return globalUserRoleRelationService.getExcludeSelectOption(roleId, keyword);
     }
 }

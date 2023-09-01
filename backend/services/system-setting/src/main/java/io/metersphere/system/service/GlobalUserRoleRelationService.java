@@ -1,8 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.UserRoleScope;
-import io.metersphere.sdk.dto.ExcludeOptionDTO;
 import io.metersphere.sdk.dto.TableBatchProcessResponse;
+import io.metersphere.sdk.dto.UserExcludeOptionDTO;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
@@ -147,8 +147,8 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         }
     }
 
-    public List<ExcludeOptionDTO> getExcludeSelectOption(String roleId) {
+    public List<UserExcludeOptionDTO> getExcludeSelectOption(String roleId, String keyword) {
         baseUserRoleService.getWithCheck(roleId);
-        return super.getExcludeSelectOption(roleId);
+        return super.getExcludeSelectOptionWithLimit(roleId, keyword);
     }
 }
