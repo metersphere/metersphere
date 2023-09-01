@@ -371,7 +371,7 @@ public class CommonProjectService {
                     memberRole.setCreateUser(createUser);
                     memberRole.setOrganizationId(project.getOrganizationId());
                     userRoleRelations.add(memberRole);
-                    LogDTO logDTO = new LogDTO(projectId, project.getOrganizationId(), memberRole.getId(), createUser, type, module, content + Translator.get("project_member") + ": " + userMap.get(userId));
+                    LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, OperationLogConstants.SYSTEM, memberRole.getId(), createUser, type, module, content + Translator.get("project_member") + ": " + userMap.get(userId));
                     setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
                 }
             });
@@ -400,7 +400,7 @@ public class CommonProjectService {
         }
         List<LogDTO> logDTOList = new ArrayList<>();
         userRoleRelationMapper.selectByExample(userRoleRelationExample).forEach(userRoleRelation -> {
-            LogDTO logDTO = new LogDTO(projectId, projectMapper.selectByPrimaryKey(projectId).getOrganizationId(), userRoleRelation.getId(), createUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_member") + ": " + user.getName());
+            LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, OperationLogConstants.SYSTEM, userRoleRelation.getId(), createUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_member") + ": " + user.getName());
             setLog(logDTO, path, HttpMethodConstants.GET.name(), logDTOList);
         });
         operationLogService.batchAdd(logDTOList);
