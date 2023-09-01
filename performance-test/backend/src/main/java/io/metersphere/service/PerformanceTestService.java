@@ -752,17 +752,17 @@ public class PerformanceTestService {
     }
 
     public List<FileMetadata> getProjectFiles(String projectId, String loadType, QueryProjectFileRequest request) {
-        List<String> loadTypes = new ArrayList<>();
-        loadTypes.add(StringUtils.upperCase(loadType));
         if (StringUtils.equalsIgnoreCase(loadType, "resource")) {
-            List<String> fileTypes = Arrays.stream(FileType.values()).filter(fileType -> !fileType.equals(FileType.JMX)).map(FileType::name).collect(Collectors.toList());
-            loadTypes.addAll(fileTypes);
+            return extLoadTestMapper.getProjectFiles(projectId, null, request);
+        } else {
+            List<String> loadTypes = new ArrayList<>();
+            loadTypes.add(StringUtils.upperCase(loadType));
+            if (StringUtils.equalsIgnoreCase(loadType, "all")) {
+                List<String> fileTypes = Arrays.stream(FileType.values()).map(FileType::name).collect(Collectors.toList());
+                loadTypes.addAll(fileTypes);
+            }
+            return extLoadTestMapper.getProjectFiles(projectId, loadTypes, request);
         }
-        if (StringUtils.equalsIgnoreCase(loadType, "all")) {
-            List<String> fileTypes = Arrays.stream(FileType.values()).map(FileType::name).collect(Collectors.toList());
-            loadTypes.addAll(fileTypes);
-        }
-        return extLoadTestMapper.getProjectFiles(projectId, loadTypes, request);
     }
 
     public List<LoadTestExportJmx> exportJmx(List<String> fileIds) {
