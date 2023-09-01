@@ -11,6 +11,7 @@ import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.dto.ServiceIntegrationDTO;
+import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.request.PluginUpdateRequest;
 import io.metersphere.system.request.ServiceIntegrationUpdateRequest;
@@ -35,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
+import static io.metersphere.sdk.controller.handler.result.CommonResultCode.PLUGIN_ENABLE;
+import static io.metersphere.sdk.controller.handler.result.CommonResultCode.PLUGIN_PERMISSION;
 import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.SERVICE_INTEGRATION_EXIST;
 import static io.metersphere.system.service.ServiceIntegrationService.PLUGIN_IMAGE_GET_PATH;
@@ -66,6 +69,8 @@ public class ServiceIntegrationControllerTests extends BaseTest {
     private PluginLoadService pluginLoadService;
     @Resource
     private PluginService pluginService;
+    @Resource
+    private PluginMapper pluginMapper;
     @Resource
     private MockServerClient mockServerClient;
     @Value("${embedded.mockserver.host}")
@@ -114,6 +119,16 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         // @@重名校验异常
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), SERVICE_INTEGRATION_EXIST);
 
+        // @@校验插件禁用
+        setPluginEnable(request.getPluginId(), false);
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), PLUGIN_ENABLE);
+        setPluginEnable(request.getPluginId(), true);
+
+        // @@校验权限
+        setPluginGlobal(request.getPluginId(), false);
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), PLUGIN_PERMISSION);
+        setPluginGlobal(request.getPluginId(), true);
+
         // @@校验日志
         checkLog(this.addServiceIntegration.getId(), OperationLogType.ADD);
         // @@异常参数校验
@@ -151,6 +166,16 @@ public class ServiceIntegrationControllerTests extends BaseTest {
 
         // @@校验日志
         checkLog(request.getId(), OperationLogType.UPDATE);
+
+        // @@校验插件禁用
+        setPluginEnable(request.getPluginId(), false);
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), PLUGIN_ENABLE);
+        setPluginEnable(request.getPluginId(), true);
+
+        // @@校验权限
+        setPluginGlobal(request.getPluginId(), false);
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), PLUGIN_PERMISSION);
+        setPluginGlobal(request.getPluginId(), true);
 
         // @@校验 NOT_FOUND 异常
         request.setId("1111");
@@ -207,6 +232,16 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         // @@请求成功
         this.requestGetWithOk(VALIDATE_GET, addServiceIntegration.getId());
 
+        // @@校验插件禁用
+        setPluginEnable(addServiceIntegration.getPluginId(), false);
+        assertErrorCode(this.requestGet(VALIDATE_GET, addServiceIntegration.getId()), PLUGIN_ENABLE);
+        setPluginEnable(addServiceIntegration.getPluginId(), true);
+
+        // @@校验权限
+        setPluginGlobal(addServiceIntegration.getPluginId(), false);
+        assertErrorCode(this.requestGet(VALIDATE_GET, addServiceIntegration.getId()), PLUGIN_PERMISSION);
+        setPluginGlobal(addServiceIntegration.getPluginId(), true);
+
         // @@校验 NOT_FOUND 异常
         assertErrorCode(this.requestGet(VALIDATE_GET, "1111"), NOT_FOUND);
 
@@ -222,6 +257,17 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
         // @@请求成功
         this.requestPostWithOk(VALIDATE_POST, integrationConfigMap, plugin.getId());
+
+        // @@校验插件禁用
+        setPluginEnable(addServiceIntegration.getPluginId(), false);
+        assertErrorCode(this.requestPost(VALIDATE_POST, integrationConfigMap, plugin.getId()), PLUGIN_ENABLE);
+        setPluginEnable(addServiceIntegration.getPluginId(), true);
+
+        // @@校验权限
+        setPluginGlobal(addServiceIntegration.getPluginId(), false);
+        assertErrorCode(this.requestPost(VALIDATE_POST, integrationConfigMap, plugin.getId()), PLUGIN_PERMISSION);
+        setPluginGlobal(addServiceIntegration.getPluginId(), true);
+
         // @@校验 NOT_FOUND 异常
         assertErrorCode(this.requestPost(VALIDATE_POST, integrationConfigMap, "1111"), NOT_FOUND);
         // @@校验权限
@@ -243,6 +289,17 @@ public class ServiceIntegrationControllerTests extends BaseTest {
 
     @Test
     public void delete() throws Exception {
+
+        // @@校验插件禁用
+        setPluginEnable(addServiceIntegration.getPluginId(), false);
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, addServiceIntegration.getId()), PLUGIN_ENABLE);
+        setPluginEnable(addServiceIntegration.getPluginId(), true);
+
+        // @@校验权限
+        setPluginGlobal(addServiceIntegration.getPluginId(), false);
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, addServiceIntegration.getId()), PLUGIN_PERMISSION);
+        setPluginGlobal(addServiceIntegration.getPluginId(), true);
+
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addServiceIntegration.getId());
         // 校验请求成功数据
@@ -282,6 +339,20 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         request.setEnable(true);
         request.setCreateUser(ADMIN.name());
         return pluginService.add(request, mockMultipartFile);
+    }
+
+    public void setPluginEnable(String pluginId, boolean enabled) {
+        Plugin plugin = new Plugin();
+        plugin.setId(pluginId);
+        plugin.setEnable(enabled);
+        pluginMapper.updateByPrimaryKeySelective(plugin);
+    }
+
+    public void setPluginGlobal(String pluginId, boolean global) {
+        Plugin plugin = new Plugin();
+        plugin.setId(pluginId);
+        plugin.setGlobal(global);
+        pluginMapper.updateByPrimaryKeySelective(plugin);
     }
 
     /**

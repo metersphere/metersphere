@@ -3,6 +3,7 @@ package io.metersphere.system.service;
 import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.api.Platform;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.service.BasePluginService;
 import io.metersphere.sdk.service.PlatformPluginService;
 import io.metersphere.sdk.service.PluginLoadService;
 import io.metersphere.sdk.util.BeanUtils;
@@ -41,6 +42,8 @@ public class ServiceIntegrationService {
     @Resource
     private PlatformPluginService platformPluginService;
     @Resource
+    private BasePluginService basePluginService;
+    @Resource
     private PluginService pluginService;
 
     public static final String PLUGIN_IMAGE_GET_PATH = "/plugin/image/%s?imagePath=%s";
@@ -50,7 +53,7 @@ public class ServiceIntegrationService {
         Map<String, ServiceIntegration> serviceIntegrationMap = getServiceIntegrationByOrgId(organizationId).stream()
                 .collect(Collectors.toMap(ServiceIntegration::getPluginId, i -> i));
 
-        List<Plugin> plugins = platformPluginService.getPlatformPlugins();
+        List<Plugin> plugins = platformPluginService.getOrgEnabledPlatformPlugins(organizationId);
         return plugins.stream().map(plugin -> {
             AbstractPlatformPlugin msPluginInstance = pluginLoadService.getPlatformPluginInstance(plugin.getId());
             // 获取插件基础信息
@@ -81,6 +84,7 @@ public class ServiceIntegrationService {
     }
 
     public ServiceIntegration add(ServiceIntegrationUpdateRequest request) {
+        basePluginService.checkPluginEnableAndPermission(request.getPluginId(), request.getOrganizationId());
         ServiceIntegration serviceIntegration = new ServiceIntegration();
         BeanUtils.copyBean(serviceIntegration, request);
         serviceIntegration.setId(UUID.randomUUID().toString());
@@ -91,6 +95,7 @@ public class ServiceIntegrationService {
     }
 
     public ServiceIntegration update(ServiceIntegrationUpdateRequest request) {
+        basePluginService.checkPluginEnableAndPermission(request.getPluginId(), request.getOrganizationId());
         checkResourceExist(request.getId());
         ServiceIntegration serviceIntegration = new ServiceIntegration();
         // 组织不能修改
@@ -109,6 +114,8 @@ public class ServiceIntegrationService {
 
     public void delete(String id) {
         checkResourceExist(id);
+        ServiceIntegration serviceIntegration = serviceIntegrationMapper.selectByPrimaryKey(id);
+        basePluginService.checkPluginEnableAndPermission(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId());
         serviceIntegrationMapper.deleteByPrimaryKey(id);
     }
 
@@ -129,13 +136,15 @@ public class ServiceIntegrationService {
     }
 
     public void validate(String id) {
-        ServiceIntegration serviceIntegration = checkResourceExist(id);;
-        Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), StringUtils.EMPTY);
+        ServiceIntegration serviceIntegration = checkResourceExist(id);
+        Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId());
         platform.validateIntegrationConfig();
     }
 
     public ServiceIntegration get(String id) {
-        return serviceIntegrationMapper.selectByPrimaryKey(id);
+        ServiceIntegration serviceIntegration = serviceIntegrationMapper.selectByPrimaryKey(id);
+        basePluginService.checkPluginEnableAndPermission(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId());
+        return serviceIntegration;
     }
 
     public Object getPluginScript(String pluginId) {
