@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, useAttrs, watch } from 'vue';
+  import { ref, useAttrs, watch, watchEffect } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
@@ -94,12 +94,22 @@
 
   // 单独的开关
   const switchEnable = ref<boolean>(false);
-  const dialogVisible = ref<boolean>(props.visible);
+  const dialogVisible = ref<boolean>(false);
+
+  watchEffect(() => {
+    dialogVisible.value = props.visible;
+  });
 
   watch(
     () => props.visible,
     (val) => {
       dialogVisible.value = val;
+    }
+  );
+  watch(
+    () => dialogVisible.value,
+    (val) => {
+      emits('update:visible', val);
     }
   );
 

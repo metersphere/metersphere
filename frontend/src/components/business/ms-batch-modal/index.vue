@@ -3,33 +3,28 @@
     <template #title>
       {{ batchTitle }}
       <div class="text-[var(--color-text-4)]">
-        {{ t('msbatchmodal.batchModalSubTitle', { count: props.tableSelected.length }) }}
+        {{ t('msBatchModal.batchModalSubTitle', { count: props.tableSelected.length }) }}
       </div>
     </template>
-    <a-alert v-if="props.action === 'batchAddProject'" class="mb-[16px]">
-      {{ t('msbatchmodal.batchModalTip') }}
-    </a-alert>
-    <a-transfer
-      v-model="target"
-      :title="[t('msbatchmodal.batchOptional'), t('msbatchmodal.batchChosen')]"
-      :data="transferData"
-      show-search
-    >
-      <template #source="{ data, selectedKeys, onSelect }">
-        <a-tree
-          :checkable="true"
-          checked-strategy="child"
-          :checked-keys="selectedKeys"
-          :data="getTreeData(data)"
-          block-node
-          @check="onSelect"
-        />
-      </template>
-    </a-transfer>
+    <a-spin :loading="loading">
+      <a-alert v-if="props.action === 'batchAddProject'" class="mb-[16px]">
+        {{ t('msBatchModal.batchModalTip') }}
+      </a-alert>
+      <MsTransfer
+        v-model="target"
+        :data="treeList"
+        :tree-filed="{
+          key: 'id',
+          title: 'name',
+          children: 'children',
+          disabled: 'disabled',
+        }"
+      />
+    </a-spin>
     <template #footer>
-      <a-button type="secondary" @click="cancelBatch">{{ t('msbatchmodal.batchModalCancel') }}</a-button>
-      <a-button type="primary" :loading="batchLoading" @click="confirmBatch">
-        {{ t('msbatchmodal.batchModalConfirm') }}
+      <a-button type="secondary" @click="cancelBatch">{{ t('msBatchModal.batchModalCancel') }}</a-button>
+      <a-button type="primary" :loading="batchLoading" :disabled="target.length < 1" @click="confirmBatch">
+        {{ t('msBatchModal.batchModalConfirm') }}
       </a-button>
     </template>
   </a-modal>
@@ -40,6 +35,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { Message } from '@arco-design/web-vue';
   import type { BatchModel } from './types';
+  import MsTransfer from '@/components/pure/ms-transfer/index.vue';
 
   const { t } = useI18n();
 
@@ -49,18 +45,11 @@
     children?: TreeDataItem[];
   }
 
-  interface TransferDataItem {
-    value: string;
-    label: string;
-    disabled: boolean;
-  }
-
   const props = withDefaults(
     defineProps<{
       tableSelected: (string | number)[];
       visible: boolean;
       action: string;
-      treeData: TreeDataItem[];
     }>(),
     {
       visible: false,
@@ -70,7 +59,7 @@
     (e: 'update:visible', val: boolean): void;
     (e: 'addProject', targetValue: string[], type: string): void;
     (e: 'addUserGroup', targetValue: string[], type: string): void;
-    (e: 'addOrgnization', targetValue: string[], type: string): void;
+    (e: 'addOrganization', targetValue: string[], type: string): void;
   }>();
 
   const showBatchModal = ref(false);
@@ -78,6 +67,7 @@
   const batchTitle = ref('');
   const target = ref<string[]>([]);
   const treeList = ref<TreeDataItem[]>([]);
+  const loading = ref<boolean>(false);
 
   function handleTableBatch(action: string) {
     switch (action) {
@@ -115,78 +105,38 @@
     }
   );
 
-  /**
-   * 获取穿梭框数据，根据树结构获取
-   * @param _treeData 树结构
-   * @param transferDataSource 穿梭框数组
-   */
-  const getTransferData = (_treeData: TreeDataItem[], transferDataSource: TransferDataItem[]) => {
-    _treeData.forEach((item) => {
-      if (item.children) getTransferData(item.children, transferDataSource);
-      else transferDataSource.push({ label: item.title, value: item.key, disabled: false });
-    });
-    return transferDataSource;
-  };
-
-  /**
-   * 获取树结构数据，根据穿梭框过滤的数据获取
-   */
-  const getTreeData = (data: TransferDataItem[]) => {
-    const values = data.map((item) => item.value);
-
-    const travel = (_treeData: TreeDataItem[]) => {
-      const treeDataSource: TreeDataItem[] = [];
-      _treeData.forEach((item) => {
-        // 需要判断当前父节点下的子节点是否全部选中，若选中则不会 push 进穿梭框数组内，否则会出现空的节点无法选中
-        const allSelected = item.children?.every((child) => target.value.includes(child.key));
-        if (!allSelected && (item.children || values.includes(item.key))) {
-          treeDataSource.push({
-            title: item.title,
-            key: item.key,
-            children: item.children ? travel(item.children) : [],
-          });
-        }
-      });
-      return treeDataSource;
-    };
-
-    return travel(treeList.value);
-  };
-  let transferData: TransferDataItem[] = [];
-
   function cancelBatch() {
     showBatchModal.value = false;
     target.value = [];
   }
+
   const batchRequestFun = async (reqFun: any, params: BatchModel) => {
     batchLoading.value = true;
+    loading.value = true;
     try {
       await reqFun(params);
-      Message.success(t('organization.member.batchModalSuccess'));
+      Message.success(t('msBatchModal.batchModalSuccess'));
       showBatchModal.value = false;
       target.value = [];
     } catch (error) {
       console.log(error);
     } finally {
       batchLoading.value = false;
+      loading.value = false;
     }
   };
 
   const confirmBatch = async () => {
-    batchLoading.value = true;
-    if (target.value.length < 1) {
-      return;
-    }
     try {
       switch (props.action) {
         case 'batchAddProject':
           emit('addProject', target.value, 'project');
           break;
         case 'batchAddUserGroup':
-          emit('addUserGroup', target.value, 'usergroup');
+          emit('addUserGroup', target.value, 'userGroup');
           break;
         case 'batchAddOrganization':
-          emit('addOrgnization', target.value, 'orgnization');
+          emit('addOrganization', target.value, 'organization');
           break;
         default:
           break;
@@ -195,17 +145,21 @@
       console.log(error);
     }
   };
-  watch(
-    () => props.treeData,
-    (newVal) => {
-      treeList.value = newVal;
-      transferData = getTransferData(treeList.value, []);
-    },
-    { deep: true, immediate: true }
-  );
+
+  const getTreeList = async (callBack: (orgId: string) => Promise<any>, orgId: string) => {
+    loading.value = true;
+    try {
+      treeList.value = await callBack(orgId);
+      loading.value = false;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   defineExpose({
     batchLoading,
     batchRequestFun,
+    getTreeList,
   });
 </script>
 
