@@ -116,6 +116,11 @@ class GlobalUserRoleControllerTests extends BaseTest {
         Assertions.assertEquals(request.getType(), userRoleResult.getType());
         Assertions.assertEquals(request.getDescription(), userRoleResult.getDescription());
 
+        // 不修改信息
+        UserRoleUpdateRequest emptyRequest = new UserRoleUpdateRequest();
+        emptyRequest.setId(addUserRole.getId());
+        this.requestPostWithOk(DEFAULT_UPDATE, emptyRequest);
+
         // @@校验日志
         checkLog(request.getId(), OperationLogType.UPDATE);
 

@@ -87,6 +87,10 @@ public class GlobalUserRoleService extends BaseUserRoleService {
     }
 
     public void checkExist(UserRole userRole) {
+        if (StringUtils.isBlank(userRole.getName())) {
+            return;
+        }
+
         UserRoleExample example = new UserRoleExample();
         UserRoleExample.Criteria criteria = example.createCriteria()
                 .andNameEqualTo(userRole.getName())
