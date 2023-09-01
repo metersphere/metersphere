@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.system.mapper.ExtUserMapper">
     <select id="getMemberOption" resultType="io.metersphere.system.dto.UserExtend">
         select distinct u.*, count(urr.id) > 0 as memberFlag
-        from `user` u left join user_role_relation urr on urr.user_id = u.id and urr.source_id = #{sourceId} and u.deleted = 0
+        from `user` u left join user_role_relation urr on urr.user_id = u.id and urr.source_id = #{sourceId}
         where u.deleted = 0
         group by u.id
     </select>

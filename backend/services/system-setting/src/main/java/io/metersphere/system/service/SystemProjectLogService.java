@@ -3,6 +3,7 @@ package io.metersphere.system.service;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
@@ -27,8 +28,8 @@ public class SystemProjectLogService {
      */
     public LogDTO addLog(AddProjectRequest project) {
         LogDTO dto = new LogDTO(
-                project.getId(),
-                project.getOrganizationId(),
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
                 null,
                 null,
                 OperationLogType.ADD.name(),
@@ -47,8 +48,8 @@ public class SystemProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(request.getId());
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    project.getId(),
-                    project.getOrganizationId(),
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
@@ -65,8 +66,8 @@ public class SystemProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(id);
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    project.getId(),
-                    project.getOrganizationId(),
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
@@ -91,8 +92,8 @@ public class SystemProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(id);
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    project.getId(),
-                    project.getOrganizationId(),
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     id,
                     project.getCreateUser(),
                     OperationLogType.DELETE.name(),
@@ -114,8 +115,8 @@ public class SystemProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(id);
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    project.getId(),
-                    project.getOrganizationId(),
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     id,
                     null,
                     OperationLogType.RECOVER.name(),
