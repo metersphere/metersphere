@@ -60,9 +60,6 @@ public class ServiceIntegrationLogService {
 
     public LogDTO deleteLog(String id) {
         ServiceIntegration serviceIntegration = serviceIntegrationService.get(id);
-        if (serviceIntegration == null) {
-            return null;
-        }
         LogDTO dto = new LogDTO(
                 OperationLogConstants.ORGANIZATION,
                 null,
