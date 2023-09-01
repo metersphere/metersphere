@@ -179,21 +179,16 @@ export default {
         });
       }
     },
-    handleSelectionChange(selection, row) {
-      if (this.selectIds.has(row.id)) {
-        this.selectIds.delete(row.id);
-        for (let i = 0; i < this.selectFiles.length - 1; i++) {
-          if (this.selectFiles[i].id === row.id) {
-            this.selectFiles.splice(i, 1);
-          }
-        }
-      } else {
-        if (!this.selectIds.has(row.id)) {
+    handleSelectionChange(selection, clickRow) {
+      this.selectIds = new Set;
+      this.selectFiles = [];
+      if (selection.length != 0) {
+        selection.forEach(row => {
           this.selectIds.add(row.id);
-        }
-        if (this.selectFiles.filter(f => f.id === row.id).length === 0) {
-          this.selectFiles.push(row);
-        }
+          if (this.selectFiles.filter(f => f.id === row.id).length === 0) {
+            this.selectFiles.push(row);
+          }
+        })
       }
     },
     getProjectFiles() {

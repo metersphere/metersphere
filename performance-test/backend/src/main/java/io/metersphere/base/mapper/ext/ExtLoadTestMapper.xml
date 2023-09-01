@@ -369,11 +369,15 @@
     <select id="getProjectFiles" resultType="io.metersphere.base.domain.FileMetadata">
         SELECT file_metadata.*
         FROM file_metadata
-        WHERE file_metadata.type IN
-        <foreach collection="loadTypes" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-        AND project_id = #{projectId,jdbcType=VARCHAR}
+        WHERE
+        project_id = #{projectId,jdbcType=VARCHAR}
+        <if test="loadTypes != null and loadTypes.size() > 0">
+            AND file_metadata.type IN
+            <foreach collection="loadTypes" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+
         <if test="request.name != null">
             AND file_metadata.name LIKE CONCAT('%', #{request.name}, '%')
         </if>
