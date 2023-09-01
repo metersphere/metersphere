@@ -1,8 +1,8 @@
 package io.metersphere.sdk.mapper;
 
-import io.metersphere.sdk.dto.ExcludeOptionDTO;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.sdk.dto.UserExcludeOptionDTO;
 import io.metersphere.system.domain.User;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,9 +31,7 @@ public interface BaseUserMapper {
 
     List<OptionDTO> selectUserOptionByIds(List<String> userIds);
 
-    List<ExcludeOptionDTO> getExcludeSelectOption();
+    List<UserExcludeOptionDTO> getExcludeSelectOptionWithLimit(@Param("keyword") String keyword);
 
     List<OptionDTO> getSelectOptionByIdsWithDeleted(List<String> ids);
-
-    List<OptionDTO> getSelectOptionWithDeleted();
 }

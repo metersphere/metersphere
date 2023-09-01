@@ -3,7 +3,7 @@ package io.metersphere.system.controller;
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserRoleScope;
-import io.metersphere.sdk.dto.ExcludeOptionDTO;
+import io.metersphere.sdk.dto.UserExcludeOptionDTO;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -22,6 +22,7 @@ import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -155,8 +156,20 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         // @@正常请求
         MvcResult mvcResult = this.requestGetWithOkAndReturn(USER_OPTION, ADMIN.getValue());
         // 校验请求数据
-        List<ExcludeOptionDTO> options = getResultDataArray(mvcResult, ExcludeOptionDTO.class);
-        List<ExcludeOptionDTO> excludeSelectOption = baseUserService.getExcludeSelectOption();
+        assertSelectOptionResult(mvcResult, null);
+
+        // 校验检索
+        String keyword = "a";
+        MvcResult searchMvcResult = this.requestGetWithOkAndReturn(USER_OPTION + "?keyword={1}", ADMIN.getValue(), keyword);
+        assertSelectOptionResult(searchMvcResult, keyword);
+
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(USER_OPTION, "111"), NOT_FOUND);
+    }
+
+    private void assertSelectOptionResult(MvcResult mvcResult, String keyword) throws Exception {
+        List<UserExcludeOptionDTO> options = getResultDataArray(mvcResult, UserExcludeOptionDTO.class);
+        List<UserExcludeOptionDTO> excludeSelectOption = baseUserService.getExcludeSelectOptionWithLimit(keyword);
         Set<String> excludeUserIds = baseUserRoleRelationMapper.getUserIdByRoleId(ADMIN.getValue())
                 .stream()
                 .collect(Collectors.toSet());
@@ -174,8 +187,11 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
             Assertions.assertTrue(item.getExclude() == excludeUserIds.contains(item.getId()));
         });
 
-        // @@校验 NOT_FOUND 异常
-        assertErrorCode(this.requestGet(USER_OPTION, "111"), NOT_FOUND);
+        // 校验检索
+        if (StringUtils.isNotBlank(keyword)) {
+            Assertions.assertTrue(options.stream().anyMatch(item -> StringUtils.containsIgnoreCase(item.getName(), keyword)
+                    || StringUtils.containsIgnoreCase(item.getEmail(), keyword)));
+        }
     }
 
     @Test

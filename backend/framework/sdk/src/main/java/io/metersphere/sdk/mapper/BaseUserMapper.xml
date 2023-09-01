@@ -93,10 +93,14 @@
             #{id}
         </foreach>
     </select>
-    <select id="getExcludeSelectOption" resultType="io.metersphere.sdk.dto.ExcludeOptionDTO">
-        select id, name
+    <select id="getExcludeSelectOptionWithLimit" resultType="io.metersphere.sdk.dto.UserExcludeOptionDTO">
+        select id, name, email
         from user
         where deleted = 0
+        <if test="keyword != null and keyword != ''">
+            and (name LIKE CONCAT('%', #{keyword}, '%') or email like CONCAT('%', #{keyword}, '%'))
+        </if>
+        limit 100
     </select>
     <select id="getSelectOptionByIdsWithDeleted" resultType="io.metersphere.sdk.dto.OptionDTO">
         SELECT id, name
@@ -106,9 +110,5 @@
                  open="(" close=")" separator=",">
             #{id}
         </foreach>
-    </select>
-    <select id="getSelectOptionWithDeleted" resultType="io.metersphere.sdk.dto.OptionDTO">
-        select id, name
-        from user
     </select>
 </mapper>
