@@ -1,7 +1,7 @@
 <template>
   <MsBaseTable v-bind="propsRes" v-on="propsEvent">
     <template #name="{ record }">
-      <span class="one-text-line">{{ record.name }}</span>
+      <span class="one-line-text">{{ record.name }}</span>
       <a-tooltip background-color="#FFFFFF">
         <template #content>
           <span class="text-[var(--color-text-1)]">{{ t('system.project.revokeDeleteToolTip') }}</span>
@@ -36,7 +36,6 @@
     :current-project="currentUpdateProject"
     :visible="addProjectVisible"
     @cancel="handleAddProjectModalCancel"
-    @submit="fetchData"
   />
   <AddUserModal
     :project-id="currentProjectId"
@@ -266,7 +265,10 @@
   const handleAddUserModalCancel = () => {
     userVisible.value = false;
   };
-  const handleAddProjectModalCancel = () => {
+  const handleAddProjectModalCancel = (shouldSearch: boolean) => {
+    if (shouldSearch) {
+      fetchData();
+    }
     addProjectVisible.value = false;
   };
 
