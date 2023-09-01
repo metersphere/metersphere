@@ -4,10 +4,8 @@
       ><a-button class="mr-3" type="primary" @click="addMember">{{ t('project.member.addMember') }}</a-button></div
     >
     <div>
-      <a-select v-model="searchParams.userId">
-        <a-option v-for="item of userGroupListOptions" :key="item.value" :value="item.value">{{
-          t(item.name)
-        }}</a-option>
+      <a-select v-model="roleIds" allow-search @change="changeSelect">
+        <a-option v-for="item of userGroupAll" :key="item.id" :value="item.id">{{ t(item.name) }}</a-option>
         <template #prefix
           ><span>{{ t('project.member.tableColumnUserGroup') }}</span></template
         >
@@ -15,6 +13,7 @@
     >
     <div>
       <a-input-search
+        v-model="searchParams.keyword"
         :max-length="250"
         :placeholder="t('project.member.searchMember')"
         allow-clear
@@ -31,25 +30,33 @@
     @batch-action="handleTableBatch"
   >
     <template #userRole="{ record }">
-      <a-tooltip :content="(record.userRoleIdNameMap||[]).map((e: any) => e.name).join(',')">
+      <a-tooltip :content="(record.userRoles||[]).map((e: any) => e.name).join(',')">
         <div v-if="!record.showUserSelect">
           <a-tag
-            v-for="org of (record.userRoleIdNameMap || []).slice(0, 3)"
+            v-for="org of (record.userRoles || []).slice(0, 3)"
             :key="org"
             class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
             bordered
+            @click="changeUser(record)"
           >
             {{ org.name }}
           </a-tag>
           <a-tag
-            v-if="record.userRoleIdNameMap.length > 3"
+            v-if="(record.userRoles || []).length > 3"
             class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
             bordered
+            @click="changeUser(record)"
           >
-            +{{ record.userRoleIdNameMap.length - 3 }}
+            +{{ (record.userRoles || []).length - 3 }}
           </a-tag>
         </div>
-        <a-select v-else v-model="record.selectUserList" multiple :max-tag-count="2">
+        <a-select
+          v-else
+          v-model="record.selectUserList"
+          multiple
+          :max-tag-count="2"
+          @popup-visible-change="(value) => userGroupChange(value, record)"
+        >
           <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
         </a-select>
       </a-tooltip>
@@ -69,28 +76,40 @@
         position="br"
         :title="t('project.member.deleteMemberTip', { name: characterLimit(record.name) })"
         :sub-title-tip="t('project.member.subTitle')"
+        @ok="removeMember(record)"
       />
     </template>
   </ms-base-table>
-  <AddMemberModal v-model:visible="addMemberVisible" />
+  <AddMemberModal
+    ref="projectMemberRef"
+    v-model:visible="addMemberVisible"
+    :user-group-options="userGroupOptions"
+    @success="loadList()"
+  />
   <MSBatchModal
     ref="batchModalRef"
     v-model:visible="batchVisible"
     :table-selected="tableSelected"
     :action="batchAction"
-    :tree-data="treeData"
     :select-data="selectData"
     @add-user-group="addUserGroup"
   />
 </template>
 
 <script setup lang="ts">
-  import { ref, onBeforeMount } from 'vue';
+  import { ref, onBeforeMount, onMounted } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
-  import { getMemberList } from '@/api/modules/setting/member';
+  import {
+    getProjectMemberList,
+    getProjectUserGroup,
+    addOrUpdateProjectMember,
+    batchRemoveMember,
+    removeProjectMember,
+    addProjectUserGroup,
+  } from '@/api/modules/project-management/projectMember';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { useTableStore, useUserStore } from '@/store';
   import useModal from '@/hooks/useModal';
@@ -98,27 +117,22 @@
   import { characterLimit } from '@/utils';
   import AddMemberModal from './components/addMemberModal.vue';
   import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
-  import type { ProjectTreeData } from '@/models/projectManagement/projectAndPermission';
+  import { Message } from '@arco-design/web-vue';
+  import type {
+    ProjectTreeData,
+    ProjectUserOption,
+    ActionProjectMember,
+    ProjectMemberItem,
+    SearchParams,
+  } from '@/models/projectManagement/projectAndPermission';
 
   const { t } = useI18n();
   const { openModal } = useModal();
 
   const tableStore = useTableStore();
   const userStore = useUserStore();
-  const lastOrganizationId = userStore?.$state.lastOrganizationId;
+  const lastProjectId = userStore?.$state?.lastProjectId;
 
-  const userGroupListOptions = ref([
-    {
-      id: '',
-      name: '全部',
-      value: '',
-    },
-    {
-      id: '1001',
-      name: '用户组1',
-      value: '1001',
-    },
-  ]);
   const columns: MsTableColumn = [
     {
       title: 'project.member.tableColumnEmail',
@@ -180,7 +194,7 @@
     tableSelected.value = selectArr;
   };
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getMemberList, {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getProjectMemberList, {
     tableKey: TableKeyEnum.PROJECT_MEMBER,
     selectable: true,
     showSetting: true,
@@ -189,19 +203,31 @@
     },
   });
 
+  const searchParams = ref<SearchParams>({
+    filter: {
+      roleIds: [],
+    },
+    projectId: lastProjectId as string,
+    keyword: '',
+  });
+
+  const roleIds = ref<string>('');
   const initData = async () => {
-    setLoadListParams({ organizationId: lastOrganizationId });
+    setLoadListParams({ ...searchParams.value });
     await loadList();
   };
 
-  const searchParams = ref({
-    userId: '',
-  });
+  const searchHandler = () => {
+    initData();
+  };
 
-  const searchHandler = () => {};
+  const changeSelect = () => {
+    searchParams.value.filter.roleIds = roleIds.value ? [roleIds.value] : [];
+    initData();
+  };
 
-  // 批量移除成员
-  const batchRemoveMember = () => {
+  // 批量移除项目成员
+  const batchRemoveHandler = () => {
     openModal({
       type: 'error',
       title: t('project.member.batchRemoveTip', { number: tableSelected.value.length }),
@@ -211,44 +237,128 @@
       okButtonProps: {
         status: 'danger',
       },
-      onBeforeOk: async () => {},
+      onBeforeOk: async () => {
+        try {
+          const params: ActionProjectMember = {
+            projectId: lastProjectId,
+            userIds: tableSelected.value,
+          };
+          await batchRemoveMember(params);
+          Message.success(t('project.member.deleteMemberSuccess'));
+          loadList();
+        } catch (error) {
+          console.log(error);
+        }
+      },
       hideCancel: false,
     });
+  };
+
+  // 移除项目成员
+  const removeMember = async (record: ProjectMemberItem) => {
+    try {
+      if (lastProjectId && record.id) {
+        await removeProjectMember(lastProjectId, record.id);
+        Message.success(t('project.member.deleteMemberSuccess'));
+        loadList();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const batchVisible = ref<boolean>(false);
   const selectData = ref<string[]>([]);
   const batchAction = ref('');
   const treeData = ref<ProjectTreeData[]>([]);
+  const userGroupOptions = ref<ProjectUserOption[]>([]);
+  const batchModalRef = ref();
 
   // 添加到用户组
-  const addUserGroup = () => {};
+  const addUserGroup = async (target: string[]) => {
+    const params = {
+      projectId: lastProjectId,
+      userIds: tableSelected.value,
+      roleIds: target,
+    };
+    try {
+      await batchModalRef.value.batchRequestFun(addProjectUserGroup, params);
+      loadList();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  // 表格批量处理
   const handleTableBatch = (actionItem: any) => {
     if (actionItem.eventTag === 'batchActionRemove') {
-      batchRemoveMember();
+      batchRemoveHandler();
     }
     if (actionItem.eventTag === 'batchAddUserGroup') {
       batchVisible.value = true;
-      addUserGroup();
+      batchAction.value = actionItem.eventTag;
+      batchModalRef.value.getTreeList(getProjectUserGroup, lastProjectId);
     }
   };
 
-  const userGroupOptions = ref([
-    {
-      id: '',
-      name: '',
-    },
-  ]);
-
+  // 添加项目成员
   const addMemberVisible = ref<boolean>(false);
+  const projectMemberRef = ref();
 
   const addMember = () => {
     addMemberVisible.value = true;
+    projectMemberRef.value.initProjectMemberOptions();
   };
 
-  onBeforeMount(() => {
+  // 编辑项目成员
+  const editProjectMember = async (record: ProjectMemberItem) => {
+    const params: ActionProjectMember = {
+      projectId: lastProjectId,
+      userId: record.id,
+      roleIds: record.selectUserList,
+    };
+    try {
+      await addOrUpdateProjectMember(params);
+      Message.success(t('project.member.batchUpdateSuccess'));
+      record.showUserSelect = false;
+      loadList();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 项目用户组改变回调
+  const changeUser = (record: ProjectMemberItem) => {
+    if (record.enable) {
+      record.showUserSelect = true;
+      record.selectUserList = (record.userRoles || []).map((item) => item.id);
+    }
+  };
+
+  // 面板改变的回调
+  const userGroupChange = (visible: boolean, record: ProjectMemberItem) => {
+    if (visible) {
+      return;
+    }
+    if ((record.selectUserList || []).length < 1) {
+      Message.warning(t('project.member.selectUserEmptyTip'));
+      return;
+    }
+    editProjectMember(record);
+  };
+
+  const userGroupAll = ref<ProjectUserOption[]>([]);
+
+  onBeforeMount(async () => {
     initData();
+    userGroupOptions.value = await getProjectUserGroup(lastProjectId as string);
+    userGroupAll.value = [
+      {
+        id: '',
+        name: '全部',
+      },
+      ...userGroupOptions.value,
+    ];
   });
 </script>
 

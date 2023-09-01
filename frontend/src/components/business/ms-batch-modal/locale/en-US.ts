@@ -1,8 +1,10 @@
 export default {
-  'msbatchmodal.batchModalSubTitle': '(Selected {count} users)',
-  'msbatchmodal.batchModalTip': 'Add project member usergroup as member by default',
-  'msbatchmodal.batchOptional': 'Optional',
-  'msbatchmodal.batchChosen': 'Chosen',
-  'msbatchmodal.batchModalCancel': 'Cancel',
-  'msbatchmodal.batchModalConfirm': 'Add',
+  'msBatchModal.batchModalSubTitle': '(Selected {count} users)',
+  'msBatchModal.batchModalTip': 'Add project member userGroup as member by default',
+  'msBatchModal.batchOptional': 'Optional',
+  'msBatchModal.batchChosen': 'Chosen',
+  'msBatchModal.batchModalCancel': 'Cancel',
+  'msBatchModal.batchModalConfirm': 'Add',
+  'msBatchModal.batchModalEmpty': 'The selection can not be empty',
+  'msBatchModal.batchModalSuccess': 'Successfully added',
 };

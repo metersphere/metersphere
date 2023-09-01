@@ -9,8 +9,8 @@
     </MsTableMoreAction>
   </div>
   <div class="project-info mb-6 h-[112px] bg-white p-1">
-    <div class="inner-wrapper p-4">
-      <div class="detail-info flex flex-col justify-between p-4">
+    <div class="inner-wrapper rounded-md p-4">
+      <div class="detail-info flex flex-col justify-between rounded-md p-4">
         <div class="flex items-center">
           <span class="mr-1 font-medium text-[var(--color-text-000)]">具体的项目名称</span>
           <span v-if="!isDelete" class="button enable-button mr-1">{{ t('project.basicInfo.enable') }}</span>
@@ -54,6 +54,10 @@
     {
       label: 'project.basicInfo.edit',
       eventTag: 'edit',
+    },
+    {
+      label: 'project.basicInfo.enable',
+      eventTag: 'enable',
     },
     {
       label: 'project.basicInfo.finish',

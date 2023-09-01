@@ -24,71 +24,52 @@
       @batch-action="handleTableBatch"
     >
       <template #project="{ record }">
-        <a-tooltip :content="(record.projectIdNameMap||[]).map((e: any) => e.name).join(',')">
-          <div v-if="!record.showProjectSelect">
-            <a-tag
-              v-for="pro of (record.projectIdNameMap || []).slice(0, 3)"
-              :key="pro.id"
-              class="mr-[4px] bg-transparent"
-              bordered
-              @click="changeUserOrProject(record, 'project')"
-            >
-              {{ pro.name }}
-            </a-tag>
-            <a-tag
-              v-if="(record.projectIdNameMap || []).length > 3"
-              class="mr-[4px] bg-transparent"
-              bordered
-              @click="changeUserOrProject(record, 'project')"
-            >
-              +{{ (record.projectIdNameMap || []).length - 3 }}
-            </a-tag>
-          </div>
-          <a-select
-            v-else
-            v-model="record.selectProjectList"
-            multiple
-            :max-tag-count="2"
-            size="small"
-            @change="(value) => selectUserOrProject(value, record, 'project')"
-            @popup-visible-change="visibleChange($event, record, 'project')"
-          >
-            <a-option v-for="item of projectOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-          </a-select>
-        </a-tooltip>
+        <MsTagGroup
+          v-if="!record.showProjectSelect"
+          :tag-list="record.projectIdNameMap || []"
+          :show-num="2"
+          theme="outline"
+          @click="changeUserOrProject(record, 'project')"
+        >
+          <template #default="{ tag }">
+            {{ tag.name }}
+          </template>
+        </MsTagGroup>
+        <a-select
+          v-else
+          v-model="record.selectProjectList"
+          multiple
+          :max-tag-count="2"
+          size="small"
+          @change="(value) => selectUserOrProject(value, record, 'project')"
+          @popup-visible-change="visibleChange($event, record, 'project')"
+        >
+          <a-option v-for="item of projectOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+        </a-select>
       </template>
       <template #userRole="{ record }">
-        <a-tooltip :content="(record.userRoleIdNameMap||[]).map((e: any) => e.name).join(',')">
-          <div v-if="!record.showUserSelect">
-            <a-tag
-              v-for="org of (record.userRoleIdNameMap || []).slice(0, 3)"
-              :key="org"
-              class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-              bordered
-              @click="changeUserOrProject(record, 'user')"
-            >
-              {{ org.name }}
-            </a-tag>
-            <a-tag
-              v-if="record.userRoleIdNameMap.length > 3"
-              class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-              bordered
-              @click="changeUserOrProject(record, 'user')"
-            >
-              +{{ record.userRoleIdNameMap.length - 3 }}
-            </a-tag>
-          </div>
-          <a-select
-            v-else
-            v-model="record.selectUserList"
-            multiple
-            :max-tag-count="2"
-            @change="(value) => selectUserOrProject(value, record, 'user')"
-            @popup-visible-change="(value) => visibleChange(value, record, 'user')"
-          >
-            <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-          </a-select>
-        </a-tooltip>
+        <MsTagGroup
+          v-if="!record.showUserSelect"
+          :tag-list="record.userRoleIdNameMap || []"
+          :show-num="2"
+          type="primary"
+          theme="outline"
+          @click="changeUserOrProject(record, 'user')"
+        >
+          <template #default="{ tag }">
+            {{ tag.name }}
+          </template>
+        </MsTagGroup>
+        <a-select
+          v-else
+          v-model="record.selectUserList"
+          multiple
+          :max-tag-count="2"
+          @change="(value) => selectUserOrProject(value, record, 'user')"
+          @popup-visible-change="(value) => visibleChange(value, record, 'user')"
+        >
+          <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+        </a-select>
       </template>
       <template #enable="{ record }">
         <div v-if="record.enable" class="flex items-center">
@@ -119,12 +100,10 @@
     @success="initData()"
   />
   <MSBatchModal
-    v-if="treeData.length > 0"
     ref="batchModalRef"
     v-model:visible="showBatchModal"
     :table-selected="tableSelected"
     :action="batchAction"
-    :tree-data="treeData"
     :select-data="selectData"
     @add-project="addProjectOrAddUserGroup"
     @add-user-group="addProjectOrAddUserGroup"
@@ -154,19 +133,14 @@
   import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import { useTableStore, useUserStore } from '@/store';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import type {
-    MemberItem,
-    AddorUpdateMemberModel,
-    LinkList,
-    LinkItem,
-    BatchAddProjectModel,
-  } from '@/models/setting/member';
+  import type { MemberItem, AddorUpdateMemberModel, LinkList, BatchAddProjectModel } from '@/models/setting/member';
   import { characterLimit } from '@/utils';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
 
   const tableStore = useTableStore();
   const { t } = useI18n();
   const userStore = useUserStore();
-  const lastOrganizationId = userStore.$state?.lastOrganizationId as string;
+  const lastOrganizationId = userStore.$state?.lastOrganizationId;
 
   const columns: MsTableColumn = [
     {
@@ -237,13 +211,6 @@
   const tableSelected = ref<(string | number)[]>([]);
   const selectData = ref<string[]>([]);
 
-  interface TreeDataItem {
-    key: string;
-    title: string;
-    children?: TreeDataItem[];
-  }
-  const batchAction = ref('');
-
   const initData = async () => {
     setLoadListParams({ keyword: keyword.value, organizationId: lastOrganizationId });
     await loadList();
@@ -264,7 +231,7 @@
   };
   const deleteMember = async (record: MemberItem) => {
     try {
-      await deleteMemberReq(lastOrganizationId, record.id);
+      if (lastOrganizationId) await deleteMemberReq(lastOrganizationId, record.id);
       Message.success(t('organization.member.deleteMemberSuccess'));
       initData();
     } catch (error) {
@@ -275,23 +242,12 @@
     tableSelected.value = selectArr;
   };
 
-  const treeData = ref<TreeDataItem[]>([]);
-  const getData = async (callBack: any) => {
-    try {
-      const links = await callBack(lastOrganizationId);
-      treeData.value = links.map((item: LinkItem) => {
-        return {
-          title: item.name,
-          key: item.id,
-          id: item.id,
-        };
-      });
-    } catch (error) {
-      console.log(error);
-    }
+  const batchModalRef = ref();
+
+  const getData = (callBack: any) => {
+    batchModalRef.value.getTreeList(callBack, lastOrganizationId);
   };
 
-  const batchModalRef = ref();
   const showBatchModal = ref(false);
 
   const batchList = [
@@ -300,10 +256,13 @@
       request: batchAddProject,
     },
     {
-      type: 'usergroup',
+      type: 'userGroup',
       request: batchAddUserGroup,
     },
   ];
+
+  const batchAction = ref('');
+
   // 添加到项目和用户组
   const addProjectOrAddUserGroup = async (target: string[], type: string) => {
     const currentType = batchList.find((item) => item.type === type);
@@ -322,7 +281,6 @@
   // 批量操作
   const handleTableBatch = (actionItem: any) => {
     showBatchModal.value = true;
-    treeData.value = [];
     batchAction.value = actionItem.eventTag;
     if (actionItem.eventTag === 'batchAddProject') getData(getProjectList);
     if (actionItem.eventTag === 'batchAddUserGroup') getData(getGlobalUserGroup);
@@ -383,8 +341,10 @@
   const userGroupOptions = ref<LinkList>([]);
   const projectOptions = ref<LinkList>([]);
   const getLinkList = async () => {
-    userGroupOptions.value = await getGlobalUserGroup(lastOrganizationId);
-    projectOptions.value = await getProjectList(lastOrganizationId);
+    if (lastOrganizationId) {
+      userGroupOptions.value = await getGlobalUserGroup(lastOrganizationId);
+      projectOptions.value = await getProjectList(lastOrganizationId);
+    }
   };
   onBeforeMount(() => {
     initData();
