@@ -72,6 +72,31 @@
               </template>
               <template v-else-if="item.showTooltip">
                 <a-tooltip placement="top" :content="record[item.dataIndex as string]">
+                  <div class="flex flex-row flex-nowrap items-center">
+                    <a-input
+                      v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
+                      ref="currentInputRef"
+                      v-model="record[item.dataIndex as string]"
+                      @blur="handleEditInputBlur()"
+                      @press-enter="handleEditInputEnter(record)"
+                    />
+                    <template v-else>
+                      <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                        <div class="one-line-text">{{ record[item.dataIndex as string] || '-' }}</div>
+                      </slot>
+                      <MsIcon
+                        v-if="item.editable && item.dataIndex === editKey && !record.deleted"
+                        class="ml-2 cursor-pointer"
+                        :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
+                        type="icon-icon_edit_outlined"
+                        @click="handleEdit(rowIndex)"
+                      />
+                    </template>
+                  </div>
+                </a-tooltip>
+              </template>
+              <template v-else>
+                <div class="flex flex-row flex-nowrap items-center">
                   <a-input
                     v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
                     ref="currentInputRef"
@@ -79,36 +104,19 @@
                     @blur="handleEditInputBlur()"
                     @press-enter="handleEditInputEnter(record)"
                   />
-                  <slot v-else :name="item.slotName" v-bind="{ record, rowIndex, column }">
-                    <span>{{ record[item.dataIndex as string] }}</span>
-                  </slot>
-                  <MsIcon
-                    v-if="item.editable && item.dataIndex === editKey && !record.deleted"
-                    class="ml-2 cursor-pointer"
-                    :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
-                    type="icon-icon_edit_outlined"
-                    @click="handleEdit(rowIndex)"
-                  />
-                </a-tooltip>
-              </template>
-              <template v-else>
-                <a-input
-                  v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
-                  ref="currentInputRef"
-                  v-model="record[item.dataIndex as string]"
-                  @blur="handleEditInputBlur()"
-                  @press-enter="handleEditInputEnter(record)"
-                />
-                <slot v-else :name="item.slotName" v-bind="{ record, rowIndex, column }">
-                  <span>{{ record[item.dataIndex as string] || '-' }}</span>
-                </slot>
-                <MsIcon
-                  v-if="item.editable && item.dataIndex === editKey && !record.deleted"
-                  class="ml-2 cursor-pointer"
-                  :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
-                  type="icon-icon_edit_outlined"
-                  @click="handleEdit(rowIndex)"
-                />
+                  <template v-else>
+                    <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                      <div class="one-line-text max-w-[300px]">{{ record[item.dataIndex as string] || '-' }}</div>
+                    </slot>
+                    <MsIcon
+                      v-if="item.editable && item.dataIndex === editKey && !record.deleted"
+                      class="ml-2 cursor-pointer"
+                      :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
+                      type="icon-icon_edit_outlined"
+                      @click="handleEdit(rowIndex)"
+                    />
+                  </template>
+                </div>
               </template>
             </div>
           </template>

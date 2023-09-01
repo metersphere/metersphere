@@ -51,7 +51,7 @@
         <a-form-item field="description" :label="t('system.organization.description')">
           <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
         </a-form-item>
-        <a-form-item field="module" :label="t('system.organization.description')">
+        <a-form-item field="module" :label="t('system.project.moduleSetting')">
           <a-checkbox-group v-model="form.moduleIds" :options="moduleOption">
             <template #label="{ data }">
               <span>{{ t(data.label) }}</span>
@@ -141,8 +141,17 @@
   watchEffect(() => {
     currentVisible.value = props.visible;
   });
+
+  const formReset = () => {
+    form.name = '';
+    form.userIds = [];
+    form.organizationId = currentOrgId.value;
+    form.description = '';
+    form.enable = true;
+    form.moduleIds = [];
+  };
   const handleCancel = (shouldSearch: boolean) => {
-    formRef.value?.resetFields();
+    formReset();
     emit('cancel', shouldSearch);
   };
 

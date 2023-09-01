@@ -5,7 +5,7 @@
     class="ms-modal-form ms-modal-medium"
     :ok-text="isEdit ? t('common.update') : t('common.create')"
     unmount-on-close
-    @cancel="handleCancel"
+    @cancel="handleCancel(false)"
   >
     <template #title>
       <span v-if="isEdit">
@@ -53,7 +53,7 @@
         <a-form-item field="description" :label="t('system.organization.description')">
           <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
         </a-form-item>
-        <a-form-item field="module" :label="t('system.organization.description')">
+        <a-form-item field="module" :label="t('system.project.moduleSetting')">
           <a-checkbox-group v-model="form.moduleIds" :options="moduleOption">
             <template #label="{ data }">
               <span>{{ t(data.label) }}</span>
@@ -72,7 +72,7 @@
           </a-tooltip>
         </div>
         <div class="flex flex-row gap-[14px]">
-          <a-button type="secondary" :loading="loading" @click="handleCancel">
+          <a-button type="secondary" :loading="loading" @click="handleCancel(false)">
             {{ t('common.cancel') }}
           </a-button>
           <a-button type="primary" :loading="loading" @click="handleBeforeOk">
@@ -119,8 +119,7 @@
   ];
 
   const emit = defineEmits<{
-    (e: 'cancel'): void;
-    (e: 'submit'): void;
+    (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
   const form = reactive<CreateOrUpdateSystemProjectParams>({
@@ -141,9 +140,18 @@
   watchEffect(() => {
     currentVisible.value = props.visible;
   });
-  const handleCancel = () => {
-    formRef.value?.resetFields();
-    emit('cancel');
+
+  const formReset = () => {
+    form.name = '';
+    form.userIds = [];
+    form.organizationId = '';
+    form.description = '';
+    form.enable = true;
+    form.moduleIds = [];
+  };
+  const handleCancel = (shouldSearch: boolean) => {
+    formReset();
+    emit('cancel', shouldSearch);
   };
 
   const handleBeforeOk = async () => {
@@ -160,8 +168,7 @@
             : t('system.organization.createOrganizationSuccess')
         );
 
-        handleCancel();
-        emit('submit');
+        handleCancel(true);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
@@ -192,4 +199,3 @@
     }
   });
 </script>
-@/api/modules/setting/organizationAndProject
