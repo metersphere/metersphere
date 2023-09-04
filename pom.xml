@@ -174,4 +174,10 @@
             </plugin>
         </plugins>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>fit2cloud-public</id>
+            <url>https://repository.fit2cloud.com/content/repositories/fit2cloud-public</url>
+        </repository>
+    </distributionManagement>
 </project>

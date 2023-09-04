@@ -43,8 +43,8 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
-                        mvn install -N -Drevision=${REVISION} --settings ./settings.xml
-                        mvn clean install -Drevision=${REVISION} -pl framework,framework/sdk-parent,framework/sdk-parent/domain,framework/sdk-parent/sdk,framework/sdk-parent/xpack-interface,framework/sdk-parent/jmeter --settings ./settings.xml
+                        mvn deploy -N -Drevision=${REVISION} --settings ./settings.xml
+                        mvn clean deploy -Drevision=${REVISION} -pl framework,framework/sdk-parent,framework/sdk-parent/domain,framework/sdk-parent/sdk,framework/sdk-parent/xpack-interface,framework/sdk-parent/jmeter --settings ./settings.xml
 
                         # 复制前端代码
                         if [ -n "${FRONTEND_LINK}" ]; then
