@@ -341,3 +341,16 @@ CREATE INDEX idx_org_id ON test_resource_pool_organization(`org_id`);
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
+
+-- 用户邀请记录
+CREATE TABLE IF NOT EXISTS user_invite
+(
+    `id`          VARCHAR(50)  NOT NULL COMMENT '用户ID',
+    `email`       VARCHAR(255) NOT NULL COMMENT '邀请邮箱',
+    `roles`       TEXT COMMENT '所属权限',
+    `invite_user` VARCHAR(50)  NOT NULL COMMENT '邀请用户',
+    `invite_time` BIGINT       NOT NULL COMMENT '邀请时间',
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '用户邀请记录';

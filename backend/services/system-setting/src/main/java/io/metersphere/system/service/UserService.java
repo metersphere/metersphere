@@ -1,22 +1,25 @@
 package io.metersphere.system.service;
 
 import com.alibaba.excel.EasyExcelFactory;
+import io.metersphere.sdk.constants.ParamConstants;
+import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.mapper.BaseUserMapper;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.CodingUtil;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserExample;
+import io.metersphere.sdk.notice.sender.impl.MailNoticeSender;
+import io.metersphere.sdk.util.*;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
+import io.metersphere.system.dto.request.UserInviteRequest;
+import io.metersphere.system.dto.request.UserRegisterRequest;
+import io.metersphere.system.dto.response.UserInviteResponse;
 import io.metersphere.system.mapper.ExtUserMapper;
+import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.request.user.UserChangeEnableRequest;
 import io.metersphere.system.request.user.UserEditRequest;
@@ -24,6 +27,8 @@ import io.metersphere.system.response.user.UserImportResponse;
 import io.metersphere.system.response.user.UserTableResponse;
 import io.metersphere.system.utils.UserImportEventListener;
 import jakarta.annotation.Resource;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -34,14 +39,13 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,6 +58,8 @@ public class UserService {
     @Resource
     private ExtUserMapper extUserMapper;
     @Resource
+    private UserInviteService userInviteService;
+    @Resource
     private UserRoleRelationService userRoleRelationService;
     @Resource
     private OperationLogService operationLogService;
@@ -63,28 +69,26 @@ public class UserService {
     private UserRoleService userRoleService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
-
     @Resource
     private UserLogService userLogService;
     @Resource
     private UserToolService userToolService;
 
-    private void validateUserInfo(List<UserCreateInfo> userList) {
+    private void validateUserInfo(List<String> createEmails) {
         //判断参数内是否含有重复邮箱
         List<String> emailList = new ArrayList<>();
         List<String> repeatEmailList = new ArrayList<>();
-        var userInDbMap = baseUserMapper.selectUserIdByEmailList(
-                        userList.stream().map(UserCreateInfo::getEmail).collect(Collectors.toList()))
+        var userInDbMap = baseUserMapper.selectUserIdByEmailList(createEmails)
                 .stream().collect(Collectors.toMap(User::getEmail, User::getId));
-        for (UserCreateInfo user : userList) {
-            if (emailList.contains(user.getEmail())) {
-                repeatEmailList.add(user.getEmail());
+        for (String createEmail : createEmails) {
+            if (emailList.contains(createEmail)) {
+                repeatEmailList.add(createEmail);
             } else {
                 //判断邮箱是否已存在数据库中
-                if (userInDbMap.containsKey(user.getEmail())) {
-                    repeatEmailList.add(user.getEmail());
+                if (userInDbMap.containsKey(createEmail)) {
+                    repeatEmailList.add(createEmail);
                 } else {
-                    emailList.add(user.getEmail());
+                    emailList.add(createEmail);
                 }
             }
         }
@@ -94,7 +98,9 @@ public class UserService {
     }
 
     public UserBatchCreateDTO addUser(UserBatchCreateDTO userCreateDTO, String source, String operator) {
-        this.validateUserInfo(userCreateDTO.getUserInfoList());
+        //检查用户邮箱的合法性
+        this.validateUserInfo(userCreateDTO.getUserInfoList().stream().map(UserCreateInfo::getEmail).collect(Collectors.toList()));
+        //检查用户权限的合法性
         globalUserRoleService.checkRoleIsGlobalAndHaveMember(userCreateDTO.getUserRoleIdList(), true);
         return this.saveUserAndRole(userCreateDTO, source, operator);
     }
@@ -359,5 +365,112 @@ public class UserService {
 
     public List<User> getUserListByOrgId(String organizationId, String keyword) {
         return extUserMapper.getUserListByOrgId(organizationId, keyword);
+    }
+
+    /**
+     * 临时发送Email的方法。
+     *
+     * @param hashMap
+     */
+    @Resource
+    MailNoticeSender mailNoticeSender;
+    @Resource
+    private SystemParameterMapper systemParameterMapper;
+
+    public UserInviteResponse saveInviteRecord(UserInviteRequest request, SessionUser inviteUser) {
+        //校验邮箱和角色的合法性
+        this.validateUserInfo(request.getInviteEmails());
+        globalUserRoleService.checkRoleIsGlobalAndHaveMember(request.getUserRoleIds(), true);
+
+        List<UserInvite> inviteList = userInviteService.batchInsert(request.getInviteEmails(), inviteUser.getId(), request.getUserRoleIds());
+        //记录日志
+        userLogService.addEmailInviteLog(inviteList, inviteUser.getId());
+        this.sendInviteEmail(inviteList, inviteUser.getName());
+        return new UserInviteResponse(inviteList);
+    }
+
+    private void sendInviteEmail(List<UserInvite> inviteList, String inviteUser) {
+        HashMap<String, String> emailMap = new HashMap<>();
+        List<SystemParameter> systemParameters = systemParameterMapper.selectByExample(new SystemParameterExample());
+        systemParameters.forEach(systemParameter -> {
+            if (systemParameter.getParamKey().equals(ParamConstants.MAIL.PASSWORD.getValue())) {
+                if (!StringUtils.isBlank(systemParameter.getParamValue())) {
+                    String string = EncryptUtils.aesDecrypt(systemParameter.getParamValue()).toString();
+                    emailMap.put(systemParameter.getParamKey(), string);
+                }
+            } else {
+                emailMap.put(systemParameter.getParamKey(), systemParameter.getParamValue());
+            }
+        });
+
+        inviteList.forEach(userInvite -> {
+            String emailContent = userInviteService.genInviteMessage(inviteUser, userInvite.getId(), emailMap.get("base.url"));
+            emailMap.put("emailContent", emailContent);
+            emailMap.put("smtp.recipient", userInvite.getEmail());
+            try {
+                this.sendInviteEmailTemporary(emailMap);
+            } catch (Exception e) {
+                LogUtils.error("邮箱邀请失败!", e);
+            }
+        });
+    }
+
+    public void sendInviteEmailTemporary(HashMap<String, String> hashMap) throws Exception {
+        //todo 发送邮件  等小美女的消息通知提交完毕之后删除。
+        JavaMailSenderImpl javaMailSender = null;
+        try {
+            javaMailSender = mailNoticeSender.getMailSender(hashMap);
+            javaMailSender.testConnection();
+        } catch (Exception e) {
+            LogUtils.error(e.getMessage(), e);
+            throw new MSException(Translator.get("connection_failed"));
+        }
+
+        String recipients = hashMap.get(ParamConstants.MAIL.RECIPIENTS.getValue());
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        String username = javaMailSender.getUsername();
+        String email = username;
+        InternetAddress from = new InternetAddress();
+        from.setAddress(email);
+        from.setPersonal(username);
+        helper.setFrom(from);
+        helper.setSubject("MeterSphere邀请注册");
+        helper.setText(hashMap.get("emailContent"), true);
+        helper.setTo(recipients);
+        javaMailSender.send(mimeMessage);
+    }
+
+    public String registerByInvite(UserRegisterRequest request) {
+        UserInvite userInvite = userInviteService.selectEfficientInviteById(request.getInviteId());
+        if (userInvite == null) {
+            throw new MSException(Translator.get("user.not.invite.or.expired"));
+        }
+        //检查邮箱是否已经注册
+        this.validateUserInfo(new ArrayList<>() {{
+            this.add(userInvite.getEmail());
+        }});
+        //创建用户
+        long createTime = System.currentTimeMillis();
+        User user = new User();
+        user.setId(UUID.randomUUID().toString());
+        user.setEmail(userInvite.getEmail());
+        user.setPassword(request.getPassword());
+        user.setName(request.getName());
+        user.setPhone(request.getPhone());
+        user.setCreateUser(userInvite.getInviteUser());
+        user.setUpdateUser(userInvite.getInviteUser());
+        user.setCreateTime(createTime);
+        user.setUpdateTime(createTime);
+        user.setSource(UserSource.LOCAL.name());
+        user.setDeleted(false);
+        userMapper.insertSelective(user);
+
+        userRoleRelationService.batchSave(JSON.parseArray(userInvite.getRoles(), String.class), user);
+        //删除本次邀请记录
+        userInviteService.deleteInviteById(userInvite.getId());
+        //写入操作日志
+        userLogService.addRegisterLog(user, userInvite);
+        return user.getId();
     }
 }

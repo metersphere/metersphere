@@ -294,6 +294,18 @@ public abstract class BaseTest {
                 .orElseThrow(() -> new Exception("日志不存在，请补充操作日志"));
     }
 
+    protected void checkLog(String resourceId, OperationLogType operationLogType, String path) throws Exception {
+        OperationLogExample example = new OperationLogExample();
+        example.createCriteria().andSourceIdEqualTo(resourceId).andTypeEqualTo(operationLogType.name()).andPathEqualTo(path);
+        operationLogMapper.selectByExample(example).stream()
+                .filter(operationLog -> operationLog.getSourceId().equalsIgnoreCase(resourceId))
+                .filter(operationLog -> operationLog.getType().equalsIgnoreCase(operationLogType.name()))
+                .filter(operationLog -> StringUtils.isNotBlank(operationLog.getProjectId()))
+                .filter(operationLog -> StringUtils.isNotBlank(operationLog.getModule()))
+                .findFirst()
+                .orElseThrow(() -> new Exception("[" + path + "]路径下的日志不存在，请补充操作日志"));
+    }
+
     /**
      * Created 分组参数校验
      */

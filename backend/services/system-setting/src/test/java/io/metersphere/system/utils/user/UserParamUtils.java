@@ -4,15 +4,14 @@ import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.UserDTO;
-import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
+import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.request.user.UserEditRequest;
 import io.metersphere.system.response.user.UserImportResponse;
 import io.metersphere.system.response.user.UserSelectOption;
-import io.metersphere.system.service.GlobalUserRoleService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -34,6 +33,18 @@ public class UserParamUtils {
         }
         userMaintainRequest.setUserInfoList(userInfoList);
         return userMaintainRequest;
+    }
+
+    public static UserInviteRequest getUserInviteRequest(
+            List<UserSelectOption> userRoleList,
+            List<String> inviteEmailList) {
+        UserInviteRequest request = new UserInviteRequest();
+        if (CollectionUtils.isNotEmpty(userRoleList)) {
+            request.setUserRoleIds(
+                    userRoleList.stream().map(UserSelectOption::getId).collect(Collectors.toList()));
+        }
+        request.setInviteEmails(inviteEmailList);
+        return request;
     }
 
     public static UserEditRequest getUserUpdateDTO(UserCreateInfo user, List<UserSelectOption> userRoleList) {
