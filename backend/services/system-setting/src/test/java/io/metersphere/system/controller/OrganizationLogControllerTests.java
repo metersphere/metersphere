@@ -40,7 +40,8 @@ public class OrganizationLogControllerTests extends BaseTest {
     @Test
     @Order(2)
     public void testOrganizationUserList() throws Exception {
-        this.requestGetWithOkAndReturn(ORGANIZATION_USER_LIST + "/organization_id_001");
+        String keyword = "o";
+        this.requestGetWithOkAndReturn(ORGANIZATION_USER_LIST+ "/organization_id_001" + "?keyword=" + keyword);
     }
 
 

@@ -16,6 +16,7 @@ import io.metersphere.system.dto.response.OrganizationProjectOptionsResponse;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,8 +63,10 @@ public class OrganizationLogController {
     @GetMapping("/user/list/{organizationId}")
     @Operation(summary = "系统设置-组织-日志-获取用户列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_LOG_READ)
-    public List<User> getLogUserList(@PathVariable(value = "organizationId") String organizationId) {
-        return userService.getUserListByOrgId(organizationId);
+    public List<User> getLogUserList(@PathVariable(value = "organizationId") String organizationId,
+                                     @Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                     @RequestParam(value = "keyword", required = false) String keyword) {
+        return userService.getUserListByOrgId(organizationId,keyword);
     }
 
 

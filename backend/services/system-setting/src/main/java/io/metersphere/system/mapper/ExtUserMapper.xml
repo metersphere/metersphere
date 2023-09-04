@@ -18,6 +18,11 @@
                 LEFT JOIN user_role_relation urr ON u.id = urr.user_id
         WHERE
             urr.source_id = #{sourceId} and u.deleted = false
+        <if test="keyword != null and keyword != ''">
+            and (LOCATE(#{keyword},name)>0 or LOCATE(#{keyword},email)>0)
+        </if>
+        order by u.create_time desc
+        limit 100
     </select>
 
     <select id="selectUserList" resultType="io.metersphere.system.domain.User">

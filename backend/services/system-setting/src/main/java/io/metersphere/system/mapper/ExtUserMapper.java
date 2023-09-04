@@ -10,7 +10,7 @@ public interface ExtUserMapper {
 
     List<UserExtend> getMemberOption(String sourceId);
 
-    List<User> getUserListByOrgId(@Param("sourceId") String sourceId);
+    List<User> getUserListByOrgId(@Param("sourceId") String sourceId, @Param("keyword") String keyword);
 
     List<User> selectUserList(@Param("keyword") String keyword);
 }
