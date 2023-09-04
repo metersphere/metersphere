@@ -357,7 +357,7 @@ public class UserService {
     }
 
 
-    public List<User> getUserListByOrgId(String organizationId) {
-        return extUserMapper.getUserListByOrgId(organizationId);
+    public List<User> getUserListByOrgId(String organizationId, String keyword) {
+        return extUserMapper.getUserListByOrgId(organizationId, keyword);
     }
 }
