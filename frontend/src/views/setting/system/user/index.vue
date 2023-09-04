@@ -268,12 +268,14 @@
       title: 'system.user.tableColumnOrg',
       slotName: 'organization',
       dataIndex: 'organizationList',
+      showTooltip: true,
       showInTable: true,
     },
     {
       title: 'system.user.tableColumnUserGroup',
       slotName: 'userRole',
       dataIndex: 'userRoleList',
+      showTooltip: true,
       showInTable: true,
     },
     {
@@ -297,7 +299,6 @@
     {
       tableKey: TableKeyEnum.SYSTEM_USER,
       columns,
-      scroll: { y: 'auto' },
       selectable: true,
     },
     (record) => ({

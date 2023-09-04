@@ -437,11 +437,27 @@
   );
 
   function searchLog() {
-    const ranges = operateRange.value.map((e) => e);
+    const ranges = operateRange.value.map((e) => {
+      if (typeof e === 'object') {
+        return e.value;
+      }
+      return e;
+    });
+    let projectIds = [];
+    let organizationIds = [];
+
+    if (!MENU_LEVEL.includes(level.value) && typeof operateRange.value[0] === 'object') {
+      if (operateRange.value[0].level === MENU_LEVEL[1]) {
+        organizationIds = ranges;
+      } else if (operateRange.value[0].level === MENU_LEVEL[2]) {
+        projectIds = ranges;
+      }
+    }
+
     setLoadListParams({
       operUser: operUser.value,
-      projectIds: level.value === 'PROJECT' && ranges[0] !== 'PROJECT' ? ranges : [],
-      organizationIds: level.value === 'ORGANIZATION' && ranges[0] !== 'ORGANIZATION' ? ranges : [],
+      projectIds,
+      organizationIds,
       type: type.value,
       module: _module.value,
       content: content.value,

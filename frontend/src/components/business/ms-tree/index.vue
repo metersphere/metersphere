@@ -42,6 +42,14 @@
       </div>
     </template>
   </a-tree>
+  <slot name="empty">
+    <div
+      v-show="treeData.length === 0 && props.emptyText"
+      class="rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[8px] text-[12px] text-[var(--color-text-4)]"
+    >
+      {{ props.emptyText }}
+    </div>
+  </slot>
 </template>
 
 <script setup lang="ts">
@@ -69,6 +77,7 @@
       focusNodeKey?: string | number; // 聚焦的节点 key
       nodeMoreActions?: ActionsItem[]; // 节点展示在省略号按钮内的更多操作
       expandAll?: boolean; // 是否展开/折叠所有节点，true 为全部展开，false 为全部折叠
+      emptyText?: string; // 空数据时的文案
     }>(),
     {
       searchDebounce: 300,
@@ -256,7 +265,7 @@
   watch(
     () => innerFocusNodeKey.value,
     (val) => {
-      if (val) {
+      if (val.toString() !== '') {
         focusEl.value = treeRef.value?.$el.querySelector(`[data-key=${val}]`);
         if (focusEl.value) {
           focusEl.value.style.backgroundColor = 'rgb(var(--primary-1))';
@@ -334,6 +343,7 @@
         .ms-tree-node-extra__btn,
         .ms-tree-node-extra__more {
           padding: 4px;
+          border-radius: var(--border-radius-mini);
           &:hover {
             background-color: rgb(var(--primary-9));
             .arco-icon {
