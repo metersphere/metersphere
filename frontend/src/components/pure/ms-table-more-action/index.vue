@@ -1,8 +1,8 @@
 <template>
-  <a-dropdown trigger="hover" @select="selectHandler">
-    <MsButton>
-      <slot><icon-more /></slot>
-    </MsButton>
+  <a-dropdown :trigger="props.trigger || 'hover'" @select="selectHandler" @popup-visible-change="visibleChange">
+    <slot>
+      <MsButton><icon-more /></MsButton>
+    </slot>
     <template #content>
       <template v-for="item of props.list">
         <a-divider v-if="item.isDivider" :key="`${item.label}-divider`" class="ms-dropdown-divider" />
@@ -21,13 +21,20 @@
   const { t } = useI18n();
   const props = defineProps<{
     list: ActionsItem[];
+    trigger?: 'click' | 'hover' | 'focus' | 'contextMenu' | ('click' | 'hover' | 'focus' | 'contextMenu')[] | undefined;
   }>();
 
-  const emit = defineEmits(['select']);
+  const emit = defineEmits(['select', 'close']);
 
   function selectHandler(value: SelectedValue) {
     const item = props.list.find((e: ActionsItem) => t(e.label || '') === value);
     emit('select', item);
+  }
+
+  function visibleChange(val: boolean) {
+    if (!val) {
+      emit('close');
+    }
   }
 </script>
 

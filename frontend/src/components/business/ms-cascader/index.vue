@@ -261,6 +261,9 @@
           margin: 2px 6px;
           border-radius: 4px;
         }
+        .arco-cascader-option-active {
+          background-color: rgb(var(--primary-1));
+        }
       }
       .arco-cascader-panel-column:first-child {
         .arco-checkbox {

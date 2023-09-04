@@ -204,6 +204,13 @@ export const pathMap = [
           },
         ],
       },
+      {
+        key: 'SETTING_ORGANIZATION_MEMBER', // 项目管理-文件管理
+        locale: 'menu.projectManagement.fileManagement',
+        route: RouteEnum.PROJECT_MANAGEMENT_FILE_MANAGEMENT,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
     ],
   },
 ];

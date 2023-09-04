@@ -8,7 +8,7 @@ export function login(data: LoginData) {
 }
 
 export function isLogin() {
-  return MSR.get<LoginRes>({ url: isLoginUrl });
+  return MSR.get<LoginRes>({ url: isLoginUrl }, { ignoreCancelToken: true });
 }
 
 export function logout() {

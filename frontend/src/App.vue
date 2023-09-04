@@ -1,25 +1,29 @@
 <template>
   <a-config-provider :locale="locale">
     <router-view />
-    <global-setting />
+    <template #empty>
+      <MsEmpty />
+    </template>
+    <!-- <global-setting /> -->
   </a-config-provider>
 </template>
 
 <script lang="ts" setup>
   import { computed, onBeforeMount, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
-  import GlobalSetting from '@/components/pure/global-setting/index.vue';
+  // import GlobalSetting from '@/components/pure/global-setting/index.vue';
   import useLocale from '@/locale/useLocale';
-  import { saveBaseInfo } from '@/api/modules/setting/config';
-  import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
+  import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
-  import { watchStyle, watchTheme, setFavicon } from '@/utils/theme';
+  import { saveBaseInfo } from '@/api/modules/setting/config';
   import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
-  import { useUserStore } from '@/store';
-  import { useRouter } from 'vue-router';
+  import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
+  import { watchStyle, watchTheme, setFavicon } from '@/utils/theme';
   import { WorkbenchRouteEnum } from './enums/routeEnum';
+  import MsEmpty from '@/components/pure/ms-empty/index.vue';
 
   const appStore = useAppStore();
   const userStore = useUserStore();

@@ -1,20 +1,15 @@
 export type ErrorMessageMode = 'none' | 'modal' | 'message' | undefined;
 
 export interface RequestOptions {
-  // 是否需要处理请求结果
-  isTransformResponse?: boolean;
-  // 是否需要返回原生响应头
-  isReturnNativeResponse?: boolean;
+  isTransformResponse?: boolean; // 是否需要处理请求结果
+  isReturnNativeResponse?: boolean; // 是否需要返回原生响应头
   handleError?: boolean;
-  // post请求时，是否使用URLSearchParams
-  joinParamsToUrl?: boolean;
-  // Error message prompt type
-  errorMessageMode?: ErrorMessageMode;
-  // Whether to add a timestamp
-  joinTime?: boolean;
-  ignoreCancelToken?: boolean;
-  // Whether to send token in header
-  withToken?: boolean;
+  joinParamsToUrl?: boolean; // post请求时，是否使用URLSearchParams
+  noErrorTip?: boolean;
+  errorMessageMode?: ErrorMessageMode; // 错误信息提示模式,none不提示
+  joinTime?: boolean; // 是否加入时间戳
+  ignoreCancelToken?: boolean; // 是否不记录取消请求的token，不记录则请求不会被取消；默认为记录，在路由切换时会清除上个页面未完成的请求
+  withToken?: boolean; // 是否携带token
 }
 
 export interface Result<T = any> {

@@ -39,7 +39,7 @@ export function testEmail(data: TestEmailParams) {
 
 // 保存基础信息
 export function saveBaseInfo(data: SaveInfoParams) {
-  return MSR.post({ url: SaveBaseInfoUrl, data });
+  return MSR.post({ url: SaveBaseInfoUrl, data }, { ignoreCancelToken: true });
 }
 
 // 获取基础信息
@@ -64,7 +64,7 @@ export function savePageConfig(data: SavePageConfigParams) {
 
 // 获取界面配置
 export function getPageConfig() {
-  return MSR.get<PageConfigReturns>({ url: GetPageConfigUrl });
+  return MSR.get<PageConfigReturns>({ url: GetPageConfigUrl }, { ignoreCancelToken: true });
 }
 
 // 获取认证源列表

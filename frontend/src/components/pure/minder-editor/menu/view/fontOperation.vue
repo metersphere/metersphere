@@ -225,7 +225,7 @@
   });
 
   function execCommandFontFamily(
-    value: string | number | Record<string, any> | (string | number | Record<string, any>)[]
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     if (value === t('minder.menu.font.font')) {
       return;
@@ -234,7 +234,7 @@
   }
 
   function execCommandFontSize(
-    value: string | number | Record<string, any> | (string | number | Record<string, any>)[]
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     if (typeof value !== 'number') {
       return;

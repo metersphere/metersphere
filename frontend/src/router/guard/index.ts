@@ -2,11 +2,14 @@ import type { Router } from 'vue-router';
 import { setRouteEmitter } from '@/utils/route-listener';
 import setupUserLoginInfoGuard from './userLoginInfo';
 import setupPermissionGuard from './permission';
+import { AxiosCanceler } from '@/api/http/axiosCancel';
 
 function setupPageGuard(router: Router) {
+  const axiosCanceler = new AxiosCanceler();
   router.beforeEach(async (to) => {
     // 监听路由变化
     setRouteEmitter(to);
+    axiosCanceler.removeAllPending();
   });
 }
 
