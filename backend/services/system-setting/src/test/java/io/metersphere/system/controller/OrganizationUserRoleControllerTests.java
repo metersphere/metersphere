@@ -322,7 +322,10 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     @Test
     @Order(15)
     public void testOrganizationUserRoleGetMemberOption() throws Exception {
+        // 组织下存在已删除用户
         this.responseGet(ORGANIZATION_USER_ROLE_GET_MEMBER_OPTION + "/default-organization-2/default-org-role-id-4");
+        // 组织下用户都已删除
+        this.responseGet(ORGANIZATION_USER_ROLE_GET_MEMBER_OPTION + "/default-organization-4/default-org-role-id-3");
         // 组织下无用户
         this.responseGet(ORGANIZATION_USER_ROLE_GET_MEMBER_OPTION + "/default-organization-3/default-org-role-id-3");
     }

@@ -17,3 +17,5 @@ INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id
     (UUID(), 'default-admin-user', 'default-org-role-id-4', 'default-organization-2', 'default-organization-2', UNIX_TIMESTAMP() * 1000, 'admin');
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUE
     (UUID(), 'default-admin-user-x', 'default-org-role-id-4', 'default-organization-2', 'default-organization-2', UNIX_TIMESTAMP() * 1000, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUE
+    (UUID(), 'default-admin-user-x', 'default-org-role-id-3', 'default-organization-4', 'default-organization-4', UNIX_TIMESTAMP() * 1000, 'admin');
