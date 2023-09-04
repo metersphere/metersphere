@@ -6,7 +6,7 @@
     "children": [
       {
         "id": "PROJECT_BASE_INFO",
-        "name": "permission.project.read",
+        "name": "permission.project_base_info.name",
         "permissions": [
           {
             "id": "PROJECT:READ"
