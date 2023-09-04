@@ -118,7 +118,9 @@ public class SystemOrganizationController {
     @Operation(summary = "系统设置-系统-组织与项目-获取成员下拉选项")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ})
     @Parameter(name = "sourceId", description = "组织ID或项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-    public List<UserExtend> getMemberOption(@PathVariable String sourceId) {
-        return userService.getMemberOption(sourceId);
+    public List<UserExtend> getMemberOption(@PathVariable String sourceId,
+                                            @Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                            @RequestParam(value = "keyword", required = false) String keyword) {
+        return userService.getMemberOption(sourceId, keyword);
     }
 }

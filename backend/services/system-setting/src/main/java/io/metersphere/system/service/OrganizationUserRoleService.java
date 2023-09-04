@@ -8,6 +8,7 @@ import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.service.BaseUserRoleService;
+import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
@@ -41,6 +42,8 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     UserMapper userMapper;
     @Resource
     BaseUserMapper baseUserMapper;
+    @Resource
+    BaseUserService baseUserService;
     @Resource
     UserRoleMapper userRoleMapper;
     @Resource
@@ -83,9 +86,6 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
 
     public List<UserExtend> getMember(String organizationId, String roleId) {
         List<UserExtend> userExtends = new ArrayList<>();
-        // 查询所有用户
-        List<User> users = baseUserMapper.findAll();
-        Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
         // 查询组织下所有用户关系
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(organizationId);
@@ -95,17 +95,32 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
                     Collectors.mapping(UserRoleRelation::getRoleId, Collectors.toList())));
             userRoleMap.forEach((k, v) -> {
                 UserExtend userExtend = new UserExtend();
-                User user = userMap.get(k);
-                if (user != null) {
-                    BeanUtils.copyBean(userExtend, user);
-                    v.forEach(roleItem -> {
-                        if (StringUtils.equals(roleItem, roleId)) {
-                            userExtend.setCheckRoleFlag(true);
-                        }
-                    });
-                    userExtends.add(userExtend);
-                }
+                userExtend.setId(k);
+                v.forEach(roleItem -> {
+                    if (StringUtils.equals(roleItem, roleId)) {
+                        // 该用户已存在用户组关系, 设置为选中状态
+                        userExtend.setCheckRoleFlag(true);
+                    }
+                });
+                userExtends.add(userExtend);
             });
+            // 设置用户信息, 用户不存在或者已删除, 则不展示
+            List<String> userIds = userExtends.stream().map(UserExtend::getId).toList();
+            UserExample userExample = new UserExample();
+            userExample.createCriteria().andIdIn(userIds).andDeletedEqualTo(false);
+            List<User> users = userMapper.selectByExample(userExample);
+            if (CollectionUtils.isNotEmpty(users)) {
+                Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
+                userExtends.removeIf(userExtend -> {
+                    if (userMap.containsKey(userExtend.getId())) {
+                        BeanUtils.copyBean(userExtend, userMap.get(userExtend.getId()));
+                        return false;
+                    }
+                    return true;
+                });
+            } else {
+                userExtends.clear();
+            }
         }
         return userExtends;
     }

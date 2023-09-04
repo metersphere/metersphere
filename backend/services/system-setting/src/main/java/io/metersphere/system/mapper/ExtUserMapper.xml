@@ -5,7 +5,11 @@
         select distinct u.*, count(urr.id) > 0 as memberFlag
         from `user` u left join user_role_relation urr on urr.user_id = u.id and urr.source_id = #{sourceId}
         where u.deleted = 0
+        <if test="keyword != null and keyword != ''">
+            and (u.name like concat('%', #{keyword}, '%') or u.email like concat('%', #{keyword}, '%'))
+        </if>
         group by u.id
+        limit 100
     </select>
 
     <select id="getUserListByOrgId" resultType="io.metersphere.system.domain.User">
