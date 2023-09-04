@@ -150,8 +150,9 @@
           </template>
           <a-popconfirm
             v-if="!getIsVisited()"
-            class="ms-pop-confirm"
-            position="br"
+            class="ms-pop-confirm--hidden-cancel"
+            position="bl"
+            popup-container="#typeRadioGroupRef"
             :ok-text="t('system.resourcePool.batchAddTipConfirm')"
             @popup-visible-change="handlePopChange"
           >
@@ -166,10 +167,12 @@
                 {{ t('system.resourcePool.changeAddTypeTip') }}
               </div>
             </template>
-            <a-radio-group v-model:model-value="form.addType" type="button" @change="handleTypeChange">
-              <a-radio value="single">{{ t('system.resourcePool.singleAdd') }}</a-radio>
-              <a-radio value="multiple">{{ t('system.resourcePool.batchAdd') }}</a-radio>
-            </a-radio-group>
+            <div id="typeRadioGroupRef" class="relative">
+              <a-radio-group v-model:model-value="form.addType" type="button" @change="handleTypeChange">
+                <a-radio value="single">{{ t('system.resourcePool.singleAdd') }}</a-radio>
+                <a-radio value="multiple">{{ t('system.resourcePool.batchAdd') }}</a-radio>
+              </a-radio-group>
+            </div>
           </a-popconfirm>
           <a-radio-group v-else v-model:model-value="form.addType" type="button" @change="handleTypeChange">
             <a-radio value="single">{{ t('system.resourcePool.singleAdd') }}</a-radio>

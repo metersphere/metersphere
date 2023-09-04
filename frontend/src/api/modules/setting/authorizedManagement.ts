@@ -3,7 +3,7 @@ import { getLicenseUrl, addLicenseUrl } from '@/api/requrls/setting/authorizedMa
 import type { LicenseInfo } from '@/models/setting/authorizedManagement';
 // 获取当前信息
 export function getLicenseInfo() {
-  return MSR.get<LicenseInfo>({ url: getLicenseUrl });
+  return MSR.get<LicenseInfo>({ url: getLicenseUrl }, { ignoreCancelToken: true });
 }
 // 添加License
 export function addLicense(data: string) {
