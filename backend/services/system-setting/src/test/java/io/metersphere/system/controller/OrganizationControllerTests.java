@@ -244,7 +244,12 @@ public class OrganizationControllerTests extends BaseTest {
     @Test
     @Order(11)
     public void getOrgMemberListSuccess() throws Exception {
-        listByKeyWord("testUserOne", "sys_default_organization_3", false, null, null, false, null, null);
+        OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
+        organizationMemberRequest.setOrganizationId("sys_default_organization_3");
+        organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user3"));
+        organizationMemberRequest.setUserRoleIds(Arrays.asList("sys_default_org_role_id_3"));
+        this.requestPost(ORGANIZATION_LIST_ADD_MEMBER, organizationMemberRequest, status().isOk());
+        listByKeyWord("testUserThree", "sys_default_organization_3", false, null, null, false, null, null);
     }
 
     @Test

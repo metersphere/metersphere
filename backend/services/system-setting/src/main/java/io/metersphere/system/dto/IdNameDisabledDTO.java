@@ -8,10 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class IdNameStructureDTO {
-    @Schema(description =  "选项ID")
-    private String id;
-    @Schema(description =  "选项名称")
-    private String name;
-
+public class IdNameDisabledDTO extends IdNameStructureDTO{
+    @Schema(description =  "是否已经关联过")
+    private Boolean disabled = false;
 }
