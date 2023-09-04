@@ -113,9 +113,4 @@
   });
 </script>
 
-<style scoped lang="less">
-  :deep(.arco-icon) {
-    font-size: 14px;
-    color: var(--color-text-brand);
-  }
-</style>
+<style scoped lang="less"></style>
