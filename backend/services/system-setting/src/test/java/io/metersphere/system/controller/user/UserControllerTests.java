@@ -12,10 +12,15 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
+import io.metersphere.system.domain.UserInvite;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
+import io.metersphere.system.dto.request.UserInviteRequest;
+import io.metersphere.system.dto.request.UserRegisterRequest;
+import io.metersphere.system.dto.response.UserInviteResponse;
+import io.metersphere.system.mapper.UserInviteMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.user.UserChangeEnableRequest;
@@ -66,6 +71,8 @@ public class UserControllerTests extends BaseTest {
     ProjectMapper projectMapper;
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
+    //邀请记录
+    private static final List<String> INVITE_RECORD_ID_LIST = new ArrayList<>();
 
     //失败请求返回编码
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
@@ -81,6 +88,8 @@ public class UserControllerTests extends BaseTest {
     public static final String USER_NONE_ROLE_EMAIL = "tianyang.none.role@163.com";
     //已删除的用户ID
     private static final List<String> DELETED_USER_ID_LIST = new ArrayList<>();
+    @Resource
+    private UserInviteMapper userInviteMapper;
 
     UserRequestUtils userRequestUtils = null;
 
@@ -662,7 +671,7 @@ public class UserControllerTests extends BaseTest {
             UserExample userExample = new UserExample();
             userExample.createCriteria().andIdEqualTo("admin").andPasswordEqualTo(CodingUtil.md5("metersphere"));
             Assertions.assertEquals(1, userMapper.countByExample(userExample));
-            this.checkLog("admin", OperationLogType.UPDATE);
+            this.checkLog("admin", OperationLogType.UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD);
         }
         //重置普通用户密码
         {
@@ -683,7 +692,7 @@ public class UserControllerTests extends BaseTest {
                 UserExample userExample = new UserExample();
                 userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtil.md5(checkUser.getEmail()));
                 Assertions.assertEquals(1, userMapper.countByExample(userExample));
-                this.checkLog(checkUser.getId(), OperationLogType.UPDATE);
+                this.checkLog(checkUser.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD);
             }
         }
         //重置非Admin用户的密码
@@ -707,7 +716,7 @@ public class UserControllerTests extends BaseTest {
                 UserExample userExample = new UserExample();
                 userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtil.md5(checkUser.getEmail()));
                 Assertions.assertEquals(1, userMapper.countByExample(userExample));
-                this.checkLog(checkUser.getId(), OperationLogType.UPDATE);
+                this.checkLog(checkUser.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD);
             }
         }
     }
@@ -732,7 +741,7 @@ public class UserControllerTests extends BaseTest {
         );
         //检查日志
         for (String userID : request.getSelectIds()) {
-            this.checkLog(userID, OperationLogType.ADD);
+            this.checkLog(userID, OperationLogType.UPDATE, UserRequestUtils.URL_USER_ROLE_RELATION);
         }
 
         //测试重复添加用户权限。预期结果：不会额外增加数据
@@ -866,7 +875,7 @@ public class UserControllerTests extends BaseTest {
         }
         //检查日志
         for (String userID : request.getSelectIds()) {
-            this.checkLog(userID, OperationLogType.UPDATE);
+            this.checkLog(userID, OperationLogType.UPDATE, UserRequestUtils.URL_ADD_PROJECT_MEMBER);
         }
         //检查用户表格不会加载出来非全局用户组
         this.testPageSuccess();
@@ -903,7 +912,7 @@ public class UserControllerTests extends BaseTest {
         }
         //检查日志
         for (String userID : request.getSelectIds()) {
-            this.checkLog(userID, OperationLogType.UPDATE);
+            this.checkLog(userID, OperationLogType.UPDATE, UserRequestUtils.URL_ADD_ORGANIZATION_MEMBER);
         }
         //检查用户表格加载组织
         this.testPageSuccess();
@@ -959,13 +968,33 @@ public class UserControllerTests extends BaseTest {
         userRequestUtils.requestPost(UserRequestUtils.URL_ADD_PROJECT_MEMBER, orgRequest, ERROR_REQUEST_MATCHER);
     }
 
+    @Test
+    @Order(12)
+    public void testUserInvite() throws Exception {
+        if (CollectionUtils.isEmpty(USER_LIST)) {
+            this.testAddSuccess();
+        }
+        this.testUserInviteSuccess();
+        this.testUserInviteError();
+    }
+
+    @Test
+    @Order(13)
+    public void testUserRegister() throws Exception {
+        if (CollectionUtils.isEmpty(INVITE_RECORD_ID_LIST)) {
+            this.testUserInvite();
+        }
+        this.testUserRegisterSuccess();
+        this.testUserRegisterError();
+    }
+
     //本测试类中会用到很多次用户数据。所以测试删除的方法放于最后
     @Test
     @Order(99)
     public void testUserDeleteSuccess() throws Exception {
         this.checkUserList();
         //删除USER_LIST用户
-            TableBatchProcessDTO request = new TableBatchProcessDTO();
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
         request.setSelectIds(USER_LIST.stream().map(UserCreateInfo::getId).toList());
             TableBatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(
                     userRequestUtils.responsePost(UserRequestUtils.URL_USER_DELETE, request), TableBatchProcessResponse.class);
@@ -976,6 +1005,8 @@ public class UserControllerTests extends BaseTest {
         for (UserCreateInfo deleteUser : USER_LIST) {
             User user = userMapper.selectByPrimaryKey(deleteUser.getId());
             Assertions.assertTrue(user.getDeleted());
+            //检查日志
+            this.checkLog(deleteUser.getId(), OperationLogType.DELETE, UserRequestUtils.URL_USER_DELETE);
             removeList.add(deleteUser);
         }
         USER_LIST.removeAll(removeList);
@@ -1053,5 +1084,168 @@ public class UserControllerTests extends BaseTest {
             returnList.add(userDTO);
         }
         return returnList;
+    }
+
+    public void testUserInviteSuccess() throws Exception {
+        UserInviteRequest userInviteRequest = UserParamUtils.getUserInviteRequest(
+                USER_ROLE_LIST,
+                new ArrayList<>() {{
+                    add("tianyang.song.invite.1@test.email");
+                    add("tianyang.song.invite.2@test.email");
+                }}
+        );
+        MvcResult mvcResult = userRequestUtils.responsePost(UserRequestUtils.URL_INVITE, userInviteRequest);
+        String resultHolderStr = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(resultHolderStr, ResultHolder.class);
+        UserInviteResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), UserInviteResponse.class);
+        Assertions.assertEquals(2, response.getInviteIds().size());
+        //检查日志  此处日志的资源是邀请的用户，即admin
+        this.checkLog("admin", OperationLogType.ADD, UserRequestUtils.URL_INVITE);
+        INVITE_RECORD_ID_LIST.addAll(response.getInviteIds());
+    }
+
+    public void testUserInviteError() throws Exception {
+        List<String> inviteEmailList = new ArrayList<>() {{
+            add("tianyang.song.invite.error.1@test.email");
+            add("tianyang.song.invite.error.2@test.email");
+        }};
+        //400-用户角色为空
+        UserInviteRequest userInviteRequest = UserParamUtils.getUserInviteRequest(
+                new ArrayList<>(),
+                inviteEmailList
+        );
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE, userInviteRequest, BAD_REQUEST_MATCHER);
+        userInviteRequest.setUserRoleIds(null);
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE, userInviteRequest, BAD_REQUEST_MATCHER);
+
+        //400-邀请用户为空
+        userInviteRequest = UserParamUtils.getUserInviteRequest(
+                USER_ROLE_LIST,
+                new ArrayList<>()
+        );
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE, userInviteRequest, BAD_REQUEST_MATCHER);
+        userInviteRequest.setInviteEmails(null);
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE, userInviteRequest, BAD_REQUEST_MATCHER);
+
+        //400-邀请邮箱又非正确的格式的
+        userInviteRequest = UserParamUtils.getUserInviteRequest(
+                USER_ROLE_LIST,
+                new ArrayList<>() {{
+                    this.addAll(inviteEmailList);
+                    this.add("tianyang.song.invite.error.3");
+                }}
+        );
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE, userInviteRequest, BAD_REQUEST_MATCHER);
+
+        //500-包含无效权限
+        userInviteRequest = UserParamUtils.getUserInviteRequest(
+                USER_ROLE_LIST,
+                inviteEmailList
+        );
+        userInviteRequest.getUserRoleIds().add("none role");
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE, userInviteRequest, ERROR_REQUEST_MATCHER);
+
+        //500-用户邮箱数据内重复
+        userInviteRequest = UserParamUtils.getUserInviteRequest(
+                USER_ROLE_LIST,
+                inviteEmailList
+        );
+        userInviteRequest.getInviteEmails().addAll(inviteEmailList);
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE, userInviteRequest, ERROR_REQUEST_MATCHER);
+
+        //500-用户邮箱在数据库中已存在
+        userInviteRequest = UserParamUtils.getUserInviteRequest(
+                USER_ROLE_LIST,
+                inviteEmailList
+        );
+        userInviteRequest.getInviteEmails().add(USER_LIST.get(0).getEmail());
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE, userInviteRequest, ERROR_REQUEST_MATCHER);
+    }
+
+    private void testUserRegisterSuccess() throws Exception {
+        String inviteId = INVITE_RECORD_ID_LIST.get(0);
+        UserRegisterRequest request = new UserRegisterRequest();
+        request.setInviteId(inviteId);
+        request.setName("建国通过邮箱邀请");
+        request.setPassword(UUID.randomUUID().toString());
+
+        MvcResult mvcResult = userRequestUtils.responsePost(UserRequestUtils.URL_INVITE_REGISTER, request);
+        String resultHolderStr = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(resultHolderStr, ResultHolder.class);
+
+        //检查日志  此处日志的资源是邀请的用户，即admin
+        this.checkLog(resultHolder.getData().toString(), OperationLogType.ADD, UserRequestUtils.URL_INVITE_REGISTER);
+    }
+
+    private void testUserRegisterError() throws Exception {
+        if (INVITE_RECORD_ID_LIST.isEmpty()) {
+            this.testUserInviteSuccess();
+        }
+        String inviteId = INVITE_RECORD_ID_LIST.get(1);
+        //400-用户名为空
+        UserRegisterRequest request = new UserRegisterRequest();
+        request.setInviteId(inviteId);
+        request.setPassword(UUID.randomUUID().toString());
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, BAD_REQUEST_MATCHER);
+        request.setName("");
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, BAD_REQUEST_MATCHER);
+        //400-用户密码为空
+        request = new UserRegisterRequest();
+        request.setInviteId(inviteId);
+        request.setName("建国通过邮箱邀请2");
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, BAD_REQUEST_MATCHER);
+        request.setPassword("");
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, BAD_REQUEST_MATCHER);
+
+        //400-邀请ID为空
+        request = new UserRegisterRequest();
+        request.setName("建国通过邮箱邀请2");
+        request.setPassword(UUID.randomUUID().toString());
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, BAD_REQUEST_MATCHER);
+        request.setInviteId("");
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, BAD_REQUEST_MATCHER);
+
+        //500-邀请ID不存在
+        request = new UserRegisterRequest();
+        request.setInviteId(UUID.randomUUID().toString());
+        request.setName("建国通过邮箱邀请2");
+        request.setPassword(UUID.randomUUID().toString());
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, ERROR_REQUEST_MATCHER);
+
+        //500-邀请ID已过期，且暂未删除
+        UserInvite invite = userInviteMapper.selectByPrimaryKey(inviteId);
+        invite.setInviteTime(invite.getInviteTime() - 1000 * 60 * 60 * 24);
+        userInviteMapper.updateByPrimaryKeySelective(invite);
+
+        request = new UserRegisterRequest();
+        request.setInviteId(inviteId);
+        request.setName("建国通过邮箱邀请2");
+        request.setPassword(UUID.randomUUID().toString());
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, ERROR_REQUEST_MATCHER);
+
+        //500-用户邮箱在用户注册之前已经被注册过了
+        //首先还原邀请时间
+        invite = userInviteMapper.selectByPrimaryKey(inviteId);
+        invite.setInviteTime(System.currentTimeMillis());
+        userInviteMapper.updateByPrimaryKeySelective(invite);
+
+        String insertEmail = invite.getEmail();
+        UserBatchCreateDTO userMaintainRequest = UserParamUtils.getUserCreateDTO(
+                USER_ROLE_LIST,
+                new ArrayList<>() {{
+                    add(new UserCreateInfo() {{
+                        setName(insertEmail);
+                        setEmail(insertEmail);
+                    }});
+                }}
+        );
+        userRequestUtils.responsePost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest);
+
+        //测试
+        request = new UserRegisterRequest();
+        request.setInviteId(inviteId);
+        request.setName("建国通过邮箱邀请2");
+        request.setPassword(UUID.randomUUID().toString());
+        userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, ERROR_REQUEST_MATCHER);
     }
 }
