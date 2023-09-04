@@ -28,6 +28,9 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/sso/callback/**", "anon");
         filterChainDefinitionMap.put("/license/validate", "anon");
         filterChainDefinitionMap.put("/system/version/current", "anon");
+        //用户通过邮箱邀请自行注册的接口
+        filterChainDefinitionMap.put("/system/user/register-by-invite", "anon");
+
 
         // for swagger
         filterChainDefinitionMap.put("/swagger-ui.html", "anon");

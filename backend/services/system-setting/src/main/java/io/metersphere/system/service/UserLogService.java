@@ -141,7 +141,7 @@ public class UserLogService {
                 LogDTO dto = LogDTOBuilder.builder()
                         .projectId(OperationLogConstants.SYSTEM)
                         .organizationId(OperationLogConstants.SYSTEM)
-                        .type(OperationLogType.UPDATE.name())
+                        .type(OperationLogType.DELETE.name())
                         .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
                         .method(HttpMethodConstants.POST.name())
                         .path("/delete")
@@ -205,7 +205,7 @@ public class UserLogService {
                     .sourceId(user.getId())
                     .type(OperationLogType.UPDATE.name())
                     .content(user.getName() + Translator.get("user.add.group") + ":" + roleNames)
-                    .path("/system/user/add-org-member")
+                    .path("/system/user/add/batch/user-role")
                     .method(HttpMethodConstants.POST.name())
                     .modifiedValue(JSON.toJSONBytes(request.getRoleIds()))
                     .build().getLogDTO();
@@ -243,4 +243,41 @@ public class UserLogService {
         operationLogService.batchAdd(logs);
     }
 
+    public void addEmailInviteLog(List<UserInvite> userInviteList, String inviteUserId) {
+        User inviteUser = userMapper.selectByPrimaryKey(inviteUserId);
+        List<LogDTO> saveLogs = new ArrayList<>();
+        userInviteList.forEach(userInvite -> {
+            LogDTO log = LogDTOBuilder.builder()
+                    .projectId(OperationLogConstants.SYSTEM)
+                    .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
+                    .createUser(inviteUserId)
+                    .organizationId(OperationLogConstants.SYSTEM)
+                    .sourceId(inviteUserId)
+                    .type(OperationLogType.ADD.name())
+                    .content(inviteUser.getName() + Translator.get("user.invite.email") + ":" + userInvite.getEmail())
+                    .path("/system/user/invite")
+                    .method(HttpMethodConstants.POST.name())
+                    .modifiedValue(JSON.toJSONBytes(userInvite))
+                    .build().getLogDTO();
+            saveLogs.add(log);
+        });
+        operationLogService.batchAdd(saveLogs);
+    }
+
+    public void addRegisterLog(User user, UserInvite userInvite) {
+        User inviteUser = userMapper.selectByPrimaryKey(userInvite.getInviteUser());
+        LogDTO log = LogDTOBuilder.builder()
+                .projectId(OperationLogConstants.SYSTEM)
+                .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
+                .createUser(user.getName())
+                .organizationId(OperationLogConstants.SYSTEM)
+                .sourceId(user.getId())
+                .type(OperationLogType.ADD.name())
+                .content(user.getName() + Translator.get("register.by.invite") + inviteUser.getName())
+                .path("/system/user/register-by-invite")
+                .method(HttpMethodConstants.POST.name())
+                .modifiedValue(JSON.toJSONBytes(userInvite))
+                .build().getLogDTO();
+        operationLogService.add(log);
+    }
 }
