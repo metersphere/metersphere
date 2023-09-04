@@ -4,7 +4,9 @@
       <MsTag v-for="tag of props.tagList.slice(0, props.showNum)" :key="tag.id" v-bind="attrs">
         <slot :tag="tag"> </slot>
       </MsTag>
-      <MsTag v-if="props.tagList.length > props.showNum" v-bind="attrs"> +{{ props.showNum }}</MsTag>
+      <MsTag v-if="props.tagList.length > props.showNum" v-bind="attrs">
+        +{{ props.tagList.length - props.showNum }}</MsTag
+      >
     </div>
   </a-tooltip>
 </template>

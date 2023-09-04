@@ -68,7 +68,7 @@
           </a-table-column>
           <a-table-column :title="t('system.plugin.tableColumnsOrg')" :width="300">
             <template #cell="{ record }">
-              <a-tooltip :content="(record.organizations||[]).map((e: any) => e.name).join(',')">
+              <!-- <a-tooltip :content="(record.organizations||[]).map((e: any) => e.name).join(',')">
                 <span>
                   <a-tag
                     v-for="org of (record.organizations || []).slice(0, 3)"
@@ -86,7 +86,12 @@
                     +{{ (record.organizations || []).length - 3 }}
                   </a-tag>
                 </span>
-              </a-tooltip>
+              </a-tooltip> -->
+              <MsTagGroup :tag-list="record.organizations || []" :show-num="2" type="primary" theme="outline">
+                <template #default="{ tag }">
+                  {{ tag.name }}
+                </template>
+              </MsTagGroup>
             </template>
           </a-table-column>
           <a-table-column
@@ -189,6 +194,7 @@
   import type { PluginForms, PluginList, PluginItem, DrawerConfig, UpdatePluginModel } from '@/models/setting/plugin';
   import dayjs from 'dayjs';
   import TableExpand from './tableExpand.vue';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import { characterLimit } from '@/utils';
 
   const { t } = useI18n();
