@@ -74,9 +74,6 @@ public class ProjectMemberService {
         List<UserRoleRelation> userRoleRelates = userRoleRelationMapper.selectByExample(relationExample);
         Map<String, List<String>> userRoleRelateMap = userRoleRelates.stream().collect(Collectors.groupingBy(UserRoleRelation::getUserId,
                 Collectors.mapping(UserRoleRelation::getRoleId, Collectors.toList())));
-        // 查询所有用户
-        List<User> users = baseUserMapper.findAll();
-        Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
         // 查询所有项目类型用户组
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andTypeEqualTo(UserRoleType.PROJECT.name());
@@ -85,8 +82,7 @@ public class ProjectMemberService {
         List<ProjectUserDTO> projectUsers = new ArrayList<>();
         userRoleRelateMap.forEach((k, v) -> {
             ProjectUserDTO projectUser = new ProjectUserDTO();
-            User user = userMap.get(k);
-            BeanUtils.copyBean(projectUser, user);
+            projectUser.setId(k);
             List<UserRole> userRoles = new ArrayList<>();
             v.forEach(roleId -> {
                 UserRole role = roleMap.get(roleId);
@@ -94,6 +90,16 @@ public class ProjectMemberService {
             });
             projectUser.setUserRoles(userRoles);
             projectUsers.add(projectUser);
+        });
+        // 设置用户信息
+        List<String> uerIds = projectUsers.stream().map(ProjectUserDTO::getId).collect(Collectors.toList());
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andDeletedEqualTo(false).andIdIn(uerIds);
+        List<User> users = userMapper.selectByExample(userExample);
+        Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
+        projectUsers.forEach(projectUser -> {
+            User user = userMap.get(projectUser.getId());
+            BeanUtils.copyBean(projectUser, user);
         });
         return projectUsers;
     }
@@ -104,12 +110,29 @@ public class ProjectMemberService {
      * @param projectId 项目ID
      * @return 项目成员下拉选项
      */
-    public List<UserExtend> getMemberOption(String projectId) {
+    public List<UserExtend> getMemberOption(String projectId, String keyword) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         if (project == null) {
             return new ArrayList<>();
         }
-        return extProjectMemberMapper.getMemberByOrg(project.getOrganizationId());
+        // 组织成员
+        List<UserExtend> orgMembers = extProjectMemberMapper.getMemberByOrg(project.getOrganizationId(), keyword);
+        if (CollectionUtils.isEmpty(orgMembers)) {
+            return new ArrayList<>();
+        }
+        // 设置是否是项目成员
+        List<String> orgMemberIds = orgMembers.stream().map(UserExtend::getId).toList();
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andUserIdIn(orgMemberIds).andSourceIdEqualTo(projectId).andOrganizationIdEqualTo(project.getOrganizationId());
+        List<UserRoleRelation> projectRelations = userRoleRelationMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(projectRelations)) {
+            orgMembers.forEach(orgMember -> orgMember.setMemberFlag(false));
+        } else {
+            List<String> projectUsers = projectRelations.stream().map(UserRoleRelation::getUserId).distinct().toList();
+            // 已经是项目成员的组织成员, 禁用
+            orgMembers.forEach(orgMember -> orgMember.setMemberFlag(projectUsers.contains(orgMember.getId())));
+        }
+        return orgMembers;
     }
 
     /**

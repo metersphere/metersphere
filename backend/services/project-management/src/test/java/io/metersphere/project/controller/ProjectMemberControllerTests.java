@@ -104,9 +104,14 @@ public class ProjectMemberControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void testGetMemberOption() throws Exception {
+        // 正常数据
         this.requestGet(GET_MEMBER + "/default-project-member-test", status().isOk());
-        // 覆盖空数据
+        // 项目不存在
         this.requestGet(GET_MEMBER + "/default-project-member-x", status().isOk());
+        // 组织成员为空
+        this.requestGet(GET_MEMBER + "/default-project-member-test-1", status().isOk());
+        // 项目成员为空
+        this.requestGet(GET_MEMBER + "/default-project-member-test-2", status().isOk());
         // 权限校验
         requestGetPermissionTest(PermissionConstants.PROJECT_MEMBER_ADD, GET_MEMBER + "/" + DEFAULT_PROJECT_ID);
     }

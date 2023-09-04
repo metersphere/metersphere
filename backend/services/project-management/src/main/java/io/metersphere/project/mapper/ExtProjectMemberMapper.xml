@@ -18,13 +18,16 @@
 
     <select id="getMemberByOrg" resultType="io.metersphere.system.dto.UserExtend">
         select distinct u.* from user_role_relation urr join `user` u on urr.user_id = u.id
-        <where>
+        where
             u.deleted = 0
             <if test="organizationId != null and organizationId != ''">
                 and urr.source_id = #{organizationId}
             </if>
-        </where>
+            <if test="keyword != null and keyword != ''">
+                and (u.name like concat('%', #{keyword}, '%') or u.email like concat('%', #{keyword}, '%'))
+            </if>
         order by u.create_time desc
+        limit 100
     </select>
 
     <sql id="filter">
