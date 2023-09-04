@@ -48,8 +48,10 @@ public class ProjectMemberController {
     @GetMapping("/get-member/option/{projectId}")
     @Operation(summary = "项目管理-成员-获取成员下拉选项")
     @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_ADD)
-    public List<UserExtend> getMemberOption(@PathVariable String projectId) {
-        return projectMemberService.getMemberOption(projectId);
+    public List<UserExtend> getMemberOption(@PathVariable String projectId,
+                                            @Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                            @RequestParam(value = "keyword", required = false) String keyword) {
+        return projectMemberService.getMemberOption(projectId, keyword);
     }
 
     @GetMapping("/get-role/option/{projectId}")

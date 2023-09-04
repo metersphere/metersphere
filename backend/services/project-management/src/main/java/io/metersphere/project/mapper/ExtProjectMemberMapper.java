@@ -22,7 +22,8 @@ public interface ExtProjectMemberMapper {
     /**
      * 获取所有组织成员
      * @param organizationId 组织ID
+     * @param keyword 搜索关键字
      * @return 成员
      */
-    List<UserExtend> getMemberByOrg(String organizationId);
+    List<UserExtend> getMemberByOrg(@Param("organizationId") String organizationId, @Param("keyword") String keyword);
 }
