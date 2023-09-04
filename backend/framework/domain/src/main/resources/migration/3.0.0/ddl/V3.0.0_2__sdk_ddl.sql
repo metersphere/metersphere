@@ -115,6 +115,21 @@ CREATE TABLE IF NOT EXISTS project_parameters(
 CREATE INDEX idx_project_id ON project_parameters(project_id);
 
 
+DROP TABLE IF EXISTS worker_node;
+CREATE TABLE worker_node
+(
+    id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'auto increment id',
+    host_name VARCHAR(64) NOT NULL COMMENT 'host name',
+    port VARCHAR(64) NOT NULL COMMENT 'port',
+    type INT NOT NULL COMMENT 'node type: ACTUAL or CONTAINER',
+    launch_date BIGINT NOT NULL COMMENT 'launch date',
+    modified BIGINT NOT NULL COMMENT 'modified time',
+    created BIGINT NOT NULL COMMENT 'created time',
+    PRIMARY KEY(ID)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = 'DB WorkerID Assigner for UID Generator';
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

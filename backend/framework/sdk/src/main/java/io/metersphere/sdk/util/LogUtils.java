@@ -17,8 +17,6 @@ public class LogUtils {
 
     /**
      * 初始化日志
-     *
-     * @return
      */
     public static Logger getLogger() {
         return LoggerFactory.getLogger(LogUtils.getLogClass());
@@ -56,6 +54,14 @@ public class LogUtils {
             logger.info(LogUtils.getMsg(msg));
         }
     }
+
+    public static void info(String var1, Object... var2) {
+        Logger logger = LogUtils.getLogger();
+        if (logger != null && logger.isInfoEnabled()) {
+            logger.info(var1, var2);
+        }
+    }
+
 
     public static void info(Object msg, Object o1) {
         Logger logger = LogUtils.getLogger();
@@ -197,8 +203,6 @@ public class LogUtils {
 
     /**
      * 得到调用类名称
-     *
-     * @return
      */
     private static String getLogClass() {
         StackTraceElement[] stack = (new Throwable()).getStackTrace();
@@ -211,8 +215,6 @@ public class LogUtils {
 
     /**
      * 得到调用方法名称
-     *
-     * @return
      */
     private static String getLogMethod() {
         StackTraceElement[] stack = (new Throwable()).getStackTrace();
