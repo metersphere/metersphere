@@ -165,42 +165,42 @@ export const pathMap = [
         locale: 'menu.projectManagement.projectPermission',
         route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION,
         permission: [],
-        level: MENU_LEVEL[0],
+        level: MENU_LEVEL[2],
         children: [
           {
             key: 'PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO', // 项目管理-项目与权限-基本信息
             locale: 'project.permission.basicInfo',
             route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO,
             permission: [],
-            level: MENU_LEVEL[0],
+            level: MENU_LEVEL[2],
           },
           {
             key: 'PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT', // 项目管理-项目与权限-菜单管理
             locale: 'project.permission.menuManagement',
             route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
             permission: [],
-            level: MENU_LEVEL[0],
+            level: MENU_LEVEL[2],
           },
           {
             key: 'PROJECT_MANAGEMENT_PERMISSION_VERSION', // 项目管理-项目与权限-项目版本
             locale: 'project.permission.projectVersion',
             route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
             permission: [],
-            level: MENU_LEVEL[0],
+            level: MENU_LEVEL[2],
           },
           {
             key: 'PROJECT_MANAGEMENT_PERMISSION_MEMBER', // 项目管理-项目与权限-成员
             locale: 'project.permission.member',
             route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_MEMBER,
             permission: [],
-            level: MENU_LEVEL[0],
+            level: MENU_LEVEL[2],
           },
           {
             key: 'PROJECT_MANAGEMENT_PERMISSION_USER_GROUP', // 项目管理-项目与权限-用户组
             locale: 'project.permission.userGroup',
             route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_USER_GROUP,
             permission: [],
-            level: MENU_LEVEL[0],
+            level: MENU_LEVEL[2],
           },
         ],
       },

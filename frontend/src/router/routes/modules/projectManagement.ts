@@ -63,7 +63,7 @@ const ProjectManagement: AppRouteRecordRaw = {
           name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MEMBER,
           component: () => import('@/views/project-management/projectAndPermission/member/index.vue'),
           meta: {
-            locale: 'menu.settings.system.member',
+            locale: 'project.permission.member',
             roles: ['*'],
           },
         },

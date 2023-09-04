@@ -297,11 +297,8 @@ public class UserService {
         return insertIndex;
     }
 
-    public List<User> getUserList() {
-        UserExample example = new UserExample();
-        example.createCriteria().andDeletedEqualTo(false);
-        example.setOrderByClause("update_time desc");
-        return userMapper.selectByExample(example);
+    public List<User> getUserList(String keyword) {
+        return extUserMapper.selectUserList(keyword.trim());
     }
 
     /**
@@ -360,7 +357,7 @@ public class UserService {
     }
 
 
-    public List<User> getUserListByOrgId(String organizationId) {
-        return extUserMapper.getUserListByOrgId(organizationId);
+    public List<User> getUserListByOrgId(String organizationId, String keyword) {
+        return extUserMapper.getUserListByOrgId(organizationId, keyword);
     }
 }

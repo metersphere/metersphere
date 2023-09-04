@@ -16,6 +16,7 @@ import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -74,8 +75,9 @@ public class OperationLogController {
     @GetMapping("/user/list")
     @Operation(summary = "系统设置-系统-日志-系统日志页面，获取用户列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_LOG_READ)
-    public List<User> getUserList() {
-        List<User> userList = userService.getUserList();
+    public List<User> getUserList(@Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                      @RequestParam(value = "keyword", required = false) String keyword) {
+        List<User> userList = userService.getUserList(keyword);
         return userList;
     }
 }
