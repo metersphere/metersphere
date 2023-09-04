@@ -83,7 +83,7 @@ public class ProjectMemberController {
     })
     @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_DELETE)
     public void removeMember(@PathVariable String projectId, @PathVariable String userId) {
-        projectMemberService.removeMember(projectId, userId);
+        projectMemberService.removeMember(projectId, userId, SessionUtils.getUserId());
     }
 
     @PostMapping("/add-role")
@@ -97,6 +97,6 @@ public class ProjectMemberController {
     @Operation(summary = "项目管理-成员-批量从项目移除")
     @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_DELETE)
     public void batchRemove(@RequestBody ProjectMemberBatchDeleteRequest request) {
-        projectMemberService.batchRemove(request);
+        projectMemberService.batchRemove(request, SessionUtils.getUserId());
     }
 }

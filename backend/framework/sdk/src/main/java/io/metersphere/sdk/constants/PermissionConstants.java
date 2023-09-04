@@ -97,6 +97,16 @@ public class PermissionConstants {
     public static final String PROJECT_MEMBER_DELETE = "PROJECT_MEMBER:READ+DELETE";
     /*------ end: PROJECT_MEMBER ------*/
 
+    /**
+     * 项目用户组
+     */
+    /*------ start: PROJECT_USER_ROLE ------*/
+    public static final String PROJECT_USER_ROLE_READ = "PROJECT_USER_ROLE:READ";
+    public static final String PROJECT_USER_ROLE_ADD = "PROJECT_USER_ROLE:READ+ADD";
+    public static final String PROJECT_USER_ROLE_UPDATE = "PROJECT_USER_ROLE:READ+UPDATE";
+    public static final String PROJECT_USER_ROLE_DELETE = "PROJECT_USER_ROLE:READ+DELETE";
+    /*------ end: PROJECT_USER_ROLE ------*/
+
     public static final String SYSTEM_AUTH_READ = "SYSTEM_AUTH:READ";
     public static final String SYSTEM_AUTH_READ_UPDATE = "SYSTEM_AUTH:READ+UPDATE";
 

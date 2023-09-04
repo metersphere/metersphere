@@ -218,7 +218,7 @@ public class ProjectMemberService {
      * @param projectId 项目ID
      * @param userId 用户ID
      */
-    public void removeMember(String projectId, String userId) {
+    public void removeMember(String projectId, String userId, String currentUserId) {
         // 操作记录
         List<LogDTO> logs = new ArrayList<>();
         // 项目不存在, 则不移除
@@ -228,7 +228,7 @@ public class ProjectMemberService {
         example.createCriteria().andSourceIdEqualTo(projectId).andUserIdEqualTo(userId);
         userRoleRelationMapper.deleteByExample(example);
         // 操作记录
-        setLog(projectId, userId, null, OperationLogType.DELETE.name(), "/project/member/remove", HttpMethodConstants.GET.name(), null, null, logs);
+        setLog(projectId, userId, currentUserId, OperationLogType.DELETE.name(), "/project/member/remove", HttpMethodConstants.GET.name(), null, null, logs);
         operationLogService.batchAdd(logs);
     }
 
@@ -309,7 +309,7 @@ public class ProjectMemberService {
      * 批量移除成员(项目)
      * @param request 请求参数
      */
-    public void batchRemove(ProjectMemberBatchDeleteRequest request) {
+    public void batchRemove(ProjectMemberBatchDeleteRequest request, String currentUserId) {
         // 操作记录
         List<LogDTO> logs = new ArrayList<>();
         // 项目不存在, 则不移除
@@ -322,7 +322,7 @@ public class ProjectMemberService {
         // 操作记录
         request.getUserIds().forEach(userId -> {
             // 操作记录
-            setLog(request.getProjectId(), userId, null, OperationLogType.DELETE.name(), "/project/member/remove", HttpMethodConstants.GET.name(), null, null, logs);
+            setLog(request.getProjectId(), userId, currentUserId, OperationLogType.DELETE.name(), "/project/member/remove", HttpMethodConstants.GET.name(), null, null, logs);
         });
         operationLogService.batchAdd(logs);
     }
