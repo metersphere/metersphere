@@ -8,7 +8,7 @@ import { useUserStore, useVisitStore } from '@/store';
 export default function useVisit(key: string, needTimeStamp = false) {
   const userStore = useUserStore();
   const visitStore = useVisitStore();
-  const localKey = `${userStore.accountId}-${key}-${needTimeStamp ? new Date().getTime() : ''}`;
+  const localKey = `${userStore.id}-${key}-${needTimeStamp ? new Date().getTime() : ''}`;
   const addVisited = () => {
     visitStore.addVisitedKey(localKey);
   };

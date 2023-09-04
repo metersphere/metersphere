@@ -124,9 +124,11 @@
       </template>
 
       <template #empty>
-        <div class="flex h-[20px] flex-col items-center justify-center">
-          <span class="text-[14px] text-[var(--color-text-4)]">{{ t('msTable.empty') }}</span>
-        </div>
+        <slot name="empty">
+          <div class="flex h-[20px] flex-col items-center justify-center">
+            <span class="text-[14px] text-[var(--color-text-4)]">{{ t('msTable.empty') }}</span>
+          </div>
+        </slot>
       </template>
     </a-table>
     <div

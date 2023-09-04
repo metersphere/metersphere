@@ -68,7 +68,9 @@
     return currentOptions.value.filter((item) => props.value.includes(item.id)) || [];
   });
 
-  const change = (value: string | number | Record<string, any> | (string | number | Record<string, any>)[]) => {
+  const change = (
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) => {
     const tmpArr = Array.isArray(value) ? value : [value];
     const { valueKey } = props;
     emit(

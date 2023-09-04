@@ -13,7 +13,7 @@ export interface UserState {
   locationName?: string;
   phone?: string;
   registrationDate?: string;
-  accountId?: string;
+  id?: string;
   certification?: number;
   role: RoleType;
   lastOrganizationId?: string;

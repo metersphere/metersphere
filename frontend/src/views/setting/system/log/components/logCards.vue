@@ -72,7 +72,7 @@
   </MsCard>
   <div class="log-card">
     <div class="log-card-header">
-      <div class="text-[var(--color-text-000)]">{{ t('system.log.log') }}</div>
+      <div class="font-medium text-[var(--color-text-000)]">{{ t('system.log.log') }}</div>
     </div>
     <ms-base-table v-bind="propsRes" no-disable sticky-header v-on="propsEvent">
       <template #range="{ record }">
@@ -381,7 +381,7 @@
 
   function resetFilter() {
     operUser.value = '';
-    operateRange.value = [MENU_LEVEL[0]];
+    operateRange.value = [props.mode];
     type.value = '';
     _module.value = '';
     content.value = '';

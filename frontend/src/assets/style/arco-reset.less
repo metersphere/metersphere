@@ -130,9 +130,14 @@
 }
 
 /** 气泡确认框 **/
-.ms-pop-confirm {
+.ms-pop-confirm--hidden-cancel {
   .arco-btn-secondary {
     @apply hidden;
+  }
+}
+.ms-pop-confirm--hidden-icon {
+  .arco-popconfirm-icon {
+    @apply !hidden;
   }
 }
 
@@ -180,6 +185,11 @@
     color: var(--color-text-brand);
   }
 }
+.arco-input-clear-btn {
+  .arco-icon-close {
+    font-size: 14px;
+  }
+}
 .arco-input-wrapper,
 .arco-textarea-wrapper,
 .arco-input-tag,
@@ -200,7 +210,7 @@
 .arco-input-tag {
   .arco-icon {
     font-size: 14px;
-    color: var(--color-text-4);
+    color: var(--color-text-brand);
   }
 }
 .arco-select-view-inner,
@@ -208,6 +218,11 @@
   .arco-tag {
     background-color: var(--color-text-n8) !important;
   }
+}
+.arco-select-view-icon svg,
+.arco-select-view-clear-btn svg {
+  font-size: 14px;
+  color: var(--color-text-brand);
 }
 .arco-input-error,
 .arco-select-view-error,
@@ -250,6 +265,11 @@
     }
   }
 }
+
+/** form-item **/
+.arco-form-item-content-flex {
+  @apply flex-wrap;
+}
 .arco-form-item-status-success .arco-input-wrapper:not(.arco-input-disabled).arco-input-focus {
   border: 1px solid rgb(var(--primary-5)) !important;
   background: none;
@@ -257,11 +277,6 @@
 }
 .arco-form-item-status-success .arco-input-wrapper:not(.arco-input-disabled) {
   border-color: var(--color-text-input-border);
-}
-
-/** form-item **/
-.arco-form-item-content-flex {
-  @apply flex-wrap;
 }
 .arco-form-item-message {
   width: 100%;
@@ -628,4 +643,7 @@
   .arco-icon {
     color: var(--color-text-brand);
   }
+}
+.arco-picker-input-active input {
+  border-radius: var(--border-radius-mini);
 }

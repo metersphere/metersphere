@@ -15,14 +15,6 @@ const ProjectManagement: AppRouteRecordRaw = {
     hideChildrenInMenu: true,
   },
   children: [
-    {
-      path: 'index',
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_INDEX,
-      component: () => import('@/views/project-management/index.vue'),
-      meta: {
-        roles: ['*'],
-      },
-    },
     // 项目与权限
     {
       path: 'permission',
@@ -86,6 +78,17 @@ const ProjectManagement: AppRouteRecordRaw = {
           },
         },
       ],
+    },
+    // 文件管理
+    {
+      path: 'fileManagement',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_FILE_MANAGEMENT,
+      component: () => import('@/views/project-management/fileManagement/index.vue'),
+      meta: {
+        locale: 'menu.projectManagement.fileManagement',
+        roles: ['*'],
+        isTopMenu: true,
+      },
     },
     // 项目日志
     {

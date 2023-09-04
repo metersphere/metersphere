@@ -47,4 +47,5 @@ export default {
   'common.unSaveLeaveContent': 'The system may not save your changes',
   'common.leave': 'Leave',
   'common.rename': 'Rename',
+  'common.noData': 'No data',
 };

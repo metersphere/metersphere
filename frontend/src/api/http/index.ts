@@ -199,8 +199,8 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
           errorMessageMode: 'message',
           //  是否加入时间戳
           joinTime: true,
-          // 忽略重复请求
-          ignoreCancelToken: true,
+          // 忽略取消请求的token
+          ignoreCancelToken: false,
           // 是否携带token
           withToken: true,
         },

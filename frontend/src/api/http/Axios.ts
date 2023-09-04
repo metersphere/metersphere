@@ -42,13 +42,9 @@ export class MSAxios {
     const axiosCanceler = new AxiosCanceler();
 
     // 请求拦截器
-    this.axiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
+    this.axiosInstance.interceptors.request.use((config: CreateAxiosOptions) => {
       // 如果ignoreCancelToken为true，则不添加到pending中
-      const {
-        // @ts-ignore
-        headers: { ignoreCancelToken },
-      } = config;
-
+      const ignoreCancelToken = config.requestOptions?.ignoreCancelToken;
       const ignoreCancel =
         ignoreCancelToken !== undefined ? ignoreCancelToken : this.options.requestOptions?.ignoreCancelToken;
 
@@ -107,7 +103,7 @@ export class MSAxios {
           headers: {
             'Content-type': ContentTypeEnum.FORM_DATA,
             // @ts-ignore
-            'ignoreCancelToken': true, // 文件上传请求不需要添加到pending中
+            'ignoreCancelToken': true, // 文件上传请求不需要添加到pending中，以免路由切换导致文件上传请求被取消
           },
         })
         .then((res: AxiosResponse<Result>) => {

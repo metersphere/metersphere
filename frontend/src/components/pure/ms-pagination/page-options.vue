@@ -38,7 +38,9 @@
 
   const props = defineProps<PageOptionsProps>();
 
-  const handleChange = (value: string | number | Record<string, any> | (string | number | Record<string, any>)[]) => {
+  const handleChange = (
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) => {
     emit('change', value as number);
   };
 

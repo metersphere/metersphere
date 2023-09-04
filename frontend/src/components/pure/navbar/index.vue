@@ -220,7 +220,9 @@
     return !NOT_SHOW_PROJECT_SELECT_MODULE.includes(route.fullPath.split('/')[1]);
   });
 
-  function selectProject(value: string | number | Record<string, any> | undefined) {
+  function selectProject(
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
     appStore.setCurrentProjectId(value as string);
   }
 
