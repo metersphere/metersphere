@@ -90,21 +90,21 @@ public class PermissionConstants {
     /**
      * 项目成员权限
      */
-    /*------ start: PROJECT_MEMBER ------*/
-    public static final String PROJECT_MEMBER_READ = "PROJECT_MEMBER:READ";
-    public static final String PROJECT_MEMBER_ADD = "PROJECT_MEMBER:READ+ADD";
-    public static final String PROJECT_MEMBER_UPDATE = "PROJECT_MEMBER:READ+UPDATE";
-    public static final String PROJECT_MEMBER_DELETE = "PROJECT_MEMBER:READ+DELETE";
+    /*------ start: PROJECT_USER ------*/
+    public static final String PROJECT_USER_READ = "PROJECT_USER:READ";
+    public static final String PROJECT_USER_ADD = "PROJECT_USER:READ+ADD";
+    public static final String PROJECT_USER_UPDATE = "PROJECT_USER:READ+UPDATE";
+    public static final String PROJECT_USER_DELETE = "PROJECT_USER:READ+DELETE";
     /*------ end: PROJECT_MEMBER ------*/
 
     /**
      * 项目用户组
      */
-    /*------ start: PROJECT_USER_ROLE ------*/
-    public static final String PROJECT_USER_ROLE_READ = "PROJECT_USER_ROLE:READ";
-    public static final String PROJECT_USER_ROLE_ADD = "PROJECT_USER_ROLE:READ+ADD";
-    public static final String PROJECT_USER_ROLE_UPDATE = "PROJECT_USER_ROLE:READ+UPDATE";
-    public static final String PROJECT_USER_ROLE_DELETE = "PROJECT_USER_ROLE:READ+DELETE";
+    /*------ start: PROJECT_GROUP ------*/
+    public static final String PROJECT_GROUP_READ = "PROJECT_GROUP:READ";
+    public static final String PROJECT_GROUP_ADD = "PROJECT_GROUP:READ+ADD";
+    public static final String PROJECT_GROUP_UPDATE = "PROJECT_GROUP:READ+UPDATE";
+    public static final String PROJECT_GROUP_DELETE = "PROJECT_GROUP:READ+DELETE";
     /*------ end: PROJECT_USER_ROLE ------*/
 
     public static final String SYSTEM_AUTH_READ = "SYSTEM_AUTH:READ";

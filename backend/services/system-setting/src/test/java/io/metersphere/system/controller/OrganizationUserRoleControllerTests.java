@@ -387,8 +387,8 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
                 // 取消ORGANIZATION_USER_ROLE:READ权限
                 add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:READ", false));
                 // 添加ORGANIZATION_USER_ROLE:CREATE, ORGANIZATION_USER_ROLE:UPDATE权限
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:CREATE", true));
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:UPDATE", true));
+                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:READ+ADD", true));
+                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:READ+UPDATE", true));
             }
         });
         return request;

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.project.mapper.ExtProjectUserRoleMapper">
+    <select id="listProjectRoleMember" resultType="io.metersphere.system.domain.User">
+        select u.*
+        from user_role_relation urr left join user u on urr.user_id = u.id
+        where u.deleted = 0 and urr.source_id = #{request.projectId}
+        and urr.role_id = #{request.userRoleId}
+        <if test="request.keyword != null and request.keyword != ''">
+            and u.name like concat('%', #{request.keyword}, '%')
+        </if>
+    </select>
+</mapper>
