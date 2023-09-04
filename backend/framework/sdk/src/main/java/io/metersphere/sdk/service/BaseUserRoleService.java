@@ -1,5 +1,6 @@
 package io.metersphere.sdk.service;
 
+import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.dto.Permission;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
@@ -9,9 +10,11 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.PermissionCache;
 import io.metersphere.sdk.util.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -35,6 +38,8 @@ public class BaseUserRoleService {
     private PermissionCache permissionCache;
     @Resource
     private UserRoleMapper userRoleMapper;
+    @Resource
+    private UserMapper userMapper;
     @Resource
     protected BaseUserRolePermissionService baseUserRolePermissionService;
     @Resource
@@ -239,5 +244,39 @@ public class BaseUserRoleService {
         });
 
         baseUserRoleRelationService.batchInsert(addRelations);
+    }
+
+    /**
+     * 校验同名用户组是否存在
+     * @param userRole 用户组
+     */
+    public void checkNewRoleExist(UserRole userRole) {
+        UserRoleExample example = new UserRoleExample();
+        UserRoleExample.Criteria criteria = example.createCriteria().andNameEqualTo(userRole.getName())
+                .andScopeIdIn(Arrays.asList(userRole.getScopeId(), UserRoleEnum.GLOBAL.toString()))
+                .andTypeEqualTo(userRole.getType());
+        if (userRole.getId() != null) {
+            criteria.andIdNotEqualTo(userRole.getId());
+        }
+        List<UserRole> userRoles = userRoleMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(userRoles)) {
+            throw new MSException(Translator.get("user_role_exist"));
+        }
+    }
+
+    /**
+     * 校验用户与用户组是否存在
+     * @param userId 用户ID
+     * @param roleId 用户组ID
+     */
+    public void checkMemberParam(String userId, String roleId) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user == null) {
+            throw new MSException(Translator.get("user_not_exist"));
+        }
+        UserRole userRole = userRoleMapper.selectByPrimaryKey(roleId);
+        if (userRole == null) {
+            throw new MSException(Translator.get("user_role_not_exist"));
+        }
     }
 }

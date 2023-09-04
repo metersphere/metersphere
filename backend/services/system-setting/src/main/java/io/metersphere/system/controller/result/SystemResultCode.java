@@ -22,7 +22,8 @@ public enum SystemResultCode implements IResultCode {
     PLUGIN_EXIST(101008, "plugin.exist"),
     PLUGIN_TYPE_EXIST(101009, "plugin.type.exist"),
     PLUGIN_SCRIPT_EXIST(101010, "plugin.script.exist"),
-    PLUGIN_SCRIPT_FORMAT(101011, "plugin.script.format");
+    PLUGIN_SCRIPT_FORMAT(101011, "plugin.script.format"),
+    NO_PROJECT_USER_ROLE_PERMISSION(101012, "project_user_role_permission_error");
 
     private final int code;
     private final String message;

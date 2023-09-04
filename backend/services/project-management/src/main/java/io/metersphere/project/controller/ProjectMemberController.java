@@ -39,7 +39,7 @@ public class ProjectMemberController {
 
     @PostMapping("/list")
     @Operation(summary = "项目管理-成员-列表查询")
-    @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
     public Pager<List<ProjectUserDTO>> listMember(@Validated @RequestBody ProjectMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
         return PageUtils.setPageInfo(page, projectMemberService.listMember(request));
@@ -47,7 +47,7 @@ public class ProjectMemberController {
 
     @GetMapping("/get-member/option/{projectId}")
     @Operation(summary = "项目管理-成员-获取成员下拉选项")
-    @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_ADD)
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
     public List<UserExtend> getMemberOption(@PathVariable String projectId,
                                             @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                             @RequestParam(value = "keyword", required = false) String keyword) {
@@ -56,21 +56,21 @@ public class ProjectMemberController {
 
     @GetMapping("/get-role/option/{projectId}")
     @Operation(summary = "项目管理-成员-获取用户组下拉选项")
-    @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_ADD)
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
     public List<OptionDTO> getRoleOption(@PathVariable String projectId) {
         return projectMemberService.getRoleOption(projectId);
     }
 
     @PostMapping("/add")
     @Operation(summary = "项目管理-成员-添加成员")
-    @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_ADD)
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_ADD)
     public void addMember(@RequestBody ProjectMemberAddRequest request) {
         projectMemberService.addMember(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
     @Operation(summary = "项目管理-成员-编辑成员")
-    @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_UPDATE)
     public void updateMember(@RequestBody ProjectMemberEditRequest request) {
         projectMemberService.updateMember(request, SessionUtils.getUserId());
     }
@@ -81,21 +81,21 @@ public class ProjectMemberController {
             @Parameter(name = "projectId", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
             @Parameter(name = "userId", description = "成员ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     })
-    @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_DELETE)
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_DELETE)
     public void removeMember(@PathVariable String projectId, @PathVariable String userId) {
         projectMemberService.removeMember(projectId, userId, SessionUtils.getUserId());
     }
 
     @PostMapping("/add-role")
     @Operation(summary = "项目管理-成员-批量添加至用户组")
-    @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_UPDATE)
     public void addMemberRole(@RequestBody ProjectMemberAddRequest request) {
         projectMemberService.addRole(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch/remove")
     @Operation(summary = "项目管理-成员-批量从项目移除")
-    @RequiresPermissions(PermissionConstants.PROJECT_MEMBER_DELETE)
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_DELETE)
     public void batchRemove(@RequestBody ProjectMemberBatchDeleteRequest request) {
         projectMemberService.batchRemove(request, SessionUtils.getUserId());
     }

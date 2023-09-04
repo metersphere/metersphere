@@ -1,0 +1,431 @@
+package io.metersphere.project.controller;
+
+import io.metersphere.project.request.ProjectUserRoleEditRequest;
+import io.metersphere.project.request.ProjectUserRoleMemberEditRequest;
+import io.metersphere.project.request.ProjectUserRoleMemberRequest;
+import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.sdk.constants.InternalUserRole;
+import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
+import io.metersphere.sdk.service.BaseUserRolePermissionService;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.request.OrganizationUserRoleEditRequest;
+import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.*;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
+import static io.metersphere.system.controller.result.SystemResultCode.NO_PROJECT_USER_ROLE_PERMISSION;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class ProjectUserRoleControllerTests extends BaseTest {
+
+    @Resource
+    private MockMvc mockMvc;
+    @Resource
+    private BaseUserRolePermissionService baseUserRolePermissionService;
+
+    public static final String PROJECT_USER_ROLE_LIST = "/user/role/project/list";
+    public static final String PROJECT_USER_ROLE_ADD = "/user/role/project/add";
+    public static final String PROJECT_USER_ROLE_UPDATE = "/user/role/project/update";
+    public static final String PROJECT_USER_ROLE_DELETE = "/user/role/project/delete";
+    public static final String PROJECT_USER_ROLE_PERMISSION_SETTING = "/user/role/project/permission/setting";
+    public static final String PROJECT_USER_ROLE_PERMISSION_UPDATE = "/user/role/project/permission/update";
+    public static final String PROJECT_USER_ROLE_GET_MEMBER_OPTION = "/user/role/project/get-member/option";
+    public static final String PROJECT_USER_ROLE_LIST_MEMBER = "/user/role/project/list-member";
+    public static final String PROJECT_USER_ROLE_ADD_MEMBER = "/user/role/project/add-member";
+    public static final String PROJECT_USER_ROLE_REMOVE_MEMBER = "/user/role/project/remove-member";
+
+    @Test
+    @Order(0)
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/dml/init_project_user_role.sql")
+    public void testProjectUserRoleListSuccess() throws Exception {
+        String projectId = "default-project-2";
+        MvcResult mvcResult = this.responseGet(PROJECT_USER_ROLE_LIST + "/" + projectId);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        // 返回总条数是否为init_project_user_role.sql中的数据总数
+        Assertions.assertFalse(JSON.parseArray(JSON.toJSONString(resultHolder.getData())).isEmpty());
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.PROJECT_GROUP_READ, PROJECT_USER_ROLE_LIST + "/" + DEFAULT_PROJECT_ID);
+    }
+
+    @Test
+    @Order(1)
+    public void testProjectUserRoleAddSuccess() throws Exception {
+        ProjectUserRoleEditRequest request = new ProjectUserRoleEditRequest();
+        request.setName("default-pro-role-5");
+        request.setScopeId("default-project-2");
+        this.requestPost(PROJECT_USER_ROLE_ADD, request);
+        // 验证是否添加成功
+        String projectId = "default-project-2";
+        MvcResult mvcResult = this.responseGet(PROJECT_USER_ROLE_LIST + "/" + projectId);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        // 返回总条数是否为init_project_user_role.sql中的数据总数
+        Assertions.assertFalse(JSON.parseArray(JSON.toJSONString(resultHolder.getData())).isEmpty());
+        // 权限校验
+        requestPostPermissionTest(PermissionConstants.PROJECT_GROUP_ADD, PROJECT_USER_ROLE_ADD, request);
+    }
+
+    @Test
+    @Order(2)
+    public void testProjectUserRoleAddError() throws Exception {
+        ProjectUserRoleEditRequest request = new ProjectUserRoleEditRequest();
+        // 同名用户组已存在
+        request.setName("default-pro-role-2");
+        request.setScopeId("default-project-2");
+        this.requestPost(PROJECT_USER_ROLE_ADD, request, status().is5xxServerError());
+    }
+
+    @Test
+    @Order(3)
+    public void testProjectUserRoleUpdateError() throws Exception {
+        ProjectUserRoleEditRequest request = new ProjectUserRoleEditRequest();
+        // 用户组不存在
+        request.setId("default-pro-role-id-10");
+        this.requestPost(PROJECT_USER_ROLE_UPDATE, request, status().is5xxServerError());
+        // 非项目下用户组异常
+        request = new ProjectUserRoleEditRequest();
+        request.setId(InternalUserRole.ADMIN.getValue());
+        this.requestPost(PROJECT_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(NO_PROJECT_USER_ROLE_PERMISSION.getCode()));
+        // 非内置用户组异常
+        request = new ProjectUserRoleEditRequest();
+        request.setId(InternalUserRole.PROJECT_ADMIN.getValue());
+        this.requestPost(PROJECT_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+        // 用户组名称已存在
+        request = new ProjectUserRoleEditRequest();
+        request.setId("default-pro-role-id-2");
+        request.setName("项目管理员");
+        request.setScopeId("default-project-2");
+        this.requestPost(PROJECT_USER_ROLE_UPDATE, request, status().is5xxServerError());
+    }
+
+    @Test
+    @Order(4)
+    public void testProjectUserRoleUpdateSuccess() throws Exception {
+        OrganizationUserRoleEditRequest request = new OrganizationUserRoleEditRequest();
+        request.setId("default-pro-role-id-2");
+        request.setName("default-pro-role-x");
+        request.setScopeId("default-project-2");
+        this.requestPost(PROJECT_USER_ROLE_UPDATE, request, status().isOk());
+        // 验证是否修改成功
+        String projectId = "default-project-2";
+        MvcResult mvcResult = this.responseGet(PROJECT_USER_ROLE_LIST + "/" + projectId);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        // 返回总条数是否包含修改后的数据
+        List<UserRole> userRoles = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), UserRole.class);
+        Assertions.assertTrue(userRoles.stream().anyMatch(userRole -> "default-pro-role-x".equals(userRole.getName())));
+        // 权限校验
+        requestPostPermissionTest(PermissionConstants.PROJECT_GROUP_UPDATE, PROJECT_USER_ROLE_UPDATE, request);
+    }
+
+    @Test
+    @Order(5)
+    public void testProjectUserRoleDeleteError() throws Exception {
+        // 用户组不存在
+        this.requestGet(PROJECT_USER_ROLE_DELETE + "/default-pro-role-id-10", status().is5xxServerError());
+        // 非项目下用户组异常
+        this.requestGet(PROJECT_USER_ROLE_DELETE + "/" + InternalUserRole.ADMIN.getValue()).andExpect(jsonPath("$.code").value(NO_PROJECT_USER_ROLE_PERMISSION.getCode()));
+        // 非内置用户组异常
+        this.requestGet(PROJECT_USER_ROLE_DELETE + "/" + InternalUserRole.PROJECT_ADMIN.getValue()).andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+    }
+
+    @Test
+    @Order(6)
+    public void testProjectUserRoleDeleteSuccess() throws Exception {
+        this.requestGet(PROJECT_USER_ROLE_DELETE + "/default-pro-role-id-2", status().isOk());
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.PROJECT_GROUP_DELETE, PROJECT_USER_ROLE_DELETE + "/default-pro-role-id-2");
+    }
+
+    @Test
+    @Order(7)
+    public void testProjectUserRolePermissionSettingSuccess() throws Exception {
+        MvcResult mvcResult = this.responseGet(PROJECT_USER_ROLE_PERMISSION_SETTING + "/default-pro-role-id-3");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        // 返回总条数是否为init_project_user_role.sql中的数据总数
+        Assertions.assertEquals(1, JSON.parseArray(JSON.toJSONString(resultHolder.getData())).size());
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.PROJECT_GROUP_READ, PROJECT_USER_ROLE_PERMISSION_SETTING + "/default-pro-role-id-3");
+    }
+
+    @Test
+    @Order(8)
+    public void testProjectUserRolePermissionSettingError() throws Exception {
+        // 用户组不存在
+        this.requestGet(PROJECT_USER_ROLE_PERMISSION_SETTING + "/default-pro-role-id-10", status().is5xxServerError());
+        // 非项目下用户组异常
+        this.requestGet(PROJECT_USER_ROLE_PERMISSION_SETTING + "/" + InternalUserRole.ADMIN.getValue())
+                .andExpect(jsonPath("$.code").value(NO_PROJECT_USER_ROLE_PERMISSION.getCode()));
+    }
+
+    @Test
+    @Order(9)
+    public void testProjectUserRolePermissionUpdateSuccess() throws Exception {
+        PermissionSettingUpdateRequest request = getPermissionSettingUpdateRequest();
+        request.setUserRoleId("default-pro-role-id-3");
+        this.requestPost(PROJECT_USER_ROLE_PERMISSION_UPDATE, request, status().isOk());
+        // 返回权限勾选PROJECT_GROUP:ADD
+        Set<String> permissionIds = baseUserRolePermissionService.getPermissionIdSetByRoleId(request.getUserRoleId());
+        Set<String> requestPermissionIds = request.getPermissions().stream()
+                .filter(PermissionSettingUpdateRequest.PermissionUpdateRequest::getEnable)
+                .map(PermissionSettingUpdateRequest.PermissionUpdateRequest::getId)
+                .collect(Collectors.toSet());
+        // 校验请求成功数据
+        Assertions.assertEquals(requestPermissionIds, permissionIds);
+        // 权限校验
+        requestPostPermissionTest(PermissionConstants.PROJECT_GROUP_UPDATE, PROJECT_USER_ROLE_PERMISSION_UPDATE, request);
+    }
+
+    @Test
+    @Order(10)
+    public void testProjectUserRolePermissionUpdateError() throws Exception {
+        // 用户组不存在
+        PermissionSettingUpdateRequest request = getPermissionSettingUpdateRequest();
+        request.setUserRoleId("default-pro-role-id-10");
+        this.requestPost(PROJECT_USER_ROLE_PERMISSION_UPDATE, request, status().is5xxServerError());
+        // 非项目下用户组异常
+        request.setUserRoleId(InternalUserRole.ADMIN.getValue());
+        this.requestPost(PROJECT_USER_ROLE_PERMISSION_UPDATE, request)
+                .andExpect(jsonPath("$.code").value(NO_PROJECT_USER_ROLE_PERMISSION.getCode()));
+        // 内置用户组异常
+        request.setUserRoleId(InternalUserRole.PROJECT_ADMIN.getValue());
+        this.requestPost(PROJECT_USER_ROLE_PERMISSION_UPDATE, request)
+                .andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+    }
+
+    @Test
+    @Order(11)
+    public void testProjectUserRoleListMemberSuccess() throws Exception {
+        ProjectUserRoleMemberRequest request = new ProjectUserRoleMemberRequest();
+        request.setProjectId("default-project-2");
+        request.setUserRoleId("default-pro-role-id-3");
+        request.setKeyword("admin");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.responsePost(PROJECT_USER_ROLE_LIST_MEMBER, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
+        // 返回值中取出第一条数据, 并判断是否包含关键字
+        List<User> userList = JSON.parseArray(JSON.toJSONString(pageData.getList()), User.class);
+        if(CollectionUtils.isNotEmpty(userList)) {
+            User user = userList.get(0);
+            Assertions.assertTrue(StringUtils.contains(user.getName(), request.getKeyword())
+                    || StringUtils.contains(user.getId(), request.getKeyword()));
+        }
+        // 权限校验
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_GROUP_READ, PROJECT_USER_ROLE_LIST_MEMBER, request);
+    }
+
+    @Test
+    @Order(12)
+    public void testProjectUserRoleListMemberError() throws Exception {
+        ProjectUserRoleMemberRequest request = new ProjectUserRoleMemberRequest();
+        request.setProjectId("default-project-2");
+        request.setUserRoleId("default-pro-role-id-3");
+        request.setCurrent(0);
+        request.setPageSize(10);
+        // 页码有误
+        this.requestPost(PROJECT_USER_ROLE_LIST_MEMBER, request, status().isBadRequest());
+        request = new ProjectUserRoleMemberRequest();
+        request.setProjectId("default-project-2");
+        request.setUserRoleId("default-pro-role-id-3");
+        request.setCurrent(1);
+        request.setPageSize(1);
+        // 页数有误
+        this.requestPost(PROJECT_USER_ROLE_LIST_MEMBER, request, status().isBadRequest());
+    }
+
+    @Test
+    @Order(13)
+    public void testProjectUserRoleAddMemberSuccess() throws Exception {
+        ProjectUserRoleMemberEditRequest request = new ProjectUserRoleMemberEditRequest();
+        request.setProjectId("default-project-2");
+        request.setUserRoleId("default-pro-role-id-3");
+        request.setUserIds(List.of("admin"));
+        this.requestPost(PROJECT_USER_ROLE_ADD_MEMBER, request, status().isOk());
+        // 权限校验
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_GROUP_UPDATE, PROJECT_USER_ROLE_ADD_MEMBER, request);
+    }
+
+    @Test
+    @Order(14)
+    public void testProjectUserRoleAddMemberError() throws Exception {
+        ProjectUserRoleMemberEditRequest request = new ProjectUserRoleMemberEditRequest();
+        request.setProjectId("default-project-2");
+        request.setUserIds(List.of("admin-x"));
+        request.setUserRoleId("default-pro-role-id-3");
+        // 用户不存在
+        this.requestPost(PROJECT_USER_ROLE_ADD_MEMBER, request, status().is5xxServerError());
+        request = new ProjectUserRoleMemberEditRequest();
+        request.setProjectId("default-project-2");
+        request.setUserIds(List.of("admin"));
+        request.setUserRoleId("default-pro-role-id-x");
+        // 用户组不存在
+        this.requestPost(PROJECT_USER_ROLE_ADD_MEMBER, request, status().is5xxServerError());
+    }
+
+    @Test
+    @Order(15)
+    public void testProjectUserRoleGetMemberOption() throws Exception {
+        // 组织下存在已删除用户
+        this.responseGet(PROJECT_USER_ROLE_GET_MEMBER_OPTION + "/default-project-2/default-pro-role-id-4");
+        // 组织下用户都已删除
+        this.responseGet(PROJECT_USER_ROLE_GET_MEMBER_OPTION + "/default-project-4/default-pro-role-id-3");
+        // 组织下无用户
+        this.responseGet(PROJECT_USER_ROLE_GET_MEMBER_OPTION + "/default-project-3/default-pro-role-id-3");
+    }
+
+    @Test
+    @Order(16)
+    public void testProjectUserRoleRemoveMemberSuccess() throws Exception {
+        ProjectUserRoleMemberEditRequest request = new ProjectUserRoleMemberEditRequest();
+        request.setProjectId("default-project-2");
+        request.setUserRoleId("default-pro-role-id-4");
+        request.setUserIds(List.of("admin"));
+        this.requestPost(PROJECT_USER_ROLE_ADD_MEMBER, request, status().isOk());
+        // 成员项目用户组存在多个, 移除成功
+        this.requestPost(PROJECT_USER_ROLE_REMOVE_MEMBER, request, status().isOk());
+        // 权限校验
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_GROUP_UPDATE, PROJECT_USER_ROLE_REMOVE_MEMBER, request);
+    }
+
+    @Test
+    @Order(17)
+    public void testProjectUserRoleRemoveMemberError() throws Exception {
+        ProjectUserRoleMemberEditRequest request = new ProjectUserRoleMemberEditRequest();
+        request.setProjectId("default-project-2");
+        request.setUserIds(List.of("admin-x"));
+        request.setUserRoleId("default-pro-role-id-3");
+        // 用户不存在
+        this.requestPost(PROJECT_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());
+        request = new ProjectUserRoleMemberEditRequest();
+        request.setProjectId("default-project-2");
+        request.setUserIds(List.of("admin"));
+        request.setUserRoleId("default-pro-role-id-x");
+        // 用户组不存在
+        this.requestPost(PROJECT_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());
+        request = new ProjectUserRoleMemberEditRequest();
+        request.setProjectId("default-project-2");
+        request.setUserRoleId("default-pro-role-id-3");
+        request.setUserIds(List.of("admin"));
+        // 成员用户组只有一个, 移除失败
+        this.requestPost(PROJECT_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());
+    }
+
+    @Test
+    @Order(18)
+    public void testProjectUserRoleDeleteOnlyMemberSuccess() throws Exception {
+        ProjectUserRoleMemberEditRequest request = new ProjectUserRoleMemberEditRequest();
+        request.setProjectId("default-project-2");
+        request.setUserRoleId("default-pro-role-id-4");
+        request.setUserIds(List.of("default-pro-admin-user"));
+        this.requestPost(PROJECT_USER_ROLE_ADD_MEMBER, request, status().isOk());
+        // 移除用户组, 且存在成员仅有该用户组
+        this.requestGet(PROJECT_USER_ROLE_DELETE + "/default-pro-role-id-3", status().isOk());
+    }
+
+    private PermissionSettingUpdateRequest getPermissionSettingUpdateRequest(){
+        PermissionSettingUpdateRequest request = new PermissionSettingUpdateRequest();
+        request.setPermissions(new ArrayList<>() {
+            {
+                // 取消PROJECT_GROUP:READ权限
+                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("PROJECT_GROUP:READ", false));
+                // 添加PROJECT_GROUP:ADD, PROJECT_GROUP:UPDATE权限
+                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("PROJECT_GROUP:READ+ADD", true));
+                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("PROJECT_GROUP:READ+UPDATE", true));
+            }
+        });
+        return request;
+    }
+
+    private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(param))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(resultMatcher)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private MvcResult responsePost(String url, Object param) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.post(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(param))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+    }
+
+    private void requestGet(String url, ResultMatcher resultMatcher) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(resultMatcher)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private MvcResult responseGet(String url) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.get(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+    }
+}

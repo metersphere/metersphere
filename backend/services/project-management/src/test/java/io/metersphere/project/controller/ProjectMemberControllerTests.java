@@ -72,7 +72,7 @@ public class ProjectMemberControllerTests extends BaseTest {
                 || StringUtils.contains(projectUserDTO.getPhone(), request.getKeyword()));
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
-        requestPostPermissionTest(PermissionConstants.PROJECT_MEMBER_READ, LIST_MEMBER, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_USER_READ, LIST_MEMBER, request);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class ProjectMemberControllerTests extends BaseTest {
         // 项目成员为空
         this.requestGet(GET_MEMBER + "/default-project-member-test-2", status().isOk());
         // 权限校验
-        requestGetPermissionTest(PermissionConstants.PROJECT_MEMBER_ADD, GET_MEMBER + "/" + DEFAULT_PROJECT_ID);
+        requestGetPermissionTest(PermissionConstants.PROJECT_USER_READ, GET_MEMBER + "/" + DEFAULT_PROJECT_ID);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class ProjectMemberControllerTests extends BaseTest {
     public void testGetRoleOption() throws Exception {
         this.requestGet(GET_ROLE + "/default-project-member-test", status().isOk());
         // 权限校验
-        requestGetPermissionTest(PermissionConstants.PROJECT_MEMBER_ADD, GET_ROLE + "/" + DEFAULT_PROJECT_ID);
+        requestGetPermissionTest(PermissionConstants.PROJECT_USER_READ, GET_ROLE + "/" + DEFAULT_PROJECT_ID);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class ProjectMemberControllerTests extends BaseTest {
         checkLog("default-project-member-user-1", OperationLogType.ADD);
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
-        requestPostPermissionTest(PermissionConstants.PROJECT_MEMBER_ADD, ADD_MEMBER, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_USER_ADD, ADD_MEMBER, request);
     }
 
     @Test
@@ -175,7 +175,7 @@ public class ProjectMemberControllerTests extends BaseTest {
         checkLog("default-project-member-user-1", OperationLogType.UPDATE);
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
-        requestPostPermissionTest(PermissionConstants.PROJECT_MEMBER_UPDATE, UPDATE_MEMBER, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_USER_UPDATE, UPDATE_MEMBER, request);
     }
 
     @Test
@@ -195,7 +195,7 @@ public class ProjectMemberControllerTests extends BaseTest {
         // 日志
         checkLog("default-project-member-user-1", OperationLogType.DELETE);
         // 权限校验
-        requestGetPermissionTest(PermissionConstants.PROJECT_MEMBER_DELETE, REMOVE_MEMBER + "/" + DEFAULT_PROJECT_ID + "/default-project-member-user-1");
+        requestGetPermissionTest(PermissionConstants.PROJECT_USER_DELETE, REMOVE_MEMBER + "/" + DEFAULT_PROJECT_ID + "/default-project-member-user-1");
     }
 
     @Test
@@ -216,7 +216,7 @@ public class ProjectMemberControllerTests extends BaseTest {
         checkLog("default-project-member-user-2", OperationLogType.UPDATE);
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
-        requestPostPermissionTest(PermissionConstants.PROJECT_MEMBER_UPDATE, ADD_ROLE, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_USER_UPDATE, ADD_ROLE, request);
     }
 
     @Test
@@ -240,7 +240,7 @@ public class ProjectMemberControllerTests extends BaseTest {
         checkLog("default-project-member-user-1", OperationLogType.DELETE);
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
-        requestPostPermissionTest(PermissionConstants.PROJECT_MEMBER_DELETE, BATCH_REMOVE_MEMBER, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_USER_DELETE, BATCH_REMOVE_MEMBER, request);
     }
 
     @Test
