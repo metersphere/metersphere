@@ -8,7 +8,9 @@ import java.util.List;
 
 public interface ExtUserMapper {
 
-    List<UserExtend> getMemberOption(String sourceId);
+    List<UserExtend> getMemberOption(@Param("sourceId") String sourceId, @Param("keyword") String keyword);
+
+    List<User> getAdminList(@Param("keyword") String keyword);
 
     List<User> getUserListByOrgId(@Param("sourceId") String sourceId);
 }

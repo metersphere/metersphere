@@ -149,8 +149,8 @@ public class SystemProjectController {
     @GetMapping("/user-list")
     @Operation(summary = "系统设置-系统-组织与项目-项目-系统-组织及项目, 获取管理员下拉选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public List<User> getUserList() {
-        return userService.getUserList();
+    public List<User> getUserList(@Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                      @RequestParam(value = "keyword", required = false) String keyword) {
+        return userService.getAdminList(keyword);
     }
-
 }

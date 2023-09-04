@@ -310,8 +310,12 @@ public class UserService {
      * @param sourceId 组织ID, 项目ID
      * @return 系统用户选项
      */
-    public List<UserExtend> getMemberOption(String sourceId) {
-        return extUserMapper.getMemberOption(sourceId);
+    public List<UserExtend> getMemberOption(String sourceId, String keyword) {
+        return extUserMapper.getMemberOption(sourceId, keyword);
+    }
+
+    public List<User> getAdminList(String keyword) {
+        return extUserMapper.getAdminList(keyword);
     }
 
     public TableBatchProcessResponse resetPassword(TableBatchProcessDTO request, String operator) {
