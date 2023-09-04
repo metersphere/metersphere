@@ -138,10 +138,11 @@ public class OperationLogControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void testUserList() throws Exception {
-        this.requestGetWithOkAndReturn(USER_LIST);
+        String keyword = "a";
+        this.requestGetWithOkAndReturn(USER_LIST + "?keyword=" + keyword);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_LOG_READ, USER_LIST);
+        requestGetPermissionTest(PermissionConstants.SYSTEM_LOG_READ, USER_LIST + "?keyword=" + keyword);
     }
 
     @Test
