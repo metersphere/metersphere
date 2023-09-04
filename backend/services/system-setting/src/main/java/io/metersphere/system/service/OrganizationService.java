@@ -250,62 +250,76 @@ public class OrganizationService {
             return new ArrayList<>();
         }
         Map<String, OrgUserExtend> userMap = orgUserExtends.stream().collect(Collectors.toMap(OrgUserExtend::getId, user -> user));
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andOrganizationIdEqualTo(organizationId);
-        List<Project> projectsList = projectMapper.selectByExample(projectExample);
-        List<String> projectIdList = projectsList.stream().map(Project::getId).toList();
-        Map<String, String> projectIdNameMap = projectsList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
         //根据用户id获取所有与该用户有关的当前组织以及组织下的项目关系表
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
-        List<String> sourceIds = new ArrayList<>(projectIdList);
-        sourceIds.add(organizationId);
-        userRoleRelationExample.createCriteria().andUserIdIn(new ArrayList<>(userMap.keySet())).andSourceIdIn(sourceIds);
+        userRoleRelationExample.createCriteria().andUserIdIn(new ArrayList<>(userMap.keySet())).andOrganizationIdEqualTo(organizationId);
         userRoleRelationExample.setOrderByClause("create_time desc");
         List<UserRoleRelation> userRoleRelationsByUsers = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         //根据关系表查询出用户的关联组织和用户组
-        Map<String, List<IdNameStructureDTO>> userIdprojectIdMap = new HashMap<>();
         Map<String, Set<String>> userIdRoleIdMap = new HashMap<>();
+        Map<String, Set<String>> userIdProjectIdMap = new HashMap<>();
+        Set<String>roleIdSet = new HashSet<>();
+        Set<String>projectIdSet = new HashSet<>();
         for (UserRoleRelation userRoleRelationsByUser : userRoleRelationsByUsers) {
             String sourceId = userRoleRelationsByUser.getSourceId();
             String roleId = userRoleRelationsByUser.getRoleId();
             String userId = userRoleRelationsByUser.getUserId();
-            List<IdNameStructureDTO> pIdNameList = userIdprojectIdMap.get(userId);
-            if (CollectionUtils.isEmpty(pIdNameList)) {
-                pIdNameList = new ArrayList<>();
-            }
-            String projectName = projectIdNameMap.get(sourceId);
-            if (StringUtils.isNotBlank(projectName)) {
-                IdNameStructureDTO idNameStructureDTO = new IdNameStructureDTO();
-                idNameStructureDTO.setId(sourceId);
-                idNameStructureDTO.setName(projectName);
-                pIdNameList.add(idNameStructureDTO);
-            }
-            userIdprojectIdMap.put(userId, pIdNameList);
-
-            //只显示组织级别的用户组
+            //收集组织级别的用户组
             if (StringUtils.equals(sourceId, organizationId)) {
-                Set<String> roleIds = userIdRoleIdMap.get(userId);
-                if (CollectionUtils.isEmpty(roleIds)) {
-                    roleIds = new HashSet<>();
-                }
-                roleIds.add(roleId);
-                userIdRoleIdMap.put(userId, roleIds);
+                getTargetIds(userIdRoleIdMap, roleIdSet, roleId, userId);
+            }
+            //收集项目id
+            if (!StringUtils.equals(sourceId, organizationId)) {
+                getTargetIds(userIdProjectIdMap, projectIdSet, sourceId, userId);
             }
         }
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria().andIdIn(new ArrayList<>(roleIdSet));
+        List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+
+        List<Project> projects = new ArrayList<>();
+        if (projectIdSet.size()>0) {
+            ProjectExample projectExample = new ProjectExample();
+            projectExample.createCriteria().andIdIn(new ArrayList<>(projectIdSet));
+            projects = projectMapper.selectByExample(projectExample);
+        }
+
+
         for (OrgUserExtend orgUserExtend : orgUserExtends) {
-            List<IdNameStructureDTO> projectList = userIdprojectIdMap.get(orgUserExtend.getId());
-            if (CollectionUtils.isNotEmpty(projectList)) {
+            if (projects.size()>0) {
+                Set<String> projectIds = userIdProjectIdMap.get(orgUserExtend.getId());
+                List<Project> projectFilters = projects.stream().filter(t -> projectIds.contains(t.getId())).toList();
+                List<IdNameStructureDTO> projectList = new ArrayList<>();
+                setProjectList(projectList, projectFilters);
                 orgUserExtend.setProjectIdNameMap(projectList);
             }
+
             Set<String> userRoleIds = userIdRoleIdMap.get(orgUserExtend.getId());
-            UserRoleExample userRoleExample = new UserRoleExample();
-            userRoleExample.createCriteria().andIdIn(new ArrayList<>(userRoleIds));
-            List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+            List<UserRole> userRoleFilters = userRoles.stream().filter(t -> userRoleIds.contains(t.getId())).toList();
             List<IdNameStructureDTO> userRoleList = new ArrayList<>();
-            setUserRoleList(userRoleList, userRoles);
+            setUserRoleList(userRoleList, userRoleFilters);
             orgUserExtend.setUserRoleIdNameMap(userRoleList);
         }
         return orgUserExtends;
+    }
+
+    private void getTargetIds(Map<String, Set<String>> userIdTargetIdMap, Set<String> targetIdSet, String sourceId, String userId) {
+        Set<String> targetIds = userIdTargetIdMap.get(userId);
+        if (CollectionUtils.isEmpty(targetIds)) {
+            targetIds = new HashSet<>();
+        }
+        targetIds.add(sourceId);
+        targetIdSet.add(sourceId);
+        userIdTargetIdMap.put(userId, targetIds);
+    }
+
+    private void setProjectList(List<IdNameStructureDTO> projectList, List<Project> projectFilters) {
+        for (Project project : projectFilters) {
+            IdNameStructureDTO idNameStructureDTO = new IdNameStructureDTO();
+            idNameStructureDTO.setId(project.getId());
+            idNameStructureDTO.setName(project.getName());
+            projectList.add(idNameStructureDTO);
+        }
     }
 
     public List<OrganizationProjectOptionsDTO> getOrganizationOptions() {
@@ -336,7 +350,7 @@ public class OrganizationService {
                     example.createCriteria().andSourceIdEqualTo(organizationId).andUserIdEqualTo(memberId).andRoleIdEqualTo(userRoleId);
                     List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
                     if (CollectionUtils.isEmpty(userRoleRelations)) {
-                        UserRoleRelation userRoleRelation = buildUserRoleRelation(createUserId, memberId, organizationId, userRoleId);
+                        UserRoleRelation userRoleRelation = buildUserRoleRelation(createUserId, memberId, organizationId, userRoleId, organizationId);
                         userRoleRelation.setOrganizationId(organizationId);
                         userRoleRelationMapper.insert(userRoleRelation);
                         //add Log
@@ -400,7 +414,7 @@ public class OrganizationService {
                 example.createCriteria().andSourceIdEqualTo(projectId).andUserIdEqualTo(memberId);
                 List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
                 if (CollectionUtils.isEmpty(userRoleRelations)) {
-                    UserRoleRelation userRoleRelation = buildUserRoleRelation(userId, memberId, projectId, InternalUserRole.PROJECT_MEMBER.getValue());
+                    UserRoleRelation userRoleRelation = buildUserRoleRelation(userId, memberId, projectId, InternalUserRole.PROJECT_MEMBER.getValue(), requestOrganizationId);
                     userRoleRelation.setOrganizationId(orgMemberExtendProjectRequest.getOrganizationId());
                     userRoleRelationMapper.insert(userRoleRelation);
                     //add Log
@@ -565,7 +579,7 @@ public class OrganizationService {
         userRoleRelationMapper.deleteByExample(userRoleRelationExample);
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         projectInDBInOrgIds.forEach(projectId -> {
-            UserRoleRelation userRoleRelation = buildUserRoleRelation(createUserId, memberId, projectId, InternalUserRole.PROJECT_MEMBER.getValue());
+            UserRoleRelation userRoleRelation = buildUserRoleRelation(createUserId, memberId, projectId, InternalUserRole.PROJECT_MEMBER.getValue(), organizationId);
             userRoleRelation.setOrganizationId(organizationId);
             userRoleRelationMapper.insert(userRoleRelation);
             //add Log
@@ -582,10 +596,11 @@ public class OrganizationService {
         });
     }
 
-    private UserRoleRelation buildUserRoleRelation(String createUserId, String memberId, String sourceId, String roleId) {
+    private UserRoleRelation buildUserRoleRelation(String createUserId, String memberId, String sourceId, String roleId, String organizationId) {
         UserRoleRelation userRoleRelation = new UserRoleRelation();
         userRoleRelation.setId(UUID.randomUUID().toString());
         userRoleRelation.setUserId(memberId);
+        userRoleRelation.setOrganizationId(organizationId);
         userRoleRelation.setSourceId(sourceId);
         userRoleRelation.setRoleId(roleId);
         userRoleRelation.setCreateTime(System.currentTimeMillis());
@@ -604,7 +619,7 @@ public class OrganizationService {
         userRoleRelationMapper.deleteByExample(userRoleRelationExample);
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         userRoleInDBInOrgIds.forEach(userRoleId -> {
-            UserRoleRelation userRoleRelation = buildUserRoleRelation(createUserId, memberId, organizationId, userRoleId);
+            UserRoleRelation userRoleRelation = buildUserRoleRelation(createUserId, memberId, organizationId, userRoleId, organizationId);
             userRoleRelation.setOrganizationId(organizationId);
             userRoleRelationMapper.insert(userRoleRelation);
             //add Log
