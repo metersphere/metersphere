@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtSystemOrgProjectMapper">
+
+    <select id="selectListProjectByOrg" resultType="io.metersphere.system.dto.IdNameStructureDTO">
+        select id, name
+        from project
+        where deleted = 0
+        and organization_id = #{organizationId}
+        <if test="keyword != null and keyword != ''">
+            and (name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        order by update_time desc
+        limit 100
+    </select>
+
+</mapper>

@@ -2,10 +2,7 @@ package io.metersphere.system.mapper;
 
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.system.domain.User;
-import io.metersphere.system.dto.OrgUserExtend;
-import io.metersphere.system.dto.OrganizationDTO;
-import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
-import io.metersphere.system.dto.UserExtend;
+import io.metersphere.system.dto.*;
 import io.metersphere.system.request.OrganizationDeleteRequest;
 import io.metersphere.system.request.OrganizationRequest;
 import org.apache.ibatis.annotations.Param;
@@ -63,6 +60,13 @@ public interface ExtOrganizationMapper {
      * @return 组织成员列表数据
      */
     List<OrgUserExtend> listMemberByOrg(@Param("request") OrganizationRequest request);
+
+    /**
+     * 获取组织成员下拉列表(角色)
+     * @param keyword 组织成员列表请求参数
+     * @return 组织成员列表数据
+     */
+    List<IdNameDisabledDTO> selectListMemberByOrg(@Param("keyword") String keyword);
 
     /**
      * 获取组织管理员

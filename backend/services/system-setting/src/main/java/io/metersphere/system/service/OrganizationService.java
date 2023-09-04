@@ -46,6 +46,8 @@ public class OrganizationService {
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
     @Resource
+    private ExtSystemOrgProjectMapper extSystemOrgProjectMapper;
+    @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private UserMapper userMapper;
@@ -284,21 +286,25 @@ public class OrganizationService {
             projects = projectMapper.selectByExample(projectExample);
         }
 
-
         for (OrgUserExtend orgUserExtend : orgUserExtends) {
             if (projects.size()>0) {
                 Set<String> projectIds = userIdProjectIdMap.get(orgUserExtend.getId());
-                List<Project> projectFilters = projects.stream().filter(t -> projectIds.contains(t.getId())).toList();
-                List<IdNameStructureDTO> projectList = new ArrayList<>();
-                setProjectList(projectList, projectFilters);
-                orgUserExtend.setProjectIdNameMap(projectList);
+                if (CollectionUtils.isNotEmpty(projectIds)) {
+                    List<Project> projectFilters = projects.stream().filter(t -> projectIds.contains(t.getId())).toList();
+                    List<IdNameStructureDTO> projectList = new ArrayList<>();
+                    setProjectList(projectList, projectFilters);
+                    orgUserExtend.setProjectIdNameMap(projectList);
+                }
             }
 
             Set<String> userRoleIds = userIdRoleIdMap.get(orgUserExtend.getId());
-            List<UserRole> userRoleFilters = userRoles.stream().filter(t -> userRoleIds.contains(t.getId())).toList();
-            List<IdNameStructureDTO> userRoleList = new ArrayList<>();
-            setUserRoleList(userRoleList, userRoleFilters);
-            orgUserExtend.setUserRoleIdNameMap(userRoleList);
+            if (CollectionUtils.isNotEmpty(userRoleIds)){
+                List<UserRole> userRoleFilters = userRoles.stream().filter(t -> userRoleIds.contains(t.getId())).toList();
+                List<IdNameStructureDTO> userRoleList = new ArrayList<>();
+                setUserRoleList(userRoleList, userRoleFilters);
+                orgUserExtend.setUserRoleIdNameMap(userRoleList);
+            }
+
         }
         return orgUserExtends;
     }
@@ -642,20 +648,10 @@ public class OrganizationService {
      * @param organizationId 组织ID
      * @return 项目列表
      */
-    public List<IdNameStructureDTO> getProjectList(String organizationId) {
+    public List<IdNameStructureDTO> getProjectList(String organizationId, String keyword) {
         //校验组织是否存在
         checkOrgExistById(organizationId);
-        List<IdNameStructureDTO> projectList = new ArrayList<>();
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andOrganizationIdEqualTo(organizationId);
-        List<Project> projects = projectMapper.selectByExample(projectExample);
-        for (Project project : projects) {
-            IdNameStructureDTO idNameStructureDTO = new IdNameStructureDTO();
-            idNameStructureDTO.setId(project.getId());
-            idNameStructureDTO.setName(project.getName());
-            projectList.add(idNameStructureDTO);
-        }
-        return projectList;
+        return extSystemOrgProjectMapper.selectListProjectByOrg(organizationId, keyword);
     }
 
     /**
@@ -686,33 +682,29 @@ public class OrganizationService {
     }
 
     /**
-     * 获取不在当前组织的所有用户
+     * 获取所有未被删除用户
      *
      * @param organizationId 组织ID
      * @return 用户列表
      */
-    public List<IdNameStructureDTO> getUserList(String organizationId) {
+    public List<IdNameDisabledDTO> getUserList(String organizationId, String keyword) {
         //校验组织是否存在
         checkOrgExistById(organizationId);
+
+        List<IdNameDisabledDTO> idNameDisabledDTOS = extOrganizationMapper.selectListMemberByOrg(keyword);
+
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(organizationId);
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         List<String> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().toList();
-        UserExample userExample = new UserExample();
-        UserExample.Criteria criteria = userExample.createCriteria();
-        if (CollectionUtils.isNotEmpty(userIds)) {
-            criteria.andIdNotIn(userIds);
+
+        for (IdNameDisabledDTO idNameDisabledDTO : idNameDisabledDTOS) {
+            if (CollectionUtils.isNotEmpty(userIds) && userIds.contains(idNameDisabledDTO.getId())) {
+                idNameDisabledDTO.setDisabled(true);
+            }
         }
-        criteria.andDeletedEqualTo(false);
-        List<User> users = userMapper.selectByExample(userExample);
-        List<IdNameStructureDTO> userList = new ArrayList<>();
-        for (User user : users) {
-            IdNameStructureDTO idNameStructureDTO = new IdNameStructureDTO();
-            idNameStructureDTO.setId(user.getId());
-            idNameStructureDTO.setName(user.getName());
-            userList.add(idNameStructureDTO);
-        }
-        return userList;
+
+        return idNameDisabledDTOS;
     }
 
     /**

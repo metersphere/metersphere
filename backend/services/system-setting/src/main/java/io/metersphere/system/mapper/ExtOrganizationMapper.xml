@@ -76,6 +76,17 @@
         group by temp.id
     </select>
 
+    <select id="selectListMemberByOrg" resultType="io.metersphere.system.dto.IdNameDisabledDTO">
+        select id, name
+        from user
+        where deleted = 0
+        <if test="keyword != null and keyword != ''">
+            and (name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        order by update_time desc
+        limit 100
+    </select>
+
     <select id="getOrgAdminList" resultType="io.metersphere.system.domain.User">
         select u.*
         from user_role_relation urr
