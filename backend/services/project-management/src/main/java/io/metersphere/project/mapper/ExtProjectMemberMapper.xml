@@ -31,12 +31,12 @@
     </select>
 
     <sql id="filter">
-        <if test="request.filter != null and request.filter.size() > 0">
+        <if test="request.filter != null">
             <foreach collection="request.filter.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key == 'roleIds'">
-                            and urr.id in
+                            and urr.role_id in
                             <include refid="io.metersphere.sdk.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>

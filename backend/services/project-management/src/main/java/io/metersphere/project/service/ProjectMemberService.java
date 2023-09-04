@@ -17,7 +17,6 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
-import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -48,8 +47,6 @@ public class ProjectMemberService {
     private UserMapper userMapper;
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
-    @Resource
-    private BaseUserMapper baseUserMapper;
     @Resource
     private ProjectMapper projectMapper;
     @Resource
