@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtProjectMapper">
+
+
+    <select id="selectListProjectByOrg" resultType="io.metersphere.system.dto.IdNameStructureDTO">
+        select id, name
+        from project
+        where deleted = 0
+          and organization_id = #{organizationId,jdbcType=VARCHAR}
+        <if test="keyword != null and keyword != ''">
+            and (name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        order by update_time desc
+        limit 100
+    </select>
+
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.keyword != null">
+                and (
+                o.name like concat('%', #{request.keyword},'%')
+                or o.id like concat('%', #{request.keyword},'%')
+                )
+            </if>
+            <include refid="filter"/>
+            <include refid="combine">
+                <property name="condition" value="request.combine"/>
+            </include>
+        </where>
+    </sql>
+
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='createUser'">
+                            and o.create_user in
+                            <include refid="io.metersphere.sdk.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="combine">
+        <if test="request.combine != null">
+            <if test='${condition}.createUser != null'>
+                and o.create_user
+                <include refid="io.metersphere.sdk.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.createUser"/>
+                </include>
+            </if>
+        </if>
+    </sql>
+</mapper>
