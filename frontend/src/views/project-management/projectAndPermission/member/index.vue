@@ -30,36 +30,27 @@
     @batch-action="handleTableBatch"
   >
     <template #userRole="{ record }">
-      <a-tooltip :content="(record.userRoles||[]).map((e: any) => e.name).join(',')">
-        <div v-if="!record.showUserSelect">
-          <a-tag
-            v-for="org of (record.userRoles || []).slice(0, 3)"
-            :key="org"
-            class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-            bordered
-            @click="changeUser(record)"
-          >
-            {{ org.name }}
-          </a-tag>
-          <a-tag
-            v-if="(record.userRoles || []).length > 3"
-            class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-            bordered
-            @click="changeUser(record)"
-          >
-            +{{ (record.userRoles || []).length - 3 }}
-          </a-tag>
-        </div>
-        <a-select
-          v-else
-          v-model="record.selectUserList"
-          multiple
-          :max-tag-count="2"
-          @popup-visible-change="(value) => userGroupChange(value, record)"
-        >
-          <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-        </a-select>
-      </a-tooltip>
+      <MsTagGroup
+        v-if="!record.showUserSelect"
+        :tag-list="record.userRoles || []"
+        :show-num="2"
+        type="primary"
+        theme="outline"
+        @click="changeUser(record)"
+      >
+        <template #default="{ tag }">
+          {{ tag.name }}
+        </template>
+      </MsTagGroup>
+      <a-select
+        v-else
+        v-model="record.selectUserList"
+        multiple
+        :max-tag-count="2"
+        @popup-visible-change="(value) => userGroupChange(value, record)"
+      >
+        <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+      </a-select>
     </template>
     <template #enable="{ record }">
       <div v-if="record.enable" class="flex items-center">
@@ -125,6 +116,7 @@
     ProjectMemberItem,
     SearchParams,
   } from '@/models/projectManagement/projectAndPermission';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
 
   const { t } = useI18n();
   const { openModal } = useModal();
