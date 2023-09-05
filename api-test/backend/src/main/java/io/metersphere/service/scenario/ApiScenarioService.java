@@ -2383,6 +2383,10 @@ public class ApiScenarioService {
                 }
             });
         });
+        //以map的key为项目id  根据projectMapper查找  找不到的则移除key
+        List<String> projectIds = new ArrayList<>(projectEnvMap.keySet());
+        List<Project> projectList = baseProjectService.getProjectByIds(projectIds);
+        projectEnvMap.keySet().removeIf(id -> !projectList.stream().map(Project::getId).collect(Collectors.toSet()).contains(id));
         return projectEnvMap;
     }
 
