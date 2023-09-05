@@ -68,7 +68,7 @@
     revokeDeleteProjectByOrg,
     createOrUpdateProjectByOrg,
   } from '@/api/modules/setting/organizationAndProject';
-  import { TableKeyEnum } from '@/enums/tableEnum';
+  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -101,42 +101,51 @@
       dataIndex: 'num',
       width: 100,
       showTooltip: true,
+      editable: true,
+      editType: ColumnEditTypeEnum.INPUT,
     },
     {
       title: 'system.organization.name',
       slotName: 'name',
       editable: true,
+      editType: ColumnEditTypeEnum.INPUT,
       dataIndex: 'name',
       showTooltip: true,
     },
     {
       title: 'system.organization.member',
       slotName: 'memberCount',
+      showDrag: true,
     },
     {
       title: 'system.organization.status',
       dataIndex: 'enable',
       disableTitle: 'common.end',
+      showDrag: true,
     },
     {
       title: 'system.organization.description',
       dataIndex: 'description',
       ellipsis: true,
       tooltip: true,
+      showDrag: true,
     },
     {
       title: 'system.organization.subordinateOrg',
       dataIndex: 'organizationName',
+      showDrag: true,
     },
     {
       title: 'system.organization.creator',
       slotName: 'creator',
       width: 180,
+      showDrag: true,
     },
     {
       title: 'system.organization.createTime',
       dataIndex: 'createTime',
       width: 180,
+      showDrag: true,
     },
     {
       title: 'system.organization.operation',

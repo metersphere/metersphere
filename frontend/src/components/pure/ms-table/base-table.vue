@@ -86,7 +86,11 @@
               <template v-else-if="item.showTooltip">
                 <a-tooltip placement="top" :content="String(record[item.dataIndex as string])">
                   <a-input
-                    v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
+                    v-if="
+                      editActiveKey === `${item.dataIndex}${rowIndex}` &&
+                      item.editable &&
+                      item.editType === ColumnEditTypeEnum.INPUT
+                    "
                     ref="currentInputRef"
                     v-model="record[item.dataIndex as string]"
                     @blur="handleEditInputBlur()"
@@ -99,18 +103,22 @@
                       </slot>
                     </div>
                     <MsIcon
-                      v-if="item.editable && item.dataIndex === editKey && !record.deleted"
+                      v-if="item.editable && !record.deleted"
                       class="ml-2 cursor-pointer"
                       :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
                       type="icon-icon_edit_outlined"
-                      @click="handleEdit(rowIndex)"
+                      @click="handleEdit(item.dataIndex as string, rowIndex)"
                     />
                   </template>
                 </a-tooltip>
               </template>
               <template v-else>
                 <a-input
-                  v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
+                  v-if="
+                    editActiveKey === `${item.dataIndex}${rowIndex}` &&
+                    item.editable &&
+                    item.editType === ColumnEditTypeEnum.INPUT
+                  "
                   ref="currentInputRef"
                   v-model="record[item.dataIndex as string]"
                   @blur="handleEditInputBlur()"
@@ -125,7 +133,7 @@
                     class="ml-2 cursor-pointer"
                     :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
                     type="icon-icon_edit_outlined"
-                    @click="handleEdit(rowIndex)"
+                    @click="handleEdit(item.dataIndex as string, rowIndex)"
                   />
                 </template>
               </template>
@@ -170,7 +178,7 @@
   import { useAttrs, computed, ref, onMounted, nextTick } from 'vue';
   import { useAppStore, useTableStore } from '@/store';
   import selectAll from './select-all.vue';
-  import { SpecialColumnEnum, SelectAllEnum } from '@/enums/tableEnum';
+  import { SpecialColumnEnum, SelectAllEnum, ColumnEditTypeEnum } from '@/enums/tableEnum';
   import BatchAction from './batchAction.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
   import ColumnSelector from './columnSelector.vue';
@@ -208,7 +216,7 @@
   // 全选按钮-总条数
   const selectTotal = ref(0);
   // 编辑按钮的Active状态
-  const editActiveKey = ref(-1);
+  const editActiveKey = ref<string>('');
   // 编辑input的Ref
   const currentInputRef = ref();
   const { rowKey, editKey }: Partial<MsTableProps<any>> = attrs;
@@ -308,13 +316,13 @@
   });
 
   const handleEditInputEnter = (record: TableData) => {
-    editActiveKey.value = -1;
+    editActiveKey.value = '';
     emit('rowNameChange', record);
   };
 
   const handleEditInputBlur = () => {
     currentInputRef.value = null;
-    editActiveKey.value = -1;
+    editActiveKey.value = '';
   };
 
   // 排序change事件
@@ -336,8 +344,8 @@
   };
 
   // 编辑单元格的input
-  const handleEdit = (rowIndex: number) => {
-    editActiveKey.value = rowIndex;
+  const handleEdit = (dataIndex: string, rowIndex: number) => {
+    editActiveKey.value = dataIndex + rowIndex;
     if (currentInputRef.value) {
       currentInputRef.value[0].focus();
     } else {

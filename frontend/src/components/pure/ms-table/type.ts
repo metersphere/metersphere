@@ -1,3 +1,4 @@
+import { ColumnEditTypeEnum } from '@/enums/tableEnum';
 import { TableColumnData, TableData, TableDraggable, TableChangeExtra } from '@arco-design/web-vue';
 
 export interface MsPaginationI {
@@ -26,6 +27,8 @@ export interface MsTableColumnData extends TableColumnData {
   disableTitle?: string;
   // 当展示tooltip时，是否是Tag
   isTag?: boolean;
+  // editType
+  editType?: ColumnEditTypeEnum;
 }
 
 export type MsTableErrorStatus = boolean | 'error' | 'empty';
@@ -77,8 +80,6 @@ export interface MsTableProps<T> {
   showSetting?: boolean;
   // 分页是否是简单模式
   pageSimple?: boolean;
-  // 编辑的key，默认为name
-  editKey?: string;
   // 是否展示禁用的行
   noDisable?: boolean;
   // 表格的错误状态，默认为false

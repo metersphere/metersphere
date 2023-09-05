@@ -12,7 +12,8 @@ export default function checkStatus(status: number, msg: string, errorMessageMod
       errMessage = `${msg}`;
       break;
     case 401: {
-      if (msg.length > 100) {
+      if (msg.length === 216) {
+        // 216是salt的长度
         setSalt(msg);
       } else {
         errMessage = msg || t('api.errMsg401');

@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onBeforeMount, onMounted } from 'vue';
+  import { computed, onBeforeMount, onMounted, watchEffect } from 'vue';
   import { useRouter } from 'vue-router';
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
@@ -70,7 +70,7 @@
   });
   const checkIsLogin = async () => {
     const isLogin = await userStore.isLogin();
-    const isLoginPage = window.location.hash === '#/login';
+    const isLoginPage = window.location.hash.indexOf('#/login') > -1;
     if (isLoginPage && isLogin) {
       // 当前页面为登录页面，且已经登录，跳转到首页
       router.push(WorkbenchRouteEnum.WORKBENCH);

@@ -26,7 +26,7 @@ export default function useUser() {
   };
 
   const isLoginPage = () => {
-    return router.currentRoute.value.name === 'login';
+    return window.location.hash.indexOf('login') > -1;
   };
 
   return {
