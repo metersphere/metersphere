@@ -428,6 +428,15 @@
         NULL),
         (UUID(), 'IN_SITE', 'CREATE', 'PROCESSOR', 'DEFECT_TASK', '',
         '4a890e41-e755-44fc-b734-d6a0ca25a65c', 0, #{projectId}, NULL, 1629790487682,
+        NULL),
+        (UUID(), 'IN_SITE', 'UPDATE', 'CREATOR', 'UI_AUTOMATION_TASK', '',
+        '4a890e41-e755-44fc-b734-d6a0ca25a65c', 0, #{projectId}, NULL, 1693894147012,
+        NULL),
+        (UUID(), 'IN_SITE', 'DELETE', 'CREATOR', 'UI_AUTOMATION_TASK', '',
+        '0b2923e9-fd1a-445d-9518-7882f902e299', 0, #{projectId}, NULL, 1693894556361,
+        NULL),
+        (UUID(), 'IN_SITE', 'DELETE', 'CREATOR', 'UI_REPORT_TASK', '',
+        '4bd81301-50ec-4fc7-83a9-55a2cbd99966', 0, #{projectId}, NULL, 1693894632395,
         NULL)
     </insert>
 
