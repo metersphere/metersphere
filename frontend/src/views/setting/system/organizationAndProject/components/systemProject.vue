@@ -92,7 +92,7 @@
     {
       title: 'system.organization.ID',
       dataIndex: 'num',
-      width: 100,
+      showTooltip: true,
     },
     {
       title: 'system.organization.name',

@@ -1,8 +1,8 @@
 <template>
-  <a-tooltip :content="(props.tagList||[]).map((e: any) => e.name).join('，')">
-    <div class="float-left flex min-h-[22px] max-w-[456px]">
+  <a-tooltip :content="(props.tagList||[]).map((e: any) => e[nameKey]).join('，')">
+    <div class="flex min-h-[22px] max-w-[456px] flex-row">
       <MsTag v-for="tag of props.tagList.slice(0, props.showNum)" :key="tag.id" v-bind="attrs">
-        <slot :tag="tag"> </slot>
+        {{ tag[props.nameKey] }}
       </MsTag>
       <MsTag v-if="props.tagList.length > props.showNum" v-bind="attrs">
         +{{ props.tagList.length - props.showNum }}</MsTag
@@ -19,9 +19,11 @@
     defineProps<{
       tagList: any;
       showNum?: number;
+      nameKey?: string;
     }>(),
     {
       showNum: 2,
+      nameKey: 'name',
     }
   );
 

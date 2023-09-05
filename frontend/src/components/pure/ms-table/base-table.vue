@@ -55,48 +55,30 @@
             </slot>
           </template>
           <template #cell="{ column, record, rowIndex }">
-            <div class="flex flex-row flex-nowrap items-center" :class="item.isTag ? 'max-w-[360px]' : 'max-w-[300px]'">
+            <div class="flex flex-row flex-nowrap items-center">
               <template v-if="item.dataIndex === SpecialColumnEnum.ENABLE">
                 <slot name="enable" v-bind="{ record }">
-                  <div v-if="record.enable" class="flex items-center">
+                  <template v-if="record.enable">
                     <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
                     {{ item.enableTitle ? t(item.enableTitle) : t('msTable.enable') }}
-                  </div>
-                  <div v-else class="flex items-center text-[var(--color-text-4)]">
-                    <MsIcon type="icon-icon_disable" class="mr-[2px]" />
+                  </template>
+                  <template v-else>
+                    <MsIcon type="icon-icon_disable" class="mr-[2px] text-[var(--color-text-4)]" />
                     <span class="text-[var(--color-text-1)]">
                       {{ item.disableTitle ? t(item.disableTitle) : t('msTable.disable') }}
                     </span>
-                  </div>
+                  </template>
                 </slot>
+              </template>
+              <template v-else-if="item.isTag">
+                <div class="one-line-text max-w-[456px]">
+                  <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                    {{ record[item.dataIndex as string] || '-' }}
+                  </slot>
+                </div>
               </template>
               <template v-else-if="item.showTooltip">
                 <a-tooltip placement="top" :content="record[item.dataIndex as string]">
-                  <div class="flex flex-row flex-nowrap items-center">
-                    <a-input
-                      v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
-                      ref="currentInputRef"
-                      v-model="record[item.dataIndex as string]"
-                      @blur="handleEditInputBlur()"
-                      @press-enter="handleEditInputEnter(record)"
-                    />
-                    <template v-else>
-                      <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
-                        <div class="one-line-text">{{ record[item.dataIndex as string] || '-' }}</div>
-                      </slot>
-                      <MsIcon
-                        v-if="item.editable && item.dataIndex === editKey && !record.deleted"
-                        class="ml-2 cursor-pointer"
-                        :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
-                        type="icon-icon_edit_outlined"
-                        @click="handleEdit(rowIndex)"
-                      />
-                    </template>
-                  </div>
-                </a-tooltip>
-              </template>
-              <template v-else>
-                <div class="flex flex-row flex-nowrap items-center">
                   <a-input
                     v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
                     ref="currentInputRef"
@@ -105,9 +87,11 @@
                     @press-enter="handleEditInputEnter(record)"
                   />
                   <template v-else>
-                    <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
-                      <div class="one-line-text max-w-[300px]">{{ record[item.dataIndex as string] || '-' }}</div>
-                    </slot>
+                    <div class="one-line-text max-w-[300px]">
+                      <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                        {{ record[item.dataIndex as string] || '-' }}
+                      </slot>
+                    </div>
                     <MsIcon
                       v-if="item.editable && item.dataIndex === editKey && !record.deleted"
                       class="ml-2 cursor-pointer"
@@ -116,7 +100,28 @@
                       @click="handleEdit(rowIndex)"
                     />
                   </template>
-                </div>
+                </a-tooltip>
+              </template>
+              <template v-else>
+                <a-input
+                  v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
+                  ref="currentInputRef"
+                  v-model="record[item.dataIndex as string]"
+                  @blur="handleEditInputBlur()"
+                  @press-enter="handleEditInputEnter(record)"
+                />
+                <template v-else>
+                  <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                    {{ record[item.dataIndex as string] || '-' }}
+                  </slot>
+                  <MsIcon
+                    v-if="item.editable && item.dataIndex === editKey && !record.deleted"
+                    class="ml-2 cursor-pointer"
+                    :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
+                    type="icon-icon_edit_outlined"
+                    @click="handleEdit(rowIndex)"
+                  />
+                </template>
               </template>
             </div>
           </template>
