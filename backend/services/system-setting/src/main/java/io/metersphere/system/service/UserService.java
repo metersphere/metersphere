@@ -304,7 +304,7 @@ public class UserService {
     }
 
     public List<User> getUserList(String keyword) {
-        return extUserMapper.selectUserList(keyword.trim());
+        return extUserMapper.selectUserList(keyword);
     }
 
     /**
