@@ -137,6 +137,16 @@
             "name": "permission.project_application_test_plan.update"
           }
         ]
+      },
+      {
+        "id": "PROJECT_LOG",
+        "name": "permission.project_log.name",
+        "license": true,
+        "permissions": [
+          {
+            "id": "PROJECT_LOG:READ"
+          }
+        ]
       }
     ]
   }
