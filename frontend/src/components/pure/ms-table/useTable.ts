@@ -36,7 +36,7 @@ export default function useTableProps<T>(
     bordered: true,
     showPagination: true,
     size: 'small',
-    scroll: { maxHeight: '800px', minWidth: '1600px', x: '1400px', y: '600px' },
+    scroll: { maxHeight: '800px', minWidth: '1600px', y: '600px' },
     checkable: true,
     loading: false,
     data: [],

@@ -37,3 +37,10 @@ export enum SelectAllEnum {
   CURRENT = 'current',
   NONE = 'none',
 }
+
+// 列编辑类型
+export enum ColumnEditTypeEnum {
+  INPUT = 'input',
+  SELECT = 'select',
+  SEARCH_SELECT = 'search_select',
+}

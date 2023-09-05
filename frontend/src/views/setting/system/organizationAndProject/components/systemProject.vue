@@ -43,12 +43,7 @@
     @submit="fetchData"
     @cancel="handleAddUserModalCancel"
   />
-  <UserDrawer
-    :project-id="currentProjectId"
-    v-bind="currentUserDrawer"
-    @request-fetch-data="fetchData"
-    @cancel="handleUserDrawerCancel"
-  />
+  <UserDrawer v-bind="currentUserDrawer" @request-fetch-data="fetchData" @cancel="handleUserDrawerCancel" />
 </template>
 
 <script lang="ts" setup>
@@ -181,7 +176,7 @@
 
   const currentUserDrawer = reactive({
     visible: false,
-    organizationId: '',
+    projectId: '',
   });
 
   const tableActions: ActionsItem[] = [
@@ -260,11 +255,12 @@
 
   const showUserDrawer = (record: TableData) => {
     currentUserDrawer.visible = true;
-    currentUserDrawer.organizationId = record.id;
+    currentUserDrawer.projectId = record.id;
   };
 
   const handleUserDrawerCancel = () => {
     currentUserDrawer.visible = false;
+    currentUserDrawer.projectId = '';
   };
 
   const handleAddUserModalCancel = () => {

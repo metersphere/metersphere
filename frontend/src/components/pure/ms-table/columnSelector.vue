@@ -35,18 +35,18 @@
       <div class="flex-col">
         <div v-for="(item, idx) in nonSortColumn" :key="item.dataIndex" class="column-item">
           <div>{{ t(item.title as string) }}</div>
-          <a-switch size="small" :model-value="item.showInTable" @change="handleFirstColumnChange(idx)" />
+          <a-switch :model-value="item.showInTable" size="small" @change="handleFirstColumnChange(idx)" />
         </div>
       </div>
       <a-divider orientation="center" class="non-sort">{{ t('msTable.columnSetting.nonSort') }}</a-divider>
-      <Draggable tag="div" :list="couldSortColumn" class="list-group" handle=".handle" item-key="dateIndex">
+      <Draggable tag="div" :list="couldSortColumn" class="list-group" item-key="dateIndex">
         <template #item="{ element, index }">
           <div class="column-drag-item">
             <div class="flex items-center">
-              <icon-drag-dot-vertical class="handle" />
+              <icon-drag-dot-vertical />
               <div class="ml-[8px]">{{ t(element.title as string) }}</div>
             </div>
-            <a-switch size="small" :model-value="element.showInTable" @change="handleSecondColumnChange(index)" />
+            <a-switch :model-value="element.showInTable" size="small" @change="handleSecondColumnChange(index)" />
           </div>
         </template>
       </Draggable>
@@ -112,12 +112,14 @@
   const handleFirstColumnChange = (idx: number) => {
     const item = nonSortColumn.value[idx];
     item.showInTable = !item.showInTable;
+    nonSortColumn.value[idx] = item;
     hasChange.value = true;
   };
 
   const handleSecondColumnChange = (idx: number) => {
     const item = couldSortColumn.value[idx];
     item.showInTable = !item.showInTable;
+    couldSortColumn.value[idx] = item;
     hasChange.value = true;
   };
 
