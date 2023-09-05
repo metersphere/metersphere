@@ -33,14 +33,10 @@
       <MsTagGroup
         v-if="!record.showUserSelect"
         :tag-list="record.userRoles || []"
-        :show-num="2"
         type="primary"
         theme="outline"
         @click="changeUser(record)"
       >
-        <template #default="{ tag }">
-          {{ tag.name }}
-        </template>
       </MsTagGroup>
       <a-select
         v-else

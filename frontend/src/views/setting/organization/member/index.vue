@@ -27,13 +27,9 @@
         <MsTagGroup
           v-if="!record.showProjectSelect"
           :tag-list="record.projectIdNameMap || []"
-          :show-num="2"
           theme="outline"
           @click="changeUserOrProject(record, 'project')"
         >
-          <template #default="{ tag }">
-            {{ tag.name }}
-          </template>
         </MsTagGroup>
         <a-select
           v-else
@@ -51,14 +47,10 @@
         <MsTagGroup
           v-if="!record.showUserSelect"
           :tag-list="record.userRoleIdNameMap || []"
-          :show-num="2"
           type="primary"
           theme="outline"
           @click="changeUserOrProject(record, 'user')"
         >
-          <template #default="{ tag }">
-            {{ tag.name }}
-          </template>
         </MsTagGroup>
         <a-select
           v-else

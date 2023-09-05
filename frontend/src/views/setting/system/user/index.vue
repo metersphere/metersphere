@@ -27,42 +27,10 @@
       @batch-action="handleTableBatch"
     >
       <template #organization="{ record }">
-        <a-tooltip :content="record.organizationList.map((e: any) => e.name).join(',')">
-          <div>
-            <a-tag
-              v-for="org of record.organizationList.slice(0, 2)"
-              :key="org.id"
-              class="mr-[4px] bg-transparent"
-              bordered
-            >
-              {{ org.name }}
-            </a-tag>
-            <a-tag v-show="record.organizationList.length > 2" class="mr-[4px] bg-transparent" bordered>
-              +{{ record.organizationList.length - 2 }}
-            </a-tag>
-          </div>
-        </a-tooltip>
+        <MsTagGroup :tag-list="record.organizationList"> </MsTagGroup>
       </template>
       <template #userRole="{ record }">
-        <a-tooltip :content="record.userRoleList.map((e: any) => e.name).join(',')">
-          <div>
-            <a-tag
-              v-for="role of record.userRoleList.slice(0, 2)"
-              :key="role.id"
-              :class="['mr-[4px]', 'bg-transparent', record.enable ? 'enableTag' : 'disableTag']"
-              bordered
-            >
-              {{ role.name }}
-            </a-tag>
-            <a-tag
-              v-show="record.userRoleList.length > 2"
-              :class="['mr-[4px]', 'bg-transparent', record.enable ? 'enableTag' : 'disableTag']"
-              bordered
-            >
-              +{{ record.userRoleList.length - 2 }}
-            </a-tag>
-          </div>
-        </a-tooltip>
+        <MsTagGroup :tag-list="record.userRoleList" type="primary" theme="outline"> </MsTagGroup>
       </template>
       <template #action="{ record }">
         <template v-if="!record.enable">
@@ -244,6 +212,7 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { SimpleUserInfo, SystemRole, UserListItem } from '@/models/setting/user';
   import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -252,44 +221,37 @@
     {
       title: 'system.user.tableColumnEmail',
       dataIndex: 'email',
-      showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.user.tableColumnName',
       dataIndex: 'name',
-      showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.user.tableColumnPhone',
       dataIndex: 'phone',
-      showInTable: true,
     },
     {
       title: 'system.user.tableColumnOrg',
       slotName: 'organization',
-      dataIndex: 'organizationList',
-      showTooltip: true,
-      showInTable: true,
+      isTag: true,
     },
     {
       title: 'system.user.tableColumnUserGroup',
       slotName: 'userRole',
-      dataIndex: 'userRoleList',
-      showTooltip: true,
-      showInTable: true,
+      isTag: true,
     },
     {
       title: 'system.user.tableColumnStatus',
       slotName: 'enable',
       dataIndex: 'enable',
-      showInTable: true,
     },
     {
       title: 'system.user.tableColumnActions',
       slotName: 'action',
       fixed: 'right',
       width: 90,
-      showInTable: true,
     },
   ];
   const tableStore = useTableStore();
@@ -299,6 +261,7 @@
     {
       tableKey: TableKeyEnum.SYSTEM_USER,
       columns,
+      scroll: { x: 1200 },
       selectable: true,
     },
     (record) => ({

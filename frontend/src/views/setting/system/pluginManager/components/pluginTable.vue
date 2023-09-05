@@ -87,11 +87,7 @@
                   </a-tag>
                 </span>
               </a-tooltip> -->
-              <MsTagGroup :tag-list="record.organizations || []" :show-num="2" type="primary" theme="outline">
-                <template #default="{ tag }">
-                  {{ tag.name }}
-                </template>
-              </MsTagGroup>
+              <MsTagGroup :tag-list="record.organizations || []" type="primary" theme="outline"> </MsTagGroup>
             </template>
           </a-table-column>
           <a-table-column

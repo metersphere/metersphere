@@ -26,6 +26,10 @@ export enum SpecialColumnEnum {
   NAME = 'name',
   // 状态列
   ENABLE = 'enable',
+  // 操作列
+  ACTION = 'action',
+  // 操作列
+  OPERATION = 'operation',
 }
 
 export enum SelectAllEnum {
