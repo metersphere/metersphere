@@ -10,6 +10,7 @@ import io.metersphere.sdk.domain.OperationLogExample;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.mapper.OperationLogMapper;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
@@ -45,7 +46,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -183,9 +187,10 @@ public abstract class BaseTest {
     protected MvcResult requestMultipartWithOkAndReturn(String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
         return this.requestMultipartWithOk(url, paramMap, uriVariables).andReturn();
     }
+
     private MockHttpServletRequestBuilder getPermissionMultipartRequestBuilder(String roleId, String url,
-                                                                          MultiValueMap<String, Object> paramMap,
-                                                                          Object[] uriVariables) {
+                                                                               MultiValueMap<String, Object> paramMap,
+                                                                               Object[] uriVariables) {
         AuthInfo authInfo = getPermissionAuthInfo(roleId);
         return getMultipartRequestBuilderWithParam(url, paramMap, uriVariables)
                 .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
@@ -193,8 +198,8 @@ public abstract class BaseTest {
     }
 
     private MockHttpServletRequestBuilder getMultipartRequestBuilder(String url,
-                                                                          MultiValueMap<String, Object> paramMap,
-                                                                          Object[] uriVariables) {
+                                                                     MultiValueMap<String, Object> paramMap,
+                                                                     Object[] uriVariables) {
         return getMultipartRequestBuilderWithParam(url, paramMap, uriVariables)
                 .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken());
@@ -202,6 +207,7 @@ public abstract class BaseTest {
 
     /**
      * 构建 multipart 带参数的请求
+     *
      * @param url
      * @param paramMap
      * @param uriVariables
@@ -406,10 +412,10 @@ public abstract class BaseTest {
     }
 
     /**
-     *  校验多个权限(同级别权限: 列如都是SYSTEM)
+     * 校验多个权限(同级别权限: 列如都是SYSTEM)
      *
-     * @param permissionIds 多个权限
-     * @param url 请求url
+     * @param permissionIds         多个权限
+     * @param url                   请求url
      * @param requestBuilderGetFunc 请求构造器
      * @throws Exception 请求抛出异常
      */

@@ -1,6 +1,7 @@
+package io.metersphere.sdk;
+
 import com.bastiaanjansen.otp.HMACAlgorithm;
 import com.bastiaanjansen.otp.HOTPGenerator;
-import com.bastiaanjansen.otp.SecretGenerator;
 import com.bastiaanjansen.otp.TOTPGenerator;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -8,14 +9,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.time.Duration;
-import java.util.UUID;
+
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestTotp {
+public class TotpTests {
     public static String code;
     // Generate a secret (or use your own secret)
 //    private static final byte[] secret = SecretGenerator.generate(256);
-    private static final byte[] secret = UUID.randomUUID().toString().getBytes();
+    private static final byte[] secret = "3c4a9b79-c45d-4d64-b5f4-ec7620ca3108".getBytes();
 
     @Test
     @Order(1)

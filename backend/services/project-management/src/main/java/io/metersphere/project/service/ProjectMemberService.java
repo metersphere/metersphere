@@ -17,6 +17,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -30,7 +31,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -149,7 +153,7 @@ public class ProjectMemberService {
     /**
      * 添加成员(项目)
      *
-     * @param request 请求参数
+     * @param request       请求参数
      * @param currentUserId 当前用户ID
      */
     public void addMember(ProjectMemberAddRequest request, String currentUserId) {
@@ -159,7 +163,7 @@ public class ProjectMemberService {
     /**
      * 更新成员(项目)
      *
-     * @param request 请求参数
+     * @param request       请求参数
      * @param currentUserId 当前用户ID
      */
     public void updateMember(ProjectMemberEditRequest request, String currentUserId) {
@@ -213,7 +217,7 @@ public class ProjectMemberService {
      * 移除成员(项目)
      *
      * @param projectId 项目ID
-     * @param userId 用户ID
+     * @param userId    用户ID
      */
     public void removeMember(String projectId, String userId, String currentUserId) {
         // 操作记录
@@ -231,7 +235,8 @@ public class ProjectMemberService {
 
     /**
      * 批量添加成员至用户组(项目)
-     * @param request 请求参数
+     *
+     * @param request       请求参数
      * @param currentUserId 当前用户ID
      */
     public void addRole(ProjectMemberAddRequest request, String currentUserId) {
@@ -242,10 +247,10 @@ public class ProjectMemberService {
     /**
      * 处理成员及用户组关系, 并生成操作记录
      *
-     * @param request 请求参数
+     * @param request       请求参数
      * @param currentUserId 创建人
      * @param operationType 操作记录类型
-     * @param path 操作记录路径
+     * @param path          操作记录路径
      */
     public void addMemberRole(ProjectMemberAddRequest request, String currentUserId, String operationType, String path) {
         // 操作记录
@@ -261,7 +266,7 @@ public class ProjectMemberService {
                 Collectors.groupingBy(UserRoleRelation::getUserId, Collectors.mapping(UserRoleRelation::getRoleId, Collectors.toList())));
         // 比较用户组是否已经存在, 如果不存在则添加
         List<UserRoleRelation> relations = new ArrayList<>();
-        request.getUserIds().forEach(userId ->{
+        request.getUserIds().forEach(userId -> {
             AtomicBoolean isLog = new AtomicBoolean(false);
             // 追加的用户组ID, 操作记录使用
             List<String> roleIds = new ArrayList<>();
@@ -304,6 +309,7 @@ public class ProjectMemberService {
 
     /**
      * 批量移除成员(项目)
+     *
      * @param request 请求参数
      */
     public void batchRemove(ProjectMemberBatchDeleteRequest request, String currentUserId) {
@@ -326,6 +332,7 @@ public class ProjectMemberService {
 
     /**
      * 查看项目是否存在
+     *
      * @param projectId 项目ID
      */
     private Project checkProjectExist(String projectId) {
@@ -338,6 +345,7 @@ public class ProjectMemberService {
 
     /**
      * 查看用户或用户组是否存在
+     *
      * @param userId 用户ID
      * @param roleId 用户组ID
      * @return 是否存在
@@ -351,13 +359,13 @@ public class ProjectMemberService {
     /**
      * 操作记录
      *
-     * @param projectId 项目ID
-     * @param memberId 成员ID
+     * @param projectId    项目ID
+     * @param memberId     成员ID
      * @param createUserId 创建用户
-     * @param type 操作类型
-     * @param path 路径
-     * @param method 请求方法
-     * @param logs 日志集合
+     * @param type         操作类型
+     * @param path         路径
+     * @param method       请求方法
+     * @param logs         日志集合
      */
     private void setLog(String projectId, String memberId, String createUserId, String type, String path, String method, Object originalVal, Object modifiedVal, List<LogDTO> logs) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
