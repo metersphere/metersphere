@@ -6,6 +6,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BasePluginService;
 import io.metersphere.sdk.service.PlatformPluginService;
 import io.metersphere.sdk.service.PluginLoadService;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.ServiceUtils;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.result.SystemResultCode.SERVICE_INTEGRATION_EXIST;

@@ -8,6 +8,7 @@ import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserRoleRelationService;
 import io.metersphere.sdk.service.BaseUserRoleService;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
@@ -23,7 +24,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_USER_ROLE_LIMIT;

@@ -8,6 +8,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.notice.sender.impl.MailNoticeSender;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.UserBatchCreateDTO;
@@ -45,7 +46,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service

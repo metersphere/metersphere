@@ -11,6 +11,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.service.JdbcDriverPluginService;
 import io.metersphere.sdk.service.PluginLoadService;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.ServiceUtils;
 import io.metersphere.system.domain.Plugin;
@@ -35,7 +36,6 @@ import java.io.OutputStream;
 import java.sql.Driver;
 import java.util.*;
 
-import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_EXIST;
 import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_TYPE_EXIST;
 

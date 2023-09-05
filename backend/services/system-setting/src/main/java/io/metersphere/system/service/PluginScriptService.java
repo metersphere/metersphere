@@ -2,6 +2,7 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.PluginScript;
 import io.metersphere.system.domain.PluginScriptExample;
