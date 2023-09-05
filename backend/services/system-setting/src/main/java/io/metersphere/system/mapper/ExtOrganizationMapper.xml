@@ -34,7 +34,7 @@
         update organization set `enable` = #{enable} where id = #{id}
     </update>
 
-    <select id="listMember" resultType="io.metersphere.system.dto.UserExtend">
+    <select id="listMember" resultType="io.metersphere.sdk.dto.UserExtend">
         select temp.*, max(if(temp.role_id = 'org_admin', true, false)) as adminFlag
         from (
             select u.*, urr.role_id

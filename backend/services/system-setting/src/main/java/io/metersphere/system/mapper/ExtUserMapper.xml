@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtUserMapper">
-    <select id="getMemberOption" resultType="io.metersphere.system.dto.UserExtend">
+    <select id="getMemberOption" resultType="io.metersphere.sdk.dto.UserExtend">
         select distinct u.*, count(urr.id) > 0 as memberFlag
         from `user` u left join user_role_relation urr on urr.user_id = u.id and urr.source_id = #{sourceId}
         where u.deleted = 0

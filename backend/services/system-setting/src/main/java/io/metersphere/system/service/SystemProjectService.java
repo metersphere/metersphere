@@ -9,7 +9,7 @@ import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
-import io.metersphere.system.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectMemberRequest;

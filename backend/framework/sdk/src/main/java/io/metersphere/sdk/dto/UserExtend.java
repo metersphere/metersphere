@@ -1,4 +1,4 @@
-package io.metersphere.system.dto;
+package io.metersphere.sdk.dto;
 
 import io.metersphere.system.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,12 +25,15 @@ public class UserExtend extends User implements Serializable {
     /**
      * 是否成员(组织, 项目)
      */
-    @Schema(description =  "是否组织/项目成员, 是: 勾选禁用, 否: 勾选启用")
+    @Schema(description = "是否组织/项目成员, 是: 勾选禁用, 否: 勾选启用")
     private boolean memberFlag;
 
     /**
      * 是否勾选用户组
      */
-    @Schema(description =  "是否属于用户组, 是: 勾选禁用, 否: 勾选启用")
+    @Schema(description = "是否属于用户组, 是: 勾选禁用, 否: 勾选启用")
     private boolean checkRoleFlag;
+
+    @Schema(description = "组织ID")
+    private String sourceId;
 }

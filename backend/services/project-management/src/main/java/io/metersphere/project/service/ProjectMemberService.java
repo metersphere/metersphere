@@ -22,7 +22,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;

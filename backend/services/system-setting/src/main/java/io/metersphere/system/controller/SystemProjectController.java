@@ -12,7 +12,7 @@ import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.User;
-import io.metersphere.system.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;

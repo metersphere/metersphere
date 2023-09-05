@@ -11,7 +11,7 @@ import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.mapper.ExtUserRoleMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
