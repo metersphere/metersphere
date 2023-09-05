@@ -1379,7 +1379,7 @@ public class UserService {
     public void updateCurrentUserByResourceId(String resourceId) {
         Project project = extProjectMapper.selectProjectByResourceId(resourceId);
         if (project == null) {
-            MSException.throwException(Translator.get("select_resource_error_and_check"));
+            return;
         }
         SessionUser user = SessionUtils.getUser();
         user.setLastProjectId(project.getId());
