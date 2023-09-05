@@ -64,6 +64,7 @@
     iconType: string;
     maxSize: number; // 文件大小限制，单位 MB
     sizeUnit: 'MB' | 'KB'; // 文件大小单位
+    isLimit: boolean; // 是否限制文件大小
   }> & {
     accept: UploadType;
     fileList: FileItem[];
@@ -71,6 +72,7 @@
 
   const props = withDefaults(defineProps<UploadProps>(), {
     showSubText: true,
+    isLimit: true,
   });
   const emit = defineEmits(['update:fileList']);
 
@@ -114,7 +116,7 @@
     }
     const maxSize = props.maxSize || defaultMaxSize;
     const _maxSize = props.sizeUnit === 'MB' ? maxSize * 1024 * 1024 : maxSize * 1024;
-    if (file.size > _maxSize) {
+    if (props.isLimit && file.size > _maxSize) {
       Message.warning(t('ms.upload.overSize'));
       return Promise.resolve(false);
     }

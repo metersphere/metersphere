@@ -29,7 +29,7 @@
     </div>
     <div class="label-item">
       <span class="label">{{ t('project.basicInfo.organization') }}</span>
-      <span class="rounded bg-[--color-text-n8] px-2 py-[2px]">疯狂的刚子</span>
+      <MsTag>疯狂的刚子疯狂的刚子疯狂的刚子疯狂的刚子疯狂的刚子疯狂的刚子</MsTag>
     </div>
     <div class="label-item">
       <span class="label">{{ t('project.basicInfo.createTime') }}</span>
@@ -46,6 +46,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import UpdateProjectModal from './components/updateProjectModal.vue';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
   const { t } = useI18n();
   const { openModal } = useModal();

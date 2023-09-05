@@ -39,8 +39,8 @@ export interface ProjectMemberItem {
 export interface ActionProjectMember {
   userId?: string;
   projectId?: string; // 项目ID
-  userIds?: (string | number)[]; // 用户ID集合
-  roleIds?: string[]; // 用户组ID集合
+  userIds?: (string | number)[] | string; // 用户ID集合
+  roleIds?: (string | number)[] | string; // 用户组ID集合
 }
 
 export interface ProjectUserOption {
@@ -54,4 +54,10 @@ export interface SearchParams {
   };
   projectId: string;
   keyword: '';
+}
+
+export interface AddProjectMember {
+  projectId?: string;
+  userIds: string[] | string;
+  roleIds: string[] | string;
 }

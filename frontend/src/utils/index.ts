@@ -231,3 +231,29 @@ export function findNodeByKey<T>(trees: TreeNode<T>[], targetKey: string, custom
 
   return null; // 如果在整个树形数组中都没有找到匹配的节点，则返回 null
 }
+
+/**
+ * 查找一个数组里边的每一项是否在另外一个数组里边，如果存在返回[],否则返回不存在项的新数组
+ * @param nameMap 目标项
+ * @param dataMap 查找项
+ * @returns 返回不存在项的新数组
+ */
+export function filterItem(nameMap: Record<string, any>[], dataMap: Record<string, any>[]) {
+  // 对数组 nameMap 中的每一项进行判断
+  const isExist = nameMap.every((item) => {
+    return dataMap.some((otherItem) => {
+      return item.id === otherItem.id;
+    });
+  });
+
+  if (isExist) {
+    return [];
+  }
+  // 找出不在数组 dataMap 中的项放入新数组
+  const filterNotExistOptions = dataMap.filter((item) => {
+    return !nameMap.some((otherItem) => {
+      return item.id === otherItem.id;
+    });
+  });
+  return filterNotExistOptions;
+}
