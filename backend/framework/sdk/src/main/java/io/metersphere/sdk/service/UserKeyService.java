@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.UUID;
+import io.metersphere.sdk.uid.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)

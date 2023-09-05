@@ -6,6 +6,7 @@ import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CodingUtil;
 import io.metersphere.sdk.util.JSON;
@@ -996,11 +997,11 @@ public class UserControllerTests extends BaseTest {
         //删除USER_LIST用户
         TableBatchProcessDTO request = new TableBatchProcessDTO();
         request.setSelectIds(USER_LIST.stream().map(UserCreateInfo::getId).toList());
-            TableBatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(
-                    userRequestUtils.responsePost(UserRequestUtils.URL_USER_DELETE, request), TableBatchProcessResponse.class);
-            Assertions.assertEquals(request.getSelectIds().size(), response.getTotalCount());
-            Assertions.assertEquals(request.getSelectIds().size(), response.getSuccessCount());
-            //检查数据库
+        TableBatchProcessResponse response = userRequestUtils.parseObjectFromMvcResult(
+                userRequestUtils.responsePost(UserRequestUtils.URL_USER_DELETE, request), TableBatchProcessResponse.class);
+        Assertions.assertEquals(request.getSelectIds().size(), response.getTotalCount());
+        Assertions.assertEquals(request.getSelectIds().size(), response.getSuccessCount());
+        //检查数据库
         List<UserCreateInfo> removeList = new ArrayList<>();
         for (UserCreateInfo deleteUser : USER_LIST) {
             User user = userMapper.selectByPrimaryKey(deleteUser.getId());

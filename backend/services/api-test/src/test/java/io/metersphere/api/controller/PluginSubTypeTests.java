@@ -9,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.LinkedList;
-import java.util.UUID;
+import io.metersphere.sdk.uid.UUID;
 
 
 @SpringBootTest

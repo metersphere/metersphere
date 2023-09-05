@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.time.Duration;
-import java.util.UUID;
+import io.metersphere.sdk.uid.UUID;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestTotp {

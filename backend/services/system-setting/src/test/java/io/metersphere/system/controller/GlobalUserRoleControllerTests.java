@@ -9,6 +9,7 @@ import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.BaseUserRolePermissionService;
 import io.metersphere.sdk.service.BaseUserRoleRelationService;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.controller.param.PermissionSettingUpdateRequestDefinition;
@@ -60,6 +61,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
     private UserMapper userMapper;
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
+
     @Override
     protected String getBasePath() {
         return BASE_PATH;
@@ -355,7 +357,6 @@ class GlobalUserRoleControllerTests extends BaseTest {
     /**
      * 创建一个用户和只有一个用户组的
      * 用于测试删除该用户组后，没有用户组的用户会默认添加系统成员用户组
-     *
      */
     private UserRoleRelation prepareOneLimitTest(String userRoleId) {
         // 插入一条用户数据

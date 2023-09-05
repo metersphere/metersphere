@@ -4,6 +4,7 @@ import io.metersphere.sdk.dto.Permission;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.PermissionCache;
 import io.metersphere.sdk.util.ServiceUtils;

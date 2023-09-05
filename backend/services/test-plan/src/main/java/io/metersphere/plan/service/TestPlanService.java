@@ -20,7 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import io.metersphere.sdk.uid.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
