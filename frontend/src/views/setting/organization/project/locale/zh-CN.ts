@@ -62,7 +62,7 @@ export default {
   'system.project.affiliatedOrgPlaceholder': '请选择所属组织',
   'system.project.projectAdmin': '项目管理员',
   'system.project.projectAdminPlaceholder': '默认选择创建项目人为项目管理员',
-  'system.project.moduleSetting': '模块设置',
+  'system.project.moduleSetting': '启用模块',
   'system.project.projectNameRequired': '项目名称不能为空',
   'system.project.createTip': '项目启用后，将展示在项目切换列表',
   'system.project.affiliatedOrgRequired': '所属组织不能为空',

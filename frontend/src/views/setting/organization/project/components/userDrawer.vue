@@ -68,6 +68,7 @@
   const props = defineProps<projectDrawerProps>();
   const emit = defineEmits<{
     (e: 'cancel'): void;
+    (e: 'requestFetchData'): void;
   }>();
 
   const currentVisible = ref(props.visible);
@@ -80,10 +81,13 @@
     {
       title: 'system.organization.userName',
       slotName: 'name',
+      showTooltip: true,
+      width: 200,
     },
     {
       title: 'system.organization.email',
       dataIndex: 'email',
+      showTooltip: true,
       width: 200,
     },
     {
@@ -123,6 +127,7 @@
     userVisible.value = false;
     if (shouldSearch) {
       fetchData();
+      emit('requestFetchData');
     }
   };
 

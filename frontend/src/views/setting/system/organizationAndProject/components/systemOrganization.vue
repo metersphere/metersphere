@@ -48,7 +48,7 @@
     @submit="fetchData"
   />
   <ProjectDrawer v-bind="currentProjectDrawer" @cancel="handleProjectDrawerCancel" />
-  <UserDrawer v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
+  <UserDrawer v-bind="currentUserDrawer" @request-fetch-data="fetchData" @cancel="handleUserDrawerCancel" />
 </template>
 
 <script lang="ts" setup>
@@ -255,23 +255,23 @@
 
   const handleProjectDrawerCancel = () => {
     currentProjectDrawer.visible = false;
-    fetchData();
   };
 
   const showProjectDrawer = (record: TableData) => {
+    currentUserDrawer.visible = false;
     currentProjectDrawer.visible = true;
     currentProjectDrawer.organizationId = record.id;
     currentProjectDrawer.currentName = record.name;
   };
 
   const showUserDrawer = (record: TableData) => {
+    currentProjectDrawer.visible = false;
     currentUserDrawer.visible = true;
     currentUserDrawer.organizationId = record.id;
   };
 
   const handleUserDrawerCancel = () => {
     currentUserDrawer.visible = false;
-    fetchData();
   };
 
   const handleAddUserModalCancel = () => {

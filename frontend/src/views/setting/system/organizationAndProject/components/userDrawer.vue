@@ -44,7 +44,7 @@
     :organization-id="props.organizationId"
     :visible="userVisible"
     @cancel="handleHideUserModal"
-    @submit="fetchData"
+    @submit="handleAddMembeSubmit"
   />
 </template>
 
@@ -72,6 +72,7 @@
   const props = defineProps<projectDrawerProps>();
   const emit = defineEmits<{
     (e: 'cancel'): void;
+    (e: 'requestFetchData'): void;
   }>();
 
   const currentVisible = ref(props.visible);
@@ -84,11 +85,15 @@
     {
       title: 'system.organization.userName',
       slotName: 'name',
+      dataIndex: 'nameTooltip',
+      showTooltip: true,
+      width: 200,
     },
     {
       title: 'system.organization.email',
       dataIndex: 'email',
       width: 200,
+      showTooltip: true,
     },
     {
       title: 'system.organization.phone',
@@ -97,14 +102,21 @@
     { title: 'system.organization.operation', slotName: 'operation' },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserTableByOrgIdOrProjectId, {
-    columns: projectColumn,
-    showSetting: false,
-    scroll: { y: 'auto', x: '600px' },
-    selectable: false,
-    size: 'small',
-    noDisable: false,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(
+    postUserTableByOrgIdOrProjectId,
+    {
+      columns: projectColumn,
+      showSetting: false,
+      scroll: { y: 'auto', x: '600px' },
+      selectable: false,
+      size: 'small',
+      noDisable: false,
+    },
+    (record: any) => ({
+      ...record,
+      nameTooltip: record.name + (record.adminFlag ? `(${t('common.admin')})` : ''),
+    })
+  );
 
   async function searchUser() {
     setKeyword(keyword.value);
@@ -127,6 +139,10 @@
 
   const handleAddMember = () => {
     userVisible.value = true;
+  };
+  const handleAddMembeSubmit = () => {
+    fetchData();
+    emit('requestFetchData');
   };
 
   const handleHideUserModal = () => {

@@ -17,7 +17,7 @@
       </span>
     </template>
     <div class="form">
-      <a-form ref="formRef" :model="form" size="large" :style="{ width: '600px' }" layout="vertical">
+      <a-form ref="formRef" :model="form" size="large" :style="{ width: '632px' }" layout="vertical">
         <a-form-item
           field="name"
           required
@@ -48,9 +48,6 @@
             }"
           />
         </a-form-item>
-        <a-form-item field="description" :label="t('system.organization.description')">
-          <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
-        </a-form-item>
         <a-form-item field="module" :label="t('system.project.moduleSetting')">
           <a-checkbox-group v-model="form.moduleIds" :options="moduleOption">
             <template #label="{ data }">
@@ -58,12 +55,15 @@
             </template>
           </a-checkbox-group>
         </a-form-item>
+        <a-form-item field="description" :label="t('system.organization.description')">
+          <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
+        </a-form-item>
       </a-form>
     </div>
     <template #footer>
       <div class="flex flex-row justify-between">
         <div class="flex flex-row items-center gap-[4px]">
-          <a-switch v-model="form.enable" />
+          <a-switch v-model="form.enable" size="small" />
           <span>{{ t('system.organization.status') }}</span>
           <a-tooltip :content="t('system.project.createTip')" position="top">
             <MsIcon type="icon-icon-maybe_outlined" class="text-[var(--color-text-4)]" />
@@ -104,7 +104,7 @@
   const formRef = ref<FormInstance>();
 
   const loading = ref(false);
-  const isEdit = computed(() => !!props.currentProject?.id);
+  const isEdit = computed(() => !!props.currentProject);
   const affiliatedOrgOption = ref<SystemOrgOption[]>([]);
   const appStore = useAppStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
@@ -188,7 +188,7 @@
   };
   watchEffect(() => {
     initAffiliatedOrgOption();
-    if (props.currentProject) {
+    if (isEdit.value && props.currentProject) {
       form.id = props.currentProject.id;
       form.name = props.currentProject.name;
       form.description = props.currentProject.description;

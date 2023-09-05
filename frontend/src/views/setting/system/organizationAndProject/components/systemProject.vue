@@ -43,7 +43,12 @@
     @submit="fetchData"
     @cancel="handleAddUserModalCancel"
   />
-  <UserDrawer :project-id="currentProjectId" v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
+  <UserDrawer
+    :project-id="currentProjectId"
+    v-bind="currentUserDrawer"
+    @request-fetch-data="fetchData"
+    @cancel="handleUserDrawerCancel"
+  />
 </template>
 
 <script lang="ts" setup>

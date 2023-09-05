@@ -69,13 +69,15 @@
     flex-flow: row nowrap;
     align-items: center;
     .dropdown-icon {
-      margin-left: 2px;
+      margin-left: 4px;
       font-size: 12px;
-      color: rgb(var(--primary-6));
+      border-radius: 50%;
+      color: var(--color-text-4);
+      background-color: rgb(var(--primary-3));
     }
     .dropdown-icon:hover {
-      border-radius: 50%;
-      background-color: rgb(var(--primary-3));
+      color: rgb(var(--primary-5));
+      background-color: transparent;
     }
   }
 </style>

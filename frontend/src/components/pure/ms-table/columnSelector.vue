@@ -139,13 +139,17 @@
     margin-left: 16px;
     color: var(--color-text-4);
     background-color: var(--color-text-10);
+    cursor: pointer;
+    &:hover {
+      color: rgba(var(--primary-5));
+    }
   }
   .mode-button {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
     .active-color {
-      color: var(--color-primary-5);
+      color: rgba(var(--primary-5));
     }
     .mode-button-title {
       margin-left: 4px;

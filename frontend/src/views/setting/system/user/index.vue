@@ -27,7 +27,7 @@
       @batch-action="handleTableBatch"
     >
       <template #organization="{ record }">
-        <MsTagGroup :tag-list="record.organizationList"> </MsTagGroup>
+        <MsTagGroup theme="outline" :tag-list="record.organizationList"> </MsTagGroup>
       </template>
       <template #userRole="{ record }">
         <MsTagGroup :tag-list="record.userRoleList" type="primary" theme="outline"> </MsTagGroup>
@@ -261,7 +261,7 @@
     {
       tableKey: TableKeyEnum.SYSTEM_USER,
       columns,
-      scroll: { x: 1200 },
+      size: 'default',
       selectable: true,
     },
     (record) => ({
