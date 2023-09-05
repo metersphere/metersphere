@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserInvite;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)

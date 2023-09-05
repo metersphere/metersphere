@@ -2,6 +2,7 @@ package io.metersphere.system.service;
 
 
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.AuthSource;
@@ -17,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
