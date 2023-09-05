@@ -47,13 +47,14 @@ export interface AddorUpdateMemberModel {
 export interface BatchAddProjectModel {
   organizationId?: string;
   memberIds?: Array<string | number>;
-  projectIds?: string[];
-  userRoleIds?: string[];
+  projectIds?: string[] | string;
+  userRoleIds?: string[] | string;
 }
 // 用户组下拉列表
 
 export interface LinkItem {
   id: string;
   name: string;
+  disabled?: boolean;
 }
 export type LinkList = LinkItem[];

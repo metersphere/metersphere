@@ -113,4 +113,18 @@
   });
 </script>
 
-<style scoped lang="less"></style>
+<style lang="less">
+  .arco-tag {
+    .arco-icon {
+      font-size: 14px !important;
+      color: var(--color-text-4) !important;
+      &:hover {
+        font-size: 14px;
+        color: var(--color-text-1) !important;
+      }
+    }
+    .arco-icon-hover.arco-tag-icon-hover::before {
+      background: none !important;
+    }
+  }
+</style>

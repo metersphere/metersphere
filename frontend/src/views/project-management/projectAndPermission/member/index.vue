@@ -4,7 +4,7 @@
       ><a-button class="mr-3" type="primary" @click="addMember">{{ t('project.member.addMember') }}</a-button></div
     >
     <div>
-      <a-select v-model="roleIds" allow-search @change="changeSelect">
+      <a-select v-model="roleIds" @change="changeSelect">
         <a-option v-for="item of userGroupAll" :key="item.id" :value="item.id">{{ t(item.name) }}</a-option>
         <template #prefix
           ><span>{{ t('project.member.tableColumnUserGroup') }}</span></template
@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onBeforeMount, onMounted } from 'vue';
+  import { ref, onBeforeMount } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -106,7 +106,6 @@
   import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import { Message } from '@arco-design/web-vue';
   import type {
-    ProjectTreeData,
     ProjectUserOption,
     ActionProjectMember,
     ProjectMemberItem,
@@ -133,6 +132,8 @@
       title: 'project.member.tableColumnName',
       dataIndex: 'name',
       showInTable: true,
+      width: 200,
+      showTooltip: true,
     },
     {
       title: 'project.member.tableColumnPhone',
@@ -258,7 +259,6 @@
   const batchVisible = ref<boolean>(false);
   const selectData = ref<string[]>([]);
   const batchAction = ref('');
-  const treeData = ref<ProjectTreeData[]>([]);
   const userGroupOptions = ref<ProjectUserOption[]>([]);
   const batchModalRef = ref();
 

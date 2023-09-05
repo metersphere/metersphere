@@ -87,6 +87,7 @@
             <MsUpload
               v-model:file-list="fileList"
               accept="none"
+              :is-limit="false"
               :show-sub-text="false"
               :show-file-list="false"
               :auto-upload="false"
