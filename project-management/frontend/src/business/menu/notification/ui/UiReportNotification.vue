@@ -141,7 +141,7 @@ export default {
       this.loading = searchNoticeByType(TASK_TYPE).then(response => {
         this.defectTask = response.data;
         // 上报通知数
-        this.$emit("noticeSize", {taskType: TASK_TYPE, module: 'api', data: this.defectTask});
+        this.$emit("noticeSize", {taskType: TASK_TYPE, module: 'ui', data: this.defectTask});
         this.defectTask.forEach(task => {
           this.handleReceivers(task);
         });
