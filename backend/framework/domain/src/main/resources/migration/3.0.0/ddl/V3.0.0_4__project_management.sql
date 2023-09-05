@@ -234,17 +234,19 @@ CREATE INDEX idx_create_time ON project_version (create_time);
 CREATE INDEX idx_create_user ON project_version (create_user);
 CREATE INDEX idx_latest ON project_version (latest);
 
-CREATE TABLE IF NOT EXISTS file_module_blob
+CREATE TABLE IF NOT EXISTS file_module_repository
 (
-    `id`                   VARCHAR(50) NOT NULL COMMENT 'ID',
-    `repository_desc`      LONGBLOB COMMENT '存储库描述',
-    `repository_path`      VARCHAR(255) COMMENT '存储库路径',
-    `repository_user_name` VARCHAR(255) COMMENT '存储库Token',
+    `file_module_id`       VARCHAR(50) NOT NULL COMMENT 'file_module_id',
+    `platform`             VARCHAR(10) COMMENT '所属平台;GitHub/Gitlab/Gitee',
+    `repository_path`      VARCHAR(255) COMMENT '存储库地址',
+    `repository_user_name` VARCHAR(255) COMMENT '存储库Token;platform为Gitee时必填',
     `repository_token`     VARCHAR(255) COMMENT '存储库Token',
-    PRIMARY KEY (id)
+    PRIMARY KEY (file_module_id)
 ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci COMMENT = '文件管理模块大字段';
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci
+    COMMENT = '文件存储库模块';
+
 
 CREATE TABLE IF NOT EXISTS custom_function_blob
 (

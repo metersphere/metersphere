@@ -9,32 +9,32 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class FileModuleBlob implements Serializable {
-    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_module_blob.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{file_module_blob.id.length_range}", groups = {Created.class, Updated.class})
-    private String id;
+public class FileModuleRepository implements Serializable {
+    @Schema(title = "file_module_id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_module_repository.file_module_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{file_module_repository.file_module_id.length_range}", groups = {Created.class, Updated.class})
+    private String fileModuleId;
 
-    @Schema(description =  "存储库路径")
+    @Schema(title = "所属平台;GitHub/Gitlab/Gitee")
+    private String platform;
+
+    @Schema(title = "存储库地址")
     private String repositoryPath;
 
-    @Schema(description =  "存储库Token")
+    @Schema(title = "存储库Token;platform为Gitee时必填")
     private String repositoryUserName;
 
-    @Schema(description =  "存储库Token")
+    @Schema(title = "存储库Token")
     private String repositoryToken;
-
-    @Schema(description =  "存储库描述")
-    private byte[] repositoryDesc;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
-        id("id", "id", "VARCHAR", false),
+        fileModuleId("file_module_id", "fileModuleId", "VARCHAR", false),
+        platform("platform", "platform", "VARCHAR", false),
         repositoryPath("repository_path", "repositoryPath", "VARCHAR", false),
         repositoryUserName("repository_user_name", "repositoryUserName", "VARCHAR", false),
-        repositoryToken("repository_token", "repositoryToken", "VARCHAR", false),
-        repositoryDesc("repository_desc", "repositoryDesc", "LONGVARBINARY", false);
+        repositoryToken("repository_token", "repositoryToken", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
