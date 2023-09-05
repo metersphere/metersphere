@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+import io.metersphere.sdk.uid.UUID;
 import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
