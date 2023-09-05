@@ -224,6 +224,11 @@ public class OrganizationControllerTests extends BaseTest {
         organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user", "sys_default_user2"));
         organizationMemberRequest.setProjectIds(Arrays.asList("sys_org_projectId2", "sys_org_projectId3"));
         this.requestPost(ORGANIZATION_PROJECT_ADD_MEMBER, organizationMemberRequest, status().isOk());
+        organizationMemberRequest = new OrgMemberExtendProjectRequest();
+        organizationMemberRequest.setOrganizationId("sys_default_organization_3");
+        organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user"));
+        organizationMemberRequest.setProjectIds(Arrays.asList("sys_org_projectId2"));
+        this.requestPost(ORGANIZATION_PROJECT_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
         listByKeyWord("testUserOne", "sys_default_organization_3", false, InternalUserRole.PROJECT_MEMBER.getValue(), "sys_org_projectId2", false, null, null);
     }
@@ -250,6 +255,8 @@ public class OrganizationControllerTests extends BaseTest {
         organizationMemberRequest.setUserRoleIds(Arrays.asList("sys_default_org_role_id_3"));
         this.requestPost(ORGANIZATION_LIST_ADD_MEMBER, organizationMemberRequest, status().isOk());
         listByKeyWord("testUserThree", "sys_default_organization_3", false, null, null, false, null, null);
+        listByKeyWord(null, "sys_default_organization_3", false, null, null, false, null, null);
+
     }
 
     @Test
@@ -488,9 +495,11 @@ public class OrganizationControllerTests extends BaseTest {
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字admin
         OrgUserExtend orgUserExtend = JSON.parseArray(JSON.toJSONString(pageData.getList()), OrgUserExtend.class).get(0);
-        Assertions.assertTrue(StringUtils.contains(orgUserExtend.getName(), organizationRequest.getKeyword())
-                || StringUtils.contains(orgUserExtend.getEmail(), organizationRequest.getKeyword())
-                || StringUtils.contains(orgUserExtend.getPhone(), organizationRequest.getKeyword()));
+        if (StringUtils.isNotBlank(keyWord)) {
+            Assertions.assertTrue(StringUtils.contains(orgUserExtend.getName(), organizationRequest.getKeyword())
+                    || StringUtils.contains(orgUserExtend.getEmail(), organizationRequest.getKeyword())
+                    || StringUtils.contains(orgUserExtend.getPhone(), organizationRequest.getKeyword()));
+        }
         if (compare) {
             Assertions.assertNotNull(orgUserExtend.getUserRoleIdNameMap());
             List<String> userRoleIds = orgUserExtend.getUserRoleIdNameMap().stream().map(IdNameStructureDTO::getId).toList();

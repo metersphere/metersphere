@@ -299,12 +299,10 @@ public class OrganizationService {
             }
 
             Set<String> userRoleIds = userIdRoleIdMap.get(orgUserExtend.getId());
-            if (CollectionUtils.isNotEmpty(userRoleIds)){
-                List<UserRole> userRoleFilters = userRoles.stream().filter(t -> userRoleIds.contains(t.getId())).toList();
-                List<IdNameStructureDTO> userRoleList = new ArrayList<>();
-                setUserRoleList(userRoleList, userRoleFilters);
-                orgUserExtend.setUserRoleIdNameMap(userRoleList);
-            }
+            List<UserRole> userRoleFilters = userRoles.stream().filter(t -> userRoleIds.contains(t.getId())).toList();
+            List<IdNameStructureDTO> userRoleList = new ArrayList<>();
+            setUserRoleList(userRoleList, userRoleFilters);
+            orgUserExtend.setUserRoleIdNameMap(userRoleList);
 
         }
         return orgUserExtends;
