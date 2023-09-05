@@ -7,6 +7,7 @@ import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.UserRoleType;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.invoker.ProjectServiceInvoker;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -183,15 +185,22 @@ public class CommonProjectService {
         userIds.addAll(projectList.stream().map(ProjectDTO::getUpdateUser).toList());
         userIds.addAll(projectList.stream().map(ProjectDTO::getDeleteUser).toList());
         Map<String, String> userMap = baseUserService.getUserNameMap(userIds.stream().distinct().toList());
+        // 获取项目id
+        List<String> projectIds = projectList.stream().map(ProjectDTO::getId).toList();
+        List<UserExtend> users = extSystemProjectMapper.getProjectAdminList(projectIds);
+        //根据sourceId分组
+        Map<String, List<UserExtend>> userMapList = users.stream().collect(Collectors.groupingBy(UserExtend::getSourceId));
         projectList.forEach(projectDTO -> {
             if (StringUtils.isNotBlank(projectDTO.getModuleSetting())) {
                 projectDTO.setModuleIds(JSON.parseArray(projectDTO.getModuleSetting(), String.class));
             }
-            List<User> users = extSystemProjectMapper.getProjectAdminList(projectDTO.getId());
-            projectDTO.setAdminList(users);
-            List<String> userIdList = users.stream().map(User::getId).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(userIdList) && userIdList.contains(projectDTO.getCreateUser())) {
-                projectDTO.setProjectCreateUserIsAdmin(true);
+            List<UserExtend> userExtends = userMapList.get(projectDTO.getId());
+            if (CollectionUtils.isNotEmpty(userExtends)) {
+                projectDTO.setAdminList(userExtends);
+                List<String> userIdList = userExtends.stream().map(User::getId).collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(userIdList) && userIdList.contains(projectDTO.getCreateUser())) {
+                    projectDTO.setProjectCreateUserIsAdmin(true);
+                }
             }
             projectDTO.setCreateUser(userMap.get(projectDTO.getCreateUser()));
             projectDTO.setUpdateUser(userMap.get(projectDTO.getUpdateUser()));
@@ -422,6 +431,7 @@ public class CommonProjectService {
      *
      * @param projects
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteProject(List<Project> projects) {
         // 删除项目
         List<LogDTO> logDTOList = new ArrayList<>();

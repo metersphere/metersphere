@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.system.mapper.ExtSystemProjectMapper">
 
 
-    <select id="getProjectMemberList" resultType="io.metersphere.system.dto.UserExtend">
+    <select id="getProjectMemberList" resultType="io.metersphere.sdk.dto.UserExtend">
         SELECT temp.* , MAX( if (temp.role_id = 'project_admin', true, false)) as adminFlag
         FROM (
                  SELECT `user`.* , user_role_relation.role_id
@@ -45,13 +45,18 @@
         <include refid="queryWhereCondition"/>
             group by p.id
     </select>
-    <select id="getProjectAdminList" resultType="io.metersphere.system.dto.UserExtend">
-        SELECT `user`.*
+    <select id="getProjectAdminList" resultType="io.metersphere.sdk.dto.UserExtend">
+        SELECT `user`.*, user_role_relation.source_id
         FROM user_role_relation
         LEFT JOIN `user` ON user_role_relation.user_id = `user`.id
         <where>
             `user`.deleted = 0
-            and user_role_relation.source_id = #{projectId}
+        <if test="projectIds != null and projectIds.size > 0 ">
+            and user_role_relation.source_id
+            <foreach collection="projectIds" item="projectId" open=" in (" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
             and user_role_relation.role_id = 'project_admin'
         </where>
     </select>
@@ -112,14 +117,14 @@
         </if>
     </sql>
 
-    <select id="getUserAdminList" resultType="io.metersphere.system.dto.UserExtend">
+    <select id="getUserAdminList" resultType="io.metersphere.sdk.dto.UserExtend">
         select distinct u.*
         from `user` u left join user_role_relation urr on urr.user_id = u.id
         where u.deleted = 0 and urr.source_id = #{organizationId}
 
     </select>
 
-    <select id="getUserMemberList" resultType="io.metersphere.system.dto.UserExtend">
+    <select id="getUserMemberList" resultType="io.metersphere.sdk.dto.UserExtend">
         select distinct u.*, count(temp.id) > 0 as memberFlag from
         user u left join (select * from user_role_relation urr where urr.source_id = #{projectId}) temp on temp.user_id = u.id
         <where>
@@ -136,7 +141,9 @@
 
 
     </select>
-
+    <select id="getDeleteProjectIds" resultType="io.metersphere.project.domain.Project">
+        select * from project where deleted = 1 and delete_time &lt;= #{time} limit #{offset}, 100
+    </select>
 
 
 </mapper>

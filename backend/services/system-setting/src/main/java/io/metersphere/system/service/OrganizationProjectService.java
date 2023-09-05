@@ -11,7 +11,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
-import io.metersphere.system.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;

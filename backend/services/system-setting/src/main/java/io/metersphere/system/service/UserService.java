@@ -13,7 +13,7 @@ import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
-import io.metersphere.system.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.dto.request.UserInviteRequest;

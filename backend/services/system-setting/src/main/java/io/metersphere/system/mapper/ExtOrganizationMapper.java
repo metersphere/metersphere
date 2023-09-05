@@ -1,6 +1,7 @@
 package io.metersphere.system.mapper;
 
 import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.*;
 import io.metersphere.system.request.OrganizationDeleteRequest;
