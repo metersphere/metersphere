@@ -12,23 +12,24 @@ public enum ProjectApplicationType {
 
     //测试计划
     /**
-     * 自定义测试计划报告保留范围 是否开启标识 type
+     * 测试计划报告保留范围 value
      */
     APPLICATION_CLEAN_TEST_PLAN_REPORT,
+    /**
+     * 测试报告有效期 value
+     */
+    APPLICATION_SHARE_TEST_PLAN_REPORT,
 
-    /**
-     * 自定义测试计划报告保留范围 value
-     */
-    APPLICATION_CLEAN_TEST_PLAN_REPORT_VALUE,
-    /**
-     * 自定义测试报告有效期 是否开启标识 type
-     */
-    APPLICATION_TEST_PLAN_SHARE_REPORT,
 
+    //UI测试
     /**
-     * 自定义测试报告有效期 value
+     * UI报告保留范围 value
      */
-    APPLICATION_TEST_PLAN_SHARE_REPORT_VALUE,
+    APPLICATION_CLEAN_UI_REPORT,
+    /**
+     * UI报告有效期 value
+     */
+    APPLICATION_SHARE_UI_REPORT,
 
 
     //缺陷管理

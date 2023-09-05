@@ -126,7 +126,11 @@ public class PermissionConstants {
     public static final String PROJECT_MESSAGE_READ_ADD = "PROJECT_MESSAGE:READ+ADD";
     public static final String PROJECT_MESSAGE_READ_DELETE = "PROJECT_MESSAGE:READ+DELETE";
 
+    /*------ start: PROJECT_APPLICATION ------*/
     public static final String PROJECT_APPLICATION_TEST_PLAN_READ = "PROJECT_APPLICATION_TEST_PLAN:READ";
     public static final String PROJECT_APPLICATION_TEST_PLAN_UPDATE = "PROJECT_APPLICATION_TEST_PLAN:UPDATE";
+    public static final String PROJECT_APPLICATION_UI_READ = "PROJECT_APPLICATION_UI:READ";
+    public static final String PROJECT_APPLICATION_UI_UPDATE = "PROJECT_APPLICATION_UI:UPDATE";
+    /*------ end: PROJECT_APPLICATION ------*/
     public static final String PROJECT_BASE_INFO_READ = "PROJECT_BASE_INFO:READ";
 }

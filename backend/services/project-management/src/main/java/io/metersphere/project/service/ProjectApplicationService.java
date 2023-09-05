@@ -4,6 +4,7 @@ import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.job.CleanUpReportJob;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ScheduleType;
@@ -15,11 +16,13 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.Schedule;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +35,12 @@ public class ProjectApplicationService {
     @Resource
     private BaseScheduleService baseScheduleService;
 
+
+    /**
+     * 更新配置信息
+     * @param application
+     * @return
+     */
     public ProjectApplication update(ProjectApplication application) {
         //定时任务配置，检查是否存在定时任务配置，存在则更新，不存在则新增
         this.doBeforeUpdate(application);
@@ -57,8 +66,9 @@ public class ProjectApplicationService {
     private void doBeforeUpdate(ProjectApplication application) {
         String type = application.getType();
         //TODO 自定义id配置 &其他配置
-        if (StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_TEST_PLAN_REPORT.name())) {
-            //处理测试计划报告 定时任务
+        if (StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_TEST_PLAN_REPORT.name())
+                || StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_UI_REPORT.name())) {
+            //清除 测试计划/UI 报告 定时任务
             this.doHandleSchedule(application);
         }
     }
@@ -76,7 +86,7 @@ public class ProjectApplicationService {
                     CleanUpReportJob.getJobKey(projectId),
                     CleanUpReportJob.getTriggerKey(projectId),
                     CleanUpReportJob.class);
-        },() -> {
+        }, () -> {
             Schedule request = new Schedule();
             request.setName("Clean Report Job");
             request.setResourceId(projectId);
@@ -99,24 +109,57 @@ public class ProjectApplicationService {
 
 
     /**
-     * 更新接口日志
+     * 获取配置信息
+     * @param request
+     * @return
+     */
+    public List<ProjectApplication> get(ProjectApplicationRequest request) {
+        ProjectApplicationExample projectApplicationExample = new ProjectApplicationExample();
+        projectApplicationExample.createCriteria().andProjectIdEqualTo(request.getProjectId()).andTypeIn(request.getTypes());
+        List<ProjectApplication> applicationList = projectApplicationMapper.selectByExample(projectApplicationExample);
+        if (CollectionUtils.isNotEmpty(applicationList)) {
+            return applicationList;
+        }
+        return new ArrayList<ProjectApplication>();
+    }
+
+
+    /**
+     * 测试计划 日志
      *
      * @param application
      * @return
      */
-    public LogDTO updateLog(ProjectApplication application) {
+    public LogDTO updateTestPlanLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "测试计划配置");
+    }
+
+
+    /**
+     * UI 日志
+     *
+     * @param application
+     * @return
+     */
+    public LogDTO updateUiLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "UI配置");
+    }
+
+
+    private LogDTO delLog(ProjectApplication application, String module, String content) {
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andTypeEqualTo(application.getType()).andProjectIdEqualTo(application.getProjectId());
         List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
         LogDTO dto = new LogDTO(
-                OperationLogConstants.SYSTEM,
-                OperationLogConstants.SYSTEM,
+                application.getProjectId(),
+                "",
                 OperationLogConstants.SYSTEM,
                 null,
-                OperationLogType.ADD.name(),
-                OperationLogModule.PROJECT_PROJECT_MANAGER,
-                "测试计划配置");
+                OperationLogType.UPDATE.name(),
+                module,
+                content);
         dto.setOriginalValue(JSON.toJSONBytes(list));
         return dto;
     }
+
 }
