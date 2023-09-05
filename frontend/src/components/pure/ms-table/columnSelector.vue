@@ -39,7 +39,7 @@
         </div>
       </div>
       <a-divider orientation="center" class="non-sort">{{ t('msTable.columnSetting.nonSort') }}</a-divider>
-      <Draggable tag="div" :list="couldSortColumn" class="list-group" item-key="dateIndex">
+      <Draggable tag="div" :list="couldSortColumn" ghost-class="ghost" item-key="dateIndex">
         <template #item="{ element, index }">
           <div class="column-drag-item">
             <div class="flex items-center">
@@ -170,6 +170,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
+    cursor: move;
+    &:hover {
+      background-color: var(--color-text-n9);
+    }
+  }
+  .ghost {
+    border: 1px dashed rgba(var(--primary-5));
+    background-color: rgba(var(--primary-1));
   }
   :deep(.arco-divider-text) {
     padding: 0 8px;
