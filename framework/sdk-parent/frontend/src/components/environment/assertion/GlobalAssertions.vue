@@ -3,62 +3,59 @@
     <div class="assertion-add" :draggable="draggable">
       <el-row :gutter="10">
         <el-col :span="4">
-          <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
-                     :placeholder="$t('api_test.request.assertions.select_type')" size="small">
-            <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
-            <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
-            <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
-            <el-option :label="'XPath'" :value="options.XPATH2"/>
-            <el-option :label="$t('api_test.request.assertions.response_time')" :value="options.DURATION"/>
-            <el-option :label="$t('api_test.request.assertions.jsr223')" :value="options.JSR223"/>
-            <el-option :label="$t('api_test.definition.request.document_structure')" :value="options.DOCUMENT"/>
+          <el-select
+            :disabled="isReadOnly"
+            class="assertion-item"
+            v-model="type"
+            :placeholder="$t('api_test.request.assertions.select_type')"
+            size="small">
+            <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT" />
+            <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX" />
+            <el-option :label="'JSONPath'" :value="options.JSON_PATH" />
+            <el-option :label="'XPath'" :value="options.XPATH2" />
+            <el-option :label="$t('api_test.request.assertions.response_time')" :value="options.DURATION" />
+            <el-option :label="$t('api_test.request.assertions.jsr223')" :value="options.JSR223" />
+            <el-option :label="$t('api_test.definition.request.document_structure')" :value="options.DOCUMENT" />
           </el-select>
         </el-col>
         <el-col :span="20">
           <global-assertion-text
-              :is-read-only="isReadOnly"
-              :list="assertions.regex"
-              :callback="after"
-              v-if="type === options.TEXT"
-          />
+            :is-read-only="isReadOnly"
+            :list="assertions.regex"
+            :callback="after"
+            v-if="type === options.TEXT" />
           <ms-api-assertion-regex
-              :is-read-only="isReadOnly"
-              :list="assertions.regex"
-              :callback="after"
-              v-if="type === options.REGEX"
-          />
+            :is-read-only="isReadOnly"
+            :list="assertions.regex"
+            :callback="after"
+            v-if="type === options.REGEX" />
           <ms-api-assertion-json-path
-              :is-read-only="isReadOnly"
-              :list="assertions.jsonPath"
-              :callback="after"
-              v-if="type === options.JSON_PATH"
-          />
+            :is-read-only="isReadOnly"
+            :list="assertions.jsonPath"
+            :callback="after"
+            v-if="type === options.JSON_PATH" />
           <ms-api-assertion-x-path2
-              :is-read-only="isReadOnly"
-              :list="assertions.xpath2"
-              :callback="after"
-              v-if="type === options.XPATH2"
-          />
+            :is-read-only="isReadOnly"
+            :list="assertions.xpath2"
+            :callback="after"
+            v-if="type === options.XPATH2" />
           <ms-api-assertion-duration
-              v-model="time"
-              :is-read-only="isReadOnly"
-              :duration="assertions.duration"
-              :callback="after"
-              v-if="type === options.DURATION"
-          />
+            v-model="time"
+            :is-read-only="isReadOnly"
+            :duration="assertions.duration"
+            :callback="after"
+            v-if="type === options.DURATION" />
           <ms-api-assertion-jsr223
-              :is-read-only="isReadOnly"
-              :list="assertions.jsr223"
-              :callback="after"
-              v-if="type === options.JSR223"
-          />
+            :is-read-only="isReadOnly"
+            :list="assertions.jsr223"
+            :callback="after"
+            v-if="type === options.JSR223" />
           <ms-api-assertion-document
-              :is-read-only="isReadOnly"
-              v-model="time"
-              :document="assertions.document"
-              :callback="after"
-              v-if="type === options.DOCUMENT"
-          />
+            :is-read-only="isReadOnly"
+            v-model="time"
+            :document="assertions.document"
+            :callback="after"
+            v-if="type === options.DOCUMENT" />
           <el-button v-if="!type" :disabled="true" type="primary" size="small">
             {{ $t('api_test.request.assertions.add') }}
           </el-button>
@@ -67,43 +64,42 @@
     </div>
 
     <api-json-path-suggest-button
-        v-if="isShowJsonPathSuggest"
-        :open-tip="$t('api_test.request.assertions.json_path_suggest')"
-        :clear-tip="$t('api_test.request.assertions.json_path_clear')"
-        @open="suggestJsonOpen"
-        @clear="clearJson"/>
+      v-if="isShowJsonPathSuggest"
+      :open-tip="$t('api_test.request.assertions.json_path_suggest')"
+      :clear-tip="$t('api_test.request.assertions.json_path_clear')"
+      @open="suggestJsonOpen"
+      @clear="clearJson" />
 
     <ms-api-assertions-edit
-        :is-read-only="isReadOnly"
-        :assertions="assertions"
-        :apiId="apiId"
-        :reloadData="reloadData"
-        style="margin-bottom: 20px"/>
+      :is-read-only="isReadOnly"
+      :assertions="assertions"
+      :apiId="apiId"
+      :reloadData="reloadData"
+      style="margin-bottom: 20px" />
 
     <api-jsonpath-suggest
-        :tip="$t('api_test.request.extract.suggest_tip')"
-        @addSuggest="addJsonPathSuggest"
-        ref="jsonpathSuggest"/>
+      :tip="$t('api_test.request.extract.suggest_tip')"
+      @addSuggest="addJsonPathSuggest"
+      ref="jsonpathSuggest" />
   </div>
 </template>
 
 <script>
-import GlobalAssertionText from "./GlobalAssertionText";
-import MsApiAssertionRegex from "./ApiAssertionRegex";
-import MsApiAssertionDuration from "./ApiAssertionDuration";
-import {ASSERTION_TYPE, JSONPath} from "../../../model/ApiTestModel";
-import MsApiAssertionsEdit from "./ApiAssertionsEdit";
-import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
-import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
-import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
-import {getUUID} from "../../../utils";
-import ApiJsonPathSuggestButton
-  from "./ApiJsonPathSuggestButton";
-import ApiJsonpathSuggest from "./ApiJsonpathSuggest";
-import MsApiAssertionDocument from "./document/DocumentHeader";
+import GlobalAssertionText from './GlobalAssertionText';
+import MsApiAssertionRegex from './ApiAssertionRegex';
+import MsApiAssertionDuration from './ApiAssertionDuration';
+import { ASSERTION_TYPE, JSONPath } from '../../../model/ApiTestModel';
+import MsApiAssertionsEdit from './ApiAssertionsEdit';
+import MsApiAssertionJsonPath from './ApiAssertionJsonPath';
+import MsApiAssertionJsr223 from './ApiAssertionJsr223';
+import MsApiAssertionXPath2 from './ApiAssertionXPath2';
+import { getUUID } from '../../../utils';
+import ApiJsonPathSuggestButton from './ApiJsonPathSuggestButton';
+import ApiJsonpathSuggest from './ApiJsonpathSuggest';
+import MsApiAssertionDocument from './document/DocumentHeader';
 
 export default {
-  name: "GlobalAssertions",
+  name: 'GlobalAssertions',
   components: {
     ApiJsonpathSuggest,
     ApiJsonPathSuggestButton,
@@ -136,31 +132,34 @@ export default {
     response: {},
     customizeStyle: {
       type: String,
-      default: "margin-top: 10px"
+      default: 'margin-top: 10px',
     },
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isShowJsonPathSuggest: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   data() {
     return {
       options: ASSERTION_TYPE,
-      time: "",
-      type: "",
+      time: '',
+      type: '',
       loading: false,
-      reloadData: "",
-    }
+      reloadData: '',
+    };
   },
   created() {
+    if (!this.assertions.xpathType) {
+      this.assertions.xpathType = 'xml';
+    }
   },
   methods: {
     after() {
-      this.type = "";
+      this.type = '';
       this.reloadData = getUUID().substring(0, 8);
       this.reload();
     },
@@ -175,13 +174,13 @@ export default {
           return;
         }
         this.$refs.jsonpathSuggest.open(this.response.responseResult.body);
-      })
+      });
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
     active() {
       this.assertions.active = !this.assertions.active;
@@ -197,7 +196,8 @@ export default {
       jsonItem.setJSONPathDescription();
       let expect = jsonItem.expect;
       if (expect) {
-        expect = expect.replaceAll('\\', '\\\\')
+        expect = expect
+          .replaceAll('\\', '\\\\')
           .replaceAll('(', '\\(')
           .replaceAll(')', '\\)')
           .replaceAll('+', '\\+')
@@ -213,9 +213,9 @@ export default {
     },
     clearJson() {
       this.assertions.jsonPath = [];
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -227,7 +227,7 @@ export default {
   padding: 10px;
   margin: 5px 0;
   border-radius: 5px;
-  border: #DCDFE6 solid 1px;
+  border: #dcdfe6 solid 1px;
 }
 
 .icon.is-active {
