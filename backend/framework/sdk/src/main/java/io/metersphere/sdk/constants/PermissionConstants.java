@@ -113,6 +113,7 @@ public class PermissionConstants {
     public static final String SYSTEM_LOG_READ = "SYSTEM_LOG:READ";
 
     public static final String ORGANIZATION_LOG_READ = "ORGANIZATION_LOG:READ";
+    public static final String PROJECT_LOG_READ = "PROJECT_LOG:READ";
 
     public static final String PROJECT_USER_READ_ADD = "PROJECT_USER:READ+ADD";
     public static final String PROJECT_USER_READ_DELETE = "PROJECT_USER:READ+DELETE";

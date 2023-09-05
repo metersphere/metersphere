@@ -13,7 +13,7 @@
     </select>
 
     <select id="getUserListByOrgId" resultType="io.metersphere.system.domain.User">
-        SELECT DISTINCT
+        SELECT
             u.id,
             u.NAME,
             u.email
