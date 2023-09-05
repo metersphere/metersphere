@@ -77,8 +77,14 @@
                   </slot>
                 </div>
               </template>
+              <template v-else-if="item.slotName === SpecialColumnEnum.OPERATION">
+                <slot name="operation" v-bind="{ record, rowIndex }" />
+              </template>
+              <template v-else-if="item.slotName === SpecialColumnEnum.ACTION">
+                <slot name="action" v-bind="{ record, rowIndex }" />
+              </template>
               <template v-else-if="item.showTooltip">
-                <a-tooltip placement="top" :content="record[item.dataIndex as string]">
+                <a-tooltip placement="top" :content="String(record[item.dataIndex as string])">
                   <a-input
                     v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
                     ref="currentInputRef"

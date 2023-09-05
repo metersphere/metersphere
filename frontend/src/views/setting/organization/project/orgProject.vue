@@ -44,9 +44,13 @@
         </template>
       </template>
     </MsBaseTable>
-    <AddProjectModal :visible="addProjectVisible" @cancel="handleAddProjectModalCancel" />
+    <AddProjectModal
+      :visible="addProjectVisible"
+      :current-project="currentUpdateProject"
+      @cancel="handleAddProjectModalCancel"
+    />
     <AddUserModal :project-id="currentProjectId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
-    <UserDrawer v-bind="currentUserDrawer" @cancel="handleUserDrawerCancel" />
+    <UserDrawer v-bind="currentUserDrawer" @request-fetch-data="fetchData" @cancel="handleUserDrawerCancel" />
   </MsCard>
 </template>
 
@@ -185,6 +189,7 @@
   ];
 
   const showAddProject = () => {
+    currentUpdateProject.value = undefined;
     addProjectVisible.value = true;
   };
 
@@ -261,7 +266,6 @@
 
   const handleUserDrawerCancel = () => {
     currentUserDrawer.visible = false;
-    fetchData();
   };
 
   const handleAddUserModalCancel = (shouldSearch: boolean) => {
