@@ -101,8 +101,6 @@
       dataIndex: 'num',
       width: 100,
       showTooltip: true,
-      editable: true,
-      editType: ColumnEditTypeEnum.INPUT,
     },
     {
       title: 'system.organization.name',
@@ -110,7 +108,7 @@
       editable: true,
       editType: ColumnEditTypeEnum.INPUT,
       dataIndex: 'name',
-      showTooltip: true,
+      ellipsis: true,
     },
     {
       title: 'system.organization.member',
@@ -251,7 +249,6 @@
 
   const showAddProjectModal = (record: any) => {
     const { id, name, description, enable, adminList, organizationId, moduleIds } = record;
-    addProjectVisible.value = true;
     currentUpdateProject.value = {
       id,
       name,
@@ -261,6 +258,7 @@
       organizationId,
       moduleIds,
     };
+    addProjectVisible.value = true;
   };
 
   const showAddUserModal = (record: any) => {

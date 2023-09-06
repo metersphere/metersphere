@@ -26,7 +26,6 @@
           :width="item.width"
           :align="item.align"
           :fixed="item.fixed"
-          :ellipsis="item.ellipsis"
           :sortable="item.sortable"
           :filterable="item.filterable"
           :cell-class="item.cellClass"
@@ -111,6 +110,33 @@
                     />
                   </template>
                 </a-tooltip>
+              </template>
+              <template v-else-if="item.ellipsis">
+                <a-input
+                  v-if="
+                    editActiveKey === `${item.dataIndex}${rowIndex}` &&
+                    item.editable &&
+                    item.editType === ColumnEditTypeEnum.INPUT
+                  "
+                  ref="currentInputRef"
+                  v-model="record[item.dataIndex as string]"
+                  @blur="handleEditInputBlur()"
+                  @press-enter="handleEditInputEnter(record)"
+                />
+                <template v-else>
+                  <div class="one-line-text max-w-[300px]">
+                    <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                      {{ record[item.dataIndex as string] || '-' }}
+                    </slot>
+                  </div>
+                  <MsIcon
+                    v-if="item.editable && !record.deleted"
+                    class="ml-2 cursor-pointer"
+                    :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
+                    type="icon-icon_edit_outlined"
+                    @click="handleEdit(item.dataIndex as string, rowIndex)"
+                  />
+                </template>
               </template>
               <template v-else>
                 <a-input
@@ -350,6 +376,7 @@
       currentInputRef.value[0].focus();
     } else {
       nextTick(() => {
+        debugger;
         currentInputRef.value[0].focus();
       });
     }

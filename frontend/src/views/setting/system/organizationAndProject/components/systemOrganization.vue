@@ -65,7 +65,7 @@
     revokeDeleteOrg,
     createOrUpdateOrg,
   } from '@/api/modules/setting/organizationAndProject';
-  import { TableKeyEnum } from '@/enums/tableEnum';
+  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -105,7 +105,8 @@
       dataIndex: 'name',
       width: 200,
       editable: true,
-      showTooltip: true,
+      editType: ColumnEditTypeEnum.INPUT,
+      ellipsis: true,
     },
     {
       title: 'system.organization.member',
@@ -123,6 +124,7 @@
     {
       title: 'system.organization.description',
       dataIndex: 'description',
+      showTooltip: true,
     },
     {
       title: 'system.organization.creator',
@@ -306,4 +308,3 @@
     cursor: pointer;
   }
 </style>
-@/api/modules/setting/organizationAndProject
