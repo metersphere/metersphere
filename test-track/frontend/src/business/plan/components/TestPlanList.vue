@@ -1067,15 +1067,17 @@ export default {
       if (!this.haveUICase && !haveApiCase && !haveScenarioCase && haveLoadCase) {
         //只有性能测试，则直接执行
         this.$refs.runMode.handleCommand("run");
-      } else if (haveApiCase || haveScenarioCase || this.haveUICase) {
+      } else if (haveApiCase || haveScenarioCase) {
+        // 有接口或场景测试, 需选择资源池
         this.haveOtherExecCase = true;
-        //因为ui没有资源池，这里必须分离两个变量
         this.$refs.runMode.open("API", row.runModeConfig);
+      } else if (this.haveUICase) {
+        // UI测试不需要选择资源池
+        this.$refs.runMode.open("", row.runModeConfig);
       } else {
         //没有可执行的资源，则直接跳转到计划里
         this.$router.push("/track/plan/view/" + row.id);
       }
-
     },
     _handleRun(config) {
       let defaultPlanEnvMap = config.testPlanDefaultEnvMap;
