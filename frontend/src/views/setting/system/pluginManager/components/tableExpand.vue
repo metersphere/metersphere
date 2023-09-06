@@ -9,7 +9,7 @@
     <div class="ms-scroll">
       <div v-for="(item, index) in record.pluginForms" :key="item.id" class="ms-self"
         ><span class="circle text-xs leading-[16px]"> {{ index + 1 }} </span
-        ><span class="cursor-pointer text-[rgb(var(--primary-6))]" @click="emit('MessageEvent', record, item)">{{
+        ><span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="emit('MessageEvent', record, item)">{{
           item.name
         }}</span></div
       >
@@ -50,5 +50,8 @@
     line-height: 54px;
     border-bottom: 1px solid var(--color-text-n8);
     @apply flex items-center align-middle leading-6;
+  }
+  .ms-self:hover {
+    background: var(--color-fill-1);
   }
 </style>

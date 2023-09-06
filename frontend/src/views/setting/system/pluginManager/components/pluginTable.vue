@@ -456,4 +456,11 @@
   :deep(.arco-table-content + .arco-scrollbar-track-direction-horizontal .arco-scrollbar-thumb-direction-horizontal) {
     width: 0 !important;
   }
+  :deep(.arco-table-hover) {
+    .arco-table-tr-expand:not(.arco-table-tr-empty):hover {
+      .arco-table-td:not(.arco-table-col-fixed-left):not(.arco-table-col-fixed-right) {
+        background: none !important;
+      }
+    }
+  }
 </style>
