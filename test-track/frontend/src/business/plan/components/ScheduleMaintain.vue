@@ -489,12 +489,9 @@ export default {
       });
     },
     saveCron() {
-      if (
-          this.runConfig.resourcePoolId == null
-      ) {
-        this.$warning(
-            this.$t("workspace.env_group.please_select_run_within_resource_pool")
-        );
+      if ((this.haveOtherExecCase && this.testType === 'API') && this.runConfig.resourcePoolId == null) {
+        // 只有接口场景配置Cron时, 才需要校验资源池
+        this.$warning(this.$t("workspace.env_group.please_select_run_within_resource_pool"));
         return;
       }
       this.$refs["from"].validate((valid) => {
@@ -522,12 +519,8 @@ export default {
       if (!param.workspaceId) {
         param.workspaceId = getCurrentWorkspaceId();
       }
-      if (
-          this.runConfig.resourcePoolId == null
-      ) {
-        this.$warning(
-            this.$t("workspace.env_group.please_select_run_within_resource_pool")
-        );
+      if ((this.haveOtherExecCase && this.testType === 'API') && this.runConfig.resourcePoolId == null) {
+        this.$warning(this.$t("workspace.env_group.please_select_run_within_resource_pool"));
         return;
       }
       param.config = JSON.stringify(this.runConfig);
