@@ -13,7 +13,6 @@ import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
-import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.NodeNumDTO;
@@ -100,7 +99,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     private void validateNode(TestCaseNode node) {
-        this.checkTestCaseNodeExist(node);
+        checkTestCaseNodeExist(node);
     }
 
     private void checkTestCaseNodeExist(TestCaseNode node) {
@@ -128,7 +127,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     public TestCaseNode checkDefaultNode(String projectId) {
         TestCaseNode defaultNode = getDefaultNode(projectId);
         if (defaultNode == null) {
-            return this.createDefaultNode(projectId);
+            return createDefaultNode(projectId);
         } else {
             return defaultNode;
         }
@@ -165,7 +164,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             return 1;
         }
         io.metersphere.service.TestCaseService testCaseService = CommonBeanFactory.getBean(io.metersphere.service.TestCaseService.class);
-        List<String> testCaseIdList = this.selectCaseIdByNodeIds(nodeIds);
+        List<String> testCaseIdList = selectCaseIdByNodeIds(nodeIds);
         TestCaseBatchRequest request = new TestCaseBatchRequest();
         request.setIds(testCaseIdList);
         testCaseService.deleteToGcBatch(request);
@@ -210,9 +209,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId, QueryTestCaseRequest request) {
         boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
         request.setQueryUi(queryUi);
-        this.setRequestWeekParam(request);
+        setRequestWeekParam(request);
         // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.checkDefaultNode(projectId);
+        checkDefaultNode(projectId);
         request.setProjectId(projectId);
         request.setUserId(SessionUtils.getUserId());
         request.setNodeIds(null);
@@ -225,11 +224,10 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
 
-
     public Map<String, Integer> getNodeCountMapByProjectId(String projectId, QueryTestCaseRequest request) {
         boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
         request.setQueryUi(queryUi);
-        this.setRequestWeekParam(request);
+        setRequestWeekParam(request);
         request.setProjectId(projectId);
         request.setUserId(SessionUtils.getUserId());
         request.setNodeIds(null);
@@ -281,7 +279,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public List<TestCaseNodeDTO> getTrashCaseNode(String projectId, QueryTestCaseRequest request) {
         // 初始化回收站中模块被删除的用例, 挂在默认未规划模块, 获取回收站模块节点数据
-        TestCaseNode defaultNode = this.checkDefaultNode(projectId);
+        TestCaseNode defaultNode = checkDefaultNode(projectId);
         if (defaultNode != null) {
             extTestCaseMapper.updateNoModuleTrashNodeToDefault(projectId, defaultNode.getId(), defaultNode.getName());
         }
@@ -294,11 +292,11 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     public List<TestCaseNodeDTO> getNodeByPlanId(String planId) {
-        return this.getNodeByPlanId(planId, new QueryTestPlanCaseRequest());
+        return getNodeByPlanId(planId, new QueryTestPlanCaseRequest());
     }
 
     public List<TestCaseNodeDTO> getNodeByReviewId(String reviewId) {
-        return this.getNodeByReviewId(reviewId, new QueryCaseReviewRequest());
+        return getNodeByReviewId(reviewId, new QueryCaseReviewRequest());
     }
 
     public List<TestCaseNodeDTO> getNodeByReviewId(String reviewId, QueryCaseReviewRequest request) {
@@ -380,7 +378,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                 .map(TestCase::getNodePath)
                 .collect(Collectors.toList());
 
-        return this.createNodes(nodePaths, projectId);
+        return createNodes(nodePaths, projectId);
     }
 
     public Map<String, String> getNodePathMap(String projectId) {
@@ -485,25 +483,17 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     public void dragNode(DragNodeRequest request) {
-
         checkTestCaseNodeExist(request);
-
         List<String> nodeIds = request.getNodeIds();
-
         TestCaseNodeDTO nodeTree = request.getNodeTree();
-
         if (nodeTree == null) {
             return;
         }
-
         List<TestCaseNode> updateNodes = new ArrayList<>();
-
-        buildUpdateTestCase(nodeTree, updateNodes,  "0", 1);
-
+        buildUpdateTestCase(nodeTree, updateNodes, "0", 1);
         updateNodes = updateNodes.stream()
                 .filter(item -> nodeIds.contains(item.getId()))
                 .collect(Collectors.toList());
-
         batchUpdateTestCaseNode(updateNodes);
     }
 
@@ -521,11 +511,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     private void buildUpdateTestCase(TestCaseNodeDTO rootNode,
                                      List<TestCaseNode> updateNodes, String pId, int level) {
-
-        if (level > 8) {
-            MSException.throwException(Translator.get("node_deep_limit"));
-        }
-
         if (updateNodes != null) {
             TestCaseNode testCaseNode = new TestCaseNode();
             testCaseNode.setId(rootNode.getId());
@@ -733,11 +718,12 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             return new HashMap<>();
         }
         List<Map<String, Object>> moduleCountList = extTestCaseMapper.moduleExtraNodeCount(nodeIds);
-        return this.parseModuleCountList(moduleCountList);
+        return parseModuleCountList(moduleCountList);
     }
 
     /**
      * 设置请求参数中本周区间参数
+     *
      * @param request 页面请求参数
      * @return
      */
@@ -779,7 +765,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                 testCaseNodeMapper.insert(record);
                 record.setCaseNum(0);
                 return record;
-            }catch (Exception e){
+            } catch (Exception e) {
                 LogUtil.error(e);
                 return null;
             } finally {
