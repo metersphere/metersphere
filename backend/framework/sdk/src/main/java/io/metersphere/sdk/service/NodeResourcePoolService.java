@@ -1,15 +1,21 @@
 package io.metersphere.sdk.service;
 
 
+import com.bastiaanjansen.otp.TOTPGenerator;
+import io.metersphere.sdk.constants.MsHttpHeaders;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.TestResourceDTO;
 import io.metersphere.sdk.dto.TestResourceNodeDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -21,10 +27,13 @@ import java.util.List;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class NodeResourcePoolService {
+    @Resource
+    private TOTPGenerator totpGenerator;
 
     private final static String nodeControllerUrl = "http://%s:%s/status";
 
     private static final RestTemplate restTemplateWithTimeOut = new RestTemplate();
+
     static {
         HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
         httpRequestFactory.setConnectionRequestTimeout(2000);
@@ -55,7 +64,7 @@ public class NodeResourcePoolService {
             }
             isValid = validateNode(testResourceNodeDTO);
             if (!isValid) {
-                 break;
+                break;
             }
         }
         //校验节点
@@ -73,7 +82,11 @@ public class NodeResourcePoolService {
 
     private boolean validateNode(TestResourceNodeDTO node) {
         try {
-            ResponseEntity<ResultHolder> entity = restTemplateWithTimeOut.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), ResultHolder.class);
+            String token = totpGenerator.now();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(MsHttpHeaders.OTP_TOKEN, token);
+            HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+            ResponseEntity<ResultHolder> entity = restTemplateWithTimeOut.exchange(String.format(nodeControllerUrl, node.getIp(), node.getPort()), HttpMethod.GET, httpEntity, ResultHolder.class);
             ResultHolder body = entity.getBody();
             if (body == null) {
                 return false;
