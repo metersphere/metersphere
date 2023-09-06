@@ -62,7 +62,7 @@
         <selenium-htmlunit.version>4.10.0</selenium-htmlunit.version>
         <selenium.version>4.10.0</selenium.version>
         <jmeter-plugins-webdriver.version>4.10.0</jmeter-plugins-webdriver.version>
-        <opentelemetry.version>1.22.0</opentelemetry.version>
+        <opentelemetry.version>1.26.0</opentelemetry.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <jmeter-plugins-dubbo.version>2.7.17</jmeter-plugins-dubbo.version>
         <hessian-lite.version>3.2.13</hessian-lite.version>
