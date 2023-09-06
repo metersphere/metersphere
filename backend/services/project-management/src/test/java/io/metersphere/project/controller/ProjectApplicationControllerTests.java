@@ -77,7 +77,6 @@ public class ProjectApplicationControllerTests extends BaseTest {
      */
 
 
-
     /**
      * ==========UI测试 start==========
      */
@@ -90,7 +89,6 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void testUiClean() throws Exception {
-        this.testGetTestPlan();
         //新增
         ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_CLEAN_UI_REPORT.name(), TIME_TYPE_VALUE);
         this.requestPost(UI_UPDATE_URL, request);
@@ -129,6 +127,71 @@ public class ProjectApplicationControllerTests extends BaseTest {
     /**
      * ==========UI测试 end==========
      */
+
+
+    /**
+     * ==========性能测试 start==========
+     */
+    // 性能测试
+    public static final String PERFORMANCE_UPDATE_URL = "/project/application/update/performance-test";
+    //获取配置
+    public static final String GET_PERFORMANCE_URL = "/project/application/performance-test";
+    //获取脚本审核人
+    public static final String GET_USER_URL = "/project/application/performance-test/user";
+
+    //应用配置 - UI测试 - 清理报告配置
+    @Test
+    @Order(7)
+    public void testPerformanceClean() throws Exception {
+        //新增
+        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_CLEAN_PERFORMANCE_TEST_REPORT.name(), TIME_TYPE_VALUE);
+        this.requestPost(PERFORMANCE_UPDATE_URL, request);
+        //更新
+        request.setTypeValue("4M");
+        this.requestPost(PERFORMANCE_UPDATE_URL, request);
+        // @@异常参数校验
+        updatedGroupParamValidateTest(ProjectApplicationDefinition.class, PERFORMANCE_UPDATE_URL);
+
+    }
+
+    //应用管理 - UI测试 - 分享报告配置
+    @Test
+    @Order(8)
+    public void testPerformanceShare() throws Exception {
+        //新增
+        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_SHARE_PERFORMANCE_TEST_REPORT.name(), TIME_TYPE_VALUE);
+        this.requestPost(PERFORMANCE_UPDATE_URL, request);
+        //更新
+        request.setTypeValue("5M");
+        this.requestPost(PERFORMANCE_UPDATE_URL, request);
+    }
+
+    //应用管理 - UI测试 - 脚本审核
+    @Test
+    @Order(9)
+    public void testPerformanceReviewer() throws Exception {
+        //新增
+        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_PERFORMANCE_TEST_SCRIPT_REVIEWER.name(), "admin");
+        this.requestPost(PERFORMANCE_UPDATE_URL, request);
+    }
+
+    //应用管理 - UI测试 - 获取配置
+    @Test
+    @Order(10)
+    public void testGetPerformance() throws Exception {
+        //清理报告 + 分享报告
+        List<String> types = Arrays.asList(ProjectApplicationType.APPLICATION_CLEAN_PERFORMANCE_TEST_REPORT.name(), ProjectApplicationType.APPLICATION_SHARE_PERFORMANCE_TEST_REPORT.name(), ProjectApplicationType.APPLICATION_PERFORMANCE_TEST_SCRIPT_REVIEWER.name());
+        ProjectApplicationRequest request = this.getRequest(types);
+        this.requestPostWithOkAndReturn(GET_PERFORMANCE_URL, request);
+        // @@异常参数校验
+        updatedGroupParamValidateTest(ProjectApplicationRequestDefinition.class, GET_PERFORMANCE_URL);
+    }
+
+    @Test
+    @Order(11)
+    public void testGetUser() throws Exception {
+        this.requestGetWithOkAndReturn(GET_USER_URL + "/default-project-2");
+    }
 
 
     private ProjectApplicationRequest getRequest(List<String> types) {

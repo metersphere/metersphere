@@ -6,10 +6,14 @@ import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +27,8 @@ import java.util.List;
 public class ProjectApplicationController {
     @Resource
     private ProjectApplicationService projectApplicationService;
-
+    @Resource
+    private UserService userService;
 
     /**
      * ==========测试计划==========
@@ -62,5 +67,32 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_READ)
     public List<ProjectApplication> getUI(@Validated @RequestBody ProjectApplicationRequest request) {
         return projectApplicationService.get(request);
+    }
+
+
+    /**
+     * ==========性能测试==========
+     */
+
+    @PostMapping("/update/performance-test")
+    @Operation(summary = "应用设置-性能测试-配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePerformanceLog(#application)", msClass = ProjectApplicationService.class)
+    public ProjectApplication updatePerformanceTest(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        return projectApplicationService.update(application);
+    }
+
+    @PostMapping("/performance-test")
+    @Operation(summary = "应用设置-性能测试-获取配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_READ)
+    public List<ProjectApplication> getPerformanceTest(@Validated @RequestBody ProjectApplicationRequest request) {
+        return projectApplicationService.get(request);
+    }
+
+    @GetMapping("/performance-test/user/{projectId}")
+    @Operation(summary = "应用设置-性能测试-获取审核人")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_READ)
+    public List<User> getCheckUser(@PathVariable String projectId) {
+        return projectApplicationService.getProjectUserList(StringUtils.defaultIfBlank(projectId, SessionUtils.getCurrentProjectId()));
     }
 }

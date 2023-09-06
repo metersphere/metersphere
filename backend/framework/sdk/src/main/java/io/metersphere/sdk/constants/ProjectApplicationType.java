@@ -32,6 +32,21 @@ public enum ProjectApplicationType {
     APPLICATION_SHARE_UI_REPORT,
 
 
+    //性能测试
+    /**
+     * 性能测试报告保留范围 value
+     */
+    APPLICATION_CLEAN_PERFORMANCE_TEST_REPORT,
+    /**
+     * 性能测试报告有效期 value
+     */
+    APPLICATION_SHARE_PERFORMANCE_TEST_REPORT,
+    /**
+     * 性能测试脚本审核人
+     */
+    APPLICATION_PERFORMANCE_TEST_SCRIPT_REVIEWER,
+
+
     //缺陷管理
     /**
      * 同步缺陷 标识

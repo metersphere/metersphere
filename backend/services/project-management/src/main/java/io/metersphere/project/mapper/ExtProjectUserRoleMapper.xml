@@ -10,4 +10,16 @@
             and u.name like concat('%', #{request.keyword}, '%')
         </if>
     </select>
+
+    <select id="getProjectUserList" resultType="io.metersphere.system.domain.User">
+        SELECT
+        u.id,
+        u.NAME
+        FROM
+        `user` u
+        LEFT JOIN user_role_relation urr ON u.id = urr.user_id
+        WHERE
+        urr.source_id = #{sourceId} and u.deleted = false
+        order by u.create_time desc
+    </select>
 </mapper>

@@ -17,4 +17,11 @@ public interface ExtProjectUserRoleMapper {
      * @return 项目成员列表
      */
     List<User> listProjectRoleMember(@Param("request") ProjectUserRoleMemberRequest request);
+
+    /**
+     * 根据项目id获取 项目成员
+     * @param sourceId
+     * @return
+     */
+    List<User> getProjectUserList(@Param("sourceId") String sourceId);
 }
