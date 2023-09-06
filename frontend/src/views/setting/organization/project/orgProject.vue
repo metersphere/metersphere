@@ -12,8 +12,7 @@
       ></a-input-search>
     </div>
     <MsBaseTable v-bind="propsRes" v-on="propsEvent">
-      <template #name="{ record }">
-        <span class="one-line-text">{{ record.name }}</span>
+      <template #revokeDelete="{ record }">
         <a-tooltip background-color="#FFFFFF">
           <template #content>
             <span class="text-[var(--color-text-1)]">{{ t('system.project.revokeDeleteToolTip') }}</span>
@@ -104,11 +103,10 @@
     },
     {
       title: 'system.organization.name',
-      slotName: 'name',
-      editable: true,
+      revokeDeletedSlot: 'revokeDelete',
       editType: ColumnEditTypeEnum.INPUT,
       dataIndex: 'name',
-      ellipsis: true,
+      showTooltip: true,
     },
     {
       title: 'system.organization.member',
@@ -124,8 +122,7 @@
     {
       title: 'system.organization.description',
       dataIndex: 'description',
-      ellipsis: true,
-      tooltip: true,
+      showTooltip: true,
       showDrag: true,
     },
     {

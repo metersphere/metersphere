@@ -41,10 +41,10 @@
       <a-divider orientation="center" class="non-sort"
         ><span class="text-xs text-[var(--color-text-4)]">{{ t('msTable.columnSetting.nonSort') }}</span></a-divider
       >
-      <Draggable tag="div" :list="couldSortColumn" class="list-group" handle=".handle" item-key="dateIndex">
+      <Draggable tag="div" :list="couldSortColumn" ghost-class="ghost" item-key="dateIndex">
         <template #item="{ element, index }">
           <div class="column-drag-item">
-            <div class="handle flex w-[90%] items-center">
+            <div class="flex w-[90%] items-center">
               <MsIcon type="icon-icon_drag" class="text-[16px] text-[var(--color-text-4)]" />
               <span class="ml-[8px]">{{ t(element.title as string) }}</span>
             </div>

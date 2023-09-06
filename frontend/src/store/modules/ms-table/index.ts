@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { MsTableSelectorItem, MsTableState, TableOpenDetailMode } from './types';
 import { MsTableColumn } from '@/components/pure/ms-table/type';
 import { parse, stringify } from '@/utils/serializeMap';
+import { SpecialColumnEnum } from '@/enums/tableEnum';
 
 const msTableStore = defineStore('msTable', {
   // 开启数据持久化
@@ -24,6 +25,18 @@ const msTableStore = defineStore('msTable', {
           }
           if (item.showInTable === undefined) {
             item.showInTable = true;
+          }
+          if (item.dataIndex === SpecialColumnEnum.ID) {
+            item.showDrag = false;
+            item.sortIndex = 0;
+          }
+          if (item.dataIndex === SpecialColumnEnum.NAME) {
+            item.showDrag = false;
+            item.sortIndex = 1;
+          }
+          if (item.dataIndex === SpecialColumnEnum.OPERATION || item.dataIndex === SpecialColumnEnum.ACTION) {
+            item.showDrag = false;
+            item.sortIndex = 1000;
           }
         });
         tmpMap.set(tableKey, { mode, column });
