@@ -25,6 +25,9 @@ public class ProjectRobotService {
     @Resource
     private ProjectRobotMapper robotMapper;
 
+    @Resource
+    private CleanupRobotResourceService cleanupRobotResourceService;
+
     public void add(ProjectRobot projectRobot) {
         projectRobot.setId(UUID.randomUUID().toString());
         projectRobot.setEnable(true);
@@ -64,7 +67,8 @@ public class ProjectRobotService {
 
 
     public void delete(String id) {
-        checkRobotExist(id);
+        ProjectRobot projectRobot = checkRobotExist(id);
+        cleanupRobotResourceService.deleteResources(projectRobot.getProjectId());
         robotMapper.deleteByPrimaryKey(id);
     }
 

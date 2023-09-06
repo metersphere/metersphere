@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "项目机器人管理")
+@Tag(name = "项目管理-项目与权限-消息管理-机器人")
 @RestController
 @RequestMapping("/project/robot/")
 public class ProjectRobotController {
@@ -32,7 +32,7 @@ public class ProjectRobotController {
 
 
     @PostMapping("/list/page")
-    @Operation(summary = "获取机器人列表")
+    @Operation(summary = "项目管理-项目与权限-消息管理-获取机器人列表")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ)
     public Pager<List<ProjectRobot>> listResourcePools(@Validated @RequestBody ProjectRobotRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
@@ -40,7 +40,7 @@ public class ProjectRobotController {
     }
 
     @PostMapping("add")
-    @Operation(summary = "新增机器人管理")
+    @Operation(summary = "项目管理-项目与权限-消息管理-新增机器人")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
     public void add(@Validated({Created.class}) @RequestBody ProjectRobotDTO projectRobotDTO) {
         ProjectRobot projectRobot = new ProjectRobot();
@@ -53,7 +53,7 @@ public class ProjectRobotController {
     }
 
     @PostMapping("update")
-    @Operation(summary = "更新机器人")
+    @Operation(summary = "项目管理-项目与权限-消息管理-更新机器人")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_UPDATE)
     public void update(@Validated({Updated.class}) @RequestBody ProjectRobotDTO projectRobotDTO) {
         ProjectRobot projectRobot = new ProjectRobot();
@@ -66,21 +66,21 @@ public class ProjectRobotController {
     }
 
     @GetMapping("get/{id}")
-    @Operation(summary = "获取机器人详情")
+    @Operation(summary = "项目管理-项目与权限-消息管理-获取机器人详情")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ)
     public ProjectRobotDTO getDetail(@PathVariable(value = "id") String id) {
         return projectRobotService.getDetail(id);
     }
 
     @GetMapping("delete/{id}")
-    @Operation(summary = "删除机器人")
+    @Operation(summary = "项目管理-项目与权限-消息管理-删除机器人")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_DELETE)
     public void delete(@PathVariable(value = "id") String id) {
         projectRobotService.delete(id);
     }
 
     @GetMapping("enable/{id}")
-    @Operation(summary = "禁用机器人")
+    @Operation(summary = "项目管理-项目与权限-消息管理-禁用机器人")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_UPDATE)
     public void enable(@PathVariable(value = "id") String id) {
         projectRobotService.enable(id, SessionUtils.getUserId(), System.currentTimeMillis());

@@ -122,5 +122,10 @@ VALUES (uuid(), 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMES
 INSERT INTO template_custom_field(id, field_id, template_id, required, pos, api_field_id, default_value)
 VALUES(uuid(), (select id from custom_field where name = 'functional_priority'), (select id from template where name = 'functional_default'), 1, 0, NULL, NULL);
 
+
+-- 初始化内置消息机器人
+Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), 'default_project', '站内信', 'IN_SITE', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
+Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), 'default_project', '邮件', 'MAIL', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
