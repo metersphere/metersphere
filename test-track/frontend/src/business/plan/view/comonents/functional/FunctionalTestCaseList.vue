@@ -788,6 +788,7 @@ export default {
       } else {
         this.condition.executor = null;
       }
+      this.$emit('search');
       this.initTableData();
     },
     statusChange(param) {
