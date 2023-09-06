@@ -200,7 +200,11 @@ public class CommonProjectService {
                 List<String> userIdList = userExtends.stream().map(User::getId).collect(Collectors.toList());
                 if (CollectionUtils.isNotEmpty(userIdList) && userIdList.contains(projectDTO.getCreateUser())) {
                     projectDTO.setProjectCreateUserIsAdmin(true);
+                } else {
+                    projectDTO.setProjectCreateUserIsAdmin(false);
                 }
+            } else {
+                projectDTO.setAdminList(new ArrayList<>());
             }
             projectDTO.setCreateUser(userMap.get(projectDTO.getCreateUser()));
             projectDTO.setUpdateUser(userMap.get(projectDTO.getUpdateUser()));
@@ -442,7 +446,7 @@ public class CommonProjectService {
             deleteProjectUserGroup(project.getId());
             // delete project
             projectMapper.deleteByPrimaryKey(project.getId());
-            LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, project.getOrganizationId(), project.getId(), StringUtils.EMPTY, OperationLogType.DELETE.name(), OperationLogModule.SYSTEM_PROJECT, Translator.get("delete") + Translator.get("project") + ": " + project.getName());
+            LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, project.getOrganizationId(), project.getId(), Translator.get("scheduled_tasks"), OperationLogType.DELETE.name(), OperationLogModule.SETTING_ORGANIZATION_PROJECT, Translator.get("delete") + Translator.get("project") + ": " + project.getName());
             setLog(logDTO, StringUtils.EMPTY, StringUtils.EMPTY, logDTOList);
         });
         operationLogService.batchAdd(logDTOList);

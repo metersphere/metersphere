@@ -1,6 +1,5 @@
 package io.metersphere.system.mapper;
 
-import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
@@ -24,5 +23,4 @@ public interface ExtSystemProjectMapper {
 
     List<UserExtend> getUserMemberList(@Param("userIds") List<String> userIds, @Param("projectId") String projectId);
 
-    List<Project> getDeleteProjectIds(@Param("time") long timestamp, @Param("offset") long offset);
 }

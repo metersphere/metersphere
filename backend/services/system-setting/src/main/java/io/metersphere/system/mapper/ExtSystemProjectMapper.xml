@@ -141,9 +141,6 @@
 
 
     </select>
-    <select id="getDeleteProjectIds" resultType="io.metersphere.project.domain.Project">
-        select * from project where deleted = 1 and delete_time &lt;= #{time} limit #{offset}, 100
-    </select>
 
 
 </mapper>

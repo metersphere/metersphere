@@ -2,11 +2,12 @@ package io.metersphere.system.job;
 
 
 import com.fit2cloud.quartz.anno.QuartzScheduled;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.service.CommonProjectService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
@@ -20,10 +21,6 @@ public class CleanProjectJob {
 
     @Resource
     private ProjectMapper projectMapper;
-    @Resource
-    private ExtSystemProjectMapper extSystemProjectMapper;
-    @Resource
-    private CommonProjectService commonProjectService;
 
     /**
      * 清理状态为删除的项目  每天凌晨三点执行
@@ -42,12 +39,14 @@ public class CleanProjectJob {
         ProjectExample example = new ProjectExample();
         example.createCriteria().andDeletedEqualTo(true).andDeleteTimeLessThanOrEqualTo(timestamp);
         long count = projectMapper.countByExample(example);
-        for (int i = 0; i < count; i++) {
-            //对项目进行分批处理
-            if (i % 100 == 0) {
-                List<Project> deleteProjectIds = extSystemProjectMapper.getDeleteProjectIds(timestamp, i);
-                commonProjectService.deleteProject(deleteProjectIds);
-            }
+        CommonProjectService commonProjectService = CommonBeanFactory.getBean(CommonProjectService.class);
+        while (count > 0) {
+            PageHelper.startPage(1, 100);
+            List<Project> projects = projectMapper.selectByExample(example);
+            assert commonProjectService != null;
+            commonProjectService.deleteProject(projects);
+            count = projectMapper.countByExample(example);
+            LogUtils.info("剩余项目数量为===================" + count);
         }
     }
 }
