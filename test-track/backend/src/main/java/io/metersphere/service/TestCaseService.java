@@ -14,6 +14,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.AttachmentType;
+import io.metersphere.constants.DataStatus;
 import io.metersphere.constants.TestCaseTestType;
 import io.metersphere.dto.*;
 import io.metersphere.excel.constants.TestCaseImportFiled;
@@ -87,6 +88,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestCaseService {
+    
     @Resource
     TestCaseNodeMapper testCaseNodeMapper;
 
@@ -698,6 +700,8 @@ public class TestCaseService {
         TestCaseExample example = new TestCaseExample();
         TestCaseExample.Criteria criteria = example.createCriteria();
         if (null != id) {
+            // 只校验未删除的用例
+            criteria.andStatusNotEqualTo(DataStatus.TRASH.getValue());
             criteria.andCustomNumEqualTo(id);
             criteria.andProjectIdEqualTo(projectId);
             List<TestCase> testCaseList = testCaseMapper.selectByExample(example);    //查询是否有包含此ID的数据
@@ -2699,13 +2703,14 @@ public class TestCaseService {
         ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extTestCaseMapper.selectIds(query));
         List<String> ids = request.getIds();
         if (CollectionUtils.isNotEmpty(ids)) {
-            extTestCaseMapper.checkOriginalStatusByIds(ids);
-
-            //检查原来模块是否还在
             TestCaseExample example = new TestCaseExample();
-            // 关联版本之后，必须查询每一个数据的所有版本，依次还原
             example.createCriteria().andIdIn(ids);
             List<TestCase> reductionCaseList = testCaseMapper.selectByExample(example);
+            // 如果项目开启了用例自定义ID, 恢复的用例自定义ID不能重复
+            checkReductionCaseCustomIdExist(request.getProjectId(), reductionCaseList);
+            extTestCaseMapper.checkOriginalStatusByIds(ids);
+            // 检查原来模块是否还在
+            // 关联版本之后，必须查询每一个数据的所有版本，依次还原
             List<String> refIds = reductionCaseList.stream().map(TestCase::getRefId).collect(Collectors.toList());
             example.clear();
             example.createCriteria().andRefIdIn(refIds);
@@ -3449,5 +3454,29 @@ public class TestCaseService {
 
     public TestCaseWithBLOBs getSimpleCase(String testCaseId) {
         return testCaseMapper.selectByPrimaryKey(testCaseId);
+    }
+
+    /**
+     * 校验恢复的用例集合是否自定义ID已存在(当所属项目的自定义ID开启时)
+     *
+     * @param projectId 所属项目ID
+     * @param cases     用例集合
+     */
+    public void checkReductionCaseCustomIdExist(String projectId, List<TestCase> cases) {
+        Project project = baseProjectService.getProjectById(projectId);
+        if (project != null) {
+            ProjectConfig config = baseProjectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+            boolean customNum = config.getCaseCustomNum();
+            if (customNum) {
+                // 项目开启自定义ID
+                List<String> customNums = cases.stream().map(TestCase::getCustomNum).toList();
+                TestCaseExample example = new TestCaseExample();
+                example.createCriteria().andStatusNotEqualTo(DataStatus.TRASH.getValue()).andCustomNumIn(customNums).andProjectIdEqualTo(projectId);
+                List<TestCase> noTrashCases = testCaseMapper.selectByExample(example);
+                if (!noTrashCases.isEmpty()) {
+                    MSException.throwException(Translator.get("reduction_error_of_custom_id_exist"));
+                }
+            }
+        }
     }
 }
