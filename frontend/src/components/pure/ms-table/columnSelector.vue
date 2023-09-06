@@ -9,11 +9,11 @@
     @cancel="handleCancel"
   >
     <div class="ms-table-column-seletor">
-      <div>
-        <span>{{ t('msTable.columnSetting.mode') }}</span>
-        <icon-question-circle class="ml-1" />
+      <div class="mb-2">
+        <span class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.mode') }}</span>
+        <icon-question-circle class="ml-1 text-[var(--color-text-brand)]" />
       </div>
-      <a-radio-group :model-value="currentMode" class="ml-[14px]" type="button" @change="handleModeChange">
+      <a-radio-group :model-value="currentMode" type="button" @change="handleModeChange">
         <a-radio value="drawer">
           <div class="mode-button">
             <MsIcon :class="{ 'active-color': currentMode === 'drawer' }" type="icon-icon_drawer" />
@@ -28,25 +28,27 @@
         </a-radio>
       </a-radio-group>
       <a-divider />
-      <div class="flex items-center justify-between">
-        <div>{{ t('msTable.columnSetting.header') }}</div>
+      <div class="mb-2 flex items-center justify-between">
+        <div class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.header') }}</div>
         <MsButton :disabled="!hasChange" @click="handleReset">{{ t('msTable.columnSetting.resetDefault') }}</MsButton>
       </div>
       <div class="flex-col">
         <div v-for="(item, idx) in nonSortColumn" :key="item.dataIndex" class="column-item">
           <div>{{ t(item.title as string) }}</div>
-          <a-switch :model-value="item.showInTable" size="small" @change="handleFirstColumnChange(idx)" />
+          <a-switch size="small" :model-value="item.showInTable" @change="handleFirstColumnChange(idx)" />
         </div>
       </div>
-      <a-divider orientation="center" class="non-sort">{{ t('msTable.columnSetting.nonSort') }}</a-divider>
-      <Draggable tag="div" :list="couldSortColumn" ghost-class="ghost" item-key="dateIndex">
+      <a-divider orientation="center" class="non-sort"
+        ><span class="text-xs text-[var(--color-text-4)]">{{ t('msTable.columnSetting.nonSort') }}</span></a-divider
+      >
+      <Draggable tag="div" :list="couldSortColumn" class="list-group" handle=".handle" item-key="dateIndex">
         <template #item="{ element, index }">
           <div class="column-drag-item">
-            <div class="flex items-center">
-              <icon-drag-dot-vertical />
-              <div class="ml-[8px]">{{ t(element.title as string) }}</div>
+            <div class="handle flex w-[90%] items-center">
+              <MsIcon type="icon-icon_drag" class="text-[16px] text-[var(--color-text-4)]" />
+              <span class="ml-[8px]">{{ t(element.title as string) }}</span>
             </div>
-            <a-switch :model-value="element.showInTable" size="small" @change="handleSecondColumnChange(index)" />
+            <a-switch size="small" :model-value="element.showInTable" @change="handleSecondColumnChange(index)" />
           </div>
         </template>
       </Draggable>
@@ -137,6 +139,13 @@
 </script>
 
 <style lang="less" scoped>
+  :deep(.arco-divider-horizontal) {
+    margin: 16px 0;
+    border-bottom-color: var(--color-text-n8);
+  }
+  :deep(.arco-divider-text) {
+    padding: 0 8px;
+  }
   .icon {
     margin-left: 16px;
     color: var(--color-text-4);
@@ -163,6 +172,10 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px 8px 36px;
+    &:hover {
+      border-radius: 6px;
+      background: var(--color-text-n9);
+    }
   }
   .column-drag-item {
     display: flex;
@@ -172,16 +185,13 @@
     padding: 8px 12px;
     cursor: move;
     &:hover {
+      border-radius: 6px;
       background-color: var(--color-text-n9);
     }
   }
   .ghost {
     border: 1px dashed rgba(var(--primary-5));
     background-color: rgba(var(--primary-1));
-  }
-  :deep(.arco-divider-text) {
-    padding: 0 8px;
-    color: var(--color-text-4);
   }
   .non-sort {
     font-size: 12px;
