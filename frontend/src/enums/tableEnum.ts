@@ -22,7 +22,9 @@ export enum TableKeyEnum {
 
 // 具有特殊功能的列
 export enum SpecialColumnEnum {
-  // 编辑列
+  // 系统id
+  ID = 'num',
+  // 名称
   NAME = 'name',
   // 状态列
   ENABLE = 'enable',

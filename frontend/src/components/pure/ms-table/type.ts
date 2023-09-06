@@ -29,6 +29,10 @@ export interface MsTableColumnData extends TableColumnData {
   isTag?: boolean;
   // editType
   editType?: ColumnEditTypeEnum;
+  // 撤销删除的组件
+  revokeDeletedSlot?: string;
+  // 表格列排序字段
+  sortIndex?: number;
 }
 
 export type MsTableErrorStatus = boolean | 'error' | 'empty';
