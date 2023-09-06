@@ -3,6 +3,7 @@ package io.metersphere.project.service;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.job.CleanUpReportJob;
+import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.sdk.constants.OperationLogConstants;
@@ -15,6 +16,8 @@ import io.metersphere.sdk.sechedule.BaseScheduleService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.mapper.ExtUserMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -34,6 +37,9 @@ public class ProjectApplicationService {
 
     @Resource
     private BaseScheduleService baseScheduleService;
+
+    @Resource
+    private ExtProjectUserRoleMapper extProjectUserRoleMapper;
 
 
     /**
@@ -67,8 +73,9 @@ public class ProjectApplicationService {
         String type = application.getType();
         //TODO 自定义id配置 &其他配置
         if (StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_TEST_PLAN_REPORT.name())
-                || StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_UI_REPORT.name())) {
-            //清除 测试计划/UI 报告 定时任务
+                || StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_UI_REPORT.name())
+                || StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_PERFORMANCE_TEST_REPORT.name())) {
+            //清除 测试计划/UI测试/性能测试 报告 定时任务
             this.doHandleSchedule(application);
         }
     }
@@ -110,6 +117,7 @@ public class ProjectApplicationService {
 
     /**
      * 获取配置信息
+     *
      * @param request
      * @return
      */
@@ -121,6 +129,11 @@ public class ProjectApplicationService {
             return applicationList;
         }
         return new ArrayList<ProjectApplication>();
+    }
+
+
+    public List<User> getProjectUserList(String projectId) {
+        return extProjectUserRoleMapper.getProjectUserList(projectId);
     }
 
 
@@ -145,6 +158,15 @@ public class ProjectApplicationService {
         return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "UI配置");
     }
 
+    /**
+     * 性能测试 日志
+     *
+     * @param application
+     * @return
+     */
+    public LogDTO updatePerformanceLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "性能测试配置");
+    }
 
     private LogDTO delLog(ProjectApplication application, String module, String content) {
         ProjectApplicationExample example = new ProjectApplicationExample();
