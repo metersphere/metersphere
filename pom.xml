@@ -63,6 +63,7 @@
         <selenium-htmlunit.version>4.10.0</selenium-htmlunit.version>
         <selenium.version>4.10.0</selenium.version>
         <jmeter-plugins-webdriver.version>4.10.0</jmeter-plugins-webdriver.version>
+        <opentelemetry.version>1.26.0</opentelemetry.version>
         <oracle-database.version>19.7.0.0</oracle-database.version>
         <zookeeper.version>3.8.0</zookeeper.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
