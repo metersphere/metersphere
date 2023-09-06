@@ -21,141 +21,141 @@
     </ms-table-header>
 
     <ms-table
-      v-loading="result.loading"
-      :field-key="tableHeaderKey"
-      :data="tableData"
-      :condition="condition"
-      :total="total"
-      :operators="operators"
-      :page-size.sync="pageSize"
-      :screen-height="screenHeight"
-      :batch-operators="buttons"
-      :fields.sync="fields"
-      :remember-order="true"
-      :row-order-group-id="planId"
-      :row-order-func="editTestPlanTestCaseOrder"
-      :enable-order-drag="enableOrderDrag"
-      :custom-fields="testCaseTemplate.customFields"
-      @filter="search"
-      @order="initTableData"
-      @handlePageChange="initTableData"
-      @handleRowClick="handleEdit"
-      row-key="id"
-      ref="table">
+        v-loading="result.loading"
+        :field-key="tableHeaderKey"
+        :data="tableData"
+        :condition="condition"
+        :total="total"
+        :operators="operators"
+        :page-size.sync="pageSize"
+        :screen-height="screenHeight"
+        :batch-operators="buttons"
+        :fields.sync="fields"
+        :remember-order="true"
+        :row-order-group-id="planId"
+        :row-order-func="editTestPlanTestCaseOrder"
+        :enable-order-drag="enableOrderDrag"
+        :custom-fields="testCaseTemplate.customFields"
+        @filter="search"
+        @order="initTableData"
+        @handlePageChange="initTableData"
+        @handleRowClick="handleEdit"
+        row-key="id"
+        ref="table">
 
       <span v-for="item in fields" :key="item.key">
         <ms-table-column
-          v-if="item.id == 'num'"
-          prop="customNum"
-          sortable="custom"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.id')"
-          min-width="120px"/>
+            v-if="item.id == 'num'"
+            prop="customNum"
+            sortable="custom"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.id')"
+            min-width="120px"/>
 
         <ms-table-column
-          prop="name"
-          sortable="custom"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.name')"
-          min-width="120px"/>
+            prop="name"
+            sortable="custom"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.name')"
+            min-width="120px"/>
 
         <ms-table-column
-          v-if="versionEnable"
-          prop="versionId"
-          :field="item"
-          :filters="versionFilters"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.version')"
-          min-width="120px">
+            v-if="versionEnable"
+            prop="versionId"
+            :field="item"
+            :filters="versionFilters"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.version')"
+            min-width="120px">
            <template v-slot:default="scope">
             <span>{{ scope.row.versionName }}</span>
           </template>
         </ms-table-column>
 
         <ms-table-column
-          prop="priority"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :filters="priorityOptions"
-          sortable="custom"
-          min-width="120px"
-          :label="$t('test_track.case.priority')">
+            prop="priority"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :filters="priorityOptions"
+            sortable="custom"
+            min-width="120px"
+            :label="$t('test_track.case.priority')">
           <template v-slot:default="scope">
             <priority-table-item
-              :value="scope.row.priority"
-              :priority-options="priorityOptions"
-              ref="priority"/>
+                :value="scope.row.priority"
+                :priority-options="priorityOptions"
+                ref="priority"/>
           </template>
         </ms-table-column>
 
         <ms-table-column
-          prop="tags"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.tag')"
-          min-width="120px"
-          :show-overflow-tooltip="false"
+            prop="tags"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.tag')"
+            min-width="120px"
+            :show-overflow-tooltip="false"
         >
          <template v-slot:default="scope">
             <el-tooltip class="item" effect="dark" placement="top">
               <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
               <div class="oneLine">
                 <ms-tag
-                  v-for="(itemName, index) in scope.row.tags"
-                  :key="index"
-                  type="success"
-                  effect="plain"
-                  :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
-                  :content="itemName"
-                  style="margin-left: 0px; margin-right: 2px" />
+                    v-for="(itemName, index) in scope.row.tags"
+                    :key="index"
+                    type="success"
+                    effect="plain"
+                    :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                    :content="itemName"
+                    style="margin-left: 0px; margin-right: 2px"/>
               </div>
             </el-tooltip>
           </template>
         </ms-table-column>
           <ms-table-column
-            sortable="custom"
-            prop="createTime"
-            :field="item"
-            :fields-width="fieldsWidth"
-            :label="$t('commons.create_time')"
-            min-width="140px">
+              sortable="custom"
+              prop="createTime"
+              :field="item"
+              :fields-width="fieldsWidth"
+              :label="$t('commons.create_time')"
+              min-width="140px">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | datetimeFormat }}</span>
           </template>
         </ms-table-column>
 
         <ms-table-column
-          prop="nodePath"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.case.module')"
-          min-width="120px"/>
+            prop="nodePath"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.case.module')"
+            min-width="120px"/>
 
         <ms-table-column
-          prop="projectName"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.plan.plan_project')"
-          min-width="120px"/>
+            prop="projectName"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.plan.plan_project')"
+            min-width="120px"/>
 
         <ms-table-column
-          prop="issuesContent"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.issue.issue')"
-          min-width="80px">
+            prop="issuesContent"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.issue.issue')"
+            min-width="80px">
           <template v-slot:default="scope">
             <el-popover
-              placement="right"
-              width="400"
-              trigger="hover">
+                placement="right"
+                width="400"
+                trigger="hover">
               <test-plan-case-issue-item
-                v-if="scope.row.issuesSize && scope.row.issuesSize > 0"
-                :data="scope.row"/>
+                  v-if="scope.row.issuesSize && scope.row.issuesSize > 0"
+                  :data="scope.row"/>
               <el-button
-                slot="reference"
-                type="text">
+                  slot="reference"
+                  type="text">
                 <span @mouseover="loadIssue(scope.row)">
                   {{ scope.row.issuesSize }}
                 </span>
@@ -165,12 +165,12 @@
         </ms-table-column>
 
         <ms-table-column
-          prop="executor"
-          :filters="userFilters"
-          min-width="100px"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.plan_view.executor')">
+            prop="executor"
+            :filters="userFilters"
+            min-width="100px"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.plan_view.executor')">
           <template v-slot:default="scope">
             {{ scope.row.executorName }}
           </template>
@@ -178,20 +178,20 @@
 
         <!-- 责任人(创建该用例时所关联的责任人) -->
         <ms-table-column
-          prop="maintainerName"
-          :filters="userFilters"
-          min-width="100px"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.plan.plan_principal')"/>
+            prop="maintainerName"
+            :filters="userFilters"
+            min-width="100px"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.plan.plan_principal')"/>
 
         <ms-table-column
-          prop="status"
-          :filters="statusFilters"
-          min-width="100px"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.plan_view.execute_result')">
+            prop="status"
+            :filters="statusFilters"
+            min-width="100px"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
             <span @click.stop="clickt = 'stop'">
               <el-dropdown class="test-case-status" @command="statusChange">
@@ -222,12 +222,12 @@
         </ms-table-column>
 
         <ms-table-column
-          sortable="custom"
-          prop="updateTime"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.update_time')"
-          min-width="140px">
+            sortable="custom"
+            prop="updateTime"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.update_time')"
+            min-width="140px">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | datetimeFormat }}</span>
           </template>
@@ -244,7 +244,7 @@
           <template v-slot="scope">
               <span v-if="field.name === '用例等级'">
                   <priority-table-item
-                    :value="getCustomFieldValue(scope.row, field)" :priority-options="priorityOptions"/>
+                      :value="getCustomFieldValue(scope.row, field)" :priority-options="priorityOptions"/>
               </span>
             <span v-else-if="field.name === '用例状态'">
                 {{ getCustomFieldValue(scope.row, field, scope.row.caseStatus) }}
@@ -262,19 +262,19 @@
                          :total="total"/>
 
     <functional-test-case-edit
-      ref="testPlanTestCaseEdit"
-      :search-param.sync="condition"
-      :page-num="currentPage"
-      :page-size="pageSize"
-      :next-page-data="nextPageData"
-      :pre-page-data="prePageData"
-      @nextPage="nextPage"
-      @prePage="prePage"
-      @refresh="initTableData"
-      :test-cases="tableData"
-      :is-read-only="isReadOnly"
-      :total="total"
-      @refreshTable="initTableData"/>
+        ref="testPlanTestCaseEdit"
+        :search-param.sync="condition"
+        :page-num="currentPage"
+        :page-size="pageSize"
+        :next-page-data="nextPageData"
+        :pre-page-data="prePageData"
+        @nextPage="nextPage"
+        @prePage="prePage"
+        @refresh="initTableData"
+        :test-cases="tableData"
+        :is-read-only="isReadOnly"
+        :total="total"
+        @refreshTable="initTableData"/>
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
                 :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
@@ -304,12 +304,12 @@ import BatchEdit from "../../../../case/components/BatchEdit";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {
   buildBatchParam,
+  getCustomFieldFilter,
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
   getTableHeaderWithCustomFields,
   initCondition,
-  getCustomFieldFilter,
   parseCustomFilesForList,
 } from "metersphere-frontend/src/utils/tableUtils";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
@@ -319,16 +319,20 @@ import {getTestTemplateForList} from "@/api/custom-field-template";
 import {
   editTestPlanTestCaseOrder,
   testPlanAutoCheck,
-  testPlanEditStatus, testPlanFresh,
+  testPlanEditStatus,
+  testPlanFresh,
   testPlanGet
 } from "@/api/remote/plan/test-plan";
 import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
 import {getTestPlanTestCase} from "@/api/testCase";
 import TestPlanCaseIssueItem from "@/business/plan/view/comonents/functional/TestPlanCaseIssueItem";
 import {
+  generateColumnKey,
+  getAdvSearchCustomField,
+  getCustomFieldValueForTrack,
   getProjectMemberOption,
   getProjectVersions,
-  getAdvSearchCustomField, parseTag, getCustomFieldValueForTrack, generateColumnKey
+  parseTag
 } from "@/business/utils/sdk-utils";
 import {
   testPlanTestCaseBatchDelete,
@@ -552,10 +556,10 @@ export default {
     loadIssue(row) {
       if (row.issuesSize && !row.hasLoadIssue) {
         getOriginIssuesByCaseId('PLAN_FUNCTIONAL', row.id)
-          .then(r => {
-            this.$set(row, "issuesContent", r.data);
-            this.$set(row, "hasLoadIssue", true);
-          });
+            .then(r => {
+              this.$set(row, "issuesContent", r.data);
+              this.$set(row, "hasLoadIssue", true);
+            });
       }
     },
     handleOpenFailureTestCase(row) {
@@ -578,9 +582,9 @@ export default {
     getTemplateField() {
       this.result.loading = true;
       let p1 = getProjectMember()
-        .then((response) => {
-          this.members = response.data;
-        });
+          .then((response) => {
+            this.members = response.data;
+          });
       let p2 = getTestTemplateForList();
       Promise.all([p1, p2]).then((data) => {
         let template = data[1];
@@ -626,6 +630,7 @@ export default {
       return value ? value : defaultVal;
     },
     initTableData(callback) {
+      this.currentPage = 1;
       initCondition(this.condition, this.condition.selectAll);
       this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
 
@@ -655,59 +660,59 @@ export default {
       this.condition.projectId = getCurrentProjectID();
       if (this.planId) {
         this.result = getTestPlanTestCase(this.currentPage, this.pageSize, this.condition)
-          .then((r) => {
-            this.total = r.data.itemCount;
-            this.pageCount = Math.ceil(this.total / this.pageSize);
-            this.tableData = r.data.listObject;
-            parseTag(this.tableData);
-            parseCustomFilesForList(this.tableData);
-            for (let i = 0; i < this.tableData.length; i++) {
-              if (this.tableData[i]) {
-                if (this.tableData[i].customFields) {
-                  this.tableData[i].customFields = JSON.parse(this.tableData[i].customFields);
+            .then((r) => {
+              this.total = r.data.itemCount;
+              this.pageCount = Math.ceil(this.total / this.pageSize);
+              this.tableData = r.data.listObject;
+              parseTag(this.tableData);
+              parseCustomFilesForList(this.tableData);
+              for (let i = 0; i < this.tableData.length; i++) {
+                if (this.tableData[i]) {
+                  if (this.tableData[i].customFields) {
+                    this.tableData[i].customFields = JSON.parse(this.tableData[i].customFields);
+                  }
+                  this.$set(this.tableData[i], "showTags", this.tableData[i].tags);
+                  this.$set(this.tableData[i], "issuesSize", this.tableData[i].issuesCount);
+                  this.$set(this.tableData[i], "hasLoadIssue", false);
+                  this.$set(this.tableData[i], "issuesContent", []);
                 }
-                this.$set(this.tableData[i], "showTags", this.tableData[i].tags);
-                this.$set(this.tableData[i], "issuesSize", this.tableData[i].issuesCount);
-                this.$set(this.tableData[i], "hasLoadIssue", false);
-                this.$set(this.tableData[i], "issuesContent", []);
               }
-            }
 
-            // 需要判断tableData数据，放回调里面
-            this.getPreData();
+              // 需要判断tableData数据，放回调里面
+              this.getPreData();
 
-            if (typeof callback === "function") {
-              callback();
-            }
-          });
+              if (typeof callback === "function") {
+                callback();
+              }
+            });
         this.getNexPageData();
       }
     },
     getNexPageData() {
       getTestPlanTestCase(this.currentPage * this.pageSize + 1, 1, this.condition)
-        .then((r) => {
-          if (r.data.listObject && r.data.listObject.length > 0) {
-            this.nextPageData = {
-              name: r.data.listObject[0].name
+          .then((r) => {
+            if (r.data.listObject && r.data.listObject.length > 0) {
+              this.nextPageData = {
+                name: r.data.listObject[0].name
+              }
+            } else {
+              this.nextPageData = null;
             }
-          } else {
-            this.nextPageData = null;
-          }
-        });
+          });
     },
     getPreData() {
       // 如果不是第一页并且只有一条数据时，需要调用
       if (this.currentPage > 1 && this.tableData.length === 1) {
         getTestPlanTestCase((this.currentPage - 1) * this.pageSize, 1, this.condition)
-          .then((r) => {
-            if (r.data.listObject && r.data.listObject.length > 0) {
-              this.prePageData = {
-                name: r.data.listObject[0].name
+            .then((r) => {
+              if (r.data.listObject && r.data.listObject.length > 0) {
+                this.prePageData = {
+                  name: r.data.listObject[0].name
+                }
+              } else {
+                this.prePageData = null;
               }
-            } else {
-              this.prePageData = null;
-            }
-          });
+            });
       }
     },
     autoCheckStatus() {
@@ -764,10 +769,10 @@ export default {
           if (action === 'confirm') {
             let param = buildBatchParam(this, this.$refs.table.selectIds);
             testPlanTestCaseBatchDelete(param)
-              .then(() => {
-                this.refresh();
-                this.$success(this.$t('test_track.cancel_relevance_success'));
-              });
+                .then(() => {
+                  this.refresh();
+                  this.$success(this.$t('test_track.cancel_relevance_success'));
+                });
           }
         }
       });
@@ -775,10 +780,10 @@ export default {
     _handleDelete(testCase) {
       let testCaseId = testCase.id;
       testPlanTestCaseDelete(testCaseId)
-        .then(() => {
-          this.refresh();
-          this.$success(this.$t('test_track.cancel_relevance_success'));
-        });
+          .then(() => {
+            this.refresh();
+            this.$success(this.$t('test_track.cancel_relevance_success'));
+          });
     },
     searchMyTestCase() {
       this.showMyTestCase = !this.showMyTestCase;
@@ -792,15 +797,15 @@ export default {
     },
     statusChange(param) {
       testPlanTestCaseEdit(param)
-        .then(() => {
-          for (let i = 0; i < this.tableData.length; i++) {
-            if (this.tableData[i].id == param.id) {
-              this.tableData[i].status = param.status;
-              break;
+          .then(() => {
+            for (let i = 0; i < this.tableData.length; i++) {
+              if (this.tableData[i].id == param.id) {
+                this.tableData[i].status = param.status;
+                break;
+              }
             }
-          }
-          this.updatePlanStatus();
-        });
+            this.updatePlanStatus();
+          });
     },
     updatePlanStatus() {
       testPlanAutoCheck(this.planId);
@@ -808,10 +813,10 @@ export default {
     getTestPlanById() {
       if (this.planId) {
         testPlanGet(this.planId)
-          .then(response => {
-            this.testPlan = response.data;
-            testPlanFresh(this.planId);
-          });
+            .then(response => {
+              this.testPlan = response.data;
+              testPlanFresh(this.planId);
+            });
       }
     },
     batchEdit(form) {
@@ -822,12 +827,12 @@ export default {
       }
       param.ids = this.$refs.table.selectIds;
       testPlanTestCaseBatchEdit(param)
-        .then(() => {
-          this.status = '';
-          testPlanEditStatus(this.planId);
-          this.$success(this.$t('commons.save_success'));
-          this.refresh();
-        });
+          .then(() => {
+            this.status = '';
+            testPlanEditStatus(this.planId);
+            this.$success(this.$t('commons.save_success'));
+            this.refresh();
+          });
     },
     handleBatchEdit() {
       this.getMaintainerOptions();
@@ -835,22 +840,22 @@ export default {
     },
     getMaintainerOptions() {
       getProjectMemberOption()
-        .then(response => {
-          this.valueArr.executor = response.data;
-          this.userFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
+          .then(response => {
+            this.valueArr.executor = response.data;
+            this.userFilters = response.data.map(u => {
+              return {text: u.name, value: u.id};
+            });
           });
-        });
     },
     getVersionOptions() {
       if (hasLicense()) {
         getProjectVersions(getCurrentProjectID())
-          .then((response) => {
-            this.versionOptions = response.data;
-            this.versionFilters = response.data.map(u => {
-              return {text: u.name, value: u.id};
+            .then((response) => {
+              this.versionOptions = response.data;
+              this.versionFilters = response.data.map(u => {
+                return {text: u.name, value: u.id};
+              });
             });
-          });
       }
     },
     getTagToolTips(tags) {
