@@ -16,7 +16,6 @@ import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.OrganizationDTO;
-import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.OrganizationProjectRequest;
@@ -750,6 +749,10 @@ public class OrganizationProjectControllerTests extends BaseTest {
         List<UserDTO> userDTOS = parseObjectFromMvcResult(mvcResult, List.class);
         assert userDTOS != null;
         Assertions.assertFalse(userDTOS.isEmpty());
+
+        String keyword = "a";
+        responseGet(getAdminList + organizationId + "?keyword=" + keyword);
+
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getAdminList + organizationId);
 
@@ -769,6 +772,9 @@ public class OrganizationProjectControllerTests extends BaseTest {
         List<UserDTO> userDTOS = parseObjectFromMvcResult(mvcResult, List.class);
         assert userDTOS != null;
         Assertions.assertFalse(userDTOS.isEmpty());
+
+        String keyword = "a";
+        responseGet(getMemberList + organizationId + "/" + projectId + "?keyword=" + keyword);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getMemberList + organizationId + "/" + projectId);
         //组织下面没有成员 返回为空
