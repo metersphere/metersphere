@@ -154,6 +154,7 @@ public class TestCaseReviewService {
 
     /**
      * 计算评审的通过率和用例总数
+     *
      * @param list
      */
     private void calcReviewRate(List<TestCaseReviewDTO> list) {
@@ -303,12 +304,11 @@ public class TestCaseReviewService {
     }
 
     public TestCaseReview editCaseReview(SaveTestCaseReviewRequest testCaseReview) {
-
+        TestCaseReview originReview = testCaseReviewMapper.selectByPrimaryKey(testCaseReview.getId());
         editCaseReviewer(testCaseReview);
         editCaseRevieweFollow(testCaseReview);
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
-        TestCaseReview originReview = testCaseReviewMapper.selectByPrimaryKey(testCaseReview.getId());
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
 
         if (!StringUtils.equals(testCaseReview.getReviewPassRule(), originReview.getReviewPassRule())) {
@@ -369,7 +369,7 @@ public class TestCaseReviewService {
                 });
             }
 
-            for (TestCaseReviewTestCase  reviewTestCase : testCaseReviewTestCases) {
+            for (TestCaseReviewTestCase reviewTestCase : testCaseReviewTestCases) {
                 if (StringUtils.equalsAny(reviewTestCase.getStatus(),
                         TestReviewCaseStatus.Pass.name(), TestReviewCaseStatus.UnPass.name(), TestReviewCaseStatus.Underway.name())) {
                     // 重新计算评审状态
@@ -555,7 +555,7 @@ public class TestCaseReviewService {
 
     public void editTestReviewStatus(String reviewId) {
         String status = extTestCaseReviewMapper.selectStatusById(reviewId);
-        if (StringUtils.equalsAnyIgnoreCase(status, TestCaseReviewStatus.Completed.name(), TestCaseReviewStatus.Finished.name())){
+        if (StringUtils.equalsAnyIgnoreCase(status, TestCaseReviewStatus.Completed.name(), TestCaseReviewStatus.Finished.name())) {
             return;
         }
 
@@ -563,7 +563,7 @@ public class TestCaseReviewService {
         TestCaseReview testCaseReview = new TestCaseReview();
         testCaseReview.setId(reviewId);
 
-        if (statusList.contains(TestReviewCaseStatus.Underway.name()) || statusList.contains(TestReviewCaseStatus.Again.name()) ) {
+        if (statusList.contains(TestReviewCaseStatus.Underway.name()) || statusList.contains(TestReviewCaseStatus.Again.name())) {
             return;
         }
 
