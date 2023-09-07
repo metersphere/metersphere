@@ -1,7 +1,11 @@
 <template>
-  <a-tooltip :content="(props.tagList||[]).map((e: any) => e[nameKey]).join('，')">
+  <a-tooltip :content="(props.tagList.filter(((item:any)=>item))||[]).map((e: any) => e[nameKey]).join('，')">
     <div class="flex min-h-[22px] max-w-[456px] flex-row">
-      <MsTag v-for="tag of props.tagList.slice(0, props.showNum)" :key="tag.id" v-bind="attrs">
+      <MsTag
+        v-for="tag of (props.tagList.filter((item:any)=>item)).slice(0, props.showNum)"
+        :key="tag.id"
+        v-bind="attrs"
+      >
         {{ tag[props.nameKey] }}
       </MsTag>
       <MsTag v-if="props.tagList.length > props.showNum" v-bind="attrs">

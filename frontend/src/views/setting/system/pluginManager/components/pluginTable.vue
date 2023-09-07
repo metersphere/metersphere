@@ -58,7 +58,7 @@
                 {{ t('system.user.tableEnable') }}
               </div>
               <div v-else class="flex items-center text-[var(--color-text-4)]">
-                <icon-stop class="mr-[2px]" />
+                <MsIcon type="icon-icon_disable" class="mr-[2px] text-[var(--color-text-4)]" />
                 {{ t('system.user.tableDisable') }}
               </div>
             </template>
@@ -68,26 +68,7 @@
           </a-table-column>
           <a-table-column :title="t('system.plugin.tableColumnsOrg')" :width="300">
             <template #cell="{ record }">
-              <!-- <a-tooltip :content="(record.organizations||[]).map((e: any) => e.name).join(',')">
-                <span>
-                  <a-tag
-                    v-for="org of (record.organizations || []).slice(0, 3)"
-                    :key="org.id"
-                    class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-                    bordered
-                  >
-                    {{ org.name }}
-                  </a-tag>
-                  <a-tag
-                    v-if="(record.organizations || []).length > 3"
-                    class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-                    bordered
-                  >
-                    +{{ (record.organizations || []).length - 3 }}
-                  </a-tag>
-                </span>
-              </a-tooltip> -->
-              <MsTagGroup :tag-list="record.organizations || []" type="primary" theme="outline"> </MsTagGroup>
+              <MsTagGroup :tag-list="record.organizations || []" type="primary" theme="outline" />
             </template>
           </a-table-column>
           <a-table-column

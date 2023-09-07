@@ -36,8 +36,7 @@
         type="primary"
         theme="outline"
         @click="changeUser(record)"
-      >
-      </MsTagGroup>
+      />
       <a-select
         v-else
         v-model="record.selectUserList"
@@ -187,8 +186,9 @@
     tableKey: TableKeyEnum.PROJECT_MEMBER,
     selectable: true,
     showSetting: true,
+    size: 'default',
     scroll: {
-      x: 1000,
+      x: 1200,
     },
   });
 

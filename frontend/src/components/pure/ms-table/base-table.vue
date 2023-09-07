@@ -402,4 +402,18 @@
       }
     }
   }
+  :deep(.ms-table-select-all) {
+    .dropdown-icon {
+      background: none !important;
+    }
+  }
+  :deep(.ms-table-select-all) {
+    .arco-checkbox {
+      margin-left: 0.5rem;
+    }
+  }
+  :deep(.arco-checkbox-icon) {
+    width: 16px;
+    height: 16px;
+  }
 </style>

@@ -140,36 +140,44 @@
       dataIndex: 'email',
       width: 200,
       showInTable: true,
+      showTooltip: true,
+      ellipsis: true,
     },
     {
       title: 'organization.member.tableColunmName',
       dataIndex: 'name',
       showInTable: true,
+      showTooltip: true,
+      ellipsis: true,
     },
     {
       title: 'organization.member.tableColunmPhone',
       dataIndex: 'phone',
       showInTable: true,
+      width: 200,
+      showTooltip: true,
+      ellipsis: true,
     },
     {
       title: 'organization.member.tableColunmPro',
       slotName: 'project',
       dataIndex: 'projectIdNameMap',
-      width: 300,
       showInTable: true,
+      isTag: true,
     },
     {
       title: 'organization.member.tableColunmUsergroup',
       slotName: 'userRole',
       dataIndex: 'userRoleIdNameMap',
-      width: 300,
       showInTable: true,
+      isTag: true,
     },
     {
       title: 'organization.member.tableColunmStatus',
       slotName: 'enable',
       dataIndex: 'enable',
       showInTable: true,
+      width: 200,
     },
     {
       title: 'organization.member.tableColunmActions',
@@ -195,9 +203,10 @@
   };
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getMemberList, {
     tableKey: TableKeyEnum.ORGANNATIONMEMBER,
-    scroll: { x: 1600 },
+    scroll: { x: 2000 },
     selectable: true,
     showSetting: true,
+    size: 'default',
   });
   const keyword = ref('');
   const tableSelected = ref<(string | number)[]>([]);
