@@ -174,76 +174,6 @@ public class MessageTaskExample {
             return (Criteria) this;
         }
 
-        public Criteria andTypeIsNull() {
-            addCriterion("`type` is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeIsNotNull() {
-            addCriterion("`type` is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeEqualTo(String value) {
-            addCriterion("`type` =", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeNotEqualTo(String value) {
-            addCriterion("`type` <>", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeGreaterThan(String value) {
-            addCriterion("`type` >", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeGreaterThanOrEqualTo(String value) {
-            addCriterion("`type` >=", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeLessThan(String value) {
-            addCriterion("`type` <", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeLessThanOrEqualTo(String value) {
-            addCriterion("`type` <=", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeLike(String value) {
-            addCriterion("`type` like", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeNotLike(String value) {
-            addCriterion("`type` not like", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeIn(List<String> values) {
-            addCriterion("`type` in", values, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeNotIn(List<String> values) {
-            addCriterion("`type` not in", values, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeBetween(String value1, String value2) {
-            addCriterion("`type` between", value1, value2, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeNotBetween(String value1, String value2) {
-            addCriterion("`type` not between", value1, value2, "type");
-            return (Criteria) this;
-        }
-
         public Criteria andEventIsNull() {
             addCriterion("event is null");
             return (Criteria) this;
@@ -384,6 +314,76 @@ public class MessageTaskExample {
             return (Criteria) this;
         }
 
+        public Criteria andProjectRobotIdIsNull() {
+            addCriterion("project_robot_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdIsNotNull() {
+            addCriterion("project_robot_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdEqualTo(String value) {
+            addCriterion("project_robot_id =", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdNotEqualTo(String value) {
+            addCriterion("project_robot_id <>", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdGreaterThan(String value) {
+            addCriterion("project_robot_id >", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdGreaterThanOrEqualTo(String value) {
+            addCriterion("project_robot_id >=", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdLessThan(String value) {
+            addCriterion("project_robot_id <", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdLessThanOrEqualTo(String value) {
+            addCriterion("project_robot_id <=", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdLike(String value) {
+            addCriterion("project_robot_id like", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdNotLike(String value) {
+            addCriterion("project_robot_id not like", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdIn(List<String> values) {
+            addCriterion("project_robot_id in", values, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdNotIn(List<String> values) {
+            addCriterion("project_robot_id not in", values, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdBetween(String value1, String value2) {
+            addCriterion("project_robot_id between", value1, value2, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdNotBetween(String value1, String value2) {
+            addCriterion("project_robot_id not between", value1, value2, "projectRobotId");
+            return (Criteria) this;
+        }
+
         public Criteria andTaskTypeIsNull() {
             addCriterion("task_type is null");
             return (Criteria) this;
@@ -454,76 +454,6 @@ public class MessageTaskExample {
             return (Criteria) this;
         }
 
-        public Criteria andWebhookIsNull() {
-            addCriterion("webhook is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookIsNotNull() {
-            addCriterion("webhook is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookEqualTo(String value) {
-            addCriterion("webhook =", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookNotEqualTo(String value) {
-            addCriterion("webhook <>", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookGreaterThan(String value) {
-            addCriterion("webhook >", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookGreaterThanOrEqualTo(String value) {
-            addCriterion("webhook >=", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookLessThan(String value) {
-            addCriterion("webhook <", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookLessThanOrEqualTo(String value) {
-            addCriterion("webhook <=", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookLike(String value) {
-            addCriterion("webhook like", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookNotLike(String value) {
-            addCriterion("webhook not like", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookIn(List<String> values) {
-            addCriterion("webhook in", values, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookNotIn(List<String> values) {
-            addCriterion("webhook not in", values, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookBetween(String value1, String value2) {
-            addCriterion("webhook between", value1, value2, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookNotBetween(String value1, String value2) {
-            addCriterion("webhook not between", value1, value2, "webhook");
-            return (Criteria) this;
-        }
-
         public Criteria andTestIdIsNull() {
             addCriterion("test_id is null");
             return (Criteria) this;
@@ -591,66 +521,6 @@ public class MessageTaskExample {
 
         public Criteria andTestIdNotBetween(String value1, String value2) {
             addCriterion("test_id not between", value1, value2, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeIsNull() {
-            addCriterion("create_time is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeIsNotNull() {
-            addCriterion("create_time is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeEqualTo(Long value) {
-            addCriterion("create_time =", value, "createTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeNotEqualTo(Long value) {
-            addCriterion("create_time <>", value, "createTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeGreaterThan(Long value) {
-            addCriterion("create_time >", value, "createTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("create_time >=", value, "createTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeLessThan(Long value) {
-            addCriterion("create_time <", value, "createTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeLessThanOrEqualTo(Long value) {
-            addCriterion("create_time <=", value, "createTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeIn(List<Long> values) {
-            addCriterion("create_time in", values, "createTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeNotIn(List<Long> values) {
-            addCriterion("create_time not in", values, "createTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeBetween(Long value1, Long value2) {
-            addCriterion("create_time between", value1, value2, "createTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreateTimeNotBetween(Long value1, Long value2) {
-            addCriterion("create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
@@ -781,6 +651,266 @@ public class MessageTaskExample {
 
         public Criteria andEnableNotBetween(Boolean value1, Boolean value2) {
             addCriterion("`enable` not between", value1, value2, "enable");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIsNull() {
+            addCriterion("create_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIsNotNull() {
+            addCriterion("create_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserEqualTo(String value) {
+            addCriterion("create_user =", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotEqualTo(String value) {
+            addCriterion("create_user <>", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThan(String value) {
+            addCriterion("create_user >", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("create_user >=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThan(String value) {
+            addCriterion("create_user <", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThanOrEqualTo(String value) {
+            addCriterion("create_user <=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLike(String value) {
+            addCriterion("create_user like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotLike(String value) {
+            addCriterion("create_user not like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIn(List<String> values) {
+            addCriterion("create_user in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotIn(List<String> values) {
+            addCriterion("create_user not in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserBetween(String value1, String value2) {
+            addCriterion("create_user between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotBetween(String value1, String value2) {
+            addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeIsNull() {
+            addCriterion("create_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeIsNotNull() {
+            addCriterion("create_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeEqualTo(Long value) {
+            addCriterion("create_time =", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeNotEqualTo(Long value) {
+            addCriterion("create_time <>", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeGreaterThan(Long value) {
+            addCriterion("create_time >", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("create_time >=", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeLessThan(Long value) {
+            addCriterion("create_time <", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeLessThanOrEqualTo(Long value) {
+            addCriterion("create_time <=", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeIn(List<Long> values) {
+            addCriterion("create_time in", values, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeNotIn(List<Long> values) {
+            addCriterion("create_time not in", values, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeBetween(Long value1, Long value2) {
+            addCriterion("create_time between", value1, value2, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeNotBetween(Long value1, Long value2) {
+            addCriterion("create_time not between", value1, value2, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNull() {
+            addCriterion("update_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNotNull() {
+            addCriterion("update_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserEqualTo(String value) {
+            addCriterion("update_user =", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotEqualTo(String value) {
+            addCriterion("update_user <>", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThan(String value) {
+            addCriterion("update_user >", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("update_user >=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThan(String value) {
+            addCriterion("update_user <", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThanOrEqualTo(String value) {
+            addCriterion("update_user <=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLike(String value) {
+            addCriterion("update_user like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotLike(String value) {
+            addCriterion("update_user not like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIn(List<String> values) {
+            addCriterion("update_user in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotIn(List<String> values) {
+            addCriterion("update_user not in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserBetween(String value1, String value2) {
+            addCriterion("update_user between", value1, value2, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotBetween(String value1, String value2) {
+            addCriterion("update_user not between", value1, value2, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeIsNull() {
+            addCriterion("update_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeIsNotNull() {
+            addCriterion("update_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeEqualTo(Long value) {
+            addCriterion("update_time =", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeNotEqualTo(Long value) {
+            addCriterion("update_time <>", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeGreaterThan(Long value) {
+            addCriterion("update_time >", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("update_time >=", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeLessThan(Long value) {
+            addCriterion("update_time <", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeLessThanOrEqualTo(Long value) {
+            addCriterion("update_time <=", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeIn(List<Long> values) {
+            addCriterion("update_time in", values, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeNotIn(List<Long> values) {
+            addCriterion("update_time not in", values, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeBetween(Long value1, Long value2) {
+            addCriterion("update_time between", value1, value2, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeNotBetween(Long value1, Long value2) {
+            addCriterion("update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }
     }
