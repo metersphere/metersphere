@@ -3,15 +3,17 @@
 <mapper namespace="io.metersphere.project.mapper.MessageTaskMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.MessageTask">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="event" jdbcType="VARCHAR" property="event" />
     <result column="receiver" jdbcType="VARCHAR" property="receiver" />
+    <result column="project_robot_id" jdbcType="VARCHAR" property="projectRobotId" />
     <result column="task_type" jdbcType="VARCHAR" property="taskType" />
-    <result column="webhook" jdbcType="VARCHAR" property="webhook" />
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
-    <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="enable" jdbcType="BIT" property="enable" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,8 +74,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `type`, event, receiver, task_type, webhook, test_id, create_time, project_id, 
-    `enable`
+    id, event, receiver, project_robot_id, task_type, test_id, project_id, `enable`, 
+    create_user, create_time, update_user, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.MessageTaskExample" resultMap="BaseResultMap">
     select
@@ -106,14 +108,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.MessageTask">
-    insert into message_task (id, `type`, event, 
-      receiver, task_type, webhook, 
-      test_id, create_time, project_id, 
-      `enable`)
-    values (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, 
-      #{receiver,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{webhook,jdbcType=VARCHAR}, 
-      #{testId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
-      #{enable,jdbcType=BIT})
+    insert into message_task (id, event, receiver, 
+      project_robot_id, task_type, test_id, 
+      project_id, `enable`, create_user, 
+      create_time, update_user, update_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, #{receiver,jdbcType=VARCHAR}, 
+      #{projectRobotId,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.MessageTask">
     insert into message_task
@@ -121,26 +125,20 @@
       <if test="id != null">
         id,
       </if>
-      <if test="type != null">
-        `type`,
-      </if>
       <if test="event != null">
         event,
       </if>
       <if test="receiver != null">
         receiver,
       </if>
+      <if test="projectRobotId != null">
+        project_robot_id,
+      </if>
       <if test="taskType != null">
         task_type,
       </if>
-      <if test="webhook != null">
-        webhook,
-      </if>
       <if test="testId != null">
         test_id,
-      </if>
-      <if test="createTime != null">
-        create_time,
       </if>
       <if test="projectId != null">
         project_id,
@@ -148,13 +146,22 @@
       <if test="enable != null">
         `enable`,
       </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
-      </if>
-      <if test="type != null">
-        #{type,jdbcType=VARCHAR},
       </if>
       <if test="event != null">
         #{event,jdbcType=VARCHAR},
@@ -162,23 +169,32 @@
       <if test="receiver != null">
         #{receiver,jdbcType=VARCHAR},
       </if>
+      <if test="projectRobotId != null">
+        #{projectRobotId,jdbcType=VARCHAR},
+      </if>
       <if test="taskType != null">
         #{taskType,jdbcType=VARCHAR},
       </if>
-      <if test="webhook != null">
-        #{webhook,jdbcType=VARCHAR},
-      </if>
       <if test="testId != null">
         #{testId,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=BIGINT},
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="enable != null">
         #{enable,jdbcType=BIT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -194,32 +210,38 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.type != null">
-        `type` = #{record.type,jdbcType=VARCHAR},
-      </if>
       <if test="record.event != null">
         event = #{record.event,jdbcType=VARCHAR},
       </if>
       <if test="record.receiver != null">
         receiver = #{record.receiver,jdbcType=VARCHAR},
       </if>
+      <if test="record.projectRobotId != null">
+        project_robot_id = #{record.projectRobotId,jdbcType=VARCHAR},
+      </if>
       <if test="record.taskType != null">
         task_type = #{record.taskType,jdbcType=VARCHAR},
       </if>
-      <if test="record.webhook != null">
-        webhook = #{record.webhook,jdbcType=VARCHAR},
-      </if>
       <if test="record.testId != null">
         test_id = #{record.testId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.enable != null">
         `enable` = #{record.enable,jdbcType=BIT},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -229,15 +251,17 @@
   <update id="updateByExample" parameterType="map">
     update message_task
     set id = #{record.id,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=VARCHAR},
       event = #{record.event,jdbcType=VARCHAR},
       receiver = #{record.receiver,jdbcType=VARCHAR},
+      project_robot_id = #{record.projectRobotId,jdbcType=VARCHAR},
       task_type = #{record.taskType,jdbcType=VARCHAR},
-      webhook = #{record.webhook,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      `enable` = #{record.enable,jdbcType=BIT}
+      `enable` = #{record.enable,jdbcType=BIT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -245,26 +269,20 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.project.domain.MessageTask">
     update message_task
     <set>
-      <if test="type != null">
-        `type` = #{type,jdbcType=VARCHAR},
-      </if>
       <if test="event != null">
         event = #{event,jdbcType=VARCHAR},
       </if>
       <if test="receiver != null">
         receiver = #{receiver,jdbcType=VARCHAR},
       </if>
+      <if test="projectRobotId != null">
+        project_robot_id = #{projectRobotId,jdbcType=VARCHAR},
+      </if>
       <if test="taskType != null">
         task_type = #{taskType,jdbcType=VARCHAR},
       </if>
-      <if test="webhook != null">
-        webhook = #{webhook,jdbcType=VARCHAR},
-      </if>
       <if test="testId != null">
         test_id = #{testId,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=BIGINT},
       </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
@@ -272,32 +290,47 @@
       <if test="enable != null">
         `enable` = #{enable,jdbcType=BIT},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.MessageTask">
     update message_task
-    set `type` = #{type,jdbcType=VARCHAR},
-      event = #{event,jdbcType=VARCHAR},
+    set event = #{event,jdbcType=VARCHAR},
       receiver = #{receiver,jdbcType=VARCHAR},
+      project_robot_id = #{projectRobotId,jdbcType=VARCHAR},
       task_type = #{taskType,jdbcType=VARCHAR},
-      webhook = #{webhook,jdbcType=VARCHAR},
       test_id = #{testId,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
       project_id = #{projectId,jdbcType=VARCHAR},
-      `enable` = #{enable,jdbcType=BIT}
+      `enable` = #{enable,jdbcType=BIT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into message_task
-    (id, `type`, event, receiver, task_type, webhook, test_id, create_time, project_id, 
-      `enable`)
+    (id, event, receiver, project_robot_id, task_type, test_id, project_id, `enable`, 
+      create_user, create_time, update_user, update_time)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.event,jdbcType=VARCHAR}, 
-        #{item.receiver,jdbcType=VARCHAR}, #{item.taskType,jdbcType=VARCHAR}, #{item.webhook,jdbcType=VARCHAR}, 
-        #{item.testId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, 
-        #{item.enable,jdbcType=BIT})
+      (#{item.id,jdbcType=VARCHAR}, #{item.event,jdbcType=VARCHAR}, #{item.receiver,jdbcType=VARCHAR}, 
+        #{item.projectRobotId,jdbcType=VARCHAR}, #{item.taskType,jdbcType=VARCHAR}, #{item.testId,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -313,32 +346,38 @@
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
         </if>
-        <if test="'type'.toString() == column.value">
-          #{item.type,jdbcType=VARCHAR}
-        </if>
         <if test="'event'.toString() == column.value">
           #{item.event,jdbcType=VARCHAR}
         </if>
         <if test="'receiver'.toString() == column.value">
           #{item.receiver,jdbcType=VARCHAR}
         </if>
+        <if test="'project_robot_id'.toString() == column.value">
+          #{item.projectRobotId,jdbcType=VARCHAR}
+        </if>
         <if test="'task_type'.toString() == column.value">
           #{item.taskType,jdbcType=VARCHAR}
         </if>
-        <if test="'webhook'.toString() == column.value">
-          #{item.webhook,jdbcType=VARCHAR}
-        </if>
         <if test="'test_id'.toString() == column.value">
           #{item.testId,jdbcType=VARCHAR}
-        </if>
-        <if test="'create_time'.toString() == column.value">
-          #{item.createTime,jdbcType=BIGINT}
         </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
         </if>
         <if test="'enable'.toString() == column.value">
           #{item.enable,jdbcType=BIT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
         </if>
       </foreach>
       )
