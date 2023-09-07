@@ -117,7 +117,7 @@
     if (!errors) {
       setLoading(true);
       try {
-        const publicKey = userStore.salt;
+        const publicKey = localStorage.getItem('salt') || '';
         await userStore.login({
           username: encrypted(values.username, publicKey),
           password: encrypted(values.password, publicKey),

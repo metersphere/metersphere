@@ -29,7 +29,6 @@ const useUserStore = defineStore('user', {
     id: undefined,
     certification: undefined,
     role: '',
-    salt: '',
   }),
 
   getters: {
@@ -104,10 +103,6 @@ const useUserStore = defineStore('user', {
       } catch (err) {
         return false;
       }
-    },
-    // 加盐
-    setSalt(salt: string) {
-      this.$patch({ salt });
     },
   },
 });

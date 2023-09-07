@@ -22,7 +22,7 @@ export default function useUser() {
   };
 
   const setSalt = (salt: string) => {
-    userStore.setSalt(salt);
+    localStorage.setItem('salt', salt);
   };
 
   const isLoginPage = () => {

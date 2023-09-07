@@ -1,5 +1,5 @@
 <template>
-  <div class="ms-base-tale">
+  <div class="ms-base-table">
     <select-all
       v-if="attrs.selectable && attrs.showSelectAll"
       class="custom-action"
@@ -101,7 +101,7 @@
                     </slot>
                   </div>
                 </a-tooltip>
-                <div>
+                <div class="edit-icon">
                   <MsIcon
                     v-if="item.editType && editActiveKey !== `${item.dataIndex}${rowIndex}` && !record.deleted"
                     class="ml-2 cursor-pointer"
@@ -201,7 +201,7 @@
   const editActiveKey = ref<string>('');
   // 编辑input的Ref
   const currentInputRef = ref();
-  const { rowKey, editKey }: Partial<MsTableProps<any>> = attrs;
+  const { rowKey }: Partial<MsTableProps<any>> = attrs;
   // 第一行表格合并
   const currentSpanMethod = ({
     rowIndex,
@@ -369,7 +369,7 @@
 </script>
 
 <style lang="less" scoped>
-  .ms-base-tale {
+  .ms-base-table {
     position: relative;
     .custom-action {
       position: absolute;
@@ -385,6 +385,21 @@
     }
     .ms-table-edit-active {
       color: rgb(var(--primary-5));
+    }
+    .edit-icon {
+      color: rgb(var(--primary-7));
+      opacity: 0;
+    }
+    :deep(.arco-table-hover) {
+      :not(.arco-table-dragging) {
+        .arco-table-tr:not(.arco-table-tr-empty):not(.arco-table-tr-summary):hover {
+          .arco-table-td:not(.arco-table-col-fixed-left):not(.arco-table-col-fixed-right) {
+            .edit-icon {
+              opacity: 1;
+            }
+          }
+        }
+      }
     }
   }
 </style>
