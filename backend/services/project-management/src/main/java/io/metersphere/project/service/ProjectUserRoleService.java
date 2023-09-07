@@ -13,6 +13,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
