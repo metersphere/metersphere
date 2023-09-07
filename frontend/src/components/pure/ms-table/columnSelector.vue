@@ -39,7 +39,9 @@
         </div>
       </div>
       <a-divider orientation="center" class="non-sort"
-        ><span class="text-xs text-[var(--color-text-4)]">{{ t('msTable.columnSetting.nonSort') }}</span></a-divider
+        ><span class="one-line-text text-xs text-[var(--color-text-4)]">{{
+          t('msTable.columnSetting.nonSort')
+        }}</span></a-divider
       >
       <Draggable tag="div" :list="couldSortColumn" ghost-class="ghost" item-key="dateIndex">
         <template #item="{ element, index }">
