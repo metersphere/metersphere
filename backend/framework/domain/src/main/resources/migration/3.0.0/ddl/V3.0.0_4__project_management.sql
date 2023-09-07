@@ -19,13 +19,16 @@ CREATE TABLE IF NOT EXISTS fake_error
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '误报ID',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
+    `name`        VARCHAR(255) NOT NULL COMMENT '误报名称' ,
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
     `update_time` BIGINT       NOT NULL COMMENT '更新时间',
     `create_user` VARCHAR(64)  NOT NULL COMMENT '创建人',
     `update_user` VARCHAR(64)  NOT NULL COMMENT '更新人',
-    `error_code`  VARCHAR(255) NOT NULL COMMENT '错误码',
-    `match_type`  VARCHAR(255) NOT NULL COMMENT '匹配类型',
-    `status`      BIT COMMENT '状态',
+    `type`        VARCHAR(20)  NOT NULL COMMENT '匹配类型/文本内容' ,
+    `resp_type`   VARCHAR(20)  NOT NULL COMMENT '响应内容类型/header/data/body' ,
+    `relation`    VARCHAR(20)  NOT NULL COMMENT '操作类型/大于/等于/小于' ,
+    `expression`  VARCHAR(255) NOT NULL COMMENT '表达式' ,
+    `enable`      BIT(1)       NOT NULL DEFAULT 1 COMMENT '启用/禁用' ,
     PRIMARY KEY (id)
 )  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
@@ -33,11 +36,12 @@ CREATE TABLE IF NOT EXISTS fake_error
 
 
 CREATE INDEX idx_project_id ON fake_error (project_id);
-CREATE INDEX project_id_status ON fake_error (project_id, status);
+CREATE INDEX project_id_status ON fake_error (project_id,expression);
 CREATE INDEX idx_create_time ON fake_error (create_time);
 CREATE INDEX idx_update_time ON fake_error (update_time);
 CREATE INDEX idx_create_user ON fake_error (create_user);
 CREATE INDEX idx_update_user ON fake_error (update_user);
+CREATE INDEX idx_name ON fake_error (name);
 
 CREATE TABLE IF NOT EXISTS file_association
 (
@@ -209,16 +213,6 @@ CREATE TABLE IF NOT EXISTS custom_function_blob
 ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '自定义函数-代码片段大字段';
-
-CREATE TABLE IF NOT EXISTS fake_error_blob
-(
-    `id`          VARCHAR(50) NOT NULL COMMENT 'Test ID',
-    `content`     LONGBLOB COMMENT '内容',
-    `description` LONGBLOB COMMENT '报告内容',
-    PRIMARY KEY (id)
-) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci COMMENT = '误报库大字段';
 
 CREATE TABLE IF NOT EXISTS file_metadata_blob
 (
