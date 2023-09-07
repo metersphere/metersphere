@@ -33,7 +33,6 @@ public class JSON {
         // 设置JSON处理字符长度限制
         objectMapper.getFactory()
                 .setStreamReadConstraints(StreamReadConstraints.builder().maxStringLength(DEFAULT_MAX_STRING_LEN).build());
-
         // 处理时间格式
         objectMapper.registerModule(new JavaTimeModule());
     }

@@ -8,7 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +41,7 @@ public class MinioRepository implements FileRepository {
                 .object(filePath)
                 .stream(file.getInputStream(), file.getSize(), -1) // 文件内容
                 .build());
-        return request.getFileName();
+        return filePath;
     }
 
     @Override

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.project.mapper.FileMetadataBlobMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FileMetadataBlob">
+<mapper namespace="io.metersphere.project.mapper.FileMetadataRepositoryMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FileMetadataRepository">
     <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.project.domain.FileMetadataBlob">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.project.domain.FileMetadataRepository">
     <result column="git_info" jdbcType="LONGVARBINARY" property="gitInfo" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -71,7 +71,7 @@
   <sql id="Blob_Column_List">
     git_info
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.project.domain.FileMetadataBlobExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.project.domain.FileMetadataRepositoryExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
@@ -79,7 +79,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from file_metadata_blob
+    from file_metadata_repository
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -87,13 +87,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="io.metersphere.project.domain.FileMetadataBlobExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.project.domain.FileMetadataRepositoryExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from file_metadata_blob
+    from file_metadata_repository
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -106,25 +106,25 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from file_metadata_blob
+    from file_metadata_repository
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from file_metadata_blob
+    delete from file_metadata_repository
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.project.domain.FileMetadataBlobExample">
-    delete from file_metadata_blob
+  <delete id="deleteByExample" parameterType="io.metersphere.project.domain.FileMetadataRepositoryExample">
+    delete from file_metadata_repository
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.project.domain.FileMetadataBlob">
-    insert into file_metadata_blob (id, git_info)
+  <insert id="insert" parameterType="io.metersphere.project.domain.FileMetadataRepository">
+    insert into file_metadata_repository (id, git_info)
     values (#{id,jdbcType=VARCHAR}, #{gitInfo,jdbcType=LONGVARBINARY})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileMetadataBlob">
-    insert into file_metadata_blob
+  <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileMetadataRepository">
+    insert into file_metadata_repository
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -142,14 +142,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.project.domain.FileMetadataBlobExample" resultType="java.lang.Long">
-    select count(*) from file_metadata_blob
+  <select id="countByExample" parameterType="io.metersphere.project.domain.FileMetadataRepositoryExample" resultType="java.lang.Long">
+    select count(*) from file_metadata_repository
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update file_metadata_blob
+    update file_metadata_repository
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -163,7 +163,7 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    update file_metadata_blob
+    update file_metadata_repository
     set id = #{record.id,jdbcType=VARCHAR},
       git_info = #{record.gitInfo,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
@@ -171,14 +171,14 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update file_metadata_blob
+    update file_metadata_repository
     set id = #{record.id,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.project.domain.FileMetadataBlob">
-    update file_metadata_blob
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.project.domain.FileMetadataRepository">
+    update file_metadata_repository
     <set>
       <if test="gitInfo != null">
         git_info = #{gitInfo,jdbcType=LONGVARBINARY},
@@ -186,13 +186,13 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.FileMetadataBlob">
-    update file_metadata_blob
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.FileMetadataRepository">
+    update file_metadata_repository
     set git_info = #{gitInfo,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into file_metadata_blob
+    insert into file_metadata_repository
     (id, git_info)
     values
     <foreach collection="list" item="item" separator=",">
@@ -200,7 +200,7 @@
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into file_metadata_blob (
+    insert into file_metadata_repository (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>

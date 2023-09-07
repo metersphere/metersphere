@@ -6,10 +6,10 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
-    <result column="level" jdbcType="INTEGER" property="level" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="pos" jdbcType="DOUBLE" property="pos" />
+    <result column="pos" jdbcType="INTEGER" property="pos" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="module_type" jdbcType="VARCHAR" property="moduleType" />
   </resultMap>
@@ -72,7 +72,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, parent_id, `level`, create_time, update_time, pos, create_user, 
+    id, project_id, `name`, parent_id, create_time, update_time, pos, update_user, create_user, 
     module_type
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.FileModuleExample" resultMap="BaseResultMap">
@@ -107,12 +107,12 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.FileModule">
     insert into file_module (id, project_id, `name`, 
-      parent_id, `level`, create_time, 
-      update_time, pos, create_user, 
+      parent_id, create_time, update_time, 
+      pos, update_user, create_user, 
       module_type)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=DOUBLE}, #{createUser,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{pos,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{moduleType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileModule">
@@ -130,9 +130,6 @@
       <if test="parentId != null">
         parent_id,
       </if>
-      <if test="level != null">
-        `level`,
-      </if>
       <if test="createTime != null">
         create_time,
       </if>
@@ -141,6 +138,9 @@
       </if>
       <if test="pos != null">
         pos,
+      </if>
+      <if test="updateUser != null">
+        update_user,
       </if>
       <if test="createUser != null">
         create_user,
@@ -162,9 +162,6 @@
       <if test="parentId != null">
         #{parentId,jdbcType=VARCHAR},
       </if>
-      <if test="level != null">
-        #{level,jdbcType=INTEGER},
-      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
@@ -172,7 +169,10 @@
         #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="pos != null">
-        #{pos,jdbcType=DOUBLE},
+        #{pos,jdbcType=INTEGER},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -203,9 +203,6 @@
       <if test="record.parentId != null">
         parent_id = #{record.parentId,jdbcType=VARCHAR},
       </if>
-      <if test="record.level != null">
-        `level` = #{record.level,jdbcType=INTEGER},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -213,7 +210,10 @@
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
       <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=DOUBLE},
+        pos = #{record.pos,jdbcType=INTEGER},
+      </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -232,10 +232,10 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
-      `level` = #{record.level,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      pos = #{record.pos,jdbcType=DOUBLE},
+      pos = #{record.pos,jdbcType=INTEGER},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       module_type = #{record.moduleType,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -254,9 +254,6 @@
       <if test="parentId != null">
         parent_id = #{parentId,jdbcType=VARCHAR},
       </if>
-      <if test="level != null">
-        `level` = #{level,jdbcType=INTEGER},
-      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
@@ -264,7 +261,10 @@
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="pos != null">
-        pos = #{pos,jdbcType=DOUBLE},
+        pos = #{pos,jdbcType=INTEGER},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
@@ -280,23 +280,23 @@
     set project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
-      `level` = #{level,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      pos = #{pos,jdbcType=DOUBLE},
+      pos = #{pos,jdbcType=INTEGER},
+      update_user = #{updateUser,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       module_type = #{moduleType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into file_module
-    (id, project_id, `name`, parent_id, `level`, create_time, update_time, pos, create_user, 
+    (id, project_id, `name`, parent_id, create_time, update_time, pos, update_user, create_user, 
       module_type)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
-        #{item.parentId,jdbcType=VARCHAR}, #{item.level,jdbcType=INTEGER}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.pos,jdbcType=DOUBLE}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.parentId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.pos,jdbcType=INTEGER}, #{item.updateUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.moduleType,jdbcType=VARCHAR})
     </foreach>
   </insert>
@@ -322,9 +322,6 @@
         <if test="'parent_id'.toString() == column.value">
           #{item.parentId,jdbcType=VARCHAR}
         </if>
-        <if test="'level'.toString() == column.value">
-          #{item.level,jdbcType=INTEGER}
-        </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
         </if>
@@ -332,7 +329,10 @@
           #{item.updateTime,jdbcType=BIGINT}
         </if>
         <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=DOUBLE}
+          #{item.pos,jdbcType=INTEGER}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}

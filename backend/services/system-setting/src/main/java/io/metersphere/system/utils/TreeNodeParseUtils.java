@@ -15,11 +15,11 @@ public class TreeNodeParseUtils {
             Organization organization = entry.getKey();
             List<Project> projects = entry.getValue();
 
-            BaseTreeNode orgNode = new BaseTreeNode(organization.getId(), organization.getName(), Organization.class.getName(), true);
+            BaseTreeNode orgNode = new BaseTreeNode(organization.getId(), organization.getName(), Organization.class.getName());
             returnList.add(orgNode);
 
             for (Project project : projects) {
-                BaseTreeNode projectNode = new BaseTreeNode(project.getId(), project.getName(), Project.class.getName(), true);
+                BaseTreeNode projectNode = new BaseTreeNode(project.getId(), project.getName(), Project.class.getName());
                 orgNode.addChild(projectNode);
             }
         }

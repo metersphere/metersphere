@@ -984,66 +984,6 @@ public class FileMetadataExample {
             return (Criteria) this;
         }
 
-        public Criteria andLoadJarIsNull() {
-            addCriterion("load_jar is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarIsNotNull() {
-            addCriterion("load_jar is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarEqualTo(Boolean value) {
-            addCriterion("load_jar =", value, "loadJar");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarNotEqualTo(Boolean value) {
-            addCriterion("load_jar <>", value, "loadJar");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarGreaterThan(Boolean value) {
-            addCriterion("load_jar >", value, "loadJar");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("load_jar >=", value, "loadJar");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarLessThan(Boolean value) {
-            addCriterion("load_jar <", value, "loadJar");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarLessThanOrEqualTo(Boolean value) {
-            addCriterion("load_jar <=", value, "loadJar");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarIn(List<Boolean> values) {
-            addCriterion("load_jar in", values, "loadJar");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarNotIn(List<Boolean> values) {
-            addCriterion("load_jar not in", values, "loadJar");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarBetween(Boolean value1, Boolean value2) {
-            addCriterion("load_jar between", value1, value2, "loadJar");
-            return (Criteria) this;
-        }
-
-        public Criteria andLoadJarNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("load_jar not between", value1, value2, "loadJar");
-            return (Criteria) this;
-        }
-
         public Criteria andPathIsNull() {
             addCriterion("`path` is null");
             return (Criteria) this;
@@ -1111,76 +1051,6 @@ public class FileMetadataExample {
 
         public Criteria andPathNotBetween(String value1, String value2) {
             addCriterion("`path` not between", value1, value2, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeIsNull() {
-            addCriterion("resource_type is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeIsNotNull() {
-            addCriterion("resource_type is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeEqualTo(String value) {
-            addCriterion("resource_type =", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeNotEqualTo(String value) {
-            addCriterion("resource_type <>", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeGreaterThan(String value) {
-            addCriterion("resource_type >", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeGreaterThanOrEqualTo(String value) {
-            addCriterion("resource_type >=", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeLessThan(String value) {
-            addCriterion("resource_type <", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeLessThanOrEqualTo(String value) {
-            addCriterion("resource_type <=", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeLike(String value) {
-            addCriterion("resource_type like", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeNotLike(String value) {
-            addCriterion("resource_type not like", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeIn(List<String> values) {
-            addCriterion("resource_type in", values, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeNotIn(List<String> values) {
-            addCriterion("resource_type not in", values, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeBetween(String value1, String value2) {
-            addCriterion("resource_type between", value1, value2, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeNotBetween(String value1, String value2) {
-            addCriterion("resource_type not between", value1, value2, "resourceType");
             return (Criteria) this;
         }
 
@@ -1311,6 +1181,76 @@ public class FileMetadataExample {
 
         public Criteria andRefIdNotBetween(String value1, String value2) {
             addCriterion("ref_id not between", value1, value2, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionIsNull() {
+            addCriterion("file_version is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionIsNotNull() {
+            addCriterion("file_version is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionEqualTo(String value) {
+            addCriterion("file_version =", value, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionNotEqualTo(String value) {
+            addCriterion("file_version <>", value, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionGreaterThan(String value) {
+            addCriterion("file_version >", value, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionGreaterThanOrEqualTo(String value) {
+            addCriterion("file_version >=", value, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionLessThan(String value) {
+            addCriterion("file_version <", value, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionLessThanOrEqualTo(String value) {
+            addCriterion("file_version <=", value, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionLike(String value) {
+            addCriterion("file_version like", value, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionNotLike(String value) {
+            addCriterion("file_version not like", value, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionIn(List<String> values) {
+            addCriterion("file_version in", values, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionNotIn(List<String> values) {
+            addCriterion("file_version not in", values, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionBetween(String value1, String value2) {
+            addCriterion("file_version between", value1, value2, "fileVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileVersionNotBetween(String value1, String value2) {
+            addCriterion("file_version not between", value1, value2, "fileVersion");
             return (Criteria) this;
         }
     }

@@ -62,30 +62,41 @@ CREATE INDEX idx_file_metadata_id ON file_association (file_metadata_id);
 CREATE INDEX idx_project_id ON file_association (project_id);
 CREATE INDEX idx_source_id ON file_association (source_id);
 
+
+CREATE TABLE IF NOT EXISTS file_metadata_repository
+(
+    `id`       VARCHAR(50) NOT NULL COMMENT '文件ID',
+    `git_info` LONGBLOB COMMENT '储存库',
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci
+    COMMENT = '文件基础信息大字段';
+
 CREATE TABLE IF NOT EXISTS file_metadata
 (
-    `id`            VARCHAR(50)  NOT NULL COMMENT '文件ID',
-    `name`          VARCHAR(255) NOT NULL COMMENT '文件名',
-    `type`          VARCHAR(64) COMMENT '文件类型',
-    `size`          BIGINT       NOT NULL COMMENT '文件大小',
-    `create_time`   BIGINT       NOT NULL COMMENT '创建时间',
-    `update_time`   BIGINT       NOT NULL COMMENT '更新时间',
-    `project_id`    VARCHAR(50)  NOT NULL COMMENT '项目ID',
-    `storage`       VARCHAR(50)  NOT NULL DEFAULT 'MINIO' COMMENT '文件存储方式',
-    `create_user`   VARCHAR(50)  NOT NULL COMMENT '创建人',
-    `update_user`   VARCHAR(50)  NOT NULL COMMENT '修改人',
-    `tags`          VARCHAR(1000) COMMENT '标签',
-    `description`   VARCHAR(500) COMMENT '描述',
-    `module_id`     VARCHAR(50) COMMENT '文件所属模块',
-    `load_jar`      BIT                   DEFAULT 0 COMMENT '是否加载jar（开启后用于接口测试执行时使用）',
-    `path`          VARCHAR(1000) COMMENT '文件存储路径',
-    `resource_type` VARCHAR(50) COMMENT '资源作用范围，主要兼容2.1版本前的历史数据，后续版本不再产生数据',
-    `latest`        BIT          NOT NULL DEFAULT 1 COMMENT '是否是最新版',
-    `ref_id`        VARCHAR(50)  NOT NULL COMMENT '同版本数据关联的ID',
+    `id`           VARCHAR(50)  NOT NULL COMMENT '文件ID',
+    `name`         VARCHAR(255) NOT NULL COMMENT '文件名',
+    `type`         VARCHAR(64) COMMENT '文件类型',
+    `size`         BIGINT       NOT NULL COMMENT '文件大小',
+    `create_time`  BIGINT       NOT NULL COMMENT '创建时间',
+    `update_time`  BIGINT       NOT NULL COMMENT '更新时间',
+    `project_id`   VARCHAR(50)  NOT NULL COMMENT '项目ID',
+    `storage`      VARCHAR(50)  NOT NULL DEFAULT 'MINIO' COMMENT '文件存储方式',
+    `create_user`  VARCHAR(50)  NOT NULL COMMENT '创建人',
+    `update_user`  VARCHAR(50)  NOT NULL COMMENT '修改人',
+    `tags`         VARCHAR(1000) COMMENT '标签',
+    `description`  VARCHAR(500) COMMENT '描述',
+    `module_id`    VARCHAR(50) COMMENT '文件所属模块',
+    `path`         VARCHAR(1000) COMMENT '文件存储路径',
+    `latest`       BIT          NOT NULL DEFAULT 1 COMMENT '是否是最新版',
+    `ref_id`       VARCHAR(50)  NOT NULL COMMENT '同版本数据关联的ID',
+    `file_version` VARCHAR(50) COMMENT '文件版本号',
     PRIMARY KEY (id)
-)  ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci COMMENT = '文件基础信息';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci
+    COMMENT = '文件基础信息';
 
 
 CREATE INDEX idx_file_name ON file_metadata (name);
@@ -95,22 +106,24 @@ CREATE INDEX idx_storage ON file_metadata (storage);
 CREATE INDEX idx_module_id ON file_metadata (module_id);
 CREATE INDEX idx_project_id ON file_metadata (project_id);
 
+
 CREATE TABLE IF NOT EXISTS file_module
 (
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `project_id`  VARCHAR(50) NOT NULL COMMENT '项目ID',
     `name`        VARCHAR(64) NOT NULL COMMENT '模块名称',
     `parent_id`   VARCHAR(50) COMMENT '父级ID',
-    `level`       INT         DEFAULT 1 COMMENT '层数',
     `create_time` BIGINT      NOT NULL COMMENT '创建时间',
     `update_time` BIGINT      NOT NULL COMMENT '更新时间',
-    `pos`         DOUBLE COMMENT '排序用的标识',
+    `pos`         INT NOT NULL DEFAULT 0 COMMENT '排序用的标识',
+    `update_user` VARCHAR(50) COMMENT '修改人',
     `create_user` VARCHAR(50) COMMENT '创建人',
     `module_type` VARCHAR(20) DEFAULT 'module' COMMENT '模块类型: module/repository',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci  COMMENT = '文件管理模块';
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci
+    COMMENT = '文件管理模块';
 
 
 CREATE INDEX idx_project_id ON file_module (project_id);
@@ -119,6 +132,7 @@ CREATE INDEX idx_create_time ON file_module (create_time);
 CREATE INDEX idx_update_timed ON file_module (update_time);
 CREATE INDEX idx_pos ON file_module (pos);
 CREATE INDEX idx_create_user ON file_module (create_user);
+
 
 CREATE TABLE IF NOT EXISTS project
 (
@@ -213,15 +227,6 @@ CREATE TABLE IF NOT EXISTS custom_function_blob
 ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '自定义函数-代码片段大字段';
-
-CREATE TABLE IF NOT EXISTS file_metadata_blob
-(
-    `id`       VARCHAR(50) NOT NULL COMMENT '文件ID',
-    `git_info` LONGBLOB COMMENT '储存库',
-    PRIMARY KEY (id)
-) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci COMMENT = '文件基础信息大字段';
 
 CREATE TABLE IF NOT EXISTS message_task
 (

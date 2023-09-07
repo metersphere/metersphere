@@ -21,17 +21,26 @@ public class BaseTreeNode {
     private String type;
 
     @Schema(description = "是否是叶子节点")
-    private boolean leafNode;
+    private boolean leafNode = false;
+
+    //    @Schema(description = "排序单位")
+    //    private int pos;
 
     @Schema(description = "子节点")
     private List<BaseTreeNode> children = new ArrayList<>();
 
-    public BaseTreeNode(String id, String name, String type, boolean isLeafNode) {
+    public BaseTreeNode(String id, String name, String type) {
         this.id = id;
         this.name = name;
         this.type = type;
-        this.leafNode = isLeafNode;
     }
+
+    //    public BaseTreeNode(String id, String name, String type, int pos) {
+    //        this.id = id;
+    //        this.name = name;
+    //        this.type = type;
+    //        this.pos = pos;
+    //    }
 
     public void addChild(BaseTreeNode node) {
         this.leafNode = false;

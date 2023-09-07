@@ -384,66 +384,6 @@ public class FileModuleExample {
             return (Criteria) this;
         }
 
-        public Criteria andLevelIsNull() {
-            addCriterion("`level` is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelIsNotNull() {
-            addCriterion("`level` is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelEqualTo(Integer value) {
-            addCriterion("`level` =", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelNotEqualTo(Integer value) {
-            addCriterion("`level` <>", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelGreaterThan(Integer value) {
-            addCriterion("`level` >", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelGreaterThanOrEqualTo(Integer value) {
-            addCriterion("`level` >=", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelLessThan(Integer value) {
-            addCriterion("`level` <", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelLessThanOrEqualTo(Integer value) {
-            addCriterion("`level` <=", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelIn(List<Integer> values) {
-            addCriterion("`level` in", values, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelNotIn(List<Integer> values) {
-            addCriterion("`level` not in", values, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelBetween(Integer value1, Integer value2) {
-            addCriterion("`level` between", value1, value2, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelNotBetween(Integer value1, Integer value2) {
-            addCriterion("`level` not between", value1, value2, "level");
-            return (Criteria) this;
-        }
-
         public Criteria andCreateTimeIsNull() {
             addCriterion("create_time is null");
             return (Criteria) this;
@@ -574,53 +514,123 @@ public class FileModuleExample {
             return (Criteria) this;
         }
 
-        public Criteria andPosEqualTo(Double value) {
+        public Criteria andPosEqualTo(Integer value) {
             addCriterion("pos =", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosNotEqualTo(Double value) {
+        public Criteria andPosNotEqualTo(Integer value) {
             addCriterion("pos <>", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosGreaterThan(Double value) {
+        public Criteria andPosGreaterThan(Integer value) {
             addCriterion("pos >", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosGreaterThanOrEqualTo(Double value) {
+        public Criteria andPosGreaterThanOrEqualTo(Integer value) {
             addCriterion("pos >=", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosLessThan(Double value) {
+        public Criteria andPosLessThan(Integer value) {
             addCriterion("pos <", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosLessThanOrEqualTo(Double value) {
+        public Criteria andPosLessThanOrEqualTo(Integer value) {
             addCriterion("pos <=", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosIn(List<Double> values) {
+        public Criteria andPosIn(List<Integer> values) {
             addCriterion("pos in", values, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosNotIn(List<Double> values) {
+        public Criteria andPosNotIn(List<Integer> values) {
             addCriterion("pos not in", values, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosBetween(Double value1, Double value2) {
+        public Criteria andPosBetween(Integer value1, Integer value2) {
             addCriterion("pos between", value1, value2, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosNotBetween(Double value1, Double value2) {
+        public Criteria andPosNotBetween(Integer value1, Integer value2) {
             addCriterion("pos not between", value1, value2, "pos");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNull() {
+            addCriterion("update_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNotNull() {
+            addCriterion("update_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserEqualTo(String value) {
+            addCriterion("update_user =", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotEqualTo(String value) {
+            addCriterion("update_user <>", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThan(String value) {
+            addCriterion("update_user >", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("update_user >=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThan(String value) {
+            addCriterion("update_user <", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThanOrEqualTo(String value) {
+            addCriterion("update_user <=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLike(String value) {
+            addCriterion("update_user like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotLike(String value) {
+            addCriterion("update_user not like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIn(List<String> values) {
+            addCriterion("update_user in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotIn(List<String> values) {
+            addCriterion("update_user not in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserBetween(String value1, String value2) {
+            addCriterion("update_user between", value1, value2, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotBetween(String value1, String value2) {
+            addCriterion("update_user not between", value1, value2, "updateUser");
             return (Criteria) this;
         }
 

@@ -15,11 +15,10 @@
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
-    <result column="load_jar" jdbcType="BIT" property="loadJar" />
     <result column="path" jdbcType="VARCHAR" property="path" />
-    <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
     <result column="latest" jdbcType="BIT" property="latest" />
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+    <result column="file_version" jdbcType="VARCHAR" property="fileVersion" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -81,8 +80,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, `type`, `size`, create_time, update_time, project_id, `storage`, create_user, 
-    update_user, tags, description, module_id, load_jar, `path`, resource_type, latest, 
-    ref_id
+    update_user, tags, description, module_id, `path`, latest, ref_id, file_version
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.FileMetadataExample" resultMap="BaseResultMap">
     select
@@ -119,16 +117,14 @@
       `size`, create_time, update_time, 
       project_id, `storage`, create_user, 
       update_user, tags, description, 
-      module_id, load_jar, `path`, 
-      resource_type, latest, ref_id
-      )
+      module_id, `path`, latest, 
+      ref_id, file_version)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{projectId,jdbcType=VARCHAR}, #{storage,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{updateUser,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{moduleId,jdbcType=VARCHAR}, #{loadJar,jdbcType=BIT}, #{path,jdbcType=VARCHAR}, 
-      #{resourceType,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, #{refId,jdbcType=VARCHAR}
-      )
+      #{moduleId,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, 
+      #{refId,jdbcType=VARCHAR}, #{fileVersion,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileMetadata">
     insert into file_metadata
@@ -172,20 +168,17 @@
       <if test="moduleId != null">
         module_id,
       </if>
-      <if test="loadJar != null">
-        load_jar,
-      </if>
       <if test="path != null">
         `path`,
-      </if>
-      <if test="resourceType != null">
-        resource_type,
       </if>
       <if test="latest != null">
         latest,
       </if>
       <if test="refId != null">
         ref_id,
+      </if>
+      <if test="fileVersion != null">
+        file_version,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -228,20 +221,17 @@
       <if test="moduleId != null">
         #{moduleId,jdbcType=VARCHAR},
       </if>
-      <if test="loadJar != null">
-        #{loadJar,jdbcType=BIT},
-      </if>
       <if test="path != null">
         #{path,jdbcType=VARCHAR},
-      </if>
-      <if test="resourceType != null">
-        #{resourceType,jdbcType=VARCHAR},
       </if>
       <if test="latest != null">
         #{latest,jdbcType=BIT},
       </if>
       <if test="refId != null">
         #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileVersion != null">
+        #{fileVersion,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -293,20 +283,17 @@
       <if test="record.moduleId != null">
         module_id = #{record.moduleId,jdbcType=VARCHAR},
       </if>
-      <if test="record.loadJar != null">
-        load_jar = #{record.loadJar,jdbcType=BIT},
-      </if>
       <if test="record.path != null">
         `path` = #{record.path,jdbcType=VARCHAR},
-      </if>
-      <if test="record.resourceType != null">
-        resource_type = #{record.resourceType,jdbcType=VARCHAR},
       </if>
       <if test="record.latest != null">
         latest = #{record.latest,jdbcType=BIT},
       </if>
       <if test="record.refId != null">
         ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fileVersion != null">
+        file_version = #{record.fileVersion,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -328,11 +315,10 @@
       tags = #{record.tags,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       module_id = #{record.moduleId,jdbcType=VARCHAR},
-      load_jar = #{record.loadJar,jdbcType=BIT},
       `path` = #{record.path,jdbcType=VARCHAR},
-      resource_type = #{record.resourceType,jdbcType=VARCHAR},
       latest = #{record.latest,jdbcType=BIT},
-      ref_id = #{record.refId,jdbcType=VARCHAR}
+      ref_id = #{record.refId,jdbcType=VARCHAR},
+      file_version = #{record.fileVersion,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -376,20 +362,17 @@
       <if test="moduleId != null">
         module_id = #{moduleId,jdbcType=VARCHAR},
       </if>
-      <if test="loadJar != null">
-        load_jar = #{loadJar,jdbcType=BIT},
-      </if>
       <if test="path != null">
         `path` = #{path,jdbcType=VARCHAR},
-      </if>
-      <if test="resourceType != null">
-        resource_type = #{resourceType,jdbcType=VARCHAR},
       </if>
       <if test="latest != null">
         latest = #{latest,jdbcType=BIT},
       </if>
       <if test="refId != null">
         ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileVersion != null">
+        file_version = #{fileVersion,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -408,27 +391,25 @@
       tags = #{tags,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       module_id = #{moduleId,jdbcType=VARCHAR},
-      load_jar = #{loadJar,jdbcType=BIT},
       `path` = #{path,jdbcType=VARCHAR},
-      resource_type = #{resourceType,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT},
-      ref_id = #{refId,jdbcType=VARCHAR}
+      ref_id = #{refId,jdbcType=VARCHAR},
+      file_version = #{fileVersion,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into file_metadata
     (id, `name`, `type`, `size`, create_time, update_time, project_id, `storage`, create_user, 
-      update_user, tags, description, module_id, load_jar, `path`, resource_type, latest, 
-      ref_id)
+      update_user, tags, description, module_id, `path`, latest, ref_id, file_version
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
         #{item.size,jdbcType=BIGINT}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
         #{item.projectId,jdbcType=VARCHAR}, #{item.storage,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.updateUser,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, 
-        #{item.moduleId,jdbcType=VARCHAR}, #{item.loadJar,jdbcType=BIT}, #{item.path,jdbcType=VARCHAR}, 
-        #{item.resourceType,jdbcType=VARCHAR}, #{item.latest,jdbcType=BIT}, #{item.refId,jdbcType=VARCHAR}
-        )
+        #{item.moduleId,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}, #{item.latest,jdbcType=BIT}, 
+        #{item.refId,jdbcType=VARCHAR}, #{item.fileVersion,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -480,20 +461,17 @@
         <if test="'module_id'.toString() == column.value">
           #{item.moduleId,jdbcType=VARCHAR}
         </if>
-        <if test="'load_jar'.toString() == column.value">
-          #{item.loadJar,jdbcType=BIT}
-        </if>
         <if test="'path'.toString() == column.value">
           #{item.path,jdbcType=VARCHAR}
-        </if>
-        <if test="'resource_type'.toString() == column.value">
-          #{item.resourceType,jdbcType=VARCHAR}
         </if>
         <if test="'latest'.toString() == column.value">
           #{item.latest,jdbcType=BIT}
         </if>
         <if test="'ref_id'.toString() == column.value">
           #{item.refId,jdbcType=VARCHAR}
+        </if>
+        <if test="'file_version'.toString() == column.value">
+          #{item.fileVersion,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

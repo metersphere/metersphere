@@ -3,14 +3,14 @@ package io.metersphere.project.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileMetadataBlobExample {
+public class FileMetadataRepositoryExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public FileMetadataBlobExample() {
+    public FileMetadataRepositoryExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 

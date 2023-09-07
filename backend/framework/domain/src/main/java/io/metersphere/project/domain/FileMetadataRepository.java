@@ -9,13 +9,13 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class FileMetadataBlob implements Serializable {
-    @Schema(description =  "文件ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata_blob.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{file_metadata_blob.id.length_range}", groups = {Created.class, Updated.class})
+public class FileMetadataRepository implements Serializable {
+    @Schema(title = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_metadata_repository.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{file_metadata_repository.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "储存库")
+    @Schema(title = "储存库")
     private byte[] gitInfo;
 
     private static final long serialVersionUID = 1L;

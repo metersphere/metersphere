@@ -138,6 +138,28 @@
         ]
       },
       {
+        "id": "PROJECT_FILE_MANAGEMENT",
+        "name": "permission.project_file.name",
+        "permissions": [
+          {
+            "id": "PROJECT_FILE_MANAGEMENT:READ"
+          },
+          {
+            "id": "PROJECT_FILE_MANAGEMENT:READ+ADD"
+          },
+          {
+            "id": "PROJECT_FILE_MANAGEMENT:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD",
+            "name": "permission.project_file.download"
+          },
+          {
+            "id": "PROJECT_FILE_MANAGEMENT:READ+DELETE"
+          }
+        ]
+      },
+      {
         "id": "PROJECT_FAKE_ERROR",
         "name": "permission.project_fake_error.name",
         "license": true,
