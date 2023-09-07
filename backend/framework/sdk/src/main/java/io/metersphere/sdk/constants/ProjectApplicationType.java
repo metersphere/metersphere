@@ -47,6 +47,38 @@ public enum ProjectApplicationType {
     APPLICATION_PERFORMANCE_TEST_SCRIPT_REVIEWER,
 
 
+    //接口测试
+    /**
+     * 接口定义 URL可重复
+     */
+    APPLICATION_API_URL_REPEATABLE,
+    /**
+     * 接口测试 报告保留范围
+     */
+    APPLICATION_CLEAN_API_REPORT,
+    /**
+     * 接口测试 报告有效期
+     */
+    APPLICATION_SHARE_API_REPORT,
+    /**
+     * 接口测试 执行资源池
+     */
+    APPLICATION_API_RESOURCE_POOL,
+    /**
+     * 接口测试 脚本审核人
+     */
+    APPLICATION_API_SCRIPT_REVIEWER,
+    /**
+     * 接口测试 自定义误报规则
+     */
+    APPLICATION_API_ERROR_REPORT_RULE,
+    /**
+     * 接口测试 接口变更同步case
+     */
+    APPLICATION_API_SYNC_CASE,
+
+
+
     //缺陷管理
     /**
      * 同步缺陷 标识

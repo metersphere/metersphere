@@ -3,6 +3,7 @@ package io.metersphere.project.service;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.job.CleanUpReportJob;
+import io.metersphere.project.mapper.ExtProjectTestResourcePoolMapper;
 import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.request.ProjectApplicationRequest;
@@ -10,6 +11,7 @@ import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.sechedule.BaseScheduleService;
@@ -17,7 +19,6 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.User;
-import io.metersphere.system.mapper.ExtUserMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -41,9 +42,12 @@ public class ProjectApplicationService {
     @Resource
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
 
+    @Resource
+    private ExtProjectTestResourcePoolMapper extProjectTestResourcePoolMapper;
 
     /**
      * 更新配置信息
+     *
      * @param application
      * @return
      */
@@ -74,8 +78,9 @@ public class ProjectApplicationService {
         //TODO 自定义id配置 &其他配置
         if (StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_TEST_PLAN_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_UI_REPORT.name())
-                || StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_PERFORMANCE_TEST_REPORT.name())) {
-            //清除 测试计划/UI测试/性能测试 报告 定时任务
+                || StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_PERFORMANCE_TEST_REPORT.name())
+                || StringUtils.equals(type, ProjectApplicationType.APPLICATION_CLEAN_API_REPORT.name())) {
+            //清除 测试计划/UI测试/性能测试/接口测试 报告 定时任务
             this.doHandleSchedule(application);
         }
     }
@@ -132,8 +137,25 @@ public class ProjectApplicationService {
     }
 
 
+    /**
+     * 获取 项目成员（脚本审核人）
+     *
+     * @param projectId
+     * @return
+     */
     public List<User> getProjectUserList(String projectId) {
         return extProjectUserRoleMapper.getProjectUserList(projectId);
+    }
+
+
+    /**
+     * 获取当前项目 可用资源池
+     *
+     * @param organizationId
+     * @return
+     */
+    public List<OptionDTO> getResourcePoolList(String organizationId) {
+        return extProjectTestResourcePoolMapper.getResourcePoolList(organizationId);
     }
 
 
@@ -166,6 +188,16 @@ public class ProjectApplicationService {
      */
     public LogDTO updatePerformanceLog(ProjectApplication application) {
         return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "性能测试配置");
+    }
+
+    /**
+     * 接口测试 日志
+     *
+     * @param application
+     * @return
+     */
+    public LogDTO updateApiLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "接口测试配置");
     }
 
     private LogDTO delLog(ProjectApplication application, String module, String content) {

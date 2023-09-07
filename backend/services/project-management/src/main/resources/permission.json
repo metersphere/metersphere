@@ -151,6 +151,14 @@
           {
             "id": "PROJECT_APPLICATION_PERFORMANCE_TEST:UPDATE",
             "name": "permission.project_application_performance_test.update"
+          },
+          {
+            "id": "PROJECT_APPLICATION_API:READ",
+            "name": "permission.project_application_api.read"
+          },
+          {
+            "id": "PROJECT_APPLICATION_API:UPDATE",
+            "name": "permission.project_application_api.update"
           }
         ]
       },
