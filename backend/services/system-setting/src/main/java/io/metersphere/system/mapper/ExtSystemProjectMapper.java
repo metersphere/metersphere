@@ -19,8 +19,8 @@ public interface ExtSystemProjectMapper {
 
     List<OrganizationProjectOptionsDTO> selectProjectOptions(@Param("organizationId") String organizationId);
 
-    List<UserExtend> getUserAdminList(@Param("organizationId") String organizationId);
+    List<UserExtend> getUserAdminList(@Param("organizationId") String organizationId, @Param("keyword") String keyword);
 
-    List<UserExtend> getUserMemberList(@Param("userIds") List<String> userIds, @Param("projectId") String projectId);
+    List<UserExtend> getUserMemberList(@Param("userIds") List<String> userIds, @Param("projectId") String projectId, @Param("keyword") String keyword);
 
 }

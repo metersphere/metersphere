@@ -118,14 +118,24 @@
     </sql>
 
     <select id="getUserAdminList" resultType="io.metersphere.sdk.dto.UserExtend">
-        select distinct u.*
+        select distinct
+        u.id,
+        u.NAME,
+        u.email
         from `user` u left join user_role_relation urr on urr.user_id = u.id
         where u.deleted = 0 and urr.source_id = #{organizationId}
+        <if test="keyword != null and keyword != ''">
+            and (LOCATE(#{keyword},u.name)>0 or LOCATE(#{keyword},u.email)>0)
+        </if>
+        order by u.create_time desc
+        limit 100
 
     </select>
 
     <select id="getUserMemberList" resultType="io.metersphere.sdk.dto.UserExtend">
-        select distinct u.*, count(temp.id) > 0 as memberFlag from
+        select distinct   u.id,
+        u.NAME,
+        u.email, count(temp.id) > 0 as memberFlag from
         user u left join (select * from user_role_relation urr where urr.source_id = #{projectId}) temp on temp.user_id = u.id
         <where>
             u.deleted = 0
@@ -135,11 +145,13 @@
                     #{userId}
                 </foreach>
             </if>
+            <if test="keyword != null and keyword != ''">
+                and (LOCATE(#{keyword},u.name)>0 or LOCATE(#{keyword},u.email)>0)
+            </if>
         </where>
-
         group by u.id
-
-
+        order by u.create_time desc
+        limit 100
     </select>
 
 

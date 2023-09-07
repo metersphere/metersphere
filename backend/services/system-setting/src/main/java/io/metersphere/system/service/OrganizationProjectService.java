@@ -1,9 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.dto.AddProjectRequest;
-import io.metersphere.sdk.dto.ProjectDTO;
-import io.metersphere.sdk.dto.ProjectExtendDTO;
-import io.metersphere.sdk.dto.UpdateProjectRequest;
+import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -11,7 +8,6 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
-import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
@@ -105,12 +101,12 @@ public class OrganizationProjectService {
         commonProjectService.disable(id);
     }
 
-    public List<UserExtend> getUserAdminList(String organizationId) {
+    public List<UserExtend> getUserAdminList(String organizationId, String keyword) {
         checkOrgIsExist(organizationId);
-        return extSystemProjectMapper.getUserAdminList(organizationId);
+        return extSystemProjectMapper.getUserAdminList(organizationId, keyword);
     }
 
-    public List<UserExtend> getUserMemberList(String organizationId, String projectId) {
+    public List<UserExtend> getUserMemberList(String organizationId, String projectId, String keyword) {
         checkOrgIsExist(organizationId);
         commonProjectService.checkProjectNotExist(projectId);
         UserRoleRelationExample example = new UserRoleRelationExample();
@@ -118,7 +114,7 @@ public class OrganizationProjectService {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
         List<String> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(userIds)) {
-            return extSystemProjectMapper.getUserMemberList(userIds, projectId);
+            return extSystemProjectMapper.getUserMemberList(userIds, projectId, keyword);
         } else {
             return null;
         }
