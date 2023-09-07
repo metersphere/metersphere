@@ -18,6 +18,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.TestCaseReviewPassRule;
 import io.metersphere.dto.*;
 import io.metersphere.excel.converter.TestReviewCaseStatus;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -90,6 +91,10 @@ public class TestCaseReviewService {
     private TestCaseService testCaseService;
 
     public TestCaseReview saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
+        // 截止时间不能早于当前时间
+        if (reviewRequest.getEndTime() != null && reviewRequest.getEndTime() < System.currentTimeMillis()) {
+            MSException.throwException(Translator.get("test_review_end_time_early"));
+        }
         checkCaseReviewExist(reviewRequest);
         String reviewId = reviewRequest.getId();
         List<String> userIds = reviewRequest.getUserIds();//执行人
@@ -154,6 +159,7 @@ public class TestCaseReviewService {
 
     /**
      * 计算评审的通过率和用例总数
+     *
      * @param list
      */
     private void calcReviewRate(List<TestCaseReviewDTO> list) {
@@ -303,12 +309,16 @@ public class TestCaseReviewService {
     }
 
     public TestCaseReview editCaseReview(SaveTestCaseReviewRequest testCaseReview) {
+        TestCaseReview originReview = testCaseReviewMapper.selectByPrimaryKey(testCaseReview.getId());
+        // 如果截止时间有修改, 则截止时间不能早于当前时间
+        if (testCaseReview.getEndTime() != null && !testCaseReview.getEndTime().equals(originReview.getEndTime()) && testCaseReview.getEndTime() < System.currentTimeMillis()) {
+            MSException.throwException(Translator.get("test_review_end_time_early"));
+        }
 
         editCaseReviewer(testCaseReview);
         editCaseRevieweFollow(testCaseReview);
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
-        TestCaseReview originReview = testCaseReviewMapper.selectByPrimaryKey(testCaseReview.getId());
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
 
         if (!StringUtils.equals(testCaseReview.getReviewPassRule(), originReview.getReviewPassRule())) {
@@ -369,7 +379,7 @@ public class TestCaseReviewService {
                 });
             }
 
-            for (TestCaseReviewTestCase  reviewTestCase : testCaseReviewTestCases) {
+            for (TestCaseReviewTestCase reviewTestCase : testCaseReviewTestCases) {
                 if (StringUtils.equalsAny(reviewTestCase.getStatus(),
                         TestReviewCaseStatus.Pass.name(), TestReviewCaseStatus.UnPass.name(), TestReviewCaseStatus.Underway.name())) {
                     // 重新计算评审状态
@@ -555,7 +565,7 @@ public class TestCaseReviewService {
 
     public void editTestReviewStatus(String reviewId) {
         String status = extTestCaseReviewMapper.selectStatusById(reviewId);
-        if (StringUtils.equalsAnyIgnoreCase(status, TestCaseReviewStatus.Completed.name(), TestCaseReviewStatus.Finished.name())){
+        if (StringUtils.equalsAnyIgnoreCase(status, TestCaseReviewStatus.Completed.name(), TestCaseReviewStatus.Finished.name())) {
             return;
         }
 
@@ -563,7 +573,7 @@ public class TestCaseReviewService {
         TestCaseReview testCaseReview = new TestCaseReview();
         testCaseReview.setId(reviewId);
 
-        if (statusList.contains(TestReviewCaseStatus.Underway.name()) || statusList.contains(TestReviewCaseStatus.Again.name()) ) {
+        if (statusList.contains(TestReviewCaseStatus.Underway.name()) || statusList.contains(TestReviewCaseStatus.Again.name())) {
             return;
         }
 

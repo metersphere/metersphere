@@ -13,10 +13,10 @@
         <el-row>
           <el-col :span="10">
             <el-form-item
-              :placeholder="$t('test_track.review.input_review_name')"
-              :label="$t('test_track.review.review_name')"
-              :label-width="formLabelWidth"
-              prop="name">
+                :placeholder="$t('test_track.review.input_review_name')"
+                :label="$t('test_track.review.review_name')"
+                :label-width="formLabelWidth"
+                prop="name">
               <el-input v-model="form.name"/>
             </el-form-item>
           </el-col>
@@ -31,16 +31,16 @@
           <el-col :span="10">
             <el-form-item :label="$t('test_track.review.reviewer')" :label-width="formLabelWidth" prop="userIds">
               <el-select
-                v-model="form.userIds"
-                :placeholder="$t('test_track.review.input_reviewer')"
-                filterable multiple
-                style="width: 100%"
+                  v-model="form.userIds"
+                  :placeholder="$t('test_track.review.input_reviewer')"
+                  filterable multiple
+                  style="width: 100%"
               >
                 <el-option
-                  v-for="item in reviewerOptions"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
+                    v-for="item in reviewerOptions"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
                 </el-option>
               </el-select>
               <div v-if="isEdit" class="item-tip">
@@ -63,13 +63,13 @@
             <el-form-item :label="$t('review.review_pass_rule')" :label-width="formLabelWidth" prop="reviewPassRule">
               <el-select v-model="form.reviewPassRule" default-first-option>
                 <el-option
-                  v-for="item in [
+                    v-for="item in [
                           {text: 'review.review_pass_rule_single', value: 'SINGLE'},
                           {text: 'review.review_pass_rule_all', value: 'ALL'}
                         ]"
-                  :key="item.value"
-                  :label="$t(item.text)"
-                  :value="item.value">
+                    :key="item.value"
+                    :label="$t(item.text)"
+                    :value="item.value">
                 </el-option>
               </el-select>
               <ms-instructions-icon :content="$t('review.review_rule_tip')" effect="light"/>
@@ -199,65 +199,54 @@ export default {
       this.reload();
     },
     reviewInfo() {
-
       this.$refs['reviewForm'].validate((valid) => {
         if (valid) {
           let param = {};
           Object.assign(param, this.form);
           param.name = param.name.trim();
-          if (this.form.tags instanceof Array) {
-            this.form.tags = JSON.stringify(this.form.tags);
-          }
-          param.tags = this.form.tags;
           if (param.name === '') {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;
           }
-
-          if (!this.compareTime(new Date().getTime(), this.form.endTime)) {
-            return false;
+          if (this.form.tags instanceof Array) {
+            this.form.tags = JSON.stringify(this.form.tags);
           }
+          param.tags = this.form.tags;
           param.projectId = this.projectId;
           if (this.projectId) {
             saveOrUpdateTestCaseReview(this.operationType, param)
-              .then((response) => {
-                this.dialogFormVisible = false;
-                this.$router.push('/track/review/view/' + response.data.id);
-              });
+                .then((response) => {
+                  this.dialogFormVisible = false;
+                  this.$router.push('/track/review/view/' + response.data.id);
+                });
           }
         } else {
           return false;
         }
       });
     },
-
     saveReview() {
       this.$refs['reviewForm'].validate((valid) => {
         if (valid) {
           let param = {};
           Object.assign(param, this.form);
           param.name = param.name.trim();
-          if (this.form.tags instanceof Array) {
-            this.form.tags = JSON.stringify(this.form.tags);
-          }
-          param.tags = this.form.tags;
           if (param.name === '') {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;
           }
-
-          if (!this.compareTime(new Date().getTime(), this.form.endTime)) {
-            return false;
+          if (this.form.tags instanceof Array) {
+            this.form.tags = JSON.stringify(this.form.tags);
           }
-
+          param.tags = this.form.tags;
           param.projectId = this.projectId;
           if (this.projectId) {
             saveOrUpdateTestCaseReview(this.operationType, param)
-              .then(() => {
-                this.$success(this.$t('commons.save_success'));
-                this.dialogFormVisible = false;
-                this.$emit("refresh");
-              });
+                .then(() => {
+                  this.$success(this.$t('commons.save_success'));
+                  this.dialogFormVisible = false;
+                  this.$emit("refresh");
+                });
           }
         } else {
           return false;
@@ -266,9 +255,9 @@ export default {
     },
     setReviewerOptions() {
       getMaintainer()
-        .then((response) => {
-          this.reviewerOptions = response.data;
-        })
+          .then((response) => {
+            this.reviewerOptions = response.data;
+          })
     },
     statusChange(status) {
       this.form.status = status;
@@ -303,7 +292,7 @@ export default {
     },
     compareTime(ts1, ts2) {
       if (ts1 > ts2) {
-        this.$warning(i18n.t('test_track.review.deadline_cannot_early_tips'));
+        this.$error(i18n.t('test_track.review.deadline_cannot_early_tips'));
         return false;
       }
       return true;
