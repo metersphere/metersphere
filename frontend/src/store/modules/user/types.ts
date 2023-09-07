@@ -18,6 +18,4 @@ export interface UserState {
   role: RoleType;
   lastOrganizationId?: string;
   lastProjectId?: string;
-  // 盐
-  salt: string;
 }

@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onBeforeMount, onMounted, watchEffect } from 'vue';
+  import { computed, onBeforeMount, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
