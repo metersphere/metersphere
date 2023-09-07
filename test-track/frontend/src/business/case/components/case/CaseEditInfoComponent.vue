@@ -6,27 +6,27 @@
         <!-- 用例详情 -->
         <el-tab-pane :label="$t('case.use_case_detail')" name="detail">
           <div
-            class="tab-container"
-            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+              class="tab-container"
+              :class="{ 'comment-edit-tab-container': isCommentEdit }"
           >
             <el-scrollbar>
               <div class="content-container">
                 <case-detail-component
-                  :type="type"
-                  :case-id="caseId"
-                  :editable-state="editableState"
-                  :read-only="readOnly || !editable"
-                  :project-id="projectId"
-                  :is-copy="isCopy"
-                  :is-public-show="isPublicShow"
-                  :is-readonly-user="isReadonlyUser"
-                  :copy-case-id="copyCaseId"
-                  :isClickAttachmentTab="isClickAttachmentTab"
-                  :isTestPlan="isTestPlan"
-                  :editable="editable"
-                  :form="form"
-                  :richTextDefaultOpen="richTextDefaultOpen"
-                  :formLabelWidth="formLabelWidth"
+                    :type="type"
+                    :case-id="caseId"
+                    :editable-state="editableState"
+                    :read-only="readOnly || !editable"
+                    :project-id="projectId"
+                    :is-copy="isCopy"
+                    :is-public-show="isPublicShow"
+                    :is-readonly-user="isReadonlyUser"
+                    :copy-case-id="copyCaseId"
+                    :isClickAttachmentTab="isClickAttachmentTab"
+                    :isTestPlan="isTestPlan"
+                    :editable="editable"
+                    :form="form"
+                    :richTextDefaultOpen="richTextDefaultOpen"
+                    :formLabelWidth="formLabelWidth"
                 ></case-detail-component>
               </div>
             </el-scrollbar>
@@ -34,8 +34,8 @@
         </el-tab-pane>
         <!-- 关联用例 -->
         <el-tab-pane
-          :label="$t('case.associate_test_cases')"
-          name="associateTestCases"
+            :label="$t('case.associate_test_cases')"
+            name="associateTestCases"
         >
           <span slot="label">
             {{ $t('case.associate_test_cases') }}
@@ -44,17 +44,17 @@
             </div>
           </span>
           <div
-            class="tab-container"
-            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+              class="tab-container"
+              :class="{ 'comment-edit-tab-container': isCommentEdit }"
           >
             <el-scrollbar>
               <div class="content-container">
                 <case-test-relate
-                  @setCount="setRelateCaseCount"
-                  ref="relateTest"
-                  :case-id="caseId"
-                  :read-only="readOnly"
-                  :version-enable="versionEnable"
+                    @setCount="setRelateCaseCount"
+                    ref="relateTest"
+                    :case-id="caseId"
+                    :read-only="readOnly"
+                    :version-enable="versionEnable"
                 ></case-test-relate>
               </div>
             </el-scrollbar>
@@ -62,8 +62,9 @@
         </el-tab-pane>
         <!-- 关联缺陷 -->
         <el-tab-pane
-          :label="$t('test_track.case.relate_issue')"
-          name="associatedDefects"
+            :label="$t('test_track.case.relate_issue')"
+            name="associatedDefects"
+            v-if="hasPermissions('PROJECT_TRACK_ISSUE:READ')"
         >
           <span slot="label">
             {{ $t('test_track.case.relate_issue') }}
@@ -72,20 +73,20 @@
             </div>
           </span>
           <div
-            class="tab-container"
-            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+              class="tab-container"
+              :class="{ 'comment-edit-tab-container': isCommentEdit }"
           >
             <el-scrollbar>
               <div class="content-container">
                 <case-issue-relate
-                  @setCount="setRelateIssueCount"
-                  :plan-id="planId"
-                  :is-copy="isCopy"
-                  :copy-case-id="copyCaseId"
-                  :read-only="readOnly && !isTestPlan"
-                  :plan-case-id="planId ? this.form.id : null"
-                  :case-id="caseId"
-                  ref="issue"
+                    @setCount="setRelateIssueCount"
+                    :plan-id="planId"
+                    :is-copy="isCopy"
+                    :copy-case-id="copyCaseId"
+                    :read-only="(readOnly && !isTestPlan)"
+                    :plan-case-id="planId ? this.form.id : null"
+                    :case-id="caseId"
+                    ref="issue"
                 />
               </div>
             </el-scrollbar>
@@ -100,19 +101,19 @@
             </div>
           </span>
           <div
-            class="tab-container"
-            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+              class="tab-container"
+              :class="{ 'comment-edit-tab-container': isCommentEdit }"
           >
             <el-scrollbar>
               <div class="content-container">
                 <case-relationship-viewer
-                  @setCount="setRelationshipCount"
-                  :read-only="readOnly"
-                  :resource-id="caseId"
-                  @openDependGraphDrawer="setRelationshipGraph"
-                  :version-enable="versionEnable"
-                  resource-type="TEST_CASE"
-                  ref="relationship"
+                    @setCount="setRelationshipCount"
+                    :read-only="readOnly"
+                    :resource-id="caseId"
+                    @openDependGraphDrawer="setRelationshipGraph"
+                    :version-enable="versionEnable"
+                    resource-type="TEST_CASE"
+                    ref="relationship"
                 ></case-relationship-viewer>
               </div>
             </el-scrollbar>
@@ -127,16 +128,16 @@
             </div>
           </span>
           <div
-            class="tab-container"
-            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+              class="tab-container"
+              :class="{ 'comment-edit-tab-container': isCommentEdit }"
           >
             <el-scrollbar>
               <div class="content-container">
                 <case-comment-viewer
-                  :is-public-show="isPublicShow || isReadonlyUser"
-                  @getComments="getComments"
-                  :comments="comments"
-                  ref="commentRef"
+                    :is-public-show="isPublicShow || isReadonlyUser"
+                    @getComments="getComments"
+                    :comments="comments"
+                    ref="commentRef"
                 ></case-comment-viewer>
               </div>
             </el-scrollbar>
@@ -145,14 +146,14 @@
         <!-- 变更记录 -->
         <el-tab-pane :label="$t('case.change_record')" name="changeRecord">
           <div
-            class="tab-container"
-            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+              class="tab-container"
+              :class="{ 'comment-edit-tab-container': isCommentEdit }"
           >
             <el-scrollbar>
               <div class="content-container">
                 <case-change-history
-                  :case-id="caseId"
-                  ref="caseChangeHistoryRef"
+                    :case-id="caseId"
+                    ref="caseChangeHistoryRef"
                 ></case-change-history>
               </div>
             </el-scrollbar>
@@ -161,34 +162,34 @@
       </el-tabs>
       <div class="comment-common" v-if="!isPublicShow">
         <case-comment-component
-          :case-id="caseId"
-          :read-only="readOnly"
-          @stateChange="handleCommentStateChange"
-          @toggleCommentTab="toggleCommentTab"
-          @getComments="getComments"
+            :case-id="caseId"
+            :read-only="readOnly"
+            @stateChange="handleCommentStateChange"
+            @toggleCommentTab="toggleCommentTab"
+            @getComments="getComments"
         />
       </div>
     </div>
     <el-scrollbar>
       <div class="content-container editable-container" v-if="editable">
         <case-detail-component
-          :class="{ 'edit-component' : (editableState || editable) }"
-          :type="type"
-          :case-id="caseId"
-          :read-only="readOnly"
-          :project-id="projectId"
-          :is-copy="isCopy"
-          :copy-case-id="copyCaseId"
-          :isClickAttachmentTab="isClickAttachmentTab"
-          :isTestPlan="isTestPlan"
-          :is-public-show="isPublicShow"
-          :is-readonly-user="isReadonlyUser"
-          :editable="editable"
-          :editable-state="editableState"
-          :form="form"
-          :richTextDefaultOpen="richTextDefaultOpen"
-          :formLabelWidth="formLabelWidth"
-          ref="testCaseBaseInfo"
+            :class="{ 'edit-component' : (editableState || editable) }"
+            :type="type"
+            :case-id="caseId"
+            :read-only="readOnly"
+            :project-id="projectId"
+            :is-copy="isCopy"
+            :copy-case-id="copyCaseId"
+            :isClickAttachmentTab="isClickAttachmentTab"
+            :isTestPlan="isTestPlan"
+            :is-public-show="isPublicShow"
+            :is-readonly-user="isReadonlyUser"
+            :editable="editable"
+            :editable-state="editableState"
+            :form="form"
+            :richTextDefaultOpen="richTextDefaultOpen"
+            :formLabelWidth="formLabelWidth"
+            ref="testCaseBaseInfo"
         ></case-detail-component>
       </div>
     </el-scrollbar>
@@ -205,8 +206,10 @@ import CaseChangeHistory from "./CaseChangeHistory";
 import CaseIssueRelate from "./CaseIssueRelate";
 import CaseCommentComponent from "./CaseCommentComponent";
 import CaseCommentViewer from "./CaseCommentViewer";
-import { getRelationshipCountCase } from "@/api/testCase";
+import {getRelationshipCountCase} from "@/api/testCase";
 import TabPaneCount from "@/business/plan/view/comonents/report/detail/component/TabPaneCount";
+import {hasPermissions} from 'metersphere-frontend/src/utils/permission';
+
 export default {
   name: "CaseEditInfoComponent",
   components: {
@@ -297,6 +300,9 @@ export default {
     },
   },
   methods: {
+    hasPermissions(permission) {
+      return hasPermissions(permission);
+    },
     getUploadFiles() {
       if (this.$refs.testCaseBaseInfo) {
         return this.$refs.testCaseBaseInfo.getUploadFiles();
@@ -384,19 +390,19 @@ export default {
       }
     },
     getDemandOptions() {
-      this.result = { loading: true };
+      this.result = {loading: true};
       this.demandLabel = "";
       issueDemandList(this.projectId)
-        .then((r) => {
-          this.demandOptions = [];
-          if (r.data && r.data.length > 0) {
-            this.buildDemandCascaderOptions(r.data, this.demandOptions, []);
-          }
-          this.addOtherOption();
-        })
-        .catch(() => {
-          this.addOtherOption();
-        });
+          .then((r) => {
+            this.demandOptions = [];
+            if (r.data && r.data.length > 0) {
+              this.buildDemandCascaderOptions(r.data, this.demandOptions, []);
+            }
+            this.addOtherOption();
+          })
+          .catch(() => {
+            this.addOtherOption();
+          });
     },
     addOtherOption() {
       this.demandOptions.unshift({
@@ -408,7 +414,7 @@ export default {
         this.demandValue = ["other"];
         this.demandLabel = "Other: " + this.$t("test_track.case.other");
       }
-      this.result = { loading: false };
+      this.result = {loading: false};
     },
     buildDemandCascaderOptions(data, options, pathArray) {
       this.demandValue = [];
@@ -428,9 +434,9 @@ export default {
         if (item.children && item.children.length > 0) {
           option.children = [];
           this.buildDemandCascaderOptions(
-            item.children,
-            option.children,
-            pathArray
+              item.children,
+              option.children,
+              pathArray
           );
         }
         pathArray.pop();
@@ -438,8 +444,8 @@ export default {
     },
     filterDemand(node, keyword) {
       if (
-        keyword &&
-        node.text.toLowerCase().indexOf(keyword.toLowerCase()) !== -1
+          keyword &&
+          node.text.toLowerCase().indexOf(keyword.toLowerCase()) !== -1
       ) {
         return true;
       }
@@ -554,23 +560,28 @@ export default {
   :deep(.el-form-item__content) {
     line-height: px2rem(32);
   }
+
   .case-edit-box {
     width: px2rem(1328);
     min-height: px2rem(1001);
     /* margin-left: px2rem(34); */
     background-color: #fff;
+
     .edit-header-container {
       height: px2rem(56);
       width: 100%;
       border-bottom: 1px solid rgba(31, 35, 41, 0.15);
       display: flex;
       align-items: center;
+
       .header-content-row {
         display: flex;
+
         .back {
           margin-left: px2rem(24);
           width: px2rem(20);
           height: px2rem(20);
+
           img {
             width: 100%;
             height: 100%;
@@ -611,6 +622,7 @@ export default {
       height: 100%;
       display: flex;
       background-color: #fff;
+
       .required-item:after {
         content: "*";
         color: #f54a45;
@@ -621,14 +633,17 @@ export default {
         font-size: 14px;
         line-height: 22px;
       }
+
       .content-body-wrap {
         // 1024 减去左右padding 各24 和 1px右边框
         width: 100%;
         height: 100%;
+
         .case-title-wrap {
           display: flex;
           margin-top: px2rem(24);
           margin-bottom: px2rem(8);
+
           .title-wrap {
             font-family: "PingFang SC";
             font-style: normal;
@@ -637,28 +652,34 @@ export default {
             color: #1f2329;
           }
         }
+
         .content-container {
           padding-left: px2rem(24);
           padding-right: px2rem(24);
         }
+
         .comment-common {
           bottom: 0px;
           width: 100%;
         }
+
         //公共样式
         .content-wrap {
           :deep(.v-note-op) {
             background-color: #f8f9fa !important;
             border-bottom: 1px solid #bbbfc4;
           }
+
           :deep(.v-note-wrapper) {
             box-sizing: border-box;
             border-radius: 4px;
             box-shadow: none !important;
           }
+
           :deep(.v-note-show) {
             min-height: 65px;
           }
+
           :deep(.v-left-item) {
             flex: none !important;
           }
@@ -669,40 +690,48 @@ export default {
             display: flex;
             justify-content: center;
             width: 100%;
+
             .opt-row {
               width: 100%;
               height: 32px;
             }
           }
         }
+
         .pre-condition-row {
           .content-wrap {
             display: flex;
             justify-content: center;
             width: 100%;
             min-height: 100px;
+
             .opt-row {
               :deep(.el-form-item) {
                 margin: 0;
               }
+
               width: 100%;
             }
           }
         }
+
         .remark-row {
           .content-wrap {
             display: flex;
             justify-content: center;
             width: 100%;
             min-height: 100px;
+
             .opt-row {
               width: 100%;
+
               :deep(.el-form-item) {
                 margin: 0;
               }
             }
           }
         }
+
         .attachment-row {
           .attachment-name.case-title-wrap {
             .name.title-wrap {
@@ -731,12 +760,15 @@ export default {
         width: px2rem(304);
         min-height: px2rem(864);
         border-left: 1px solid rgba(31, 35, 41, 0.15);
+
         .case-wrap {
           margin-left: px2rem(24);
           margin-top: px2rem(24);
         }
+
         .case-title-wrap {
           display: flex;
+
           .title-wrap {
             font-weight: 500;
             height: 22px;
@@ -744,11 +776,14 @@ export default {
             line-height: 22px;
             color: #1f2329;
           }
+
           margin-bottom: px2rem(8);
         }
+
         .side-content {
           width: px2rem(256);
           height: 32px;
+
           :deep(.el-select) {
             width: 100%;
           }
@@ -774,14 +809,17 @@ export default {
         background: #783887;
         color: #ffffff;
       }
+
       .opt-disable-primary {
         background: #bbbfc4;
         color: #ffffff;
       }
+
       .opt-active {
         background: #ffffff;
         color: #1f2329;
       }
+
       .opt-disable {
         background: #ffffff;
         color: #bbbfc4;
@@ -789,18 +827,21 @@ export default {
 
       .save-btn-row {
         margin-left: px2rem(24);
+
         el-button {
         }
       }
 
       .save-add-pub-row {
         margin-left: px2rem(12);
+
         el-button {
         }
       }
 
       .save-create-row {
         margin-left: px2rem(12);
+
         el-button {
         }
       }

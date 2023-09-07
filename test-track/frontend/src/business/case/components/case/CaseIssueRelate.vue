@@ -8,25 +8,13 @@
             >{{ $t("case.associated_defect") }}
           </div>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>
-              <div
-                class="add-btn"
-                v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
-                :disabled="readOnly"
-                type="primary"
-                size="mini"
-                @click="addIssue"
-              >
+            <el-dropdown-item :disabled="!hasPermissions('PROJECT_TRACK_ISSUE:READ+CREATE')">
+              <div class="add-btn" type="primary" @click="addIssue">
                 {{ $t("case.create_defect") }}
               </div>
             </el-dropdown-item>
-            <el-dropdown-item>
-              <div
-                class="add-btn"
-                v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
-                :disabled="readOnly"
-                @click="relateIssue"
-              >
+            <el-dropdown-item :disabled="!hasPermissions('PROJECT_TRACK_ISSUE:READ+EDIT')">
+              <div class="add-btn" @click="relateIssue">
                 {{ $t("case.associate_existing_defects") }}
               </div>
             </el-dropdown-item>
@@ -35,69 +23,69 @@
       </div>
       <div class="search-right-row">
         <ms-new-ui-search
-          :condition.sync="condition"
-          @search="search"
-          :baseSearchTip="$t('case.search_by_id')"
+            :condition.sync="condition"
+            @search="search"
+            :baseSearchTip="$t('case.search_by_id')"
         />
       </div>
     </div>
     <div class="table-data">
       <ms-table
-        v-loading="page.result.loading"
-        :show-select-all="false"
-        :data="page.data"
-        :fields.sync="fields"
-        :operators="operators"
-        :enable-selection="false"
-        :enable-max-height="false"
-        :max-height="'calc(100vh)'"
-        ref="table"
-        @refresh="getIssues"
+          v-loading="page.result.loading"
+          :show-select-all="false"
+          :data="page.data"
+          :fields.sync="fields"
+          :operators="operators"
+          :enable-selection="false"
+          :enable-max-height="false"
+          :max-height="'calc(100vh)'"
+          ref="table"
+          @refresh="getIssues"
       >
         <span v-for="item in fields" :key="item.key">
           <ms-table-column
-            :label="$t('test_track.issue.id')"
-            :field="item"
-            prop="id"
-            v-if="false"
+              :label="$t('test_track.issue.id')"
+              :field="item"
+              prop="id"
+              v-if="false"
           >
           </ms-table-column>
           <ms-table-column
-            :field="item"
-            :label="$t('ID')"
-            :sortable="true"
-            prop="num"
-          >
-          </ms-table-column>
-
-          <ms-table-column
-            :field="item"
-            :sortable="true"
-            :label="$t('test_track.issue.title')"
-            prop="title"
+              :field="item"
+              :label="$t('ID')"
+              :sortable="true"
+              prop="num"
           >
           </ms-table-column>
 
           <ms-table-column
-            :label="$t('test_track.issue.platform_status')"
-            :field="item"
-            v-if="isThirdPart"
-            prop="platformStatus"
+              :field="item"
+              :sortable="true"
+              :label="$t('test_track.issue.title')"
+              prop="title"
+          >
+          </ms-table-column>
+
+          <ms-table-column
+              :label="$t('test_track.issue.platform_status')"
+              :field="item"
+              v-if="isThirdPart"
+              prop="platformStatus"
           >
             <template v-slot="scope">
               <span v-if="item.id === 'platformStatus'">
                 <span v-if="scope.row.platform === 'Tapd'">
                   {{
                     scope.row.platformStatus
-                      ? tapdIssueStatusMap[scope.row.platformStatus]
-                      : "--"
+                        ? tapdIssueStatusMap[scope.row.platformStatus]
+                        : "--"
                   }}
                 </span>
                 <span v-else-if="scope.row.platform === 'Local'">
                   {{ "--" }}
                 </span>
                 <span
-                  v-else-if="
+                    v-else-if="
                     platformStatusMap &&
                     platformStatusMap.get(scope.row.platformStatus)
                   "
@@ -115,29 +103,29 @@
 
           <span v-for="field in issueTemplate.customFields" :key="field.id">
             <ms-table-column
-              :field="item"
-              :label="field.name"
-              :prop="field.name"
-              v-if="field.name === '状态'"
+                :field="item"
+                :label="field.name"
+                :prop="field.name"
+                v-if="field.name === '状态'"
             >
               <template v-slot="scope">
                 <el-dropdown
-                  class="test-case-status"
-                  @command="statusChange"
-                  placement="bottom"
-                  trigger="click"
+                    class="test-case-status"
+                    @command="statusChange"
+                    placement="bottom"
+                    trigger="click"
                 >
                   <span class="el-dropdown-link">
                     {{
                       getCustomFieldValue(scope.row, field)
-                        ? getCustomFieldValue(scope.row, field)
-                        : issueStatusMap[scope.row.status]
+                          ? getCustomFieldValue(scope.row, field)
+                          : issueStatusMap[scope.row.status]
                     }}
                   </span>
                   <el-dropdown-menu slot="dropdown" chang>
                     <span v-for="(item, index) in status" :key="index">
                       <el-dropdown-item
-                        :command="{ id: scope.row.id, status: item.value }"
+                          :command="{ id: scope.row.id, status: item.value }"
                       >
                         {{ item.system ? $t(item.text) : item.text }}
                       </el-dropdown-item>
@@ -149,38 +137,38 @@
           </span>
 
           <ms-table-column
-            :field="item"
-            :label="$t('test_track.issue.platform')"
-            prop="platform"
+              :field="item"
+              :label="$t('test_track.issue.platform')"
+              prop="platform"
           >
           </ms-table-column>
 
           <ms-table-column
-            :field="item"
-            :label="$t('test_track.review.creator')"
-            prop="creatorName"
+              :field="item"
+              :label="$t('test_track.review.creator')"
+              prop="creatorName"
           >
           </ms-table-column>
 
-          <issue-description-table-item :field="item" />
+          <issue-description-table-item :field="item"/>
         </span>
       </ms-table>
     </div>
 
     <test-plan-issue-edit
-      :plan-case-id="planCaseId"
-      :plan-id="planId"
-      :case-id="caseId"
-      @refresh="getIssues"
-      ref="issueEdit"
+        :plan-case-id="planCaseId"
+        :plan-id="planId"
+        :case-id="caseId"
+        @refresh="getIssues"
+        ref="issueEdit"
     />
 
     <IssueRelateList
-      :plan-case-id="planCaseId"
-      :case-id="caseId"
-      :not-in-ids="notInIds"
-      @refresh="getIssues"
-      ref="issueRelate"
+        :plan-case-id="planCaseId"
+        :case-id="caseId"
+        :not-in-ids="notInIds"
+        @refresh="getIssues"
+        ref="issueRelate"
     />
   </div>
 </template>
@@ -191,10 +179,7 @@ import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import HomePagination from "@/business/home/components/pagination/HomePagination";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
-import {
-  ISSUE_STATUS_MAP,
-  TAPD_ISSUE_STATUS_MAP,
-} from "metersphere-frontend/src/utils/table-constants";
+import {ISSUE_STATUS_MAP, TAPD_ISSUE_STATUS_MAP,} from "metersphere-frontend/src/utils/table-constants";
 import IssueRelateList from "./CaseIssueRelateList";
 import {
   buildIssues,
@@ -207,16 +192,11 @@ import {
   like,
   parseFields,
 } from "@/api/issue";
-import {
-  getCustomFieldValue,
-  getTableHeaderWithCustomFields,
-} from "metersphere-frontend/src/utils/tableUtils";
-import { LOCAL } from "metersphere-frontend/src/utils/constants";
-import {
-  getCurrentProjectID,
-  getCurrentWorkspaceId,
-} from "metersphere-frontend/src/utils/token";
+import {getCustomFieldValue, getTableHeaderWithCustomFields,} from "metersphere-frontend/src/utils/tableUtils";
+import {LOCAL} from "metersphere-frontend/src/utils/constants";
+import {getCurrentProjectID, getCurrentWorkspaceId,} from "metersphere-frontend/src/utils/token";
 import MsNewUiSearch from "metersphere-frontend/src/components/new-ui/MsSearch";
+import {hasPermissions} from 'metersphere-frontend/src/utils/permission';
 
 export default {
   name: "CaseIssueRelate",
@@ -294,8 +274,8 @@ export default {
         }
       }
       this.fields = getTableHeaderWithCustomFields(
-        "ISSUE_LIST",
-        this.issueTemplate.customFields
+          "ISSUE_LIST",
+          this.issueTemplate.customFields
       );
       if (!this.isThirdPart) {
         for (let i = 0; i < this.fields.length; i++) {
@@ -326,6 +306,9 @@ export default {
     });
   },
   methods: {
+    hasPermissions(permission) {
+      return hasPermissions(permission);
+    },
     search() {
       this.getIssues();
     },
@@ -342,14 +325,14 @@ export default {
       if (!this.isCopy) {
         this.page.result = true;
         let result = getIssuesByCaseIdWithSearch(
-          this.planId ? "PLAN_FUNCTIONAL" : "FUNCTIONAL",
-          this.getCaseResourceId()
+            this.planId ? "PLAN_FUNCTIONAL" : "FUNCTIONAL",
+            this.getCaseResourceId()
         ).then((response) => {
           if (this.condition && this.condition.name && response.data) {
             //过滤
             this.page.data = response.data.filter((v) => {
               return (
-                like(condition.name, v.title) || like(condition.name, v.num)
+                  like(condition.name, v.title) || like(condition.name, v.num)
               );
             });
           } else {
@@ -401,31 +384,31 @@ export default {
     },
     deleteIssue(row) {
       this.$confirm(
-        this.$t("test_track.issue.delete_warning"),
-        this.$t("case.cancel_relate_case_tips_title"),
-        {
-          cancelButtonText: this.$t("commons.cancel"),
-          confirmButtonText: this.$t("commons.confirm"),
-          callback: (action) => {
-            if (action === "confirm") {
-              this.page.result.loading = true;
-              deleteIssueRelate({
-                id: row.id,
-                caseResourceId: this.getCaseResourceId(),
-                isPlanEdit: this.planId ? true : false,
-                projectId: this.projectId,
-                workspaceId: getCurrentWorkspaceId(),
-              }).then(() => {
-                this.page.result.loading = false;
-                this.getIssues();
-                this.$success(
-                  this.$t("test_track.cancel_relevance_success"),
-                  false
-                );
-              });
-            }
-          },
-        }
+          this.$t("test_track.issue.delete_warning"),
+          this.$t("case.cancel_relate_case_tips_title"),
+          {
+            cancelButtonText: this.$t("commons.cancel"),
+            confirmButtonText: this.$t("commons.confirm"),
+            callback: (action) => {
+              if (action === "confirm") {
+                this.page.result.loading = true;
+                deleteIssueRelate({
+                  id: row.id,
+                  caseResourceId: this.getCaseResourceId(),
+                  isPlanEdit: this.planId ? true : false,
+                  projectId: this.projectId,
+                  workspaceId: getCurrentWorkspaceId(),
+                }).then(() => {
+                  this.page.result.loading = false;
+                  this.getIssues();
+                  this.$success(
+                      this.$t("test_track.cancel_relevance_success"),
+                      false
+                  );
+                });
+              }
+            },
+          }
       );
     },
   },
