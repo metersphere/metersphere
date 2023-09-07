@@ -8,12 +8,12 @@ import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.TableBatchProcessDTO;
 import io.metersphere.sdk.dto.builder.LogDTOBuilder;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
@@ -56,7 +56,7 @@ public class UserLogService {
                     .type(OperationLogType.ADD.name())
                     .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
                     .method(HttpMethodConstants.POST.name())
-                    .path("/addUser")
+                    .path("/system/user/addUser")
                     .sourceId(user.getId())
                     .content(user.getName() + "(" + user.getEmail() + ")")
                     .originalValue(JSON.toJSONBytes(user))
@@ -76,7 +76,7 @@ public class UserLogService {
                     .type(OperationLogType.UPDATE.name())
                     .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
                     .method(HttpMethodConstants.POST.name())
-                    .path("/update")
+                    .path("/system/user/update")
                     .sourceId(request.getId())
                     .content(user.getName())
                     .originalValue(JSON.toJSONBytes(user))
@@ -98,7 +98,7 @@ public class UserLogService {
                     .type(OperationLogType.UPDATE.name())
                     .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
                     .method(HttpMethodConstants.POST.name())
-                    .path("/update/enable")
+                    .path("/system/user/update/enable")
                     .sourceId(user.getId())
                     .content((request.isEnable() ? Translator.get("user.enable") : Translator.get("user.disable")) + ":" + user.getName())
                     .originalValue(JSON.toJSONBytes(user))
@@ -122,7 +122,7 @@ public class UserLogService {
                     .type(OperationLogType.UPDATE.name())
                     .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
                     .method(HttpMethodConstants.POST.name())
-                    .path("/reset/password")
+                    .path("/system/user/reset/password")
                     .sourceId(user.getId())
                     .content(Translator.get("user.reset.password") + " : " + user.getName())
                     .originalValue(JSON.toJSONBytes(user))
@@ -144,7 +144,7 @@ public class UserLogService {
                         .type(OperationLogType.DELETE.name())
                         .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
                         .method(HttpMethodConstants.POST.name())
-                        .path("/delete")
+                        .path("/system/user/delete")
                         .sourceId(user.getId())
                         .content(Translator.get("user.delete") + " : " + user.getName())
                         .originalValue(JSON.toJSONBytes(user))

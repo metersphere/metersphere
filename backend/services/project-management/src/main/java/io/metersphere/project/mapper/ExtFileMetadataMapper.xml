@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.project.mapper.ExtFileMetadataMapper">
+    <select id="selectByKeywordAndFileType" resultType="io.metersphere.project.domain.FileMetadata">
+        SELECT
+        f.id,
+        <if test="isRefId">
+            f.ref_id
+        </if>
+        <if test="!isRefId">
+            f.name,
+            f.type,
+            f.tags,
+            f.description,
+            u.name as update_user,
+            f.update_time,
+            f.path,
+            f.project_id,
+            f.size,
+            f.storage
+        </if>
+        FROM file_metadata f
+        INNER JOIN user u ON f.update_user = u.id
+        WHERE latest = true
+        AND f.project_id = #{projectId}
+        <if test="keyword != null and keyword != ''">
+            AND f.name = #{keyword}
+        </if>
+        <if test="moduleIds != null and moduleIds.size() != 0">
+            AND f.module_id IN
+            <foreach collection="moduleIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="fileTypes != null and fileTypes.size() != 0 ">
+            AND f.type IN
+            <foreach collection="fileTypes" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="selectIdByRefIdList" resultType="java.lang.String">
+        SELECT id FROM file_metadata WHERE ref_id IN
+        <foreach collection="refIdList" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectDeleteFileInfoByIds" resultType="io.metersphere.project.domain.FileMetadata">
+        SELECT
+            f.id,
+            f.project_id,
+            f.storage
+        FROM  file_metadata f WHERE f.id IN
+        <foreach collection="ids" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="countModuleIdByKeywordAndFileType" resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT f.module_id AS moduleId, count(f.id) AS dataCount
+        FROM file_metadata f
+        INNER JOIN user u ON f.update_user = u.id
+        WHERE latest = true
+        AND f.project_id = #{projectId}
+        <if test="keyword != null and keyword != ''">
+            AND f.name = #{keyword}
+        </if>
+        <if test="moduleIds != null and moduleIds.size() != 0">
+            AND f.module_id IN
+            <foreach collection="moduleIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="fileTypes != null and fileTypes.size() != 0 ">
+            AND f.type IN
+            <foreach collection="fileTypes" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY f.module_id
+    </select>
+    <select id="selectRefIdByIds" resultType="io.metersphere.project.domain.FileMetadata">
+        SELECT DISTINCT f.ref_id FROM file_metadata f
+        WHERE
+        f.id IN
+        <foreach collection="fileIds" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectDeleteFileInfoByRefIdList" resultType="io.metersphere.project.domain.FileMetadata">
+        SELECT
+        f.id,
+        f.project_id,
+        f.storage
+        FROM file_metadata f WHERE f.ref_id IN
+        <foreach collection="refIdList" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectRefIdByModuleIds" resultType="io.metersphere.project.domain.FileMetadata">
+        SELECT
+        f.ref_id
+        FROM file_metadata f
+        WHERE f.module_id IN
+        <foreach collection="moduleIds" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+</mapper>

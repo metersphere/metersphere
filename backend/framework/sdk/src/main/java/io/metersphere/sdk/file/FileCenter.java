@@ -17,6 +17,16 @@ public class FileCenter {
         return fileRepository == null ? getDefaultRepository() : fileRepository;
     }
 
+    public static FileRepository getRepository(String storage) {
+        Map<String, StorageType> storageTypeMap = new HashMap<>() {{
+            put(StorageType.MINIO.name(), StorageType.MINIO);
+            put(StorageType.LOCAL.name(), StorageType.LOCAL);
+            put(StorageType.GIT.name(), StorageType.GIT);
+        }};
+
+        return getRepository(storageTypeMap.get(storage.toUpperCase()));
+    }
+
     public static FileRepository getDefaultRepository() {
         return CommonBeanFactory.getBean(MinioRepository.class);
     }

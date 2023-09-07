@@ -226,6 +226,7 @@ public class UserControllerTests extends BaseTest {
         Assertions.assertNotNull(returnPager);
         //返回值的页码和当前页码相同
         Assertions.assertEquals(returnPager.getCurrent(), basePageRequest.getCurrent());
+        Assertions.assertEquals(returnPager.getPageSize(), basePageRequest.getPageSize());
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(returnPager.getList())).size() <= basePageRequest.getPageSize());
         List<UserTableResponse> userList = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserTableResponse.class);
@@ -244,6 +245,7 @@ public class UserControllerTests extends BaseTest {
         Assertions.assertNotNull(returnPager);
         //返回值的页码和当前页码相同
         Assertions.assertEquals(returnPager.getCurrent(), basePageRequest.getCurrent());
+        Assertions.assertEquals(returnPager.getPageSize(), basePageRequest.getPageSize());
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(returnPager.getList())).size() <= basePageRequest.getPageSize());
         //用户组不存在非全局用户组
@@ -282,6 +284,7 @@ public class UserControllerTests extends BaseTest {
         Assertions.assertNotNull(returnPager);
         //返回值的页码和当前页码相同
         Assertions.assertEquals(returnPager.getTotal(), 0);
+        Assertions.assertEquals(returnPager.getPageSize(), basePageRequest.getPageSize());
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertEquals(0, JSON.parseArray(JSON.toJSONString(returnPager.getList())).size());
     }

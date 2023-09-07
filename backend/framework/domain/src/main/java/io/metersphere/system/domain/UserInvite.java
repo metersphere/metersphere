@@ -1,35 +1,39 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class UserInvite implements Serializable {
-    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_invite.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_invite.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "邀请邮箱", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "邀请邮箱", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_invite.email.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{user_invite.email.length_range}", groups = {Created.class, Updated.class})
     private String email;
 
-    @Schema(title = "邀请用户", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "邀请用户", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_invite.invite_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user_invite.invite_user.length_range}", groups = {Created.class, Updated.class})
     private String inviteUser;
 
-    @Schema(title = "邀请时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "邀请时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{user_invite.invite_time.not_blank}", groups = {Created.class})
     private Long inviteTime;
 
-    @Schema(title = "所属权限")
+    @Schema(description = "所属权限")
     private String roles;
 
     private static final long serialVersionUID = 1L;

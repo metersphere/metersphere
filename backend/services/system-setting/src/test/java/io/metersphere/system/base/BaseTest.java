@@ -224,11 +224,12 @@ public abstract class BaseTest {
                         File file = (File) o;
                         multipartFile = new MockMultipartFile(key, file.getName(),
                                 MediaType.APPLICATION_OCTET_STREAM_VALUE, Files.readAllBytes(file.toPath()));
+                    } else if (o instanceof MockMultipartFile) {
+                        multipartFile = (MockMultipartFile) o;
                     } else {
                         multipartFile = new MockMultipartFile(key, null,
                                 MediaType.APPLICATION_JSON_VALUE, o.toString().getBytes());
                     }
-
                     requestBuilder.file(multipartFile);
                 } catch (IOException e) {
                     throw new RuntimeException(e);

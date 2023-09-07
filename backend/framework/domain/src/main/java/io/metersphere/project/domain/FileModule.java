@@ -1,49 +1,52 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class FileModule implements Serializable {
-    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_module.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{file_module.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_module.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{file_module.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description =  "模块名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "模块名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_module.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{file_module.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description =  "父级ID")
+    @Schema(description = "父级ID")
     private String parentId;
 
-    @Schema(description =  "层数")
-    private Integer level;
-
-    @Schema(description =  "创建时间")
+    @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "更新时间")
+    @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description =  "排序用的标识")
-    private Double pos;
+    @Schema(description = "排序用的标识")
+    private Integer pos;
 
-    @Schema(description =  "创建人")
+    @Schema(description = "修改人")
+    private String updateUser;
+
+    @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description =  "模块类型: module/repository")
+    @Schema(description = "模块类型: module/repository")
     private String moduleType;
 
     private static final long serialVersionUID = 1L;
@@ -53,10 +56,10 @@ public class FileModule implements Serializable {
         projectId("project_id", "projectId", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
         parentId("parent_id", "parentId", "VARCHAR", false),
-        level("level", "level", "INTEGER", true),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        pos("pos", "pos", "DOUBLE", false),
+        pos("pos", "pos", "INTEGER", false),
+        updateUser("update_user", "updateUser", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         moduleType("module_type", "moduleType", "VARCHAR", false);
 

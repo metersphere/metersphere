@@ -185,4 +185,20 @@ public class PermissionConstants {
     public static final String PROJECT_VERSION_READ_UPDATE = "PROJECT_VERSION:READ+UPDATE";
     public static final String PROJECT_VERSION_READ_DELETE = "PROJECT_VERSION:READ+DELETE";
     /*------ end: PROJECT_VERSION ------*/
+
+
+
+    /**
+     * 文件模块树
+     * 查看文件：    项目管理-文件管理-查询权限
+     * 添加文件：    项目管理-文件管理-创建权限
+     * 编辑文件：    项目管理-文件管理-编辑权限
+     * 下载文件：    项目管理-文件管理-下载权限
+     * 删除文件：    项目管理-文件管理-删除权限
+     */
+    public static final String PROJECT_FILE_MANAGEMENT_READ = "PROJECT_FILE_MANAGEMENT:READ";
+    public static final String PROJECT_FILE_MANAGEMENT_READ_ADD = "PROJECT_FILE_MANAGEMENT:READ+ADD";
+    public static final String PROJECT_FILE_MANAGEMENT_READ_UPDATE = "PROJECT_FILE_MANAGEMENT:READ+UPDATE";
+    public static final String PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD = "PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD";
+    public static final String PROJECT_FILE_MANAGEMENT_READ_DELETE = "PROJECT_FILE_MANAGEMENT:READ+DELETE";
 }
