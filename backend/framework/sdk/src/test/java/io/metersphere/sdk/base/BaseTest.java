@@ -79,8 +79,8 @@ public abstract class BaseTest {
     protected static final String DEFAULT_UPDATE = "update";
     protected static final String DEFAULT_DELETE = "delete/{0}";
     protected static final String DEFAULT_USER_PASSWORD = "metersphere";
-    protected static final String DEFAULT_PROJECT_ID = "default_project";
-    protected static final String DEFAULT_ORGANIZATION_ID = "default_organization";
+    protected static final String DEFAULT_PROJECT_ID = "100001100001";
+    protected static final String DEFAULT_ORGANIZATION_ID = "100001";
 
     /**
      * 可以重写该方法定义 BASE_PATH

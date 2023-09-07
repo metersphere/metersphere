@@ -2,9 +2,9 @@
 SET SESSION innodb_lock_wait_timeout = 7200;
 
 -- 初始化组织
-INSERT INTO organization (id, num, name, description, create_user, update_user, create_time, update_time) VALUES ('default_organization', 100001, '默认组织', '系统默认创建的组织', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+INSERT INTO organization (id, num, name, description, create_user, update_user, create_time, update_time) VALUES ('100001', 100001, '默认组织', '系统默认创建的组织', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 -- 初始化项目
-INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES ('default_project', 100001, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES ('100001100001', 100001, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 
 -- 初始化用户
 insert into user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source, last_project_id, create_user, update_user,deleted)
@@ -107,7 +107,7 @@ INSERT INTO test_resource_pool_blob (id, configuration) VALUES ('a6374438-80fc-4
 
 -- 初始化内置自定义字段和模板
 INSERT INTO custom_field(id, name, scene, `type`, remark, internal, scope_type, create_time, update_time, create_user, scope_id)
-VALUES(uuid(), 'functional_priority', 'FUNCTIONAL', 'SELECT', '', 1, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'default_organization');
+VALUES(uuid(), 'functional_priority', 'FUNCTIONAL', 'SELECT', '', 1, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', '100001');
 INSERT INTO custom_field_option (field_id,value,`text`,internal)
 VALUES ((select id from custom_field where name = 'functional_priority'), 'P0', 'P0', 1);
 INSERT INTO custom_field_option (field_id,value,`text`,internal)
@@ -118,14 +118,14 @@ INSERT INTO custom_field_option (field_id,value,`text`,internal)
 VALUES ((select id from custom_field where name = 'functional_priority'), 'P3', 'P3', 1);
 
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part,scene)
-VALUES (uuid(), 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'ORGANIZATION', 'default_organization', 0, 'FUNCTIONAL');
+VALUES (uuid(), 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'ORGANIZATION', '100001', 0, 'FUNCTIONAL');
 INSERT INTO template_custom_field(id, field_id, template_id, required, pos, api_field_id, default_value)
 VALUES(uuid(), (select id from custom_field where name = 'functional_priority'), (select id from template where name = 'functional_default'), 1, 0, NULL, NULL);
 
 
 -- 初始化内置消息机器人
-Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), 'default_project', '站内信', 'IN_SITE', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
-Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), 'default_project', '邮件', 'MAIL', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
+Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), '100001100001', '站内信', 'IN_SITE', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
+Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), '100001100001', '邮件', 'MAIL', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
