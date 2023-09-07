@@ -5,16 +5,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.AddProjectRequest;
-import io.metersphere.sdk.dto.ProjectDTO;
-import io.metersphere.sdk.dto.ProjectExtendDTO;
-import io.metersphere.sdk.dto.UpdateProjectRequest;
+import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
-import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.request.OrganizationProjectRequest;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
@@ -145,15 +141,18 @@ public class OrganizationProjectController {
     @GetMapping("/user-admin-list/{organizationId}")
     @Operation(summary = "系统设置-组织-项目-获取管理员列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
-    public List<UserExtend> getUserAdminList(@PathVariable String organizationId) {
-        return organizationProjectService.getUserAdminList(organizationId);
+    public List<UserExtend> getUserAdminList(@PathVariable String organizationId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
+    @RequestParam(value = "keyword", required = false) String keyword) {
+        return organizationProjectService.getUserAdminList(organizationId, keyword);
     }
 
     @GetMapping("/user-member-list/{organizationId}/{projectId}")
     @Operation(summary = "系统设置-组织-项目-获取成员列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
-    public List<UserExtend> getUserMemberList(@PathVariable String organizationId, @PathVariable String projectId) {
-        return organizationProjectService.getUserMemberList(organizationId, projectId);
+    public List<UserExtend> getUserMemberList(@PathVariable String organizationId, @PathVariable String projectId,
+                                              @Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                              @RequestParam(value = "keyword", required = false) String keyword) {
+        return organizationProjectService.getUserMemberList(organizationId, projectId, keyword);
     }
 
 }

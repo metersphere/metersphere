@@ -37,7 +37,7 @@
             :disabled="!isXpack"
             allow-search
             :options="affiliatedOrgOption"
-            :default-value="isXpack ? '' : 'default_organization'"
+            :default-value="isXpack ? '' : '100001'"
             :placeholder="t('system.project.affiliatedOrgPlaceholder')"
             :field-names="{ label: 'name', value: 'id' }"
           >
