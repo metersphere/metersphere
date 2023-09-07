@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS project
     `delete_time`     BIGINT       COMMENT '删除时间',
     `deleted`         BIT          NOT NULL DEFAULT 0 COMMENT '是否删除',
     `delete_user`     VARCHAR(50) COMMENT '删除人',
-    `enable`          BIT COMMENT '是否启用',
+    `enable`          BIT          NOT NULL DEFAULT 1 COMMENT '是否启用',
     `module_setting`  VARCHAR(255)    COMMENT '模块设置' ,
     PRIMARY KEY (id),
     CONSTRAINT idx_num UNIQUE (num)
