@@ -10,15 +10,11 @@ import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ShareInfoDTO;
 import io.metersphere.service.ShareInfoService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 /**
@@ -37,6 +33,11 @@ public class ShareController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiDocumentInfoDTO>> list(@RequestBody ApiDocumentRequest apiDocumentRequest, @PathVariable int goPage, @PathVariable int pageSize) {
         return shareInfoService.selectApiInfoByParam(apiDocumentRequest, goPage, pageSize);
+    }
+
+    @PostMapping("/doc/export/{goPage}/{pageSize}/{lang}")
+    public void exportPageHtml(@RequestBody ApiDocumentRequest apiDocumentRequest, @PathVariable int goPage, @PathVariable int pageSize, @PathVariable String lang, HttpServletResponse response) {
+        shareInfoService.exportPageDoc(apiDocumentRequest, goPage, pageSize, response);
     }
 
     @GetMapping("/get/{id}")

@@ -8,6 +8,13 @@
         </div>
         <i class="el-icon-share" slot="reference" style="margin-right: 10px; cursor: pointer"></i>
       </el-popover>
+      <el-tooltip :content="$t('commons.export')" placement="top">
+        <i
+          class="el-icon-download"
+          @click="handleExportHtml()"
+          style="margin-right: 5px; cursor: pointer; font-size: 20px" />
+      </el-tooltip>
+
       {{ apiInfo.name }}
       <span class="apiStatusTag">
         <api-status :value="apiInfo.status" />
@@ -171,6 +178,9 @@ export default {
   computed: {},
   watch: {},
   methods: {
+    handleExportHtml() {
+      this.$emit('handleExportHtml', this.apiInfo.id);
+    },
     isArrayHasData(arrayData) {
       if (!arrayData) {
         return false;

@@ -32,11 +32,14 @@ function documentUse(id, template) {
   Vue.use(icons);
   Vue.use(plugins);
 
-  new Vue({
-    el: id,
-    i18n,
-    render: (h) => h(template),
-  });
+  setTimeout(() => {
+    new Vue({
+      el: id,
+      i18n,
+      render: (h) => h(template),
+    });
+    // 不延迟页面渲染不出来
+  }, 5000);
 }
 
 export default documentUse;

@@ -80,14 +80,15 @@
           <el-row
             v-else
             style="
-              margin-top: 0px;
+              margin-top: 5px;
               position: fixed;
               float: right;
               margin-right: 0px;
               margin-left: 400px;
               top: 90px;
               right: 40px;
-            ">
+            "
+            v-show="!isTemplate">
             <el-select
               size="small"
               :placeholder="$t('api_test.definition.document.order')"
@@ -159,6 +160,13 @@
               :project-id="projectId"
               :share-url="batchShareUrl"
               style="float: right; margin: 6px; font-size: 17px" />
+
+            <el-tooltip :content="$t('commons.export')" placement="top" v-xpack>
+              <i
+                class="el-icon-download"
+                @click="handleExportHtml()"
+                style="margin-top: 5px; font-size: 20px; cursor: pointer" />
+            </el-tooltip>
           </el-row>
           <el-divider></el-divider>
           <!--   展示区域     -->
@@ -168,6 +176,7 @@
               :key="apiInfo.id"
               :api-info="apiInfo"
               :project-id="projectId"
+              @handleExportHtml="handleExportHtml"
               ref="apiDocInfoDivItem" />
           </div>
         </el-main>
@@ -198,7 +207,8 @@
       :page-sizes="[10, 20, 50]"
       :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
+      :total="total"
+      v-show="!isTemplate">
     </el-pagination>
   </div>
 </template>
@@ -210,6 +220,8 @@ import ApiStatus from '@/business/definition/components/list/ApiStatus';
 import MsJsonCodeEdit from '@/business/commons/json-schema/JsonSchemaEditor';
 import { generateApiDocumentShareInfo, documentShareUrl, selectApiInfoByParam } from '@/api/share';
 import ApiInformation from '@/business/definition/components/document/components/ApiInformation';
+import { getCurrentUser } from 'metersphere-frontend/src/utils/token';
+import { request } from 'metersphere-frontend/src/plugins/request';
 
 export default {
   name: 'ApiDocumentAnchor',
@@ -271,6 +283,10 @@ export default {
     moduleIds: Array,
     sharePage: Boolean,
     pageHeaderHeight: Number,
+    isTemplate: {
+      type: Boolean,
+      default: false,
+    },
     trashEnable: {
       type: Boolean,
       default: false,
@@ -322,6 +338,70 @@ export default {
     },
   },
   methods: {
+    fileDownload(url, param) {
+      let config = {
+        url: url,
+        method: 'post',
+        data: param,
+        responseType: 'blob',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      };
+      request(config).then(
+        (response) => {
+          let link = document.createElement('a');
+          link.href = window.URL.createObjectURL(
+            new Blob([response.data], {
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8',
+            })
+          );
+          link.download = 'api-doc.html';
+          this.result = false;
+          link.click();
+        },
+        (error) => {
+          this.result = false;
+          if (error.response && error.response.status === 509) {
+            let reader = new FileReader();
+            reader.onload = function (event) {
+              let content = reader.result;
+              $error(content);
+            };
+            reader.readAsText(error.response.data);
+          } else {
+            $error('导出doc文件失败');
+          }
+        }
+      );
+    },
+    handleExportHtml(id) {
+      let url = '/share/doc/export/' + this.currentPage + '/' + this.pageSize;
+      let lang = 'zh_CN';
+      let user = getCurrentUser();
+      if (user && user.language) {
+        lang = user.language;
+      }
+      url = url + '/' + lang;
+      this.loading = true;
+      let simpleRequest = this.apiSearch;
+      if (this.projectId != null && this.projectId !== '') {
+        simpleRequest.projectId = this.projectId;
+      }
+      if (this.documentId != null && this.documentId !== '') {
+        simpleRequest.shareId = this.documentId;
+      }
+      if (this.moduleIds.length > 0) {
+        simpleRequest.moduleIds = this.moduleIds;
+      } else {
+        simpleRequest.moduleIds = [];
+      }
+      simpleRequest.apiIdList = [];
+      if (id) {
+        simpleRequest.apiIdList = [id];
+      }
+      simpleRequest.versionId = this.versionId;
+      simpleRequest.trashEnable = this.trashEnable;
+      this.fileDownload(url, simpleRequest);
+    },
     handleSizeChange(val) {
       this.pageSize = val;
       this.initApiDocSimpleList();
@@ -333,34 +413,40 @@ export default {
     changeFixed(clientHeight) {
       if (this.$refs.apiDocInfoDiv) {
         let countPageHeight = 210;
-        if (this.pageHeaderHeight != 0 && this.pageHeaderHeight != null) {
+        if (this.pageHeaderHeight && this.pageHeaderHeight !== 0) {
           countPageHeight = this.pageHeaderHeight;
         }
-        this.$refs.apiDocInfoDiv.style.height = clientHeight - countPageHeight + 'px';
+        if (this.isTemplate) {
+          this.$refs.apiDocInfoDiv.style.height = clientHeight - 50 + 'px';
+          this.$refs.apiDocList.style.height = clientHeight - 50 + 'px';
+        } else {
+          this.$refs.apiDocInfoDiv.style.height = clientHeight - countPageHeight + 'px';
+          this.$refs.apiDocList.style.height = clientHeight - countPageHeight + 'px';
+        }
         this.$refs.apiDocInfoDiv.style.overflow = 'auto';
-        this.$refs.apiDocList.style.height = clientHeight - countPageHeight + 'px';
       }
     },
     initApiDocSimpleList() {
       this.apiInfoArray = [];
       let simpleRequest = this.apiSearch;
-      if (this.projectId != null && this.projectId != '') {
+      if (this.projectId !== null && this.projectId !== '') {
         simpleRequest.projectId = this.projectId;
       }
-      if (this.documentId != null && this.documentId != '') {
+      if (this.documentId !== null && this.documentId !== '') {
         simpleRequest.shareId = this.documentId;
       }
-      if (this.moduleIds.length > 0) {
+      if (this.moduleIds && this.moduleIds.length > 0) {
         simpleRequest.moduleIds = this.moduleIds;
       } else {
         simpleRequest.moduleIds = [];
       }
       simpleRequest.versionId = this.versionId;
       simpleRequest.trashEnable = this.trashEnable;
-      selectApiInfoByParam(simpleRequest, this.currentPage, this.pageSize).then((response) => {
-        this.apiInfoArray = response.data.listObject;
-        this.total = response.data.itemCount;
-        if (response.data.length > this.maxComponentSize) {
+      if (this.isTemplate) {
+        let response = '#export-doc';
+        this.apiInfoArray = response.listObject;
+        this.total = response.itemCount;
+        if (response.length > this.maxComponentSize) {
           this.needAsyncSelect = true;
         } else {
           this.needAsyncSelect = false;
@@ -369,7 +455,21 @@ export default {
         this.$nextTick(() => {
           this.handleScroll();
         });
-      });
+      } else {
+        selectApiInfoByParam(simpleRequest, this.currentPage, this.pageSize).then((response) => {
+          this.apiInfoArray = response.data.listObject;
+          this.total = response.data.itemCount;
+          if (response.data.length > this.maxComponentSize) {
+            this.needAsyncSelect = true;
+          } else {
+            this.needAsyncSelect = false;
+          }
+          //每次查询完成之后定位右侧的步骤
+          this.$nextTick(() => {
+            this.handleScroll();
+          });
+        });
+      }
     },
     shareApiDocument() {
       this.shareUrl = '';
