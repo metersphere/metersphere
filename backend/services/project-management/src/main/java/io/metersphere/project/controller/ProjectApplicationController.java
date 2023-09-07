@@ -4,11 +4,11 @@ import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.User;
-import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,8 +27,7 @@ import java.util.List;
 public class ProjectApplicationController {
     @Resource
     private ProjectApplicationService projectApplicationService;
-    @Resource
-    private UserService userService;
+
 
     /**
      * ==========测试计划==========
@@ -92,7 +91,42 @@ public class ProjectApplicationController {
     @GetMapping("/performance-test/user/{projectId}")
     @Operation(summary = "应用设置-性能测试-获取审核人")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_READ)
-    public List<User> getCheckUser(@PathVariable String projectId) {
+    public List<User> getReviewerUser(@PathVariable String projectId) {
         return projectApplicationService.getProjectUserList(StringUtils.defaultIfBlank(projectId, SessionUtils.getCurrentProjectId()));
+    }
+
+
+    /**
+     * ==========接口测试==========
+     */
+
+    @PostMapping("/update/api")
+    @Operation(summary = "应用设置-接口测试-配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateApiLog(#application)", msClass = ProjectApplicationService.class)
+    public ProjectApplication updateApi(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        return projectApplicationService.update(application);
+    }
+
+    @PostMapping("/api")
+    @Operation(summary = "应用设置-接口测试-获取配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_READ)
+    public List<ProjectApplication> getApi(@Validated @RequestBody ProjectApplicationRequest request) {
+        return projectApplicationService.get(request);
+    }
+
+    @GetMapping("/api/user/{projectId}")
+    @Operation(summary = "应用设置-接口测试-获取审核人")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_READ)
+    public List<User> getApiReviewerUser(@PathVariable String projectId) {
+        return projectApplicationService.getProjectUserList(StringUtils.defaultIfBlank(projectId, SessionUtils.getCurrentProjectId()));
+    }
+
+
+    @GetMapping("/api/resource/pool/{organizationId}")
+    @Operation(summary = "应用设置-接口测试-获取资源池列表")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_READ)
+    public List<OptionDTO> getResourcePoolList(@PathVariable String organizationId) {
+        return projectApplicationService.getResourcePoolList(StringUtils.defaultIfBlank(organizationId, SessionUtils.getCurrentOrganizationId()));
     }
 }
