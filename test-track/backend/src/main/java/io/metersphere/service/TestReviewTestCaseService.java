@@ -849,15 +849,17 @@ public class TestReviewTestCaseService {
 
     /**
      * 检查执行结果，自动更新计划状态
+     *
      * @param testCaseReviewDTO
      */
     public void checkStatus(TestCaseReviewDTO testCaseReviewDTO) {
-        if (testCaseReviewDTO.getEndTime() != null && testCaseReviewDTO.getEndTime() < System.currentTimeMillis() && !testCaseReviewDTO.getStatus().equals(TestPlanStatus.Finished.name())) {
+        if (testCaseReviewDTO.getEndTime() != null && testCaseReviewDTO.getEndTime() < System.currentTimeMillis()
+                && StringUtils.equalsAny(testCaseReviewDTO.getStatus(), TestPlanStatus.Underway.name(), TestPlanStatus.Prepare.name(), TestPlanStatus.Completed.name())) {
             TestCaseReviewExample example = new TestCaseReviewExample();
             example.createCriteria().andIdEqualTo(testCaseReviewDTO.getId());
             TestCaseReview review = new TestCaseReview();
             review.setStatus(TestPlanStatus.Finished.name());
-            testCaseReviewMapper.updateByExampleSelective(review,example);
+            testCaseReviewMapper.updateByExampleSelective(review, example);
             testCaseReviewDTO.setStatus(TestPlanStatus.Finished.name());
         }
     }

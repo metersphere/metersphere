@@ -363,9 +363,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     public List<TestCaseNodeDTO> getRelateReviewNodes(QueryTestCaseRequest request) {
         request.setNodeIds(null);
         ServiceUtils.buildCombineTagsToSupportMultiple(request);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getTestReviewRelateCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(request.getProjectId());
-        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         return getNodeTreeWithPruningTreeByCaseCount(testCaseNodes, getCountMap(countMNodes));
     }
 

@@ -89,7 +89,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestCaseService {
-    
+
     @Resource
     TestCaseNodeMapper testCaseNodeMapper;
 
@@ -1058,6 +1058,7 @@ public class TestCaseService {
     public List<TestCaseDTO> getReviewCase(QueryTestCaseRequest request) {
         setDefaultOrder(request);
         ServiceUtils.buildCombineTagsToSupportMultiple(request);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         request.getOrders().forEach(order -> {
             order.setPrefix("test_case");
         });

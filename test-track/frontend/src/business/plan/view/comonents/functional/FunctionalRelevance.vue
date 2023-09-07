@@ -1,14 +1,14 @@
 <template>
 
   <test-case-relevance-base
-    @setProject="setProject"
-    @save="saveCaseRelevance"
-    :enable-full-screen="false"
-    @close="close"
-    :flag="isTestPlan"
-    :multiple-project="multipleProject"
-    :is-saving="isSaving"
-    ref="baseRelevance">
+      @setProject="setProject"
+      @save="saveCaseRelevance"
+      :enable-full-screen="false"
+      @close="close"
+      :flag="isTestPlan"
+      :multiple-project="multipleProject"
+      :is-saving="isSaving"
+      ref="baseRelevance">
 
     <template v-slot:aside>
       <node-tree class="node-tree"
@@ -28,61 +28,61 @@
     </ms-table-header>
 
     <ms-table
-      v-loading="page.loading"
-      :data="page.data"
-      :condition="page.condition"
-      :total="page.total"
-      :page-size.sync="page.pageSize"
-      :screen-height="screenHeight"
-      row-key="id"
-      :reserve-option="true"
-      :page-refresh="pageRefresh"
-      @handlePageChange="getTestCases"
-      @selectCountChange="setSelectCounts"
-      @order="getTestCases"
-      @filter="search"
-      ref="table">
+        v-loading="page.loading"
+        :data="page.data"
+        :condition="page.condition"
+        :total="page.total"
+        :page-size.sync="page.pageSize"
+        :screen-height="screenHeight"
+        row-key="id"
+        :reserve-option="true"
+        :page-refresh="pageRefresh"
+        @handlePageChange="getTestCases"
+        @selectCountChange="setSelectCounts"
+        @order="getTestCases"
+        @filter="search"
+        ref="table">
 
       <ms-table-column
-        v-if="!customNum"
-        prop="num"
-        sortable
-        :label="$t('commons.id')">
+          v-if="!customNum"
+          prop="num"
+          sortable
+          :label="$t('commons.id')">
       </ms-table-column>
       <ms-table-column
-        v-if="customNum"
-        prop="customNum"
-        sortable
-        :label="$t('commons.id')">
+          v-if="customNum"
+          prop="customNum"
+          sortable
+          :label="$t('commons.id')">
       </ms-table-column>
 
       <ms-table-column prop="name" :label="$t('commons.name')"/>
 
       <ms-table-column
-        v-if="versionEnable && versionFilters"
-        prop="versionId"
-        :filters="versionFilters"
-        :label="$t('commons.version')"
-        show-overflow-tooltip>
+          v-if="versionEnable && versionFilters"
+          prop="versionId"
+          :filters="versionFilters"
+          :label="$t('commons.version')"
+          show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.versionName }}</span>
         </template>
       </ms-table-column>
 
       <ms-table-column
-        prop="priority"
-        :filters="priorityOptions"
-        sortable
-        :label="$t('test_track.case.priority')"
-        width="120px">
+          prop="priority"
+          :filters="priorityOptions"
+          sortable
+          :label="$t('test_track.case.priority')"
+          width="120px">
         <template v-slot:default="scope">
           <priority-table-item :value="scope.row.priority" :priority-options="priorityOptions"/>
         </template>
       </ms-table-column>
 
       <test-plan-case-status-table-item
-        sortable
-        prop="lastExecuteResult"/>
+          sortable
+          prop="lastExecuteResult"/>
 
       <test-case-review-status-table-item sortable/>
 
@@ -92,13 +92,13 @@
             <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
             <div class="oneLine">
               <ms-tag
-                v-for="(itemName, index) in scope.row.tags"
-                :key="index"
-                type="success"
-                effect="plain"
-                :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
-                :content="itemName"
-                style="margin-left: 0px; margin-right: 2px" />
+                  v-for="(itemName, index) in scope.row.tags"
+                  :key="index"
+                  type="success"
+                  effect="plain"
+                  :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                  :content="itemName"
+                  style="margin-left: 0px; margin-right: 2px"/>
             </div>
           </el-tooltip>
         </template>
@@ -257,14 +257,14 @@ export default {
     },
     getCustomNum() {
       getProjectApplicationConfig('CASE_CUSTOM_NUM')
-        .then(result => {
-          let data = result.data;
-          if (data && data.typeValue === 'true') {
-            this.customNum = true;
-          } else {
-            this.customNum = false;
-          }
-        });
+          .then(result => {
+            let data = result.data;
+            if (data && data.typeValue === 'true') {
+              this.customNum = true;
+            } else {
+              this.customNum = false;
+            }
+          });
     },
     search() {
       // 添加搜索条件时，当前页设置成第一页
@@ -327,7 +327,7 @@ export default {
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
-        .then(r => this.versionFilters = r.data);
+          .then(r => this.versionFilters = r.data);
     },
     changeVersion(currentVersion) {
       this.page.condition.versionId = currentVersion || null;

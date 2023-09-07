@@ -21,18 +21,18 @@
 
       <el-container class="main-content">
         <ms-aside-container
-          :min-width="'350'"
-          :max-width="'600'"
-          :enable-aside-hidden="false"
-          :default-hidden-bottom-top="200"
-          :enable-auto-height="true"
+            :min-width="'350'"
+            :max-width="'600'"
+            :enable-aside-hidden="false"
+            :default-hidden-bottom-top="200"
+            :enable-auto-height="true"
         >
           <select-menu
-            :data="projects"
-            width="173px"
-            :current-data="currentProject"
-            :title="$t('test_track.switch_project')"
-            @dataChange="changeProject"/>
+              :data="projects"
+              width="173px"
+              :current-data="currentProject"
+              :title="$t('test_track.switch_project')"
+              @dataChange="changeProject"/>
           <node-tree class="node-tree"
                      :all-label="$t('commons.all_label.review')"
                      v-loading="result.loading"
@@ -45,7 +45,8 @@
 
         <el-container>
           <el-main class="case-content">
-            <ms-table-header :tip="$t('commons.search_by_name_or_id')" :condition.sync="condition" @search="search" title="" :show-create="false">
+            <ms-table-header :tip="$t('commons.search_by_name_or_id')" :condition.sync="condition" @search="search"
+                             title="" :show-create="false">
               <template v-slot:searchBarBefore>
                 <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"/>
               </template>
@@ -63,61 +64,61 @@
                       ref="table">
 
               <el-table-column
-                v-if="!customNum"
-                prop="num"
-                min-width="120"
-                sortable
-                :label="$t('commons.id')">
+                  v-if="!customNum"
+                  prop="num"
+                  min-width="120"
+                  sortable
+                  :label="$t('commons.id')">
               </el-table-column>
 
               <el-table-column
-                v-if="customNum"
-                prop="customNum"
-                min-width="120"
-                sortable
-                :label="$t('commons.id')">
+                  v-if="customNum"
+                  prop="customNum"
+                  min-width="120"
+                  sortable
+                  :label="$t('commons.id')">
               </el-table-column>
 
               <el-table-column
-                prop="name"
-                :label="$t('test_track.case.name')"
-                min-width="120"
-                show-overflow-tooltip>
+                  prop="name"
+                  :label="$t('test_track.case.name')"
+                  min-width="120"
+                  show-overflow-tooltip>
                 <template v-slot:default="scope">
                   {{ scope.row.name }}
                 </template>
               </el-table-column>
 
               <el-table-column
-                v-if="versionEnable"
-                prop="versionName"
-                :label="$t('test_track.case.version')"
-                column-key="versionId"
-                :filters="versionFilters"
-                style="width: 100%">
+                  v-if="versionEnable"
+                  prop="versionName"
+                  :label="$t('test_track.case.version')"
+                  column-key="versionId"
+                  :filters="versionFilters"
+                  style="width: 100%">
                 <template v-slot:default="scope">
                   {{ scope.row.versionName }}
                 </template>
               </el-table-column>
 
               <el-table-column
-                prop="priority"
-                :filters="priorityFilters"
-                column-key="priority"
-                :label="$t('test_track.case.priority')"
-                min-width="120"
-                show-overflow-tooltip>
+                  prop="priority"
+                  :filters="priorityFilters"
+                  column-key="priority"
+                  :label="$t('test_track.case.priority')"
+                  min-width="120"
+                  show-overflow-tooltip>
                 <template v-slot:default="scope">
                   <priority-table-item :value="scope.row.priority" :priority-options="priorityFilters"/>
                 </template>
               </el-table-column>
 
               <el-table-column
-                :filters="statusFilters"
-                column-key="reviewStatus"
-                :label="$t('test_track.case.status')"
-                min-width="120"
-                show-overflow-tooltip>
+                  :filters="statusFilters"
+                  column-key="reviewStatus"
+                  :label="$t('test_track.case.status')"
+                  min-width="120"
+                  show-overflow-tooltip>
                 <template v-slot:default="scope">
                   <review-status :value="scope.row.reviewStatus"/>
                 </template>
@@ -270,9 +271,6 @@ export default {
       this.getVersionOptions();
     }
   },
-  activated() {
-    this.loadConditionComponents();
-  },
   updated() {
     this.toggleSelection(this.testReviews);
   },
@@ -290,9 +288,9 @@ export default {
         }
       })
     },
-    fullScreen(){
+    fullScreen() {
       this.isFullScreen = !this.isFullScreen;
-      this.screenHeight = this.isFullScreen ?'calc(100vh - 180px)' :'calc(100vh - 420px)'
+      this.screenHeight = this.isFullScreen ? 'calc(100vh - 180px)' : 'calc(100vh - 420px)'
     },
     setConditionModuleIdParam() {
       this.condition.components.forEach(component => {
@@ -302,13 +300,14 @@ export default {
       });
     },
     async openTestReviewRelevanceDialog() {
-      this.condition = {
-        components: TEST_REVIEW_RELEVANCE_CASE_CONFIGS
-      };
+      // 高级搜索基础字段
+      this.condition = {components: TEST_REVIEW_RELEVANCE_CASE_CONFIGS};
       this.getProject();
       this.dialogFormVisible = true;
       await this.getProjectNode(this.projectId);
       this.getReviews();
+      // 高级搜索自定义字段
+      this.loadConditionComponents();
     },
     saveReviewRelevance() {
       let param = {};
@@ -323,13 +322,13 @@ export default {
         param.testCaseIds = ['all'];
       }
       getTestCaseReviewRelevance(param)
-        .then(() => {
-          this.selectIds.clear();
-          this.selectCounts = 0;
-          this.$success(this.$t('commons.save_success'));
-          this.dialogFormVisible = false;
-          this.$emit('refresh');
-        });
+          .then(() => {
+            this.selectIds.clear();
+            this.selectCounts = 0;
+            this.$success(this.$t('commons.save_success'));
+            this.dialogFormVisible = false;
+            this.$emit('refresh');
+          });
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -347,12 +346,12 @@ export default {
       initCondition(this.condition, this.condition.selectAll);
       this.condition.projectId = this.projectId || getCurrentProjectID();
       getTestCaseReviewsCasePage(this.currentPage, this.pageSize, this.condition)
-        .then((response) => {
-          let data = response.data;
-          this.total = data.itemCount;
-          this.testReviews = data.listObject;
-          this.result.loading = false;
-        });
+          .then((response) => {
+            let data = response.data;
+            this.total = data.itemCount;
+            this.testReviews = data.listObject;
+            this.result.loading = false;
+          });
     },
     setSelectCounts(data) {
       this.selectCounts = data;
@@ -374,10 +373,10 @@ export default {
       this.dialogFormVisible = false;
       this.condition.filters = {};
       this.condition.combine = {};
-      if(this.condition.projectId) {
+      if (this.condition.projectId) {
         delete this.condition.projectId;
       }
-      this.projectId= '';
+      this.projectId = '';
     },
     filter(filters) {
       _filter(filters, this.condition);
@@ -396,22 +395,22 @@ export default {
     getProject() {
       if (this.reviewId) {
         projectRelated({userId: getCurrentUserId(), workspaceId: getCurrentWorkspaceId()})
-          .then((res) => {
-            let data = res.data;
-            if (data) {
-              this.projects = data;
-              const index = data.findIndex(d => d.id === getCurrentProjectID());
-              if (index !== -1) {
-                this.projectId = data[index].id;
-                this.projectName = data[index].name;
-                this.currentProject = data[index];
-              } else {
-                this.projectId = data[0].id;
-                this.projectName = data[0].name;
-                this.currentProject = data[0];
+            .then((res) => {
+              let data = res.data;
+              if (data) {
+                this.projects = data;
+                const index = data.findIndex(d => d.id === getCurrentProjectID());
+                if (index !== -1) {
+                  this.projectId = data[index].id;
+                  this.projectName = data[index].name;
+                  this.currentProject = data[index];
+                } else {
+                  this.projectId = data[0].id;
+                  this.projectName = data[0].name;
+                  this.currentProject = data[0];
+                }
               }
-            }
-          });
+            });
       }
     },
     switchProject() {
@@ -438,16 +437,16 @@ export default {
           this.projectId = projectId;
         }
         testCaseNodeListReviewRelate({reviewId: this.reviewId, projectId: this.projectId, ...condition})
-          .then((response) => {
-            this.treeNodes = response.data;
-            resolve();
-          });
+            .then((response) => {
+              this.treeNodes = response.data;
+              resolve();
+            });
         this.selectNodeIds = [];
       });
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
-        .then(r => this.versionFilters = r.data);
+          .then(r => this.versionFilters = r.data);
     },
     changeVersion(version) {
       this.condition.versionId = version || null;
@@ -455,14 +454,14 @@ export default {
     },
     getCustomNum() {
       getProjectApplicationConfig('CASE_CUSTOM_NUM')
-        .then(result => {
-          let data = result.data;
-          if (data && data.typeValue === 'true') {
-            this.customNum = true;
-          } else {
-            this.customNum = false;
-          }
-        });
+          .then(result => {
+            let data = result.data;
+            if (data && data.typeValue === 'true') {
+              this.customNum = true;
+            } else {
+              this.customNum = false;
+            }
+          });
     },
   }
 }
