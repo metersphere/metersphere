@@ -23,6 +23,8 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.service.definition.ApiModuleService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -32,6 +34,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -132,8 +139,10 @@ public class ShareInfoService extends BaseShareInfoService {
     }
 
     private void iniApiDocumentRequest(ApiDocumentRequest request) {
-        List<String> shareIdList = this.selectShareIdByShareInfoId(request.getShareId());
-        request.setApiIdList(shareIdList);
+        if (StringUtils.isNotBlank(request.getShareId())) {
+            List<String> shareIdList = this.selectShareIdByShareInfoId(request.getShareId());
+            request.setApiIdList(shareIdList);
+        }
     }
 
     public List<ApiDefinitionWithBLOBs> selectByRequest(ApiDocumentRequest request) {
@@ -639,6 +648,50 @@ public class ShareInfoService extends BaseShareInfoService {
         }
         if (shareInfo == null) {
             MSException.throwException("ShareInfo not exist!");
+        }
+    }
+
+
+    public void render(Pager<List<ApiDocumentInfoDTO>> listPager, HttpServletResponse response) throws
+            UnsupportedEncodingException {
+        response.reset();
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("test", StandardCharsets.UTF_8));
+
+        try (InputStreamReader isr = new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/public/api-doc.html")), StandardCharsets.UTF_8);
+             ServletOutputStream outputStream = response.getOutputStream()) {
+            BufferedReader bufferedReader = new BufferedReader(isr);
+            String line;
+            while (null != (line = bufferedReader.readLine())) {
+                if (line.contains("\"#export-doc\"")) {
+                    String reportInfo = JSON.toJSONString(listPager);
+                    line = line.replace("\"#export-doc\"", reportInfo);
+                }
+                line += StringUtils.LF;
+                byte[] lineBytes = line.getBytes(StandardCharsets.UTF_8);
+                int start = 0;
+                while (start < lineBytes.length) {
+                    if (start + 1024 < lineBytes.length) {
+                        outputStream.write(lineBytes, start, 1024);
+                    } else {
+                        outputStream.write(lineBytes, start, lineBytes.length - start);
+                    }
+                    outputStream.flush();
+                    start += 1024;
+                }
+            }
+        } catch (Throwable e) {
+            LogUtil.error(e);
+            MSException.throwException(e);
+        }
+    }
+
+    public void exportPageDoc(ApiDocumentRequest apiDocumentRequest, int goPage, int pageSize, HttpServletResponse response) {
+        Pager<List<ApiDocumentInfoDTO>> listPager = this.selectApiInfoByParam(apiDocumentRequest, goPage, pageSize);
+        try {
+            this.render(listPager, response);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
     }
 }

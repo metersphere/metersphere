@@ -2,6 +2,9 @@ const path = require('path');
 const { name } = require('./package');
 const { defineConfig } = require('@vue/cli-service');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const InlineSourceWebpackPlugin = require('inline-source-webpack-plugin');
 
 function resolve(dir) {
   return path.join(__dirname, dir);
@@ -15,7 +18,7 @@ module.exports = defineConfig({
     client: {
       webSocketTransport: 'sockjs',
       overlay: false,
-  },
+    },
     allowedHosts: 'all',
     webSocketServer: 'sockjs',
     proxy: {
@@ -39,6 +42,7 @@ module.exports = defineConfig({
       template: 'public/index.html',
       filename: 'index.html',
     },
+
     shareApiReport: {
       entry: 'src/template/report/share/share-api-report.js',
       template: 'src/template/report/share/share-api-report.html',
@@ -48,6 +52,12 @@ module.exports = defineConfig({
       entry: 'src/template/document/share/share-document.js',
       template: 'src/template/document/share/share-document.html',
       filename: 'share-document.html',
+    },
+    apiDocument: {
+      entry: 'src/template/document/api-document.js',
+      template: 'src/template/document/api-document.html',
+      filename: 'api-doc.html',
+      inlineSource: '.*',
     },
   },
   configureWebpack: {
@@ -173,6 +183,24 @@ module.exports = defineConfig({
       .options({
         symbolId: 'icon-[name]',
       });
+
+    // 报告模板打包成一个html
+    config
+      .plugin('inline-source-html')
+      .after('html-apiDocument')
+      .use(
+        new InlineSourceWebpackPlugin({
+          compress: true,
+          rootpath: '../../framework/sdk-parent/frontend/public/js',
+          noAssetMatch: 'warn',
+        }),
+        [HtmlWebpackPlugin]
+      );
+
+    config
+      .plugin('inline-source-html-apiDocument')
+      .after('html-apiDocument')
+      .use(HtmlWebpackInlineSourcePlugin, [HtmlWebpackPlugin]);
     if (process.env.NODE_ENV === 'analyze') {
       config.plugin('webpack-report').use(BundleAnalyzerPlugin, [
         {

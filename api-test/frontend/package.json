@@ -9,6 +9,8 @@
     "report": "NODE_ENV=analyze vue-cli-service build"
   },
   "dependencies": {
+    "html-webpack-inline-source-plugin": "1.0.0-beta.2",
+    "inline-source-webpack-plugin": "^3.0.1",
     "@ckeditor/ckeditor5-build-classic": "^18.0.0",
     "@ckeditor/ckeditor5-vue": "^1.0.1",
     "@fit2cloud-ui/vue-virtual-tree": "^1.0.0",
