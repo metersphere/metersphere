@@ -406,6 +406,16 @@
     .dropdown-icon {
       background: none !important;
     }
+    .arco-checkbox-icon {
+      &::after {
+        width: 8px;
+        background: rgb(var(--primary-5));
+      }
+    }
+    .arco-checkbox-indeterminate .arco-checkbox-icon {
+      border-color: rgb(var(--primary-5));
+      background: rgb(var(--primary-1));
+    }
   }
   :deep(.ms-table-select-all) {
     .arco-checkbox {
@@ -415,5 +425,6 @@
   :deep(.arco-checkbox-icon) {
     width: 16px;
     height: 16px;
+    border-radius: 2px;
   }
 </style>
