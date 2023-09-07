@@ -174,76 +174,6 @@ public class MessageTaskExample {
             return (Criteria) this;
         }
 
-        public Criteria andTypeIsNull() {
-            addCriterion("`type` is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeIsNotNull() {
-            addCriterion("`type` is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeEqualTo(String value) {
-            addCriterion("`type` =", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeNotEqualTo(String value) {
-            addCriterion("`type` <>", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeGreaterThan(String value) {
-            addCriterion("`type` >", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeGreaterThanOrEqualTo(String value) {
-            addCriterion("`type` >=", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeLessThan(String value) {
-            addCriterion("`type` <", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeLessThanOrEqualTo(String value) {
-            addCriterion("`type` <=", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeLike(String value) {
-            addCriterion("`type` like", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeNotLike(String value) {
-            addCriterion("`type` not like", value, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeIn(List<String> values) {
-            addCriterion("`type` in", values, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeNotIn(List<String> values) {
-            addCriterion("`type` not in", values, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeBetween(String value1, String value2) {
-            addCriterion("`type` between", value1, value2, "type");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeNotBetween(String value1, String value2) {
-            addCriterion("`type` not between", value1, value2, "type");
-            return (Criteria) this;
-        }
-
         public Criteria andEventIsNull() {
             addCriterion("event is null");
             return (Criteria) this;
@@ -384,6 +314,76 @@ public class MessageTaskExample {
             return (Criteria) this;
         }
 
+        public Criteria andProjectRobotIdIsNull() {
+            addCriterion("project_robot_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdIsNotNull() {
+            addCriterion("project_robot_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdEqualTo(String value) {
+            addCriterion("project_robot_id =", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdNotEqualTo(String value) {
+            addCriterion("project_robot_id <>", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdGreaterThan(String value) {
+            addCriterion("project_robot_id >", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdGreaterThanOrEqualTo(String value) {
+            addCriterion("project_robot_id >=", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdLessThan(String value) {
+            addCriterion("project_robot_id <", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdLessThanOrEqualTo(String value) {
+            addCriterion("project_robot_id <=", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdLike(String value) {
+            addCriterion("project_robot_id like", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdNotLike(String value) {
+            addCriterion("project_robot_id not like", value, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdIn(List<String> values) {
+            addCriterion("project_robot_id in", values, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdNotIn(List<String> values) {
+            addCriterion("project_robot_id not in", values, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdBetween(String value1, String value2) {
+            addCriterion("project_robot_id between", value1, value2, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectRobotIdNotBetween(String value1, String value2) {
+            addCriterion("project_robot_id not between", value1, value2, "projectRobotId");
+            return (Criteria) this;
+        }
+
         public Criteria andTaskTypeIsNull() {
             addCriterion("task_type is null");
             return (Criteria) this;
@@ -451,76 +451,6 @@ public class MessageTaskExample {
 
         public Criteria andTaskTypeNotBetween(String value1, String value2) {
             addCriterion("task_type not between", value1, value2, "taskType");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookIsNull() {
-            addCriterion("webhook is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookIsNotNull() {
-            addCriterion("webhook is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookEqualTo(String value) {
-            addCriterion("webhook =", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookNotEqualTo(String value) {
-            addCriterion("webhook <>", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookGreaterThan(String value) {
-            addCriterion("webhook >", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookGreaterThanOrEqualTo(String value) {
-            addCriterion("webhook >=", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookLessThan(String value) {
-            addCriterion("webhook <", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookLessThanOrEqualTo(String value) {
-            addCriterion("webhook <=", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookLike(String value) {
-            addCriterion("webhook like", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookNotLike(String value) {
-            addCriterion("webhook not like", value, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookIn(List<String> values) {
-            addCriterion("webhook in", values, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookNotIn(List<String> values) {
-            addCriterion("webhook not in", values, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookBetween(String value1, String value2) {
-            addCriterion("webhook between", value1, value2, "webhook");
-            return (Criteria) this;
-        }
-
-        public Criteria andWebhookNotBetween(String value1, String value2) {
-            addCriterion("webhook not between", value1, value2, "webhook");
             return (Criteria) this;
         }
 
