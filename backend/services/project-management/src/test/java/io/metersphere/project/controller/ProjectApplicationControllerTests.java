@@ -289,7 +289,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(21)
     public void testGetApiResourcePool() throws Exception {
-        this.requestGetWithOkAndReturn(GET_API_RESOURCE_POOL_URL + "/default_organization");
+        this.requestGetWithOkAndReturn(GET_API_RESOURCE_POOL_URL + "/100001");
     }
     /**
      * ==========接口测试 end==========

@@ -90,11 +90,11 @@ public class ProjectControllerTests extends BaseTest {
     @Order(3)
     public void testGetOptionsSuccess() throws Exception {
 
-        MvcResult mvcResult = this.responseGet(getOptions + "default_organization");
+        MvcResult mvcResult = this.responseGet(getOptions + "100001");
         List<Project> list = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertNotNull(list);
         ProjectExample example = new ProjectExample();
-        example.createCriteria().andOrganizationIdEqualTo("default_organization").andEnableEqualTo(true);
+        example.createCriteria().andOrganizationIdEqualTo("100001").andEnableEqualTo(true);
         Assertions.assertEquals(projectMapper.countByExample(example), list.size());
 
         mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
@@ -105,7 +105,7 @@ public class ProjectControllerTests extends BaseTest {
                 .andReturn();
         String sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
         String csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
-        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + "default_organization")
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + "100001")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -123,7 +123,7 @@ public class ProjectControllerTests extends BaseTest {
                 .andReturn();
         sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
         csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
-        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + "default_organization")
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + "100001")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -134,7 +134,7 @@ public class ProjectControllerTests extends BaseTest {
         Assertions.assertEquals(0, list.size());
 
         //权限校验
-        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getOptions + "default_organization");
+        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getOptions + "100001");
     }
 
     @Test
@@ -155,7 +155,7 @@ public class ProjectControllerTests extends BaseTest {
         UserDTO userDTO = parseObjectFromMvcResult(mvcResult, UserDTO.class);
         Assertions.assertNotNull(userDTO);
         Assertions.assertEquals("projectId", userDTO.getLastProjectId());
-        request.setProjectId("default_project");
+        request.setProjectId("100001100001");
         //权限校验
         requestPostPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, prefix + "/switch", request);
     }
