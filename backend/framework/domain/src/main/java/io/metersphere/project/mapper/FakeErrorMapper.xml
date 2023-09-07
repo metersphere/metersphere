@@ -4,13 +4,16 @@
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FakeError">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
-    <result column="error_code" jdbcType="VARCHAR" property="errorCode" />
-    <result column="match_type" jdbcType="VARCHAR" property="matchType" />
-    <result column="status" jdbcType="BIT" property="status" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="resp_type" jdbcType="VARCHAR" property="respType" />
+    <result column="relation" jdbcType="VARCHAR" property="relation" />
+    <result column="expression" jdbcType="VARCHAR" property="expression" />
+    <result column="enable" jdbcType="BIT" property="enable" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,8 +74,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, create_time, update_time, create_user, update_user, error_code, match_type, 
-    `status`
+    id, project_id, `name`, create_time, update_time, create_user, update_user, `type`, 
+    resp_type, relation, expression, `enable`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.FakeErrorExample" resultMap="BaseResultMap">
     select
@@ -105,13 +108,15 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.FakeError">
-    insert into fake_error (id, project_id, create_time, 
-      update_time, create_user, update_user, 
-      error_code, match_type, `status`
+    insert into fake_error (id, project_id, `name`, 
+      create_time, update_time, create_user, 
+      update_user, `type`, resp_type, 
+      relation, expression, `enable`
       )
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, 
-      #{errorCode,jdbcType=VARCHAR}, #{matchType,jdbcType=VARCHAR}, #{status,jdbcType=BIT}
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{updateUser,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{respType,jdbcType=VARCHAR}, 
+      #{relation,jdbcType=VARCHAR}, #{expression,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FakeError">
@@ -122,6 +127,9 @@
       </if>
       <if test="projectId != null">
         project_id,
+      </if>
+      <if test="name != null">
+        `name`,
       </if>
       <if test="createTime != null">
         create_time,
@@ -135,14 +143,20 @@
       <if test="updateUser != null">
         update_user,
       </if>
-      <if test="errorCode != null">
-        error_code,
+      <if test="type != null">
+        `type`,
       </if>
-      <if test="matchType != null">
-        match_type,
+      <if test="respType != null">
+        resp_type,
       </if>
-      <if test="status != null">
-        `status`,
+      <if test="relation != null">
+        relation,
+      </if>
+      <if test="expression != null">
+        expression,
+      </if>
+      <if test="enable != null">
+        `enable`,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -151,6 +165,9 @@
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -164,14 +181,20 @@
       <if test="updateUser != null">
         #{updateUser,jdbcType=VARCHAR},
       </if>
-      <if test="errorCode != null">
-        #{errorCode,jdbcType=VARCHAR},
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
       </if>
-      <if test="matchType != null">
-        #{matchType,jdbcType=VARCHAR},
+      <if test="respType != null">
+        #{respType,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=BIT},
+      <if test="relation != null">
+        #{relation,jdbcType=VARCHAR},
+      </if>
+      <if test="expression != null">
+        #{expression,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -190,6 +213,9 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -202,14 +228,20 @@
       <if test="record.updateUser != null">
         update_user = #{record.updateUser,jdbcType=VARCHAR},
       </if>
-      <if test="record.errorCode != null">
-        error_code = #{record.errorCode,jdbcType=VARCHAR},
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
       </if>
-      <if test="record.matchType != null">
-        match_type = #{record.matchType,jdbcType=VARCHAR},
+      <if test="record.respType != null">
+        resp_type = #{record.respType,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=BIT},
+      <if test="record.relation != null">
+        relation = #{record.relation,jdbcType=VARCHAR},
+      </if>
+      <if test="record.expression != null">
+        expression = #{record.expression,jdbcType=VARCHAR},
+      </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -220,13 +252,16 @@
     update fake_error
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
-      error_code = #{record.errorCode,jdbcType=VARCHAR},
-      match_type = #{record.matchType,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=BIT}
+      `type` = #{record.type,jdbcType=VARCHAR},
+      resp_type = #{record.respType,jdbcType=VARCHAR},
+      relation = #{record.relation,jdbcType=VARCHAR},
+      expression = #{record.expression,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -236,6 +271,9 @@
     <set>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -249,14 +287,20 @@
       <if test="updateUser != null">
         update_user = #{updateUser,jdbcType=VARCHAR},
       </if>
-      <if test="errorCode != null">
-        error_code = #{errorCode,jdbcType=VARCHAR},
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
       </if>
-      <if test="matchType != null">
-        match_type = #{matchType,jdbcType=VARCHAR},
+      <if test="respType != null">
+        resp_type = #{respType,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=BIT},
+      <if test="relation != null">
+        relation = #{relation,jdbcType=VARCHAR},
+      </if>
+      <if test="expression != null">
+        expression = #{expression,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -264,24 +308,28 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.FakeError">
     update fake_error
     set project_id = #{projectId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       update_user = #{updateUser,jdbcType=VARCHAR},
-      error_code = #{errorCode,jdbcType=VARCHAR},
-      match_type = #{matchType,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=BIT}
+      `type` = #{type,jdbcType=VARCHAR},
+      resp_type = #{respType,jdbcType=VARCHAR},
+      relation = #{relation,jdbcType=VARCHAR},
+      expression = #{expression,jdbcType=VARCHAR},
+      `enable` = #{enable,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into fake_error
-    (id, project_id, create_time, update_time, create_user, update_user, error_code, 
-      match_type, `status`)
+    (id, project_id, `name`, create_time, update_time, create_user, update_user, `type`, 
+      resp_type, relation, expression, `enable`)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, 
-        #{item.errorCode,jdbcType=VARCHAR}, #{item.matchType,jdbcType=VARCHAR}, #{item.status,jdbcType=BIT}
+      (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.respType,jdbcType=VARCHAR}, 
+        #{item.relation,jdbcType=VARCHAR}, #{item.expression,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}
         )
     </foreach>
   </insert>
@@ -301,6 +349,9 @@
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
         </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
         </if>
@@ -313,14 +364,20 @@
         <if test="'update_user'.toString() == column.value">
           #{item.updateUser,jdbcType=VARCHAR}
         </if>
-        <if test="'error_code'.toString() == column.value">
-          #{item.errorCode,jdbcType=VARCHAR}
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
         </if>
-        <if test="'match_type'.toString() == column.value">
-          #{item.matchType,jdbcType=VARCHAR}
+        <if test="'resp_type'.toString() == column.value">
+          #{item.respType,jdbcType=VARCHAR}
         </if>
-        <if test="'status'.toString() == column.value">
-          #{item.status,jdbcType=BIT}
+        <if test="'relation'.toString() == column.value">
+          #{item.relation,jdbcType=VARCHAR}
+        </if>
+        <if test="'expression'.toString() == column.value">
+          #{item.expression,jdbcType=VARCHAR}
+        </if>
+        <if test="'enable'.toString() == column.value">
+          #{item.enable,jdbcType=BIT}
         </if>
       </foreach>
       )
