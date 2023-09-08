@@ -225,25 +225,33 @@ CREATE TABLE IF NOT EXISTS file_metadata_blob
 
 CREATE TABLE IF NOT EXISTS message_task
 (
-    `id`          VARCHAR(50)  NOT NULL COMMENT '',
-    `type`        VARCHAR(50)  NOT NULL COMMENT '消息类型',
-    `event`       VARCHAR(255) NOT NULL COMMENT '通知事件类型',
-    `receiver`    VARCHAR(50)  NOT NULL COMMENT '接收人id',
-    `task_type`   VARCHAR(64)  NOT NULL COMMENT '任务类型',
-    `webhook`     VARCHAR(255) COMMENT 'webhook地址',
-    `test_id`     VARCHAR(50)  NOT NULL DEFAULT 'none' COMMENT '具体测试的ID',
-    `create_time` BIGINT       NOT NULL DEFAULT 0 COMMENT '创建时间',
-    `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
-    PRIMARY KEY (id)
+   `id` VARCHAR(50) NOT NULL   COMMENT '' ,
+   `event` VARCHAR(255) NOT NULL   COMMENT '通知事件类型' ,
+   `receiver` VARCHAR(50) NOT NULL   COMMENT '接收人id' ,
+   `project_robot_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '机器人id' ,
+   `task_type` VARCHAR(64) NOT NULL   COMMENT '任务类型' ,
+   `test_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '具体测试的ID' ,
+   `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
+   `enable` BIT NOT NULL  DEFAULT 0 COMMENT '是否启用' ,
+   `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+   `create_time` BIGINT NOT NULL  DEFAULT 0 COMMENT '创建时间' ,
+   `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
+   `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+   PRIMARY KEY (id)
 ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务';
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci
+    COMMENT = '消息通知任务';
 
 
-CREATE INDEX idx_project_id ON message_task (`project_id`);
-CREATE INDEX idx_create_time ON message_task (`create_time`);
-CREATE INDEX idx_receiver ON message_task (`receiver`);
-CREATE INDEX idx_test_id ON message_task (`test_id`);
+CREATE INDEX idx_project_id ON message_task(project_id);
+CREATE INDEX idx_create_time ON message_task(create_time);
+CREATE INDEX idx_test_id ON message_task(test_id);
+CREATE INDEX idx_receiver ON message_task(receiver);
+CREATE INDEX idx_task_type ON message_task(task_type);
+CREATE INDEX idx_project_robot_id ON message_task(project_robot_id);
+CREATE INDEX idx_event ON message_task(event);
+CREATE INDEX idx_enable ON message_task(enable);
 
 CREATE TABLE IF NOT EXISTS message_task_blob
 (
