@@ -21,7 +21,15 @@
         order by `order` asc
     </select>
     <select id="getCustomFields" resultType="io.metersphere.base.domain.CustomFieldTemplate">
-        select id, field_id fieldId, template_id templateId, scene, required, `order`, default_value defaultValue, custom_data customData, `key`
+        select id,
+               field_id      fieldId,
+               template_id   templateId,
+               scene,
+               required,
+               `order`,
+               default_value defaultValue,
+               custom_data   customData,
+               `key`
         from custom_field_template
         where custom_field_template.template_id = #{templateId}
         order by `order` asc
@@ -29,7 +37,7 @@
     <select id="getCustomFieldByTemplateId" resultType="io.metersphere.dto.CustomFieldDao">
         select
         template_id, required, default_value, custom_data,
-        cf.id as id,
+        cf.id as id, cf.system as `system`,
         cf.name as name, cf.type as type
         from custom_field_template cft
         inner join custom_field cf
@@ -42,9 +50,11 @@
         INSERT INTO
         custom_field_template
         VALUES
-        <foreach collection="customFieldTemplates" item="customFieldTemplate" separator="," >
-            (#{customFieldTemplate.id}, #{customFieldTemplate.fieldId}, #{customFieldTemplate.templateId}, #{customFieldTemplate.scene},
-            #{customFieldTemplate.required}, #{customFieldTemplate.order}, #{customFieldTemplate.defaultValue}, #{customFieldTemplate.customData},
+        <foreach collection="customFieldTemplates" item="customFieldTemplate" separator=",">
+            (#{customFieldTemplate.id}, #{customFieldTemplate.fieldId}, #{customFieldTemplate.templateId},
+            #{customFieldTemplate.scene},
+            #{customFieldTemplate.required}, #{customFieldTemplate.order}, #{customFieldTemplate.defaultValue},
+            #{customFieldTemplate.customData},
             #{customFieldTemplate.key})
         </foreach>
     </insert>

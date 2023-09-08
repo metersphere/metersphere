@@ -46,6 +46,7 @@ import io.metersphere.request.testcase.*;
 import io.metersphere.service.issue.platform.IssueFactory;
 import io.metersphere.service.remote.api.RelevanceApiCaseService;
 import io.metersphere.service.remote.performance.RelevanceLoadCaseService;
+import io.metersphere.service.remote.project.TrackCustomFieldTemplateService;
 import io.metersphere.service.remote.project.TrackTestCaseTemplateService;
 import io.metersphere.service.remote.ui.RelevanceUiCaseService;
 import io.metersphere.service.wapper.TrackProjectService;
@@ -196,6 +197,8 @@ public class TestCaseService {
     private PlatformPluginService platformPluginService;
     @Resource
     private OperatingLogService operatingLogService;
+    @Resource
+    private TrackCustomFieldTemplateService trackCustomFieldTemplateService;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
 
@@ -2470,16 +2473,11 @@ public class TestCaseService {
     }
 
     public void minderEdit(TestCaseMinderEditRequest request) {
-
         deleteToGcBatch(request.getIds(), request.getProjectId());
-
         testCaseNodeService.minderEdit(request);
-
         List<TestCaseMinderEditRequest.TestCaseMinderEditItem> data = request.getData();
         if (CollectionUtils.isNotEmpty(data)) {
-
             String lastAddId = null;
-
             for (TestCaseMinderEditRequest.TestCaseMinderEditItem item : data) {
                 if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
                     item.setNodeId(StringUtils.EMPTY);
@@ -2499,6 +2497,8 @@ public class TestCaseService {
                     }
                     EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
                     BeanUtils.copyBean(editTestCaseRequest, item);
+                    // 脑图创建用例, 设置非系统自定义字段默认值
+                    setCustomDefault(editTestCaseRequest);
                     addTestCase(editTestCaseRequest);
                     if (StringUtils.equals(item.getMoveMode(), ResetOrderRequest.MoveMode.APPEND.name()) && StringUtils.isNotBlank(lastAddId)) {
                         item.setMoveMode(ResetOrderRequest.MoveMode.AFTER.name());
@@ -2509,8 +2509,32 @@ public class TestCaseService {
                 }
             }
         }
-
         minderExtraNodeService.batchEdit(request);
+    }
+
+    private void setCustomDefault(EditTestCaseRequest request) {
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        List<CustomFieldDao> customFields = trackCustomFieldTemplateService.getCustomFieldByTemplateId(project.getCaseTemplateId());
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            // 过滤出模板中有默认值的非系统自定义字段(系统自定义字段前台保存时已经传默认值, 无需处理)
+            List<CustomFieldDao> hasDefaultFields = customFields.stream().filter(field -> StringUtils.isNotEmpty(field.getDefaultValue()) && !field.getSystem()).toList();
+            if (CollectionUtils.isNotEmpty(hasDefaultFields)) {
+                List<CustomFieldResourceDTO> addFields = new ArrayList<>();
+                hasDefaultFields.forEach(field -> {
+                    CustomFieldResourceDTO addField = new CustomFieldResourceDTO();
+                    addField.setResourceId(request.getId());
+                    addField.setFieldId(field.getId());
+                    if (StringUtils.equalsAny(field.getType(), CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
+                        addField.setTextValue(field.getDefaultValue());
+                    } else {
+                        addField.setValue(field.getDefaultValue());
+                    }
+                    addFields.add(addField);
+                });
+                request.setAddFields(addFields);
+                request.setEditFields(Collections.emptyList());
+            }
+        }
     }
 
     private void changeOrder(TestCaseMinderEditRequest.TestCaseMinderEditItem item, String projectId) {
