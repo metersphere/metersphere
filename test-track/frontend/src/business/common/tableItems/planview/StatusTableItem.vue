@@ -85,11 +85,11 @@ export default {
 }
 
 .skip {
-  background-color: rgba(0, 214, 185, 0.2);
-  color: #078372;
+  background-color: rgba(120, 56, 135, 0.2);
+  color: rgb(120, 56, 135);
 }
 
-.blocking, .skip {
+.blocking {
   background-color: rgba(255, 136, 0, 0.2);
   color: #DE7802;
 }
