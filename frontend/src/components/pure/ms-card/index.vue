@@ -140,9 +140,6 @@
       .arco-divider {
         @apply mb-0;
       }
-      .ms-card-container {
-        padding: 0;
-      }
     }
     .card-header {
       @apply flex items-center;
@@ -159,12 +156,6 @@
           color: rgb(var(--primary-5));
         }
       }
-    }
-    :deep(.arco-scrollbar-track-direction-vertical) {
-      right: -10px;
-    }
-    :deep(.arco-scrollbar-track-direction-horizontal) {
-      bottom: -10px;
     }
   }
 </style>

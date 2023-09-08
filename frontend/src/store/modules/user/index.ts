@@ -61,6 +61,7 @@ const useUserStore = defineStore('user', {
         setToken(res.sessionId, res.csrfToken);
         const appStore = useAppStore();
         appStore.setCurrentOrgId(res.lastOrganizationId || '');
+        appStore.setCurrentProjectId(res.lastProjectId || '');
         this.setInfo(res);
       } catch (err) {
         clearToken();
@@ -96,9 +97,8 @@ const useUserStore = defineStore('user', {
         const appStore = useAppStore();
         setToken(res.sessionId, res.csrfToken);
         this.setInfo(res);
-        if (appStore.currentOrgId === '') {
-          appStore.setCurrentOrgId(res.lastOrganizationId || '');
-        }
+        appStore.setCurrentOrgId(res.lastOrganizationId || '');
+        appStore.setCurrentProjectId(res.lastProjectId || '');
         return true;
       } catch (err) {
         return false;
