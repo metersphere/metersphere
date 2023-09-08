@@ -107,23 +107,17 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getUUID, listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils"
 import ReviewComment from "@/business/review/commom/ReviewComment";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
-import {
-  buildTestCaseOldFields,
-  parseCustomField,
-} from "metersphere-frontend/src/utils/custom_field";
+import {buildTestCaseOldFields, parseCustomField} from "metersphere-frontend/src/utils/custom_field";
 import TestCaseEditOtherInfo from "@/business/case/components/TestCaseEditOtherInfo";
-import { SYSTEM_FIELD_NAME_MAP } from "metersphere-frontend/src/utils/table-constants";
+import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
 import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
 import CustomFiledComponent from "metersphere-frontend/src/components/new-ui/MsCustomFiledComponent";
 import StepChangeItem from "@/business/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
 import MsPreviousNextButton from "metersphere-frontend/src/components/MsPreviousNextButton";
 import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
-import { getTestTemplate } from "@/api/custom-field-template";
-import {
-  getRelateTest,
-  getTestReviewTestCase,
-} from "@/api/test-review";
+import {getTestTemplate} from "@/api/custom-field-template";
+import {getRelateTest, getTestReviewTestCase,} from "@/api/test-review";
 import TestReviewTestCaseEditOperationBar from "@/business/review/view/components/TestReviewTestCaseEditOperationBar";
 import TestReviewTestCaseEditHeaderBar from "@/business/review/view/components/TestReviewTestCaseEditHeaderBar";
 import CommentHistory from "@/business/review/view/components/commnet/CommentHistory";
@@ -303,6 +297,7 @@ export default {
       this.index++;
       this.caseId = this.testCases[this.index].caseId;
       this.getTestCase(this.testCases[this.index].id);
+      this.$refs.otherInfo.getFileMetaData(this.caseId);
     },
     isLastData() {
       return (
@@ -321,6 +316,7 @@ export default {
       this.index--;
       this.caseId = this.testCases[this.index].caseId;
       this.getTestCase(this.testCases[this.index].id);
+      this.$refs.otherInfo.getFileMetaData(this.caseId);
     },
     getTestCase(id) {
       this.loading = true;
