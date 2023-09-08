@@ -68,6 +68,13 @@ public class ProjectApplicationController {
         return projectApplicationService.get(request);
     }
 
+    @GetMapping("/ui/resource/pool/{organizationId}")
+    @Operation(summary = "应用设置-UI测试-获取资源池列表")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_READ)
+    public List<OptionDTO> getUiResourcePoolList(@PathVariable String organizationId) {
+        return projectApplicationService.getResourcePoolList(StringUtils.defaultIfBlank(organizationId, SessionUtils.getCurrentOrganizationId()));
+    }
+
 
     /**
      * ==========性能测试==========
