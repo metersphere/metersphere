@@ -73,11 +73,9 @@
       font-size: 12px;
       border-radius: 50%;
       color: var(--color-text-4);
-      background-color: rgb(var(--primary-3));
     }
     .dropdown-icon:hover {
       color: rgb(var(--primary-5));
-      background-color: transparent;
     }
   }
 </style>

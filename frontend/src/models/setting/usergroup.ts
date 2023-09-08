@@ -13,11 +13,9 @@ export interface CustomMoreActionItem {
   eventKey: string;
   name: string;
 }
-export interface PopVisibleItem {
-  [key: string]: boolean;
-}
 
 export type RenameType = 'rename' | 'auth';
+export type AuthScopeType = 'SYSTEM' | 'PROJECT' | 'ORGANIZATION';
 
 export interface UserGroupItem {
   // 组ID
@@ -29,7 +27,7 @@ export interface UserGroupItem {
   // 是否是内置用户组
   internal: true;
   // 所属类型
-  type: string;
+  type: AuthScopeType;
   createTime: number;
   updateTime: number;
   // 创建人
@@ -58,8 +56,6 @@ export interface UserGroupPermissionItem {
   enable: boolean;
   license: boolean;
 }
-
-export type AuthScopeType = 'SYSTEM' | 'PROJECT' | 'ORGANIZATION';
 
 // 用户组对应的权限配置
 export interface UserGroupAuthSetting {
@@ -121,4 +117,16 @@ export interface UserTableItem {
   updateUser: string;
   deleted: boolean;
   [key: string]: string | boolean | number;
+}
+
+export type MoreActionType = 'rename' | 'addMember' | 'create';
+
+export interface PopVisibleItem {
+  id?: string;
+  visible: boolean;
+  authScope: AuthScopeType;
+  defaultName: string;
+}
+export interface PopVisible {
+  [key: string]: PopVisibleItem;
 }

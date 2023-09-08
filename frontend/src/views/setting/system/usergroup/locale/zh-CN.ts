@@ -3,6 +3,7 @@ export default {
     userGroup: {
       addUserGroupSuccess: '添加用户组成功',
       updateUserGroupSuccess: '更新用户组成功',
+      systemUserGroup: '系统用户组',
       global: '全局用户组',
       searchHolder: '请输入用户组名称',
       inSystem: '系统内置',
@@ -10,6 +11,7 @@ export default {
       addSystemUserGroup: '添加系统用户组',
       addSystemUser: '添加系统用户',
       addUser: '添加成员',
+      addMember: '添加成员',
       emptyUserGroup: '暂无自定义用户组，请点击上方创建或 “+” 创建用户组',
       rename: '重命名',
       changeAuthScope: '修改权限范围',
@@ -57,6 +59,11 @@ export default {
       removeName: '确认移除 {name} 这个用户吗',
       removeTip: '移除后，将失去用户组权限',
       custom: '自定义用户组',
+      projectUserGroup: '项目用户组',
+      orgUserGroup: '组织用户组',
+      addSysUserGroup: '添加系统用户组',
+      addOrgUserGroup: '添加组织用户组',
+      addProjectUserGroup: '添加项目用户组',
     },
   },
   permission: {

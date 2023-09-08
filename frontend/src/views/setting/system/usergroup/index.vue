@@ -52,7 +52,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import useUserGroupStore from '@/store/modules/setting/system/usergroup';
-  import UserGroupLeft from './components/index.vue';
+  import UserGroupLeft from './components/ms-usergroup-list.vue';
   import UserTable from './components/userTable.vue';
   import AuthTable from './components/authTable.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';

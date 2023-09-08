@@ -82,7 +82,7 @@
 <script lang="ts" setup>
   import { ref, onMounted, computed } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { PopVisibleItem, RenameType, UserGroupItem } from '@/models/setting/usergroup';
+  import { RenameType, UserGroupItem } from '@/models/setting/usergroup';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AddUserModal from './addUserModal.vue';
@@ -93,6 +93,10 @@
   import { useAppStore } from '@/store';
   import { getOrgUserGroupList, deleteOrgUserGroup } from '@/api/modules/setting/usergroup';
   import { characterLimit } from '@/utils';
+
+  interface PopVisibleItem {
+    [key: string]: boolean;
+  }
 
   const { t } = useI18n();
 
