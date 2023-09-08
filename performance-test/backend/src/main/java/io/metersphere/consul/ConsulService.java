@@ -75,6 +75,8 @@ public class ConsulService {
                     port = node.getMonitorPort();
                 }
                 result.put(node.getIp() + "-" + port, Collections.singletonList("metersphere"));
+                // node-controller 监控端口 8082
+                result.put(node.getIp() + "-" + node.getPort(), Collections.singletonList("metersphere"));
             }
         }
         cache.clear();
