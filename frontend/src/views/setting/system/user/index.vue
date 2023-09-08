@@ -52,6 +52,7 @@
     :mask-closable="false"
     @close="handleUserModalClose"
   >
+    <a-alert class="mb-[16px]">{{ t('system.user.createUserTip') }}</a-alert>
     <a-form ref="userFormRef" class="rounded-[4px]" :model="userForm" layout="vertical">
       <MsBatchForm
         ref="batchFormRef"

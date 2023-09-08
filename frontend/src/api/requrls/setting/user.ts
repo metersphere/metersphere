@@ -26,3 +26,7 @@ export const BatchAddOrgUrl = '/system/user/add-org-member';
 export const GetOrgsUrl = '/system/user/get/organization';
 // 查找项目
 export const GetProjectsUrl = '/system/user/get/project';
+// 用户注册
+export const RegisterByInviteUrl = '/system/user/register-by-invite';
+// 邀请用户
+export const InviteUserUrl = '/system/user/invite';

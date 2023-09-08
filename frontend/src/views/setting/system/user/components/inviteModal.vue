@@ -4,7 +4,6 @@
     :title="t('system.user.invite')"
     title-align="start"
     class="ms-modal-form ms-modal-medium"
-    :loading="inviteLoading"
   >
     <a-form ref="inviteFormRef" class="rounded-[4px]" :model="emailForm" layout="vertical">
       <a-form-item
@@ -42,8 +41,10 @@
       </a-form-item>
     </a-form>
     <template #footer>
-      <a-button type="secondary" @click="cancelInvite">{{ t('system.user.inviteCancel') }}</a-button>
-      <a-button type="primary" @click="emailInvite">
+      <a-button type="secondary" :disabled="inviteLoading" @click="cancelInvite">
+        {{ t('system.user.inviteCancel') }}
+      </a-button>
+      <a-button type="primary" :loading="inviteLoading" @click="emailInvite">
         {{ t('system.user.inviteSendEmail') }}
       </a-button>
     </template>
@@ -56,6 +57,7 @@
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import { inviteUser } from '@/api/modules/setting/user';
 
   import type { SystemRole } from '@/models/setting/user';
 
@@ -103,7 +105,10 @@
   function cancelInvite() {
     inviteVisible.value = false;
     inviteFormRef.value?.resetFields();
-    emailForm.value = cloneDeep(defaultInviteForm);
+    emailForm.value.emails = [];
+    emailForm.value.userGroup = props.userGroupOptions
+      .filter((e: SystemRole) => e.selected === true)
+      .map((e: SystemRole) => e.id);
   }
 
   function emailInvite() {
@@ -111,8 +116,12 @@
       if (!errors) {
         try {
           inviteLoading.value = true;
-          cancelInvite();
+          await inviteUser({
+            inviteEmails: emailForm.value.emails,
+            userRoleIds: emailForm.value.userGroup,
+          });
           Message.success(t('system.user.inviteSuccess'));
+          inviteVisible.value = false;
         } catch (error) {
           console.log(error);
         } finally {

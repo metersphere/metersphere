@@ -108,3 +108,15 @@ export interface OrgsItem {
   children?: OrgsItem[];
   leafNode: boolean;
 }
+
+export interface InviteUserParams {
+  inviteEmails: string[];
+  userRoleIds: string[];
+}
+
+export interface RegisterByInviteParams {
+  inviteId: string;
+  name: string;
+  password: string;
+  phone: string;
+}

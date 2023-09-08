@@ -38,6 +38,7 @@ export default {
   'system.user.addUser': '添加用户',
   'system.user.addUserSuccess': '添加成功',
   'system.user.updateUserSuccess': '更新成功',
+  'system.user.createUserTip': '初始密码为邮箱地址',
   'system.user.createUserName': '姓名',
   'system.user.createUserNameNotNull': '姓名不能为空',
   'system.user.createUserNameOverLength': '姓名长度不能超过50',

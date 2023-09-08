@@ -2,10 +2,14 @@
   <div class="invite-page">
     <div class="form-box w-1/3 rounded-[12px] bg-white">
       <div class="form-box-title">{{ t('invite.title') }}</div>
-      <a-form class="p-[24px_40px_40px_40px]" :model="form" :rules="rules" layout="vertical" @submit="confirmInvite">
-        <a-form-item field="email" class="hidden-item">
-          <a-input v-model="form.email" :placeholder="t('invite.emailPlaceholder')" allow-clear />
-        </a-form-item>
+      <a-form
+        ref="registerFormRef"
+        class="p-[24px_40px_40px_40px]"
+        :model="form"
+        :rules="rules"
+        layout="vertical"
+        @submit="confirmInvite"
+      >
         <a-form-item field="name" class="hidden-item">
           <a-input v-model="form.name" :placeholder="t('invite.namePlaceholder')" allow-clear />
         </a-form-item>
@@ -39,15 +43,15 @@
             </template>
           </a-popover>
         </a-form-item>
-        <a-form-item field="repassword" class="hidden-item">
+        <a-form-item field="rePassword" class="hidden-item">
           <a-input-password
-            v-model="form.repassword"
+            v-model="form.rePassword"
             :placeholder="t('invite.repasswordPlaceholder')"
             autocomplete="new-password"
             allow-clear
           />
         </a-form-item>
-        <a-button type="primary" html-type="submit">{{ t('invite.confirm') }}</a-button>
+        <a-button type="primary" :loading="loading" html-type="submit">{{ t('invite.confirm') }}</a-button>
       </a-form>
     </div>
   </div>
@@ -55,32 +59,29 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { validateEmail, validatePasswordLength, validateWordPassword } from '@/utils/validate';
+  import { validatePasswordLength, validateWordPassword } from '@/utils/validate';
+  import { registerByInvite } from '@/api/modules/setting/user';
+  import { sleep, encrypted } from '@/utils';
 
+  const route = useRoute();
+  const router = useRouter();
   const { t } = useI18n();
 
   const form = ref({
     name: '',
-    email: '',
     password: '',
-    repassword: '',
+    rePassword: '',
   });
 
   const pswValidateRes = ref(false);
   const pswLengthValidateRes = ref(false);
+  const registerFormRef = ref<FormInstance>();
+  const loading = ref(false);
 
   const rules = {
-    email: [
-      { required: true, message: t('invite.emailNotNull') },
-      {
-        validator: (value: string, callback: (error?: string) => void) => {
-          if (!validateEmail(value)) {
-            callback(t('invite.emailErr'));
-          }
-        },
-      },
-    ],
     name: [{ required: true, message: t('invite.nameNotNull') }],
     password: [
       { required: true, message: t('invite.passwordNotNull') },
@@ -96,7 +97,16 @@
         },
       },
     ],
-    repassword: [{ required: true, message: t('invite.repasswordNotNull') }],
+    rePassword: [
+      { required: true, message: t('invite.repasswordNotNull') },
+      {
+        validator: (value: string, callback: (error?: string) => void) => {
+          if (value !== form.value.password) {
+            callback(t('invite.repasswordNotSame'));
+          }
+        },
+      },
+    ],
   };
 
   function validatePsw(value: string) {
@@ -104,7 +114,30 @@
     pswLengthValidateRes.value = validatePasswordLength(value);
   }
 
-  function confirmInvite() {}
+  function confirmInvite() {
+    registerFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          loading.value = true;
+          await registerByInvite({
+            inviteId: route.query.inviteId as string,
+            name: form.value.name,
+            password: encrypted(form.value.password) || '',
+            phone: '',
+          });
+          Message.success(t('invite.success'));
+          await sleep(300);
+          router.push({
+            name: 'login',
+          });
+        } catch (error) {
+          console.log(error);
+        } finally {
+          loading.value = false;
+        }
+      }
+    });
+  }
 </script>
 
 <style lang="less" scoped>

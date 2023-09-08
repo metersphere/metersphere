@@ -1,4 +1,4 @@
-import { Recordable } from '#/global';
+import JSEncrypt from 'jsencrypt';
 import { isObject } from './is';
 
 type TargetContext = '_self' | '_parent' | '_blank' | '_top';
@@ -246,4 +246,17 @@ export function getFilterList(targetMap: Record<string, any>[], sourceMap: Recor
     }
   });
   return filteredData;
+}
+
+/**
+ * 加密
+ * @param input 输入的字符串
+ * @param publicKey 公钥
+ * @returns
+ */
+export function encrypted(input: string) {
+  const publicKey = localStorage.getItem('salt') || '';
+  const encrypt = new JSEncrypt({ default_key_size: '1024' });
+  encrypt.setPublicKey(publicKey);
+  return encrypt.encrypt(input);
 }

@@ -14,6 +14,7 @@ export default {
   'invite.passwordTipTitle': '密码须同时符合，仅支持以下规则',
   'invite.passwordLengthRule': '长度为8-32位',
   'invite.passwordWordRule': '必须包含数字和字母，不允许输入中文或空格',
+  'invite.success': '注册成功',
   'personal.info': '个人信息',
   'personal.switchOrg': '切换组织',
   'personal.exit': '退出系统',

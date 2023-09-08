@@ -69,6 +69,7 @@ export default {
   'system.resourcePool.batchAddResource': '批量添加资源',
   'system.resourcePool.changeAddTypeTip': '切换后，已添加资源内容将继续现在 yaml 内；可批量修改已添加资源',
   'system.resourcePool.changeAddTypePopTitle': '切换添加资源类型？',
+  'system.resourcePool.allUseTip': '如果配置多个测试类型，会存在抢占资源的情况，建议一种测试类型配置一个资源池',
   'system.resourcePool.ip': 'IP',
   'system.resourcePool.ipRequired': 'IP 地址不能为空',
   'system.resourcePool.ipPlaceholder': '请输入 IP 地址',

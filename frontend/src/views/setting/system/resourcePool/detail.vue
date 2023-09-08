@@ -73,6 +73,11 @@
         <a-checkbox-group v-model:model-value="form.use">
           <a-checkbox v-for="use of useList" :key="use.value" :value="use.value">{{ t(use.label) }}</a-checkbox>
         </a-checkbox-group>
+        <MsFormItemSub
+          v-if="form.use.length === 3"
+          :text="t('system.resourcePool.allUseTip')"
+          :show-fill-icon="false"
+        />
       </a-form-item>
       <template v-if="isCheckedPerformance">
         <a-form-item :label="t('system.resourcePool.mirror')" field="testResourceDTO.loadTestImage" class="form-item">
@@ -88,14 +93,10 @@
             :placeholder="t('system.resourcePool.testHeapPlaceholder')"
             :max-length="250"
           ></a-input>
-          <div class="mt-[4px] text-[12px] text-[var(--color-text-4)]">
-            {{ t('system.resourcePool.testHeapExample', { heap: defaultHeap }) }}
-            <MsIcon
-              type="icon-icon_corner_right_up"
-              class="cursor-pointer text-[rgb(var(--primary-6))]"
-              @click="fillHeapByDefault"
-            ></MsIcon>
-          </div>
+          <MsFormItemSub
+            :text="t('system.resourcePool.testHeapExample', { heap: defaultHeap })"
+            @fill="fillHeapByDefault"
+          />
         </a-form-item>
       </template>
 
@@ -344,6 +345,8 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
   import { getYaml, YamlType, job } from './template';
   import { downloadStringFile, sleep } from '@/utils';
