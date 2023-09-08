@@ -48,7 +48,8 @@
           {
             type: 'info',
             value: 'Skip',
-            label: this.$t('test_track.plan_view.skip')
+            label: this.$t('test_track.plan_view.skip'),
+            style: "background-color: #783887; border-color: #783887"
           },
           {
             type: 'info',
