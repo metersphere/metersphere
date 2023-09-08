@@ -16,32 +16,32 @@ public class MessageTask implements Serializable {
     private String id;
 
     @Schema(description = "通知事件类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.event.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{message_task.event.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{message_task.event.length_range}", groups = {Created.class, Updated.class})
     private String event;
 
     @Schema(description = "接收人id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.receiver.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{message_task.receiver.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{message_task.receiver.length_range}", groups = {Created.class, Updated.class})
     private String receiver;
 
     @Schema(description = "机器人id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.project_robot_id.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{message_task.project_robot_id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{message_task.project_robot_id.length_range}", groups = {Created.class, Updated.class})
     private String projectRobotId;
 
     @Schema(description = "任务类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.task_type.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{message_task.task_type.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 64, message = "{message_task.task_type.length_range}", groups = {Created.class, Updated.class})
     private String taskType;
 
     @Schema(description = "具体测试的ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.test_id.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{message_task.test_id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{message_task.test_id.length_range}", groups = {Created.class, Updated.class})
     private String testId;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.project_id.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{message_task.project_id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{message_task.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
@@ -50,15 +50,19 @@ public class MessageTask implements Serializable {
     private Boolean enable;
 
     @Schema(description = "创建人")
+    @NotNull(message = "{message_task.createUser.not_blank}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(description = "创建时间")
+    @NotNull(message = "{message_task.createTime.not_blank}", groups = {Created.class, Updated.class})
     private Long createTime;
 
     @Schema(description = "修改人")
+    @NotNull(message = "{message_task.updateUser.not_blank}", groups = {Created.class, Updated.class})
     private String updateUser;
 
     @Schema(description = "更新时间")
+    @NotNull(message = "{message_task.updateTime.not_blank}", groups = {Created.class, Updated.class})
     private Long updateTime;
 
     private static final long serialVersionUID = 1L;
