@@ -161,6 +161,7 @@
   .btn-base-sec-active();
 }
 .arco-btn-text {
+  color: rgb(var(--primary-5)) !important;
   .btn-text-sec-hover();
   .btn-text-sec-active();
   .btn-text-sec-disabled();
@@ -335,7 +336,7 @@
   .arco-radio-checked {
     @apply bg-white;
 
-    color: rgb(var(--primary-4));
+    color: rgb(var(--primary-5));
   }
 }
 .arco-radio {
@@ -649,4 +650,9 @@
 }
 .arco-picker-input-active input {
   border-radius: var(--border-radius-mini);
+}
+
+/** tooltip **/
+.arco-trigger-arrow {
+  border-bottom-right-radius: var(--border-radius-mini) !important;
 }

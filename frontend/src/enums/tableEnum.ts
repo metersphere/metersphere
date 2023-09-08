@@ -18,6 +18,7 @@ export enum TableKeyEnum {
   PROJECT_MEMBER = 'projectMember',
   ORGANIZATION_MEMBER = 'organizationMember',
   ORGANIZATION_PROJECT = 'organizationProject',
+  FILE_MANAGEMENT_FILE = 'fileManagementFile',
 }
 
 // 具有特殊功能的列

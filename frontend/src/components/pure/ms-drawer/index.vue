@@ -1,5 +1,6 @@
 <template>
   <a-drawer
+    v-bind="props"
     v-model:visible="visible"
     :width="props.width"
     :footer="props.footer"
@@ -17,26 +18,25 @@
         </div>
       </slot>
     </template>
-    <a-scrollbar
-      :style="{
-        overflowY: 'auto',
-        height: 'calc(100vh - 146px)',
-      }"
-    >
-      <slot>
-        <MsDescription
-          v-if="props.descriptions && props.descriptions.length > 0"
-          :descriptions="props.descriptions"
-          :show-skeleton="props.showSkeleton"
-          :skeleton-line="10"
-        >
-          <template #value="{ item }">
-            <slot name="descValue" :item="item">
-              {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
-            </slot>
-          </template>
-        </MsDescription>
-      </slot>
+    <a-scrollbar class="overflow-y-auto" style="height: calc(100vh - 146px)">
+      <div class="ms-drawer-body">
+        <slot>
+          <MsDescription
+            v-if="props.descriptions && props.descriptions.length > 0"
+            :descriptions="props.descriptions"
+            :show-skeleton="props.showSkeleton"
+            :skeleton-line="10"
+          >
+            <template #value="{ item }">
+              <slot name="descValue" :item="item">
+                {{
+                  item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value
+                }}
+              </slot>
+            </template>
+          </MsDescription>
+        </slot>
+      </div>
     </a-scrollbar>
     <template #footer>
       <slot name="footer">

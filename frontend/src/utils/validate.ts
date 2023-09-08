@@ -6,6 +6,9 @@ export const phoneRegex = /^\d{11}$/;
 export const passwordLengthRegex = /^.{8,32}$/;
 // 密码校验，必须包含数字和字母
 export const passwordWordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
+// Git地址校验
+export const gitRepositoryUrlRegex =
+  /^(?:(?:git:\/\/|https?:\/\/)(?:www\.)?)?(github\.com|gitee\.com)\/([^/]+)\/([^/]+)\.git$/;
 
 /**
  * 校验邮箱
@@ -50,4 +53,13 @@ export function validateWordPassword(password: string): boolean {
  */
 export function validatePassword(password: string): boolean {
   return validatePasswordLength(password) && validateWordPassword(password);
+}
+
+/**
+ * 校验Git地址
+ * @param url Git地址
+ * @returns boolean
+ */
+export function validateGitUrl(url: string): boolean {
+  return gitRepositoryUrlRegex.test(url);
 }

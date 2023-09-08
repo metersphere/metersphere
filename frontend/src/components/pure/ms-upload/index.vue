@@ -5,16 +5,22 @@
     :accept="UploadAcceptEnum[props.accept]"
     :multiple="props.multiple"
     :disabled="props.disabled"
+    @change="handleChange"
     @before-upload="beforeUpload"
   >
     <template #upload-button>
       <slot>
         <div class="ms-upload-area">
           <div class="ms-upload-icon-box">
-            <MsIcon v-if="fileList.length > 0" :type="IconMap[props.accept]" class="ms-upload-icon" />
+            <MsIcon
+              v-if="props.accept !== UploadAcceptEnum.none"
+              :type="FileIconMap[props.accept][UploadStatus.done]"
+              class="ms-upload-icon"
+            />
             <div v-else class="ms-upload-icon ms-upload-icon--default"></div>
           </div>
-          <template v-if="fileList.length === 0">
+          <!-- 支持多文件上传时，不需要展示选择文件后的信息，已选的文件使用文件列表搭配展示 -->
+          <template v-if="fileList.length === 0 || props.multiple">
             <div class="ms-upload-main-text">
               {{ t(props.mainText || 'ms.upload.importModalDragText') }}
             </div>
@@ -41,13 +47,14 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
+  import { Message } from '@arco-design/web-vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { UploadAcceptEnum } from '@/enums/uploadEnum';
+  import { UploadAcceptEnum, UploadStatus } from '@/enums/uploadEnum';
   import { formatFileSize } from '@/utils';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import { FileIconMap } from './iconMap';
 
-  import { FileItem, Message } from '@arco-design/web-vue';
-  import type { UploadType } from './types';
+  import type { UploadType, MsFileItem } from './types';
 
   const { t } = useI18n();
 
@@ -67,18 +74,18 @@
     isLimit: boolean; // 是否限制文件大小
   }> & {
     accept: UploadType;
-    fileList: FileItem[];
+    fileList: MsFileItem[];
   };
 
   const props = withDefaults(defineProps<UploadProps>(), {
     showSubText: true,
     isLimit: true,
   });
-  const emit = defineEmits(['update:fileList']);
+  const emit = defineEmits(['update:fileList', 'change']);
 
   const defaultMaxSize = 50;
 
-  const fileList = ref<FileItem[]>(props.fileList);
+  const fileList = ref<MsFileItem[]>(props.fileList);
 
   watch(
     () => props.fileList,
@@ -94,21 +101,6 @@
     }
   );
 
-  const IconMap = {
-    excel: 'icon-icon_file-excel_colorful1',
-    word: 'icon-icon_file-word_colorful1',
-    pdf: 'icon-icon_file-pdf_colorful1',
-    txt: 'icon-icon_file-text_colorful1',
-    video: 'icon-icon_file-vedio_colorful1',
-    sql: 'icon-icon_file-sql_colorful1',
-    csv: 'icon-icon_file-CSV_colorful1',
-    zip: 'icon-a-icon_file-compressed_colorful1',
-    xmind: 'icon-icon_file-xmind_colorful1',
-    image: 'icon-icon_file-image_colorful1',
-    jar: 'icon-icon_file-jar_colorful',
-    none: 'icon-icon_file-text_colorful1',
-  };
-
   async function beforeUpload(file: File) {
     if (!props.multiple && fileList.value.length > 0) {
       // 单文件上传时，清空之前的文件
@@ -121,6 +113,10 @@
       return Promise.resolve(false);
     }
     return Promise.resolve(true);
+  }
+
+  function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
+    emit('change', _fileList, fileItem);
   }
 </script>
 
