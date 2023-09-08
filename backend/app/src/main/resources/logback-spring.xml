@@ -431,6 +431,33 @@
     <logger name="io.metersphere.sdk.mapper" level="${logger.sql.level}">
         <appender-ref ref="console"/>
     </logger>
+    <logger name="io.metersphere.system.mapper" level="${logger.sql.level}">
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="io.metersphere.project.mapper" level="${logger.sql.level}">
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="io.metersphere.api.mapper" level="${logger.sql.level}">
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="io.metersphere.load.mapper" level="${logger.sql.level}">
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="io.metersphere.ui.mapper" level="${logger.sql.level}">
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="io.metersphere.plan.mapper" level="${logger.sql.level}">
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="io.metersphere.workstation.mapper" level="${logger.sql.level}">
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="io.metersphere.bug.mapper" level="${logger.sql.level}">
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="io.metersphere.functional.mapper" level="${logger.sql.level}">
+        <appender-ref ref="console"/>
+    </logger>
 
     <logger name="io.metersphere.ApiApplication" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="infoAsyncAppender"/>
