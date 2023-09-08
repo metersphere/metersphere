@@ -64,7 +64,7 @@
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import type { LoginData } from '@/models/user';
   import { WorkbenchRouteEnum } from '@/enums/routeEnum';
-  import JSEncrypt from 'jsencrypt';
+  import { encrypted } from '@/utils';
 
   const router = useRouter();
   const { t } = useI18n();
@@ -100,12 +100,6 @@
     password: 'metersphere',
   });
 
-  const encrypted = (input: string, publicKey: string) => {
-    const encrypt = new JSEncrypt({ default_key_size: '1024' });
-    encrypt.setPublicKey(publicKey);
-    return encrypt.encrypt(input);
-  };
-
   const handleSubmit = async ({
     errors,
     values,
@@ -117,10 +111,9 @@
     if (!errors) {
       setLoading(true);
       try {
-        const publicKey = localStorage.getItem('salt') || '';
         await userStore.login({
-          username: encrypted(values.username, publicKey),
-          password: encrypted(values.password, publicKey),
+          username: encrypted(values.username),
+          password: encrypted(values.password),
           authenticate: values.authenticate,
         } as LoginData);
         Message.success(t('login.form.login.success'));

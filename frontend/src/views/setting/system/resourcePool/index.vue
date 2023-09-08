@@ -84,41 +84,37 @@
       title: 'system.resourcePool.tableColumnName',
       slotName: 'name',
       dataIndex: 'name',
-      width: 200,
-      showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.resourcePool.tableColumnStatus',
       slotName: 'enable',
       dataIndex: 'enable',
-      showInTable: true,
     },
     {
       title: 'system.resourcePool.tableColumnDescription',
       dataIndex: 'description',
-      showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.resourcePool.tableColumnType',
       dataIndex: 'type',
-      showInTable: true,
     },
     {
       title: 'system.resourcePool.tableColumnCreateTime',
       dataIndex: 'createTime',
-      showInTable: true,
+      width: 170,
     },
     {
       title: 'system.resourcePool.tableColumnUpdateTime',
       dataIndex: 'updateTime',
-      showInTable: true,
+      width: 170,
     },
     {
       title: 'system.resourcePool.tableColumnActions',
       slotName: 'action',
       fixed: 'right',
       width: 140,
-      showInTable: true,
     },
   ];
   const tableStore = useTableStore();

@@ -14,6 +14,8 @@ import {
   GetOrgsUrl,
   GetProjectsUrl,
   GetUserInfoUrl,
+  InviteUserUrl,
+  RegisterByInviteUrl,
 } from '@/api/requrls/setting/user';
 import type {
   UserListItem,
@@ -27,6 +29,8 @@ import type {
   BatchAddParams,
   ResetUserPasswordParams,
   OrgsItem,
+  InviteUserParams,
+  RegisterByInviteParams,
 } from '@/models/setting/user';
 import type { CommonList, TableQueryParams } from '@/models/common';
 
@@ -99,4 +103,14 @@ export function getSystemOrgs() {
 // 获取系统项目
 export function getSystemProjects() {
   return MSR.get<OrgsItem[]>({ url: GetProjectsUrl });
+}
+
+// 邀请用户
+export function inviteUser(data: InviteUserParams) {
+  return MSR.post({ url: InviteUserUrl, data });
+}
+
+// 用户注册
+export function registerByInvite(data: RegisterByInviteParams) {
+  return MSR.post({ url: RegisterByInviteUrl, data });
 }

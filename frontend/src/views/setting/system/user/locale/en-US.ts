@@ -39,6 +39,7 @@ export default {
   'system.user.addUser': 'Add user',
   'system.user.addUserSuccess': 'Added successfully',
   'system.user.updateUserSuccess': 'Updated successfully',
+  'system.user.createUserTip': 'The initial password is email address',
   'system.user.createUserName': 'Name',
   'system.user.createUserNameNotNull': 'Name cannot be blank',
   'system.user.createUserNameOverLength': 'Name length cannot exceed 50',
