@@ -41,9 +41,6 @@ public abstract class TestElementDTO implements Serializable {
     // 子组件
     private LinkedList<TestElementDTO> children;
 
-    // 父类
-    private TestElementDTO parent;
-
     /**
      * 自组件重新这个方法
      */
