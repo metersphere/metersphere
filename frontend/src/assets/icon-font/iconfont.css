@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1693381191489') format('woff2'), url('iconfont.woff?t=1693381191489') format('woff'),
-    url('iconfont.ttf?t=1693381191489') format('truetype'), url('iconfont.svg?t=1693381191489#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1693882799546') format('woff2'), url('iconfont.woff?t=1693882799546') format('woff'),
+    url('iconfont.ttf?t=1693882799546') format('truetype'), url('iconfont.svg?t=1693882799546#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,21 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_folder_expansion1::before {
+  content: '\e75b';
+}
+.icon-icon_feishu::before {
+  content: '\e75a';
+}
+.icon-a-icon_file-jar_colorful::before {
+  content: '\e759';
+}
+.icon-icon_dingding::before {
+  content: '\e757';
+}
+.icon-icon_bot1::before {
+  content: '\e758';
 }
 .icon-icon_folder_collapse1::before {
   content: '\e756';
@@ -288,9 +303,6 @@
 }
 .icon-icon_reduce::before {
   content: '\e63e';
-}
-.icon-icon_folder_expansion::before {
-  content: '\e633';
 }
 .icon-icon_functional_testing::before {
   content: '\e630';

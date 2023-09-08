@@ -6,11 +6,13 @@
       isArrivedBottom ? 'ms-timeline--hidden-bottom-shadow' : '',
     ]"
   >
-    <a-list
+    <MsList
       ref="listRef"
       :data="props.list"
       :virtual-list-props="{ height: props.maxHeight }"
       :bordered="false"
+      :mode="props.mode"
+      no-hover
       @reach-bottom="handleReachBottom"
     >
       <template #item="{ item, index }">
@@ -25,21 +27,15 @@
               </slot>
             </a-timeline-item>
           </a-list-item>
-          <div
-            v-if="props.mode === 'remote' && index === props.list.length - 1"
-            class="flex h-[32px] items-center justify-center"
-          >
-            <div v-if="noMoreData" class="text-[var(--color-text-4)]">{{ t('ms.timeline.noMoreData') }}</div>
-            <a-spin v-else />
-          </div>
         </div>
       </template>
-    </a-list>
+    </MsList>
   </a-timeline>
 </template>
 
 <script setup lang="ts">
   import { nextTick, ref, Ref, watch, onBeforeUnmount } from 'vue';
+  import MsList from '@/components/pure/ms-list/index.vue';
   import { useI18n } from '@/hooks/useI18n';
 
   import type { MsTimeLineListItem } from './types';

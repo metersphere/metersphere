@@ -3,6 +3,7 @@
     v-bind="props"
     ref="treeRef"
     v-model:expanded-keys="expandedKeys"
+    :selected-keys="selectedKeys"
     :data="treeData"
     class="ms-tree"
     @drop="onDrop"
@@ -75,6 +76,7 @@
       selectable?: boolean; // 是否可选中
       fieldNames?: MsTreeFieldNames; // 自定义字段名
       focusNodeKey?: string | number; // 聚焦的节点 key
+      selectedKeys?: Array<string | number>; // 选中的节点 key
       nodeMoreActions?: ActionsItem[]; // 节点展示在省略号按钮内的更多操作
       expandAll?: boolean; // 是否展开/折叠所有节点，true 为全部展开，false 为全部折叠
       emptyText?: string; // 空数据时的文案
@@ -103,6 +105,7 @@
     ): void;
     (e: 'moreActionSelect', item: ActionsItem, node: MsTreeNodeData): void;
     (e: 'update:focusNodeKey', val: string | number): void;
+    (e: 'update:selectedKeys', val: Array<string | number>): void;
     (e: 'moreActionsClose'): void;
   }>();
 
@@ -294,6 +297,22 @@
       if (typeof val === 'boolean') {
         treeRef.value?.expandAll(val);
       }
+    }
+  );
+
+  const selectedKeys = ref(props.selectedKeys || []);
+
+  watch(
+    () => props.selectedKeys,
+    (val) => {
+      selectedKeys.value = val || [];
+    }
+  );
+
+  watch(
+    () => selectedKeys.value,
+    (val) => {
+      emit('update:selectedKeys', val);
     }
   );
 </script>

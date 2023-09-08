@@ -6,6 +6,41 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "37233527",
+      "name": "icon_folder_expansion",
+      "font_class": "icon_folder_expansion1",
+      "unicode": "e75b",
+      "unicode_decimal": 59227
+    },
+    {
+      "icon_id": "37227747",
+      "name": "icon_feishu",
+      "font_class": "icon_feishu",
+      "unicode": "e75a",
+      "unicode_decimal": 59226
+    },
+    {
+      "icon_id": "37227608",
+      "name": "icon_file- jar_colorful",
+      "font_class": "a-icon_file-jar_colorful",
+      "unicode": "e759",
+      "unicode_decimal": 59225
+    },
+    {
+      "icon_id": "37227685",
+      "name": "icon_dingding",
+      "font_class": "icon_dingding",
+      "unicode": "e757",
+      "unicode_decimal": 59223
+    },
+    {
+      "icon_id": "37227125",
+      "name": "icon_bot",
+      "font_class": "icon_bot1",
+      "unicode": "e758",
+      "unicode_decimal": 59224
+    },
+    {
       "icon_id": "37159110",
       "name": "icon_folder_collapse",
       "font_class": "icon_folder_collapse1",
@@ -655,13 +690,6 @@
       "font_class": "icon_reduce",
       "unicode": "e63e",
       "unicode_decimal": 58942
-    },
-    {
-      "icon_id": "36195396",
-      "name": "icon_folder_expansion",
-      "font_class": "icon_folder_expansion",
-      "unicode": "e633",
-      "unicode_decimal": 58931
     },
     {
       "icon_id": "36194683",
