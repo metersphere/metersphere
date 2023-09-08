@@ -24,8 +24,9 @@
             <a-option
               :value="project.id"
               :class="project.id === appStore.getCurrentProjectId ? 'arco-select-option-selected' : ''"
-              >{{ project.name }}</a-option
             >
+              {{ project.name }}
+            </a-option>
           </a-tooltip>
         </a-select>
         <a-divider direction="vertical" class="mr-0" />
@@ -188,7 +189,7 @@
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
   import { NOT_SHOW_PROJECT_SELECT_MODULE } from '@/router/constants';
-  // import { getProjectList } from '@/api/modules/setting/project';
+  import { getProjectList } from '@/api/modules/project-management/project';
   import { useI18n } from '@/hooks/useI18n';
 
   import type { ProjectListItem } from '@/models/setting/project';
@@ -207,12 +208,12 @@
   const projectList: Ref<ProjectListItem[]> = ref([]);
 
   onBeforeMount(async () => {
-    // try {
-    //   const res = await getProjectList(appStore.getCurrentOrgId);
-    //   projectList.value = res;
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    try {
+      const res = await getProjectList(appStore.getCurrentOrgId);
+      projectList.value = res;
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   const showProjectSelect = computed(() => {
@@ -364,4 +365,4 @@
     }
   }
 </style>
-@/models/setting/project @/api/modules/setting/project
+@/models/setting/project @/api/modules/setting/project @/api/modules/project-management/project

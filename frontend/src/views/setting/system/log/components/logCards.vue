@@ -1,17 +1,29 @@
 <template>
   <MsCard simple auto-height>
     <div class="filter-box">
-      <MsSearchSelect
-        v-model:model-value="operUser"
-        placeholder="system.log.operatorPlaceholder"
-        prefix="system.log.operator"
-        :options="userList"
-        :search-keys="['label', 'email']"
-        :option-label-render="
-          (item) => `${item.label}<span class='text-[var(--color-text-2)]'>（${item.email}）</span>`
-        "
-        allow-clear
-      />
+      <div class="filter-item">
+        <MsSearchSelect
+          v-model:model-value="operUser"
+          mode="remote"
+          placeholder="system.log.operatorPlaceholder"
+          prefix="system.log.operator"
+          :options="[]"
+          :remote-func="requestFuncMap[props.mode].usersFunc"
+          :remote-extra-params="{ id: props.mode === 'PROJECT' ? appStore.currentProjectId : appStore.currentOrgId }"
+          :remote-fields-map="{
+            id: 'id',
+            value: 'value',
+            label: 'name',
+            email: 'email',
+          }"
+          :search-keys="['label', 'email']"
+          :option-tooltip-content="(item) => `${item.name}(${item.email})`"
+          :option-label-render="
+            (item) => `${item.label}<span class='text-[var(--color-text-2)]'>（${item.email}）</span>`
+          "
+          allow-clear
+        />
+      </div>
       <a-range-picker
         v-model:model-value="time"
         show-time
@@ -30,6 +42,7 @@
         </template>
       </a-range-picker>
       <MsCascader
+        v-if="props.mode !== 'PROJECT'"
         v-model:model-value="operateRange"
         v-model:level="level"
         :options="rangeOptions"
@@ -37,6 +50,7 @@
         :level-top="[...MENU_LEVEL]"
         :virtual-list-props="{ height: 200 }"
         :loading="rangeLoading"
+        class="filter-item"
       />
       <a-select v-model:model-value="type" class="filter-item">
         <template #prefix>
@@ -53,6 +67,7 @@
         :placeholder="t('system.log.operateTargetPlaceholder')"
         :panel-width="100"
         strictly
+        class="filter-item"
       />
       <a-input
         v-model:model-value="content"
@@ -64,11 +79,19 @@
           {{ t('system.log.operateName') }}
         </template>
       </a-input>
+      <div v-if="props.mode === 'PROJECT'">
+        <a-button type="outline" @click="searchLog">{{ t('system.log.search') }}</a-button>
+        <a-button type="outline" class="arco-btn-outline--secondary ml-[8px]" @click="resetFilter">
+          {{ t('system.log.reset') }}
+        </a-button>
+      </div>
     </div>
-    <a-button type="outline" @click="searchLog">{{ t('system.log.search') }}</a-button>
-    <a-button type="outline" class="arco-btn-outline--secondary ml-[8px]" @click="resetFilter">
-      {{ t('system.log.reset') }}
-    </a-button>
+    <template v-if="props.mode !== 'PROJECT'">
+      <a-button type="outline" @click="searchLog">{{ t('system.log.search') }}</a-button>
+      <a-button type="outline" class="arco-btn-outline--secondary ml-[8px]" @click="resetFilter">
+        {{ t('system.log.reset') }}
+      </a-button>
+    </template>
   </MsCard>
   <div class="log-card">
     <div class="log-card-header">
@@ -109,6 +132,8 @@
     getOrgLogList,
     getOrgLogOptions,
     getOrgLogUsers,
+    getProjectLogList,
+    getProjectLogUsers,
   } from '@/api/modules/setting/log';
   import MsCascader from '@/components/business/ms-cascader/index.vue';
   import useTableStore from '@/store/modules/ms-table';
@@ -151,9 +176,9 @@
       usersFunc: getOrgLogUsers,
     },
     [MENU_LEVEL[2]]: {
-      listFunc: getOrgLogList,
-      optionsFunc: getOrgLogOptions,
-      usersFunc: getOrgLogUsers,
+      listFunc: getProjectLogList,
+      optionsFunc: getOrgLogOptions, // 忽略，这里并不加载
+      usersFunc: getProjectLogUsers,
     },
   };
 
@@ -198,6 +223,7 @@
    * 初始化操作范围级联选项
    */
   async function initRangeOptions() {
+    if (props.mode === 'PROJECT') return;
     try {
       rangeLoading.value = true;
       const res = await requestFuncMap[props.mode].optionsFunc(appStore.currentOrgId);
@@ -418,7 +444,7 @@
       title: 'system.log.time',
       dataIndex: 'createTime',
       fixed: 'right',
-      width: 170,
+      width: 180,
       sortable: {
         sortDirections: ['ascend', 'descend'],
       },
@@ -433,6 +459,7 @@
       columns,
       selectable: false,
       showSelectAll: false,
+      size: 'default',
     }
   );
 
@@ -474,7 +501,7 @@
   }
 
   onBeforeMount(() => {
-    initUserList();
+    // initUserList();
     initRangeOptions();
     initModuleOptions();
     searchLog();
@@ -487,6 +514,9 @@
 
     margin-bottom: 16px;
     gap: 16px;
+    .filter-item {
+      @apply overflow-hidden;
+    }
   }
   @media screen and (max-width: 1400px) {
     .filter-box {
