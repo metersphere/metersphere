@@ -73,12 +73,11 @@ public class MinioRepository implements FileRepository {
         return listObjects(MinioConfig.BUCKET, getPath(request));
     }
 
-    private boolean removeObject(String bucketName, String objectName) throws Exception {
+    private void removeObject(String bucketName, String objectName) throws Exception {
         client.removeObject(RemoveObjectArgs.builder()
                 .bucket(bucketName) // 存储桶
                 .object(objectName) // 文件名
                 .build());
-        return true;
     }
 
     public void removeObjects(String bucketName, String objectName) throws Exception {
