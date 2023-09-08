@@ -25,7 +25,7 @@
         select urr.id, u.id as userId, u.name, u.email, u.phone
         from user_role_relation urr
         inner join user u on urr.user_id = u.id and urr.role_id = #{request.roleId} and u.deleted = 0
-        <if test="request.keyword != null">
+        <if test="request.keyword != null and request.keyword != ''">
             and (
                 u.name like concat('%', #{request.keyword},'%')
                 or u.email like concat('%', #{request.keyword},'%')
