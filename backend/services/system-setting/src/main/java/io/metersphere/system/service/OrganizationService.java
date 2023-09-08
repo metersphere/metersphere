@@ -6,6 +6,7 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -16,7 +17,6 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.dto.*;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.request.*;
@@ -80,7 +80,10 @@ public class OrganizationService {
      */
     public List<OrganizationDTO> list(OrganizationRequest organizationRequest) {
         List<OrganizationDTO> organizationDTOS = extOrganizationMapper.list(organizationRequest);
-        List<OrganizationDTO> organizations = buildUserInfo(organizationDTOS);
+        if (CollectionUtils.isEmpty(organizationDTOS)) {
+            return new ArrayList<>();
+        }
+        List<OrganizationDTO> organizations = buildExtraInfo(organizationDTOS);
         return buildOrgAdminInfo(organizations);
     }
 
@@ -197,6 +200,7 @@ public class OrganizationService {
             userRoleRelationMapper.batchInsert(userRoleRelations);
         }
     }
+
     /**
      * 删除组织成员
      *
@@ -261,8 +265,8 @@ public class OrganizationService {
         //根据关系表查询出用户的关联组织和用户组
         Map<String, Set<String>> userIdRoleIdMap = new HashMap<>();
         Map<String, Set<String>> userIdProjectIdMap = new HashMap<>();
-        Set<String>roleIdSet = new HashSet<>();
-        Set<String>projectIdSet = new HashSet<>();
+        Set<String> roleIdSet = new HashSet<>();
+        Set<String> projectIdSet = new HashSet<>();
         for (UserRoleRelation userRoleRelationsByUser : userRoleRelationsByUsers) {
             String sourceId = userRoleRelationsByUser.getSourceId();
             String roleId = userRoleRelationsByUser.getRoleId();
@@ -281,14 +285,14 @@ public class OrganizationService {
         List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
 
         List<Project> projects = new ArrayList<>();
-        if (projectIdSet.size()>0) {
+        if (projectIdSet.size() > 0) {
             ProjectExample projectExample = new ProjectExample();
             projectExample.createCriteria().andIdIn(new ArrayList<>(projectIdSet));
             projects = projectMapper.selectByExample(projectExample);
         }
 
         for (OrgUserExtend orgUserExtend : orgUserExtends) {
-            if (projects.size()>0) {
+            if (projects.size() > 0) {
                 Set<String> projectIds = userIdProjectIdMap.get(orgUserExtend.getId());
                 if (CollectionUtils.isNotEmpty(projectIds)) {
                     List<Project> projectFilters = projects.stream().filter(t -> projectIds.contains(t.getId())).toList();
@@ -805,21 +809,26 @@ public class OrganizationService {
     }
 
     /**
-     * 设置用户信息
+     * 设置列表其他信息(用户信息, 项目及成员数量)
      *
      * @param organizationDTOS 组织集合
      * @return 组织集合
      */
-    private List<OrganizationDTO> buildUserInfo(List<OrganizationDTO> organizationDTOS) {
+    private List<OrganizationDTO> buildExtraInfo(List<OrganizationDTO> organizationDTOS) {
         List<String> userIds = new ArrayList<>();
         userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getCreateUser).toList());
         userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getUpdateUser).toList());
         userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getDeleteUser).toList());
         Map<String, String> userMap = baseUserService.getUserNameMap(userIds.stream().distinct().toList());
+        List<String> ids = organizationDTOS.stream().map(OrganizationDTO::getId).toList();
+        List<OrganizationCountDTO> orgCountList = extOrganizationMapper.getCountByIds(ids);
+        Map<String, OrganizationCountDTO> orgCountMap = orgCountList.stream().collect(Collectors.toMap(OrganizationCountDTO::getId, count -> count));
         organizationDTOS.forEach(organizationDTO -> {
             organizationDTO.setCreateUser(userMap.get(organizationDTO.getCreateUser()));
             organizationDTO.setDeleteUser(userMap.get(organizationDTO.getDeleteUser()));
             organizationDTO.setUpdateUser(userMap.get(organizationDTO.getUpdateUser()));
+            organizationDTO.setProjectCount(orgCountMap.get(organizationDTO.getId()).getProjectCount());
+            organizationDTO.setMemberCount(orgCountMap.get(organizationDTO.getId()).getMemberCount());
         });
         return organizationDTOS;
     }
