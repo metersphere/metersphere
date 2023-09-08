@@ -84,6 +84,8 @@ public class ProjectApplicationControllerTests extends BaseTest {
     public static final String UI_UPDATE_URL = "/project/application/update/ui";
     //获取配置
     public static final String GET_UI_URL = "/project/application/ui";
+    //获取资源池
+    public static final String GET_UI_RESOURCE_POOL_URL = "/project/application/ui/resource/pool";
 
     //应用配置 - UI测试 - 清理报告配置
     @Test
@@ -122,6 +124,13 @@ public class ProjectApplicationControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(GET_UI_URL, request);
         // @@异常参数校验
         updatedGroupParamValidateTest(ProjectApplicationRequestDefinition.class, GET_UI_URL);
+    }
+
+    //应用管理 - UI测试 - 获取资源池
+    @Test
+    @Order(6)
+    public void testGetUiResourcePool() throws Exception {
+        this.requestGetWithOkAndReturn(GET_UI_RESOURCE_POOL_URL + "/default_organization");
     }
     /**
      * ==========UI测试 end==========
