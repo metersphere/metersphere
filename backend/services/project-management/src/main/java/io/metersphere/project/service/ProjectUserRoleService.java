@@ -31,6 +31,7 @@ import static io.metersphere.system.controller.result.SystemResultCode.NO_PROJEC
 
 /**
  * 项目-用户组与权限
+ *
  * @author song-cc-rock
  */
 @Service
@@ -185,6 +186,7 @@ public class ProjectUserRoleService extends BaseUserRoleService {
 
     /**
      * 校验是否项目下用户组
+     *
      * @param userRole 用户组
      */
     private void checkProjectUserRole(UserRole userRole) {

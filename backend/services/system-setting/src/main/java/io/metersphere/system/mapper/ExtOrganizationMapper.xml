@@ -1,55 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtOrganizationMapper">
-     <select id="list" resultType="io.metersphere.system.dto.OrganizationDTO">
-         select o.id, o.num, o.name, o.description, o.create_time,
-         o.update_time, o.create_user, o.deleted, o.delete_user, o.delete_time, o.enable,
-         coalesce(membercount, 0) as memberCount, coalesce(projectcount, 0) as projectCount
-         from organization o
-         left join (
-             select source_id, count(distinct u.id) as membercount from user_role_relation ur
-             join user u on ur.user_id = u.id and u.deleted = 0
-             group by source_id
-         ) as members_group on o.id = members_group.source_id
-         left join (
-             select organization_id, count(project.id) as projectcount from project
-             group by organization_id
-         ) as projects_group on o.id = projects_group.organization_id
+    <select id="list" resultType="io.metersphere.system.dto.OrganizationDTO">
+        select o.id, o.num, o.name, o.description, o.create_time,
+        o.update_time, o.create_user, o.deleted, o.delete_user, o.delete_time, o.enable
+        from organization o
         <include refid="queryWhereCondition"/>
     </select>
 
+    <select id="getCountByIds" resultType="io.metersphere.system.dto.OrganizationCountDTO">
+        select o.id,
+        coalesce(membercount, 0) as memberCount, coalesce(projectcount, 0) as projectCount
+        from organization o
+        left join (
+        select source_id, count(distinct u.id) as membercount from user_role_relation ur
+        join user u on ur.user_id = u.id and u.deleted = 0
+        where source_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        group by source_id
+        ) as members_group on o.id = members_group.source_id
+        left join (
+        select organization_id, count(project.id) as projectcount from project
+        where organization_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        group by organization_id
+        ) as projects_group on o.id = projects_group.organization_id
+    </select>
+
     <select id="listAll" resultType="io.metersphere.system.dto.OrganizationDTO">
-        select * from organization
+        select *
+        from organization
     </select>
 
     <update id="delete" parameterType="io.metersphere.system.request.OrganizationDeleteRequest">
-        update organization set deleted = true , delete_time = #{request.deleteTime} , delete_user = #{request.deleteUserId} where id = #{request.organizationId}
+        update organization
+        set deleted     = true,
+            delete_time = #{request.deleteTime},
+            delete_user = #{request.deleteUserId}
+        where id = #{request.organizationId}
     </update>
 
     <update id="recover" parameterType="java.lang.String">
-        update organization set deleted = false where id = #{id}
+        update organization
+        set deleted = false
+        where id = #{id}
     </update>
 
     <update id="updateEnable">
-        update organization set `enable` = #{enable} where id = #{id}
+        update organization
+        set `enable` = #{enable}
+        where id = #{id}
     </update>
 
     <select id="listMember" resultType="io.metersphere.sdk.dto.UserExtend">
         select temp.*, max(if(temp.role_id = 'org_admin', true, false)) as adminFlag
         from (
-            select u.*, urr.role_id
-            from user_role_relation urr
-            join `user` u on urr.user_id = u.id
-            <where>
-                u.deleted = 0
-                <if test="request.organizationId != null and request.organizationId != ''">
-                    and urr.source_id = #{request.organizationId}
-                </if>
-                <if test="request.keyword != null and request.keyword != ''">
-                    and u.name like concat('%', #{request.keyword},'%')
-                </if>
-            </where>
-            order by u.update_time desc
+        select u.*, urr.role_id
+        from user_role_relation urr
+        join `user` u on urr.user_id = u.id
+        <where>
+            u.deleted = 0
+            <if test="request.organizationId != null and request.organizationId != ''">
+                and urr.source_id = #{request.organizationId}
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                and u.name like concat('%', #{request.keyword},'%')
+            </if>
+        </where>
+        order by u.update_time desc
         ) temp
         group by temp.id
         order by adminFlag desc
@@ -90,12 +112,16 @@
     <select id="getOrgAdminList" resultType="io.metersphere.system.domain.User">
         select u.*
         from user_role_relation urr
-        join `user` u on urr.user_id = u.id
-        where urr.role_id = 'org_admin'and urr.source_id = #{orgId} and u.deleted = false
+                 join `user` u on urr.user_id = u.id
+        where urr.role_id = 'org_admin'
+          and urr.source_id = #{orgId}
+          and u.deleted = false
     </select>
 
     <select id="selectOrganizationOptions" resultType="io.metersphere.system.dto.OrganizationProjectOptionsDTO">
-        select id, name from organization order by create_time desc
+        select id, name
+        from organization
+        order by create_time desc
     </select>
 
     <select id="getOptionsByIds" resultType="io.metersphere.sdk.dto.OptionDTO">
