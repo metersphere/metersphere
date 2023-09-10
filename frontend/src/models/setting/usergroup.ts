@@ -1,3 +1,5 @@
+import { AuthScopeEnum } from '@/enums/commonEnum';
+
 export interface UserGroupListItem {
   name: string;
   id: number;
@@ -27,7 +29,7 @@ export interface UserGroupItem {
   // 是否是内置用户组
   internal: true;
   // 所属类型
-  type: AuthScopeType;
+  type: AuthScopeEnum;
   createTime: number;
   updateTime: number;
   // 创建人
@@ -48,6 +50,7 @@ export interface OrgUserGroupParams {
   id?: string; // 组ID
   name: string;
   scopeId: string; // 组织ID
+  type?: string; // 组类型：SYSTEM | PROJECT | ORGANIZATION
 }
 
 export interface UserGroupPermissionItem {
@@ -124,7 +127,7 @@ export type MoreActionType = 'rename' | 'addMember' | 'create';
 export interface PopVisibleItem {
   id?: string;
   visible: boolean;
-  authScope: AuthScopeType;
+  authScope: AuthScopeEnum;
   defaultName: string;
 }
 export interface PopVisible {

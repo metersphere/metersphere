@@ -39,6 +39,10 @@ export function getUserGroupList() {
 export function getOrgUserGroupList(organizationId: string) {
   return MSR.get<UserGroupItem[]>({ url: `${ugUrl.getOrgUserGroupU}${organizationId}` });
 }
+// 项目-获取用户组列表
+export function getProjectUserGroupList(projectId: string) {
+  return MSR.get<UserGroupItem[]>({ url: `${ugUrl.getProjectUserGroupU}${projectId}` });
+}
 // 系统-删除用户组
 export function deleteUserGroup(id: string) {
   return MSR.get<string>({ url: `${ugUrl.deleteUserGroupU}${id}` });

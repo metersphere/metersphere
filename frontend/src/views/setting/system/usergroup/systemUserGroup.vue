@@ -2,7 +2,7 @@
   <MsCard simple>
     <div class="flex flex-row">
       <div class="user-group-left" :style="{ padding: collapse ? '24px 24px 24px 0' : 0 }">
-        <user-group-left v-if="collapse" />
+        <UserGroupLeft v-if="collapse" :type="AuthScopeEnum.SYSTEM" />
         <div class="usergroup-collapse" @click="handleCollapse">
           <MsIcon v-if="collapse" type="icon-icon_up-left_outlined" class="icon" />
           <MsIcon v-else type="icon-icon_down-right_outlined" class="icon" />
@@ -48,18 +48,20 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, watchEffect, nextTick } from 'vue';
+  import { ref, computed, watchEffect, nextTick, provide } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import useUserGroupStore from '@/store/modules/setting/system/usergroup';
-  import UserGroupLeft from './components/ms-usergroup-list.vue';
+  import UserGroupLeft from '@/components/business/ms-user-group-left/msUserGroupLeft.vue';
   import UserTable from './components/userTable.vue';
   import AuthTable from './components/authTable.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { useAppStore } from '@/store';
+  import { AuthScopeEnum } from '@/enums/commonEnum';
 
   const currentTable = ref('auth');
+  provide('systemType', AuthScopeEnum.SYSTEM);
 
   const { t } = useI18n();
   const currentKeyword = ref('');

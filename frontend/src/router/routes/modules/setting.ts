@@ -37,7 +37,7 @@ const Setting: AppRouteRecordRaw = {
         {
           path: 'usergroup',
           name: SettingRouteEnum.SETTING_SYSTEM_USER_GROUP,
-          component: () => import('@/views/setting/system/usergroup/index.vue'),
+          component: () => import('@/views/setting/system/usergroup/systemUserGroup.vue'),
           meta: {
             locale: 'menu.settings.system.usergroup',
             roles: ['*'],

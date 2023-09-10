@@ -46,3 +46,7 @@ export const addOrgUserToUserGroupUrl = `/user/role/organization/add-member`;
 export const deleteOrgUserFromUserGroupUrl = `/user/role/organization/remove-member`;
 /** 组织-给用户组添加用户下拉选项 */
 export const getOrgUserGroupOptionUrl = `/user/role/organization/get-member/option/`;
+
+/** 项目 */
+/** 系统-获取用户组 */
+export const getProjectUserGroupU = `/user/role/organization/list/`;
