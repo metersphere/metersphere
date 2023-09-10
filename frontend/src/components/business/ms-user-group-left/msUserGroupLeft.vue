@@ -6,11 +6,11 @@
     @press-enter="enterData"
     @search="searchData"
   />
-  <div class="mt-2">
+  <div v-if="showSystem" class="mt-2">
     <CreateUserGroupPopup
       :list="systemUserGroupList"
       :visible="systemUserGroupVisible"
-      auth-scope="SYSTEM"
+      :auth-scope="AuthScopeEnum.SYSTEM"
       @cancel="systemUserGroupVisible = false"
       @submit="handleCreateUserGroup"
     >
@@ -68,7 +68,10 @@
                     <MsIcon type="icon-icon_add_outlined" size="16" />
                   </div>
                 </MsMoreAction>
-                <MsMoreAction :list="moreAction" @select="(value) => handleMoreAction(value, element.id, 'SYSTEM')">
+                <MsMoreAction
+                  :list="moreAction"
+                  @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.SYSTEM)"
+                >
                   <div class="icon-button">
                     <MsIcon type="icon-icon_more_outlined" size="16" />
                   </div>
@@ -81,11 +84,11 @@
       </div>
     </Transition>
   </div>
-  <div class="mt-2">
+  <div v-if="showOrg" class="mt-2">
     <CreateUserGroupPopup
       :list="orgUserGroupList"
       :visible="orgUserGroupVisible"
-      auth-scope="ORGANIZATION"
+      :auth-scope="AuthScopeEnum.ORGANIZATION"
       @cancel="orgUserGroupVisible = false"
       @submit="handleCreateUserGroup"
     >
@@ -145,7 +148,7 @@
                 </MsMoreAction>
                 <MsMoreAction
                   :list="moreAction"
-                  @select="(value) => handleMoreAction(value, element.id, 'ORGANIZATION')"
+                  @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.ORGANIZATION)"
                 >
                   <div class="icon-button">
                     <MsIcon type="icon-icon_more_outlined" size="16" />
@@ -163,7 +166,7 @@
     <CreateUserGroupPopup
       :list="projectUserGroupList"
       :visible="projectUserGroupVisible"
-      auth-scope="PROJECT"
+      :auth-scope="AuthScopeEnum.PROJECT"
       @cancel="projectUserGroupVisible = false"
       @submit="handleCreateUserGroup"
     >
@@ -221,7 +224,10 @@
                     <MsIcon type="icon-icon_add_outlined" size="16" />
                   </div>
                 </MsMoreAction>
-                <MsMoreAction :list="moreAction" @select="(value) => handleMoreAction(value, element.id, 'PROJECT')">
+                <MsMoreAction
+                  :list="moreAction"
+                  @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.PROJECT)"
+                >
                   <div class="icon-button">
                     <MsIcon type="icon-icon_more_outlined" size="16" />
                   </div>
@@ -242,20 +248,33 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { useI18n } from '@/hooks/useI18n';
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import { UserGroupItem, PopVisible, PopVisibleItem, AuthScopeType } from '@/models/setting/usergroup';
-  import { getUserGroupList, deleteUserGroup } from '@/api/modules/setting/usergroup';
-  import { computed, onMounted, ref } from 'vue';
+  import { UserGroupItem, PopVisible, PopVisibleItem } from '@/models/setting/usergroup';
+  import {
+    getUserGroupList,
+    deleteUserGroup,
+    getOrgUserGroupList,
+    getProjectUserGroupList,
+  } from '@/api/modules/setting/usergroup';
+  import { computed, onMounted, ref, inject } from 'vue';
   import CreateUserGroupPopup from './createOrUpdateUserGroup.vue';
   import AddUserModal from './addUserModal.vue';
   import useUserGroupStore from '@/store/modules/setting/system/usergroup';
   import { Message } from '@arco-design/web-vue';
   import useModal from '@/hooks/useModal';
   import { characterLimit } from '@/utils';
+  import { AuthScopeEnum } from '@/enums/commonEnum';
+  import { useAppStore } from '@/store';
 
   const { t } = useI18n();
 
   const store = useUserGroupStore();
+  const appStore = useAppStore();
   const { openModal } = useModal();
+
+  const systemType = inject<AuthScopeEnum>('systemType');
+
+  const showSystem = computed(() => systemType === AuthScopeEnum.SYSTEM);
+  const showOrg = computed(() => systemType === AuthScopeEnum.SYSTEM || systemType === AuthScopeEnum.ORGANIZATION);
 
   // 用户组列表
   const userGroupList = ref<UserGroupItem[]>([]);
@@ -283,15 +302,15 @@
 
   // 系统用户组列表
   const systemUserGroupList = computed(() => {
-    return userGroupList.value.filter((ele) => ele.type === 'SYSTEM');
+    return userGroupList.value.filter((ele) => ele.type === AuthScopeEnum.SYSTEM);
   });
   // 组织用户组列表
   const orgUserGroupList = computed(() => {
-    return userGroupList.value.filter((ele) => ele.type === 'ORGANIZATION');
+    return userGroupList.value.filter((ele) => ele.type === AuthScopeEnum.ORGANIZATION);
   });
   // 项目用户组列表
   const projectUserGroupList = computed(() => {
-    return userGroupList.value.filter((ele) => ele.type === 'PROJECT');
+    return userGroupList.value.filter((ele) => ele.type === AuthScopeEnum.PROJECT);
   });
 
   const createSystemUGActionItem: ActionsItem[] = [
@@ -337,7 +356,14 @@
   // 用户组数据初始化
   const initData = async (id?: string) => {
     try {
-      const res = await getUserGroupList();
+      let res: UserGroupItem[] = [];
+      if (systemType === AuthScopeEnum.SYSTEM) {
+        res = await getUserGroupList();
+      } else if (systemType === AuthScopeEnum.ORGANIZATION) {
+        res = await getOrgUserGroupList(appStore.currentOrgId);
+      } else if (systemType === AuthScopeEnum.PROJECT) {
+        res = await getProjectUserGroupList(appStore.currentProjectId);
+      }
       if (res.length > 0) {
         userGroupList.value = res;
         let tmpItem = res[0];
@@ -359,7 +385,7 @@
   };
 
   // 点击更多操作
-  const handleMoreAction = (item: ActionsItem, id: string, authScope: AuthScopeType) => {
+  const handleMoreAction = (item: ActionsItem, id: string, authScope: AuthScopeEnum) => {
     if (item.eventTag === 'rename') {
       const tmpObj = userGroupList.value.filter((ele) => ele.id === id)[0];
       const visibleItem: PopVisibleItem = { visible: true, authScope, defaultName: tmpObj.name, id };
