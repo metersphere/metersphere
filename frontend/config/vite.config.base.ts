@@ -35,7 +35,7 @@ export default defineConfig({
       },
       {
         find: 'vue-i18n',
-        replacement: 'vue-i18n/dist/vue-i18n.cjs.js', // Resolve the i18n warning issue
+        replacement: 'vue-i18n/dist/vue-i18n.esm-bundler.js', // 解决 vue-i18n 依赖包报错
       },
       {
         find: 'vue',
