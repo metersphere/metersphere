@@ -189,7 +189,7 @@ public class UserController {
 
     @PostMapping("/register-by-invite")
     @Operation(summary = "系统设置-系统-用户-用户邀请")
-    public String registerByInvite(@Validated @RequestBody UserRegisterRequest request) {
+    public String registerByInvite(@Validated @RequestBody UserRegisterRequest request) throws Exception {
         return userService.registerByInvite(request);
     }
 }

@@ -7,10 +7,7 @@ import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.uid.UUID;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.CodingUtil;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.Pager;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.domain.UserInvite;
@@ -1168,8 +1165,7 @@ public class UserControllerTests extends BaseTest {
         UserRegisterRequest request = new UserRegisterRequest();
         request.setInviteId(inviteId);
         request.setName("建国通过邮箱邀请");
-        request.setPassword(UUID.randomUUID().toString());
-
+        request.setPassword(RsaUtil.publicEncrypt("Cao..12138", RsaUtil.getRsaKey().getPublicKey()));
         MvcResult mvcResult = userRequestUtils.responsePost(UserRequestUtils.URL_INVITE_REGISTER, request);
         String resultHolderStr = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(resultHolderStr, ResultHolder.class);
