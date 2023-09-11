@@ -25,27 +25,6 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
     private static final String HEADERS = "headers";
     private static final String BODY = "body";
 
-    protected List<MsHTTPSamplerProxy> parseMsHTTPSamplerProxy(JSONObject testObject, String tag, boolean isSetUrl) {
-        JSONObject requests = testObject.optJSONObject(tag);
-        List<MsHTTPSamplerProxy> msHTTPSamplerProxies = new ArrayList<>();
-        if (requests != null) {
-            requests.keySet().forEach(requestName -> {
-                JSONObject requestObject = requests.optJSONObject(requestName);
-                String path = requestObject.optString(URL);
-                String method = requestObject.optString(METHOD);
-                MsHTTPSamplerProxy request = buildRequest(requestName, path, method);
-                parseBody(requestObject, request.getBody());
-                parseHeader(requestObject, request.getHeaders());
-                parsePath(request);
-                if (isSetUrl) {
-                    request.setUrl(path);
-                }
-                msHTTPSamplerProxies.add(request);
-            });
-        }
-        return msHTTPSamplerProxies;
-    }
-
     protected List<MsHTTPSamplerProxy> parseMsHTTPSamplerProxy(JsonNode requests, boolean isSetUrl) {
         List<MsHTTPSamplerProxy> samplerProxies = new ArrayList<>();
         Iterator<Map.Entry<String, JsonNode>> fields = requests.fields();

@@ -1,6 +1,7 @@
 package io.metersphere.api.parse.api;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.response.HttpResponse;
@@ -19,10 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
@@ -38,29 +36,38 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         if (testObject.opt("projectName") != null || testObject.opt("projectId") != null) {//  metersphere 格式导入
             return parseMsFormat(testStr, request);
         } else {    //  chrome 插件录制格式导入
+            JsonNode node = JSONUtil.parseNode(testStr);
             request.setPlatform(ApiImportPlatform.Plugin.name());
             ApiDefinitionImport apiImport = new ApiDefinitionImport();
             apiImport.setProtocol(RequestTypeConstants.HTTP);
-            apiImport.setData(parsePluginFormat(testObject, request, true));
+            apiImport.setData(parsePluginFormat(node, request));
             return apiImport;
         }
     }
 
-    protected List<ApiDefinitionWithBLOBs> parsePluginFormat(JSONObject testObject, ApiTestImportRequest importRequest, Boolean isCreateModule) {
-        List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
+    protected LinkedList<ApiDefinitionWithBLOBs> parsePluginFormat(JsonNode testObject, ApiTestImportRequest importRequest) {
+        LinkedList<ApiDefinitionWithBLOBs> results = new LinkedList<>();
         if (testObject != null) {
-            testObject.keySet().forEach(tag -> {
-
-                List<MsHTTPSamplerProxy> msHTTPSamplerProxies = parseMsHTTPSamplerProxy(testObject, tag, false);
-                for (MsHTTPSamplerProxy msHTTPSamplerProxy : msHTTPSamplerProxies) {
-                    ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(msHTTPSamplerProxy.getId(), msHTTPSamplerProxy.getName(), msHTTPSamplerProxy.getPath(), msHTTPSamplerProxy.getMethod(), importRequest);
-                    apiDefinition.setProjectId(this.projectId);
-                    apiDefinition.setModulePath(tag);
-                    apiDefinition.setRequest(JSON.toJSONString(msHTTPSamplerProxy));
-                    apiDefinition.setName(apiDefinition.getPath() + " [" + apiDefinition.getMethod() + "]");
-                    results.add(apiDefinition);
+            Iterator<Map.Entry<String, JsonNode>> fields = testObject.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                if (field.getValue().isNull()) {
+                    continue;
                 }
-            });
+                testObject.forEach(node -> {
+                    if(node != null ) {
+                        List<MsHTTPSamplerProxy> msHTTPSamplerProxies = parseMsHTTPSamplerProxy(node,false);
+                        for (MsHTTPSamplerProxy msHTTPSamplerProxy : msHTTPSamplerProxies) {
+                            ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(msHTTPSamplerProxy.getId(), msHTTPSamplerProxy.getName(), msHTTPSamplerProxy.getPath(), msHTTPSamplerProxy.getMethod(), importRequest);
+                            apiDefinition.setProjectId(this.projectId);
+                            apiDefinition.setModulePath(field.getKey());
+                            apiDefinition.setRequest(JSON.toJSONString(msHTTPSamplerProxy));
+                            apiDefinition.setName(apiDefinition.getPath() + " [" + apiDefinition.getMethod() + "]");
+                            results.add(apiDefinition);
+                        }
+                    }
+                });
+            }
         }
         return results;
     }
