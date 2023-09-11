@@ -26,4 +26,8 @@ export default {
   'api.errMsg503': 'The service is unavailable, the server is temporarily overloaded or maintained!',
   'api.errMsg504': 'Network timeout!',
   'api.errMsg505': 'The http version does not support the request!',
+  // 异步任务提示
+  'asyncTask.uploadFileProgress': 'File upload progress {percent}; {done} successful, {fail} failed',
+  'asyncTask.uploadFileSuccess': 'File upload completed: {done} successfully, {fail} failed',
+  'asyncTask.uploadFileSuccessTitle': 'Upload completed',
 };

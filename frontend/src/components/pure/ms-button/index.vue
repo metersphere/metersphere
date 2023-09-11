@@ -41,6 +41,7 @@
     color: rgb(var(--primary-5));
   }
   .ms-button-icon {
+    padding: 4px;
     color: var(--color-text-4);
     &:hover {
       color: rgb(var(--primary-5));
@@ -52,19 +53,19 @@
   }
   .ms-button--secondary {
     color: var(--color-text-2);
-    &:hover {
+    &:not(.ms-button-text):hover {
       background-color: var(--color-text-n8);
     }
   }
   .ms-button--primary {
     color: rgb(var(--primary-5));
-    &:hover {
+    &:not(.ms-button-text):hover {
       background-color: rgb(var(--primary-9));
     }
   }
   .ms-button--danger {
     color: rgb(var(--danger-6));
-    &:hover {
+    &:not(.ms-button-text):hover {
       color: rgb(var(--danger-6));
       background-color: rgb(var(--danger-1));
     }
