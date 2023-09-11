@@ -5,7 +5,7 @@ export const phoneRegex = /^\d{11}$/;
 // 密码校验，8-32位
 export const passwordLengthRegex = /^.{8,32}$/;
 // 密码校验，必须包含数字和字母
-export const passwordWordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
+export const passwordWordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9!@#$%^&*]+$/;
 // Git地址校验
 export const gitRepositoryUrlRegex =
   /^(?:(?:git:\/\/|https?:\/\/)(?:www\.)?)?(github\.com|gitee\.com)\/([^/]+)\/([^/]+)\.git$/;
