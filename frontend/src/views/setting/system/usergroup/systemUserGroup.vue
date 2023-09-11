@@ -1,17 +1,17 @@
 <template>
   <MsCard simple>
     <div class="flex flex-row">
-      <div class="user-group-left" :style="{ padding: collapse ? '24px 24px 24px 0' : 0 }">
-        <UserGroupLeft v-if="collapse" :type="AuthScopeEnum.SYSTEM" />
+      <div class="user-group-left" :style="{ padding: leftCollapse ? '24px 24px 24px 0' : 0 }">
+        <UserGroupLeft v-if="leftCollapse" @on-select="handleSelect" />
         <div class="usergroup-collapse" @click="handleCollapse">
-          <MsIcon v-if="collapse" type="icon-icon_up-left_outlined" class="icon" />
+          <MsIcon v-if="leftCollapse" type="icon-icon_up-left_outlined" class="icon" />
           <MsIcon v-else type="icon-icon_down-right_outlined" class="icon" />
         </div>
       </div>
       <div class="relative w-[100%] overflow-x-scroll p-[24px]">
         <div class="flex flex-row items-center justify-between">
-          <a-tooltip :content="store.userGroupInfo.currentName">
-            <div class="one-line-text max-w-[300px]">{{ store.userGroupInfo.currentName }}</div>
+          <a-tooltip :content="currentUserGroupItem.name">
+            <div class="one-line-text max-w-[300px]">{{ currentUserGroupItem.name }}</div>
           </a-tooltip>
           <div class="flex items-center">
             <a-input-search
@@ -29,8 +29,13 @@
           </div>
         </div>
         <div class="mt-[16px]">
-          <user-table v-if="currentTable === 'user' && couldShowUser" ref="userRef" :keyword="currentKeyword" />
-          <auth-table v-if="currentTable === 'auth' && couldShowAuth" ref="authRef" />
+          <UserTable
+            v-if="currentTable === 'user' && couldShowUser"
+            ref="userRef"
+            :keyword="currentKeyword"
+            :current="currentUserGroupItem"
+          />
+          <AuthTable v-if="currentTable === 'auth' && couldShowAuth" ref="authRef" :current="currentUserGroupItem" />
         </div>
       </div>
     </div>
@@ -51,20 +56,29 @@
   import { ref, computed, watchEffect, nextTick, provide } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import useUserGroupStore from '@/store/modules/setting/system/usergroup';
-  import UserGroupLeft from '@/components/business/ms-user-group-left/msUserGroupLeft.vue';
-  import UserTable from './components/userTable.vue';
-  import AuthTable from './components/authTable.vue';
+  import UserGroupLeft from '@/components/business/ms-user-group-comp/msUserGroupLeft.vue';
+  import UserTable from '@/components/business/ms-user-group-comp/userTable.vue';
+  import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { useAppStore } from '@/store';
   import { AuthScopeEnum } from '@/enums/commonEnum';
+  import { CurrentUserGroupItem } from '@/models/setting/usergroup';
 
   const currentTable = ref('auth');
   provide('systemType', AuthScopeEnum.SYSTEM);
 
   const { t } = useI18n();
   const currentKeyword = ref('');
+  const currentUserGroupItem = ref<CurrentUserGroupItem>({
+    id: '',
+    name: '',
+    type: AuthScopeEnum.SYSTEM,
+    internal: true,
+  });
+
+  const leftCollapse = ref(true);
+
   const authRef = ref<{
     handleReset: () => void;
     handleSave: () => void;
@@ -92,16 +106,18 @@
     tableSearch();
   };
 
-  const store = useUserGroupStore();
-  const couldShowUser = computed(() => store.userGroupInfo.currentType === 'SYSTEM');
-  const couldShowAuth = computed(() => store.userGroupInfo.currentId !== 'admin');
-  const handleCollapse = () => {
-    store.setCollapse(!store.collapse);
+  const handleSelect = (item: CurrentUserGroupItem) => {
+    currentUserGroupItem.value = item;
   };
-  const collapse = computed(() => store.collapse);
+
+  const couldShowUser = computed(() => currentUserGroupItem.value.type === AuthScopeEnum.SYSTEM);
+  const couldShowAuth = computed(() => currentUserGroupItem.value.id !== 'admin');
+  const handleCollapse = () => {
+    leftCollapse.value = !leftCollapse.value;
+  };
   const menuWidth = computed(() => {
     const width = appStore.menuCollapse ? 86 : appStore.menuWidth;
-    if (store.collapse) {
+    if (leftCollapse.value) {
       return width + 300;
     }
     return width + 24;

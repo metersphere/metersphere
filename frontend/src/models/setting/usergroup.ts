@@ -39,6 +39,16 @@ export interface UserGroupItem {
   // 自定义排序
   pos: number;
 }
+export interface CurrentUserGroupItem {
+  // 组ID
+  id: string;
+  // 组名称
+  name: string;
+  // 所属类型
+  type: AuthScopeEnum;
+  // 是否是内置用户组
+  internal: boolean;
+}
 
 export interface SystemUserGroupParams {
   id?: string; // 组ID

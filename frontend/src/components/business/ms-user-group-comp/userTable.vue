@@ -9,7 +9,7 @@
       />
     </template>
   </MsBaseTable>
-  <AddUserModal :visible="userVisible" @cancel="handleAddUserModalCancel" />
+  <AddUserModal :current-id="props.current.id" :visible="userVisible" @cancel="handleAddUserModalCancel" />
 </template>
 
 <script lang="ts" setup>
@@ -17,21 +17,28 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { useAppStore } from '@/store';
-  import useUserGroupStore from '@/store/modules/setting/organization/usergroup';
-  import { watchEffect, ref, computed } from 'vue';
-  import { postOrgUserByUserGroup, deleteOrgUserFromUserGroup } from '@/api/modules/setting/usergroup';
-  import { UserTableItem } from '@/models/setting/usergroup';
+  import { watchEffect, ref, computed, inject } from 'vue';
+  import {
+    postOrgUserByUserGroup,
+    deleteOrgUserFromUserGroup,
+    postUserByUserGroup,
+    deleteUserFromUserGroup,
+  } from '@/api/modules/setting/usergroup';
+  import { CurrentUserGroupItem, UserTableItem } from '@/models/setting/usergroup';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import AddUserModal from './addUserModal.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
+  import { AuthScopeEnum } from '@/enums/commonEnum';
+
+  const systemType = inject<AuthScopeEnum>('systemType');
 
   const { t } = useI18n();
-  const store = useUserGroupStore();
   const appStore = useAppStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
   const userVisible = ref(false);
   const props = defineProps<{
     keyword: string;
+    current: CurrentUserGroupItem;
   }>();
 
   const userGroupUsercolumns: MsTableColumn = [
@@ -55,7 +62,16 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postOrgUserByUserGroup, {
+  const getRequestBySystemType = () => {
+    if (systemType === AuthScopeEnum.SYSTEM) {
+      return postUserByUserGroup;
+    }
+
+    return postOrgUserByUserGroup;
+    // TODO: 项目
+  };
+
+  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(getRequestBySystemType(), {
     columns: userGroupUsercolumns,
     scroll: { y: 'auto', x: '600px' },
     selectable: false,
@@ -70,11 +86,16 @@
   };
   const handleRemove = async (record: UserTableItem) => {
     try {
-      await deleteOrgUserFromUserGroup({
-        organizationId: currentOrgId.value,
-        userRoleId: store.currentId,
-        userIds: [record.id],
-      });
+      if (systemType === AuthScopeEnum.SYSTEM) {
+        await deleteUserFromUserGroup(record.id);
+      } else if (systemType === AuthScopeEnum.ORGANIZATION) {
+        await deleteOrgUserFromUserGroup({
+          organizationId: currentOrgId.value,
+          userRoleId: props.current.id,
+          userIds: [record.id],
+        });
+      }
+      // TODO 项目-用户组
       await fetchData();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -91,8 +112,13 @@
     userVisible.value = false;
   };
   watchEffect(() => {
-    if (store.currentId && currentOrgId.value) {
-      setLoadListParams({ userRoleId: store.currentId, organizationId: currentOrgId.value });
+    if (props.current.id && currentOrgId.value) {
+      if (systemType === AuthScopeEnum.SYSTEM) {
+        setLoadListParams({ roleId: props.current.id });
+      } else if (systemType === AuthScopeEnum.ORGANIZATION) {
+        setLoadListParams({ userRoleId: props.current.id, organizationId: currentOrgId.value });
+      }
+      // TODO 项目-用户组
       fetchData();
     }
   });

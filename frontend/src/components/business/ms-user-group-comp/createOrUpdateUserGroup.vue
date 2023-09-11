@@ -20,6 +20,8 @@
               v-model="form.name"
               class="w-[228px]"
               :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
+              @press-enter="handleBeforeOk"
+              @keyup.esc="handleCancel"
             />
           </a-form-item>
         </a-form>
@@ -45,23 +47,27 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, computed, watchEffect } from 'vue';
-  import { UserGroupItem } from '@/models/setting/usergroup';
+  import { reactive, ref, watchEffect, inject } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
-  import { updateOrAddOrgUserGroup } from '@/api/modules/setting/usergroup';
+  import { updateOrAddOrgUserGroup, updateOrAddUserGroup } from '@/api/modules/setting/usergroup';
+  import { UserGroupItem } from '@/models/setting/usergroup';
+  import { AuthScopeEnum } from '@/enums/commonEnum';
   import { useAppStore } from '@/store';
 
   const { t } = useI18n();
+  const systemType = inject<AuthScopeEnum>('systemType');
   const props = defineProps<{
     id?: string;
     list: UserGroupItem[];
     visible: boolean;
     defaultName?: string;
+    // 权限范围
+    authScope: AuthScopeEnum;
   }>();
   const emit = defineEmits<{
     (e: 'cancel', value: boolean): void;
-    (e: 'search'): void;
+    (e: 'submit', currentId: string): void;
   }>();
 
   const formRef = ref<FormInstance>();
@@ -72,7 +78,7 @@
   });
 
   const appStore = useAppStore();
-  const currentOrgId = computed(() => appStore.currentOrgId);
+
   const loading = ref(false);
 
   const validateName = (value: string | undefined, callback: (error?: string) => void) => {
@@ -104,12 +110,26 @@
       }
       try {
         loading.value = true;
-        const res = await updateOrAddOrgUserGroup({ id: props.id, name: form.name, scopeId: currentOrgId.value });
+        let res: UserGroupItem | undefined;
+        if (systemType === AuthScopeEnum.SYSTEM) {
+          res = await updateOrAddUserGroup({ id: props.id, name: form.name, type: props.authScope });
+        } else if (systemType === AuthScopeEnum.ORGANIZATION) {
+          debugger;
+          // 组织用户组
+          res = await updateOrAddOrgUserGroup({
+            id: props.id,
+            name: form.name,
+            type: props.authScope,
+            scopeId: appStore.currentOrgId,
+          });
+        } else {
+          res = await updateOrAddUserGroup({ id: props.id, name: form.name, type: props.authScope });
+        }
         if (res) {
           Message.success(
             props.id ? t('system.userGroup.updateUserGroupSuccess') : t('system.userGroup.addUserGroupSuccess')
           );
-          emit('search');
+          emit('submit', res.id);
           handleCancel();
         }
       } catch (error) {

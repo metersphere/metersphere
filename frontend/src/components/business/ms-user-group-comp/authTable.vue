@@ -51,11 +51,22 @@
 
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
-  import { RenderFunction, VNodeChild, ref, watchEffect, computed } from 'vue';
-  import { type TableColumnData, type TableData } from '@arco-design/web-vue';
-  import useUserGroupStore from '@/store/modules/setting/system/usergroup';
-  import { getGlobalUSetting, saveGlobalUSetting } from '@/api/modules/setting/usergroup';
-  import { UserGroupAuthSetting, AuthTableItem, type AuthScopeType, SavePermissions } from '@/models/setting/usergroup';
+  import { RenderFunction, VNodeChild, ref, watchEffect, computed, inject } from 'vue';
+  import { Message, type TableColumnData, type TableData } from '@arco-design/web-vue';
+  import {
+    getGlobalUSetting,
+    getOrgUSetting,
+    saveGlobalUSetting,
+    saveOrgUSetting,
+  } from '@/api/modules/setting/usergroup';
+  import {
+    UserGroupAuthSetting,
+    AuthTableItem,
+    type AuthScopeType,
+    SavePermissions,
+    CurrentUserGroupItem,
+  } from '@/models/setting/usergroup';
+  import { AuthScopeEnum } from '@/enums/commonEnum';
 
   export declare type OperationName = 'selection-checkbox' | 'selection-radio' | 'expand' | 'drag-handle';
 
@@ -68,8 +79,13 @@
     isLastLeftFixed?: boolean;
   }
 
+  const props = defineProps<{
+    current: CurrentUserGroupItem;
+  }>();
+
+  const systemType = inject<AuthScopeEnum>('systemType');
+
   const loading = ref(false);
-  const store = useUserGroupStore();
 
   const systemSpan = ref(1);
   const projectSpan = ref(1);
@@ -83,7 +99,7 @@
   const canSave = ref(false);
   // 内部用户不可编辑
   const currentInternal = computed(() => {
-    return store.userGroupInfo.currentInternal;
+    return props.current.internal;
   });
 
   const dataSpanMethod = (data: {
@@ -116,8 +132,8 @@
 
   /**
    * 生成数据
-   * @param item
    * @param type
+   * @param idx
    */
   const makeData = (item: UserGroupAuthSetting, type: AuthScopeType) => {
     const result: AuthTableItem[] = [];
@@ -236,10 +252,24 @@
     handleAllChange();
   };
 
-  const initData = async (id: string) => {
+  // 初始化数据
+  const initData = async (id: string, internal: boolean) => {
     try {
+      let res: UserGroupAuthSetting[] = [];
       loading.value = true;
-      const res = await getGlobalUSetting(id);
+      if (systemType === AuthScopeEnum.SYSTEM) {
+        res = await getGlobalUSetting(id);
+      } else if (systemType === AuthScopeEnum.ORGANIZATION) {
+        if (internal) {
+          res = await getGlobalUSetting(id);
+        } else {
+          res = await getOrgUSetting(id);
+        }
+      } else {
+        // TODO 项目的
+        res = await getOrgUSetting(id);
+      }
+
       tableData.value = transformData(res);
       handleAllChange(true);
     } catch (error) {
@@ -265,27 +295,37 @@
       });
     });
     try {
-      await saveGlobalUSetting({
-        userRoleId: store.currentId,
-        permissions,
-      });
-      initData(store.currentId);
+      if (systemType === AuthScopeEnum.SYSTEM) {
+        await saveGlobalUSetting({
+          userRoleId: props.current.id,
+          permissions,
+        });
+      } else if (systemType === AuthScopeEnum.ORGANIZATION) {
+        await saveOrgUSetting({
+          userRoleId: props.current.id,
+          permissions,
+        });
+      } else {
+        // TODO 项目的
+      }
+      Message.success(t('common.saveSuccess'));
+      initData(props.current.id, props.current.internal);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.log('error', error);
+      console.log(error);
     }
   };
 
   // 恢复默认值
   const handleReset = () => {
-    if (store.currentId) {
-      initData(store.currentId);
+    if (props.current.id) {
+      initData(props.current.id, props.current.internal);
     }
   };
 
   watchEffect(() => {
-    if (store.currentId) {
-      initData(store.currentId);
+    if (props.current.id) {
+      initData(props.current.id, props.current.internal);
     }
   });
   defineExpose({
