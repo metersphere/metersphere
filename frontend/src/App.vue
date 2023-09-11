@@ -23,7 +23,7 @@
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
   import { watchStyle, watchTheme, setFavicon } from '@/utils/theme';
   import { WorkbenchRouteEnum } from './enums/routeEnum';
-  import MsEmpty from '@/components/pure/ms-empty/index.vue';
+  // import MsEmpty from '@/components/pure/ms-empty/index.vue';
 
   const appStore = useAppStore();
   const userStore = useUserStore();
@@ -76,7 +76,12 @@
       router.push(WorkbenchRouteEnum.WORKBENCH);
     }
   };
+
+  // 白名单，不需要验证是否登录的页面
+  const whiteList = ['#/invite'];
   onMounted(async () => {
-    await checkIsLogin();
+    if (!whiteList.includes(window.location.hash)) {
+      await checkIsLogin();
+    }
   });
 </script>
