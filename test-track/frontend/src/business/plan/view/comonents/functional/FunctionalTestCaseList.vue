@@ -630,7 +630,6 @@ export default {
       return value ? value : defaultVal;
     },
     initTableData(callback) {
-      this.currentPage = 1;
       initCondition(this.condition, this.condition.selectAll);
       this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
 
@@ -738,6 +737,7 @@ export default {
       this.initTableData();
     },
     search() {
+      this.currentPage = 1;
       this.$emit('search');
       this.initTableData();
     },
