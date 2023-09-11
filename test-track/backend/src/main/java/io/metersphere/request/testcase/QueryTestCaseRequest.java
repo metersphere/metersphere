@@ -73,4 +73,9 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
      * 是否待办状态
      */
     private boolean unComing;
+
+    /**
+     * 是否开启了用例自定义ID选项
+     */
+    private boolean customNum;
 }

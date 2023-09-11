@@ -42,10 +42,10 @@
                      :tree-nodes="treeNodes"
                      ref="nodeTree"/>
         </ms-aside-container>
-
+        
         <el-container>
           <el-main class="case-content">
-            <ms-table-header :tip="$t('commons.search_by_name_or_id')" :condition.sync="condition" @search="search"
+            <ms-table-header :tip="$t('review.search_by_id_or_name_or_tag')" :condition.sync="condition" @search="search"
                              title="" :show-create="false">
               <template v-slot:searchBarBefore>
                 <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"/>
