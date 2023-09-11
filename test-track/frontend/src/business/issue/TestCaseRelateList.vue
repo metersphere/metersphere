@@ -1,81 +1,81 @@
 <template>
-    <test-case-relevance-base
-      @setProject="setProject"
-      @save="save"
-      ref="baseRelevance">
+  <test-case-relevance-base
+    @setProject="setProject"
+    @save="save"
+    ref="baseRelevance"
+  >
+    <template v-slot:aside>
+      <ms-node-tree
+        class="node-tree"
+        v-loading="result.loading"
+        @nodeSelectEvent="nodeChange"
+        :tree-nodes="treeNodes"
+        default-label="未规划用例"
+        local-suffix="test_case"
+        ref="nodeTree"
+      />
+    </template>
 
-      <template v-slot:aside>
-        <ms-node-tree class="node-tree"
-                      v-loading="result.loading"
-                      @nodeSelectEvent="nodeChange"
-                      :tree-nodes="treeNodes"
-                      default-label="未规划用例"
-                      local-suffix="test_case"
-                      ref="nodeTree"/>
-      </template>
+    <el-card>
+      <ms-table-header
+        :condition="condition"
+        @search="initTableData"
+        title=""
+        :show-create="false"
+      />
+      <ms-table
+        v-loading="result.loading"
+        :data="tableData"
+        :condition="condition"
+        :total="total"
+        :page-size.sync="pageSize"
+        :show-select-all="false"
+        @handlePageChange="initTableData"
+        @refresh="initTableData"
+        ref="table"
+      >
+        <ms-table-column :label="$t('commons.id')" prop="num">
+        </ms-table-column>
 
-      <el-card>
+        <ms-table-column :label="$t('commons.name')" prop="name">
+        </ms-table-column>
 
-        <ms-table-header :condition="condition" @search="initTableData" title="" :show-create="false"/>
-        <ms-table
-          v-loading="result.loading"
-          :data="tableData"
-          :condition="condition"
-          :total="total"
-          :page-size.sync="pageSize"
-          :show-select-all="false"
-          @handlePageChange="initTableData"
-          @refresh="initTableData"
-          ref="table">
+        <ms-table-column :label="$t('test_track.case.priority')" prop="name">
+          <template v-slot:default="scope">
+            <priority-table-item :value="scope.row.priority" ref="priority" />
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            :label="$t('commons.id')"
-            prop="num">
-          </ms-table-column>
+        <ms-table-column :label="$t('test_track.case.type')" prop="type">
+          <template v-slot:default="scope">
+            <type-table-item :value="scope.row.type" />
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            :label="$t('commons.name')"
-            prop="name">
-          </ms-table-column>
+        <ms-table-column :label="$t('test_track.case.module')" prop="nodePath">
+        </ms-table-column>
 
-          <ms-table-column
-            :label="$t('test_track.case.priority')"
-            prop="name">
-            <template v-slot:default="scope">
-              <priority-table-item :value="scope.row.priority" ref="priority"/>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          :label="$t('test_track.plan.plan_project')"
+          prop="projectName"
+        >
+        </ms-table-column>
+      </ms-table>
 
-          <ms-table-column
-            :label="$t('test_track.case.type')"
-            prop="type">
-            <template v-slot:default="scope">
-              <type-table-item :value="scope.row.type"/>
-            </template>
-          </ms-table-column>
-
-          <ms-table-column
-            :label="$t('test_track.case.module')"
-            prop="nodePath">
-          </ms-table-column>
-
-          <ms-table-column
-            :label="$t('test_track.plan.plan_project')"
-            prop="projectName">
-          </ms-table-column>
-
-        </ms-table>
-
-        <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"/>
-      </el-card>
-
-    </test-case-relevance-base>
+      <ms-table-pagination
+        :change="initTableData"
+        :current-page.sync="currentPage"
+        :page-size.sync="pageSize"
+        :total="total"
+      />
+    </el-card>
+  </test-case-relevance-base>
 </template>
 
 <script>
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
-import {CUSTOM_FIELD_LIST} from "metersphere-frontend/src/utils/default-table-header";
+import { CUSTOM_FIELD_LIST } from "metersphere-frontend/src/utils/default-table-header";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
@@ -84,8 +84,8 @@ import TestCaseRelevanceBase from "@/business/plan/view/comonents/base/TestCaseR
 import MsNodeTree from "metersphere-frontend/src/components/module/MsNodeTree";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "@/business/common/tableItems/planview/TypeTableItem";
-import {getTestCaseRelateIssue} from "@/api/testCase";
-import {testCaseNodeListProject} from "@/api/test-case-node";
+import { getTestCaseRelateIssue } from "@/api/testCase";
+import { testCaseNodeListProject } from "@/api/test-case-node";
 export default {
   name: "TestCaseRelateList",
   components: {
@@ -95,7 +95,11 @@ export default {
     TestCaseRelevanceBase,
     MsEditDialog,
     MsTableHeader,
-    MsTablePagination, MsTableButton, MsTableColumn, MsTable},
+    MsTablePagination,
+    MsTableButton,
+    MsTableColumn,
+    MsTable,
+  },
   data() {
     return {
       tableData: [],
@@ -104,7 +108,7 @@ export default {
       total: 0,
       pageSize: 10,
       currentPage: 1,
-      projectId: '',
+      projectId: "",
       result: {},
       treeNodes: [],
       projects: [],
@@ -114,8 +118,8 @@ export default {
   props: {
     testCaseContainIds: {
       type: Set,
-      default: new Set()
-    }
+      default: new Set(),
+    },
   },
   watch: {
     selectNodeIds() {
@@ -129,7 +133,6 @@ export default {
     fields() {
       return CUSTOM_FIELD_LIST;
     },
-
   },
   methods: {
     initTableData() {
@@ -142,13 +145,16 @@ export default {
       if (this.projectId) {
         this.getProjectNode();
         this.condition.projectId = this.projectId;
-        this.condition.testCaseContainIds = Array.from(this.testCaseContainIds)
-        getTestCaseRelateIssue(this.currentPage, this.pageSize, this.condition)
-          .then((response) => {
-            let data = response.data;
-            this.total = data.itemCount;
-            this.tableData = data.listObject;
-          })
+        this.condition.testCaseContainIds = Array.from(this.testCaseContainIds);
+        getTestCaseRelateIssue(
+          this.currentPage,
+          this.pageSize,
+          this.condition
+        ).then((response) => {
+          let data = response.data;
+          this.total = data.itemCount;
+          this.tableData = data.listObject;
+        });
       }
     },
     nodeChange(node, nodeIds, nodeNames) {
@@ -159,11 +165,10 @@ export default {
       if (projectId) {
         this.projectId = projectId;
       }
-      let data = {projectId: this.projectId}
-      testCaseNodeListProject(data)
-        .then((response) => {
-          this.treeNodes = response.data;
-        })
+      let data = { projectId: this.projectId };
+      testCaseNodeListProject(data).then((response) => {
+        this.treeNodes = response.data;
+      });
     },
     open() {
       this.$refs.baseRelevance.open();
@@ -171,17 +176,21 @@ export default {
       this.initTableData();
     },
     save() {
-      this.$emit('save', this.$refs.table.selectRows);
+      this.$emit("save", this.$refs.table.selectRows);
       this.$refs.table.clear();
       this.$refs.baseRelevance.close();
     },
     setProject(projectId) {
       this.projectId = projectId;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-
+.node-tree {
+  height: calc(100% - 45px);
+  position: relative;
+  overflow: hidden;
+}
 </style>
