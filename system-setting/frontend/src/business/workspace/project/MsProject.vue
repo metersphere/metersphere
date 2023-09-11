@@ -179,7 +179,12 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {removeGoBackListener} from "metersphere-frontend/src/utils";
+import {
+  fullScreenLoading,
+  operationConfirm,
+  removeGoBackListener,
+  stopFullScreenLoading
+} from "metersphere-frontend/src/utils";
 import {
   getCurrentProjectID,
   getCurrentUser,
@@ -205,11 +210,9 @@ import {
 } from "../../../api/user";
 import {delProjectById, getProjectPages, modifyProjectMember} from "../../../api/project";
 import {getProjectMemberGroup, getUserGroupList} from "../../../api/user-group";
-import {operationConfirm} from "metersphere-frontend/src/utils";
 import EditProject from "./EditProject";
 import ApiEnvironmentConfig from "metersphere-frontend/src/components/environment/ApiEnvironmentConfig";
 import {switchProject} from "metersphere-frontend/src/api/project";
-import {fullScreenLoading, stopFullScreenLoading} from "metersphere-frontend/src/utils";
 
 
 export default {
@@ -381,6 +384,7 @@ export default {
       removeGoBackListener(this.handleClose);
     },
     search() {
+      this.currentPage = 1;
       this.list();
     },
     list() {
@@ -420,23 +424,39 @@ export default {
       // 保存当前点击的组织信息到currentRow
       this.currentWorkspaceRow = row;
       this.currentProjectId = row.id;
-      this.memberVisible = true;
       let param = {
         name: '',
         projectId: row.id
       };
       this.memberTableLoading = getProjectMemberPages(this.dialogCurrentPage, this.dialogPageSize, row.workspaceId, param).then(res => {
+        console.log(111)
         let data = res.data;
         let {listObject, itemCount} = data;
         this.memberLineData = listObject;
         this.dialogTotal = itemCount;
-        // 填充角色信息
-        for (let i = 0; i < this.memberLineData.length; i++) {
-          getProjectMemberGroup(row.id, encodeURIComponent(this.memberLineData[i].id)).then(res => {
-            this.$set(this.memberLineData[i], "groups", res.data);
+        let memberArr = this.memberLineData.filter(item => item.id === getCurrentUserId());
+        if (memberArr.length === 0) {
+          isSuperUser(getCurrentUserId()).then(r => {
+            if (r && r.data) {
+              // 非项目成员但拥有超级管理员用户组
+              this.setMemberGroup(row);
+              this.memberVisible = true;
+            } else {
+              this.$warning(this.$t("commons.project_permission"));
+            }
           });
+        } else {
+          this.setMemberGroup(row);
+          this.memberVisible = true;
         }
       });
+    },
+    setMemberGroup(row) {
+      for (let i = 0; i < this.memberLineData.length; i++) {
+        getProjectMemberGroup(row.id, encodeURIComponent(this.memberLineData[i].id)).then(res => {
+          this.$set(this.memberLineData[i], "groups", res.data);
+        });
+      }
     },
     dialogSearch() {
       let row = this.currentWorkspaceRow;
