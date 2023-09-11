@@ -39,7 +39,6 @@ public class LoginController {
     @GetMapping(value = "/is-login")
     @Operation(summary = "是否登录")
     public ResultHolder isLogin(HttpServletResponse response) throws Exception {
-        RsaKey rsaKey = RsaUtil.getRsaKey();
         SessionUser user = SessionUtils.getUser();
         if (user != null) {
             UserDTO userDTO = baseUserService.getUserDTO(user.getId());
@@ -57,7 +56,14 @@ public class LoginController {
             return ResultHolder.success(sessionUser);
         }
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        return ResultHolder.error(MsHttpResultCode.UNAUTHORIZED.getCode(), rsaKey.getPublicKey());
+        return ResultHolder.error(MsHttpResultCode.UNAUTHORIZED.getCode(), null);
+    }
+
+    @GetMapping(value = "/get-key")
+    @Operation(summary = "获取公钥")
+    public ResultHolder getKey(HttpServletResponse response) throws Exception {
+        RsaKey rsaKey = RsaUtil.getRsaKey();
+        return ResultHolder.success(rsaKey.getPublicKey());
     }
 
     @PostMapping(value = "/login")
