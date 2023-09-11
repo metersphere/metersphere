@@ -119,7 +119,7 @@ const useAsyncTaskStore = defineStore('asyncTask', {
       const { uploadFileTask } = this;
       if (uploadFileTask.timer) {
         uploadFileTask.singleProgress = 0;
-        clearInterval(uploadFileTask.timer);
+        clearInterval(uploadFileTask.timer as unknown as number);
         uploadFileTask.timer = null;
       }
       if (uploadFileTask.uploadQueue.length > 0) {

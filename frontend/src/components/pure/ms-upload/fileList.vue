@@ -245,7 +245,7 @@
   // 在组件销毁时清除定时器
   onBeforeUnmount(() => {
     if (asyncTaskStore.uploadFileTask.timer !== null) {
-      clearInterval(asyncTaskStore.uploadFileTask.timer);
+      clearInterval(asyncTaskStore.uploadFileTask.timer as unknown as number);
       asyncTaskStore.uploadFileTask.timer = null;
     }
   });
