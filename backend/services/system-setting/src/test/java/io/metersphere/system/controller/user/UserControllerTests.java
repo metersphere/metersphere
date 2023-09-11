@@ -986,6 +986,12 @@ public class UserControllerTests extends BaseTest {
         this.testUserRegisterError();
     }
 
+    @Test
+    @Order(14)
+    public void testGetKey() throws Exception {
+        this.requestGetWithOk("/get-key");
+    }
+
     //本测试类中会用到很多次用户数据。所以测试删除的方法放于最后
     @Test
     @Order(99)
