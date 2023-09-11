@@ -166,6 +166,7 @@ export default {
       this.$refs.environmentEdit._save(newEnvironment);
       this.environments.unshift(newEnvironment);
       this.$refs.environmentItems.itemSelected(this.environments.length - 1, newEnvironment);
+      this.refresh();
     },
     validateEnvironment(environment) {
       if (!this.$refs.environmentEdit.validate()) {
