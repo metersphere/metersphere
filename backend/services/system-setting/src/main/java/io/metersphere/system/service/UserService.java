@@ -3,6 +3,7 @@ package io.metersphere.system.service;
 import com.alibaba.excel.EasyExcelFactory;
 import io.metersphere.sdk.constants.ParamConstants;
 import io.metersphere.sdk.constants.UserSource;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.service.OperationLogService;
@@ -13,7 +14,6 @@ import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
-import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.dto.request.UserInviteRequest;
@@ -35,7 +35,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -445,7 +445,7 @@ public class UserService {
         javaMailSender.send(mimeMessage);
     }
 
-    public String registerByInvite(UserRegisterRequest request) {
+    public String registerByInvite(UserRegisterRequest request) throws Exception {
         UserInvite userInvite = userInviteService.selectEfficientInviteById(request.getInviteId());
         if (userInvite == null) {
             throw new MSException(Translator.get("user.not.invite.or.expired"));
@@ -454,12 +454,13 @@ public class UserService {
         this.validateUserInfo(new ArrayList<>() {{
             this.add(userInvite.getEmail());
         }});
+
         //创建用户
         long createTime = System.currentTimeMillis();
         User user = new User();
         user.setId(UUID.randomUUID().toString());
         user.setEmail(userInvite.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(CodingUtil.md5(RsaUtil.privateDecrypt(request.getPassword(), RsaUtil.getRsaKey().getPrivateKey())));
         user.setName(request.getName());
         user.setPhone(request.getPhone());
         user.setCreateUser(userInvite.getInviteUser());
