@@ -23,7 +23,7 @@
           <template v-if="item.isTag">
             <a-tag
               v-for="tag of item.value"
-              :key="tag"
+              :key="`${tag}`"
               color="var(--color-text-n8)"
               class="mr-[8px] font-normal !text-[var(--color-text-1)]"
             >
