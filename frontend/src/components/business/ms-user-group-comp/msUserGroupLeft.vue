@@ -63,7 +63,7 @@
                 >
               </a-tooltip>
               <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
-                <MsMoreAction :list="addMemberActionItem" @select="handleAddMember">
+                <MsMoreAction v-if="element.type === systemType" :list="addMemberActionItem" @select="handleAddMember">
                   <div class="icon-button">
                     <MsIcon type="icon-icon_add_outlined" size="16" />
                   </div>
@@ -141,7 +141,7 @@
                 >
               </a-tooltip>
               <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
-                <MsMoreAction :list="addMemberActionItem" @select="handleAddMember">
+                <MsMoreAction v-if="element.type === systemType" :list="addMemberActionItem" @select="handleAddMember">
                   <div class="icon-button">
                     <MsIcon type="icon-icon_add_outlined" size="16" />
                   </div>
@@ -158,11 +158,11 @@
             </div>
           </CreateUserGroupPopup>
         </div>
-        <a-divider class="my-[0px] mt-[6px]" />
+        <a-divider v-if="showSystem" class="my-[0px] mt-[6px]" />
       </div>
     </Transition>
   </div>
-  <div class="mt-2">
+  <div v-if="showProject" class="mt-2">
     <CreateUserGroupPopup
       :list="projectUserGroupList"
       :visible="projectUserGroupVisible"
@@ -219,7 +219,7 @@
                 >
               </a-tooltip>
               <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
-                <MsMoreAction :list="addMemberActionItem" @select="handleAddMember">
+                <MsMoreAction v-if="element.type === systemType" :list="addMemberActionItem" @select="handleAddMember">
                   <div class="icon-button">
                     <MsIcon type="icon-icon_add_outlined" size="16" />
                   </div>
@@ -240,7 +240,7 @@
     </Transition>
   </div>
 
-  <AddUserModal :visible="userModalVisible" @cancel="userModalVisible = false" />
+  <AddUserModal :visible="userModalVisible" :current-id="currentItem.id" @cancel="userModalVisible = false" />
 </template>
 
 <script setup lang="ts">
@@ -248,17 +248,17 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { useI18n } from '@/hooks/useI18n';
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import { UserGroupItem, PopVisible, PopVisibleItem } from '@/models/setting/usergroup';
+  import { UserGroupItem, PopVisible, PopVisibleItem, CurrentUserGroupItem } from '@/models/setting/usergroup';
   import {
     getUserGroupList,
     deleteUserGroup,
     getOrgUserGroupList,
     getProjectUserGroupList,
+    deleteOrgUserGroup,
   } from '@/api/modules/setting/usergroup';
   import { computed, onMounted, ref, inject } from 'vue';
   import CreateUserGroupPopup from './createOrUpdateUserGroup.vue';
   import AddUserModal from './addUserModal.vue';
-  import useUserGroupStore from '@/store/modules/setting/system/usergroup';
   import { Message } from '@arco-design/web-vue';
   import useModal from '@/hooks/useModal';
   import { characterLimit } from '@/utils';
@@ -267,7 +267,9 @@
 
   const { t } = useI18n();
 
-  const store = useUserGroupStore();
+  const emit = defineEmits<{
+    (e: 'onSelect', element: UserGroupItem): void;
+  }>();
   const appStore = useAppStore();
   const { openModal } = useModal();
 
@@ -275,11 +277,14 @@
 
   const showSystem = computed(() => systemType === AuthScopeEnum.SYSTEM);
   const showOrg = computed(() => systemType === AuthScopeEnum.SYSTEM || systemType === AuthScopeEnum.ORGANIZATION);
+  const showProject = computed(() => systemType === AuthScopeEnum.SYSTEM || systemType === AuthScopeEnum.PROJECT);
 
   // 用户组列表
   const userGroupList = ref<UserGroupItem[]>([]);
 
-  const currentId = ref('');
+  const currentItem = ref<CurrentUserGroupItem>({ id: '', name: '', internal: false, type: AuthScopeEnum.SYSTEM });
+  const currentId = computed(() => currentItem.value.id);
+  const currentName = computed(() => currentItem.value.name);
 
   const userModalVisible = ref(false);
 
@@ -343,14 +348,8 @@
   // 点击用户组列表
   const handleListItemClick = (element: UserGroupItem) => {
     const { id, name, type, internal } = element;
-    currentId.value = id;
-    store.setInfo({
-      currentName: name,
-      currentTitle: type,
-      currentId: id,
-      currentType: type,
-      currentInternal: internal,
-    });
+    currentItem.value = { id, name, type, internal };
+    emit('onSelect', element);
   };
 
   // 用户组数据初始化
@@ -394,7 +393,7 @@
     if (item.eventTag === 'delete') {
       openModal({
         type: 'error',
-        title: t('system.userGroup.isDeleteUserGroup', { name: characterLimit(store.currentName) }),
+        title: t('system.userGroup.isDeleteUserGroup', { name: characterLimit(currentName.value) }),
         content: t('system.userGroup.beforeDeleteUserGroup'),
         okText: t('system.userGroup.confirmDelete'),
         cancelText: t('system.userGroup.cancel'),
@@ -403,7 +402,13 @@
         },
         onBeforeOk: async () => {
           try {
-            await deleteUserGroup(id);
+            if (systemType === AuthScopeEnum.SYSTEM) {
+              await deleteUserGroup(id);
+            }
+            if (systemType === AuthScopeEnum.ORGANIZATION) {
+              await deleteOrgUserGroup(id);
+            }
+            // TODO 项目用户组删除用户组
             Message.success(t('system.user.deleteUserSuccess'));
             initData();
           } catch (error) {

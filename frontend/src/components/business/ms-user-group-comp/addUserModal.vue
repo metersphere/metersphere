@@ -6,7 +6,7 @@
     text-align="start"
     :ok-text="t('system.userGroup.add')"
     unmount-on-close
-    @cancel="handleCancel"
+    @cancel="handleCancel(false)"
   >
     <template #title> {{ t('system.userGroup.addUser') }} </template>
     <div class="form">
@@ -15,18 +15,18 @@
           field="name"
           :label="t('system.userGroup.user')"
           :rules="[{ required: true, message: t('system.userGroup.pleaseSelectUser') }]"
-          asterisk-position="end"
         >
           <MsUserSelector
             v-model:value="form.name"
-            disabled-key="exclude"
-            :load-option-params="{ roleId: store.currentId }"
+            :type="UserRequesetTypeEnum.ORGANIZATION_USER_GROUP"
+            :load-option-params="loadOptionParmas"
+            disabled-key="checkRoleFlag"
           />
         </a-form-item>
       </a-form>
     </div>
     <template #footer>
-      <a-button type="secondary" :loading="loading" @click="handleCancel">
+      <a-button type="secondary" :loading="loading" @click="handleCancel(false)">
         {{ t('common.cancel') }}
       </a-button>
       <a-button type="primary" :loading="loading" :disabled="form.name.length === 0" @click="handleBeforeOk">
@@ -38,26 +38,42 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect } from 'vue';
-  import useUserGroupStore from '@/store/modules/setting/system/usergroup';
-  import { addUserToUserGroup } from '@/api/modules/setting/usergroup';
-  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import { reactive, ref, watchEffect, computed, inject } from 'vue';
+  import { useAppStore } from '@/store';
+  import { addOrgUserToUserGroup, addUserToUserGroup } from '@/api/modules/setting/usergroup';
+  import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
+  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import { AuthScopeEnum } from '@/enums/commonEnum';
 
   const { t } = useI18n();
+  const systemType = inject<AuthScopeEnum>('systemType');
   const props = defineProps<{
     visible: boolean;
+    currentId: string;
   }>();
 
-  const store = useUserGroupStore();
+  const appStore = useAppStore();
+  const currentOrgId = computed(() => appStore.currentOrgId);
 
   const emit = defineEmits<{
-    (e: 'cancel'): void;
-    (e: 'submit', value: string[]): void;
+    (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
   const currentVisible = ref(props.visible);
   const loading = ref(false);
+  const loadOptionParmas = computed(() => {
+    if (systemType === AuthScopeEnum.SYSTEM) {
+      return {
+        roleId: props.currentId,
+      };
+    }
+    return {
+      roleId: props.currentId,
+      organizationId: currentOrgId.value,
+    };
+    // TODO 项目-用户组
+  });
 
   const form = reactive({
     name: [],
@@ -71,10 +87,10 @@
     currentVisible.value = props.visible;
   });
 
-  const handleCancel = () => {
+  const handleCancel = (shouldSearch = false) => {
     labelCache.clear();
     form.name = [];
-    emit('cancel');
+    emit('cancel', shouldSearch);
   };
 
   const handleBeforeOk = () => {
@@ -84,8 +100,18 @@
       }
       try {
         loading.value = true;
-        await addUserToUserGroup({ roleId: store.currentId, userIds: form.name });
-        handleCancel();
+        if (systemType === AuthScopeEnum.SYSTEM) {
+          await addUserToUserGroup({ roleId: props.currentId, userIds: form.name });
+        }
+        if (systemType === AuthScopeEnum.ORGANIZATION) {
+          await addOrgUserToUserGroup({
+            userRoleId: props.currentId,
+            userIds: form.name,
+            organizationId: currentOrgId.value,
+          });
+        }
+        handleCancel(true);
+        Message.success(t('common.addSuccess'));
       } catch (e) {
         // eslint-disable-next-line no-console
         console.log(e);
