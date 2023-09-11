@@ -81,7 +81,8 @@ const message = {
     please_input_review_comment: "Please enter the review comments",
     pass_review_confirm: "Are you sure to pass this review",
     comment_require: "(require)",
-    comment_not_require: "(not_require)"
+    comment_not_require: "(not_require)",
+    search_by_id_or_name_or_tag: "Search by ID/Name/Tag"
   },
   case: {
     all_case_content: "All case",

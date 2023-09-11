@@ -3508,6 +3508,14 @@ public class TestCaseService {
         }
     }
 
+    public void setRequestCustomNumParam(QueryTestCaseRequest request) {
+        Project project = baseProjectService.getProjectById(request.getProjectId());
+        if (project != null) {
+            ProjectConfig config = baseProjectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+            request.setCustomNum(config.getCaseCustomNum());
+        }
+    }
+
     /**
      * 是否包含超级管理员用户组(当前登录用户)
      *

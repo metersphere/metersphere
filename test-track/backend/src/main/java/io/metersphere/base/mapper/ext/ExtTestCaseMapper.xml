@@ -213,9 +213,13 @@
             </if>
             <if test="request.name != null">
                 and (test_case.name like CONCAT('%', #{request.name},'%')
-                or test_case.num like CONCAT('%', #{request.name},'%')
-                or test_case.tags like CONCAT('%', #{request.name},'%')
-                or test_case.custom_num like CONCAT('%', #{request.name},'%'))
+                <if test="request.customNum">
+                    or test_case.custom_num like CONCAT('%', #{request.name},'%')
+                </if>
+                <if test="!request.customNum">
+                    or test_case.num like CONCAT('%', #{request.name},'%')
+                </if>
+                or test_case.tags like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.projectId != null">
                 AND test_case.project_id = #{request.projectId}

@@ -21,7 +21,7 @@
                  ref="nodeTree"/>
     </template>
 
-    <ms-table-header :condition.sync="page.condition" @search="search" title="" :show-create="false">
+    <ms-table-header :condition.sync="page.condition" @search="search" title="" :show-create="false" :tip="$t('review.search_by_id_or_name_or_tag')">
       <template v-slot:searchBarBefore>
         <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"/>
       </template>
