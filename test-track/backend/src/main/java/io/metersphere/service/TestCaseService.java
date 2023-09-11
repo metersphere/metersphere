@@ -1383,7 +1383,7 @@ public class TestCaseService {
 
         TestCaseExample example = new TestCaseExample();
         TestCaseExample.Criteria criteria = example.createCriteria();
-        criteria.andProjectIdEqualTo(projectId);
+        criteria.andProjectIdEqualTo(projectId).andStatusNotEqualTo(DataStatus.TRASH.getValue());
 
         if (request.isUseCustomId()) {
             List<String> nums = testCases.stream()
