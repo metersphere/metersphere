@@ -2,9 +2,9 @@
   <div class="sticky top-[0] z-[9999] mb-[8px] flex justify-between bg-white">
     <a-radio-group v-model:model-value="fileListTab" type="button" size="small">
       <a-radio value="all">{{ `${t('ms.upload.all')} (${innerFileList.length})` }}</a-radio>
-      <a-radio value="waiting">{{ `${t('ms.upload.uploading')} (${waitingList.length})` }}</a-radio>
-      <a-radio value="success">{{ `${t('ms.upload.success')} (${successList.length})` }}</a-radio>
-      <a-radio value="error">{{ `${t('ms.upload.fail')} (${failList.length})` }}</a-radio>
+      <a-radio value="waiting">{{ `${t('ms.upload.uploading')} (${totalWaitingFileList.length})` }}</a-radio>
+      <a-radio value="success">{{ `${t('ms.upload.success')} (${totalSuccessFileList.length})` }}</a-radio>
+      <a-radio value="error">{{ `${t('ms.upload.fail')} (${totalFailFileList.length})` }}</a-radio>
     </a-radio-group>
     <slot name="tabExtra"></slot>
   </div>
@@ -47,7 +47,7 @@
             </div>
             <a-progress
               v-else-if="item.status === UploadStatus.uploading"
-              :percent="progress / 100"
+              :percent="asyncTaskStore.uploadFileTask.singleProgress / 100"
               :show-text="false"
               size="large"
               class="w-[200px]"
@@ -99,6 +99,7 @@
   import dayjs from 'dayjs';
   import { useI18n } from '@/hooks/useI18n';
   import { formatFileSize } from '@/utils';
+  import useAsyncTaskStore from '@/store/modules/app/asyncTask';
   import MsList from '@/components/pure/ms-list/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -109,6 +110,8 @@
 
   const props = defineProps<{
     fileList: MsFileItem[];
+    route?: string; // 用于后台上传文件时，查看详情跳转的路由
+    routeQuery?: Record<string, string>; // 用于后台上传文件时，查看详情跳转的路由参数
     handleDelete?: (item: MsFileItem) => void;
     handleReupload?: (item: MsFileItem) => void;
   }>();
@@ -119,6 +122,7 @@
     (e: 'start'): void;
   }>();
 
+  const asyncTaskStore = useAsyncTaskStore();
   const { t } = useI18n();
 
   const fileListTab = ref('all');
@@ -146,101 +150,58 @@
     }
   );
 
-  const waitingList = computed(() => {
+  const totalWaitingFileList = computed(() => {
     return innerFileList.value.filter(
       (e) => e.status && (e.status === UploadStatus.init || e.status === UploadStatus.uploading)
     );
   });
-  const successList = computed(() => {
+  const totalSuccessFileList = computed(() => {
     return innerFileList.value.filter((e) => e.status && e.status === UploadStatus.done);
   });
-  const failList = computed(() => {
+  const totalFailFileList = computed(() => {
     return innerFileList.value.filter((e) => e.status && e.status === UploadStatus.error);
   });
 
   const filterFileList = computed(() => {
     switch (fileListTab.value) {
       case 'waiting':
-        return waitingList.value;
+        return totalWaitingFileList.value;
       case 'success':
-        return successList.value;
+        return totalSuccessFileList.value;
       case 'error':
-        return failList.value;
+        return totalFailFileList.value;
       default:
         return innerFileList.value;
     }
   });
-
-  const uploadQueue = ref<MsFileItem[]>([]);
-  const progress = ref(0);
-  let timer: any = null;
-
-  /**
-   * 开始上传队列中的文件
-   * @param fileItem 文件项
-   */
-  async function uploadFileFromQueue(fileItem?: MsFileItem) {
-    if (fileItem) {
-      fileItem.status = UploadStatus.uploading; // 设置文件状态为上传中
-    }
-    if (timer === null) {
-      // 模拟上传进度
-      timer = setInterval(() => {
-        if (progress.value < 50) {
-          // 进度在0-50%之间较快
-          const randomIncrement = Math.floor(Math.random() * 10) + 1; // 随机增加 5-10 的百分比
-          progress.value += randomIncrement;
-        } else if (progress.value < 100) {
-          // 进度在50%-100%之间较慢
-          const randomIncrement = Math.floor(Math.random() * 10) + 1; // 随机增加 1-5 的百分比
-          progress.value = Math.min(progress.value + randomIncrement, 99);
-        } else {
-          clearInterval(timer);
-          timer = null;
-        }
-      }, 100); // 定时器间隔为 100 毫秒
-    }
-    try {
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(null);
-        }, 3000);
-      });
-      if (fileItem?.file?.type.includes('jpeg')) {
-        throw new Error('上传失败');
-      }
-      if (fileItem) {
-        fileItem.status = UploadStatus.done;
-        fileItem.uploadedTime = Date.now();
-      }
-    } catch (error) {
-      console.log(error);
-      if (fileItem) {
-        fileItem.status = UploadStatus.error;
-      }
-    } finally {
-      // 上传完成/失败，重置进度和定时器
-      progress.value = 0;
-      clearInterval(timer);
-      timer = null;
-      if (uploadQueue.value.length > 0) {
-        // 如果待上传队列中还有文件，继续上传
-        uploadFileFromQueue(uploadQueue.value.shift());
-      } else {
-        emit('finish');
-      }
-    }
-  }
 
   /**
    * 开始上传
    */
   function startUpload() {
     emit('start');
-    // 正式开始上传任务之前，同步一次文件列表，取出所有状态为 init 的文件
-    uploadQueue.value = innerFileList.value.filter((item) => item.status === UploadStatus.init);
-    uploadFileFromQueue(uploadQueue.value.shift());
+    asyncTaskStore.startUpload(innerFileList.value, props.route, props.routeQuery);
   }
+
+  /**
+   * 后台上传
+   */
+  function backstageUpload() {
+    asyncTaskStore.uploadFileTask.isBackstageUpload = true;
+    if (asyncTaskStore.uploadFileTask.uploadQueue.length === 0) {
+      // 开启后台上传时，如果队列为空，则说明是直接触发后台上传，并不是先startUpload然后再进行后台上传，需要触发一下上传任务开启
+      startUpload();
+    }
+  }
+
+  watch(
+    () => asyncTaskStore.uploadFileTask.finishedTime,
+    (val) => {
+      if (val) {
+        emit('finish');
+      }
+    }
+  );
 
   const previewVisible = ref(false);
   const previewCurrent = ref(0);
@@ -271,9 +232,9 @@
       props.handleReupload(item);
     } else {
       item.status = UploadStatus.init;
-      if (uploadQueue.value.length > 0) {
+      if (asyncTaskStore.uploadFileTask.uploadQueue.length > 0) {
         // 此时队列中还有任务，则 push 入队列末尾
-        uploadQueue.value.push(item);
+        asyncTaskStore.uploadFileTask.uploadQueue.push(item);
       } else {
         // 此时队列任务已清空
         startUpload();
@@ -283,14 +244,15 @@
 
   // 在组件销毁时清除定时器
   onBeforeUnmount(() => {
-    if (timer !== null) {
-      clearInterval(timer);
-      timer = null;
+    if (asyncTaskStore.uploadFileTask.timer !== null) {
+      clearInterval(asyncTaskStore.uploadFileTask.timer);
+      asyncTaskStore.uploadFileTask.timer = null;
     }
   });
 
   defineExpose({
     startUpload,
+    backstageUpload,
   });
 </script>
 

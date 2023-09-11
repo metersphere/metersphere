@@ -1,9 +1,9 @@
 <template>
   <a-config-provider :locale="locale">
     <router-view />
-    <!-- <template #empty>
+    <template #empty>
       <MsEmpty />
-    </template> -->
+    </template>
     <!-- <global-setting /> -->
   </a-config-provider>
 </template>

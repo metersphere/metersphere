@@ -13,4 +13,5 @@ export default {
   'ms.upload.uploading': '等待/上传中',
   'ms.upload.success': '成功',
   'ms.upload.fail': '失败',
+  'ms.upload.detail': '查看详情',
 };

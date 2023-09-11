@@ -16,7 +16,7 @@ export default {
   'api.responseError': '接口返回错误，请重试',
   'api.requestError': '请求错误',
   'api.errMsg401': '用户没有权限（令牌、用户名、密码错误）!',
-  'api.errMsg403': '用户得到授权，但是访问是被禁止的。!',
+  'api.errMsg403': '用户得到授权，但是访问是被禁止的!',
   'api.errMsg404': '网络请求错误,未找到该资源!',
   'api.errMsg405': '网络请求错误,请求方法未允许!',
   'api.errMsg408': '网络请求超时!',
@@ -26,4 +26,8 @@ export default {
   'api.errMsg503': '服务不可用，服务器暂时过载或维护!',
   'api.errMsg504': '网络超时!',
   'api.errMsg505': 'http版本不支持该请求!',
+  // 异步任务提示
+  'asyncTask.uploadFileProgress': '文件上传进度 {percent}；成功 {done} 个，失败 {fail} 个',
+  'asyncTask.uploadFileSuccess': '文件上传完成：成功 {done} 个，失败 {fail} 个',
+  'asyncTask.uploadFileSuccessTitle': '上传完成',
 };

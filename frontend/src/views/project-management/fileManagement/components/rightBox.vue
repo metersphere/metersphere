@@ -86,7 +86,14 @@
       class="mb-[16px] w-full"
       @change="handleFileChange"
     />
-    <MsFileList ref="fileListRef" v-model:file-list="fileList" @start="handleUploadStart" @finish="uploadFinish">
+    <MsFileList
+      ref="fileListRef"
+      v-model:file-list="fileList"
+      :route="RouteEnum.PROJECT_MANAGEMENT_FILE_MANAGEMENT"
+      :route-query="{ position: 'uploadDrawer' }"
+      @start="handleUploadStart"
+      @finish="uploadFinish"
+    >
       <template #tabExtra>
         <div v-if="acceptType === 'jar'" class="flex items-center gap-[4px]">
           <a-switch size="small" @change="enableAllJar"></a-switch>
@@ -104,10 +111,10 @@
       <a-button type="secondary" @click="uploadDrawerVisible = false">
         {{ t('project.fileManagement.cancel') }}
       </a-button>
-      <a-button type="secondary" :disabled="noWaitingUpload" @click="uploadDrawerVisible = false">
+      <a-button type="secondary" :disabled="noWaitingUpload" @click="backstageUpload">
         {{ t('project.fileManagement.backendUpload') }}
       </a-button>
-      <a-button type="primary" :disabled="noWaitingUpload || isUploading" @click="startUpload">
+      <a-button type="primary" :disabled="isUploading || noWaitingUpload" @click="startUpload">
         {{ t('project.fileManagement.startUpload') }}
       </a-button>
     </template>
@@ -115,7 +122,8 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, watch } from 'vue';
+  import { computed, onBeforeMount, ref, watch } from 'vue';
+  import { useRoute } from 'vue-router';
   import { debounce } from 'lodash-es';
   import { useI18n } from '@/hooks/useI18n';
   import useTableStore from '@/store/modules/ms-table';
@@ -129,6 +137,8 @@
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import { UploadStatus } from '@/enums/uploadEnum';
+  import { RouteEnum } from '@/enums/routeEnum';
+  import useAsyncTaskStore from '@/store/modules/app/asyncTask';
 
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import type { MsFileItem, UploadType } from '@/components/pure/ms-upload/types';
@@ -137,7 +147,10 @@
     activeFolder: string | number;
     activeFolderType: 'folder' | 'module' | 'storage';
   }>();
+
+  const route = useRoute();
   const { t } = useI18n();
+  const asyncTaskStore = useAsyncTaskStore();
 
   const keyword = ref('');
   const fileType = ref('module');
@@ -232,7 +245,7 @@
   async function openFileDetail(id: string) {}
 
   const uploadDrawerVisible = ref(false);
-  const fileList = ref<MsFileItem[]>([]);
+  const fileList = ref<MsFileItem[]>(asyncTaskStore.uploadFileTask.fileList);
 
   const noWaitingUpload = computed(
     () =>
@@ -278,6 +291,11 @@
     isUploading.value = true;
   }
 
+  function backstageUpload() {
+    fileListRef.value?.backstageUpload();
+    uploadDrawerVisible.value = false;
+  }
+
   function startUpload() {
     fileListRef.value?.startUpload();
   }
@@ -285,6 +303,33 @@
   function uploadFinish() {
     isUploading.value = false;
   }
+
+  type RouteQueryPosition = 'uploadDrawer' | null;
+
+  onBeforeMount(() => {
+    if (route.query.position) {
+      switch (
+        route.query.position as RouteQueryPosition // 定位到上传文件抽屉，自动打开
+      ) {
+        case 'uploadDrawer':
+          uploadDrawerVisible.value = true;
+          break;
+
+        default:
+          break;
+      }
+    }
+  });
+
+  // 在第一次后台上传时从查看详情进来该页面，然后再次进行后台上传，在本页面点击查看详情时，由于路由地址一样所以不会触发onBeforeMount，所以这里需要检测是否后台下载的状态，以在当前页面判断是否进行查看详情操作
+  watch(
+    () => asyncTaskStore.uploadFileTask.isBackstageUpload,
+    (val) => {
+      if (!val && route.query.position === 'uploadDrawer') {
+        uploadDrawerVisible.value = true;
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>
