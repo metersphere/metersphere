@@ -16,12 +16,7 @@
           :label="t('system.userGroup.user')"
           :rules="[{ required: true, message: t('system.userGroup.pleaseSelectUser') }]"
         >
-          <MsUserSelector
-            v-model:value="form.name"
-            :type="UserRequesetTypeEnum.ORGANIZATION_USER_GROUP"
-            :load-option-params="loadOptionParmas"
-            disabled-key="checkRoleFlag"
-          />
+          <MsUserSelector v-model:value="form.name" v-bind="userSelectorProps" />
         </a-form-item>
       </a-form>
     </div>
@@ -55,6 +50,25 @@
 
   const appStore = useAppStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
+  const userSelectorProps = computed(() => {
+    if (systemType === AuthScopeEnum.SYSTEM) {
+      return {
+        type: UserRequesetTypeEnum.SYSTEM_USER_GROUP,
+        loadOptionParams: {
+          roleId: props.currentId,
+        },
+        disabledKey: 'exclude',
+      };
+    }
+    return {
+      type: UserRequesetTypeEnum.ORGANIZATION_USER_GROUP,
+      loadOptionParams: {
+        roleId: props.currentId,
+        organizationId: currentOrgId.value,
+      },
+      disabledKey: 'checkRoleFlag',
+    };
+  });
 
   const emit = defineEmits<{
     (e: 'cancel', shouldSearch: boolean): void;
@@ -62,18 +76,6 @@
 
   const currentVisible = ref(props.visible);
   const loading = ref(false);
-  const loadOptionParmas = computed(() => {
-    if (systemType === AuthScopeEnum.SYSTEM) {
-      return {
-        roleId: props.currentId,
-      };
-    }
-    return {
-      roleId: props.currentId,
-      organizationId: currentOrgId.value,
-    };
-    // TODO 项目-用户组
-  });
 
   const form = reactive({
     name: [],

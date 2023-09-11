@@ -72,13 +72,16 @@ export function saveGlobalUSetting(data: SaveGlobalUSettingData) {
 }
 
 // 系统-获取需要关联的用户选项
-export function getSystemUserGroupOption(id: string) {
-  return MSR.get<UserTableItem[]>({ url: `${ugUrl.getSystemUserGroupOptionUrl}${id}` });
+export function getSystemUserGroupOption(id: string, keyword: string) {
+  return MSR.get<UserTableItem[]>({ url: `${ugUrl.getSystemUserGroupOptionUrl}${id}`, params: { keyword } });
 }
 
 // 组织-获取需要关联的用户选项
-export function getOrgUserGroupOption(organizationId: string, roleId: string) {
-  return MSR.get<UserTableItem[]>({ url: `${ugUrl.getOrgUserGroupOptionUrl}${organizationId}/${roleId}` });
+export function getOrgUserGroupOption(organizationId: string, roleId: string, keyword: string) {
+  return MSR.get<UserTableItem[]>({
+    url: `${ugUrl.getOrgUserGroupOptionUrl}${organizationId}/${roleId}`,
+    params: { keyword },
+  });
 }
 
 // 组织-编辑用户组对应的权限配置
