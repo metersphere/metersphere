@@ -7,7 +7,7 @@
     :disabled="props.disabled"
     allow-clear
     @change="change"
-    @search="search"
+    @search="debouncedSearch"
   >
     <template #label="{ data }">
       <span class="text-[var(--color-text-1)]"> {{ data.value.name }} </span>
@@ -25,6 +25,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { ref, onMounted, computed } from 'vue';
   import initOptionsFunc, { UserRequesetTypeEnum } from './utils';
+  import { debounce } from 'lodash-es';
 
   export interface MsUserSelectorOption {
     id: string;
@@ -62,7 +63,7 @@
   const { t } = useI18n();
 
   const currentOptions = ref<MsUserSelectorOption[]>([]);
-  const oldOptions = ref<MsUserSelectorOption[]>([]);
+  const currentLoadParams = ref<Record<string, any>>(props.loadOptionParams || {});
 
   const currentValue = computed(() => {
     return currentOptions.value.filter((item) => props.value.includes(item.id)) || [];
@@ -80,7 +81,7 @@
   };
   const loadList = async () => {
     try {
-      const list = (await initOptionsFunc(props.type, props.loadOptionParams || {})) || [];
+      const list = (await initOptionsFunc(props.type, currentLoadParams.value || {})) || [];
       const { firstLabelKey, secondLabelKey, disabledKey, valueKey } = props;
       list.forEach((item: MsUserSelectorOption) => {
         if (firstLabelKey) {
@@ -97,34 +98,22 @@
         }
       });
       currentOptions.value = [...list];
-      oldOptions.value = [...list];
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
       currentOptions.value = [];
-      oldOptions.value = [];
     }
-  };
-
-  const idInSelected = (id: string) => {
-    return props.value.includes(id);
   };
 
   const search = async (value: string) => {
-    let timeout = null;
-    if (value) {
-      timeout = window.setTimeout(() => {
-        currentOptions.value = currentOptions.value.filter(
-          (item) => item.name.includes(value) || item.email.includes(value) || idInSelected(item.id)
-        );
-      }, 60);
-    } else {
-      if (timeout) {
-        window.clearTimeout(timeout);
-      }
-      currentOptions.value = [...oldOptions.value];
-    }
+    currentLoadParams.value = {
+      ...currentLoadParams.value,
+      keyword: value,
+    };
+    await loadList();
   };
+
+  const debouncedSearch = debounce(search, 300, { maxWait: 1000 });
 
   onMounted(async () => {
     await loadList();
