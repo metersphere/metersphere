@@ -12,6 +12,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.AttachmentType;
 import io.metersphere.constants.DataStatus;
@@ -2767,6 +2768,8 @@ public class TestCaseService {
     }
 
     public void deleteToGcBatchPublic(TestCaseBatchRequest request) {
+        // 超级管理员可移除公共用例
+        boolean isSuperAdmin = hasSuperGroup();
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestCaseMapper.selectPublicIds(query));
         List<String> ids = request.getIds();
@@ -2778,7 +2781,7 @@ public class TestCaseService {
             for (String id : ids) {
                 TestCase testCase = testCaseMapper.selectByPrimaryKey(id);
                 if ((StringUtils.isNotEmpty(testCase.getMaintainer()) && testCase.getMaintainer().equals(SessionUtils.getUserId())) ||
-                        (StringUtils.isNotEmpty(testCase.getCreateUser()) && testCase.getCreateUser().equals(SessionUtils.getUserId()))) {
+                        (StringUtils.isNotEmpty(testCase.getCreateUser()) && testCase.getCreateUser().equals(SessionUtils.getUserId())) || isSuperAdmin) {
                     needDelete.add(testCase.getRefId());
                 } else {
                     noDelete.add(testCase.getName());
@@ -3503,5 +3506,19 @@ public class TestCaseService {
                 }
             }
         }
+    }
+
+    /**
+     * 是否包含超级管理员用户组(当前登录用户)
+     *
+     * @return true:包含 false:不包含
+     */
+    private boolean hasSuperGroup() {
+        SessionUser user = SessionUtils.getUser();
+        if (user == null) {
+            return false;
+        }
+        Optional<Group> first = user.getGroups().stream().filter(group -> StringUtils.equals(UserGroupConstants.SUPER_GROUP, group.getId())).findFirst();
+        return first.isPresent();
     }
 }
