@@ -1,5 +1,6 @@
 package io.metersphere.project.service;
 
+import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.job.CleanUpReportJob;
@@ -15,10 +16,14 @@ import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.sechedule.BaseScheduleService;
+import io.metersphere.sdk.service.PluginLoadService;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.ServiceUtils;
 import io.metersphere.sdk.util.SessionUtils;
-import io.metersphere.system.domain.Schedule;
-import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.*;
+import io.metersphere.system.mapper.ExtPluginMapper;
+import io.metersphere.system.mapper.PluginMapper;
+import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -29,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -44,6 +50,17 @@ public class ProjectApplicationService {
 
     @Resource
     private ExtProjectTestResourcePoolMapper extProjectTestResourcePoolMapper;
+
+    @Resource
+    private ServiceIntegrationMapper serviceIntegrationMapper;
+    @Resource
+    private ExtPluginMapper extPluginMapper;
+
+    @Resource
+    private PluginMapper pluginMapper;
+
+    @Resource
+    private PluginLoadService pluginLoadService;
 
     /**
      * 更新配置信息
@@ -160,6 +177,37 @@ public class ProjectApplicationService {
 
 
     /**
+     * 获取平台列表
+     *
+     * @return
+     */
+    public List<OptionDTO> getPlatformOptions(String organizationId) {
+        ServiceIntegrationExample example = new ServiceIntegrationExample();
+        example.createCriteria().andOrganizationIdEqualTo(organizationId).andEnableEqualTo(true);
+        List<ServiceIntegration> serviceIntegrations = serviceIntegrationMapper.selectByExample(example);
+        List<OptionDTO> options = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(serviceIntegrations)){
+            List<String> pluginIds = serviceIntegrations.stream().map(ServiceIntegration::getPluginId).collect(Collectors.toList());
+            options = extPluginMapper.selectPluginOptions(pluginIds);
+            return options;
+        }
+        return options;
+    }
+
+
+
+    public Object getPluginScript(String pluginId) {
+        this.checkResourceExist(pluginId);
+        AbstractPlatformPlugin platformPlugin = pluginLoadService.getImplInstance(pluginId, AbstractPlatformPlugin.class);
+        return pluginLoadService.getPluginScriptContent(pluginId, platformPlugin.getProjectScriptId());
+    }
+
+    private Plugin checkResourceExist(String id) {
+        return ServiceUtils.checkResourceExist(pluginMapper.selectByPrimaryKey(id), "permission.system_plugin.name");
+    }
+
+
+    /**
      * 测试计划 日志
      *
      * @param application
@@ -198,6 +246,17 @@ public class ProjectApplicationService {
      */
     public LogDTO updateApiLog(ProjectApplication application) {
         return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "接口测试配置");
+    }
+
+
+    /**
+     * 用例管理 日志
+     *
+     * @param application
+     * @return
+     */
+    public LogDTO updateCaseLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "用例管理配置");
     }
 
     private LogDTO delLog(ProjectApplication application, String module, String content) {

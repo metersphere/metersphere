@@ -7,4 +7,15 @@
         FROM
         plugin
     </select>
+
+
+    <select id="selectPluginOptions" resultType="io.metersphere.sdk.dto.OptionDTO">
+        SELECT id, name
+        FROM plugin
+        WHERE id IN
+        <foreach collection="list" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
