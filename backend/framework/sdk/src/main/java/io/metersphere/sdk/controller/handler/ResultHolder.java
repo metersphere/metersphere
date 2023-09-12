@@ -54,4 +54,14 @@ public class ResultHolder {
     public static ResultHolder error(int code, String message, Object messageDetail) {
         return new ResultHolder(code, message, messageDetail, null);
     }
+
+    /**
+     * 用于特殊情况，比如接口可正常返回，http状态码200，但是需要页面提示错误信息的情况
+     * @param code 自定义 code
+     * @param message 给前端返回的 message
+     * @return
+     */
+    public static ResultHolder successCodeErrorInfo(int code, String message) {
+        return new ResultHolder(code, message, null, null);
+    }
 }
