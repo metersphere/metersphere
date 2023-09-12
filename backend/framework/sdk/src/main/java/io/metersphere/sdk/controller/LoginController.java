@@ -61,7 +61,7 @@ public class LoginController {
 
     @GetMapping(value = "/get-key")
     @Operation(summary = "获取公钥")
-    public ResultHolder getKey(HttpServletResponse response) throws Exception {
+    public ResultHolder getKey() throws Exception {
         RsaKey rsaKey = RsaUtil.getRsaKey();
         return ResultHolder.success(rsaKey.getPublicKey());
     }
