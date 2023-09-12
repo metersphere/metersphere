@@ -118,6 +118,7 @@
             dt: DEFAULT_XSS_ATTR,
             em: DEFAULT_XSS_ATTR,
             blockquote: DEFAULT_XSS_ATTR,
+            s: DEFAULT_XSS_ATTR
           },
           stripIgnoreTagBody: true
         },
