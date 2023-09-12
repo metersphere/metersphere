@@ -6,21 +6,38 @@ import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.ProjectApplicationType;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.domain.Plugin;
+import io.metersphere.system.request.PluginUpdateRequest;
+import io.metersphere.system.service.PluginService;
+import jakarta.annotation.Resource;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+
+import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class ProjectApplicationControllerTests extends BaseTest {
+
+    private static Plugin plugin;
+    @Resource
+    private PluginService pluginService;
+
     public static final String PROJECT_ID = "project_application_test_id";
     public static final String TIME_TYPE_VALUE = "3M";
 
@@ -36,6 +53,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     //应用配置 - 测试计划 - 清理报告配置
     @Test
     @Order(1)
+    @Sql(scripts = {"/dml/init_project_application_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testTestPlanClean() throws Exception {
         this.testGetTestPlan();
         //新增
@@ -303,6 +321,87 @@ public class ProjectApplicationControllerTests extends BaseTest {
     /**
      * ==========接口测试 end==========
      */
+
+
+
+    /**
+     * ==========用例管理 start==========
+     */
+    public static final String CASE_UPDATE_URL = "/project/application/update/case";
+    public static final String GET_CASE_URL = "/project/application/case";
+    public static final String GET_PLATFORM_URL = "/project/application/case/platform";
+
+    public static final String GET_PLATFORM_INFO_URL = "/project/application/case/platform/info";
+
+    //应用配置 - 用例管理 - 公共用例库
+    @Test
+    @Order(22)
+    public void testCasePublic() throws Exception {
+        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_CASE_PUBLIC.name(), "true");
+        this.requestPost(CASE_UPDATE_URL, request);
+    }
+
+    //应用配置 - 用例管理 - 重新提审
+    @Test
+    @Order(23)
+    public void testReview() throws Exception {
+        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_RE_REVIEW.name(), "true");
+        this.requestPost(CASE_UPDATE_URL, request);
+    }
+
+    //应用管理 - 用例管理 - 获取配置
+    @Test
+    @Order(24)
+    public void testGetCase() throws Exception {
+        List<String> types = Arrays.asList(ProjectApplicationType.APPLICATION_CASE_PUBLIC.name(), ProjectApplicationType.APPLICATION_RE_REVIEW.name());
+        ProjectApplicationRequest request = this.getRequest(types);
+        this.requestPostWithOkAndReturn(GET_CASE_URL, request);
+    }
+
+    //应用管理 - 用例管理 - 获取平台下拉列表
+    @Test
+    @Order(25)
+    public void testGetPlatform() throws Exception {
+        this.requestGetWithOkAndReturn(GET_PLATFORM_URL + "/100002");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_PLATFORM_URL + "/100001");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    //应用管理 - 用例管理 - 获取平台信息
+    @Test
+    @Order(26)
+    public void testGetPlatformInfo() throws Exception {
+        plugin = addPlugin();
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_PLATFORM_INFO_URL + "/"+plugin.getId());
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+    /**
+     * ==========用例管理 start==========
+     */
+
+    public Plugin addPlugin() throws Exception {
+        PluginUpdateRequest request = new PluginUpdateRequest();
+        File jarFile = new File(
+                this.getClass().getClassLoader().getResource("file/metersphere-jira-plugin-3.x.jar")
+                        .getPath()
+        );
+        FileInputStream inputStream = new FileInputStream(jarFile);
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), inputStream);
+        request.setName("测试插件1");
+        request.setGlobal(true);
+        request.setEnable(true);
+        request.setCreateUser(ADMIN.name());
+        return pluginService.add(request, mockMultipartFile);
+    }
 
 
     private ProjectApplicationRequest getRequest(List<String> types) {

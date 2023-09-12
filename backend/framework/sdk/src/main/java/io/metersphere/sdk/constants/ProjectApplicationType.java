@@ -78,6 +78,19 @@ public enum ProjectApplicationType {
     APPLICATION_API_SYNC_CASE,
 
 
+    //用例管理
+    /**
+     * 公共用例库
+     */
+    APPLICATION_CASE_PUBLIC,
+    /**
+     * 测试用例关联需求
+     */
+    APPLICATION_CASE_ASSOCIATION_REQUIREMENTS,
+    /**
+     * 重新提审
+     */
+    APPLICATION_RE_REVIEW,
 
     //缺陷管理
     /**
