@@ -23,6 +23,7 @@
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
   import { watchStyle, watchTheme, setFavicon } from '@/utils/theme';
   import { WorkbenchRouteEnum } from './enums/routeEnum';
+  import { getPublicKeyRequest } from './api/modules/user';
   // import MsEmpty from '@/components/pure/ms-empty/index.vue';
 
   const appStore = useAppStore();
@@ -76,10 +77,17 @@
       router.push(WorkbenchRouteEnum.WORKBENCH);
     }
   };
+  // 获取公钥
+  const getPublicKey = async () => {
+    if (getLocalStorage('salt')) return;
+    const publicKey = await getPublicKeyRequest();
+    setLocalStorage('salt', publicKey);
+  };
 
   // 白名单，不需要验证是否登录的页面
   const whiteList = ['#/invite'];
   onMounted(async () => {
+    await getPublicKey();
     if (!whiteList.includes(window.location.hash)) {
       await checkIsLogin();
     }
