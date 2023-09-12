@@ -112,6 +112,7 @@
       title: 'system.organization.member',
       slotName: 'memberCount',
       showDrag: true,
+      dataIndex: 'memberCount',
     },
     {
       title: 'system.organization.status',
@@ -135,6 +136,7 @@
       slotName: 'creator',
       width: 180,
       showDrag: true,
+      dataIndex: 'createUser',
     },
     {
       title: 'system.organization.createTime',

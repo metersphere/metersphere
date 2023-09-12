@@ -12,6 +12,9 @@ export interface MsTableSelectorItem {
 export interface SelectorColumnMap {
   [key: string]: MsTableSelectorItem;
 }
+export interface PageSizeMap {
+  [key: string]: number;
+}
 export interface MsTableState {
   // 列配置， 持久化
   selectorColumnMap: SelectorColumnMap;
@@ -19,4 +22,6 @@ export interface MsTableState {
   baseSortIndex: number;
   // 操作列基数
   operationBaseIndex: number;
+  // 分页大小
+  pageSizeMap: PageSizeMap;
 }
