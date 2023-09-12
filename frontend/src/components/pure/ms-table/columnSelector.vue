@@ -33,9 +33,9 @@
         <MsButton :disabled="!hasChange" @click="handleReset">{{ t('msTable.columnSetting.resetDefault') }}</MsButton>
       </div>
       <div class="flex-col">
-        <div v-for="(item, idx) in nonSortColumn" :key="item.dataIndex" class="column-item">
+        <div v-for="item in nonSortColumn" :key="item.dataIndex" class="column-item">
           <div>{{ t(item.title as string) }}</div>
-          <a-switch size="small" :model-value="item.showInTable" @change="handleFirstColumnChange(idx)" />
+          <a-switch v-model="item.showInTable" size="small" />
         </div>
       </div>
       <a-divider orientation="center" class="non-sort"
@@ -44,13 +44,13 @@
         }}</span></a-divider
       >
       <Draggable tag="div" :list="couldSortColumn" ghost-class="ghost" item-key="dateIndex">
-        <template #item="{ element, index }">
+        <template #item="{ element }">
           <div class="column-drag-item">
             <div class="flex w-[90%] items-center">
               <MsIcon type="icon-icon_drag" class="text-[16px] text-[var(--color-text-4)]" />
               <span class="ml-[8px]">{{ t(element.title as string) }}</span>
             </div>
-            <a-switch size="small" :model-value="element.showInTable" @change="handleSecondColumnChange(index)" />
+            <a-switch v-model="element.showInTable" size="small" />
           </div>
         </template>
       </Draggable>
@@ -111,20 +111,6 @@
 
   const handleReset = () => {
     loadColumn(props.tableKey);
-  };
-
-  const handleFirstColumnChange = (idx: number) => {
-    const item = nonSortColumn.value[idx];
-    item.showInTable = !item.showInTable;
-    nonSortColumn.value[idx] = item;
-    hasChange.value = true;
-  };
-
-  const handleSecondColumnChange = (idx: number) => {
-    const item = couldSortColumn.value[idx];
-    item.showInTable = !item.showInTable;
-    couldSortColumn.value[idx] = item;
-    hasChange.value = true;
   };
 
   const handleModeChange = (value: string | number | boolean) => {

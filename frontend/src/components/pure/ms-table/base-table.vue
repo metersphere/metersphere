@@ -240,7 +240,7 @@
   const initColumn = () => {
     let tmpArr: MsTableColumn = [];
     if (props.showSetting) {
-      tmpArr = tableStore.getShowInTableColumns(attrs.tableKey as string);
+      tmpArr = tableStore.getShowInTableColumns(attrs.tableKey as string) || [];
     } else {
       tmpArr = props.columns;
     }
