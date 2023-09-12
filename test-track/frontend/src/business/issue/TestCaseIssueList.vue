@@ -55,7 +55,8 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "@/business/common/tableItems/planview/TypeTableItem";
 import TestCaseRelateList from "@/business/issue/TestCaseRelateList";
-import { getTestCaseIssueList } from "@/api/testCase";
+import {getTestCaseIssueList} from "@/api/testCase";
+
 export default {
   name: "TestCaseIssueList",
   components: {
@@ -137,7 +138,6 @@ export default {
         this.addIds.add(i.id);
       });
       this.tableData.push(...selectData);
-      this.testCaseContainIds = new Set();
     },
   },
 };

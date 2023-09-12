@@ -340,54 +340,43 @@
 import TemplateComponentEditHeader from "@/business/plan/view/comonents/report/TemplateComponentEditHeader";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
-import {
-  buildCustomFields,
-  parseCustomField,
-  parseCustomFieldForId,
-} from "metersphere-frontend/src/utils/custom_field";
+import {buildCustomFields, parseCustomFieldForId,} from "metersphere-frontend/src/utils/custom_field";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/issue/IssueEditDetail";
-import {
-  byteToSize,
-  getTypeByFileName,
-  getUUID,
-} from "metersphere-frontend/src/utils";
+import {byteToSize, getTypeByFileName, getUUID,} from "metersphere-frontend/src/utils";
 import {
   getCurrentProjectID,
   getCurrentUser,
-  getCurrentWorkspaceId,
   getCurrentUserId,
+  getCurrentWorkspaceId,
 } from "metersphere-frontend/src/utils/token";
-import {
-  hasLicense,
-  hasPermission,
-} from "metersphere-frontend/src/utils/permission";
+import {hasLicense, hasPermission,} from "metersphere-frontend/src/utils/permission";
 import {
   enableThirdPartTemplate,
-  getIssuePartTemplateWithProject,
-  saveOrUpdateIssue,
-  saveFollow,
-  getFollow,
   getComments,
-  getTapdUser,
-  getPlatformTransitions,
+  getFollow,
+  getIssuePartTemplateWithProject,
   getPlatformFormOption,
+  getPlatformTransitions,
   getTapdCurrentOwner,
+  getTapdUser,
+  saveFollow,
+  saveOrUpdateIssue,
 } from "@/api/issue";
 import {
-  uploadIssueAttachment,
   attachmentList,
   deleteIssueAttachment,
-  unrelatedIssueAttachment,
-  relatedIssueAttachment,
   dumpAttachment,
+  relatedIssueAttachment,
+  unrelatedIssueAttachment,
+  uploadIssueAttachment,
 } from "@/api/attachment";
 import CustomFiledFormItem from "metersphere-frontend/src/components/form/CustomFiledFormItem";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 import IssueComment from "@/business/issue/IssueComment";
 import ReviewCommentItem from "@/business/review/commom/ReviewCommentItem";
-import { TokenKey } from "metersphere-frontend/src/utils/constants";
+import {TokenKey} from "metersphere-frontend/src/utils/constants";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
 import axios from "axios";
 import MsFileMetadataList from "metersphere-frontend/src/components/environment/commons/variable/QuoteFileList";
@@ -568,6 +557,7 @@ export default {
       if (this.$refs.testCaseIssueList) {
         this.$refs.testCaseIssueList.clear();
         this.$refs.testCaseIssueList.isXpack = hasLicense();
+        this.$refs.testCaseIssueList.testCaseContainIds = new Set();
       }
       this.$nextTick(() => {
         getIssuePartTemplateWithProject(
