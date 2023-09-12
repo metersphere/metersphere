@@ -15,9 +15,13 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('project.member.selectMemberEmptyTip') }]"
         >
-          <a-select v-model="form.userIds" multiple :placeholder="t('project.member.selectMemberScope')" allow-clear>
-            <a-option v-for="item of memberList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-          </a-select>
+          <MsUserSelector
+            v-model:value="form.userIds"
+            :load-option-params="{ projectId: lastProjectId }"
+            :type="UserRequesetTypeEnum.PROJECT_PERMISSION_MEMBER"
+            placeholder="project.member.selectMemberScope"
+            disabled-key="memberFlag"
+          />
         </a-form-item>
         <a-form-item
           field="roleIds"
@@ -40,8 +44,14 @@
   import { getProjectMemberOptions, addOrUpdateProjectMember } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import { useUserStore } from '@/store';
+  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
   import { FormInstance, Message } from '@arco-design/web-vue';
-  import type { ProjectUserOption, ActionProjectMember } from '@/models/projectManagement/projectAndPermission';
+  import type {
+    ProjectUserOption,
+    ActionProjectMember,
+    AddProjectMember,
+  } from '@/models/projectManagement/projectAndPermission';
+  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const userStore = useUserStore();
@@ -58,13 +68,13 @@
 
   const visible = ref<boolean>(false);
 
-  const initFormValue: ActionProjectMember = {
+  const initFormValue: AddProjectMember = {
     roleIds: ['project_member'],
     userIds: [],
-    projectId: lastProjectId,
+    projectId: lastProjectId as string,
   };
 
-  const form = ref<ActionProjectMember>({ ...initFormValue });
+  const form = ref<AddProjectMember>({ ...initFormValue });
 
   const memberFormRef = ref<FormInstance | null>(null);
 

@@ -40,10 +40,10 @@ export function getGlobalUserGroup(organizationId: string) {
   return MSR.get({ url: getUserGroupList, params: organizationId });
 }
 // 获取系统用户下拉
-export function getUser(organizationId: string) {
-  return MSR.get<LinkItem[]>({ url: getUserList, params: organizationId });
+export function getUser(organizationId: string, keyword: string) {
+  return MSR.get<LinkItem[]>({ url: `${getUserList}/${organizationId}`, params: { keyword } });
 }
 // 获取组织下边的项目
-export function getProjectList(organizationId: string) {
-  return MSR.get<LinkItem[]>({ url: getProjectListUrl, params: organizationId });
+export function getProjectList(organizationId: string, keyword?: string) {
+  return MSR.get<LinkItem[]>({ url: `${getProjectListUrl}/${organizationId}`, params: { keyword } });
 }

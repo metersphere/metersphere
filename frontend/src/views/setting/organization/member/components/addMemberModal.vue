@@ -16,16 +16,16 @@
     </template>
     <div class="form">
       <a-form ref="memberFormRef" :model="form" size="large" layout="vertical">
+        <!-- 编辑项目 -->
         <a-form-item v-if="type === 'edit'" :label="t('organization.member.project')" asterisk-position="end">
-          <a-select
-            v-model="form.projectIds"
-            multiple
-            :placeholder="t('organization.member.selectProjectScope')"
-            allow-clear
-          >
-            <a-option v-for="item of props.projectList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-          </a-select>
+          <MsUserSelector
+            v-model:value="form.projectIds"
+            :load-option-params="{ organizationId: lastOrganizationId }"
+            :type="UserRequesetTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
+            placeholder="organization.member.selectProjectScope"
+          />
         </a-form-item>
+        <!-- 添加成员 -->
         <a-form-item
           v-else
           field="memberIds"
@@ -33,14 +33,12 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('organization.member.selectMemberEmptyTip') }]"
         >
-          <a-select
-            v-model="form.memberIds"
-            multiple
-            :placeholder="t('organization.member.selectMemberScope')"
-            allow-clear
-          >
-            <a-option v-for="item of memberList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-          </a-select>
+          <MsUserSelector
+            v-model:value="form.memberIds"
+            :load-option-params="{ organizationId: lastOrganizationId }"
+            :type="UserRequesetTypeEnum.SYSTEM_ORGANIZATION_MEMBER"
+            placeholder="organization.member.selectMemberScope"
+          />
         </a-form-item>
         <a-form-item
           field="userRoleIds"
@@ -72,9 +70,11 @@
   import { ref, watchEffect, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
-  import { addOrUpdate, getUser } from '@/api/modules/setting/member';
+  import { addOrUpdate } from '@/api/modules/setting/member';
   import { useUserStore } from '@/store';
-  import type { AddorUpdateMemberModel, MemberItem, LinkList } from '@/models/setting/member';
+  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
+  import type { MemberItem, LinkList } from '@/models/setting/member';
+  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const userStore = useUserStore();
@@ -82,10 +82,8 @@
   const props = defineProps<{
     visible: boolean;
     userGroupOptions: LinkList;
-    projectList: LinkList;
   }>();
   const dialogVisible = ref<boolean>(false);
-  const memberList = ref<LinkList>([]);
   const title = ref<string>('');
   const type = ref<string>('');
   const emits = defineEmits<{
@@ -95,13 +93,20 @@
 
   const confirmLoading = ref<boolean>(false);
   const memberFormRef = ref<FormInstance | null>(null);
-  const initFormValue = {
+  export interface InitFromType {
+    organizationId?: string;
+    userRoleIds: string[];
+    memberIds: string[];
+    projectIds: string[];
+  }
+
+  const initFormValue: InitFromType = {
     organizationId: userStore.$state?.lastOrganizationId,
     userRoleIds: ['org_member'],
     memberIds: [],
     projectIds: [],
   };
-  const form = ref<AddorUpdateMemberModel>({ ...initFormValue });
+  const form = ref({ ...initFormValue });
   const handleCancel = () => {
     memberFormRef.value?.resetFields();
     form.value = { ...initFormValue };
@@ -157,12 +162,9 @@
       }
     });
   };
-  const getUserOptions = async () => {
-    memberList.value = await getUser(lastOrganizationId);
-  };
+
   watchEffect(() => {
     dialogVisible.value = props.visible;
-    if (props.visible) getUserOptions();
   });
   watch(
     () => dialogVisible.value,

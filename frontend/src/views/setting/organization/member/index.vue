@@ -37,6 +37,7 @@
           multiple
           :max-tag-count="2"
           size="small"
+          class="w-[260px]"
           @change="(value) => selectUserOrProject(value, record, 'project')"
           @popup-visible-change="visibleChange($event, record, 'project')"
         >
@@ -57,6 +58,7 @@
           v-model="record.selectUserList"
           multiple
           :max-tag-count="2"
+          class="w-[260px]"
           @change="(value) => selectUserOrProject(value, record, 'user')"
           @popup-visible-change="(value) => visibleChange(value, record, 'user')"
         >
@@ -79,6 +81,7 @@
           position="br"
           :title="t('organization.member.deleteMemberTip', { name: characterLimit(record.name) })"
           :sub-title-tip="t('organization.member.subTitle')"
+          :loading="deleteLoading"
           @ok="deleteMember(record)"
         />
       </template>
@@ -126,7 +129,7 @@
   import { useTableStore, useUserStore } from '@/store';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import type { MemberItem, AddorUpdateMemberModel, LinkList, BatchAddProjectModel } from '@/models/setting/member';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, findNodeByKey } from '@/utils';
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
 
   const tableStore = useTableStore();
@@ -230,13 +233,18 @@
       AddMemberRef.value.edit(record);
     }
   };
+
+  const deleteLoading = ref<boolean>(false);
   const deleteMember = async (record: MemberItem) => {
+    deleteLoading.value = true;
     try {
       if (lastOrganizationId) await deleteMemberReq(lastOrganizationId, record.id);
       Message.success(t('organization.member.deleteMemberSuccess'));
       initData();
     } catch (error) {
       console.log(error);
+    } finally {
+      deleteLoading.value = false;
     }
   };
   const handleTableSelect = (selectArr: (string | number)[]) => {
