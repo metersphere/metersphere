@@ -5,6 +5,7 @@
     class="ms-modal-form ms-modal-medium"
     :ok-text="t('organization.member.Confirm')"
     :cancel-text="t('organization.member.Cancel')"
+    unmount-on-close
     @close="handleCancel"
   >
     <template #title>

@@ -6,6 +6,7 @@
     v-bind="attrs"
     :footer="props.footer"
     :mask-closable="false"
+    unmount-on-close
     @close="handleCancel"
   >
     <template #title>
