@@ -80,7 +80,7 @@
         <jgit.version>6.6.0.202305301015-r</jgit.version>
         <curator.version>5.4.0</curator.version>
         <graalvmjs.version>22.3.1</graalvmjs.version>
-        <embedded.version>3.0.0-RC9</embedded.version>
+        <embedded.version>3.0.1</embedded.version>
         <otp-java.version>2.0.1</otp-java.version>
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
         <httpclient.version>4.5.14</httpclient.version>
