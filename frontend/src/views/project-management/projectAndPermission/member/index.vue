@@ -41,6 +41,7 @@
         v-else
         v-model="record.selectUserList"
         multiple
+        class="w-[260px]"
         :max-tag-count="2"
         @popup-visible-change="(value) => userGroupChange(value, record)"
       >
@@ -62,6 +63,7 @@
         position="br"
         :title="t('project.member.deleteMemberTip', { name: characterLimit(record.name) })"
         :sub-title-tip="t('project.member.subTitle')"
+        :loading="deleteLoading"
         @ok="removeMember(record)"
       />
     </template>
@@ -157,7 +159,7 @@
       title: 'project.member.tableColumnActions',
       slotName: 'action',
       fixed: 'right',
-      width: 80,
+      width: 100,
       showInTable: true,
     },
   ];
@@ -244,7 +246,10 @@
   };
 
   // 移除项目成员
+  const deleteLoading = ref<boolean>(false);
+
   const removeMember = async (record: ProjectMemberItem) => {
+    deleteLoading.value = true;
     try {
       if (lastProjectId && record.id) {
         await removeProjectMember(lastProjectId, record.id);
@@ -253,6 +258,8 @@
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      deleteLoading.value = false;
     }
   };
 

@@ -46,6 +46,6 @@ export function getProjectUserGroup(projectId: string) {
 }
 
 // 项目成员下拉选项
-export function getProjectMemberOptions(projectId: string) {
-  return MSR.get({ url: ProjectMemberOptions, params: projectId });
+export function getProjectMemberOptions(projectId: string, keyword?: string) {
+  return MSR.get({ url: `${ProjectMemberOptions}/${projectId}`, params: { keyword } });
 }

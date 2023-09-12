@@ -416,6 +416,9 @@
       border-color: rgb(var(--primary-5));
       background: rgb(var(--primary-1));
     }
+    .arco-icon-hover:hover::before {
+      background: none;
+    }
   }
   :deep(.ms-table-select-all) {
     .arco-checkbox {
@@ -426,5 +429,14 @@
     width: 16px;
     height: 16px;
     border-radius: 2px;
+    &:hover {
+      border-color: rgb(var(--primary-5));
+    }
+    &::before {
+      background: none !important;
+    }
+  }
+  :deep(.arco-checkbox:hover .arco-checkbox-icon-hover::before) {
+    background: none !important;
   }
 </style>
