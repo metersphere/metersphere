@@ -145,6 +145,7 @@
       showInTable: true,
       showTooltip: true,
       ellipsis: true,
+      sortIndex: 0,
     },
     {
       title: 'organization.member.tableColunmName',
@@ -185,12 +186,13 @@
     {
       title: 'organization.member.tableColunmActions',
       slotName: 'action',
+      dataIndex: 'operation',
       fixed: 'right',
       width: 140,
       showInTable: true,
     },
   ];
-  tableStore.initColumn(TableKeyEnum.ORGANNATIONMEMBER, columns, 'drawer');
+  tableStore.initColumn(TableKeyEnum.ORGANIZATION_MEMBER, columns, 'drawer');
 
   const tableBatchActions = {
     baseAction: [
@@ -205,7 +207,7 @@
     ],
   };
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getMemberList, {
-    tableKey: TableKeyEnum.ORGANNATIONMEMBER,
+    tableKey: TableKeyEnum.ORGANIZATION_MEMBER,
     scroll: { x: 2000 },
     selectable: true,
     showSetting: true,

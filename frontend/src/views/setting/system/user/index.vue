@@ -223,11 +223,13 @@
       title: 'system.user.tableColumnEmail',
       dataIndex: 'email',
       showTooltip: true,
+      sortIndex: 0,
     },
     {
       title: 'system.user.tableColumnName',
       dataIndex: 'name',
       showTooltip: true,
+      sortIndex: 1,
     },
     {
       title: 'system.user.tableColumnPhone',
@@ -236,12 +238,14 @@
     {
       title: 'system.user.tableColumnOrg',
       slotName: 'organization',
+      dataIndex: 'organization',
       isTag: true,
     },
     {
       title: 'system.user.tableColumnUserGroup',
       slotName: 'userRole',
       isTag: true,
+      dataIndex: 'userRole',
     },
     {
       title: 'system.user.tableColumnStatus',
@@ -251,6 +255,7 @@
     {
       title: 'system.user.tableColumnActions',
       slotName: 'action',
+      dataIndex: 'operation',
       fixed: 'right',
       width: 90,
     },
