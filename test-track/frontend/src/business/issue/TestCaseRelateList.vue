@@ -19,7 +19,7 @@
     <el-card>
       <ms-table-header
         :condition="condition"
-        @search="initTableData"
+        @search="search"
         title=""
         :show-create="false"
       />
@@ -75,7 +75,7 @@
 <script>
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
-import { CUSTOM_FIELD_LIST } from "metersphere-frontend/src/utils/default-table-header";
+import {CUSTOM_FIELD_LIST} from "metersphere-frontend/src/utils/default-table-header";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
@@ -84,8 +84,9 @@ import TestCaseRelevanceBase from "@/business/plan/view/comonents/base/TestCaseR
 import MsNodeTree from "metersphere-frontend/src/components/module/MsNodeTree";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "@/business/common/tableItems/planview/TypeTableItem";
-import { getTestCaseRelateIssue } from "@/api/testCase";
-import { testCaseNodeListProject } from "@/api/test-case-node";
+import {getTestCaseRelateIssue} from "@/api/testCase";
+import {testCaseNodeListProject} from "@/api/test-case-node";
+
 export default {
   name: "TestCaseRelateList",
   components: {
@@ -135,6 +136,10 @@ export default {
     },
   },
   methods: {
+    search() {
+      this.currentPage = 1;
+      this.initTableData();
+    },
     initTableData() {
       this.condition.projectId = this.projectId;
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {
