@@ -135,10 +135,12 @@ public class PermissionConstants {
     public static final String PROJECT_API_DEFINITION_READ_ADD_API = "PROJECT_API_DEFINITION:READ+ADD_API";
     public static final String PROJECT_API_REPORT_READ_DELETE = "PROJECT_API_REPORT:READ+DELETE";
 
+    /*------ start: PROJECT_MESSAGE ------*/
     public static final String PROJECT_MESSAGE_READ = "PROJECT_MESSAGE:READ";
     public static final String PROJECT_MESSAGE_READ_UPDATE = "PROJECT_MESSAGE:READ+UPDATE";
     public static final String PROJECT_MESSAGE_READ_ADD = "PROJECT_MESSAGE:READ+ADD";
     public static final String PROJECT_MESSAGE_READ_DELETE = "PROJECT_MESSAGE:READ+DELETE";
+    /*------ end: PROJECT_MESSAGE ------*/
 
     /*------ start: PROJECT_APPLICATION ------*/
     public static final String PROJECT_APPLICATION_TEST_PLAN_READ = "PROJECT_APPLICATION_TEST_PLAN:READ";

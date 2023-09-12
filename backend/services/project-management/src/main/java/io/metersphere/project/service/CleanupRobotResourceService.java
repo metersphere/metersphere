@@ -18,11 +18,11 @@ public class CleanupRobotResourceService implements CleanupProjectResourceServic
         ProjectRobotExample projectExample = new ProjectRobotExample();
         projectExample.createCriteria().andProjectIdEqualTo(projectId);
         robotMapper.deleteByExample(projectExample);
-        LogUtils.info("删除当前项目[" + projectId + "]相关接口测试资源");
+        LogUtils.info("删除当前项目[" + projectId + "]相关消息机器人资源");
     }
 
     @Override
     public void cleanReportResources(String projectId) {
-        LogUtils.info("清理当前项目[" + projectId + "]相关接口测试报告资源");
+        LogUtils.info("清理当前项目[" + projectId + "]相关消息机器人报告资源");
     }
 }
