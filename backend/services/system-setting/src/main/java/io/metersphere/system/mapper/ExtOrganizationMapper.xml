@@ -103,7 +103,7 @@
         from user
         where deleted = 0
         <if test="keyword != null and keyword != ''">
-            and (name LIKE CONCAT('%', #{keyword}, '%')
+            and name LIKE CONCAT('%', #{keyword}, '%')
         </if>
         order by update_time desc
         limit 100
