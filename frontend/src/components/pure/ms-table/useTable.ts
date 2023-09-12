@@ -3,7 +3,7 @@
 
 import { ref } from 'vue';
 import dayjs from 'dayjs';
-import { useAppStore } from '@/store';
+import { useAppStore, useTableStore } from '@/store';
 import { SpecialColumnEnum } from '@/enums/tableEnum';
 
 import type { TableData } from '@arco-design/web-vue';
@@ -17,6 +17,7 @@ export interface Pagination {
 }
 
 const appStore = useAppStore();
+const tableStore = useTableStore();
 export default function useTableProps<T>(
   loadListFunc: (v: TableQueryParams) => Promise<CommonList<MsTableDataItem<T>>>,
   props?: Partial<MsTableProps<T>>,
@@ -116,6 +117,12 @@ export default function useTableProps<T>(
   const setTableErrorStatus = (status: MsTableErrorStatus) => {
     propsRes.value.tableErrorStatus = status;
   };
+
+  // 如果表格设置了tableKey，设置缓存的分页大小
+  if (propsRes.value.msPagination && typeof propsRes.value.msPagination === 'object' && propsRes.value.tableKey) {
+    const pageSize = tableStore.getPageSize(propsRes.value.tableKey);
+    propsRes.value.msPagination.pageSize = pageSize;
+  }
 
   /**
    * 分页设置
@@ -231,6 +238,10 @@ export default function useTableProps<T>(
     pageSizeChange: (pageSize: number) => {
       if (propsRes.value.msPagination && typeof propsRes.value.msPagination === 'object') {
         propsRes.value.msPagination.pageSize = pageSize;
+        if (propsRes.value.tableKey) {
+          // 如果表格设置了tableKey，缓存分页大小
+          tableStore.setPageSize(propsRes.value.tableKey, pageSize);
+        }
       }
       loadList();
     },
