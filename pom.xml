@@ -77,7 +77,7 @@
         <nacos.version>1.4.6</nacos.version>
         <minio.version>8.5.3</minio.version>
         <hikaricp.version>5.0.1</hikaricp.version>
-        <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
+        <xmlgraphics-commons.version>2.9</xmlgraphics-commons.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <graalvmjs.version>22.3.1</graalvmjs.version>
         <httpclient.version>4.5.14</httpclient.version>
