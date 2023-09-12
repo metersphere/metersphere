@@ -162,12 +162,12 @@
     }
   };
 
-  tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
+  tableStore.initColumn(TableKeyEnum.ORGANIZATION_PROJECT, organizationColumns, 'drawer');
 
   const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(
     postProjectTableByOrg,
     {
-      tableKey: TableKeyEnum.SYSTEM_PROJECT,
+      tableKey: TableKeyEnum.ORGANIZATION_PROJECT,
       selectable: false,
       noDisable: false,
       size: 'default',

@@ -113,6 +113,7 @@
     {
       title: 'system.resourcePool.tableColumnActions',
       slotName: 'action',
+      dataIndex: 'operation',
       fixed: 'right',
       width: 140,
     },

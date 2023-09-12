@@ -600,6 +600,7 @@
       slotName: 'action',
       fixed: 'right',
       width: 120,
+      dataIndex: 'operation',
       showInTable: true,
     },
   ];

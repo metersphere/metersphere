@@ -109,10 +109,12 @@
     {
       title: 'system.organization.member',
       slotName: 'memberCount',
+      dataIndex: 'memberCount',
     },
     {
       title: 'system.organization.project',
       slotName: 'projectCount',
+      dataIndex: 'projectCount',
     },
     {
       title: 'system.organization.status',
@@ -137,6 +139,7 @@
     {
       title: 'system.organization.operation',
       slotName: 'operation',
+      dataIndex: 'operation',
       fixed: 'right',
       width: 230,
     },

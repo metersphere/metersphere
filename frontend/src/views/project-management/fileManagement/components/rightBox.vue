@@ -220,6 +220,7 @@
     {
       title: 'system.config.auth.action',
       slotName: 'action',
+      dataIndex: 'operation',
       fixed: 'right',
       width: 120,
       showInTable: true,
