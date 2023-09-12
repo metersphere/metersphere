@@ -21,17 +21,12 @@ export default function useUser() {
     });
   };
 
-  const setSalt = (salt: string) => {
-    localStorage.setItem('salt', salt);
-  };
-
   const isLoginPage = () => {
     return window.location.hash.indexOf('login') > -1;
   };
 
   return {
     logout,
-    setSalt,
     isLoginPage,
   };
 }

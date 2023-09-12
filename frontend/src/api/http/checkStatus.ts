@@ -5,23 +5,17 @@ import useUser from '@/hooks/useUser';
 
 export default function checkStatus(status: number, msg: string, errorMessageMode: ErrorMessageMode = 'message'): void {
   const { t } = useI18n();
-  const { logout, setSalt, isLoginPage } = useUser();
+  const { logout, isLoginPage } = useUser();
   let errMessage = '';
   switch (status) {
     case 400:
       errMessage = `${msg}`;
       break;
     case 401: {
-      if (msg.length === 216) {
-        // 216是salt的长度
-        setSalt(msg);
-      } else {
-        errMessage = msg || t('api.errMsg401');
-      }
       if (!isLoginPage()) {
         // 不是登录页再调用logout
         logout();
-        errMessage = t('api.errMsg401');
+        errMessage = msg || t('api.errMsg401');
       }
       break;
     }
