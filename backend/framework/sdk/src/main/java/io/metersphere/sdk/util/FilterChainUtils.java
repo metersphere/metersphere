@@ -13,6 +13,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/ldap/open", "anon");
         filterChainDefinitionMap.put("/signout", "anon");
         filterChainDefinitionMap.put("/is-login", "anon");
+        filterChainDefinitionMap.put("/get-key", "anon");
         filterChainDefinitionMap.put("/css/**", "anon");
         filterChainDefinitionMap.put("/js/**", "anon");
         filterChainDefinitionMap.put("/images/**", "anon");
