@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.sdk.mapper.BaseNotificationMapper">
+
+    <select id="listNotification" resultType="io.metersphere.project.domain.Notification">
+        SELECT * FROM notification
+        WHERE receiver = #{notificationRequest.receiver} AND create_time &gt; (unix_timestamp()  - 90 * 24 * 3600) * 1000
+        <if test='notification.title != null and notification.title != ""'>
+            AND ( title LIKE #{notificationRequest.title} OR content LIKE #{notificationRequest.title} )
+        </if>
+        <if test='notification.type != null and notification.type != ""'>
+            AND type = #{notificationRequest.type}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countNotification" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM notification
+        WHERE receiver = #{notification.receiver} AND create_time &gt; (unix_timestamp() - 3600) * 1000
+        <if test="notification.type != null">
+            AND type = #{notification.type}
+        </if>
+        <if test="notification.status != null">
+            AND status = #{notification.status}
+        </if>
+
+    </select>
+
+
+</mapper>

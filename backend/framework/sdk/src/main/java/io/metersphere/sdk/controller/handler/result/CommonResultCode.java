@@ -23,6 +23,7 @@ public enum CommonResultCode implements IResultCode {
     CUSTOM_FIELD_EXIST(101012, "custom_field.exist"),
     TEMPLATE_EXIST(101013, "template.exist");
 
+
     private int code;
     private String message;
 
