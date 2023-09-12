@@ -1,25 +1,26 @@
 import { defineStore } from 'pinia';
-import { MsTableSelectorItem, MsTableState, TableOpenDetailMode } from './types';
-import { MsTableColumn } from '@/components/pure/ms-table/type';
-import { parse, stringify } from '@/utils/serializeMap';
+import { MsTableState, TableOpenDetailMode } from './types';
+import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
 import { SpecialColumnEnum } from '@/enums/tableEnum';
+import { orderBy, filter, cloneDeep } from 'lodash';
 
 const msTableStore = defineStore('msTable', {
   // 开启数据持久化
   persist: {
-    serializer: {
-      deserialize: parse,
-      serialize: stringify,
-    },
+    paths: ['selectorColumnMap'],
   },
   state: (): MsTableState => ({
-    selectorColumnMap: new Map<string, MsTableSelectorItem>(),
+    selectorColumnMap: {},
+    baseSortIndex: 10,
+    operationBaseIndex: 100,
   }),
   actions: {
     initColumn(tableKey: string, column: MsTableColumn, mode: TableOpenDetailMode) {
-      if (!this.selectorColumnMap.has(tableKey)) {
-        const tmpMap = this.selectorColumnMap;
-        column.forEach((item) => {
+      if (!this.selectorColumnMap[tableKey]) {
+        column.forEach((item, idx) => {
+          if (item.sortIndex === undefined) {
+            item.sortIndex = this.baseSortIndex + idx;
+          }
           if (item.showDrag === undefined) {
             item.showDrag = false;
           }
@@ -36,45 +37,62 @@ const msTableStore = defineStore('msTable', {
           }
           if (item.dataIndex === SpecialColumnEnum.OPERATION || item.dataIndex === SpecialColumnEnum.ACTION) {
             item.showDrag = false;
-            item.sortIndex = 1000;
+            item.sortIndex = this.operationBaseIndex;
           }
         });
-        tmpMap.set(tableKey, { mode, column });
-        this.selectorColumnMap = tmpMap;
+        this.selectorColumnMap[tableKey] = { mode, column };
       }
     },
-    getMode(key: string): string {
-      if (this.selectorColumnMap.has(key)) {
-        return this.selectorColumnMap.get(key)?.mode || '';
-      }
-      return '';
-    },
+
     setMode(key: string, mode: TableOpenDetailMode) {
-      if (this.selectorColumnMap.has(key)) {
-        const item = this.selectorColumnMap.get(key);
+      if (this.selectorColumnMap[key]) {
+        const item = this.selectorColumnMap[key];
         if (item) {
           item.mode = mode;
         }
       }
     },
-    getColumns(key: string): { nonSort: MsTableColumn; couldSort: MsTableColumn } {
-      if (this.selectorColumnMap.has(key)) {
-        const tmpArr = this.selectorColumnMap.get(key)?.column || [];
-        const nonSortableColumns = tmpArr.filter((item) => !item.showDrag);
-        const couldSortableColumns = tmpArr.filter((item) => !!item.showDrag);
-        return { nonSort: nonSortableColumns, couldSort: couldSortableColumns };
-      }
-      return { nonSort: [], couldSort: [] };
-    },
     setColumns(key: string, columns: MsTableColumn, mode: TableOpenDetailMode) {
-      this.selectorColumnMap.set(key, { mode, column: columns });
+      columns.forEach((item, idx) => {
+        if (item.showDrag) {
+          item.sortIndex = this.baseSortIndex + idx;
+        }
+      });
+      this.selectorColumnMap[key] = { mode, column: columns };
     },
-    getShowInTableColumns(key: string): MsTableColumn {
-      if (this.selectorColumnMap.has(key)) {
-        const tmpArr = this.selectorColumnMap.get(key)?.column;
-        return tmpArr?.filter((item) => item.showInTable) || [];
-      }
-      return [];
+  },
+  getters: {
+    getMode: (state) => {
+      return (key: string) => {
+        if (state.selectorColumnMap[key]) {
+          return state.selectorColumnMap[key].mode;
+        }
+        return 'drawer';
+      };
+    },
+    getColumns: (state) => {
+      return (key: string) => {
+        if (state.selectorColumnMap[key]) {
+          const tmpArr = cloneDeep(state.selectorColumnMap[key].column);
+          const nonSortableColumns = tmpArr.filter((item: MsTableColumnData) => !item.showDrag);
+          const couldSortableColumns = tmpArr.filter((item: MsTableColumnData) => !!item.showDrag);
+          return { nonSort: nonSortableColumns, couldSort: couldSortableColumns };
+        }
+        return { nonSort: [], couldSort: [] };
+      };
+    },
+    getShowInTableColumns: (state) => {
+      return (key: string) => {
+        if (state.selectorColumnMap[key]) {
+          const tmpArr: MsTableColumn = cloneDeep(state.selectorColumnMap[key].column);
+          return orderBy(
+            filter(tmpArr, (i) => i.showInTable),
+            ['sortIndex'],
+            ['asc']
+          ) as MsTableColumn;
+        }
+        return [];
+      };
     },
   },
 });

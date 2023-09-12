@@ -8,6 +8,15 @@ export interface MsTableSelectorItem {
   // 列配置
   column: MsTableColumn;
 }
+
+export interface SelectorColumnMap {
+  [key: string]: MsTableSelectorItem;
+}
 export interface MsTableState {
-  selectorColumnMap: Map<string, MsTableSelectorItem>;
+  // 列配置， 持久化
+  selectorColumnMap: SelectorColumnMap;
+  // 列排序基数
+  baseSortIndex: number;
+  // 操作列基数
+  operationBaseIndex: number;
 }
