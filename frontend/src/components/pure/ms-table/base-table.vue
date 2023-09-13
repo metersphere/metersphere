@@ -133,7 +133,7 @@
       </template>
     </a-table>
     <div
-      class="flex h-[64px] w-[100%] flex-row flex-nowrap items-center justify-end px-0 py-4"
+      class="mt-[16px] flex h-[32px] w-[100%] flex-row flex-nowrap items-center justify-end px-0"
       :class="{ 'batch-action': showBatchAction }"
     >
       <batch-action

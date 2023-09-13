@@ -71,7 +71,7 @@ const ProjectManagement: AppRouteRecordRaw = {
         {
           path: 'projectUserGroup',
           name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_USER_GROUP,
-          component: () => import('@/views/project-management/projectAndPermission/userGroup/index.vue'),
+          component: () => import('@/views/project-management/projectAndPermission/userGroup/projectUserGroup.vue'),
           meta: {
             locale: 'project.permission.userGroup',
             roles: ['*'],

@@ -36,7 +36,7 @@ export default function useTableProps<T>(
     tableKey: '',
     bordered: true,
     showPagination: true,
-    size: 'small',
+    size: 'default',
     scroll: { maxHeight: '800px', minWidth: '1600px', y: '600px' },
     checkable: true,
     loading: false,
@@ -51,9 +51,8 @@ export default function useTableProps<T>(
     columnResizable: true,
     // 禁用 arco-table 的分页
     pagination: false,
+    // 简易分页模式
     pageSimple: false,
-    // 编辑的key
-    editKey: SpecialColumnEnum.NAME,
     // 表格的错误状态
     tableErrorStatus: false,
     debug: false,

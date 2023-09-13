@@ -1,10 +1,11 @@
 <template>
-  <MsDrawer
+  <a-drawer
     :mask="false"
     :width="680"
     :visible="currentVisible"
     unmount-on-close
     :footer="false"
+    class="ms-drawer-no-mask"
     :title="t('system.organization.addMember')"
     @cancel="handleCancel"
   >
@@ -38,7 +39,7 @@
         </template>
       </ms-base-table>
     </div>
-  </MsDrawer>
+  </a-drawer>
   <AddUserModal
     :project-id="props.projectId"
     :organization-id="props.organizationId"
@@ -57,7 +58,6 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import { useI18n } from '@/hooks/useI18n';
   import { watch, ref } from 'vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import AddUserModal from './addUserModal.vue';
   import { TableData, Message } from '@arco-design/web-vue';
@@ -106,11 +106,10 @@
     postUserTableByOrgIdOrProjectId,
     {
       columns: projectColumn,
-      showSetting: false,
-      scroll: { y: 'auto', x: '600px' },
+      scroll: { maxHeight: '700px', y: '650px' },
       selectable: false,
-      size: 'small',
       noDisable: false,
+      pageSimple: true,
     },
     (record: any) => ({
       ...record,

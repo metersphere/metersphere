@@ -1,9 +1,10 @@
 <template>
-  <MsDrawer
+  <a-drawer
     :mask="false"
     :width="680"
     :visible="currentVisible"
     unmount-on-close
+    class="ms-drawer-no-mask"
     :footer="false"
     :title="t('system.organization.projectName', { name: props.currentName })"
     @cancel="handleCancel"
@@ -21,7 +22,7 @@
       </div>
       <ms-base-table v-bind="propsRes" v-on="propsEvent" />
     </div>
-  </MsDrawer>
+  </a-drawer>
 </template>
 
 <script lang="ts" setup>
@@ -30,7 +31,6 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import { useI18n } from '@/hooks/useI18n';
   import { watch, ref } from 'vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
 
   export interface projectDrawerProps {
@@ -72,10 +72,10 @@
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postProjectTableByOrgId, {
     columns: projectColumn,
-    showSetting: false,
-    scroll: { y: 'auto', x: '600px' },
+    scroll: { maxHeight: '700px', y: '650px' },
     selectable: false,
     noDisable: false,
+    pageSimple: true,
   });
 
   async function searchUser() {
