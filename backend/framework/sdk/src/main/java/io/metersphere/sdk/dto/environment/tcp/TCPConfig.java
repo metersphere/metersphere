@@ -1,4 +1,4 @@
-package io.metersphere.sdk.dto.environment.tcpConfig;
+package io.metersphere.sdk.dto.environment.tcp;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package io.metersphere.sdk.dto.environment.dataSource;
+package io.metersphere.sdk.dto.environment.datasource;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

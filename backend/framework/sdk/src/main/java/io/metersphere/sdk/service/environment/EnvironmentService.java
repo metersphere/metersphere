@@ -6,7 +6,7 @@ import io.metersphere.sdk.domain.EnvironmentBlob;
 import io.metersphere.sdk.domain.EnvironmentBlobExample;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.dto.environment.EnvironmentConfig;
-import io.metersphere.sdk.dto.environment.EnvironmentConfigRequest;
+import io.metersphere.sdk.dto.environment.EnvironmentRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
@@ -84,18 +84,18 @@ public class EnvironmentService {
         environmentBlobMapper.deleteByPrimaryKey(id);
     }
 
-    public EnvironmentConfigRequest add(EnvironmentConfigRequest environmentConfigRequest, String userId, List<MultipartFile> sslFiles) {
+    public EnvironmentRequest add(EnvironmentRequest environmentRequest, String userId, List<MultipartFile> sslFiles) {
         Environment environment = new Environment();
         environment.setId(UUID.randomUUID().toString());
         environment.setCreateUser(userId);
-        environment.setName(environmentConfigRequest.getName());
+        environment.setName(environmentRequest.getName());
         checkEnvironmentExist(environment);
         environment.setCreateTime(System.currentTimeMillis());
-        environment.setProjectId(environmentConfigRequest.getProjectId());
+        environment.setProjectId(environmentRequest.getProjectId());
         environmentMapper.insert(environment);
         EnvironmentBlob environmentBlob = new EnvironmentBlob();
         environmentBlob.setId(environment.getId());
-        String config = JSON.toJSONString(environmentConfigRequest.getConfig());
+        String config = JSON.toJSONString(environmentRequest.getConfig());
         environmentBlob.setConfig(config.getBytes());
         environmentBlobMapper.insert(environmentBlob);
         if (CollectionUtils.isNotEmpty(sslFiles)) {
@@ -111,7 +111,7 @@ public class EnvironmentService {
                 }
             });
         }
-        return environmentConfigRequest;
+        return environmentRequest;
     }
 
     public List<Environment> list(String projectId) {
@@ -121,21 +121,21 @@ public class EnvironmentService {
         return environmentMapper.selectByExample(example);
     }
 
-    public EnvironmentConfigRequest get(String environmentId) {
-        EnvironmentConfigRequest environmentConfigRequest = new EnvironmentConfigRequest();
+    public EnvironmentRequest get(String environmentId) {
+        EnvironmentRequest environmentRequest = new EnvironmentRequest();
         Environment environment = environmentMapper.selectByPrimaryKey(environmentId);
         EnvironmentBlob environmentBlob = environmentBlobMapper.selectByPrimaryKey(environmentId);
-        environmentConfigRequest.setProjectId(environment.getProjectId());
-        environmentConfigRequest.setName(environment.getName());
-        environmentConfigRequest.setId(environment.getId());
+        environmentRequest.setProjectId(environment.getProjectId());
+        environmentRequest.setName(environment.getName());
+        environmentRequest.setId(environment.getId());
         if (environmentBlob == null) {
-            return environmentConfigRequest;
+            return environmentRequest;
         }
-        environmentConfigRequest.setConfig(JSON.parseObject(Arrays.toString(environmentBlob.getConfig()), EnvironmentConfig.class));
-        return environmentConfigRequest;
+        environmentRequest.setConfig(JSON.parseObject(Arrays.toString(environmentBlob.getConfig()), EnvironmentConfig.class));
+        return environmentRequest;
     }
 
-    public List<EnvironmentConfigRequest> export(List<String> environmentIds) {
+    public List<EnvironmentRequest> export(List<String> environmentIds) {
         if (CollectionUtils.isNotEmpty(environmentIds)) {
             // 查询环境
             EnvironmentExample environmentExample = new EnvironmentExample();
@@ -150,20 +150,20 @@ public class EnvironmentService {
             Map<String, EnvironmentBlob> environmentBlobMap = new HashMap<>();
             environmentBlobs.forEach(environmentBlob -> environmentBlobMap.put(environmentBlob.getId(), environmentBlob));
 
-            List<EnvironmentConfigRequest> environmentConfigRequests = new ArrayList<>();
+            List<EnvironmentRequest> environmentRequests = new ArrayList<>();
             environmentIds.forEach(environmentId -> {
-                EnvironmentConfigRequest environmentConfigRequest = new EnvironmentConfigRequest();
+                EnvironmentRequest environmentRequest = new EnvironmentRequest();
                 Environment environment = environmentMap.get(environmentId);
                 EnvironmentBlob environmentBlob = environmentBlobMap.get(environmentId);
-                environmentConfigRequest.setProjectId(environment.getProjectId());
-                environmentConfigRequest.setName(environment.getName());
-                environmentConfigRequest.setId(environment.getId());
+                environmentRequest.setProjectId(environment.getProjectId());
+                environmentRequest.setName(environment.getName());
+                environmentRequest.setId(environment.getId());
                 if (environmentBlob != null) {
-                    environmentConfigRequest.setConfig(JSON.parseObject(Arrays.toString(environmentBlob.getConfig()), EnvironmentConfig.class));
+                    environmentRequest.setConfig(JSON.parseObject(Arrays.toString(environmentBlob.getConfig()), EnvironmentConfig.class));
                 }
-                environmentConfigRequests.add(environmentConfigRequest);
+                environmentRequests.add(environmentRequest);
             });
-            return environmentConfigRequests;
+            return environmentRequests;
         } else {
             return new ArrayList<>();
         }
@@ -187,20 +187,20 @@ public class EnvironmentService {
                 String content = new String(inputStream.readAllBytes());
                 inputStream.close();
                 // 拿到的参数是一个list
-                List<EnvironmentConfigRequest> environmentConfigRequests = JSON.parseArray(content, EnvironmentConfigRequest.class);
-                if (CollectionUtils.isNotEmpty(environmentConfigRequests)) {
-                    environmentConfigRequests.forEach(environmentConfigRequest -> {
+                List<EnvironmentRequest> environmentRequests = JSON.parseArray(content, EnvironmentRequest.class);
+                if (CollectionUtils.isNotEmpty(environmentRequests)) {
+                    environmentRequests.forEach(environmentRequest -> {
                         Environment environment = new Environment();
                         environment.setId(UUID.randomUUID().toString());
                         environment.setCreateUser(userId);
-                        environment.setName(environmentConfigRequest.getName());
+                        environment.setName(environmentRequest.getName());
                         checkEnvironmentExist(environment);
                         environment.setCreateTime(System.currentTimeMillis());
                         environment.setProjectId(currentProjectId);
                         environmentMapper.insert(environment);
                         EnvironmentBlob environmentBlob = new EnvironmentBlob();
                         environmentBlob.setId(environment.getId());
-                        String config = JSON.toJSONString(environmentConfigRequest.getConfig());
+                        String config = JSON.toJSONString(environmentRequest.getConfig());
                         environmentBlob.setConfig(config.getBytes());
                         environmentBlobMapper.insert(environmentBlob);
                     });

@@ -11,7 +11,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Data
-public class EnvironmentConfigRequest implements Serializable {
+public class EnvironmentRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     @Schema(description = "ID")

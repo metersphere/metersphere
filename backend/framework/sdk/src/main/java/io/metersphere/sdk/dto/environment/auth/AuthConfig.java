@@ -1,4 +1,4 @@
-package io.metersphere.sdk.dto.environment.authConfig;
+package io.metersphere.sdk.dto.environment.auth;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package io.metersphere.sdk.dto.environment.httpConfig;
+package io.metersphere.sdk.dto.environment.http;
 
 
 import io.metersphere.sdk.dto.environment.KeyValue;

@@ -3,7 +3,7 @@ package io.metersphere.sdk.service.environment;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.domain.ProjectParameters;
 import io.metersphere.sdk.domain.ProjectParametersExample;
-import io.metersphere.sdk.dto.environment.GlobalParamsDTO;
+import io.metersphere.sdk.dto.environment.GlobalParams;
 import io.metersphere.sdk.dto.environment.GlobalParamsRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.ProjectParametersMapper;
@@ -75,7 +75,7 @@ public class GlobalParamsService {
             GlobalParamsRequest globalParamsRequest = new GlobalParamsRequest();
             globalParamsRequest.setProjectId(projectId);
             globalParamsRequest.setId(projectParametersList.get(0).getId());
-            globalParamsRequest.setGlobalParams(JSON.parseObject(new String(projectParametersList.get(0).getParameters()), GlobalParamsDTO.class));
+            globalParamsRequest.setGlobalParams(JSON.parseObject(new String(projectParametersList.get(0).getParameters()), GlobalParams.class));
             return globalParamsRequest;
         } else {
             return null;

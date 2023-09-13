@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class GlobalParamsDTO implements Serializable {
+public class GlobalParams implements Serializable {
 
     @Schema(description = "请求头")
     private List<KeyValue> headers;

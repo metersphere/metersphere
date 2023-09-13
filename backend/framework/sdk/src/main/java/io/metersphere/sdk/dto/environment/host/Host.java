@@ -1,4 +1,4 @@
-package io.metersphere.sdk.dto.environment.hostConfig;
+package io.metersphere.sdk.dto.environment.host;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

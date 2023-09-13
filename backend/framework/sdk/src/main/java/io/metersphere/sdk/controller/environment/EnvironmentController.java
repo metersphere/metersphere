@@ -2,8 +2,8 @@ package io.metersphere.sdk.controller.environment;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.Environment;
-import io.metersphere.sdk.dto.environment.EnvironmentConfigRequest;
-import io.metersphere.sdk.dto.environment.dataSource.DataSource;
+import io.metersphere.sdk.dto.environment.EnvironmentRequest;
+import io.metersphere.sdk.dto.environment.datasource.DataSource;
 import io.metersphere.sdk.service.PluginLoadService;
 import io.metersphere.sdk.service.environment.EnvironmentService;
 import io.metersphere.sdk.util.SessionUtils;
@@ -45,7 +45,7 @@ public class EnvironmentController {
     @GetMapping("/get/{environmentId}")
     @Operation(summary = "项目管理-环境-环境目录-详情")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
-    public EnvironmentConfigRequest get(@PathVariable String environmentId) {
+    public EnvironmentRequest get(@PathVariable String environmentId) {
         return environmentService.get(environmentId);
     }
 
@@ -53,9 +53,9 @@ public class EnvironmentController {
     @PostMapping("/add")
     @Operation(summary = "项目管理-环境-环境目录-新增")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD)
-    public EnvironmentConfigRequest add(@Validated({Created.class}) @RequestBody EnvironmentConfigRequest environmentConfigRequest,
-                                        @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles) {
-        return environmentService.add(environmentConfigRequest, SessionUtils.getUserId(), sslFiles);
+    public EnvironmentRequest add(@Validated({Created.class}) @RequestBody EnvironmentRequest environmentRequest,
+                                  @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles) {
+        return environmentService.add(environmentRequest, SessionUtils.getUserId(), sslFiles);
     }
 
     @PostMapping("/update")
@@ -109,7 +109,7 @@ public class EnvironmentController {
     @PostMapping("/export")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_EXPORT)
     @Operation(summary = "项目管理-环境-环境目录-导出")
-    public List<EnvironmentConfigRequest> export(@RequestBody List<String> environmentIds) {
+    public List<EnvironmentRequest> export(@RequestBody List<String> environmentIds) {
         return environmentService.export(environmentIds);
     }
 

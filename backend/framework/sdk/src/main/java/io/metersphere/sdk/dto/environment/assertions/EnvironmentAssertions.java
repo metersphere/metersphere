@@ -1,7 +1,7 @@
 package io.metersphere.sdk.dto.environment.assertions;
 
 import io.metersphere.sdk.dto.environment.assertions.document.MsAssertionDocument;
-import io.metersphere.sdk.dto.environment.httpConfig.ApplicationModule;
+import io.metersphere.sdk.dto.environment.http.ApplicationModule;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

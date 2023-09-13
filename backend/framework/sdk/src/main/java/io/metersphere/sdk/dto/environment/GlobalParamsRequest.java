@@ -24,7 +24,7 @@ public class GlobalParamsRequest implements Serializable {
     private String projectId;
 
     @Schema(description = "全局参数")
-    private GlobalParamsDTO globalParams;
+    private GlobalParams globalParams;
 
 
     @Serial

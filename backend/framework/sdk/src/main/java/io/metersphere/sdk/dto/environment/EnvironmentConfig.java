@@ -1,15 +1,15 @@
 package io.metersphere.sdk.dto.environment;
 
 import io.metersphere.sdk.dto.environment.assertions.EnvironmentAssertions;
-import io.metersphere.sdk.dto.environment.authConfig.AuthConfig;
+import io.metersphere.sdk.dto.environment.auth.AuthConfig;
 import io.metersphere.sdk.dto.environment.common.CommonParams;
-import io.metersphere.sdk.dto.environment.dataSource.DataSource;
-import io.metersphere.sdk.dto.environment.hostConfig.HostConfig;
-import io.metersphere.sdk.dto.environment.httpConfig.HttpConfig;
+import io.metersphere.sdk.dto.environment.datasource.DataSource;
+import io.metersphere.sdk.dto.environment.host.HostConfig;
+import io.metersphere.sdk.dto.environment.http.HttpConfig;
 import io.metersphere.sdk.dto.environment.script.post.EnvironmentPostScript;
 import io.metersphere.sdk.dto.environment.script.pre.EnvironmentPreScript;
 import io.metersphere.sdk.dto.environment.ssl.KeyStoreConfig;
-import io.metersphere.sdk.dto.environment.tcpConfig.TCPConfig;
+import io.metersphere.sdk.dto.environment.tcp.TCPConfig;
 import io.metersphere.sdk.dto.environment.variables.CommonVariables;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
