@@ -11,9 +11,9 @@ import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserRoleService;
+import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.sdk.uid.UUID;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
@@ -24,7 +24,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.result.SystemResultCode.NO_PROJECT_USER_ROLE_PERMISSION;
@@ -51,6 +54,7 @@ public class ProjectUserRoleService extends BaseUserRoleService {
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andTypeEqualTo(UserRoleType.PROJECT.name())
                 .andScopeIdIn(Arrays.asList(projectId, UserRoleEnum.GLOBAL.toString()));
+        example.setOrderByClause("create_time asc");
         return userRoleMapper.selectByExample(example);
     }
 

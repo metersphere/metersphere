@@ -4,6 +4,7 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserRoleService;
@@ -11,7 +12,6 @@ import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.mapper.ExtUserRoleMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
@@ -34,6 +34,7 @@ import static io.metersphere.system.controller.result.SystemResultCode.NO_ORG_US
 
 /**
  * 组织-用户组与权限
+ *
  * @author song-cc-rock
  */
 @Service
@@ -53,6 +54,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andTypeEqualTo(UserRoleType.ORGANIZATION.name())
                 .andScopeIdIn(Arrays.asList(organizationId, UserRoleEnum.GLOBAL.toString()));
+        example.setOrderByClause("create_time asc");
         return userRoleMapper.selectByExample(example);
     }
 
@@ -185,6 +187,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
 
     /**
      * 校验是否组织下用户组
+     *
      * @param userRole 用户组
      */
     private void checkOrgUserRole(UserRole userRole) {
