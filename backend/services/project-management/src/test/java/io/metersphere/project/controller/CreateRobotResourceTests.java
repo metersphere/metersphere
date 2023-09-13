@@ -2,14 +2,12 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.domain.ProjectRobot;
 import io.metersphere.project.request.ProjectRobotRequest;
-import io.metersphere.project.service.CreateRobotResourceService;
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.invoker.ProjectServiceInvoker;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
-import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
