@@ -62,7 +62,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         handleCustomFields(noticeModel);
         // 处理 userIds 中包含的特殊值
         noticeModel.setReceivers(getRealUserIds(messageDetail, noticeModel, messageDetail.getEvent()));
-        //apiReceiver特殊处理（v2接口同步的通知，v3这里待讨论）
+        //TODO：apiReceiver特殊处理（v2接口同步的通知，v3这里待讨论）
         /*String apiSpecialType = (String) noticeModel.getParamMap().get("apiSpecialType");
         if (apiSpecialType != null && apiSpecialType.equals("API_SPECIAL")) {
             String specialReceivers = (String) noticeModel.getParamMap().get("specialReceivers");
