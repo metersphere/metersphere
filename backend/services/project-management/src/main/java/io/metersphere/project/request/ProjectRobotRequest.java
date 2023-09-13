@@ -6,6 +6,10 @@ import lombok.Data;
 
 @Data
 public class ProjectRobotRequest extends BasePageRequest {
+
+    @Schema(description =  "是否禁用")
+    private String projectId;
+
     @Schema(description =  "是否禁用")
     private Boolean enable;
 }
