@@ -27,6 +27,8 @@ import {getCurrentProjectID} from "@/business/utils/sdk-utils";
 import TestCaseExportFieldSelectItem from "@/business/case/components/export/TestCaseExportFieldSelectItem";
 import TestCaseExportFieldList from "@/business/case/components/export/TestCaseExportFieldList";
 import {getTestTemplate} from "@/api/custom-field-template";
+import i18n from "metersphere-frontend/src/i18n";
+import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
 
 export default {
   name: "TestCaseExportFieldSelect",
@@ -152,6 +154,8 @@ export default {
         this.baseFields = [...this.originBaseFields];
         template.customFields.forEach(item => {
           if (item.system) {
+            item.label = i18n.t(SYSTEM_FIELD_NAME_MAP[item.name])
+            item.name =i18n.t(SYSTEM_FIELD_NAME_MAP[item.name])
             this.baseFields.push(item);
           } else {
             this.customFields.push(item);
