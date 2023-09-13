@@ -71,4 +71,6 @@ export default {
   'system.project.projectNameRequired': 'Project name cannot be empty',
   'system.project.createTip': 'After the project is enabled, it will be displayed in the project switching list',
   'system.project.affiliatedOrgRequired': 'Affiliated organization cannot be empty',
+  'system.project.createProjectSuccess': 'Create project success',
+  'system.project.updateProjectSuccess': 'Update project success',
 };

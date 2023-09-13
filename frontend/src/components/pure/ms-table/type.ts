@@ -92,6 +92,8 @@ export interface MsTableProps<T> {
   debug?: boolean;
   // 是否展示第一行的操作
   showFirstOperation?: boolean;
+  // 已经使用的高度
+  heightUsed?: number;
   [key: string]: any;
 }
 

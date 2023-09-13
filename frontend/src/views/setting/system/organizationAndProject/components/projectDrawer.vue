@@ -72,7 +72,8 @@
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postProjectTableByOrgId, {
     columns: projectColumn,
-    scroll: { maxHeight: '700px', y: '650px' },
+    scroll: { x: '100%' },
+    heightUsed: 240,
     selectable: false,
     noDisable: false,
     pageSimple: true,

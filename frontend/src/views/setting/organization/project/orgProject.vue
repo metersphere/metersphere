@@ -149,7 +149,6 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 230,
     },
   ];
 
