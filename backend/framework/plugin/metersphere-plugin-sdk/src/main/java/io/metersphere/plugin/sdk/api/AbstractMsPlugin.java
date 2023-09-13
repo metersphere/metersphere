@@ -1,6 +1,6 @@
 package io.metersphere.plugin.sdk.api;
 
-public abstract class AbstractMsPlugin implements MsPlugin {
+public abstract class AbstractMsPlugin extends MsPlugin {
 
     private static final String SCRIPT_DIR = "script";
 
@@ -11,15 +11,5 @@ public abstract class AbstractMsPlugin implements MsPlugin {
     @Override
     public String getScriptDir() {
         return SCRIPT_DIR;
-    }
-
-    @Override
-    public String getName() {
-        return getKey();
-    }
-
-    @Override
-    public String getPluginId() {
-        return getKey().toLowerCase() + "-" + getVersion();
     }
 }

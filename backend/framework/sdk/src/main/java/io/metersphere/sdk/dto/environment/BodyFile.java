@@ -1,7 +1,7 @@
 package io.metersphere.sdk.dto.environment;
 
 
-import io.metersphere.sdk.constants.StorageConstants;
+import io.metersphere.sdk.constants.StorageType;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,6 +20,6 @@ public class BodyFile {
     private String refResourceId;
 
     public boolean isRef() {
-        return StringUtils.equals(storage, StorageConstants.FILE_REF.name()) && StringUtils.isNotEmpty(fileId);
+        return StringUtils.equals(storage, StorageType.FILE_REF.name()) && StringUtils.isNotEmpty(fileId);
     }
 }

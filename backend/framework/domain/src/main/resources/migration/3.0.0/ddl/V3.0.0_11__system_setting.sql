@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS novice_statistics
 
 CREATE TABLE IF NOT EXISTS plugin
 (
-    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `id` VARCHAR(100) NOT NULL   COMMENT 'ID' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '插件名称' ,
     `plugin_id` VARCHAR(300) NOT NULL   COMMENT '插件ID（名称加版本号）' ,
     `file_name` VARCHAR(300) NOT NULL   COMMENT '文件名' ,
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS plugin
     `global` BIT NOT NULL  DEFAULT 1 COMMENT '是否是全局插件' ,
     `xpack` BIT NOT NULL  DEFAULT 0 COMMENT '是否是企业版插件' ,
     `description` VARCHAR(500)    COMMENT '插件描述' ,
-    `scenario` VARCHAR(50) NOT NULL   COMMENT '插件使用场景PAI/PLATFORM' ,
+    `scenario` VARCHAR(50) NOT NULL   COMMENT '插件使用场景API_PROTOCOL/PLATFORM' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4

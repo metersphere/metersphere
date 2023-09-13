@@ -2,26 +2,21 @@ package io.metersphere.sdk.controller.environment;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.environment.EnvironmentConfigRequest;
 import io.metersphere.sdk.dto.environment.dataSource.DataSource;
-import io.metersphere.sdk.service.PluginLoadService;
 import io.metersphere.sdk.service.environment.EnvironmentService;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 @RestController
 @RequestMapping(value = "/project/environment")
@@ -29,11 +24,7 @@ import java.util.Properties;
 public class EnvironmentController {
 
     @Resource
-    private PluginLoadService pluginLoadService;
-
-    @Resource
     private EnvironmentService environmentService;
-
 
     @GetMapping("/list/{projectId}")
     @Operation(summary = "项目管理-环境-环境目录-列表")
@@ -76,26 +67,13 @@ public class EnvironmentController {
     @Operation(summary = "项目管理-环境-数据库配置-校验")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
     public void validate(@RequestBody DataSource databaseConfig) {
-        try {
-            if (StringUtils.isNotBlank(databaseConfig.getDriverId())) {
-                ClassLoader classLoader = pluginLoadService.getClassLoader(databaseConfig.getDriverId());
-                Driver driver = (Driver) classLoader.loadClass(databaseConfig.getDriver()).newInstance();
-                Properties properties = new Properties();
-                properties.setProperty("user", databaseConfig.getUsername());
-                properties.setProperty("password", databaseConfig.getPassword());
-                driver.connect(databaseConfig.getDbUrl(), properties);
-            } else {
-                DriverManager.getConnection(databaseConfig.getDbUrl(), databaseConfig.getUsername(), databaseConfig.getPassword());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        environmentService.validateDataSource(databaseConfig);
     }
 
     @GetMapping("/database/driver-options/{organizationId}")
     @Operation(summary = "项目管理-环境-数据库配置-数据库驱动选项")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
-    public Map<String, String> driverOptions(@PathVariable String organizationId) {
+    public List<OptionDTO> driverOptions(@PathVariable String organizationId) {
         return environmentService.getDriverOptions(organizationId);
     }
 

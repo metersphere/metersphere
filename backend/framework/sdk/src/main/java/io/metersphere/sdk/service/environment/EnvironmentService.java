@@ -1,82 +1,66 @@
 package io.metersphere.sdk.service.environment;
 
-import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentBlob;
 import io.metersphere.sdk.domain.EnvironmentBlobExample;
 import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.environment.EnvironmentConfig;
 import io.metersphere.sdk.dto.environment.EnvironmentConfigRequest;
+import io.metersphere.sdk.dto.environment.dataSource.DataSource;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
-import io.metersphere.sdk.service.PluginLoadService;
+import io.metersphere.sdk.service.JdbcDriverPluginService;
 import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.Plugin;
-import io.metersphere.system.domain.PluginExample;
-import io.metersphere.system.domain.PluginOrganization;
-import io.metersphere.system.domain.PluginOrganizationExample;
-import io.metersphere.system.mapper.PluginMapper;
-import io.metersphere.system.mapper.PluginOrganizationMapper;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.sql.Driver;
+import java.sql.DriverManager;
 import java.util.*;
 
 
 @Service
 @Transactional
 public class EnvironmentService {
-
-    @Resource
-    private PluginMapper pluginMapper;
-    @Resource
-    private PluginLoadService pluginLoadService;
-    @Resource
-    private PluginOrganizationMapper pluginOrganizationMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
     @Resource
     private EnvironmentBlobMapper environmentBlobMapper;
     @Resource
     private MinioRepository minioRepository;
+    @Resource
+    private JdbcDriverPluginService jdbcDriverPluginService;
 
-    public Map<String, String> getDriverOptions(String organizationId) {
-        Map<String, String> pluginDriverClassNames = new HashMap<>();
-        PluginExample example = new PluginExample();
-        example.createCriteria().andScenarioEqualTo(PluginScenarioType.JDBC_DRIVER.name()).andEnableEqualTo(true);
-        List<Plugin> plugins = pluginMapper.selectByExample(example);
-        plugins.forEach(plugin -> {
-            if (BooleanUtils.isTrue(plugin.getGlobal())) {
-                pluginDriverClassNames.put(plugin.getId(), pluginLoadService.getImplClass(plugin.getId(), Driver.class).getName());
+    public List<OptionDTO> getDriverOptions(String organizationId) {
+        return jdbcDriverPluginService.getJdbcDriverOption(organizationId);
+    }
+
+    public void validateDataSource(DataSource databaseConfig) {
+        try {
+            if (StringUtils.isNotBlank(databaseConfig.getDriverId())) {
+                Driver driver = jdbcDriverPluginService.getDriverByOptionId(databaseConfig.getDriverId());
+                Properties properties = new Properties();
+                properties.setProperty("user", databaseConfig.getUsername());
+                properties.setProperty("password", databaseConfig.getPassword());
+                driver.connect(databaseConfig.getDbUrl(), properties);
             } else {
-                //判断组织id
-                if (StringUtils.isNotBlank(organizationId)) {
-                    //判断组织id是否在插件组织id中
-                    PluginOrganizationExample pluginOrganizationExample = new PluginOrganizationExample();
-                    pluginOrganizationExample.createCriteria().andPluginIdEqualTo(plugin.getId()).andOrganizationIdEqualTo(organizationId);
-                    List<PluginOrganization> pluginOrganizations = pluginOrganizationMapper.selectByExample(pluginOrganizationExample);
-                    if (pluginOrganizations.size() > 0) {
-                        pluginDriverClassNames.put(plugin.getId(), pluginLoadService.getImplClass(plugin.getId(), Driver.class).getName());
-                    }
-                }
+                DriverManager.getConnection(databaseConfig.getDbUrl(), databaseConfig.getUsername(), databaseConfig.getPassword());
             }
-        });
-        // 已经内置了 mysql 依赖
-        pluginDriverClassNames.put(StringUtils.EMPTY, "com.mysql.jdbc.Driver");
-        return pluginDriverClassNames;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void delete(String id) {

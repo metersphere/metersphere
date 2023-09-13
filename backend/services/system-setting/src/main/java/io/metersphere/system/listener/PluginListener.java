@@ -4,7 +4,9 @@ package io.metersphere.system.listener;
 import io.metersphere.sdk.constants.KafkaPluginTopicType;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
 import io.metersphere.sdk.service.PluginLoadService;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.dto.PluginNotifiedDTO;
 import jakarta.annotation.Resource;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -21,17 +23,17 @@ public class PluginListener {
     // groupId 必须是每个实例唯一
     @KafkaListener(id = PLUGIN_CONSUMER, topics = KafkaTopicConstants.PLUGIN, groupId = PLUGIN_CONSUMER + "_" + "${random.uuid}")
     public void handlePluginChange(ConsumerRecord<?, String> record) {
-        LogUtils.info("Service consume platform_plugin message: " + record);
-        String[] info = record.value().split(":");
-        String operate = info[0];
-        String pluginId = info[1];
+        LogUtils.info("Service consume platform_plugin message: " + record.value());
+        PluginNotifiedDTO pluginNotifiedDTO = JSON.parseObject(record.value(), PluginNotifiedDTO.class);
+        String operate = pluginNotifiedDTO.getOperate();
+        String pluginId = pluginNotifiedDTO.getPluginId();
+        String fileName = pluginNotifiedDTO.getFileName();
         switch (operate) {
             case KafkaPluginTopicType.ADD:
-                String pluginName = info[2];
-                pluginLoadService.loadPlugin(pluginId, pluginName);
+                pluginLoadService.handlePluginAddNotified(pluginId, fileName);
                 break;
             case KafkaPluginTopicType.DELETE:
-                pluginLoadService.unloadPlugin(pluginId);
+                pluginLoadService.handlePluginDeleteNotified(pluginId, fileName);
                 break;
             default:
                 break;

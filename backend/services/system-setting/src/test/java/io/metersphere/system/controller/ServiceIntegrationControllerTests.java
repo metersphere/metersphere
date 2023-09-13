@@ -200,7 +200,7 @@ public class ServiceIntegrationControllerTests extends BaseTest {
                 serviceIntegrationDTO.getConfiguration());
         Assertions.assertEquals(serviceIntegration.getEnable(), serviceIntegrationDTO.getEnable());
         Assertions.assertEquals(serviceIntegration.getPluginId(), serviceIntegrationDTO.getPluginId());
-        AbstractPlatformPlugin msPluginInstance = pluginLoadService.getPlatformPluginInstance(plugin.getId());
+        AbstractPlatformPlugin msPluginInstance = (AbstractPlatformPlugin) pluginLoadService.getPluginWrapper(plugin.getId()).getPlugin();
         Assertions.assertEquals(serviceIntegrationDTO.getDescription(), msPluginInstance.getDescription());
         Assertions.assertEquals(serviceIntegrationDTO.getOrganizationId(), defaultOrg.getId());
         Assertions.assertEquals(serviceIntegrationDTO.getTitle(), msPluginInstance.getName());
@@ -333,7 +333,7 @@ public class ServiceIntegrationControllerTests extends BaseTest {
                         .getPath()
         );
         FileInputStream inputStream = new FileInputStream(jarFile);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), inputStream);
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), jarFile.getName(), "jar", inputStream);
         request.setName("测试插件");
         request.setGlobal(true);
         request.setEnable(true);
