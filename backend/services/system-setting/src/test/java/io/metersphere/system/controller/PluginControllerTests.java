@@ -100,7 +100,7 @@ public class PluginControllerTests extends BaseTest {
         Assertions.assertEquals(plugin.getGlobal(), request.getGlobal());
         Assertions.assertEquals(plugin.getXpack(), false);
         Assertions.assertEquals(plugin.getFileName(), jarFile.getName());
-        Assertions.assertEquals(plugin.getScenario(), PluginScenarioType.API.name());
+        Assertions.assertEquals(plugin.getScenario(), PluginScenarioType.API_PROTOCOL.name());
         Assertions.assertEquals(new ArrayList<>(0), getOrgIdsByPlugId(plugin.getId()));
         Assertions.assertEquals(Arrays.asList("connect", "disconnect", "pub", "sub"), getScriptIdsByPlugId(plugin.getId()));
         addPlugin = plugin;
@@ -135,7 +135,7 @@ public class PluginControllerTests extends BaseTest {
         );
         this.requestMultipartWithOkAndReturn(DEFAULT_ADD,
                 getDefaultMultiPartParam(request, myDriver));
-        Assertions.assertEquals(jdbcDriverPluginService.getJdbcDriverClass(), Arrays.asList("io.jianxing.MyDriver", "com.mysql.jdbc.Driver"));
+        Assertions.assertEquals(jdbcDriverPluginService.getJdbcDriverClass(DEFAULT_ORGANIZATION_ID), Arrays.asList("io.jianxing.MyDriver", "com.mysql.cj.jdbc.Driver"));
 
         // @@重名校验异常
         // 校验插件名称重名
@@ -147,21 +147,6 @@ public class PluginControllerTests extends BaseTest {
         assertErrorCode(this.requestMultipart(DEFAULT_ADD,
                 getDefaultMultiPartParam(request, jarFile)), PLUGIN_EXIST);
 
-        // 校验插件 key 重复
-        File typeRepeatFile = new File(
-                this.getClass().getClassLoader().getResource("file/metersphere-mqtt-plugin-repeat-key.jar")
-                        .getPath()
-        );
-        assertErrorCode(this.requestMultipart(DEFAULT_ADD,
-                getDefaultMultiPartParam(request, typeRepeatFile)), PLUGIN_TYPE_EXIST);
-
-        // @@校验禁止上传mysql驱动
-        File mysqlDriver = new File(
-                this.getClass().getClassLoader().getResource("file/test-mysql-driver-1.0.jar")
-                        .getPath()
-        );
-        assertErrorCode(this.requestMultipart(DEFAULT_ADD,
-                getDefaultMultiPartParam(request, mysqlDriver)), PLUGIN_TYPE_EXIST);
 
         // @@校验插件脚本解析失败
         File scriptParseFile = new File(
@@ -296,10 +281,10 @@ public class PluginControllerTests extends BaseTest {
     @Order(5)
     public void getPluginImg() throws Exception {
         // @@请求成功
-        mockMvc.perform(getRequestBuilder(PLUGIN_IMAGE, anotherAddPlugin.getId(), "/static/jira.jpg"))
+        mockMvc.perform(getRequestBuilder(PLUGIN_IMAGE, anotherAddPlugin.getId(), "static/jira.jpg"))
                 .andExpect(status().isOk());
 
-        assertErrorCode(this.requestGet(PLUGIN_IMAGE, anotherAddPlugin.getId(), "/static/jira.doc"), FILE_NAME_ILLEGAL);
+        assertErrorCode(this.requestGet(PLUGIN_IMAGE, anotherAddPlugin.getId(), "static/jira.doc"), FILE_NAME_ILLEGAL);
     }
 
     @Test

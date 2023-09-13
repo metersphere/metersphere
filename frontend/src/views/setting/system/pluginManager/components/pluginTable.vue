@@ -209,7 +209,7 @@
     },
     {
       label: 'system.plugin.interfaceTest',
-      value: 'API',
+      value: 'API_PROTOCOL',
     },
     {
       label: 'system.plugin.projectManagement',
@@ -280,7 +280,7 @@
 
   function getScenarioType(scenario: string) {
     switch (scenario) {
-      case 'API':
+      case 'API_PROTOCOL':
         return t('system.plugin.interfaceTest');
       case 'JDBC_DRIVER':
         return t('system.plugin.databaseDriver');

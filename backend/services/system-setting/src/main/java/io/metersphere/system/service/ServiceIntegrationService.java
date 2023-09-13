@@ -55,14 +55,14 @@ public class ServiceIntegrationService {
 
         List<Plugin> plugins = platformPluginService.getOrgEnabledPlatformPlugins(organizationId);
         return plugins.stream().map(plugin -> {
-            AbstractPlatformPlugin msPluginInstance = pluginLoadService.getPlatformPluginInstance(plugin.getId());
+            AbstractPlatformPlugin msPlugin = (AbstractPlatformPlugin) pluginLoadService.getPluginWrapper(plugin.getId()).getPlugin();
             // 获取插件基础信息
             ServiceIntegrationDTO serviceIntegrationDTO = new ServiceIntegrationDTO();
-            serviceIntegrationDTO.setTitle(msPluginInstance.getName());
+            serviceIntegrationDTO.setTitle(msPlugin.getName());
             serviceIntegrationDTO.setEnable(false);
             serviceIntegrationDTO.setConfig(false);
-            serviceIntegrationDTO.setDescription(msPluginInstance.getDescription());
-            serviceIntegrationDTO.setLogo(String.format(PLUGIN_IMAGE_GET_PATH, plugin.getId(), msPluginInstance.getLogo()));
+            serviceIntegrationDTO.setDescription(msPlugin.getDescription());
+            serviceIntegrationDTO.setLogo(String.format(PLUGIN_IMAGE_GET_PATH, plugin.getId(), msPlugin.getLogo()));
             serviceIntegrationDTO.setPluginId(plugin.getId());
             ServiceIntegration serviceIntegration = serviceIntegrationMap.get(plugin.getId());
             if (serviceIntegration != null) {
@@ -149,7 +149,7 @@ public class ServiceIntegrationService {
 
     public Object getPluginScript(String pluginId) {
         pluginService.checkResourceExist(pluginId);
-        AbstractPlatformPlugin platformPlugin = pluginLoadService.getImplInstance(pluginId, AbstractPlatformPlugin.class);
+        AbstractPlatformPlugin platformPlugin = (AbstractPlatformPlugin) pluginLoadService.getPluginWrapper(pluginId).getPlugin();
         return pluginLoadService.getPluginScriptContent(pluginId, platformPlugin.getIntegrationScriptId());
     }
 }

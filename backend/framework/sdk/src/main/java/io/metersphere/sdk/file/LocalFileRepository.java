@@ -1,0 +1,90 @@
+package io.metersphere.sdk.file;
+
+import io.metersphere.sdk.util.MsFileUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.aspectj.util.FileUtil;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.util.List;
+
+@Component
+public class LocalFileRepository implements FileRepository {
+
+    @Override
+    public String saveFile(MultipartFile multipartFile, FileRequest request) throws IOException {
+        if (multipartFile == null || request == null || StringUtils.isEmpty(request.getFileName()) || StringUtils.isEmpty(request.getProjectId())) {
+            return null;
+        }
+        MsFileUtils.validateFileName(request.getProjectId(), request.getFileName());
+        createFileDir(request);
+        File file = new File(getFilePath(request));
+        FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        return file.getPath();
+    }
+
+    private void createFileDir(FileRequest request) {
+        String dir = getFileDir(request);
+        File fileDir = new File(dir);
+        if (!fileDir.exists()) {
+            fileDir.mkdirs();
+        }
+    }
+
+    @Override
+    public String saveFile(byte[] bytes, FileRequest request) throws IOException {
+        File file = new File(getFilePath(request));
+        try (OutputStream ops = new FileOutputStream(file)) {
+            ops.write(bytes);
+            return file.getPath();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public void delete(FileRequest request) throws Exception {
+        String path = StringUtils.join(getFilePath(request));
+        File file = new File(path);
+        FileUtil.deleteContents(file);
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    @Override
+    public void deleteFolder(FileRequest request) throws Exception {
+        this.delete(request);
+    }
+
+    @Override
+    public byte[] getFile(FileRequest request) throws Exception {
+        File file = new File(getFilePath(request));
+        return Files.readAllBytes(file.toPath());
+    }
+
+    @Override
+    public InputStream getFileAsStream(FileRequest request) throws Exception {
+        return new FileInputStream(getFilePath(request));
+    }
+
+    @Override
+    public void downloadFile(FileRequest request, String localPath) {
+    }
+
+    @Override
+    public List<String> getFolderFileNames(FileRequest request) {
+        return null;
+    }
+
+    private String getFilePath(FileRequest request) {
+        return StringUtils.join(getFileDir(request), "/", request.getFileName());
+    }
+
+    private String getFileDir(FileRequest request) {
+        return StringUtils.join(MsFileUtils.DATE_ROOT_DIR, "/", request.getProjectId());
+    }
+}

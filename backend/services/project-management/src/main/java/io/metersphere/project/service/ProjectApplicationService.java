@@ -194,11 +194,9 @@ public class ProjectApplicationService {
         return options;
     }
 
-
-
     public Object getPluginScript(String pluginId) {
         this.checkResourceExist(pluginId);
-        AbstractPlatformPlugin platformPlugin = pluginLoadService.getImplInstance(pluginId, AbstractPlatformPlugin.class);
+        AbstractPlatformPlugin platformPlugin = (AbstractPlatformPlugin) pluginLoadService.getMsPluginManager().getPlugin(pluginId).getPlugin();
         return pluginLoadService.getPluginScriptContent(pluginId, platformPlugin.getProjectScriptId());
     }
 

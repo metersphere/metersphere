@@ -1,15 +1,15 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.service.PluginLoadService;
+import io.metersphere.sdk.constants.OperationLogConstants;
+import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.sdk.log.constants.OperationLogModule;
+import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.service.BasePluginService;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.request.ServiceIntegrationUpdateRequest;
-import io.metersphere.sdk.constants.OperationLogConstants;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import io.metersphere.sdk.dto.LogDTO;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.log.constants.OperationLogType;
-import io.metersphere.sdk.log.constants.OperationLogModule;
 import org.springframework.transaction.annotation.Transactional;
 /**
  * @author jianxing
@@ -22,7 +22,7 @@ public class ServiceIntegrationLogService {
     @Resource
     private ServiceIntegrationService serviceIntegrationService;
     @Resource
-    private PluginLoadService pluginLoadService;
+    private BasePluginService basePluginService;
 
     public LogDTO addLog(ServiceIntegrationUpdateRequest request) {
         LogDTO dto = new LogDTO(
@@ -38,7 +38,7 @@ public class ServiceIntegrationLogService {
     }
 
     private String getName(String pluginId) {
-        return pluginLoadService.getPlatformPluginInstance(pluginId).getName();
+        return basePluginService.get(pluginId).getName();
     }
 
     public LogDTO updateLog(ServiceIntegrationUpdateRequest request) {

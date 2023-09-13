@@ -395,7 +395,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
                         .getPath()
         );
         FileInputStream inputStream = new FileInputStream(jarFile);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), inputStream);
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), jarFile.getName(), "jar", inputStream);
         request.setName("测试插件1");
         request.setGlobal(true);
         request.setEnable(true);

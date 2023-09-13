@@ -51,7 +51,7 @@ public class Plugin implements Serializable {
     @Schema(description =  "插件描述")
     private String description;
 
-    @Schema(description =  "插件使用场景PAI/PLATFORM", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "插件使用场景API_PROTOCOL/PLATFORM", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{plugin.scenario.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{plugin.scenario.length_range}", groups = {Created.class, Updated.class})
     private String scenario;

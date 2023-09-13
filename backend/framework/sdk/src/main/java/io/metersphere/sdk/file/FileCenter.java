@@ -1,18 +1,21 @@
 package io.metersphere.sdk.file;
 
+import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.util.CommonBeanFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class FileCenter {
 
-    // 多种实现时打开
-    /*public static FileRepository getRepository(String storage) {
-        if (StringUtils.equals(StorageConstants.GIT.name(), storage)) {
-            LogUtils.info("扩展GIT存储方式");
-            return null;
-        } else {
-            return getDefaultRepository();
-        }
-    }*/
+    public static FileRepository getRepository(StorageType storageType) {
+        Map<StorageType, FileRepository> repositoryMap = new HashMap<>() {{
+            put(StorageType.MINIO, CommonBeanFactory.getBean(MinioRepository.class));
+            put(StorageType.LOCAL, CommonBeanFactory.getBean(LocalFileRepository.class));
+        }};
+        FileRepository fileRepository = repositoryMap.get(storageType);
+        return fileRepository == null ? getDefaultRepository() : fileRepository;
+    }
 
     public static FileRepository getDefaultRepository() {
         return CommonBeanFactory.getBean(MinioRepository.class);

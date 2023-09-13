@@ -1,6 +1,8 @@
 package io.metersphere.system.service;
 
 
+import io.metersphere.plugin.api.api.AbstractApiProtocolPlugin;
+import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
 import io.metersphere.plugin.sdk.api.MsPlugin;
 import io.metersphere.sdk.constants.KafkaPluginTopicType;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
@@ -11,12 +13,13 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserService;
 import io.metersphere.sdk.service.JdbcDriverPluginService;
 import io.metersphere.sdk.service.PluginLoadService;
-import io.metersphere.sdk.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.ServiceUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.PluginExample;
 import io.metersphere.system.dto.PluginDTO;
+import io.metersphere.system.dto.PluginNotifiedDTO;
 import io.metersphere.system.mapper.ExtPluginMapper;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.request.PluginUpdateRequest;
@@ -25,6 +28,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.pf4j.PluginDescriptor;
+import org.pf4j.PluginWrapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +42,6 @@ import java.sql.Driver;
 import java.util.*;
 
 import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_EXIST;
-import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_TYPE_EXIST;
 
 /**
  * @author jianxing
@@ -58,7 +62,7 @@ public class PluginService {
     @Resource
     private PluginLoadService pluginLoadService;
     @Resource
-    JdbcDriverPluginService jdbcDriverPluginService;
+    private JdbcDriverPluginService jdbcDriverPluginService;
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
     @Resource
@@ -90,10 +94,9 @@ public class PluginService {
     }
 
     public Plugin add(PluginUpdateRequest request, MultipartFile file) {
-        String id = UUID.randomUUID().toString();
+        String id = null;
         Plugin plugin = new Plugin();
         BeanUtils.copyBean(plugin, request);
-        plugin.setId(id);
         plugin.setFileName(file.getOriginalFilename());
         plugin.setCreateTime(System.currentTimeMillis());
         plugin.setUpdateTime(System.currentTimeMillis());
@@ -105,34 +108,25 @@ public class PluginService {
         checkPluginAddExist(plugin);
 
         try {
-            // 加载插件
-            pluginLoadService.loadPlugin(id, file);
-            // 上传插件
-            pluginLoadService.uploadPlugin(id, file);
+            // 上传插件到本地文件系统
+            pluginLoadService.uploadPlugin2Local(file);
 
-            if (jdbcDriverPluginService.isJdbcDriver(id)) {
-                Class implClass = pluginLoadService.getImplClass(id, Driver.class);
-                // mysql 已经内置了依赖，不允许上传
-                if (implClass.getName().startsWith("com.mysql")) {
-                    throw new MSException(PLUGIN_TYPE_EXIST);
-                }
-                plugin.setScenario(PluginScenarioType.JDBC_DRIVER.name());
-                plugin.setXpack(false);
+            // 从文件系统中加载插件
+            id = pluginLoadService.loadPlugin(file.getOriginalFilename());
+            pluginLoadService.getMsPluginManager().startPlugin(id);
+            plugin.setId(id);
+
+            List<Driver> extensions = pluginLoadService.getMsPluginManager().getExtensions(Driver.class, id);
+
+            if (CollectionUtils.isNotEmpty(extensions)) {
+                plugin = jdbcDriverPluginService.wrapperPlugin(plugin);
                 plugin.setPluginId(file.getOriginalFilename());
             } else {
+
+                plugin = wrapperPlugin(id, plugin);
+
                 // 非数据库驱动插件，解析脚本和插件信息
-                // 获取插件前端配置脚本
                 List<String> frontendScript = pluginLoadService.getFrontendScripts(id);
-
-                MsPlugin msPlugin = pluginLoadService.getMsPluginInstance(id);
-                plugin.setScenario(msPlugin.getType());
-                plugin.setXpack(msPlugin.isXpack());
-                plugin.setPluginId(msPlugin.getPluginId());
-
-                // 校验插件类型是否重复
-                checkPluginKeyExist(id, msPlugin.getKey());
-
-                // 保存插件脚本
                 pluginScriptService.add(id, frontendScript);
             }
 
@@ -143,20 +137,32 @@ public class PluginService {
 
             pluginMapper.insert(plugin);
 
+            // 上传插件到对象存储
+            pluginLoadService.uploadPlugin2Repository(file);
+
             // 通知其他节点加载插件
             notifiedPluginAdd(id, plugin.getFileName());
         } catch (Exception e) {
             // 删除插件
-            pluginLoadService.deletePlugin(id);
+            pluginLoadService.unloadPlugin(id);
+            pluginLoadService.deletePluginFile(file.getOriginalFilename());
             throw e;
         }
         return plugin;
     }
 
-    private void checkPluginKeyExist(String pluginId, String pluginKey) {
-        if (pluginLoadService.hasPluginKey(pluginId, pluginKey)) {
-            throw new MSException(PLUGIN_TYPE_EXIST);
+    public Plugin wrapperPlugin(String id, Plugin plugin) {
+        PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(id);
+        PluginDescriptor descriptor = pluginWrapper.getDescriptor();
+        MsPlugin msPlugin = (MsPlugin) pluginWrapper.getPlugin();
+        if (msPlugin instanceof AbstractApiProtocolPlugin) {
+            plugin.setScenario(PluginScenarioType.API_PROTOCOL.name());
+        } else if (msPlugin instanceof AbstractPlatformPlugin) {
+            plugin.setScenario(PluginScenarioType.PLATFORM.name());
         }
+        plugin.setXpack(msPlugin.isXpack());
+        plugin.setPluginId(descriptor.getPluginId() + "-" + descriptor.getVersion());
+        return plugin;
     }
 
     public Plugin checkResourceExist(String id) {
@@ -183,8 +189,15 @@ public class PluginService {
      * @param fileName
      */
     public void notifiedPluginAdd(String pluginId, String fileName) {
-        // 初始化项目默认节点
-        kafkaTemplate.send(KafkaTopicConstants.PLUGIN, String.format("%s:%s:%s", KafkaPluginTopicType.ADD, pluginId, fileName));
+        notifiedPluginOperate(pluginId, fileName, KafkaPluginTopicType.ADD);
+    }
+
+    public void notifiedPluginOperate(String pluginId, String fileName, String operate) {
+        PluginNotifiedDTO pluginNotifiedDTO = new PluginNotifiedDTO();
+        pluginNotifiedDTO.setOperate(operate);
+        pluginNotifiedDTO.setPluginId(pluginId);
+        pluginNotifiedDTO.setFileName(fileName);
+        kafkaTemplate.send(KafkaTopicConstants.PLUGIN, JSON.toJSONString(pluginNotifiedDTO));
     }
 
     /**
@@ -192,9 +205,8 @@ public class PluginService {
      *
      * @param pluginId
      */
-    public void notifiedPluginDelete(String pluginId) {
-        // 初始化项目默认节点
-        kafkaTemplate.send(KafkaTopicConstants.PLUGIN, String.format("%s:%s", KafkaPluginTopicType.DELETE, pluginId));
+    public void notifiedPluginDelete(String pluginId, String fileName) {
+        notifiedPluginOperate(pluginId, fileName, KafkaPluginTopicType.DELETE);
     }
 
     public Plugin update(PluginUpdateRequest request) {
@@ -212,7 +224,7 @@ public class PluginService {
             request.setOrganizationIds(new ArrayList<>(0));
         }
         pluginOrganizationService.update(plugin.getId(), request.getOrganizationIds());
-        return plugin;
+        return pluginMapper.selectByPrimaryKey(request.getId());
     }
 
     private void checkPluginUpdateExist(Plugin plugin) {
@@ -230,14 +242,16 @@ public class PluginService {
 
     public void delete(String id) {
         checkResourceExist(id);
+        Plugin plugin = pluginMapper.selectByPrimaryKey(id);
         pluginMapper.deleteByPrimaryKey(id);
         // 删除插件脚本
         pluginScriptService.deleteByPluginId(id);
         // 删除和组织的关联关系
         pluginOrganizationService.deleteByPluginId(id);
         // 删除和卸载插件
-        pluginLoadService.deletePlugin(id);
-        notifiedPluginDelete(id);
+        pluginLoadService.unloadPlugin(id);
+        pluginLoadService.deletePluginFile(plugin.getFileName());
+        notifiedPluginDelete(id, plugin.getFileName());
     }
 
     public String getScript(String pluginId, String scriptId) {

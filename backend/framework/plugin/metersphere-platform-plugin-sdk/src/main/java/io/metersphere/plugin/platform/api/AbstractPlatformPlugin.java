@@ -3,14 +3,9 @@ package io.metersphere.plugin.platform.api;
 import io.metersphere.plugin.sdk.api.AbstractMsPlugin;
 
 public abstract class AbstractPlatformPlugin extends AbstractMsPlugin {
-    private static final String DEFAULT_PLATFORM_PLUGIN_TYPE = "PLATFORM";
     private static final String DEFAULT_INTEGRATION_SCRIPT_ID = "integration";
     private static final String DEFAULT_PROJECT_SCRIPT_ID = "project";
     private static final String DEFAULT_ACCOUNT_SCRIPT_ID = "account";
-    @Override
-    public String getType() {
-        return DEFAULT_PLATFORM_PLUGIN_TYPE;
-    }
 
     /**
      * 返回插件的描述信息
