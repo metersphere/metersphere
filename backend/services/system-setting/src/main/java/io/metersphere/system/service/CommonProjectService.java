@@ -184,16 +184,19 @@ public class CommonProjectService {
         userIds.addAll(projectList.stream().map(ProjectDTO::getCreateUser).toList());
         userIds.addAll(projectList.stream().map(ProjectDTO::getUpdateUser).toList());
         userIds.addAll(projectList.stream().map(ProjectDTO::getDeleteUser).toList());
-        Map<String, String> userMap = baseUserService.getUserNameMap(userIds.stream().distinct().toList());
+        Map<String, String> userMap = baseUserService.getUserNameMap(userIds.stream().filter(StringUtils::isNotBlank).distinct().toList());
         // 获取项目id
         List<String> projectIds = projectList.stream().map(ProjectDTO::getId).toList();
         List<UserExtend> users = extSystemProjectMapper.getProjectAdminList(projectIds);
+        List<ProjectDTO> projectDTOList = extSystemProjectMapper.getProjectExtendDTOList(projectIds);
+        Map<String, ProjectDTO> projectMap = projectDTOList.stream().collect(Collectors.toMap(ProjectDTO::getId, projectDTO -> projectDTO));
         //根据sourceId分组
         Map<String, List<UserExtend>> userMapList = users.stream().collect(Collectors.groupingBy(UserExtend::getSourceId));
         projectList.forEach(projectDTO -> {
             if (StringUtils.isNotBlank(projectDTO.getModuleSetting())) {
                 projectDTO.setModuleIds(JSON.parseArray(projectDTO.getModuleSetting(), String.class));
             }
+            projectDTO.setMemberCount(projectMap.get(projectDTO.getId()).getMemberCount());
             List<UserExtend> userExtends = userMapList.get(projectDTO.getId());
             if (CollectionUtils.isNotEmpty(userExtends)) {
                 projectDTO.setAdminList(userExtends);

@@ -12,10 +12,10 @@
         <where>
             `user`.deleted = 0
             <if test="request.projectId != null">
-               and user_role_relation.source_id = #{request.projectId}
+                and user_role_relation.source_id = #{request.projectId}
             </if>
-            <if test="request.keyword != null">
-               and (user.name like CONCAT('%', #{request.keyword},'%')
+            <if test="request.keyword != null and request.keyword !='' ">
+                and (user.name like CONCAT('%', #{request.keyword},'%')
                 or user.email like CONCAT('%', #{request.keyword},'%')
                 or user.phone like CONCAT('%', #{request.keyword},'%'))
             </if>
@@ -36,14 +36,11 @@
                p.delete_user,
                p.update_user,
                p.enable,
-               count(distinct temp.id) as memberCount,
                o.name as organization_name,
                p.module_setting
         FROM project p
-        LEFT JOIN (SELECT ur.source_id, u.id from user_role_relation ur  left join user u on u.id = ur.user_id where u.deleted = 0) temp on p.id = temp.source_id
         INNER JOIN organization o on p.organization_id = o.id
         <include refid="queryWhereCondition"/>
-            group by p.id
     </select>
     <select id="getProjectAdminList" resultType="io.metersphere.sdk.dto.UserExtend">
         SELECT `user`.*, user_role_relation.source_id
@@ -78,7 +75,7 @@
             <if test="request.organizationId != null">
                p.organization_id = #{request.organizationId}
             </if>
-            <if test="request.keyword != null">
+            <if test="request.keyword != null and request.keyword !='' ">
                 and (
                 p.name like concat('%', #{request.keyword},'%')
                 or p.num like concat('%', #{request.keyword},'%')
@@ -152,6 +149,23 @@
         group by u.id
         order by u.create_time desc
         limit 100
+    </select>
+    <select id="getProjectExtendDTOList" resultType="io.metersphere.sdk.dto.ProjectDTO">
+        select p.id, count(distinct temp.id) as memberCount
+        FROM project p
+        LEFT JOIN (SELECT ur.source_id, u.id
+        from user_role_relation ur
+        left join user u on u.id = ur.user_id
+        <where>
+            <if test="projectIds != null and projectIds.size > 0 ">
+                ur.source_id in
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </if>
+        </where>
+        ) temp on p.id = temp.source_id
+        group by p.id
     </select>
 
 
