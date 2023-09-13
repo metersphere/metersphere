@@ -234,6 +234,7 @@ CREATE INDEX idx_organization_id ON user (`last_organization_id`);
 CREATE INDEX idx_project_id ON user (`last_project_id`);
 CREATE INDEX idx_create_user ON user (`create_user`);
 CREATE INDEX idx_update_user ON user (`update_user`);
+CREATE INDEX idx_deleted ON user (`deleted`);
 
 CREATE TABLE IF NOT EXISTS user_role_relation(
     `id` VARCHAR(50) NOT NULL   COMMENT '用户组关系ID' ,
