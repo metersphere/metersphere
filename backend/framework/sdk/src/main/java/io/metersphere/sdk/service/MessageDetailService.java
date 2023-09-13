@@ -78,8 +78,8 @@ public class MessageDetailService {
         Map<String, ProjectRobot> projectRobotMap = projectRobots.stream().collect(Collectors.toMap(ProjectRobot::getId, item -> item));
 
         //消息通知任务以消息类型事件机器人唯一进行分组
-        Map<String, List<MessageTask>> MessageTaskGroup = messageTaskLists.stream().collect(Collectors.groupingBy(t -> (t.getTaskType() + t.getEvent() + t.getProjectRobotId())));
-        MessageTaskGroup.forEach((messageTaskId, messageTaskList) -> {
+        Map<String, List<MessageTask>> messageTaskGroup = messageTaskLists.stream().collect(Collectors.groupingBy(t -> (t.getTaskType() + t.getEvent() + t.getProjectRobotId())));
+        messageTaskGroup.forEach((messageTaskId, messageTaskList) -> {
             //获取同一任务所有的接收人
             List<String> receivers = messageTaskList.stream().map(MessageTask::getReceiver).collect(Collectors.toList());
             MessageDetail messageDetail = new MessageDetail();

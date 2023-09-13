@@ -34,8 +34,8 @@ public class DingEnterPriseNoticeSender extends AbstractNoticeSender {
                 LogUtils.error(err.message);
             }
 
-        } catch (Exception _err) {
-            TeaException err = new TeaException(_err.getMessage(), _err);
+        } catch (Exception error) {
+            TeaException err = new TeaException(error.getMessage(), error);
             if (!Common.empty(err.code) && !Common.empty(err.message)) {
                 // err 中含有 code 和 message 属性，可帮助开发定位问题
                 LogUtils.error(err.message);
@@ -57,7 +57,7 @@ public class DingEnterPriseNoticeSender extends AbstractNoticeSender {
     }
 
     private static com.aliyun.dingtalkoauth2_1_0.Client createAuthClient() throws Exception {
-        com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config();
+        Config config = new Config();
         config.protocol = "https";
         config.regionId = "central";
         return new com.aliyun.dingtalkoauth2_1_0.Client(config);
