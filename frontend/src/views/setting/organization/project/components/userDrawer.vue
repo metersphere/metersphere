@@ -1,11 +1,12 @@
 <template>
-  <MsDrawer
-    :mask="false"
+  <a-drawer
     :width="680"
     :visible="currentVisible"
     unmount-on-close
     :footer="false"
     :title="t('system.organization.addMember')"
+    :mask="false"
+    class="ms-drawer-no-mask"
     @cancel="handleCancel"
   >
     <div>
@@ -38,7 +39,7 @@
         </template>
       </ms-base-table>
     </div>
-  </MsDrawer>
+  </a-drawer>
   <AddUserModal
     :project-id="props.projectId"
     :organization-id="props.organizationId"
@@ -53,7 +54,6 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import { useI18n } from '@/hooks/useI18n';
   import { watch, ref } from 'vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import AddUserModal from './addUserModal.vue';
   import { TableData, Message } from '@arco-design/web-vue';
@@ -99,11 +99,10 @@
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postProjectMemberByProjectId, {
     columns: projectColumn,
-    showSetting: false,
-    scroll: { y: 'auto', x: '600px' },
+    scroll: { maxHeight: '700px', y: '650px' },
     selectable: false,
-    size: 'small',
     noDisable: false,
+    pageSimple: true,
   });
 
   async function searchUser() {
@@ -157,3 +156,10 @@
     }
   );
 </script>
+
+<style lang="less" scoped>
+  :deep(.custom-height) {
+    height: 100vh !important;
+    border: 1px solid red;
+  }
+</style>

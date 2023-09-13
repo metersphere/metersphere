@@ -17,6 +17,7 @@ export enum TableKeyEnum {
   PROJECT_MEMBER = 'projectMember',
   ORGANIZATION_MEMBER = 'organizationMember',
   ORGANIZATION_PROJECT = 'organizationProject',
+  ORGANIZATION_PROJECT_USER_DRAWER = 'organizationProjectUserDrawer',
   FILE_MANAGEMENT_FILE = 'fileManagementFile',
 }
 

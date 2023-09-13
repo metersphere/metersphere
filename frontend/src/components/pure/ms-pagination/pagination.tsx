@@ -326,7 +326,7 @@ export default defineComponent({
     const renderPager = () => {
       if (props.simple) {
         return (
-          <span class={`${prefixCls}-simple`}>
+          <span class={`${prefixCls}-simple-jumper`}>
             {getPageItemElement('previous', { simple: true })}
             <PageJumper
               disabled={props.disabled}

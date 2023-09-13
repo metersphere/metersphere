@@ -632,6 +632,12 @@
       background-color: rgb(var(--primary-1)) !important;
     }
   }
+  &-simple {
+    &-jumper {
+      display: flex;
+      align-items: center;
+    }
+  }
 }
 
 /** 折叠面板样式 **/
@@ -700,5 +706,13 @@
     width: 214px;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+}
+
+/** 隐藏drawer-mask **/
+.ms-drawer-no-mask {
+  left: auto;
+  .arco-drawer {
+    box-shadow: -1px 0 4px 0 rgb(2 2 2 / 10%);
   }
 }
