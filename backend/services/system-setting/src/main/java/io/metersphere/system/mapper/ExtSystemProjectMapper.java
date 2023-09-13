@@ -23,4 +23,5 @@ public interface ExtSystemProjectMapper {
 
     List<UserExtend> getUserMemberList(@Param("userIds") List<String> userIds, @Param("projectId") String projectId, @Param("keyword") String keyword);
 
+    List<ProjectDTO> getProjectExtendDTOList(@Param("projectIds") List<String> projectIds);
 }
