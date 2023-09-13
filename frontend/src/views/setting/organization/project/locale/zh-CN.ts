@@ -66,4 +66,6 @@ export default {
   'system.project.projectNameRequired': '项目名称不能为空',
   'system.project.createTip': '项目启用后，将展示在项目切换列表',
   'system.project.affiliatedOrgRequired': '所属组织不能为空',
+  'system.project.createProjectSuccess': '创建项目成功',
+  'system.project.updateProjectSuccess': '更新项目成功',
 };

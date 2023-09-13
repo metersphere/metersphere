@@ -81,6 +81,7 @@
     {
       title: 'system.organization.userName',
       slotName: 'name',
+      dataIndex: 'name',
       showTooltip: true,
       width: 200,
     },
@@ -98,8 +99,9 @@
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postProjectMemberByProjectId, {
+    heightUsed: 240,
     columns: projectColumn,
-    scroll: { maxHeight: '700px', y: '650px' },
+    scroll: { x: '100%' },
     selectable: false,
     noDisable: false,
     pageSimple: true,

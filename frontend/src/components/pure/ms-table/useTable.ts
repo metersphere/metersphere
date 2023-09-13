@@ -1,11 +1,9 @@
 // 核心的封装方法，详细参数看文档  https://arco.design/vue/component/table
 // hook/table-props.ts
 
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
 import dayjs from 'dayjs';
 import { useAppStore, useTableStore } from '@/store';
-import { SpecialColumnEnum } from '@/enums/tableEnum';
-
 import type { TableData } from '@arco-design/web-vue';
 import type { TableQueryParams, CommonList } from '@/models/common';
 import type { MsTableProps, MsTableDataItem, MsTableColumn, MsTableErrorStatus } from './type';
@@ -37,7 +35,8 @@ export default function useTableProps<T>(
     bordered: true,
     showPagination: true,
     size: 'default',
-    scroll: { maxHeight: '800px', minWidth: '1600px', y: '600px' },
+    heightUsed: 294,
+    scroll: { x: 1400, y: appStore.innerHeight - 294 },
     checkable: true,
     loading: false,
     data: [],
@@ -270,6 +269,11 @@ export default function useTableProps<T>(
     resetSort: () => {
       sortItem.value = {};
     },
+  });
+
+  watchEffect(() => {
+    const { heightUsed } = propsRes.value;
+    propsRes.value.scroll = { ...propsRes.value.scroll, y: appStore.innerHeight - (heightUsed || 294) };
   });
 
   return {

@@ -32,6 +32,7 @@ export interface AppState {
   defaultLoginConfig: LoginConfig;
   defaultPlatformConfig: PlatformConfig;
   pageConfig: PageConfig;
+  innerHeight: number;
 }
 
 export interface UploadFileTaskState {

@@ -24,7 +24,8 @@
   import { watchStyle, watchTheme, setFavicon } from '@/utils/theme';
   import { WorkbenchRouteEnum } from './enums/routeEnum';
   import { getPublicKeyRequest } from './api/modules/user';
-  // import MsEmpty from '@/components/pure/ms-empty/index.vue';
+  import MsEmpty from '@/components/pure/ms-empty/index.vue';
+  import { useEventListener, useWindowSize } from '@vueuse/core';
 
   const appStore = useAppStore();
   const userStore = useUserStore();
@@ -91,5 +92,12 @@
     if (!whiteList.includes(window.location.hash)) {
       await checkIsLogin();
     }
+    const { height } = useWindowSize();
+    appStore.innerHeight = height.value;
+  });
+  /** 屏幕大小改变时重新赋值innerHeight */
+  useEventListener(window, 'resize', () => {
+    const { height } = useWindowSize();
+    appStore.innerHeight = height.value;
   });
 </script>

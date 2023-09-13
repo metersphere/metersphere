@@ -163,9 +163,7 @@
         loading.value = true;
         await createOrUpdateProjectByOrg({ id: props.currentProject?.id, ...form });
         Message.success(
-          isEdit.value
-            ? t('system.organization.updateOrganizationSuccess')
-            : t('system.organization.createOrganizationSuccess')
+          isEdit.value ? t('system.project.updateProjectSuccess') : t('system.project.createProjectSuccess')
         );
         handleCancel(true);
       } catch (error) {

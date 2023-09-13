@@ -47,6 +47,7 @@ const useAppStore = defineStore('app', {
     defaultThemeConfig,
     defaultLoginConfig,
     defaultPlatformConfig,
+    innerHeight: 0,
     pageConfig: {
       ...defaultThemeConfig,
       ...defaultLoginConfig,
