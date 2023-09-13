@@ -183,7 +183,7 @@ public class ProjectRobotControllerTests extends BaseTest {
         setCustomRobot("测试ID空失败");
         ProjectRobot projectRobot = getRobot("测试ID空失败");
         projectRobot.setId(null);
-        checkUpdate(projectRobot, "测试ID空失败", status().is5xxServerError());
+        checkUpdate(projectRobot, "测试ID空失败", status().isBadRequest());
     }
 
     @Test
@@ -295,6 +295,21 @@ public class ProjectRobotControllerTests extends BaseTest {
 
     @Test
     @Order(19)
+    void getListSuccessByProject() throws Exception {
+        setCustomRobot("测试集合");
+        ProjectRobotRequest request = new ProjectRobotRequest();
+        request.setCurrent(1);
+        request.setPageSize(5);
+        request.setProjectId("test_project");
+        request.setEnable(true);
+        Pager<?> sortPageData = getPager(request);
+        List<ProjectRobot> projectRobots = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), ProjectRobot.class);
+        ProjectRobot projectRobot = projectRobots.get(0);
+        Assertions.assertTrue(projectRobot.getEnable());
+    }
+
+    @Test
+    @Order(20)
     void setEnableSuccess() throws Exception {
         setCustomRobot("测试Enable");
         ProjectRobot projectRobot = getRobot("测试Enable");
@@ -309,7 +324,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(20)
+    @Order(21)
     void setEnableFail() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_ENABLE+"/no_id")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
 import io.metersphere.sdk.uid.UUID;
 
 @Service
@@ -93,6 +94,10 @@ public class ProjectRobotService {
 
         if (request.getEnable() != null) {
             criteria.andEnableEqualTo(request.getEnable());
+        }
+
+        if (request.getProjectId() != null) {
+            criteria.andProjectIdEqualTo(request.getProjectId());
         }
 
         projectExample.setOrderByClause("create_time desc");
