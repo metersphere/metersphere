@@ -44,7 +44,7 @@ public class FilterChainUtils {
         //分享相关接口
 
         filterChainDefinitionMap.put("/system/theme", "anon");
-        filterChainDefinitionMap.put("/system/save/baseurl/**", "anon");
+        filterChainDefinitionMap.put("/system/parameter/save/base-url/**", "anon");
         filterChainDefinitionMap.put("/system/timeout", "anon");
         filterChainDefinitionMap.put("/file/metadata/info/**", "anon");
         // consul
