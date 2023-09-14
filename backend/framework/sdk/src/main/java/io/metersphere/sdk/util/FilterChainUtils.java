@@ -22,9 +22,8 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/display/info", "anon");
         filterChainDefinitionMap.put("/favicon.ico", "anon");
         filterChainDefinitionMap.put("/base-display/**", "anon");
-        filterChainDefinitionMap.put("/jmeter/download/**", "anon");
         filterChainDefinitionMap.put("/jmeter/ping", "anon");
-        filterChainDefinitionMap.put("/jmeter/ready/**", "anon");
+        filterChainDefinitionMap.put("/jmeter/ready/**", "totp");
         filterChainDefinitionMap.put("/authsource/list/allenable", "anon");
         filterChainDefinitionMap.put("/sso/callback/**", "anon");
         filterChainDefinitionMap.put("/license/validate", "anon");
@@ -70,6 +69,13 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
         filterChainDefinitionMap.put("/language", "apikey, authc");// 跳转到 /language 不用校验 csrf
         filterChainDefinitionMap.put("/mock", "apikey, authc"); // 跳转到 /mock接口 不用校验 csrf
+        return filterChainDefinitionMap;
+    }
+
+    public static Map<String, String> totpFilterChain() {
+        Map<String, String> filterChainDefinitionMap = new HashMap<>();
+        // 执行机下载执行资源需要验证totp
+        filterChainDefinitionMap.put("/jmeter/download/**", "totp");
         return filterChainDefinitionMap;
     }
 }
