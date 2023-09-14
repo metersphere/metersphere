@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.ExtProjectUserRoleMapper">
+    <select id="list" resultType="io.metersphere.project.dto.ProjectUserRoleDTO">
+        select ur.* from user_role ur
+        where ur.type = 'PROJECT' and scope_id in ('global', #{request.projectId})
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            ur.id like concat('%', #{request.keyword}, '%') or
+            ur.name like concat('%', #{request.keyword}, '%')
+            )
+        </if>
+        order by ur.create_time desc
+    </select>
+
+    <select id="getRelationByRoleIds" resultType="io.metersphere.system.domain.UserRoleRelation">
+        select urr.*
+        from user_role_relation urr
+        left join user u on urr.user_id = u.id
+        where u.deleted = 0 and urr.role_id in
+        <foreach collection="roleIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="listProjectRoleMember" resultType="io.metersphere.system.domain.User">
         select u.*
         from user_role_relation urr left join user u on urr.user_id = u.id
@@ -12,14 +34,12 @@
     </select>
 
     <select id="getProjectUserList" resultType="io.metersphere.system.domain.User">
-        SELECT
-        u.id,
-        u.NAME
-        FROM
-        `user` u
-        LEFT JOIN user_role_relation urr ON u.id = urr.user_id
-        WHERE
-        urr.source_id = #{sourceId} and u.deleted = false
+        SELECT u.id,
+               u.NAME
+        FROM `user` u
+                 LEFT JOIN user_role_relation urr ON u.id = urr.user_id
+        WHERE urr.source_id = #{sourceId}
+          and u.deleted = false
         order by u.create_time desc
     </select>
 </mapper>
