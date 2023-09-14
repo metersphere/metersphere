@@ -1,10 +1,11 @@
 package io.metersphere.project.service;
 
+import io.metersphere.project.dto.ProjectUserRoleDTO;
 import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
 import io.metersphere.project.request.ProjectUserRoleMemberEditRequest;
 import io.metersphere.project.request.ProjectUserRoleMemberRequest;
+import io.metersphere.project.request.ProjectUserRoleRequest;
 import io.metersphere.sdk.constants.InternalUserRole;
-import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.UserExtend;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,12 +50,28 @@ public class ProjectUserRoleService extends BaseUserRoleService {
     @Resource
     ExtProjectUserRoleMapper extProjectUserRoleMapper;
 
-    public List<UserRole> list(String projectId) {
-        UserRoleExample example = new UserRoleExample();
-        example.createCriteria().andTypeEqualTo(UserRoleType.PROJECT.name())
-                .andScopeIdIn(Arrays.asList(projectId, UserRoleEnum.GLOBAL.toString()));
-        example.setOrderByClause("create_time asc");
-        return userRoleMapper.selectByExample(example);
+    public List<ProjectUserRoleDTO> list(ProjectUserRoleRequest request) {
+        List<ProjectUserRoleDTO> roles = extProjectUserRoleMapper.list(request);
+        if (CollectionUtils.isEmpty(roles)) {
+            return new ArrayList<>();
+        }
+        List<String> roleIds = roles.stream().map(ProjectUserRoleDTO::getId).toList();
+        List<UserRoleRelation> relations = extProjectUserRoleMapper.getRelationByRoleIds(roleIds);
+        if (CollectionUtils.isNotEmpty(relations)) {
+            Map<String, Long> countMap = relations.stream().collect(Collectors.groupingBy(UserRoleRelation::getRoleId, Collectors.counting()));
+            roles.forEach(role -> {
+                if (countMap.containsKey(role.getId())) {
+                    role.setMemberCount(countMap.get(role.getId()).intValue());
+                } else {
+                    role.setMemberCount(0);
+                }
+            });
+        } else {
+            roles.forEach(role -> {
+                role.setMemberCount(0);
+            });
+        }
+        return roles;
     }
 
     @Override

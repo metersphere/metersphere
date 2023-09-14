@@ -2,9 +2,11 @@ package io.metersphere.project.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.project.dto.ProjectUserRoleDTO;
 import io.metersphere.project.request.ProjectUserRoleEditRequest;
 import io.metersphere.project.request.ProjectUserRoleMemberEditRequest;
 import io.metersphere.project.request.ProjectUserRoleMemberRequest;
+import io.metersphere.project.request.ProjectUserRoleRequest;
 import io.metersphere.project.service.ProjectUserRoleLogService;
 import io.metersphere.project.service.ProjectUserRoleService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -39,12 +41,12 @@ public class ProjectUserRoleController {
     @Resource
     ProjectUserRoleService projectUserRoleService;
 
-    @GetMapping("/list/{projectId}")
+    @PostMapping("/list")
     @Operation(summary = "项目管理-项目与权限-用户组-获取用户组列表")
-    @Parameter(name = "projectId", description = "当前项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_READ)
-    public List<UserRole> list(@PathVariable String projectId) {
-        return projectUserRoleService.list(projectId);
+    public Pager<List<ProjectUserRoleDTO>> list(@Validated @RequestBody ProjectUserRoleRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
+        return PageUtils.setPageInfo(page, projectUserRoleService.list(request));
     }
 
     @PostMapping("/add")

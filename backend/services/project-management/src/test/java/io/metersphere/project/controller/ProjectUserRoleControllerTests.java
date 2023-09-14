@@ -1,8 +1,10 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.dto.ProjectUserRoleDTO;
 import io.metersphere.project.request.ProjectUserRoleEditRequest;
 import io.metersphere.project.request.ProjectUserRoleMemberEditRequest;
 import io.metersphere.project.request.ProjectUserRoleMemberRequest;
+import io.metersphere.project.request.ProjectUserRoleRequest;
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -13,7 +15,6 @@ import io.metersphere.sdk.service.BaseUserRolePermissionService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.request.OrganizationUserRoleEditRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -28,6 +29,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,17 +65,42 @@ public class ProjectUserRoleControllerTests extends BaseTest {
     @Order(0)
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/dml/init_project_user_role.sql")
     public void testProjectUserRoleListSuccess() throws Exception {
-        String projectId = "default-project-2";
-        MvcResult mvcResult = this.responseGet(PROJECT_USER_ROLE_LIST + "/" + projectId);
+        ProjectUserRoleRequest request = new ProjectUserRoleRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setProjectId("default-project-2");
+        request.setKeyword("default-pro-role-3");
+        MvcResult mvcResult = this.responsePost(PROJECT_USER_ROLE_LIST, request);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
-        // 返回总条数是否为init_project_user_role.sql中的数据总数
-        Assertions.assertFalse(JSON.parseArray(JSON.toJSONString(resultHolder.getData())).isEmpty());
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
+        // 返回值中取出第一条数据, 并判断是否包含关键字default
+        ProjectUserRoleDTO projectUserRoleDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserRoleDTO.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(projectUserRoleDTO.getName(), request.getKeyword())
+                || StringUtils.contains(projectUserRoleDTO.getId(), request.getKeyword()));
         // 权限校验
-        requestGetPermissionTest(PermissionConstants.PROJECT_GROUP_READ, PROJECT_USER_ROLE_LIST + "/" + DEFAULT_PROJECT_ID);
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_GROUP_READ, PROJECT_USER_ROLE_LIST, request);
+
+        // 覆盖用户组没有成员的情况
+        request.setProjectId("default-project-2");
+        request.setKeyword("");
+        this.requestPost(PROJECT_USER_ROLE_LIST, request);
+        // 覆盖空数据
+        request.setProjectId("default-project-3");
+        request.setKeyword("project_member");
+        this.requestPost(PROJECT_USER_ROLE_LIST, request);
+        request.setKeyword("not_exit");
+        this.requestPost(PROJECT_USER_ROLE_LIST, request);
     }
 
     @Test
@@ -84,15 +111,23 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         request.setScopeId("default-project-2");
         this.requestPost(PROJECT_USER_ROLE_ADD, request);
         // 验证是否添加成功
-        String projectId = "default-project-2";
-        MvcResult mvcResult = this.responseGet(PROJECT_USER_ROLE_LIST + "/" + projectId);
+        ProjectUserRoleRequest roleRequest = new ProjectUserRoleRequest();
+        roleRequest.setCurrent(1);
+        roleRequest.setPageSize(10);
+        roleRequest.setProjectId("default-project-2");
+        roleRequest.setKeyword("default-pro-role-5");
+        MvcResult mvcResult = this.responsePost(PROJECT_USER_ROLE_LIST, roleRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
-        // 返回总条数是否为init_project_user_role.sql中的数据总数
-        Assertions.assertFalse(JSON.parseArray(JSON.toJSONString(resultHolder.getData())).isEmpty());
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空, 取第一条是否包含关键字
+        Assertions.assertNotNull(pageData);
+        ProjectUserRoleDTO roleDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserRoleDTO.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(roleDTO.getName(), roleRequest.getKeyword())
+                || StringUtils.contains(roleDTO.getId(), roleRequest.getKeyword()));
         // 权限校验
         requestPostPermissionTest(PermissionConstants.PROJECT_GROUP_ADD, PROJECT_USER_ROLE_ADD, request);
     }
@@ -139,16 +174,23 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         request.setScopeId("default-project-2");
         this.requestPost(PROJECT_USER_ROLE_UPDATE, request, status().isOk());
         // 验证是否修改成功
-        String projectId = "default-project-2";
-        MvcResult mvcResult = this.responseGet(PROJECT_USER_ROLE_LIST + "/" + projectId);
+        ProjectUserRoleRequest roleRequest = new ProjectUserRoleRequest();
+        roleRequest.setCurrent(1);
+        roleRequest.setPageSize(10);
+        roleRequest.setProjectId("default-project-2");
+        roleRequest.setKeyword("default-pro-role-x");
+        MvcResult mvcResult = this.responsePost(PROJECT_USER_ROLE_LIST, roleRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
-        // 返回总条数是否包含修改后的数据
-        List<UserRole> userRoles = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), UserRole.class);
-        Assertions.assertTrue(userRoles.stream().anyMatch(userRole -> "default-pro-role-x".equals(userRole.getName())));
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        ProjectUserRoleDTO roleDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserRoleDTO.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(roleDTO.getName(), roleRequest.getKeyword())
+                || StringUtils.contains(roleDTO.getId(), roleRequest.getKeyword()));
         // 权限校验
         requestPostPermissionTest(PermissionConstants.PROJECT_GROUP_UPDATE, PROJECT_USER_ROLE_UPDATE, request);
     }
@@ -256,7 +298,7 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字
         List<User> userList = JSON.parseArray(JSON.toJSONString(pageData.getList()), User.class);
-        if(CollectionUtils.isNotEmpty(userList)) {
+        if (CollectionUtils.isNotEmpty(userList)) {
             User user = userList.get(0);
             Assertions.assertTrue(StringUtils.contains(user.getName(), request.getKeyword())
                     || StringUtils.contains(user.getId(), request.getKeyword()));
@@ -376,9 +418,12 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         this.requestGet(PROJECT_USER_ROLE_DELETE + "/default-pro-role-id-3", status().isOk());
     }
 
-    private PermissionSettingUpdateRequest getPermissionSettingUpdateRequest(){
+    private PermissionSettingUpdateRequest getPermissionSettingUpdateRequest() {
         PermissionSettingUpdateRequest request = new PermissionSettingUpdateRequest();
         request.setPermissions(new ArrayList<>() {
+            @Serial
+            private static final long serialVersionUID = -1719021806631967745L;
+
             {
                 // 取消PROJECT_GROUP:READ权限
                 add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("PROJECT_GROUP:READ", false));
