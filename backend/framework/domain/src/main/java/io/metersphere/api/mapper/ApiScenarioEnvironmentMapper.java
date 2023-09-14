@@ -27,4 +27,8 @@ public interface ApiScenarioEnvironmentMapper {
     int updateByPrimaryKeySelective(ApiScenarioEnvironment record);
 
     int updateByPrimaryKey(ApiScenarioEnvironment record);
+
+    int batchInsert(@Param("list") List<ApiScenarioEnvironment> list);
+
+    int batchInsertSelective(@Param("list") List<ApiScenarioEnvironment> list, @Param("selective") ApiScenarioEnvironment.Column ... selective);
 }

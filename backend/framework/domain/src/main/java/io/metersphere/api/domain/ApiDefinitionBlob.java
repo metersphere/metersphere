@@ -10,27 +10,23 @@ import lombok.Data;
 
 @Data
 public class ApiDefinitionBlob implements Serializable {
-    @Schema(description =  "接口fk/ 一对一关系", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口fk/ 一对一关系", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_blob.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_definition_blob.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "请求内容")
+    @Schema(description = "请求内容")
     private byte[] request;
 
-    @Schema(description =  "响应内容")
+    @Schema(description = "响应内容")
     private byte[] response;
-
-    @Schema(description =  "备注")
-    private byte[] remark;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
         request("request", "request", "LONGVARBINARY", false),
-        response("response", "response", "LONGVARBINARY", false),
-        remark("remark", "remark", "LONGVARBINARY", false);
+        response("response", "response", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

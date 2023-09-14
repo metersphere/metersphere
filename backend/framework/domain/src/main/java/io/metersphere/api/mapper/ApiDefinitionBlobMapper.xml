@@ -7,7 +7,6 @@
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiDefinitionBlob">
     <result column="request" jdbcType="LONGVARBINARY" property="request" />
     <result column="response" jdbcType="LONGVARBINARY" property="response" />
-    <result column="remark" jdbcType="LONGVARBINARY" property="remark" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,7 +70,7 @@
     id
   </sql>
   <sql id="Blob_Column_List">
-    request, response, remark
+    request, response
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiDefinitionBlobExample" resultMap="ResultMapWithBLOBs">
     select
@@ -122,10 +121,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinitionBlob">
-    insert into api_definition_blob (id, request, response, 
-      remark)
-    values (#{id,jdbcType=VARCHAR}, #{request,jdbcType=LONGVARBINARY}, #{response,jdbcType=LONGVARBINARY}, 
-      #{remark,jdbcType=LONGVARBINARY})
+    insert into api_definition_blob (id, request, response
+      )
+    values (#{id,jdbcType=VARCHAR}, #{request,jdbcType=LONGVARBINARY}, #{response,jdbcType=LONGVARBINARY}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinitionBlob">
     insert into api_definition_blob
@@ -139,9 +138,6 @@
       <if test="response != null">
         response,
       </if>
-      <if test="remark != null">
-        remark,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -152,9 +148,6 @@
       </if>
       <if test="response != null">
         #{response,jdbcType=LONGVARBINARY},
-      </if>
-      <if test="remark != null">
-        #{remark,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
@@ -176,9 +169,6 @@
       <if test="record.response != null">
         response = #{record.response,jdbcType=LONGVARBINARY},
       </if>
-      <if test="record.remark != null">
-        remark = #{record.remark,jdbcType=LONGVARBINARY},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -188,8 +178,7 @@
     update api_definition_blob
     set id = #{record.id,jdbcType=VARCHAR},
       request = #{record.request,jdbcType=LONGVARBINARY},
-      response = #{record.response,jdbcType=LONGVARBINARY},
-      remark = #{record.remark,jdbcType=LONGVARBINARY}
+      response = #{record.response,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -210,26 +199,22 @@
       <if test="response != null">
         response = #{response,jdbcType=LONGVARBINARY},
       </if>
-      <if test="remark != null">
-        remark = #{remark,jdbcType=LONGVARBINARY},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiDefinitionBlob">
     update api_definition_blob
     set request = #{request,jdbcType=LONGVARBINARY},
-      response = #{response,jdbcType=LONGVARBINARY},
-      remark = #{remark,jdbcType=LONGVARBINARY}
+      response = #{response,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_definition_blob
-    (id, request, response, remark)
+    (id, request, response)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.request,jdbcType=LONGVARBINARY}, #{item.response,jdbcType=LONGVARBINARY}, 
-        #{item.remark,jdbcType=LONGVARBINARY})
+      (#{item.id,jdbcType=VARCHAR}, #{item.request,jdbcType=LONGVARBINARY}, #{item.response,jdbcType=LONGVARBINARY}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -250,9 +235,6 @@
         </if>
         <if test="'response'.toString() == column.value">
           #{item.response,jdbcType=LONGVARBINARY}
-        </if>
-        <if test="'remark'.toString() == column.value">
-          #{item.remark,jdbcType=LONGVARBINARY}
         </if>
       </foreach>
       )

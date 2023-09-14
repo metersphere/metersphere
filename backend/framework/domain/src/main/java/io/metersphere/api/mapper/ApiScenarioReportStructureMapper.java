@@ -31,4 +31,8 @@ public interface ApiScenarioReportStructureMapper {
     int updateByPrimaryKeySelective(ApiScenarioReportStructure record);
 
     int updateByPrimaryKeyWithBLOBs(ApiScenarioReportStructure record);
+
+    int batchInsert(@Param("list") List<ApiScenarioReportStructure> list);
+
+    int batchInsertSelective(@Param("list") List<ApiScenarioReportStructure> list, @Param("selective") ApiScenarioReportStructure.Column ... selective);
 }

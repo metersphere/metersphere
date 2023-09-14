@@ -27,4 +27,8 @@ public interface ApiScenarioReferenceMapper {
     int updateByPrimaryKeySelective(ApiScenarioReference record);
 
     int updateByPrimaryKey(ApiScenarioReference record);
+
+    int batchInsert(@Param("list") List<ApiScenarioReference> list);
+
+    int batchInsertSelective(@Param("list") List<ApiScenarioReference> list, @Param("selective") ApiScenarioReference.Column ... selective);
 }

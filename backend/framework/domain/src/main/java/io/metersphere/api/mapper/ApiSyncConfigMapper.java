@@ -33,4 +33,8 @@ public interface ApiSyncConfigMapper {
     int updateByPrimaryKeyWithBLOBs(ApiSyncConfig record);
 
     int updateByPrimaryKey(ApiSyncConfig record);
+
+    int batchInsert(@Param("list") List<ApiSyncConfig> list);
+
+    int batchInsertSelective(@Param("list") List<ApiSyncConfig> list, @Param("selective") ApiSyncConfig.Column ... selective);
 }

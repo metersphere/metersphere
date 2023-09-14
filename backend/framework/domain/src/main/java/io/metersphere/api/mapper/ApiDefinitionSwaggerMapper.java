@@ -33,4 +33,8 @@ public interface ApiDefinitionSwaggerMapper {
     int updateByPrimaryKeyWithBLOBs(ApiDefinitionSwagger record);
 
     int updateByPrimaryKey(ApiDefinitionSwagger record);
+
+    int batchInsert(@Param("list") List<ApiDefinitionSwagger> list);
+
+    int batchInsertSelective(@Param("list") List<ApiDefinitionSwagger> list, @Param("selective") ApiDefinitionSwagger.Column ... selective);
 }

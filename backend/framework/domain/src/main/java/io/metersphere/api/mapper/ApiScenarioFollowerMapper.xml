@@ -142,4 +142,32 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_scenario_follower
+    (api_scenario_id, user_id)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.apiScenarioId,jdbcType=VARCHAR}, #{item.userId,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_scenario_follower (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'api_scenario_id'.toString() == column.value">
+          #{item.apiScenarioId,jdbcType=VARCHAR}
+        </if>
+        <if test="'user_id'.toString() == column.value">
+          #{item.userId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

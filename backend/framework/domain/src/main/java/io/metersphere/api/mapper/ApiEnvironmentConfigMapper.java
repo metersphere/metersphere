@@ -27,4 +27,8 @@ public interface ApiEnvironmentConfigMapper {
     int updateByPrimaryKeySelective(ApiEnvironmentConfig record);
 
     int updateByPrimaryKey(ApiEnvironmentConfig record);
+
+    int batchInsert(@Param("list") List<ApiEnvironmentConfig> list);
+
+    int batchInsertSelective(@Param("list") List<ApiEnvironmentConfig> list, @Param("selective") ApiEnvironmentConfig.Column ... selective);
 }

@@ -30,14 +30,6 @@ public class APIDefinitionService {
         if (StringUtils.isNotBlank(request.getName())) {
             criteria.andNameLike("%" + request.getName() + "%");
         }
-
-        if (StringUtils.isNotEmpty(request.getPath())) {
-            criteria.andPathEqualTo(request.getPath());
-        }
-
-        if (StringUtils.isNotEmpty(request.getMethod())) {
-            criteria.andMethodEqualTo(request.getMethod());
-        }
         if (StringUtils.isNotBlank(request.getProtocol())) {
             criteria.andProtocolEqualTo(request.getProtocol());
         }

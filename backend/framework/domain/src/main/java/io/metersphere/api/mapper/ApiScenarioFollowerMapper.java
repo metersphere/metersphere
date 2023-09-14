@@ -21,4 +21,8 @@ public interface ApiScenarioFollowerMapper {
     int updateByExampleSelective(@Param("record") ApiScenarioFollower record, @Param("example") ApiScenarioFollowerExample example);
 
     int updateByExample(@Param("record") ApiScenarioFollower record, @Param("example") ApiScenarioFollowerExample example);
+
+    int batchInsert(@Param("list") List<ApiScenarioFollower> list);
+
+    int batchInsertSelective(@Param("list") List<ApiScenarioFollower> list, @Param("selective") ApiScenarioFollower.Column ... selective);
 }

@@ -21,4 +21,8 @@ public interface ApiTestCaseFollowerMapper {
     int updateByExampleSelective(@Param("record") ApiTestCaseFollower record, @Param("example") ApiTestCaseFollowerExample example);
 
     int updateByExample(@Param("record") ApiTestCaseFollower record, @Param("example") ApiTestCaseFollowerExample example);
+
+    int batchInsert(@Param("list") List<ApiTestCaseFollower> list);
+
+    int batchInsertSelective(@Param("list") List<ApiTestCaseFollower> list, @Param("selective") ApiTestCaseFollower.Column ... selective);
 }

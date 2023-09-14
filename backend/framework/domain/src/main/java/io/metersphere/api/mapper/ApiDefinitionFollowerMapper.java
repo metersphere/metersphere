@@ -21,4 +21,8 @@ public interface ApiDefinitionFollowerMapper {
     int updateByExampleSelective(@Param("record") ApiDefinitionFollower record, @Param("example") ApiDefinitionFollowerExample example);
 
     int updateByExample(@Param("record") ApiDefinitionFollower record, @Param("example") ApiDefinitionFollowerExample example);
+
+    int batchInsert(@Param("list") List<ApiDefinitionFollower> list);
+
+    int batchInsertSelective(@Param("list") List<ApiDefinitionFollower> list, @Param("selective") ApiDefinitionFollower.Column ... selective);
 }

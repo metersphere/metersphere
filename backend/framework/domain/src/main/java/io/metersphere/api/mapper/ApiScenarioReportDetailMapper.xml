@@ -428,4 +428,78 @@
       code = #{code,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_scenario_report_detail
+    (id, report_id, resource_id, start_time, `status`, request_time, assertions_total, 
+      pass_assertions_total, fake_code, request_name, environment_id, project_id, error_total, 
+      code, content)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
+        #{item.startTime,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR}, #{item.requestTime,jdbcType=BIGINT}, 
+        #{item.assertionsTotal,jdbcType=BIGINT}, #{item.passAssertionsTotal,jdbcType=BIGINT}, 
+        #{item.fakeCode,jdbcType=VARCHAR}, #{item.requestName,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.errorTotal,jdbcType=INTEGER}, #{item.code,jdbcType=VARCHAR}, 
+        #{item.content,jdbcType=LONGVARBINARY})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_scenario_report_detail (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'report_id'.toString() == column.value">
+          #{item.reportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_id'.toString() == column.value">
+          #{item.resourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'start_time'.toString() == column.value">
+          #{item.startTime,jdbcType=BIGINT}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'request_time'.toString() == column.value">
+          #{item.requestTime,jdbcType=BIGINT}
+        </if>
+        <if test="'assertions_total'.toString() == column.value">
+          #{item.assertionsTotal,jdbcType=BIGINT}
+        </if>
+        <if test="'pass_assertions_total'.toString() == column.value">
+          #{item.passAssertionsTotal,jdbcType=BIGINT}
+        </if>
+        <if test="'fake_code'.toString() == column.value">
+          #{item.fakeCode,jdbcType=VARCHAR}
+        </if>
+        <if test="'request_name'.toString() == column.value">
+          #{item.requestName,jdbcType=VARCHAR}
+        </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'error_total'.toString() == column.value">
+          #{item.errorTotal,jdbcType=INTEGER}
+        </if>
+        <if test="'code'.toString() == column.value">
+          #{item.code,jdbcType=VARCHAR}
+        </if>
+        <if test="'content'.toString() == column.value">
+          #{item.content,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

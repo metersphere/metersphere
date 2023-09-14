@@ -31,4 +31,8 @@ public interface ApiScenarioReportLogMapper {
     int updateByPrimaryKeySelective(ApiScenarioReportLog record);
 
     int updateByPrimaryKeyWithBLOBs(ApiScenarioReportLog record);
+
+    int batchInsert(@Param("list") List<ApiScenarioReportLog> list);
+
+    int batchInsertSelective(@Param("list") List<ApiScenarioReportLog> list, @Param("selective") ApiScenarioReportLog.Column ... selective);
 }

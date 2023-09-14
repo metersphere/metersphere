@@ -4,18 +4,13 @@
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenario">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
-    <result column="create_time" jdbcType="BIGINT" property="createTime" />
-    <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
-    <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
-    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
-    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="level" jdbcType="VARCHAR" property="level" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="principal" jdbcType="VARCHAR" property="principal" />
     <result column="step_total" jdbcType="INTEGER" property="stepTotal" />
     <result column="pass_rate" jdbcType="BIGINT" property="passRate" />
-    <result column="report_status" jdbcType="VARCHAR" property="reportStatus" />
+    <result column="last_report_status" jdbcType="VARCHAR" property="lastReportStatus" />
+    <result column="last_report_id" jdbcType="VARCHAR" property="lastReportId" />
     <result column="num" jdbcType="INTEGER" property="num" />
     <result column="custom_num" jdbcType="VARCHAR" property="customNum" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
@@ -25,11 +20,16 @@
     <result column="latest" jdbcType="BIT" property="latest" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="api_scenario_module_id" jdbcType="VARCHAR" property="apiScenarioModuleId" />
-    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="grouped" jdbcType="BIT" property="grouped" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
+    <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -90,10 +90,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, create_user, create_time, delete_time, delete_user, update_user, update_time, 
-    `level`, `status`, principal, step_total, pass_rate, report_status, num, custom_num, 
-    deleted, pos, version_id, ref_id, latest, project_id, api_scenario_module_id, report_id, 
-    description, module_path, tags, grouped
+    id, `name`, `level`, `status`, principal, step_total, pass_rate, last_report_status, 
+    last_report_id, num, custom_num, deleted, pos, version_id, ref_id, latest, project_id, 
+    api_scenario_module_id, description, module_path, tags, grouped, create_user, create_time, 
+    delete_time, delete_user, update_user, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioExample" resultMap="BaseResultMap">
     select
@@ -126,26 +126,26 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenario">
-    insert into api_scenario (id, `name`, create_user, 
-      create_time, delete_time, delete_user, 
-      update_user, update_time, `level`, 
+    insert into api_scenario (id, `name`, `level`, 
       `status`, principal, step_total, 
-      pass_rate, report_status, num, 
-      custom_num, deleted, pos, 
-      version_id, ref_id, latest, 
-      project_id, api_scenario_module_id, report_id, 
+      pass_rate, last_report_status, last_report_id, 
+      num, custom_num, deleted, 
+      pos, version_id, ref_id, 
+      latest, project_id, api_scenario_module_id, 
       description, module_path, tags, 
-      grouped)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
-      #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{level,jdbcType=VARCHAR}, 
+      grouped, create_user, create_time, 
+      delete_time, delete_user, update_user, 
+      update_time)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, 
-      #{passRate,jdbcType=BIGINT}, #{reportStatus,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
-      #{customNum,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{pos,jdbcType=BIGINT}, 
-      #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, 
-      #{projectId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
+      #{passRate,jdbcType=BIGINT}, #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, 
+      #{num,jdbcType=INTEGER}, #{customNum,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, 
+      #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
+      #{latest,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
-      #{grouped,jdbcType=BIT})
+      #{grouped,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, 
+      #{updateTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenario">
     insert into api_scenario
@@ -155,24 +155,6 @@
       </if>
       <if test="name != null">
         `name`,
-      </if>
-      <if test="createUser != null">
-        create_user,
-      </if>
-      <if test="createTime != null">
-        create_time,
-      </if>
-      <if test="deleteTime != null">
-        delete_time,
-      </if>
-      <if test="deleteUser != null">
-        delete_user,
-      </if>
-      <if test="updateUser != null">
-        update_user,
-      </if>
-      <if test="updateTime != null">
-        update_time,
       </if>
       <if test="level != null">
         `level`,
@@ -189,8 +171,11 @@
       <if test="passRate != null">
         pass_rate,
       </if>
-      <if test="reportStatus != null">
-        report_status,
+      <if test="lastReportStatus != null">
+        last_report_status,
+      </if>
+      <if test="lastReportId != null">
+        last_report_id,
       </if>
       <if test="num != null">
         num,
@@ -219,9 +204,6 @@
       <if test="apiScenarioModuleId != null">
         api_scenario_module_id,
       </if>
-      <if test="reportId != null">
-        report_id,
-      </if>
       <if test="description != null">
         description,
       </if>
@@ -234,6 +216,24 @@
       <if test="grouped != null">
         grouped,
       </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="deleteTime != null">
+        delete_time,
+      </if>
+      <if test="deleteUser != null">
+        delete_user,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -241,24 +241,6 @@
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="createUser != null">
-        #{createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=BIGINT},
-      </if>
-      <if test="deleteTime != null">
-        #{deleteTime,jdbcType=BIGINT},
-      </if>
-      <if test="deleteUser != null">
-        #{deleteUser,jdbcType=VARCHAR},
-      </if>
-      <if test="updateUser != null">
-        #{updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="updateTime != null">
-        #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="level != null">
         #{level,jdbcType=VARCHAR},
@@ -275,8 +257,11 @@
       <if test="passRate != null">
         #{passRate,jdbcType=BIGINT},
       </if>
-      <if test="reportStatus != null">
-        #{reportStatus,jdbcType=VARCHAR},
+      <if test="lastReportStatus != null">
+        #{lastReportStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="lastReportId != null">
+        #{lastReportId,jdbcType=VARCHAR},
       </if>
       <if test="num != null">
         #{num,jdbcType=INTEGER},
@@ -305,9 +290,6 @@
       <if test="apiScenarioModuleId != null">
         #{apiScenarioModuleId,jdbcType=VARCHAR},
       </if>
-      <if test="reportId != null">
-        #{reportId,jdbcType=VARCHAR},
-      </if>
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
       </if>
@@ -319,6 +301,24 @@
       </if>
       <if test="grouped != null">
         #{grouped,jdbcType=BIT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteTime != null">
+        #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteUser != null">
+        #{deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -337,24 +337,6 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.createUser != null">
-        create_user = #{record.createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.deleteTime != null">
-        delete_time = #{record.deleteTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.deleteUser != null">
-        delete_user = #{record.deleteUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.updateUser != null">
-        update_user = #{record.updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=BIGINT},
-      </if>
       <if test="record.level != null">
         `level` = #{record.level,jdbcType=VARCHAR},
       </if>
@@ -370,8 +352,11 @@
       <if test="record.passRate != null">
         pass_rate = #{record.passRate,jdbcType=BIGINT},
       </if>
-      <if test="record.reportStatus != null">
-        report_status = #{record.reportStatus,jdbcType=VARCHAR},
+      <if test="record.lastReportStatus != null">
+        last_report_status = #{record.lastReportStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastReportId != null">
+        last_report_id = #{record.lastReportId,jdbcType=VARCHAR},
       </if>
       <if test="record.num != null">
         num = #{record.num,jdbcType=INTEGER},
@@ -400,9 +385,6 @@
       <if test="record.apiScenarioModuleId != null">
         api_scenario_module_id = #{record.apiScenarioModuleId,jdbcType=VARCHAR},
       </if>
-      <if test="record.reportId != null">
-        report_id = #{record.reportId,jdbcType=VARCHAR},
-      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
@@ -415,6 +397,24 @@
       <if test="record.grouped != null">
         grouped = #{record.grouped,jdbcType=BIT},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.deleteTime != null">
+        delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.deleteUser != null">
+        delete_user = #{record.deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -424,18 +424,13 @@
     update api_scenario
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      create_user = #{record.createUser,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      delete_time = #{record.deleteTime,jdbcType=BIGINT},
-      delete_user = #{record.deleteUser,jdbcType=VARCHAR},
-      update_user = #{record.updateUser,jdbcType=VARCHAR},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
       `level` = #{record.level,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       principal = #{record.principal,jdbcType=VARCHAR},
       step_total = #{record.stepTotal,jdbcType=INTEGER},
       pass_rate = #{record.passRate,jdbcType=BIGINT},
-      report_status = #{record.reportStatus,jdbcType=VARCHAR},
+      last_report_status = #{record.lastReportStatus,jdbcType=VARCHAR},
+      last_report_id = #{record.lastReportId,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
       custom_num = #{record.customNum,jdbcType=VARCHAR},
       deleted = #{record.deleted,jdbcType=BIT},
@@ -445,11 +440,16 @@
       latest = #{record.latest,jdbcType=BIT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       api_scenario_module_id = #{record.apiScenarioModuleId,jdbcType=VARCHAR},
-      report_id = #{record.reportId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       module_path = #{record.modulePath,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=VARCHAR},
-      grouped = #{record.grouped,jdbcType=BIT}
+      grouped = #{record.grouped,jdbcType=BIT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      delete_user = #{record.deleteUser,jdbcType=VARCHAR},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -459,24 +459,6 @@
     <set>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="createUser != null">
-        create_user = #{createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=BIGINT},
-      </if>
-      <if test="deleteTime != null">
-        delete_time = #{deleteTime,jdbcType=BIGINT},
-      </if>
-      <if test="deleteUser != null">
-        delete_user = #{deleteUser,jdbcType=VARCHAR},
-      </if>
-      <if test="updateUser != null">
-        update_user = #{updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="level != null">
         `level` = #{level,jdbcType=VARCHAR},
@@ -493,8 +475,11 @@
       <if test="passRate != null">
         pass_rate = #{passRate,jdbcType=BIGINT},
       </if>
-      <if test="reportStatus != null">
-        report_status = #{reportStatus,jdbcType=VARCHAR},
+      <if test="lastReportStatus != null">
+        last_report_status = #{lastReportStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="lastReportId != null">
+        last_report_id = #{lastReportId,jdbcType=VARCHAR},
       </if>
       <if test="num != null">
         num = #{num,jdbcType=INTEGER},
@@ -523,9 +508,6 @@
       <if test="apiScenarioModuleId != null">
         api_scenario_module_id = #{apiScenarioModuleId,jdbcType=VARCHAR},
       </if>
-      <if test="reportId != null">
-        report_id = #{reportId,jdbcType=VARCHAR},
-      </if>
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
@@ -538,24 +520,37 @@
       <if test="grouped != null">
         grouped = #{grouped,jdbcType=BIT},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteTime != null">
+        delete_time = #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteUser != null">
+        delete_user = #{deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenario">
     update api_scenario
     set `name` = #{name,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      delete_time = #{deleteTime,jdbcType=BIGINT},
-      delete_user = #{deleteUser,jdbcType=VARCHAR},
-      update_user = #{updateUser,jdbcType=VARCHAR},
-      update_time = #{updateTime,jdbcType=BIGINT},
       `level` = #{level,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       principal = #{principal,jdbcType=VARCHAR},
       step_total = #{stepTotal,jdbcType=INTEGER},
       pass_rate = #{passRate,jdbcType=BIGINT},
-      report_status = #{reportStatus,jdbcType=VARCHAR},
+      last_report_status = #{lastReportStatus,jdbcType=VARCHAR},
+      last_report_id = #{lastReportId,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
       custom_num = #{customNum,jdbcType=VARCHAR},
       deleted = #{deleted,jdbcType=BIT},
@@ -565,11 +560,134 @@
       latest = #{latest,jdbcType=BIT},
       project_id = #{projectId,jdbcType=VARCHAR},
       api_scenario_module_id = #{apiScenarioModuleId,jdbcType=VARCHAR},
-      report_id = #{reportId,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       module_path = #{modulePath,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR},
-      grouped = #{grouped,jdbcType=BIT}
+      grouped = #{grouped,jdbcType=BIT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      delete_time = #{deleteTime,jdbcType=BIGINT},
+      delete_user = #{deleteUser,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_scenario
+    (id, `name`, `level`, `status`, principal, step_total, pass_rate, last_report_status, 
+      last_report_id, num, custom_num, deleted, pos, version_id, ref_id, latest, project_id, 
+      api_scenario_module_id, description, module_path, tags, grouped, create_user, create_time, 
+      delete_time, delete_user, update_user, update_time)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.level,jdbcType=VARCHAR}, 
+        #{item.status,jdbcType=VARCHAR}, #{item.principal,jdbcType=VARCHAR}, #{item.stepTotal,jdbcType=INTEGER}, 
+        #{item.passRate,jdbcType=BIGINT}, #{item.lastReportStatus,jdbcType=VARCHAR}, #{item.lastReportId,jdbcType=VARCHAR}, 
+        #{item.num,jdbcType=INTEGER}, #{item.customNum,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, 
+        #{item.pos,jdbcType=BIGINT}, #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, 
+        #{item.latest,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.apiScenarioModuleId,jdbcType=VARCHAR}, 
+        #{item.description,jdbcType=VARCHAR}, #{item.modulePath,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, 
+        #{item.grouped,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, 
+        #{item.updateTime,jdbcType=BIGINT})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_scenario (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'level'.toString() == column.value">
+          #{item.level,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'principal'.toString() == column.value">
+          #{item.principal,jdbcType=VARCHAR}
+        </if>
+        <if test="'step_total'.toString() == column.value">
+          #{item.stepTotal,jdbcType=INTEGER}
+        </if>
+        <if test="'pass_rate'.toString() == column.value">
+          #{item.passRate,jdbcType=BIGINT}
+        </if>
+        <if test="'last_report_status'.toString() == column.value">
+          #{item.lastReportStatus,jdbcType=VARCHAR}
+        </if>
+        <if test="'last_report_id'.toString() == column.value">
+          #{item.lastReportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=INTEGER}
+        </if>
+        <if test="'custom_num'.toString() == column.value">
+          #{item.customNum,jdbcType=VARCHAR}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
+        </if>
+        <if test="'version_id'.toString() == column.value">
+          #{item.versionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'ref_id'.toString() == column.value">
+          #{item.refId,jdbcType=VARCHAR}
+        </if>
+        <if test="'latest'.toString() == column.value">
+          #{item.latest,jdbcType=BIT}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'api_scenario_module_id'.toString() == column.value">
+          #{item.apiScenarioModuleId,jdbcType=VARCHAR}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_path'.toString() == column.value">
+          #{item.modulePath,jdbcType=VARCHAR}
+        </if>
+        <if test="'tags'.toString() == column.value">
+          #{item.tags,jdbcType=VARCHAR}
+        </if>
+        <if test="'grouped'.toString() == column.value">
+          #{item.grouped,jdbcType=BIT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'delete_time'.toString() == column.value">
+          #{item.deleteTime,jdbcType=BIGINT}
+        </if>
+        <if test="'delete_user'.toString() == column.value">
+          #{item.deleteUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

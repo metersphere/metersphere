@@ -31,4 +31,8 @@ public interface ApiDefinitionMockConfigMapper {
     int updateByPrimaryKeySelective(ApiDefinitionMockConfig record);
 
     int updateByPrimaryKeyWithBLOBs(ApiDefinitionMockConfig record);
+
+    int batchInsert(@Param("list") List<ApiDefinitionMockConfig> list);
+
+    int batchInsertSelective(@Param("list") List<ApiDefinitionMockConfig> list, @Param("selective") ApiDefinitionMockConfig.Column ... selective);
 }

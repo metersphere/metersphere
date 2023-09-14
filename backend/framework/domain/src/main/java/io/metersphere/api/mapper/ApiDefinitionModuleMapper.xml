@@ -3,16 +3,16 @@
 <mapper namespace="io.metersphere.api.mapper.ApiDefinitionModuleMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinitionModule">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="create_time" jdbcType="BIGINT" property="createTime" />
-    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
-    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="protocol" jdbcType="VARCHAR" property="protocol" />
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="level" jdbcType="INTEGER" property="level" />
     <result column="pos" jdbcType="INTEGER" property="pos" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, create_time, update_time, update_user, create_user, `name`, protocol, parent_id, 
-    project_id, `level`, pos
+    id, `name`, protocol, parent_id, project_id, `level`, pos, create_time, update_time, 
+    update_user, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDefinitionModuleExample" resultMap="BaseResultMap">
     select
@@ -107,32 +107,20 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinitionModule">
-    insert into api_definition_module (id, create_time, update_time, 
-      update_user, create_user, `name`, 
-      protocol, parent_id, project_id, 
-      `level`, pos)
-    values (#{id,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{updateUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{protocol,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
-      #{level,jdbcType=INTEGER}, #{pos,jdbcType=INTEGER})
+    insert into api_definition_module (id, `name`, protocol, 
+      parent_id, project_id, `level`, 
+      pos, create_time, update_time, 
+      update_user, create_user)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, 
+      #{pos,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{updateUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinitionModule">
     insert into api_definition_module
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
-      </if>
-      <if test="createTime != null">
-        create_time,
-      </if>
-      <if test="updateTime != null">
-        update_time,
-      </if>
-      <if test="updateUser != null">
-        update_user,
-      </if>
-      <if test="createUser != null">
-        create_user,
       </if>
       <if test="name != null">
         `name`,
@@ -152,22 +140,22 @@
       <if test="pos != null">
         pos,
       </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=BIGINT},
-      </if>
-      <if test="updateTime != null">
-        #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="updateUser != null">
-        #{updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="createUser != null">
-        #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -187,6 +175,18 @@
       <if test="pos != null">
         #{pos,jdbcType=INTEGER},
       </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.api.domain.ApiDefinitionModuleExample" resultType="java.lang.Long">
@@ -200,18 +200,6 @@
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
-      </if>
-      <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.updateUser != null">
-        update_user = #{record.updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.createUser != null">
-        create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
@@ -231,6 +219,18 @@
       <if test="record.pos != null">
         pos = #{record.pos,jdbcType=INTEGER},
       </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -239,16 +239,16 @@
   <update id="updateByExample" parameterType="map">
     update api_definition_module
     set id = #{record.id,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      update_user = #{record.updateUser,jdbcType=VARCHAR},
-      create_user = #{record.createUser,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       protocol = #{record.protocol,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `level` = #{record.level,jdbcType=INTEGER},
-      pos = #{record.pos,jdbcType=INTEGER}
+      pos = #{record.pos,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -256,18 +256,6 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiDefinitionModule">
     update api_definition_module
     <set>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=BIGINT},
-      </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="updateUser != null">
-        update_user = #{updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="createUser != null">
-        create_user = #{createUser,jdbcType=VARCHAR},
-      </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
@@ -286,21 +274,92 @@
       <if test="pos != null">
         pos = #{pos,jdbcType=INTEGER},
       </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDefinitionModule">
     update api_definition_module
-    set create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      update_user = #{updateUser,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      `name` = #{name,jdbcType=VARCHAR},
+    set `name` = #{name,jdbcType=VARCHAR},
       protocol = #{protocol,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       `level` = #{level,jdbcType=INTEGER},
-      pos = #{pos,jdbcType=INTEGER}
+      pos = #{pos,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_definition_module
+    (id, `name`, protocol, parent_id, project_id, `level`, pos, create_time, update_time, 
+      update_user, create_user)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.protocol,jdbcType=VARCHAR}, 
+        #{item.parentId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.level,jdbcType=INTEGER}, 
+        #{item.pos,jdbcType=INTEGER}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_definition_module (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'protocol'.toString() == column.value">
+          #{item.protocol,jdbcType=VARCHAR}
+        </if>
+        <if test="'parent_id'.toString() == column.value">
+          #{item.parentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'level'.toString() == column.value">
+          #{item.level,jdbcType=INTEGER}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=INTEGER}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

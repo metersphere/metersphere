@@ -321,4 +321,57 @@
       notice_enable = #{noticeEnable,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_sync_config
+    (id, resource_id, resource_type, hide, notify_case_creator, notify_scenario_creator, 
+      sync_enable, notice_enable, rule_config)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, #{item.resourceType,jdbcType=VARCHAR}, 
+        #{item.hide,jdbcType=BIT}, #{item.notifyCaseCreator,jdbcType=BIT}, #{item.notifyScenarioCreator,jdbcType=BIT}, 
+        #{item.syncEnable,jdbcType=BIT}, #{item.noticeEnable,jdbcType=BIT}, #{item.ruleConfig,jdbcType=LONGVARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_sync_config (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_id'.toString() == column.value">
+          #{item.resourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_type'.toString() == column.value">
+          #{item.resourceType,jdbcType=VARCHAR}
+        </if>
+        <if test="'hide'.toString() == column.value">
+          #{item.hide,jdbcType=BIT}
+        </if>
+        <if test="'notify_case_creator'.toString() == column.value">
+          #{item.notifyCaseCreator,jdbcType=BIT}
+        </if>
+        <if test="'notify_scenario_creator'.toString() == column.value">
+          #{item.notifyScenarioCreator,jdbcType=BIT}
+        </if>
+        <if test="'sync_enable'.toString() == column.value">
+          #{item.syncEnable,jdbcType=BIT}
+        </if>
+        <if test="'notice_enable'.toString() == column.value">
+          #{item.noticeEnable,jdbcType=BIT}
+        </if>
+        <if test="'rule_config'.toString() == column.value">
+          #{item.ruleConfig,jdbcType=LONGVARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

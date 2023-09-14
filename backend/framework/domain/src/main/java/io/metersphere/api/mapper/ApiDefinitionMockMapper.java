@@ -27,4 +27,8 @@ public interface ApiDefinitionMockMapper {
     int updateByPrimaryKeySelective(ApiDefinitionMock record);
 
     int updateByPrimaryKey(ApiDefinitionMock record);
+
+    int batchInsert(@Param("list") List<ApiDefinitionMock> list);
+
+    int batchInsertSelective(@Param("list") List<ApiDefinitionMock> list, @Param("selective") ApiDefinitionMock.Column ... selective);
 }

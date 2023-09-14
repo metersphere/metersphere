@@ -27,4 +27,8 @@ public interface ApiTestCaseMapper {
     int updateByPrimaryKeySelective(ApiTestCase record);
 
     int updateByPrimaryKey(ApiTestCase record);
+
+    int batchInsert(@Param("list") List<ApiTestCase> list);
+
+    int batchInsertSelective(@Param("list") List<ApiTestCase> list, @Param("selective") ApiTestCase.Column ... selective);
 }

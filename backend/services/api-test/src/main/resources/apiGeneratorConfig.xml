@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
 <generatorConfiguration>
     <!--配置数据库连接的位置-->
-    <properties url="file:///opt/metersphere/conf/metersphere.properties"/>
+    <properties url="file:///opt/metersphere/conf/metersphere-v3.properties"/>
     <!-- 设置mysql驱动路径 -->
     <!--<classPathEntry location="/Users/liuruibin/.m2/repository/mysql/mysql-connector-java/5.1.34/mysql-connector-java-5.1.34.jar"/>-->
     <!-- 此处指定生成针对MyBatis3的DAO -->
@@ -72,28 +72,28 @@
         <!--要生成的数据库表 -->
         <table tableName="api_definition"/>
         <table tableName="api_definition_blob"/>
-        <table tableName="api_definition_module"/>
-        <table tableName="api_environment_config"/>
+        <table tableName="api_definition_follower"/>
         <table tableName="api_definition_mock"/>
         <table tableName="api_definition_mock_config"/>
+        <table tableName="api_definition_module"/>
         <table tableName="api_definition_swagger"/>
+        <table tableName="api_environment_config"/>
         <table tableName="api_report"/>
         <table tableName="api_report_blob"/>
-        <table tableName="api_definition_follower"/>
-        <table tableName="api_test_case"/>
-        <table tableName="api_test_case_blob"/>
-        <table tableName="api_test_case_follower"/>
         <table tableName="api_scenario"/>
-        <table tableName="api_scenario_environment"/>
         <table tableName="api_scenario_blob"/>
+        <table tableName="api_scenario_environment"/>
         <table tableName="api_scenario_follower"/>
         <table tableName="api_scenario_module"/>
         <table tableName="api_scenario_reference"/>
         <table tableName="api_scenario_report"/>
         <table tableName="api_scenario_report_detail"/>
-        <table tableName="api_scenario_report_structure"/>
         <table tableName="api_scenario_report_log"/>
+        <table tableName="api_scenario_report_structure"/>
         <table tableName="api_sync_config"/>
+        <table tableName="api_test_case"/>
+        <table tableName="api_test_case_blob"/>
+        <table tableName="api_test_case_follower"/>
 
     </context>
 </generatorConfiguration>
