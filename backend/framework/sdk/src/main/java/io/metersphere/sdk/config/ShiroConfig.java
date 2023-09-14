@@ -4,6 +4,7 @@ package io.metersphere.sdk.config;
 import io.metersphere.sdk.security.ApiKeyFilter;
 import io.metersphere.sdk.security.CsrfFilter;
 import io.metersphere.sdk.security.MsPermissionAnnotationMethodInterceptor;
+import io.metersphere.sdk.security.TotpFilter;
 import io.metersphere.sdk.security.realm.LocalRealm;
 import io.metersphere.sdk.util.FilterChainUtils;
 import jakarta.servlet.DispatcherType;
@@ -42,9 +43,12 @@ public class ShiroConfig {
 
         shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
         shiroFilterFactoryBean.getFilters().put("csrf", new CsrfFilter());
+        shiroFilterFactoryBean.getFilters().put("totp", new TotpFilter());
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
 
         filterChainDefinitionMap.putAll(FilterChainUtils.loadBaseFilterChain());
+
+        filterChainDefinitionMap.putAll(FilterChainUtils.totpFilterChain());
 
         filterChainDefinitionMap.putAll(FilterChainUtils.ignoreCsrfFilter());
 
