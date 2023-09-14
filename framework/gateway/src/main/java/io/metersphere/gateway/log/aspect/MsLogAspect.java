@@ -7,6 +7,7 @@ import io.metersphere.gateway.log.annotation.MsAuditLog;
 import io.metersphere.log.service.OperatingLogService;
 import io.metersphere.request.LoginRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -21,6 +22,8 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.Resource;
+import org.springframework.web.server.WebSession;
+
 import java.lang.reflect.Method;
 import java.util.UUID;
 
@@ -107,9 +110,12 @@ public class MsLogAspect {
                 msOperLog.setOperTime(System.currentTimeMillis());
 
                 for (Object arg : args) {
-                    if (arg instanceof LoginRequest) {
-                        //获取用户名
-                        msOperLog.setOperUser(((LoginRequest) arg).getUsername());
+                    if (arg instanceof WebSession session) {
+                        Object user = session.getAttribute("user");
+                        if (user != null) {
+                            String username = (String) MethodUtils.invokeExactMethod(user, "getName");
+                            msOperLog.setOperUser(username);
+                        }
                         break;
                     }
                 }
