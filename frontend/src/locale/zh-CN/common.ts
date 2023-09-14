@@ -50,4 +50,6 @@ export default {
   'common.leave': '离开',
   'common.rename': '重命名',
   'common.noData': '暂无数据',
+  'common.internal': '内部',
+  'common.custom': '自定义',
 };

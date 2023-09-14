@@ -15,6 +15,7 @@ export enum TableKeyEnum {
   SYSTEM_PROJECT = 'systemProject',
   SYSTEM_LOG = 'systemLog',
   PROJECT_MEMBER = 'projectMember',
+  PROJECT_USER_GROUP = 'projectUserGroup',
   ORGANIZATION_MEMBER = 'organizationMember',
   ORGANIZATION_PROJECT = 'organizationProject',
   ORGANIZATION_PROJECT_USER_DRAWER = 'organizationProjectUserDrawer',

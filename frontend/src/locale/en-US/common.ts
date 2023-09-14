@@ -48,4 +48,6 @@ export default {
   'common.leave': 'Leave',
   'common.rename': 'Rename',
   'common.noData': 'No data',
+  'common.internal': 'Internal',
+  'common.custom': 'Custom',
 };

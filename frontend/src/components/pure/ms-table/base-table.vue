@@ -103,7 +103,12 @@
                 </a-tooltip>
                 <div class="edit-icon">
                   <MsIcon
-                    v-if="item.editType && editActiveKey !== `${item.dataIndex}${rowIndex}` && !record.deleted"
+                    v-if="
+                      item.editType &&
+                      editActiveKey !== `${item.dataIndex}${rowIndex}` &&
+                      !record.deleted &&
+                      !record.internal
+                    "
                     class="ml-2 cursor-pointer"
                     :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
                     type="icon-icon_edit_outlined"

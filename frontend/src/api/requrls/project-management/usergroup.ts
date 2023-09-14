@@ -1,0 +1,10 @@
+export const updateUrl = '/user/role/project/update';
+export const addUrl = '/user/role/project/add';
+export const removeMemberUrl = '/user/role/project/remove-member';
+export const updatePermissionUrl = '/user/role/project/permission/update';
+export const listMemberUrl = '/user/role/project/list-member';
+export const addMemberUrl = '/user/role/project/add-member';
+export const listPermissionUrl = '/user/role/project/permission/setting/';
+export const listUserGroupUrl = '/user/role/project/list/';
+export const getMemberOptionsUrl = '/api/project-management/usergroup/getMemberOptions';
+export const deleteUrl = '/api/project-management/usergroup/delete';

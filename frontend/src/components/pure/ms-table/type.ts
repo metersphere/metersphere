@@ -17,8 +17,6 @@ export interface MsTableColumnData extends TableColumnData {
   showDrag?: boolean;
   // 是否展示在表格上
   showInTable?: boolean;
-  // 是否可编辑
-  editable?: boolean;
   // 是否展示tooltip
   showTooltip?: boolean;
   // 启用Title 默认为启用
