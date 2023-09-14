@@ -57,6 +57,7 @@
     {
       title: 'system.userGroup.operation',
       slotName: 'action',
+      dataIndex: 'operation',
       fixed: 'right',
       width: 200,
     },

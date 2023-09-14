@@ -25,7 +25,9 @@
         <MsUserAdminDiv :is-admin="record.projectCreateUserIsAdmin" :name="record.createUser" />
       </template>
       <template #memberCount="{ record }">
-        <span class="primary-color" @click="showUserDrawer(record)">{{ record.memberCount }}</span>
+        <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="showUserDrawer(record)">{{
+          record.memberCount
+        }}</span>
       </template>
       <template #operation="{ record }">
         <template v-if="record.deleted">
@@ -313,10 +315,3 @@
     fetchData();
   });
 </script>
-
-<style lang="scss" scoped>
-  .primary-color {
-    color: rgb(var(--primary-5));
-    cursor: pointer;
-  }
-</style>

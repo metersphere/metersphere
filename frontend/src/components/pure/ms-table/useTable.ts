@@ -272,8 +272,10 @@ export default function useTableProps<T>(
   });
 
   watchEffect(() => {
+    // TODO 等UI出图，表格设置里加入分页配置等操作
     const { heightUsed } = propsRes.value;
-    propsRes.value.scroll = { ...propsRes.value.scroll, y: appStore.innerHeight - (heightUsed || 294) };
+    const currentY = appStore.innerHeight - (heightUsed || 294);
+    propsRes.value.scroll = { ...propsRes.value.scroll, y: currentY };
   });
 
   return {
