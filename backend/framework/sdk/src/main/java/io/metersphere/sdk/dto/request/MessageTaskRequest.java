@@ -17,10 +17,6 @@ public class MessageTaskRequest {
     @NotBlank(message = "{message_task.project_id.not_blank}", groups = {Created.class, Updated.class})
     public String projectId;
 
-    @Schema(description = "消息配置ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.id.not_blank}", groups = {Updated.class})
-    public String id;
-
     @Schema(description = "消息配置功能", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.taskType.not_blank}", groups = {Created.class, Updated.class})
     public String taskType;
@@ -37,15 +33,13 @@ public class MessageTaskRequest {
     public String testId;
 
     @Schema(description = "消息配置机器人id")
-    @NotBlank(message = "{message_task.robotId.not_blank}", groups = {Created.class, Updated.class})
     public String robotId;
 
     @Schema(description = "消息配置机器人是否开启")
-    @NotNull(message = "{message_task.enable.not_blank}", groups = {Created.class, Updated.class})
     public Boolean enable;
 
     @Schema(description = "消息配置消息模版")
-    @NotBlank(message = "{message_task.robotId.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{message_task.template.not_blank}", groups = {Created.class, Updated.class})
     public String template;
 
 }
