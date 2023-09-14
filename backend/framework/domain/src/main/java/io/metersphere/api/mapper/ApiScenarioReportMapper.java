@@ -27,4 +27,8 @@ public interface ApiScenarioReportMapper {
     int updateByPrimaryKeySelective(ApiScenarioReport record);
 
     int updateByPrimaryKey(ApiScenarioReport record);
+
+    int batchInsert(@Param("list") List<ApiScenarioReport> list);
+
+    int batchInsertSelective(@Param("list") List<ApiScenarioReport> list, @Param("selective") ApiScenarioReport.Column ... selective);
 }

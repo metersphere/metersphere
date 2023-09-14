@@ -301,4 +301,52 @@
       version_id = #{versionId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_definition_swagger
+    (id, swagger_url, module_id, module_path, `mode`, project_id, version_id, config)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.swaggerUrl,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, 
+        #{item.modulePath,jdbcType=VARCHAR}, #{item.mode,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.versionId,jdbcType=VARCHAR}, #{item.config,jdbcType=LONGVARBINARY})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_definition_swagger (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'swagger_url'.toString() == column.value">
+          #{item.swaggerUrl,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_id'.toString() == column.value">
+          #{item.moduleId,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_path'.toString() == column.value">
+          #{item.modulePath,jdbcType=VARCHAR}
+        </if>
+        <if test="'mode'.toString() == column.value">
+          #{item.mode,jdbcType=BIT}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'version_id'.toString() == column.value">
+          #{item.versionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'config'.toString() == column.value">
+          #{item.config,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

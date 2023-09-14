@@ -27,4 +27,8 @@ public interface ApiReportMapper {
     int updateByPrimaryKeySelective(ApiReport record);
 
     int updateByPrimaryKey(ApiReport record);
+
+    int batchInsert(@Param("list") List<ApiReport> list);
+
+    int batchInsertSelective(@Param("list") List<ApiReport> list, @Param("selective") ApiReport.Column ... selective);
 }

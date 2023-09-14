@@ -31,4 +31,8 @@ public interface ApiTestCaseBlobMapper {
     int updateByPrimaryKeySelective(ApiTestCaseBlob record);
 
     int updateByPrimaryKeyWithBLOBs(ApiTestCaseBlob record);
+
+    int batchInsert(@Param("list") List<ApiTestCaseBlob> list);
+
+    int batchInsertSelective(@Param("list") List<ApiTestCaseBlob> list, @Param("selective") ApiTestCaseBlob.Column ... selective);
 }

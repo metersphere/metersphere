@@ -10,126 +10,110 @@ import lombok.Data;
 
 @Data
 public class ApiDefinition implements Serializable {
-    @Schema(description =  "接口pk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口pk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_definition.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "创建时间")
-    private Long createTime;
-
-    @Schema(description =  "创建人")
-    private String createUser;
-
-    @Schema(description =  "修改时间")
-    private Long updateTime;
-
-    @Schema(description =  "修改人")
-    private String updateUser;
-
-    @Schema(description =  "删除人")
-    private String deleteUser;
-
-    @Schema(description =  "删除时间")
-    private Long deleteTime;
-
-    @Schema(description =  "删除状态")
-    private Boolean deleted;
-
-    @Schema(description =  "接口名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{api_definition.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description =  "接口类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.method.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_definition.method.length_range}", groups = {Created.class, Updated.class})
-    private String method;
-
-    @Schema(description =  "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition.protocol.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{api_definition.protocol.length_range}", groups = {Created.class, Updated.class})
     private String protocol;
 
-    @Schema(description =  "接口路径-只有HTTP协议有值")
-    private String path;
-
-    @Schema(description =  "模块全路径-用于导入处理")
+    @Schema(description = "模块全路径-用于导入处理")
     private String modulePath;
 
-    @Schema(description =  "接口状态/进行中/已完成", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口状态/进行中/已完成", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition.status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_definition.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
-    @Schema(description =  "模块fk")
+    @Schema(description = "模块fk")
     private String moduleId;
 
-    @Schema(description =  "自定义id")
+    @Schema(description = "自定义id")
     private Integer num;
 
-    @Schema(description =  "标签")
+    @Schema(description = "标签")
     private String tags;
 
-    @Schema(description =  "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_definition.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
-    @Schema(description =  "是否启用同步")
-    private Boolean syncEnable;
-
-    @Schema(description =  "同步开始时间")
-    private Long syncTime;
-
-    @Schema(description =  "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_definition.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description =  "环境fk")
+    @Schema(description = "环境fk")
     private String environmentId;
 
-    @Schema(description =  "是否为最新版本 0:否，1:是")
+    @Schema(description = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_definition.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
-    @Schema(description =  "版本fk")
+    @Schema(description = "版本fk")
     private String versionId;
 
-    @Schema(description =  "版本引用fk")
+    @Schema(description = "版本引用fk")
     private String refId;
 
-    @Schema(description =  "描述")
+    @Schema(description = "描述")
     private String description;
+
+    @Schema(description = "创建时间")
+    private Long createTime;
+
+    @Schema(description = "创建人")
+    private String createUser;
+
+    @Schema(description = "修改时间")
+    private Long updateTime;
+
+    @Schema(description = "修改人")
+    private String updateUser;
+
+    @Schema(description = "删除人")
+    private String deleteUser;
+
+    @Schema(description = "删除时间")
+    private Long deleteTime;
+
+    @Schema(description = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_definition.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        createTime("create_time", "createTime", "BIGINT", false),
-        createUser("create_user", "createUser", "VARCHAR", false),
-        updateTime("update_time", "updateTime", "BIGINT", false),
-        updateUser("update_user", "updateUser", "VARCHAR", false),
-        deleteUser("delete_user", "deleteUser", "VARCHAR", false),
-        deleteTime("delete_time", "deleteTime", "BIGINT", false),
-        deleted("deleted", "deleted", "BIT", false),
         name("name", "name", "VARCHAR", true),
-        method("method", "method", "VARCHAR", true),
         protocol("protocol", "protocol", "VARCHAR", false),
-        path("path", "path", "VARCHAR", true),
         modulePath("module_path", "modulePath", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         moduleId("module_id", "moduleId", "VARCHAR", false),
         num("num", "num", "INTEGER", false),
         tags("tags", "tags", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),
-        syncEnable("sync_enable", "syncEnable", "BIT", false),
-        syncTime("sync_time", "syncTime", "BIGINT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         environmentId("environment_id", "environmentId", "VARCHAR", false),
         latest("latest", "latest", "BIT", false),
         versionId("version_id", "versionId", "VARCHAR", false),
         refId("ref_id", "refId", "VARCHAR", false),
-        description("description", "description", "VARCHAR", false);
+        description("description", "description", "VARCHAR", false),
+        createTime("create_time", "createTime", "BIGINT", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
+        updateTime("update_time", "updateTime", "BIGINT", false),
+        updateUser("update_user", "updateUser", "VARCHAR", false),
+        deleteUser("delete_user", "deleteUser", "VARCHAR", false),
+        deleteTime("delete_time", "deleteTime", "BIGINT", false),
+        deleted("deleted", "deleted", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

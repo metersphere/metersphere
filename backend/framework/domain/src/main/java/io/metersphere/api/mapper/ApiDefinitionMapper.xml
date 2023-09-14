@@ -3,6 +3,20 @@
 <mapper namespace="io.metersphere.api.mapper.ApiDefinitionMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinition">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="protocol" jdbcType="VARCHAR" property="protocol" />
+    <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
+    <result column="latest" jdbcType="BIT" property="latest" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
@@ -10,24 +24,6 @@
     <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="method" jdbcType="VARCHAR" property="method" />
-    <result column="protocol" jdbcType="VARCHAR" property="protocol" />
-    <result column="path" jdbcType="VARCHAR" property="path" />
-    <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
-    <result column="num" jdbcType="INTEGER" property="num" />
-    <result column="tags" jdbcType="VARCHAR" property="tags" />
-    <result column="pos" jdbcType="BIGINT" property="pos" />
-    <result column="sync_enable" jdbcType="BIT" property="syncEnable" />
-    <result column="sync_time" jdbcType="BIGINT" property="syncTime" />
-    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
-    <result column="latest" jdbcType="BIT" property="latest" />
-    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
-    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -88,10 +84,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, create_time, create_user, update_time, update_user, delete_user, delete_time, 
-    deleted, `name`, `method`, protocol, `path`, module_path, `status`, module_id, num, 
-    tags, pos, sync_enable, sync_time, project_id, environment_id, latest, version_id, 
-    ref_id, description
+    id, `name`, protocol, module_path, `status`, module_id, num, tags, pos, project_id, 
+    environment_id, latest, version_id, ref_id, description, create_time, create_user, 
+    update_time, update_user, delete_user, delete_time, deleted
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDefinitionExample" resultMap="BaseResultMap">
     select
@@ -124,30 +119,70 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinition">
-    insert into api_definition (id, create_time, create_user, 
-      update_time, update_user, delete_user, 
-      delete_time, deleted, `name`, 
-      `method`, protocol, `path`, 
+    insert into api_definition (id, `name`, protocol, 
       module_path, `status`, module_id, 
-      num, tags, pos, sync_enable, 
-      sync_time, project_id, environment_id, 
-      latest, version_id, ref_id, 
-      description)
-    values (#{id,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{deleteUser,jdbcType=VARCHAR}, 
-      #{deleteTime,jdbcType=BIGINT}, #{deleted,jdbcType=BIT}, #{name,jdbcType=VARCHAR}, 
-      #{method,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
+      num, tags, pos, project_id, 
+      environment_id, latest, version_id, 
+      ref_id, description, create_time, 
+      create_user, update_time, update_user, 
+      delete_user, delete_time, deleted
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, 
       #{modulePath,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
-      #{num,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{syncEnable,jdbcType=BIT}, 
-      #{syncTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
-      #{latest,jdbcType=BIT}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR})
+      #{num,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
+      #{environmentId,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, #{versionId,jdbcType=VARCHAR}, 
+      #{refId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, 
+      #{deleteUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{deleted,jdbcType=BIT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinition">
     insert into api_definition
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="protocol != null">
+        protocol,
+      </if>
+      <if test="modulePath != null">
+        module_path,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="moduleId != null">
+        module_id,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+      <if test="tags != null">
+        tags,
+      </if>
+      <if test="pos != null">
+        pos,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="environmentId != null">
+        environment_id,
+      </if>
+      <if test="latest != null">
+        latest,
+      </if>
+      <if test="versionId != null">
+        version_id,
+      </if>
+      <if test="refId != null">
+        ref_id,
+      </if>
+      <if test="description != null">
+        description,
       </if>
       <if test="createTime != null">
         create_time,
@@ -170,64 +205,52 @@
       <if test="deleted != null">
         deleted,
       </if>
-      <if test="name != null">
-        `name`,
-      </if>
-      <if test="method != null">
-        `method`,
-      </if>
-      <if test="protocol != null">
-        protocol,
-      </if>
-      <if test="path != null">
-        `path`,
-      </if>
-      <if test="modulePath != null">
-        module_path,
-      </if>
-      <if test="status != null">
-        `status`,
-      </if>
-      <if test="moduleId != null">
-        module_id,
-      </if>
-      <if test="num != null">
-        num,
-      </if>
-      <if test="tags != null">
-        tags,
-      </if>
-      <if test="pos != null">
-        pos,
-      </if>
-      <if test="syncEnable != null">
-        sync_enable,
-      </if>
-      <if test="syncTime != null">
-        sync_time,
-      </if>
-      <if test="projectId != null">
-        project_id,
-      </if>
-      <if test="environmentId != null">
-        environment_id,
-      </if>
-      <if test="latest != null">
-        latest,
-      </if>
-      <if test="versionId != null">
-        version_id,
-      </if>
-      <if test="refId != null">
-        ref_id,
-      </if>
-      <if test="description != null">
-        description,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="protocol != null">
+        #{protocol,jdbcType=VARCHAR},
+      </if>
+      <if test="modulePath != null">
+        #{modulePath,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null">
+        #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="tags != null">
+        #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentId != null">
+        #{environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="latest != null">
+        #{latest,jdbcType=BIT},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -250,60 +273,6 @@
       <if test="deleted != null">
         #{deleted,jdbcType=BIT},
       </if>
-      <if test="name != null">
-        #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="method != null">
-        #{method,jdbcType=VARCHAR},
-      </if>
-      <if test="protocol != null">
-        #{protocol,jdbcType=VARCHAR},
-      </if>
-      <if test="path != null">
-        #{path,jdbcType=VARCHAR},
-      </if>
-      <if test="modulePath != null">
-        #{modulePath,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="moduleId != null">
-        #{moduleId,jdbcType=VARCHAR},
-      </if>
-      <if test="num != null">
-        #{num,jdbcType=INTEGER},
-      </if>
-      <if test="tags != null">
-        #{tags,jdbcType=VARCHAR},
-      </if>
-      <if test="pos != null">
-        #{pos,jdbcType=BIGINT},
-      </if>
-      <if test="syncEnable != null">
-        #{syncEnable,jdbcType=BIT},
-      </if>
-      <if test="syncTime != null">
-        #{syncTime,jdbcType=BIGINT},
-      </if>
-      <if test="projectId != null">
-        #{projectId,jdbcType=VARCHAR},
-      </if>
-      <if test="environmentId != null">
-        #{environmentId,jdbcType=VARCHAR},
-      </if>
-      <if test="latest != null">
-        #{latest,jdbcType=BIT},
-      </if>
-      <if test="versionId != null">
-        #{versionId,jdbcType=VARCHAR},
-      </if>
-      <if test="refId != null">
-        #{refId,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
-      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.api.domain.ApiDefinitionExample" resultType="java.lang.Long">
@@ -317,6 +286,48 @@
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.protocol != null">
+        protocol = #{record.protocol,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modulePath != null">
+        module_path = #{record.modulePath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.moduleId != null">
+        module_id = #{record.moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
+      </if>
+      <if test="record.tags != null">
+        tags = #{record.tags,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.environmentId != null">
+        environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.latest != null">
+        latest = #{record.latest,jdbcType=BIT},
+      </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -339,60 +350,6 @@
       <if test="record.deleted != null">
         deleted = #{record.deleted,jdbcType=BIT},
       </if>
-      <if test="record.name != null">
-        `name` = #{record.name,jdbcType=VARCHAR},
-      </if>
-      <if test="record.method != null">
-        `method` = #{record.method,jdbcType=VARCHAR},
-      </if>
-      <if test="record.protocol != null">
-        protocol = #{record.protocol,jdbcType=VARCHAR},
-      </if>
-      <if test="record.path != null">
-        `path` = #{record.path,jdbcType=VARCHAR},
-      </if>
-      <if test="record.modulePath != null">
-        module_path = #{record.modulePath,jdbcType=VARCHAR},
-      </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
-      </if>
-      <if test="record.moduleId != null">
-        module_id = #{record.moduleId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.num != null">
-        num = #{record.num,jdbcType=INTEGER},
-      </if>
-      <if test="record.tags != null">
-        tags = #{record.tags,jdbcType=VARCHAR},
-      </if>
-      <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=BIGINT},
-      </if>
-      <if test="record.syncEnable != null">
-        sync_enable = #{record.syncEnable,jdbcType=BIT},
-      </if>
-      <if test="record.syncTime != null">
-        sync_time = #{record.syncTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.projectId != null">
-        project_id = #{record.projectId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.environmentId != null">
-        environment_id = #{record.environmentId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.latest != null">
-        latest = #{record.latest,jdbcType=BIT},
-      </if>
-      <if test="record.versionId != null">
-        version_id = #{record.versionId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.refId != null">
-        ref_id = #{record.refId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -401,31 +358,27 @@
   <update id="updateByExample" parameterType="map">
     update api_definition
     set id = #{record.id,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      create_user = #{record.createUser,jdbcType=VARCHAR},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      update_user = #{record.updateUser,jdbcType=VARCHAR},
-      delete_user = #{record.deleteUser,jdbcType=VARCHAR},
-      delete_time = #{record.deleteTime,jdbcType=BIGINT},
-      deleted = #{record.deleted,jdbcType=BIT},
       `name` = #{record.name,jdbcType=VARCHAR},
-      `method` = #{record.method,jdbcType=VARCHAR},
       protocol = #{record.protocol,jdbcType=VARCHAR},
-      `path` = #{record.path,jdbcType=VARCHAR},
       module_path = #{record.modulePath,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       module_id = #{record.moduleId,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
       tags = #{record.tags,jdbcType=VARCHAR},
       pos = #{record.pos,jdbcType=BIGINT},
-      sync_enable = #{record.syncEnable,jdbcType=BIT},
-      sync_time = #{record.syncTime,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       latest = #{record.latest,jdbcType=BIT},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       ref_id = #{record.refId,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR}
+      description = #{record.description,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
+      delete_user = #{record.deleteUser,jdbcType=VARCHAR},
+      delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      deleted = #{record.deleted,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -433,6 +386,48 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiDefinition">
     update api_definition
     <set>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="protocol != null">
+        protocol = #{protocol,jdbcType=VARCHAR},
+      </if>
+      <if test="modulePath != null">
+        module_path = #{modulePath,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null">
+        module_id = #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="tags != null">
+        tags = #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentId != null">
+        environment_id = #{environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="latest != null">
+        latest = #{latest,jdbcType=BIT},
+      </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
@@ -454,109 +449,49 @@
       <if test="deleted != null">
         deleted = #{deleted,jdbcType=BIT},
       </if>
-      <if test="name != null">
-        `name` = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="method != null">
-        `method` = #{method,jdbcType=VARCHAR},
-      </if>
-      <if test="protocol != null">
-        protocol = #{protocol,jdbcType=VARCHAR},
-      </if>
-      <if test="path != null">
-        `path` = #{path,jdbcType=VARCHAR},
-      </if>
-      <if test="modulePath != null">
-        module_path = #{modulePath,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="moduleId != null">
-        module_id = #{moduleId,jdbcType=VARCHAR},
-      </if>
-      <if test="num != null">
-        num = #{num,jdbcType=INTEGER},
-      </if>
-      <if test="tags != null">
-        tags = #{tags,jdbcType=VARCHAR},
-      </if>
-      <if test="pos != null">
-        pos = #{pos,jdbcType=BIGINT},
-      </if>
-      <if test="syncEnable != null">
-        sync_enable = #{syncEnable,jdbcType=BIT},
-      </if>
-      <if test="syncTime != null">
-        sync_time = #{syncTime,jdbcType=BIGINT},
-      </if>
-      <if test="projectId != null">
-        project_id = #{projectId,jdbcType=VARCHAR},
-      </if>
-      <if test="environmentId != null">
-        environment_id = #{environmentId,jdbcType=VARCHAR},
-      </if>
-      <if test="latest != null">
-        latest = #{latest,jdbcType=BIT},
-      </if>
-      <if test="versionId != null">
-        version_id = #{versionId,jdbcType=VARCHAR},
-      </if>
-      <if test="refId != null">
-        ref_id = #{refId,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDefinition">
     update api_definition
-    set create_time = #{createTime,jdbcType=BIGINT},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      update_user = #{updateUser,jdbcType=VARCHAR},
-      delete_user = #{deleteUser,jdbcType=VARCHAR},
-      delete_time = #{deleteTime,jdbcType=BIGINT},
-      deleted = #{deleted,jdbcType=BIT},
-      `name` = #{name,jdbcType=VARCHAR},
-      `method` = #{method,jdbcType=VARCHAR},
+    set `name` = #{name,jdbcType=VARCHAR},
       protocol = #{protocol,jdbcType=VARCHAR},
-      `path` = #{path,jdbcType=VARCHAR},
       module_path = #{modulePath,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       module_id = #{moduleId,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
       tags = #{tags,jdbcType=VARCHAR},
       pos = #{pos,jdbcType=BIGINT},
-      sync_enable = #{syncEnable,jdbcType=BIT},
-      sync_time = #{syncTime,jdbcType=BIGINT},
       project_id = #{projectId,jdbcType=VARCHAR},
       environment_id = #{environmentId,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT},
       version_id = #{versionId,jdbcType=VARCHAR},
       ref_id = #{refId,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR}
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      delete_user = #{deleteUser,jdbcType=VARCHAR},
+      delete_time = #{deleteTime,jdbcType=BIGINT},
+      deleted = #{deleted,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_definition
-    (id, create_time, create_user, update_time, update_user, delete_user, delete_time, 
-      deleted, `name`, `method`, protocol, `path`, module_path, `status`, module_id, 
-      num, tags, pos, sync_enable, sync_time, project_id, environment_id, latest, version_id, 
-      ref_id, description)
+    (id, `name`, protocol, module_path, `status`, module_id, num, tags, pos, project_id, 
+      environment_id, latest, version_id, ref_id, description, create_time, create_user, 
+      update_time, update_user, delete_user, delete_time, deleted)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.deleteUser,jdbcType=VARCHAR}, 
-        #{item.deleteTime,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}, #{item.name,jdbcType=VARCHAR}, 
-        #{item.method,jdbcType=VARCHAR}, #{item.protocol,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.protocol,jdbcType=VARCHAR}, 
         #{item.modulePath,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, 
         #{item.num,jdbcType=INTEGER}, #{item.tags,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, 
-        #{item.syncEnable,jdbcType=BIT}, #{item.syncTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, 
-        #{item.environmentId,jdbcType=VARCHAR}, #{item.latest,jdbcType=BIT}, #{item.versionId,jdbcType=VARCHAR}, 
-        #{item.refId,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR})
+        #{item.projectId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, #{item.latest,jdbcType=BIT}, 
+        #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, 
+        #{item.deleted,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -571,6 +506,48 @@
       <foreach collection="selective" item="column" separator=",">
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'protocol'.toString() == column.value">
+          #{item.protocol,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_path'.toString() == column.value">
+          #{item.modulePath,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_id'.toString() == column.value">
+          #{item.moduleId,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=INTEGER}
+        </if>
+        <if test="'tags'.toString() == column.value">
+          #{item.tags,jdbcType=VARCHAR}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'latest'.toString() == column.value">
+          #{item.latest,jdbcType=BIT}
+        </if>
+        <if test="'version_id'.toString() == column.value">
+          #{item.versionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'ref_id'.toString() == column.value">
+          #{item.refId,jdbcType=VARCHAR}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
@@ -592,60 +569,6 @@
         </if>
         <if test="'deleted'.toString() == column.value">
           #{item.deleted,jdbcType=BIT}
-        </if>
-        <if test="'name'.toString() == column.value">
-          #{item.name,jdbcType=VARCHAR}
-        </if>
-        <if test="'method'.toString() == column.value">
-          #{item.method,jdbcType=VARCHAR}
-        </if>
-        <if test="'protocol'.toString() == column.value">
-          #{item.protocol,jdbcType=VARCHAR}
-        </if>
-        <if test="'path'.toString() == column.value">
-          #{item.path,jdbcType=VARCHAR}
-        </if>
-        <if test="'module_path'.toString() == column.value">
-          #{item.modulePath,jdbcType=VARCHAR}
-        </if>
-        <if test="'status'.toString() == column.value">
-          #{item.status,jdbcType=VARCHAR}
-        </if>
-        <if test="'module_id'.toString() == column.value">
-          #{item.moduleId,jdbcType=VARCHAR}
-        </if>
-        <if test="'num'.toString() == column.value">
-          #{item.num,jdbcType=INTEGER}
-        </if>
-        <if test="'tags'.toString() == column.value">
-          #{item.tags,jdbcType=VARCHAR}
-        </if>
-        <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=BIGINT}
-        </if>
-        <if test="'sync_enable'.toString() == column.value">
-          #{item.syncEnable,jdbcType=BIT}
-        </if>
-        <if test="'sync_time'.toString() == column.value">
-          #{item.syncTime,jdbcType=BIGINT}
-        </if>
-        <if test="'project_id'.toString() == column.value">
-          #{item.projectId,jdbcType=VARCHAR}
-        </if>
-        <if test="'environment_id'.toString() == column.value">
-          #{item.environmentId,jdbcType=VARCHAR}
-        </if>
-        <if test="'latest'.toString() == column.value">
-          #{item.latest,jdbcType=BIT}
-        </if>
-        <if test="'version_id'.toString() == column.value">
-          #{item.versionId,jdbcType=VARCHAR}
-        </if>
-        <if test="'ref_id'.toString() == column.value">
-          #{item.refId,jdbcType=VARCHAR}
-        </if>
-        <if test="'description'.toString() == column.value">
-          #{item.description,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

@@ -191,4 +191,32 @@
     set console = #{console,jdbcType=LONGVARBINARY}
     where report_id = #{reportId,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_scenario_report_log
+    (report_id, console)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.reportId,jdbcType=VARCHAR}, #{item.console,jdbcType=LONGVARBINARY})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_scenario_report_log (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'report_id'.toString() == column.value">
+          #{item.reportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'console'.toString() == column.value">
+          #{item.console,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

@@ -61,12 +61,9 @@ public class ApiDefinitionControllerTests {
         request.setUpdateTime(System.currentTimeMillis());
         request.setProjectId("test-project-id");
         request.setName("test-api-name");
-        request.setMethod("test-api-method");
-        request.setPath("test-api-path");
         request.setProtocol("test-api-protocol");
         request.setPos(1l);
         request.setLatest(true);
-        request.setSyncEnable(true);
         request.setStatus("test-api-status");
         request.setVersionId("test-api-version");
         request.setDeleted(false);
@@ -95,12 +92,9 @@ public class ApiDefinitionControllerTests {
         request.setUpdateTime(System.currentTimeMillis());
         request.setProjectId("test-project-id");
         request.setName("test-api-name");
-        request.setMethod("test-api-method");
-        request.setPath("test-api-path");
         request.setProtocol("test-api-protocol");
         request.setPos(1l);
         request.setLatest(true);
-        request.setSyncEnable(true);
         request.setStatus("test-api-status");
         request.setVersionId("test-api-version");
         request.setDeleted(false);

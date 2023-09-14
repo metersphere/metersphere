@@ -31,4 +31,8 @@ public interface ApiScenarioBlobMapper {
     int updateByPrimaryKeySelective(ApiScenarioBlob record);
 
     int updateByPrimaryKeyWithBLOBs(ApiScenarioBlob record);
+
+    int batchInsert(@Param("list") List<ApiScenarioBlob> list);
+
+    int batchInsertSelective(@Param("list") List<ApiScenarioBlob> list, @Param("selective") ApiScenarioBlob.Column ... selective);
 }

@@ -415,4 +415,88 @@
       integrated = #{integrated,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_report
+    (id, `name`, resource_id, create_time, update_time, create_user, update_user, deleted, 
+      `status`, start_time, end_time, run_mode, pool_id, trigger_mode, version_id, project_id, 
+      integrated_report_id, integrated)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, #{item.status,jdbcType=VARCHAR}, 
+        #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, #{item.runMode,jdbcType=VARCHAR}, 
+        #{item.poolId,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.integratedReportId,jdbcType=VARCHAR}, 
+        #{item.integrated,jdbcType=BIT})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_report (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_id'.toString() == column.value">
+          #{item.resourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'start_time'.toString() == column.value">
+          #{item.startTime,jdbcType=BIGINT}
+        </if>
+        <if test="'end_time'.toString() == column.value">
+          #{item.endTime,jdbcType=BIGINT}
+        </if>
+        <if test="'run_mode'.toString() == column.value">
+          #{item.runMode,jdbcType=VARCHAR}
+        </if>
+        <if test="'pool_id'.toString() == column.value">
+          #{item.poolId,jdbcType=VARCHAR}
+        </if>
+        <if test="'trigger_mode'.toString() == column.value">
+          #{item.triggerMode,jdbcType=VARCHAR}
+        </if>
+        <if test="'version_id'.toString() == column.value">
+          #{item.versionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'integrated_report_id'.toString() == column.value">
+          #{item.integratedReportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'integrated'.toString() == column.value">
+          #{item.integrated,jdbcType=BIT}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>
