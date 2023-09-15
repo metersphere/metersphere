@@ -7,7 +7,7 @@ public class PageUtils {
         try {
             Pager<T> pager = new Pager<>();
             pager.setList(list);
-            pager.setPageSize(page.getPages());
+            pager.setPageSize(page.getPageSize());
             pager.setCurrent(page.getPageNum());
             pager.setTotal(page.getTotal());
             return pager;
