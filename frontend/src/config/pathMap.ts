@@ -2,6 +2,20 @@ import { RouteEnum } from '@/enums/routeEnum';
 
 export const MENU_LEVEL = ['SYSTEM', 'ORGANIZATION', 'PROJECT'] as const; // 菜单级别
 
+export type PathMapKey = keyof typeof RouteEnum;
+
+export type PathMapRoute = (typeof RouteEnum)[PathMapKey];
+
+export interface PathMapItem {
+  key: PathMapKey | string; // 系统设置
+  locale: string;
+  route: PathMapRoute;
+  permission?: [];
+  level: (typeof MENU_LEVEL)[number]; // 系统设置里有系统级别也有组织级别，按最低权限级别配置
+  children?: PathMapItem[];
+  routeQuery?: Record<string, any>;
+}
+
 /**
  * 路由与菜单、tab、权限、国际化信息的映射关系，用于通过路由直接跳转到各页面及携带 tab 参数
  * key 是与后台商定的映射 key
@@ -12,7 +26,7 @@ export const MENU_LEVEL = ['SYSTEM', 'ORGANIZATION', 'PROJECT'] as const; // 菜
  * level 是菜单级别，用于筛选不同级别的路由/tab
  * children 是子路由/tab集合
  */
-export const pathMap = [
+export const pathMap: PathMapItem[] = [
   {
     key: 'SETTING', // 系统设置
     locale: 'menu.settings',
@@ -205,7 +219,7 @@ export const pathMap = [
         ],
       },
       {
-        key: 'SETTING_ORGANIZATION_MEMBER', // 项目管理-文件管理
+        key: 'PROJECT_MANAGEMENT_FILE_MANAGEMENT', // 项目管理-文件管理
         locale: 'menu.projectManagement.fileManagement',
         route: RouteEnum.PROJECT_MANAGEMENT_FILE_MANAGEMENT,
         permission: [],

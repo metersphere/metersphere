@@ -15,6 +15,7 @@ import {
   DeleteAuthUrl,
   TestLdapConnectUrl,
   TestLdapLoginUrl,
+  SaveBaseUrlUrl,
 } from '@/api/requrls/setting/config';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
@@ -40,6 +41,11 @@ export function testEmail(data: TestEmailParams) {
 // 保存基础信息
 export function saveBaseInfo(data: SaveInfoParams) {
   return MSR.post({ url: SaveBaseInfoUrl, data }, { ignoreCancelToken: true });
+}
+
+// 保存基础信息
+export function saveBaseUrl(baseUrl: string) {
+  return MSR.get({ url: SaveBaseUrlUrl, params: { baseUrl } }, { ignoreCancelToken: true });
 }
 
 // 获取基础信息

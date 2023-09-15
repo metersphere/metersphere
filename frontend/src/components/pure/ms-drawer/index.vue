@@ -5,7 +5,11 @@
     :width="props.width"
     :footer="props.footer"
     :mask="props.mask"
-    :class="['ms-drawer', props.mask ? '' : 'ms-drawer-no-mask']"
+    :class="[
+      'ms-drawer',
+      props.mask ? '' : 'ms-drawer-no-mask',
+      props.noContentPadding ? 'ms-drawer-no-content-padding' : '',
+    ]"
     @cancel="handleCancel"
     @close="handleClose"
   >
@@ -18,7 +22,7 @@
         </div>
       </slot>
     </template>
-    <a-scrollbar class="overflow-y-auto" style="height: calc(100vh - 146px)">
+    <a-scrollbar class="overflow-y-auto" :style="{ height: `calc(100vh - ${contentExtraHeight}px)` }">
       <div class="ms-drawer-body">
         <slot>
           <MsDescription
@@ -55,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch, defineAsyncComponent } from 'vue';
+  import { ref, watch, defineAsyncComponent, computed } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
 
   import type { Description } from '@/components/pure/ms-description/index.vue';
@@ -65,19 +69,20 @@
 
   interface DrawerProps {
     visible: boolean;
-    title: string | undefined;
+    title?: string | undefined;
     titleTag?: string;
     titleTagColor?: string;
     descriptions?: Description[];
     footer?: boolean;
-    mask?: boolean;
-    showSkeleton?: boolean;
+    mask?: boolean; // 是否显示遮罩
+    showSkeleton?: boolean; // 是否显示骨架屏
     okLoading?: boolean;
     okText?: string;
     cancelText?: string;
     saveContinueText?: string;
     showContinue?: boolean;
     width: number;
+    noContentPadding?: boolean; // 是否没有内容内边距
   }
 
   const props = withDefaults(defineProps<DrawerProps>(), {
@@ -98,6 +103,11 @@
       visible.value = val;
     }
   );
+
+  const contentExtraHeight = computed(() => {
+    // 默认有页脚、内边距时的额外高度146，内边距 30，页脚 60
+    return 146 - (props.noContentPadding ? 30 : 0) - (props.footer ? 0 : 60);
+  });
 
   const handleContinue = () => {
     emit('continue');
@@ -138,6 +148,9 @@
     }
   }
   .ms-drawer {
+    .ms-drawer-body {
+      @apply h-full;
+    }
     .arco-scrollbar-track-direction-vertical {
       right: -12px;
     }
@@ -146,6 +159,11 @@
     left: auto;
     .arco-drawer {
       box-shadow: -1px 0 4px 0 rgb(2 2 2 / 10%);
+    }
+  }
+  .ms-drawer-no-content-padding {
+    .arco-drawer-body {
+      @apply p-0;
     }
   }
 </style>

@@ -20,6 +20,8 @@ export enum TableKeyEnum {
   ORGANIZATION_PROJECT = 'organizationProject',
   ORGANIZATION_PROJECT_USER_DRAWER = 'organizationProjectUserDrawer',
   FILE_MANAGEMENT_FILE = 'fileManagementFile',
+  FILE_MANAGEMENT_CASE = 'fileManagementCase',
+  FILE_MANAGEMENT_VERSION = 'fileManagementVersion',
 }
 
 // 具有特殊功能的列

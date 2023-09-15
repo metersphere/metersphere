@@ -1,29 +1,26 @@
 <template>
-  <a-tooltip :content="(props.tagList.filter(((item:any)=>item))||[]).map((e: any) => e[nameKey]).join('，')">
-    <div class="flex min-h-[22px] max-w-[456px] flex-row">
-      <MsTag
-        v-for="tag of (props.tagList.filter((item:any)=>item)).slice(0, props.showNum)"
-        :key="tag.id"
-        v-bind="attrs"
-      >
-        {{ tag[props.nameKey] }}
-      </MsTag>
+  <div class="flex min-h-[22px] flex-row">
+    <MsTag v-for="tag of showTagList" :key="tag.id" v-bind="attrs">
+      {{ props.isStringTag ? tag : tag[props.nameKey] }}
+    </MsTag>
+    <a-tooltip :content="tagsTooltip">
       <MsTag v-if="props.tagList.length > props.showNum" v-bind="attrs">
         +{{ props.tagList.length - props.showNum }}</MsTag
       >
-    </div>
-  </a-tooltip>
+    </a-tooltip>
+  </div>
 </template>
 
 <script setup lang="ts">
-  import { useAttrs } from 'vue';
+  import { computed, useAttrs } from 'vue';
   import MsTag from './ms-tag.vue';
 
   const props = withDefaults(
     defineProps<{
-      tagList: any;
+      tagList: Array<any>;
       showNum?: number;
       nameKey?: string;
+      isStringTag?: boolean; // 是否是字符串数组的标签
     }>(),
     {
       showNum: 2,
@@ -32,6 +29,18 @@
   );
 
   const attrs = useAttrs();
+
+  const filterTagList = computed(() => {
+    return props.tagList.filter((item: any) => item) || [];
+  });
+
+  const showTagList = computed(() => {
+    return filterTagList.value.slice(0, props.showNum);
+  });
+
+  const tagsTooltip = computed(() => {
+    return filterTagList.value.map((e: any) => (props.isStringTag ? e : e[props.nameKey])).join('，');
+  });
 </script>
 
 <style scoped lang="less"></style>

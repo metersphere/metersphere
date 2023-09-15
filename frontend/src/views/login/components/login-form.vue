@@ -5,7 +5,7 @@
         <img :src="innerLogo" class="h-[60px] w-[290px]" />
       </div>
       <div class="title-0 mt-[16px] flex justify-center">
-        <span class="title-welcome">{{ innerSlogan || $t('login.form.title') }}</span>
+        <span class="title-welcome">{{ innerSlogan || t('login.form.title') }}</span>
       </div>
     </div>
     <div class="form mt-[32px]">
@@ -21,28 +21,28 @@
         <a-form-item
           class="login-form-item"
           field="username"
-          :rules="[{ required: true, message: $t('login.form.userName.errMsg') }]"
+          :rules="[{ required: true, message: t('login.form.userName.errMsg') }]"
           :validate-trigger="['change', 'blur']"
           hide-label
         >
-          <a-input v-model="userInfo.username" :placeholder="$t('login.form.userName.placeholder')" />
+          <a-input v-model="userInfo.username" :placeholder="t('login.form.userName.placeholder')" />
         </a-form-item>
         <a-form-item
           class="login-form-item"
           field="password"
-          :rules="[{ required: true, message: $t('login.form.password.errMsg') }]"
+          :rules="[{ required: true, message: t('login.form.password.errMsg') }]"
           :validate-trigger="['change', 'blur']"
           hide-label
         >
           <a-input-password
             v-model="userInfo.password"
-            :placeholder="$t('login.form.password.placeholder')"
+            :placeholder="t('login.form.password.placeholder')"
             allow-clear
           />
         </a-form-item>
         <div class="mt-[12px]">
           <a-button type="primary" html-type="submit" long :loading="loading">
-            {{ $t('login.form.login') }}
+            {{ t('login.form.login') }}
           </a-button>
         </div>
       </a-form>
@@ -127,10 +127,14 @@
           name: (redirect as string) || WorkbenchRouteEnum.WORKBENCH,
           query: {
             ...othersQuery,
+            organizationId: appStore.currentOrgId,
+            projectId: appStore.currentProjectId,
           },
         });
       } catch (err) {
         errorMessage.value = (err as Error).message;
+        // eslint-disable-next-line no-console
+        console.log(err);
       } finally {
         setLoading(false);
       }

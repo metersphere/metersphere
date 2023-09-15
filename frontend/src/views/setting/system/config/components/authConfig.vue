@@ -621,7 +621,7 @@
   /**
    * 启用认证源
    */
-  async function enableAuth(record: any) {
+  async function enableAuth(record: AuthItem) {
     openModal({
       type: 'info',
       title: t('system.config.auth.enableTipTitle', { name: characterLimit(record.name) }),
@@ -648,7 +648,7 @@
   /**
    * 禁用认证源
    */
-  function disabledAuth(record: any) {
+  function disabledAuth(record: AuthItem) {
     openModal({
       type: 'info',
       title: t('system.config.auth.disableTipTitle', { name: characterLimit(record.name) }),
@@ -675,7 +675,7 @@
   /**
    * 删除认证源
    */
-  function delAuth(record: any) {
+  function delAuth(record: AuthItem) {
     openModal({
       type: 'error',
       title: t('system.config.auth.deleteTipTitle', { name: characterLimit(record.name) }),
@@ -703,7 +703,7 @@
    * 处理表格更多按钮事件
    * @param item
    */
-  function handleSelect(item: ActionsItem, record: any) {
+  function handleSelect(item: ActionsItem, record: AuthItem) {
     switch (item.eventTag) {
       case 'delete':
         delAuth(record);

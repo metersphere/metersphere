@@ -1,7 +1,6 @@
 import { useRouter } from 'vue-router';
-import { MENU_LEVEL, pathMap } from '@/config/pathMap';
+import { MENU_LEVEL, pathMap, PathMapItem, PathMapRoute } from '@/config/pathMap';
 import { TreeNode, findNodeByKey, mapTree } from '@/utils';
-import { RouteEnum } from '@/enums/routeEnum';
 
 export default function usePathMap() {
   const router = useRouter();
@@ -38,8 +37,8 @@ export default function usePathMap() {
    * @param routeQuery 路由的参数
    * @param openNewPage 是否在新页面打开
    */
-  const jumpRouteByMapKey = (key: typeof RouteEnum, routeQuery?: Record<string, any>, openNewPage = false) => {
-    const pathNode = findNodeByKey(pathMap, key as unknown as string);
+  const jumpRouteByMapKey = (key: PathMapRoute, routeQuery?: Record<string, any>, openNewPage = false) => {
+    const pathNode = findNodeByKey<PathMapItem>(pathMap, key as unknown as string);
     if (pathNode) {
       if (openNewPage) {
         window.open(
@@ -60,8 +59,22 @@ export default function usePathMap() {
     }
   };
 
+  /**
+   * 通过路由的 name 来获取它的菜单级别
+   * @param name 路由的 name
+   * @returns MENU_LEVEL
+   */
+  const getRouteLevelByKey = (name: PathMapRoute) => {
+    const pathNode = findNodeByKey<PathMapItem>(pathMap, name, 'route');
+    if (pathNode) {
+      return pathNode.level;
+    }
+    return null;
+  };
+
   return {
     getPathMapByLevel,
     jumpRouteByMapKey,
+    getRouteLevelByKey,
   };
 }

@@ -186,7 +186,7 @@ export interface TreeNode<T> {
  * @returns 遍历后的树形数组
  */
 export function mapTree<T>(
-  tree: TreeNode<T> | TreeNode<T>[],
+  tree: TreeNode<T> | TreeNode<T>[] | T | T[],
   customNodeFn: (node: TreeNode<T>) => TreeNode<T> | null = (node) => node,
   customChildrenKey = 'children'
 ): TreeNode<T>[] {
@@ -214,7 +214,7 @@ export function mapTree<T>(
  * @param customKey 默认为 key，可自定义需要匹配的属性名
  * @returns 匹配的节点/null
  */
-export function findNodeByKey<T>(trees: TreeNode<T>[], targetKey: string, customKey = 'key'): TreeNode<T> | null {
+export function findNodeByKey<T>(trees: TreeNode<T>[], targetKey: string, customKey = 'key'): TreeNode<T> | T | null {
   for (let i = 0; i < trees.length; i++) {
     const node = trees[i];
     if (node[customKey] === targetKey) {
@@ -222,7 +222,7 @@ export function findNodeByKey<T>(trees: TreeNode<T>[], targetKey: string, custom
     }
 
     if (Array.isArray(node.children) && node.children.length > 0) {
-      const _node = findNodeByKey(node.children, targetKey); // 递归在子节点中查找
+      const _node = findNodeByKey(node.children, targetKey, customKey); // 递归在子节点中查找
       if (_node) {
         return _node; // 如果在子节点中找到了匹配的节点，则返回该节点
       }
@@ -258,5 +258,19 @@ export function encrypted(input: string) {
   const publicKey = localStorage.getItem('salt') || '';
   const encrypt = new JSEncrypt({ default_key_size: '1024' });
   encrypt.setPublicKey(publicKey);
+
   return encrypt.encrypt(input);
 }
+
+/**
+ * 链接文件下载
+ * @param url 文件地址
+ * @param fileName 文件名
+ */
+export const downloadUrlFile = (url: string, fileName: string) => {
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  link.style.display = 'none';
+  link.click();
+};

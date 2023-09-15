@@ -1,5 +1,10 @@
 <template>
-  <div :class="`ms-button ms-button-${props.type} ms-button--${props.status}`" @click="clickHandler">
+  <div
+    :class="`ms-button ms-button-${props.type} ms-button--${props.status} ${
+      props.disabled ? 'ms-button--disabled' : ''
+    }`"
+    @click="clickHandler"
+  >
     <slot></slot>
   </div>
 </template>
@@ -9,6 +14,7 @@
     defineProps<{
       type?: 'text' | 'icon' | 'button';
       status?: 'primary' | 'danger' | 'secondary';
+      disabled?: boolean;
     }>(),
     {
       type: 'text',
@@ -19,7 +25,9 @@
   const emit = defineEmits(['click']);
 
   function clickHandler() {
-    emit('click');
+    if (!props.disabled) {
+      emit('click');
+    }
   }
 </script>
 
@@ -35,6 +43,9 @@
     border-radius: var(--border-radius-mini);
     line-height: 22px;
   }
+  .ms-button--disabled {
+    color: var(--color-text-4) !important;
+  }
   .ms-button-text {
     @apply p-0;
 
@@ -43,7 +54,7 @@
   .ms-button-icon {
     padding: 4px;
     color: var(--color-text-4);
-    &:hover {
+    &:not(.ms-button--disabled):hover {
       color: rgb(var(--primary-5));
       background-color: rgb(var(--primary-9));
       .arco-icon {
@@ -53,19 +64,19 @@
   }
   .ms-button--secondary {
     color: var(--color-text-2);
-    &:not(.ms-button-text):hover {
+    &:not(.ms-button-text, .ms-button--disabled):hover {
       background-color: var(--color-text-n8);
     }
   }
   .ms-button--primary {
     color: rgb(var(--primary-5));
-    &:not(.ms-button-text):hover {
+    &:not(.ms-button-text, .ms-button--disabled):hover {
       background-color: rgb(var(--primary-9));
     }
   }
   .ms-button--danger {
     color: rgb(var(--danger-6));
-    &:not(.ms-button-text):hover {
+    &:not(.ms-button-text, .ms-button--disabled):hover {
       color: rgb(var(--danger-6));
       background-color: rgb(var(--danger-1));
     }
