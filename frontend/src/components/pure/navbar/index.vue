@@ -188,9 +188,10 @@
   // import useUser from '@/hooks/useUser';
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
-  import { NOT_SHOW_PROJECT_SELECT_MODULE } from '@/router/constants';
   import { getProjectList } from '@/api/modules/project-management/project';
   import { useI18n } from '@/hooks/useI18n';
+  import usePathMap from '@/hooks/usePathMap';
+  import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
 
   import type { ProjectListItem } from '@/models/setting/project';
 
@@ -217,8 +218,9 @@
   });
 
   const showProjectSelect = computed(() => {
-    // 匹配一级路由是否存在于不需要显示项目选择的路由中
-    return !NOT_SHOW_PROJECT_SELECT_MODULE.includes(route.fullPath.split('/')[1]);
+    const { getRouteLevelByKey } = usePathMap();
+    // 非项目级别页面不需要展示项目选择器
+    return getRouteLevelByKey(route.name as PathMapRoute) === MENU_LEVEL[2];
   });
 
   function selectProject(

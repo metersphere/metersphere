@@ -3,12 +3,12 @@
     v-bind="attrs"
     :type="props.type"
     defer
-    :style="{ ...typeStyle, 'margin': tagMargin, 'max-width': '144px' }"
+    :style="{ ...typeStyle, 'margin-right': tagMargin, 'max-width': '144px' }"
     :size="props.size"
-    class="my-1"
+    class="one-line-text inline-block"
   >
     <slot name="icon"></slot>
-    <span class="one-line-text"> <slot></slot></span>
+    <slot></slot>
   </a-tag>
 </template>
 
@@ -17,7 +17,7 @@
 
   export type TagType = 'default' | 'primary' | 'danger' | 'warning' | 'success';
   export type Size = 'small' | 'medium' | 'large';
-  export type Theme = 'dark' | 'light' | 'outline' | 'lightOutLine';
+  export type Theme = 'dark' | 'light' | 'outline' | 'lightOutLine' | 'default';
 
   const attrs = useAttrs();
   const props = withDefaults(
@@ -47,7 +47,7 @@
   });
 
   // 计算标签的颜色和背景颜色
-  const typeList: any = {
+  const typeList: Record<string, any> = {
     dark: {
       'color': 'white',
       'border-color': 'rgb(var(--#{}-5))',
@@ -78,9 +78,9 @@
   };
 
   const typeConst = ref<string>('');
-  const typeStyle = ref<string[]>();
+  const typeStyle = ref<Record<string, any>>();
   // 样式优先级: 自定义样式 > default 样式 > 主题和类型样式
-  const getTagType = (type: string, theme: string) => {
+  const getTagType = (type: string, theme: Theme) => {
     if (props.selfStyle && Object.keys(props.selfStyle).length > 0) {
       typeStyle.value = props.selfStyle;
     } else {
@@ -117,13 +117,14 @@
   .arco-tag {
     .arco-icon {
       font-size: 14px !important;
+    }
+    .arco-icon-close {
       color: var(--color-text-4) !important;
       &:hover {
-        font-size: 14px;
         color: var(--color-text-1) !important;
       }
     }
-    .arco-icon-hover.arco-tag-icon-hover::before {
+    .arco-icon-close-hover.arco-tag-icon-hover::before {
       background: none !important;
     }
   }

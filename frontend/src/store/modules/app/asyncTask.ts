@@ -5,9 +5,12 @@ import { UploadStatus } from '@/enums/uploadEnum';
 import { useI18n } from '@/hooks/useI18n';
 import BackstageMsg from '@/components/pure/ms-upload/backstageMsg.vue';
 import router from '@/router';
+import { AxiosCanceler } from '@/api/http/axiosCancel';
 
 import type { AsyncTaskState } from './types';
 import type { MsFileItem } from '@/components/pure/ms-upload/types';
+
+const axiosCanceler = new AxiosCanceler();
 
 // 全局异步任务 store，用于一些后台运行或者耗时任务展示任务的进度提示，例如：文件上传的后台上传任务、耗时的导出操作等。注意：每次只能执行一个任务。TODO: 后续可以考虑支持多个任务
 const useAsyncTaskStore = defineStore('asyncTask', {
@@ -57,7 +60,7 @@ const useAsyncTaskStore = defineStore('asyncTask', {
       if (total === 0) {
         return 0;
       }
-      return Math.floor((this.totalSuccessFileList.length / total) * 100);
+      return Math.floor(((this.eachSuccessFileList.length + this.eachFailFileList.length) / total) * 100);
     },
   },
   actions: {
@@ -194,6 +197,27 @@ const useAsyncTaskStore = defineStore('asyncTask', {
         },
       });
       this.uploadFileFromQueue(this.uploadFileTask.uploadQueue.shift(), route, routeQuery);
+    },
+    cancelUpload() {
+      clearInterval(this.uploadFileTask.timer as unknown as number);
+      const uploadingFileList = this.uploadFileTask.eachTaskQueue.filter(
+        (e) => e.status && e.status === UploadStatus.uploading
+      );
+      if (uploadingFileList.length > 0) {
+        // 取消上传时，如果有文件正在上传，需要取消请求
+        axiosCanceler.removePending({});
+      }
+      this.$patch({
+        uploadFileTask: {
+          isBackstageUpload: false,
+          isHideMessage: false,
+          timer: null,
+          eachTaskQueue: [],
+          fileList: [],
+          uploadQueue: [],
+          singleProgress: 0,
+        },
+      });
     },
   },
 });

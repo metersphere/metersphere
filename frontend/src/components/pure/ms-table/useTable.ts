@@ -228,9 +228,9 @@ export default function useTableProps<T>(
       loadList();
     },
     // 分页触发
-    pageChange: (current: number) => {
+    pageChange: async (current: number) => {
       setPagination({ current });
-      loadList();
+      await loadList();
     },
     // 修改每页显示条数
     pageSizeChange: (pageSize: number) => {

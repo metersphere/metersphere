@@ -207,13 +207,13 @@
   import { useTableStore } from '@/store';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { characterLimit } from '@/utils';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
 
   import type { FormInstance, ValidatedError, FileItem } from '@arco-design/web-vue';
   import type { MsTableColumn, BatchActionParams } from '@/components/pure/ms-table/type';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { SimpleUserInfo, SystemRole, UserListItem } from '@/models/setting/user';
   import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
-  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
 
   const { t } = useI18n();
   const route = useRoute();

@@ -63,4 +63,23 @@ export default {
   'project.fileManagement.emptyFileList': 'No files yet',
   'project.fileManagement.backendUpload': 'Backstage upload',
   'project.fileManagement.startUpload': 'Start upload',
+  'project.fileManagement.cancelTipTitle': 'Are you sure you want to cancel the file being uploaded?',
+  'project.fileManagement.cancelTipContent':
+    'After cancellation, files that have not been successfully uploaded will not be saved, so please operate with caution!',
+  'project.fileManagement.cancelConfirm': 'Cancel upload',
+  'project.fileManagement.name': 'File name',
+  'project.fileManagement.type': 'Type',
+  'project.fileManagement.tag': 'Tag',
+  'project.fileManagement.creator': 'Creator',
+  'project.fileManagement.updater': 'Updater',
+  'project.fileManagement.updateTime': 'Update time',
+  'project.fileManagement.createTime': 'Created time',
+  'project.fileManagement.download': 'Download',
+  'project.fileManagement.disabled': 'Disable',
+  'project.fileManagement.deleteFileTipTitle': 'Are you sure you want to delete the file {name}?',
+  'project.fileManagement.deleteFileTipContent':
+    'After deletion, the use cases associated with the file will fail to execute. Please operate with caution!',
+  'project.fileManagement.disabledFileTipTitle': 'Are you sure you want to disable the file {name}?',
+  'project.fileManagement.disabledFileTipContent':
+    'After being disabled, the custom script associated with the file will fail to execute, so please operate with caution!',
 };

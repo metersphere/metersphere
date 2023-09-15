@@ -26,17 +26,21 @@
       </div>
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
-      <template #name="{ record }">
-        <a-button type="text" class="px-0" @click="openFileDetail(record.id)">{{ record.name }}</a-button>
+      <template #name="{ record, rowIndex }">
+        <a-button type="text" class="px-0" @click="openFileDetail(record.id, rowIndex)">{{ record.name }}</a-button>
       </template>
-      <!-- <template #action="{ record }">
-        <MsButton @click="editAuth(record)">{{ t('system.config.auth.edit') }}</MsButton>
-        <MsButton v-if="record.enable" @click="disabledAuth(record)">
-          {{ t('system.config.auth.disable') }}
+      <template #tag="{ record }">
+        <MsTagGroup theme="outline" :tag-list="record.tag" is-string-tag />
+      </template>
+      <template #action="{ record }">
+        <MsButton type="text" class="mr-[8px]" @click="downloadFile(record.url, record.name)">
+          {{ t('project.fileManagement.download') }}
         </MsButton>
-        <MsButton v-else @click="enableAuth(record)">{{ t('system.config.auth.enable') }}</MsButton>
-        <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
-      </template> -->
+        <MsTableMoreAction
+          :list="record.type === 'JAR' ? jarFileActions : normalFileActions"
+          @select="handleSelect($event, record)"
+        ></MsTableMoreAction>
+      </template>
       <template v-if="keyword.trim() === ''" #empty>
         <div class="flex items-center justify-center p-[8px] text-[var(--color-text-4)]">
           {{ t('project.fileManagement.tableNoFile') }}
@@ -96,7 +100,7 @@
     >
       <template #tabExtra>
         <div v-if="acceptType === 'jar'" class="flex items-center gap-[4px]">
-          <a-switch size="small" @change="enableAllJar"></a-switch>
+          <a-switch size="small" :disabled="fileList.length === 0" @change="enableAllJar"></a-switch>
           {{ t('project.fileManagement.enableAll') }}
           <a-tooltip :content="t('project.fileManagement.uploadTip')">
             <MsIcon type="icon-icon-maybe_outlined" class="cursor-pointer hover:text-[rgb(var(--primary-5))]" />
@@ -108,7 +112,7 @@
       </template>
     </MsFileList>
     <template #footer>
-      <a-button type="secondary" @click="uploadDrawerVisible = false">
+      <a-button type="secondary" @click="cancelUpload">
         {{ t('project.fileManagement.cancel') }}
       </a-button>
       <a-button type="secondary" :disabled="noWaitingUpload" @click="backstageUpload">
@@ -119,29 +123,44 @@
       </a-button>
     </template>
   </MsDrawer>
+  <fileDetailDrawerVue
+    v-model:visible="showDetailDrawer"
+    :file-id="activeFileId"
+    :is-first="activeFileIsFirst"
+    :is-last="activeFileIsLast"
+    @prev-file="openPrevFile"
+    @next-file="openNextFile"
+  />
 </template>
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref, watch } from 'vue';
   import { useRoute } from 'vue-router';
+  import { Message } from '@arco-design/web-vue';
   import { debounce } from 'lodash-es';
   import { useI18n } from '@/hooks/useI18n';
   import useTableStore from '@/store/modules/ms-table';
+  import { TableKeyEnum } from '@/enums/tableEnum';
+  import { UploadStatus } from '@/enums/uploadEnum';
+  import { RouteEnum } from '@/enums/routeEnum';
+  import useAsyncTaskStore from '@/store/modules/app/asyncTask';
+  import useModal from '@/hooks/useModal';
+  import { characterLimit, downloadUrlFile } from '@/utils';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import useTable from '@/components/pure/ms-table/useTable';
-  import { TableKeyEnum } from '@/enums/tableEnum';
   import { getFileList } from '@/api/modules/project-management/fileManagement';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
-  import { UploadStatus } from '@/enums/uploadEnum';
-  import { RouteEnum } from '@/enums/routeEnum';
-  import useAsyncTaskStore from '@/store/modules/app/asyncTask';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
+  import fileDetailDrawerVue from './fileDetailDrawer.vue';
 
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import type { MsFileItem, UploadType } from '@/components/pure/ms-upload/types';
+  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
   const props = defineProps<{
     activeFolder: string | number;
@@ -151,6 +170,7 @@
   const route = useRoute();
   const { t } = useI18n();
   const asyncTaskStore = useAsyncTaskStore();
+  const { openModal } = useModal();
 
   const keyword = ref('');
   const fileType = ref('module');
@@ -188,50 +208,78 @@
     return 'file-type-card';
   }
 
+  const normalFileActions: ActionsItem[] = [
+    {
+      label: 'project.fileManagement.delete',
+      eventTag: 'delete',
+      danger: true,
+    },
+  ];
+
+  const jarFileActions: ActionsItem[] = [
+    {
+      label: 'common.disable',
+      eventTag: 'disabled',
+    },
+    {
+      isDivider: true,
+    },
+    {
+      label: 'project.fileManagement.delete',
+      eventTag: 'delete',
+      danger: true,
+    },
+  ];
+
   const columns: MsTableColumn = [
     {
-      title: 'system.config.auth.name',
+      title: 'project.fileManagement.name',
       slotName: 'name',
       dataIndex: 'name',
-      width: 200,
-      showInTable: true,
+      showTooltip: true,
     },
     {
-      title: 'system.config.auth.status',
-      slotName: 'enable',
-      dataIndex: 'enable',
-      showInTable: true,
+      title: 'project.fileManagement.type',
+      dataIndex: 'type',
     },
     {
-      title: 'system.config.auth.desc',
-      dataIndex: 'description',
-      showInTable: true,
+      title: 'project.fileManagement.tag',
+      dataIndex: 'tag',
+      slotName: 'tag',
+      isTag: true,
     },
     {
-      title: 'system.config.auth.createTime',
-      dataIndex: 'createTime',
-      showInTable: true,
+      title: 'project.fileManagement.creator',
+      dataIndex: 'creator',
     },
     {
-      title: 'system.config.auth.updateTime',
+      title: 'project.fileManagement.updater',
+      dataIndex: 'updater',
+    },
+    {
+      title: 'project.fileManagement.updateTime',
       dataIndex: 'updateTime',
-      showInTable: true,
+      width: 170,
     },
     {
-      title: 'system.config.auth.action',
+      title: 'project.fileManagement.createTime',
+      dataIndex: 'createTime',
+      width: 170,
+    },
+    {
+      title: 'common.operation',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
       width: 120,
-      showInTable: true,
     },
   ];
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer');
   const { propsRes, propsEvent, loadList } = useTable(getFileList, {
-    tableKey: TableKeyEnum.SYSTEM_AUTH,
+    tableKey: TableKeyEnum.FILE_MANAGEMENT_FILE,
     columns,
-    scroll: { y: 'auto' },
+    showSetting: true,
   });
 
   watch(
@@ -243,7 +291,128 @@
     { immediate: true }
   );
 
-  async function openFileDetail(id: string) {}
+  function downloadFile(url: string, name: string) {
+    downloadUrlFile(url, name);
+  }
+
+  /**
+   * 删除文件
+   */
+  function delFile(record: any) {
+    openModal({
+      type: 'error',
+      title: t('project.fileManagement.deleteFileTipTitle', { name: characterLimit(record.name) }),
+      content: t('project.fileManagement.deleteFileTipContent'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          Message.success(t('common.deleteSuccess'));
+          loadList();
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  /**
+   * 禁用 jar 文件
+   */
+  function disabledFile(record: any) {
+    openModal({
+      type: 'warning',
+      title: t('project.fileManagement.disabledFileTipTitle', { name: characterLimit(record.name) }),
+      content: t('project.fileManagement.disabledFileTipContent'),
+      okText: t('common.confirmDisable'),
+      cancelText: t('common.cancel'),
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          Message.success(t('common.disableSuccess'));
+          loadList();
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  /**
+   * 处理表格更多按钮事件
+   * @param item
+   */
+  function handleSelect(item: ActionsItem, record: any) {
+    switch (item.eventTag) {
+      case 'delete':
+        delFile(record);
+        break;
+      case 'disabled':
+        disabledFile(record);
+        break;
+      default:
+        break;
+    }
+  }
+
+  const showDetailDrawer = ref(false);
+  const activeFileId = ref<string | number>('');
+  const activeFileIndex = ref(0);
+  // 当前查看的文件是否是总数据的第一条数据，用当前查看数据的下标是否等于0，且当前页码是否等于1
+  const activeFileIsFirst = computed(() => activeFileIndex.value === 0 && propsRes.value.msPagination?.current === 1);
+  const activeFileIsLast = computed(
+    // 当前查看的文件是否是总数据的最后一条数据，用当前页码*每页条数+当前查看的条数下标，是否等于总条数
+    () =>
+      activeFileIndex.value === propsRes.value.data.length - 1 &&
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      propsRes.value.msPagination!.current * propsRes.value.msPagination!.pageSize + activeFileIndex.value >=
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        propsRes.value.msPagination!.total
+  );
+
+  async function openFileDetail(id: string, index: number) {
+    showDetailDrawer.value = true;
+    activeFileId.value = id;
+    activeFileIndex.value = index;
+  }
+
+  async function openPrevFile() {
+    if (!activeFileIsFirst.value) {
+      // 当前不是第一条，则往前查看
+      if (activeFileIndex.value === 0 && propsRes.value.msPagination) {
+        // 当前查看的是当前页的第一条数据，则需要加载上一页的数据
+        await propsEvent.value.pageChange(propsRes.value.msPagination.current - 1);
+        activeFileId.value = propsRes.value.data[propsRes.value.data.length - 1].id;
+        activeFileIndex.value = propsRes.value.data.length - 1;
+      } else {
+        // 当前查看的不是当前页的第一条数据，则直接查看上一条数据
+        activeFileId.value = propsRes.value.data[activeFileIndex.value - 1].id;
+        activeFileIndex.value -= 1;
+      }
+    }
+  }
+
+  async function openNextFile() {
+    if (!activeFileIsLast.value) {
+      // 当前不是最后一条，则往后查看
+      if (activeFileIndex.value === propsRes.value.data.length - 1 && propsRes.value.msPagination) {
+        // 当前查看的是当前页的最后一条数据，则需要加载下一页的数据
+        await propsEvent.value.pageChange(propsRes.value.msPagination.current + 1);
+        activeFileId.value = propsRes.value.data[0].id;
+        activeFileIndex.value = 0;
+      } else {
+        // 当前查看的不是当前页的最后一条数据，则直接查看下一条数据
+        activeFileId.value = propsRes.value.data[activeFileIndex.value + 1].id;
+        activeFileIndex.value += 1;
+      }
+    }
+  }
 
   const uploadDrawerVisible = ref(false);
   const fileList = ref<MsFileItem[]>(asyncTaskStore.uploadFileTask.fileList);
@@ -305,6 +474,31 @@
     isUploading.value = false;
   }
 
+  function cancelUpload() {
+    if (asyncTaskStore.uploadFileTask.eachTaskQueue.length > 0 && asyncTaskStore.eachUploadTaskProgress !== 100) {
+      openModal({
+        type: 'error',
+        title: t('project.fileManagement.cancelTipTitle'),
+        content: t('project.fileManagement.cancelTipContent'),
+        okText: t('project.fileManagement.cancelConfirm'),
+        cancelText: t('project.fileManagement.cancel'),
+        onBeforeOk: async () => {
+          try {
+            asyncTaskStore.cancelUpload();
+            uploadDrawerVisible.value = false;
+            fileList.value = [];
+            isUploading.value = false;
+          } catch (error) {
+            console.log(error);
+          }
+        },
+        hideCancel: false,
+      });
+    } else {
+      uploadDrawerVisible.value = false;
+    }
+  }
+
   type RouteQueryPosition = 'uploadDrawer' | null;
 
   onBeforeMount(() => {
@@ -336,6 +530,8 @@
 <style lang="less" scoped>
   .header {
     @apply flex items-center justify-between;
+
+    margin-bottom: 16px;
     .header-right {
       @apply ml-auto flex items-center justify-end;
 

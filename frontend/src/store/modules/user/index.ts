@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { useRoute } from 'vue-router';
 import { login as userLogin, logout as userLogout, isLogin as userIsLogin } from '@/api/modules/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
@@ -97,8 +98,16 @@ const useUserStore = defineStore('user', {
         const appStore = useAppStore();
         setToken(res.sessionId, res.csrfToken);
         this.setInfo(res);
-        appStore.setCurrentOrgId(res.lastOrganizationId || '');
-        appStore.setCurrentProjectId(res.lastProjectId || '');
+        const route = useRoute();
+        const urlOrgId = route.query.organizationId;
+        const urlProjectId = route.query.projectId;
+        // 如果访问页面的时候携带了组织 ID和项目 ID，则不设置
+        if (!urlOrgId) {
+          appStore.setCurrentOrgId(res.lastOrganizationId || '');
+        }
+        if (!urlProjectId) {
+          appStore.setCurrentProjectId(res.lastProjectId || '');
+        }
         return true;
       } catch (err) {
         return false;

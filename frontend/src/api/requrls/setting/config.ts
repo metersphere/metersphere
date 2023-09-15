@@ -2,6 +2,8 @@
 export const TestEmailUrl = '/system/parameter/test/email';
 // 保存基本信息
 export const SaveBaseInfoUrl = '/system/parameter/save/base-info';
+// 替换站点 url
+export const SaveBaseUrlUrl = '/system/parameter/save/base-url';
 // 保存邮件配置
 export const SaveEmailInfoUrl = '/system/parameter/edit/email-info';
 // 获取邮件配置

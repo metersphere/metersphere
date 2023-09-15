@@ -8,6 +8,7 @@ import { setObjToUrlParams, deepMerge } from '@/utils';
 import { useI18n } from '@/hooks/useI18n';
 import useLocale from '@/locale/useLocale';
 import { joinTimestamp } from './helper';
+import useAppStore from '@/store/modules/app';
 
 import type { AxiosResponse } from 'axios';
 import type { AxiosTransform, CreateAxiosOptions } from './axiosTransform';
@@ -112,6 +113,7 @@ const transform: AxiosTransform = {
   requestInterceptors: (config) => {
     // 请求之前处理config
     const { currentLocale } = useLocale();
+    const appStore = useAppStore();
     const token = getToken();
     if (token && (config as Recordable)?.requestOptions?.withToken !== false) {
       const { sessionId, csrfToken } = token;
@@ -121,6 +123,8 @@ const transform: AxiosTransform = {
         'X-AUTH-TOKEN': sessionId,
         'CSRF-TOKEN': csrfToken,
         'Accept-Language': currentLocale.value,
+        'ORGANIZATION': appStore.currentOrgId,
+        'PROJECT': appStore.currentProjectId,
       };
     }
     return config;

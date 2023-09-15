@@ -3,13 +3,56 @@ import { setRouteEmitter } from '@/utils/route-listener';
 import setupUserLoginInfoGuard from './userLoginInfo';
 import setupPermissionGuard from './permission';
 import { AxiosCanceler } from '@/api/http/axiosCancel';
+import usePathMap from '@/hooks/usePathMap';
+import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
+import useAppStore from '@/store/modules/app';
 
 function setupPageGuard(router: Router) {
   const axiosCanceler = new AxiosCanceler();
-  router.beforeEach(async (to) => {
+  const { getRouteLevelByKey } = usePathMap();
+  router.beforeEach((to, from, next) => {
     // 监听路由变化
     setRouteEmitter(to);
+    // 取消上个路由未完成的请求（不包含设置了ignoreCancelToken的请求）
     axiosCanceler.removeAllPending();
+    const appStore = useAppStore();
+    const urlOrgId = to.query.organizationId;
+    const urlProjectId = to.query.projectId;
+    // 如果访问页面的时候携带了项目 ID 或组织 ID，则将页面上的组织 ID和项目 ID设置为当前选中的组织和项目
+    if (urlOrgId) {
+      appStore.setCurrentOrgId(urlOrgId as string);
+    }
+    if (urlProjectId) {
+      appStore.setCurrentProjectId(urlProjectId as string);
+    }
+    switch (getRouteLevelByKey(to.name as PathMapRoute)) {
+      case MENU_LEVEL[1]: // 组织级别的页面，需要给页面携带上组织 ID
+        if (!urlOrgId) {
+          to.query = {
+            ...to.query,
+            organizationId: appStore.currentOrgId,
+          };
+          next(to);
+          return;
+        }
+        break;
+      case MENU_LEVEL[2]: // 项目级别的页面，需要给页面携带上组织 ID和项目 ID
+        if (!urlOrgId && !urlProjectId) {
+          to.query = {
+            ...to.query,
+            organizationId: appStore.currentOrgId,
+            projectId: appStore.currentProjectId,
+          };
+
+          next(to);
+          return;
+        }
+        break;
+      case MENU_LEVEL[0]: // 系统级别的页面，无需携带组织ID和项目ID
+      default:
+        break;
+    }
+    next();
   });
 }
 

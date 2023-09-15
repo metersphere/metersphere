@@ -10,7 +10,7 @@
 
 <script lang="ts" setup>
   import { computed, onBeforeMount, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRouter, useRoute } from 'vue-router';
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
   // import GlobalSetting from '@/components/pure/global-setting/index.vue';
@@ -18,7 +18,7 @@
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
-  import { saveBaseInfo } from '@/api/modules/setting/config';
+  import { saveBaseUrl } from '@/api/modules/setting/config';
   import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
   import { watchStyle, watchTheme, setFavicon } from '@/utils/theme';
@@ -26,11 +26,13 @@
   import { getPublicKeyRequest } from './api/modules/user';
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import { useEventListener, useWindowSize } from '@vueuse/core';
+  import { WHITE_LIST } from '@/router/constants';
 
   const appStore = useAppStore();
   const userStore = useUserStore();
   const licenseStore = useLicenseStore();
   const router = useRouter();
+  const route = useRoute();
 
   const { currentLocale } = useLocale();
   const locale = computed(() => {
@@ -57,13 +59,7 @@
       // 项目初始化时需要获取基础设置信息，看当前站点 url是否为系统内置默认地址，如果是需要替换为当前项目部署的 url 地址
       const isInitUrl = getLocalStorage('isInitUrl'); // 是否已经初始化过 url
       if (isInitUrl === 'true') return;
-      await saveBaseInfo([
-        {
-          paramKey: 'base.url',
-          paramValue: window.location.origin,
-          type: 'string',
-        },
-      ]);
+      await saveBaseUrl(window.location.origin);
       setLocalStorage('isInitUrl', 'true'); // 设置已经初始化过 url，避免重复初始化
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -72,7 +68,7 @@
   });
   const checkIsLogin = async () => {
     const isLogin = await userStore.isLogin();
-    const isLoginPage = window.location.hash.indexOf('#/login') > -1;
+    const isLoginPage = route.name === 'login';
     if (isLoginPage && isLogin) {
       // 当前页面为登录页面，且已经登录，跳转到首页
       router.push(WorkbenchRouteEnum.WORKBENCH);
@@ -85,11 +81,9 @@
     setLocalStorage('salt', publicKey);
   };
 
-  // 白名单，不需要验证是否登录的页面
-  const whiteList = ['#/invite'];
   onMounted(async () => {
     await getPublicKey();
-    if (!whiteList.includes(window.location.hash)) {
+    if (WHITE_LIST.find((el) => el.name === route.name) === undefined) {
       await checkIsLogin();
     }
     const { height } = useWindowSize();
