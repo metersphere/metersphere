@@ -45,21 +45,24 @@
     {
       title: 'system.userGroup.name',
       dataIndex: 'name',
+      showTooltip: true,
     },
     {
       title: 'system.userGroup.email',
       dataIndex: 'email',
+      showTooltip: true,
     },
     {
       title: 'system.userGroup.phone',
-      dataIndex: 'email',
+      dataIndex: 'phone',
+      showTooltip: true,
     },
     {
       title: 'system.userGroup.operation',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 200,
+      width: 100,
     },
   ];
 
@@ -74,11 +77,11 @@
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(getRequestBySystemType(), {
     columns: userGroupUsercolumns,
-    scroll: { y: 'auto', x: '600px' },
+    scroll: { x: '100%' },
     selectable: false,
-    noDisable: false,
-    size: 'default',
+    noDisable: true,
     showSetting: false,
+    heightUsed: 340,
   });
 
   const fetchData = async () => {
