@@ -7,12 +7,14 @@ public interface NoticeConstants {
         String TEST_PLAN_TASK = "TEST_PLAN_TASK";
         String CASE_REVIEW_TASK = "CASE_REVIEW_TASK";
         String FUNCTIONAL_CASE_TASK = "FUNCTIONAL_CASE_TASK";
+        String BUG_TASK = "BUG_TASK";
         String TRACK_HOME_TASK = "TRACK_HOME_TASK";
         String TRACK_REPORT_TASK = "TRACK_REPORT_TASK";
         String DEFECT_TASK = "DEFECT_TASK";
         String SWAGGER_TASK = "SWAGGER_TASK";
         String API_SCENARIO_TASK = "API_SCENARIO_TASK";
         String API_DEFINITION_TASK = "API_DEFINITION_TASK";
+        String API_SCHEDULE_TASK = "API_SCHEDULE_TASK";
         String API_HOME_TASK = "API_HOME_TASK";
         String API_REPORT_TASK = "API_REPORT_TASK";
         String LOAD_REPORT_TASK = "LOAD_REPORT_TASK";
