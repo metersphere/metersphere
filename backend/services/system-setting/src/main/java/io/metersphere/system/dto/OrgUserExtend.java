@@ -1,5 +1,6 @@
 package io.metersphere.system.dto;
 
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.system.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -15,8 +16,8 @@ import java.util.List;
 public class OrgUserExtend extends User {
 
     @Schema(description =  "项目ID名称集合", requiredMode = Schema.RequiredMode.REQUIRED)
-    private List<IdNameStructureDTO> projectIdNameMap;;
+    private List<OptionDTO> projectIdNameMap;;
 
     @Schema(description =  "用户组ID名称集合", requiredMode = Schema.RequiredMode.REQUIRED)
-    private List<IdNameStructureDTO> userRoleIdNameMap;
+    private List<OptionDTO> userRoleIdNameMap;
 }

@@ -268,18 +268,18 @@ public class TestResourcePoolService {
         TestResourceReturnDTO testResourceReturnDTO = new TestResourceReturnDTO();
         BeanUtils.copyBean(testResourceReturnDTO, testResourceDTO);
         List<String> orgIds = testResourceDTO.getOrgIds();
-        List<OrgIdNameDTO> orgIdNameMap = new ArrayList<>();
+        List<OptionDTO> orgIdNameMap = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(orgIds)) {
             for (String orgId : orgIds) {
-                OrgIdNameDTO orgIdNameDTO = new OrgIdNameDTO();
+                OptionDTO optionDTO = new OptionDTO();
                 Organization organization = organizationMapper.selectByPrimaryKey(orgId);
-                orgIdNameDTO.setId(orgId);
+                optionDTO.setId(orgId);
                 if (organization != null) {
-                    orgIdNameDTO.setName(organization.getName());
+                    optionDTO.setName(organization.getName());
                 } else {
-                    orgIdNameDTO.setName(Translator.get("organization_not_exists"));
+                    optionDTO.setName(Translator.get("organization_not_exists"));
                 }
-                orgIdNameMap.add(orgIdNameDTO);
+                orgIdNameMap.add(optionDTO);
             }
         }
         testResourceReturnDTO.setOrgIdNameMap(orgIdNameMap);

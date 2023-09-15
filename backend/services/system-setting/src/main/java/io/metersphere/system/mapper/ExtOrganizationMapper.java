@@ -83,7 +83,7 @@ public interface ExtOrganizationMapper {
      * @param keyword 组织成员列表请求参数
      * @return 组织成员列表数据
      */
-    List<IdNameDisabledDTO> selectListMemberByOrg(@Param("keyword") String keyword);
+    List<OptionDisabledDTO> selectListMemberByOrg(@Param("keyword") String keyword);
 
     /**
      * 获取组织管理员

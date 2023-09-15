@@ -82,5 +82,5 @@ public class TestResourceReturnDTO {
      * 关联的组织id集合
      */
     @Schema(description =  "关联的组织id和名称的集合")
-    private List<OrgIdNameDTO> orgIdNameMap;
+    private List<OptionDTO> orgIdNameMap;
 }
