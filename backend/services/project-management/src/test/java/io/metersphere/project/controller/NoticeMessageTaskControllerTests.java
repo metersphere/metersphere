@@ -129,6 +129,8 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         userIds.add("project-message-user-7");
         userIds.add("project-message-user-8");
         messageTaskRequest.setReceiverIds(userIds);
+        messageTaskRequest.setEnable(null);
+        messageTaskRequest.setTestId("testId");
         messageTaskRequest.setTemplate("发送消息测试");
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -241,5 +243,112 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<MessageTaskDTO> messageTaskDTOList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
         Assertions.assertTrue(CollectionUtils.isEmpty(messageTaskDTOList));
+    }
+
+    @Test
+    @Order(10)
+    public void addMessageTaskCheckSpecialUserSuccess() throws Exception {
+        MessageTaskRequest messageTaskRequest = new MessageTaskRequest();
+        messageTaskRequest.setProjectId("project-message-test-1");
+        messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
+        messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
+        List<String> userIds = new ArrayList<>();
+        userIds.add("CREATOR");
+        userIds.add("FOLLOW_PEOPLE");
+        messageTaskRequest.setReceiverIds(userIds);
+        messageTaskRequest.setRobotId("test_message_robot2");
+        messageTaskRequest.setEnable(true);
+        messageTaskRequest.setTemplate("发送消息测试");
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(messageTaskRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        Assertions.assertEquals(100200, resultHolder.getCode());
+    }
+
+    @Test
+    @Order(11)
+    public void addMessageTaskCheckSpecialUserTwoSuccess() throws Exception {
+        MessageTaskRequest messageTaskRequest = new MessageTaskRequest();
+        messageTaskRequest.setProjectId("project-message-test");
+        messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
+        messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
+        List<String> userIds = new ArrayList<>();
+        userIds.add("CREATOR");
+        userIds.add("FOLLOW_PEOPLE");
+        userIds.add("project-message-user-5");
+        messageTaskRequest.setReceiverIds(userIds);
+        messageTaskRequest.setRobotId("test_message_robot2");
+        messageTaskRequest.setEnable(true);
+        messageTaskRequest.setTemplate("发送消息测试");
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(messageTaskRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        Assertions.assertEquals(100200, resultHolder.getCode());
+    }
+
+    @Test
+    @Order(12)
+    public void addMessageTaskCheckSpecialUserThreeSuccess() throws Exception {
+        MessageTaskRequest messageTaskRequest = new MessageTaskRequest();
+        messageTaskRequest.setProjectId("project-message-test");
+        messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
+        messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
+        List<String> userIds = new ArrayList<>();
+        userIds.add("CREATOR");
+        userIds.add("FOLLOW_PEOPLE");
+        userIds.add("project-message-user-6");
+        userIds.add("project-message-user-del");
+        messageTaskRequest.setReceiverIds(userIds);
+        messageTaskRequest.setRobotId("test_message_robot2");
+        messageTaskRequest.setEnable(true);
+        messageTaskRequest.setTemplate("发送消息测试");
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(messageTaskRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        Assertions.assertEquals(102001, resultHolder.getCode());
+    }
+
+    @Test
+    @Order(13)
+    public void closeMessageTaskSuccess() throws Exception {
+        MessageTaskRequest messageTaskRequest = new MessageTaskRequest();
+        messageTaskRequest.setProjectId("project-message-test");
+        messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
+        messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
+        List<String> userIds = new ArrayList<>();
+        userIds.add("CREATOR");
+        userIds.add("FOLLOW_PEOPLE");
+        messageTaskRequest.setReceiverIds(userIds);
+        messageTaskRequest.setRobotId("test_message_robot2");
+        messageTaskRequest.setEnable(null);
+        messageTaskRequest.setTemplate("发送消息测试");
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(messageTaskRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        Assertions.assertEquals(100200, resultHolder.getCode());
     }
 }

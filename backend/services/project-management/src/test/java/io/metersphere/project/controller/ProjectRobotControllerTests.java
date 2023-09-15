@@ -323,6 +323,20 @@ public class ProjectRobotControllerTests extends BaseTest {
 
     @Test
     @Order(21)
+    void setEnableFalseSuccess() throws Exception {
+        ProjectRobot projectRobot = getRobot("测试Enable");
+        String projectRobotId = projectRobot.getId();
+        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_ENABLE + "/" + projectRobotId)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        ProjectRobot projectRobotEnable = getRobot("测试Enable");
+        Assertions.assertTrue(projectRobotEnable.getEnable());
+    }
+
+    @Test
+    @Order(22)
     void setEnableFail() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_ENABLE + "/no_id")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -331,6 +345,8 @@ public class ProjectRobotControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
     }
+
+
 
     private static ProjectRobot getResult(MvcResult mvcResult) throws UnsupportedEncodingException {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
