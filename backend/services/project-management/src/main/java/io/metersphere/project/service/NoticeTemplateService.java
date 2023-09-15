@@ -66,6 +66,7 @@ public class NoticeTemplateService {
                 addOptionDto(optionDTOList, allFields);
                 //TODO：获取报告和自定义
             }
+            default -> optionDTOList = new ArrayList<>();
         }
         return optionDTOList;
     }

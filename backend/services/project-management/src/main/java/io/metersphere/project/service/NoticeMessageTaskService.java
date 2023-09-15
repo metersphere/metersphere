@@ -196,14 +196,26 @@ public class NoticeMessageTaskService {
      * @return Map<String, List<String>>
      */
     private Map<String, List<String>> checkUserExistProject(List<String> receiverIds, String projectId) {
-        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
-        userRoleRelationExample.createCriteria().andUserIdIn(receiverIds).andSourceIdEqualTo(projectId);
-        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        List<String> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().toList();
-        Map<String, List<String>> map = new HashMap<>();
-        if (CollectionUtils.isEmpty(userIds)) {
-            throw new MSException(Translator.get("user.not.exist"));
+        List<String>normalUserIds = new ArrayList<>();
+        for (String receiverId : receiverIds) {
+            if (!StringUtils.equalsIgnoreCase(receiverId, CREATOR) && !StringUtils.equalsIgnoreCase(receiverId, FOLLOW_PEOPLE)) {
+                normalUserIds.add(receiverId);
+            }
         }
+        List<String> userIds = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(normalUserIds)) {
+            UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+            userRoleRelationExample.createCriteria().andUserIdIn(normalUserIds).andSourceIdEqualTo(projectId);
+            List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+            userIds = new ArrayList<>(userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().toList());
+        }
+        if (receiverIds.contains(CREATOR)) {
+            userIds.add(CREATOR);
+        }
+        if (receiverIds.contains(FOLLOW_PEOPLE)) {
+            userIds.add(FOLLOW_PEOPLE);
+        }
+        Map<String, List<String>> map = new HashMap<>();
         List<String> noUserNames = new ArrayList<>();
         if (userIds.size() < receiverIds.size()) {
             for (String receiverId : receiverIds) {
