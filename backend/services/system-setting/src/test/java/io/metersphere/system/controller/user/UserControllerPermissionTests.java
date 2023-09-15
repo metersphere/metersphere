@@ -1,6 +1,6 @@
 package io.metersphere.system.controller.user;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.TableBatchProcessDTO;
 import io.metersphere.system.dto.UserCreateInfo;

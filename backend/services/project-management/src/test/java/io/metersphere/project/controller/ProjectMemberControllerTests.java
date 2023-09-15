@@ -5,13 +5,13 @@ import io.metersphere.project.request.ProjectMemberAddRequest;
 import io.metersphere.project.request.ProjectMemberBatchDeleteRequest;
 import io.metersphere.project.request.ProjectMemberEditRequest;
 import io.metersphere.project.request.ProjectMemberRequest;
-import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.controller.handler.ResultHolder;
-import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.log.constants.OperationLogType;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -46,7 +46,7 @@ public class ProjectMemberControllerTests extends BaseTest {
     @Test
     @Order(1)
     @Sql(scripts = {"/dml/init_project_member.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
-    public void testListMemberSuccess() throws Exception{
+    public void testListMemberSuccess() throws Exception {
         ProjectMemberRequest request = new ProjectMemberRequest();
         request.setProjectId("default-project-member-test");
         request.setCurrent(1);

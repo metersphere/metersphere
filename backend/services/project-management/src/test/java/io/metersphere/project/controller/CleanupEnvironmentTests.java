@@ -1,7 +1,7 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.project.service.CleanupEnvironmentResourceService;
-import io.metersphere.sdk.invoker.ProjectServiceInvoker;
+import io.metersphere.system.invoker.ProjectServiceInvoker;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;

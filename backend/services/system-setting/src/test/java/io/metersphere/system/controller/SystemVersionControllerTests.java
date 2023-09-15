@@ -1,6 +1,6 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.SessionConstants;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;

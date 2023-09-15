@@ -1,6 +1,6 @@
 package io.metersphere.project.job;
 
-import io.metersphere.sdk.sechedule.BaseScheduleJob;
+import io.metersphere.system.sechedule.BaseScheduleJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;

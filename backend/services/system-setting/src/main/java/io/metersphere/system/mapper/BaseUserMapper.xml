@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.BaseUserMapper">
+    <update id="deleteUser">
+        UPDATE `user`
+        SET `deleted`   = 1,
+            update_user = #{deleteUser},
+            update_time = #{deleteTime},
+            `email`     = id
+        WHERE `id` = #{id}
+    </update>
+    <select id="selectById" resultType="io.metersphere.sdk.dto.UserDTO">
+        SELECT *
+        FROM user
+                 LEFT JOIN user_extend ON user.id = user_extend.id
+        WHERE user.id = #{id}
+    </select>
+
+    <select id="selectDTOByKeyword" resultType="io.metersphere.sdk.dto.UserDTO">
+        SELECT *
+        FROM user
+                 LEFT JOIN user_extend ON user.id = user_extend.id
+        WHERE (user.email = #{keyword} OR user.id = #{keyword})
+          AND deleted = 0
+    </select>
+
+    <select id="findAll" resultType="io.metersphere.system.domain.User">
+        SELECT *
+        FROM user
+        where deleted = 0
+    </select>
+
+    <insert id="batchSave">
+        INSERT INTO user(id, name, email, password, status, create_time, update_time,update_user, language, last_organization_id,
+                         phone,
+                         source, last_project_id, create_user,deleted)
+        VALUES
+        <foreach collection="users" item="user" separator=",">
+            (#{user.id}, #{user.name}, #{user.email}, #{user.password}, #{user.status}, #{user.createTime},
+             #{user.updateTime},#{user.updateUser}, #{user.language},
+             #{user.lastOrganizationId}, #{user.phone}, #{user.source}, #{user.lastProjectId}, #{user.createUser}, #{user.deleted})
+        </foreach>
+    </insert>
+
+    <select id="isSuperUser" resultType="java.lang.Boolean">
+        SELECT COUNT(*)
+        FROM user_role_relation
+        WHERE user_id = #{userId}
+          AND role_id = 'admin'
+    </select>
+    <select id="selectEmailInDB" resultType="java.lang.String">
+        SELECT u.email FROM user u
+        WHERE u.email = #{email}
+        <if test="id != null">
+            AND u.id != #{id}
+        </if>
+    </select>
+    <select id="selectUserIdByEmailList" resultType="io.metersphere.system.domain.User">
+        SELECT u.id,u.email FROM user u
+        WHERE u.email IN
+        <foreach collection="emailList" item="email" open="(" separator="," close=")">
+            #{email}
+        </foreach>
+    </select>
+    <select id="selectByKeyword" resultType="io.metersphere.system.domain.User">
+        SELECT
+        <if test="selectId">
+            id
+        </if>
+        <if test="!selectId">
+            *
+        </if>
+        FROM user
+        WHERE DELETED = 0
+        <if test="keyword != null and keyword != ''">
+            AND (
+            id = #{keyword} OR
+            (name LIKE CONCAT('%', #{keyword}, '%')
+            OR email LIKE CONCAT('%', #{keyword}, '%'))
+            )
+
+        </if>
+    </select>
+    <select id="selectUnDeletedUserIdByIdList" resultType="java.lang.String">
+        SELECT * from `user` WHERE deleted = 0 AND id IN
+        <foreach collection="idList" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectUserOptionByIds" resultType="io.metersphere.sdk.dto.OptionDTO">
+        SELECT id, name
+        FROM user
+        WHERE id IN
+        <foreach collection="list" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getExcludeSelectOptionWithLimit" resultType="io.metersphere.sdk.dto.UserExcludeOptionDTO">
+        select id, name, email
+        from user
+        where deleted = 0
+        <if test="keyword != null and keyword != ''">
+            and (name LIKE CONCAT('%', #{keyword}, '%') or email like CONCAT('%', #{keyword}, '%'))
+        </if>
+        limit 100
+    </select>
+    <select id="getSelectOptionByIdsWithDeleted" resultType="io.metersphere.sdk.dto.OptionDTO">
+        SELECT id, name
+        FROM user
+        WHERE id IN
+        <foreach collection="ids" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

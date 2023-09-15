@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.system.mapper.BaseSystemParameterMapper">
+
+    <update id="saveBaseUrl">
+        UPDATE system_parameter SET param_value = #{baseUrl}
+        WHERE param_key = 'base.url' AND (param_value LIKE 'http://127%' OR param_value = '' OR param_value IS NULL)
+    </update>
+</mapper>

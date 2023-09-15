@@ -1,7 +1,7 @@
 package io.metersphere.system.utils.user;
 
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;

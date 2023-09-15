@@ -1,7 +1,7 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.sdk.service.CleanupProjectResourceService;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.service.CleanupProjectResourceService;
 import org.springframework.stereotype.Component;
 
 @Component

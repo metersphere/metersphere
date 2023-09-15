@@ -18,18 +18,21 @@
             <artifactId>metersphere-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
-        <dependency>
-            <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-sdk</artifactId>
-            <version>${revision}</version>
-            <classifier>tests</classifier>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>

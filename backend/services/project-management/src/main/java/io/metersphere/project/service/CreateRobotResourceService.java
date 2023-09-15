@@ -3,8 +3,8 @@ package io.metersphere.project.service;
 import io.metersphere.project.domain.ProjectRobot;
 import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.mapper.ProjectRobotMapper;
-import io.metersphere.sdk.service.CreateProjectResourceService;
-import io.metersphere.sdk.uid.UUID;
+import io.metersphere.system.service.CreateProjectResourceService;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 

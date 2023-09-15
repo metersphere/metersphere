@@ -5,14 +5,12 @@ import io.metersphere.project.dto.ProjectRobotDTO;
 import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.enums.ProjectRobotType;
 import io.metersphere.project.request.ProjectRobotRequest;
-import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.controller.handler.ResultHolder;
-
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
-
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -219,7 +217,7 @@ public class ProjectRobotControllerTests extends BaseTest {
         setCustomRobot("测试删除");
         ProjectRobot projectRobot = getRobot("测试删除");
         String projectRobotId = projectRobot.getId();
-        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_DELETE+"/"+ projectRobotId)
+        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_DELETE + "/" + projectRobotId)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk())
@@ -235,7 +233,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(17)
     void deleteRobotFail() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_DELETE+"/no_id")
+        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_DELETE + "/no_id")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().is5xxServerError())
@@ -245,7 +243,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(18)
     void getDetailFail() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_DETAIL+"/no_id")
+        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_DETAIL + "/no_id")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().is5xxServerError())
@@ -264,7 +262,7 @@ public class ProjectRobotControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         ProjectRobot result = getResult(mvcResult);
         Assertions.assertTrue(StringUtils.equals(result.getName(), "测试获取详情"));
-        Assertions.assertTrue(StringUtils.equals(result.getWebhook(),"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8"));
+        Assertions.assertTrue(StringUtils.equals(result.getWebhook(), "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8"));
     }
 
     @Test
@@ -275,7 +273,7 @@ public class ProjectRobotControllerTests extends BaseTest {
         request.setPageSize(5);
         Pager<?> sortPageData = getPager(request);
         List<ProjectRobot> projectRobots = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), ProjectRobot.class);
-        Assertions.assertTrue(projectRobots.size()>0);
+        Assertions.assertTrue(projectRobots.size() > 0);
     }
 
     @Test
@@ -314,7 +312,7 @@ public class ProjectRobotControllerTests extends BaseTest {
         setCustomRobot("测试Enable");
         ProjectRobot projectRobot = getRobot("测试Enable");
         String projectRobotId = projectRobot.getId();
-        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_ENABLE+"/"+ projectRobotId)
+        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_ENABLE + "/" + projectRobotId)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk())
@@ -326,7 +324,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(21)
     void setEnableFail() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_ENABLE+"/no_id")
+        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_ENABLE + "/no_id")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().is5xxServerError())
@@ -335,7 +333,8 @@ public class ProjectRobotControllerTests extends BaseTest {
     }
 
     private static ProjectRobot getResult(MvcResult mvcResult) throws UnsupportedEncodingException {
-        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);;
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ;
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ProjectRobot.class);
     }

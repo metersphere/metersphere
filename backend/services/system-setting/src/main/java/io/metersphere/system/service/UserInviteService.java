@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.uid.UUID;
+import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserInvite;

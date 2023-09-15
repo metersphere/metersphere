@@ -1,7 +1,7 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.dto.TableBatchProcessDTO;
-import io.metersphere.sdk.mapper.BaseUserMapper;
+import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.mapper.UserMapper;

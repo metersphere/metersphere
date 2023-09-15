@@ -2,7 +2,7 @@ package io.metersphere.system.service;
 
 
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.uid.UUID;
+import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.AuthSource;

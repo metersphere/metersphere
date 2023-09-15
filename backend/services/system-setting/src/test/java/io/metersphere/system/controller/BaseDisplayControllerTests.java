@@ -1,10 +1,10 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
-import io.metersphere.sdk.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogModule;
 import jakarta.annotation.Resource;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.MethodOrderer;

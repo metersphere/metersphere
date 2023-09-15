@@ -4,10 +4,10 @@ import io.metersphere.project.controller.param.ProjectApplicationDefinition;
 import io.metersphere.project.controller.param.ProjectApplicationRequestDefinition;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.request.ProjectApplicationRequest;
-import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.ProjectApplicationType;
-import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.request.PluginUpdateRequest;
 import io.metersphere.system.service.PluginService;
@@ -298,8 +298,8 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(19)
     public void testGetApi() throws Exception {
         List<String> types = Arrays.asList(ProjectApplicationType.APPLICATION_API_URL_REPEATABLE.name(), ProjectApplicationType.APPLICATION_CLEAN_API_REPORT.name(), ProjectApplicationType.APPLICATION_SHARE_API_REPORT.name(),
-                                            ProjectApplicationType.APPLICATION_API_RESOURCE_POOL.name(), ProjectApplicationType.APPLICATION_API_SCRIPT_REVIEWER.name(), ProjectApplicationType.APPLICATION_API_ERROR_REPORT_RULE.name(),
-                                            ProjectApplicationType.APPLICATION_API_SYNC_CASE.name());
+                ProjectApplicationType.APPLICATION_API_RESOURCE_POOL.name(), ProjectApplicationType.APPLICATION_API_SCRIPT_REVIEWER.name(), ProjectApplicationType.APPLICATION_API_ERROR_REPORT_RULE.name(),
+                ProjectApplicationType.APPLICATION_API_SYNC_CASE.name());
         ProjectApplicationRequest request = this.getRequest(types);
         this.requestPostWithOkAndReturn(GET_API_URL, request);
     }
@@ -321,7 +321,6 @@ public class ProjectApplicationControllerTests extends BaseTest {
     /**
      * ==========接口测试 end==========
      */
-
 
 
     /**
@@ -377,13 +376,14 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(26)
     public void testGetPlatformInfo() throws Exception {
         plugin = addPlugin();
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_PLATFORM_INFO_URL + "/"+plugin.getId());
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_PLATFORM_INFO_URL + "/" + plugin.getId());
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
     }
+
     /**
      * ==========用例管理 start==========
      */

@@ -4,8 +4,9 @@ import com.jayway.jsonpath.JsonPath;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -19,8 +20,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
 import java.util.List;
-import io.metersphere.sdk.uid.UUID;
-
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

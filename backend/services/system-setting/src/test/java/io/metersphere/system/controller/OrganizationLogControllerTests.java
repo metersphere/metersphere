@@ -1,8 +1,8 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.log.vo.OperationLogRequest;
+import io.metersphere.system.log.vo.OperationLogRequest;
 import io.metersphere.system.controller.param.OperationLogRequestDefinition;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;

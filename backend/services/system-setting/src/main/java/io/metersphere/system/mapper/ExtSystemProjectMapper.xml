@@ -95,7 +95,7 @@
                     <choose>
                         <when test="key=='createUser'">
                             and p.create_user in
-                            <include refid="io.metersphere.sdk.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>
                 </if>
@@ -107,7 +107,7 @@
         <if test="request.combine != null">
             <if test='${condition}.createUser != null'>
                 and p.create_user
-                <include refid="io.metersphere.sdk.mapper.BaseMapper.condition">
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                     <property name="object" value="${condition}.createUser"/>
                 </include>
             </if>

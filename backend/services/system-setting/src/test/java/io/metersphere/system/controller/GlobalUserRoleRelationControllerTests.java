@@ -1,14 +1,14 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.dto.UserExcludeOptionDTO;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
-import io.metersphere.sdk.log.constants.OperationLogType;
-import io.metersphere.sdk.mapper.BaseUserRoleRelationMapper;
-import io.metersphere.sdk.service.BaseUserService;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.BaseUserRoleRelationMapper;
+import io.metersphere.system.service.BaseUserService;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationQueryRequestDefinition;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationUpdateRequestDefinition;
@@ -31,14 +31,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import io.metersphere.sdk.uid.UUID;
+import io.metersphere.system.uid.UUID;
 import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.sdk.constants.InternalUserRole.ORG_ADMIN;
-import static io.metersphere.sdk.controller.handler.result.CommonResultCode.USER_ROLE_RELATION_EXIST;
-import static io.metersphere.sdk.controller.handler.result.CommonResultCode.USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION;
-import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static io.metersphere.system.controller.handler.result.CommonResultCode.USER_ROLE_RELATION_EXIST;
+import static io.metersphere.system.controller.handler.result.CommonResultCode.USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION;
+import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
 
 @SpringBootTest

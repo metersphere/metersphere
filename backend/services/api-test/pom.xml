@@ -19,6 +19,24 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-system-setting</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-system-setting</artifactId>
+            <version>${revision}</version>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-project-management</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.jmeter</groupId>
             <artifactId>ApacheJMeter_components</artifactId>
             <version>${jmeter.version}</version>

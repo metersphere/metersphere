@@ -2,7 +2,7 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.ProjectRobotExample;
 import io.metersphere.project.mapper.ProjectRobotMapper;
-import io.metersphere.sdk.service.CleanupProjectResourceService;
+import io.metersphere.system.service.CleanupProjectResourceService;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;

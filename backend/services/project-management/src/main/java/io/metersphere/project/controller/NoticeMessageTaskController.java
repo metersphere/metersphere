@@ -3,7 +3,7 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.dto.MessageTaskDTO;
 import io.metersphere.project.service.NoticeMessageTaskService;
-import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.MessageTaskRequest;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.validation.groups.Created;

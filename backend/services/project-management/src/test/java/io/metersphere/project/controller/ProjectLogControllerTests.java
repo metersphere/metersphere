@@ -1,9 +1,9 @@
 package io.metersphere.project.controller;
 
 
-import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.log.vo.OperationLogRequest;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.log.vo.OperationLogRequest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ public class ProjectLogControllerTests extends BaseTest {
     @Order(1)
     public void testProjectUserList() throws Exception {
         String keyword = "o";
-        this.requestGetWithOkAndReturn(PROJECT_USER_LIST+ "/default-organization-member-test" + "?keyword=" + keyword);
+        this.requestGetWithOkAndReturn(PROJECT_USER_LIST + "/default-organization-member-test" + "?keyword=" + keyword);
     }
 
     @Test

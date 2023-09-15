@@ -1,6 +1,6 @@
 package io.metersphere.project.enums.result;
 
-import io.metersphere.sdk.controller.handler.result.IResultCode;
+import io.metersphere.sdk.exception.IResultCode;
 
 /**
  * @author guoyuqi

@@ -1,6 +1,6 @@
 package io.metersphere.bug.service;
 
-import io.metersphere.sdk.service.CleanupProjectResourceService;
+import io.metersphere.system.service.CleanupProjectResourceService;
 import io.metersphere.sdk.util.LogUtils;
 import org.springframework.stereotype.Component;
 

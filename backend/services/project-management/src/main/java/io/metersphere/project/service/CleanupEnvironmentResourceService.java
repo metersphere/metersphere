@@ -5,7 +5,7 @@ import io.metersphere.sdk.domain.ProjectParametersExample;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.mapper.ProjectParametersMapper;
-import io.metersphere.sdk.service.CleanupProjectResourceService;
+import io.metersphere.system.service.CleanupProjectResourceService;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;

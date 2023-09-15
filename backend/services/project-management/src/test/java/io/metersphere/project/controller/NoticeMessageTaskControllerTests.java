@@ -5,12 +5,12 @@ import io.metersphere.project.domain.MessageTask;
 import io.metersphere.project.domain.MessageTaskExample;
 import io.metersphere.project.dto.MessageTaskDTO;
 import io.metersphere.project.mapper.MessageTaskMapper;
-import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.MessageTaskRequest;
-import io.metersphere.sdk.notice.constants.NoticeConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
@@ -216,7 +216,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<MessageTaskDTO> messageTaskDTOList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(messageTaskDTOList));
-        Assertions.assertEquals(messageTaskDTOList.get(0).getTaskType(),NoticeConstants.TaskType.API_DEFINITION_TASK);
+        Assertions.assertEquals(messageTaskDTOList.get(0).getTaskType(), NoticeConstants.TaskType.API_DEFINITION_TASK);
     }
 
     @Test
