@@ -26,7 +26,7 @@
             <if test="keyword != null and keyword != ''">
                 and (u.name like concat('%', #{keyword}, '%') or u.email like concat('%', #{keyword}, '%'))
             </if>
-        order by u.create_time desc
+        order by u.name
         limit 100
     </select>
 
