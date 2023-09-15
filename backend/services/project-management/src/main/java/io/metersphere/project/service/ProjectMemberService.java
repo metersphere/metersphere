@@ -15,17 +15,17 @@ import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -353,7 +353,7 @@ public class ProjectMemberService {
     private boolean isUserOrRoleNotExist(String userId, String roleId) {
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andDeletedEqualTo(false);
-        return userMapper.selectByExample(example) == null || userRoleMapper.selectByPrimaryKey(roleId) == null;
+        return CollectionUtils.isEmpty(userMapper.selectByExample(example)) || userRoleMapper.selectByPrimaryKey(roleId) == null;
     }
 
     /**

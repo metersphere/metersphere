@@ -8,18 +8,18 @@ import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.*;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.request.*;
+import io.metersphere.system.uid.UUID;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -83,8 +83,8 @@ public class OrganizationService {
         if (CollectionUtils.isEmpty(organizationDTOS)) {
             return new ArrayList<>();
         }
-        List<OrganizationDTO> organizations = buildExtraInfo(organizationDTOS);
-        return buildOrgAdminInfo(organizations);
+        List<OrganizationDTO> organizations = buildOrgAdminInfo(organizationDTOS);
+        return buildExtraInfo(organizations);
     }
 
     /**
@@ -794,9 +794,6 @@ public class OrganizationService {
      * @return 组织列表
      */
     private List<OrganizationDTO> buildOrgAdminInfo(List<OrganizationDTO> organizationDTOS) {
-        if (CollectionUtils.isEmpty(organizationDTOS)) {
-            return organizationDTOS;
-        }
         organizationDTOS.forEach(organizationDTO -> {
             List<User> orgAdminList = extOrganizationMapper.getOrgAdminList(organizationDTO.getId());
             organizationDTO.setOrgAdmins(orgAdminList);

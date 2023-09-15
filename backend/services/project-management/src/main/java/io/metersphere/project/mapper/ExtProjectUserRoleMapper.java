@@ -26,9 +26,10 @@ public interface ExtProjectUserRoleMapper {
      * 根据用户组ID获取用户组成员关系
      *
      * @param roleIds 用户组ID集合
+     * @param projectId 项目ID
      * @return 用户组成员关系
      */
-    List<UserRoleRelation> getRelationByRoleIds(@Param("roleIds") List<String> roleIds);
+    List<UserRoleRelation> getRelationByRoleIds(@Param("projectId") String projectId, @Param("roleIds") List<String> roleIds);
 
     /**
      * 获取项目成员列表

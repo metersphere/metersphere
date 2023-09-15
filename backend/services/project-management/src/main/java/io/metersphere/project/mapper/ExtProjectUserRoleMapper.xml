@@ -17,7 +17,7 @@
         select urr.*
         from user_role_relation urr
         left join user u on urr.user_id = u.id
-        where u.deleted = 0 and urr.role_id in
+        where u.deleted = 0 and urr.source_id = #{projectId} and urr.role_id in
         <foreach collection="roleIds" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
