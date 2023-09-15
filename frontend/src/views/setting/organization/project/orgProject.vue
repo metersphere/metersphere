@@ -22,7 +22,7 @@
         </a-tooltip>
       </template>
       <template #creator="{ record }">
-        <MsUserAdminDiv :is-admin="record.projectCreateUserIsAdmin" :name="record.createUser" />
+        <MsUserAdminDiv :is-admin="record.orgCreateUserIsAdmin" :name="record.createUser" />
       </template>
       <template #memberCount="{ record }">
         <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="showUserDrawer(record)">{{

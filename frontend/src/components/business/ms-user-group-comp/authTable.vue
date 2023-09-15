@@ -59,6 +59,7 @@
     saveGlobalUSetting,
     saveOrgUSetting,
   } from '@/api/modules/setting/usergroup';
+  import { getAuthByUserGroup, saveProjectUGSetting } from '@/api/modules/project-management/usergroup';
   import {
     UserGroupAuthSetting,
     AuthTableItem,
@@ -266,8 +267,7 @@
           res = await getOrgUSetting(id);
         }
       } else {
-        // TODO 项目的
-        res = await getOrgUSetting(id);
+        res = await getAuthByUserGroup(id);
       }
 
       tableData.value = transformData(res);
@@ -306,7 +306,11 @@
           permissions,
         });
       } else {
-        // TODO 项目的
+        // 项目的
+        await saveProjectUGSetting({
+          userRoleId: props.current.id,
+          permissions,
+        });
       }
       Message.success(t('common.saveSuccess'));
       initData(props.current.id, props.current.internal);

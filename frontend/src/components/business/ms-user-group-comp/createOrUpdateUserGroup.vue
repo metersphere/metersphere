@@ -51,6 +51,7 @@
   import { Message } from '@arco-design/web-vue';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import { updateOrAddOrgUserGroup, updateOrAddUserGroup } from '@/api/modules/setting/usergroup';
+  import { updateOrAddProjectUserGroup } from '@/api/modules/project-management/usergroup';
   import { UserGroupItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';
   import { useAppStore } from '@/store';
@@ -114,7 +115,6 @@
         if (systemType === AuthScopeEnum.SYSTEM) {
           res = await updateOrAddUserGroup({ id: props.id, name: form.name, type: props.authScope });
         } else if (systemType === AuthScopeEnum.ORGANIZATION) {
-          debugger;
           // 组织用户组
           res = await updateOrAddOrgUserGroup({
             id: props.id,
@@ -123,7 +123,8 @@
             scopeId: appStore.currentOrgId,
           });
         } else {
-          res = await updateOrAddUserGroup({ id: props.id, name: form.name, type: props.authScope });
+          // 项目用户组 项目用户组只有创建
+          res = await updateOrAddProjectUserGroup({ name: form.name });
         }
         if (res) {
           Message.success(
