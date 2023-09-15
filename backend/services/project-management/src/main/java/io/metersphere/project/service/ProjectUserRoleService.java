@@ -56,7 +56,7 @@ public class ProjectUserRoleService extends BaseUserRoleService {
             return new ArrayList<>();
         }
         List<String> roleIds = roles.stream().map(ProjectUserRoleDTO::getId).toList();
-        List<UserRoleRelation> relations = extProjectUserRoleMapper.getRelationByRoleIds(roleIds);
+        List<UserRoleRelation> relations = extProjectUserRoleMapper.getRelationByRoleIds(request.getProjectId(), roleIds);
         if (CollectionUtils.isNotEmpty(relations)) {
             Map<String, Long> countMap = relations.stream().collect(Collectors.groupingBy(UserRoleRelation::getRoleId, Collectors.counting()));
             roles.forEach(role -> {
@@ -139,9 +139,6 @@ public class ProjectUserRoleService extends BaseUserRoleService {
 
     public List<PermissionDefinitionItem> getPermissionSetting(String id) {
         UserRole userRole = get(id);
-        if (userRole == null) {
-            throw new MSException(Translator.get("user_role_not_exist"));
-        }
         checkProjectUserRole(userRole);
         return getPermissionSetting(userRole);
     }

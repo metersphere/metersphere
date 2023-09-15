@@ -1,15 +1,15 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.ProjectDTO;
-import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.OrganizationDTO;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.request.OrganizationMemberRequest;
 import io.metersphere.system.request.OrganizationRequest;
 import io.metersphere.system.request.ProjectRequest;
@@ -184,9 +184,9 @@ public class SystemOrganizationControllerTests extends BaseTest{
         String sortData = sortResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
-        // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
+        // 返回值中取出第一条ID最大的数据, 并判断是否是admin
         UserExtend userExtend1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), UserExtend.class).get(0);
-        Assertions.assertTrue(StringUtils.contains(userExtend1.getId(), "default-admin"));
+        Assertions.assertTrue(StringUtils.contains(userExtend1.getId(), "admin"));
         // 权限校验
         requestPostPermissionsTest(List.of(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ),
                 ORGANIZATION_LIST_MEMBER, organizationRequest);
