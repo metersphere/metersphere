@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class UserRoleService {
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(sourceId);
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
-        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(userRoleRelations)) {
+        if (CollectionUtils.isNotEmpty(userRoleRelations)) {
             Map<String, List<String>> userRoleMap = userRoleRelations.stream().collect(Collectors.groupingBy(UserRoleRelation::getUserId,
                     Collectors.mapping(UserRoleRelation::getRoleId, Collectors.toList())));
             userRoleMap.forEach((k, v) -> {
@@ -61,7 +62,7 @@ public class UserRoleService {
             // 设置用户信息, 用户不存在或者已删除, 则不展示
             List<String> userIds = userExtends.stream().map(UserExtend::getId).toList();
             List<User> users = extUserMapper.getRoleUserByParam(userIds, keyword);
-            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(users)) {
+            if (CollectionUtils.isNotEmpty(users)) {
                 Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
                 userExtends.removeIf(userExtend -> {
                     if (userMap.containsKey(userExtend.getId())) {
@@ -74,6 +75,8 @@ public class UserRoleService {
                 userExtends.clear();
             }
         }
+
+        userExtends.sort(Comparator.comparing(UserExtend::getName));
         return userExtends;
     }
 }
