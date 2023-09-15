@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -13,14 +14,15 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
-import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
 import io.metersphere.system.service.OrganizationUserRoleLogService;
 import io.metersphere.system.service.OrganizationUserRoleService;
+import io.metersphere.system.service.UserRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -40,6 +42,8 @@ public class OrganizationUserRoleController {
 
     @Resource
     OrganizationUserRoleService organizationUserRoleService;
+    @Resource
+    UserRoleService userRoleService;
 
     @GetMapping("/list/{organizationId}")
     @Operation(summary = "系统设置-组织-用户组-获取用户组列表")
@@ -98,8 +102,15 @@ public class OrganizationUserRoleController {
     @GetMapping("/get-member/option/{organizationId}/{roleId}")
     @Operation(summary = "系统设置-组织-用户组-获取成员下拉选项")
     @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_USER_ROLE_READ})
-    public List<UserExtend> getMember(@PathVariable String organizationId, @PathVariable String roleId) {
-        return organizationUserRoleService.getMember(organizationId, roleId);
+    @Parameters({
+            @Parameter(name = "organizationId", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
+            @Parameter(name = "roleId", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    })
+    public List<UserExtend> getMember(@PathVariable String organizationId,
+                                      @PathVariable String roleId,
+                                      @Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                      @RequestParam(required = false) String keyword) {
+        return userRoleService.getMember(organizationId, roleId, keyword);
     }
 
     @PostMapping("/list-member")

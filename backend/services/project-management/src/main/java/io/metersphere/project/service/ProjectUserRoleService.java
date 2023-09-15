@@ -8,20 +8,20 @@ import io.metersphere.project.request.ProjectUserRoleRequest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
-import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.service.BaseUserRoleService;
-import io.metersphere.system.uid.UUID;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.*;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.service.BaseUserRoleService;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,47 +98,6 @@ public class ProjectUserRoleService extends BaseUserRoleService {
         // 非项目用户组不允许删除, 内置用户组不允许删除
         checkProjectUserRole(userRole);
         super.delete(userRole, InternalUserRole.PROJECT_MEMBER.getValue(), currentUserId, userRole.getScopeId());
-    }
-
-    public List<UserExtend> getMember(String projectId, String roleId) {
-        List<UserExtend> userExtends = new ArrayList<>();
-        // 查询项目下所有用户关系
-        UserRoleRelationExample example = new UserRoleRelationExample();
-        example.createCriteria().andSourceIdEqualTo(projectId);
-        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(userRoleRelations)) {
-            Map<String, List<String>> userRoleMap = userRoleRelations.stream().collect(Collectors.groupingBy(UserRoleRelation::getUserId,
-                    Collectors.mapping(UserRoleRelation::getRoleId, Collectors.toList())));
-            userRoleMap.forEach((k, v) -> {
-                UserExtend userExtend = new UserExtend();
-                userExtend.setId(k);
-                v.forEach(roleItem -> {
-                    if (StringUtils.equals(roleItem, roleId)) {
-                        // 该用户已存在用户组关系, 设置为选中状态
-                        userExtend.setCheckRoleFlag(true);
-                    }
-                });
-                userExtends.add(userExtend);
-            });
-            // 设置用户信息, 用户不存在或者已删除, 则不展示
-            List<String> userIds = userExtends.stream().map(UserExtend::getId).toList();
-            UserExample userExample = new UserExample();
-            userExample.createCriteria().andIdIn(userIds).andDeletedEqualTo(false);
-            List<User> users = userMapper.selectByExample(userExample);
-            if (CollectionUtils.isNotEmpty(users)) {
-                Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
-                userExtends.removeIf(userExtend -> {
-                    if (userMap.containsKey(userExtend.getId())) {
-                        BeanUtils.copyBean(userExtend, userMap.get(userExtend.getId()));
-                        return false;
-                    }
-                    return true;
-                });
-            } else {
-                userExtends.clear();
-            }
-        }
-        return userExtends;
     }
 
     public List<User> listMember(ProjectUserRoleMemberRequest request) {
