@@ -6,7 +6,7 @@
     @press-enter="enterData"
     @search="searchData"
   />
-  <div v-if="showSystem" class="mt-2">
+  <div v-if="showSystem" class="mt-2 w-[252px]">
     <CreateUserGroupPopup
       :list="systemUserGroupList"
       :visible="systemUserGroupVisible"
@@ -84,7 +84,7 @@
       </div>
     </Transition>
   </div>
-  <div v-if="showOrg" class="mt-2">
+  <div v-if="showOrg" class="mt-2 w-[252px]">
     <CreateUserGroupPopup
       :list="orgUserGroupList"
       :visible="orgUserGroupVisible"
@@ -162,7 +162,7 @@
       </div>
     </Transition>
   </div>
-  <div v-if="showProject" class="mt-2">
+  <div v-if="showProject" class="mt-2 w-[252px]">
     <CreateUserGroupPopup
       :list="projectUserGroupList"
       :visible="projectUserGroupVisible"

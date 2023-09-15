@@ -1,5 +1,5 @@
 <template>
-  <MsCard simple>
+  <MsCard auto-height simple>
     <div class="flex flex-row">
       <div class="user-group-left" :style="{ padding: leftCollapse ? '24px 24px 24px 0' : 0 }">
         <UserGroupLeft v-if="leftCollapse" @on-select="handleSelect" />
@@ -149,9 +149,10 @@
 <style lang="scss" scoped>
   .user-group-left {
     position: relative;
+    overflow-y: scroll;
     width: 300px;
     height: calc(100vh - 125px);
-    border-right: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border-1);
     .usergroup-collapse {
       position: absolute;
       top: 50%;
@@ -162,8 +163,8 @@
       align-items: center;
       width: 16px;
       height: 36px;
-      background-color: var(--color-text-n8);
-      opacity: 0;
+      background-color: var(--color-text-8);
+      opacity: 1;
       cursor: pointer;
       &:hover {
         opacity: 1;
