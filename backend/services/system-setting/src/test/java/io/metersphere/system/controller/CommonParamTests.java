@@ -1,6 +1,6 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.BasePageRequestDefinition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;

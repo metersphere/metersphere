@@ -37,7 +37,7 @@
                     <choose>
                         <when test="key == 'roleIds'">
                             and urr.role_id in
-                            <include refid="io.metersphere.sdk.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>
                 </if>

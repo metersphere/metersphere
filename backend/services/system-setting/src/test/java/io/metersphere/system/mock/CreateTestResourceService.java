@@ -1,6 +1,6 @@
 package io.metersphere.system.mock;
 
-import io.metersphere.sdk.service.CreateProjectResourceService;
+import io.metersphere.system.service.CreateProjectResourceService;
 import io.metersphere.sdk.util.LogUtils;
 import org.springframework.stereotype.Component;
 

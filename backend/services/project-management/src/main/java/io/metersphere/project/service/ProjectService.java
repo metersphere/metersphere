@@ -10,7 +10,7 @@ import io.metersphere.sdk.dto.ProjectExtendDTO;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.service.BaseUserService;
+import io.metersphere.system.service.BaseUserService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SessionUtils;

@@ -3,7 +3,6 @@ package io.metersphere.system.service;
 import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.dto.CustomFieldDTO;
 import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
-import io.metersphere.sdk.service.BaseCustomFieldService;
 import io.metersphere.system.domain.CustomField;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;

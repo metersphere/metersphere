@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -15,9 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import io.metersphere.sdk.uid.UUID;
-
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -68,33 +66,33 @@ public class BugControllerTest {
         bug.setSourceId(UUID.randomUUID().toString());
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/bug/add")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(bug))
-                        .contentType(MediaType.APPLICATION_JSON))
+                        MockMvcRequestBuilders.post("/bug/add")
+                                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                                .content(JSON.toJSONString(bug))
+                                .contentType(MediaType.APPLICATION_JSON))
                 // 检查状态
                 .andExpect(status().isOk())
                 // 检查响应头
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 // 检查数据
                 .andExpect(jsonPath("$.data.title").value("test"))
-                ;
+        ;
 
         // 缺陷已存在校验
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/bug/add")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(bug))
-                        .contentType(MediaType.APPLICATION_JSON))
+                        MockMvcRequestBuilders.post("/bug/add")
+                                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                                .content(JSON.toJSONString(bug))
+                                .contentType(MediaType.APPLICATION_JSON))
                 // 检查失败状态码
                 .andExpect(status().is5xxServerError())
                 // 检查响应头
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 // 检查业务状态码
                 .andExpect(jsonPath("$.code").value(108001))
-                ;
+        ;
     }
 
     @Test

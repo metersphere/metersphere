@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import io.metersphere.sdk.uid.UUID;
+import io.metersphere.system.uid.UUID;
 
 @Service
 @Transactional

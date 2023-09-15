@@ -1,6 +1,7 @@
 package io.metersphere.bug.controller.result;
 
-import io.metersphere.sdk.controller.handler.result.IResultCode;
+
+import io.metersphere.sdk.exception.IResultCode;
 
 public enum BugMgtResultCode implements IResultCode {
 

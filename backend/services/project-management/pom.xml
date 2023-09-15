@@ -21,7 +21,7 @@
 
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-sdk</artifactId>
+            <artifactId>metersphere-system-setting</artifactId>
             <version>${revision}</version>
             <classifier>tests</classifier>
             <type>test-jar</type>

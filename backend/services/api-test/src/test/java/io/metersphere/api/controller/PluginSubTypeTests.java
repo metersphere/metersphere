@@ -4,12 +4,12 @@ import io.metersphere.api.dto.jmeter.processors.MSJSR223Processor;
 import io.metersphere.api.dto.jmeter.sampler.MSDebugSampler;
 import io.metersphere.api.util.JSONUtils;
 import io.metersphere.plugin.api.dto.TestElementDTO;
+import io.metersphere.system.uid.UUID;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.LinkedList;
-import io.metersphere.sdk.uid.UUID;
 
 
 @SpringBootTest

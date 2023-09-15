@@ -1,6 +1,6 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.invoker.ProjectServiceInvoker;
+import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.mock.CleanupTestResourceService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;

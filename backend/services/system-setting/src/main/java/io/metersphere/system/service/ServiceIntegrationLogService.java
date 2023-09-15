@@ -2,9 +2,8 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
-import io.metersphere.sdk.log.constants.OperationLogModule;
-import io.metersphere.sdk.log.constants.OperationLogType;
-import io.metersphere.sdk.service.BasePluginService;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.request.ServiceIntegrationUpdateRequest;

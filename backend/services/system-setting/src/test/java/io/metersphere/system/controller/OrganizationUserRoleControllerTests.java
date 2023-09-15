@@ -1,12 +1,12 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
-import io.metersphere.sdk.service.BaseUserRolePermissionService;
+import io.metersphere.system.service.BaseUserRolePermissionService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
+import static io.metersphere.system.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.NO_ORG_USER_ROLE_PERMISSION;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 

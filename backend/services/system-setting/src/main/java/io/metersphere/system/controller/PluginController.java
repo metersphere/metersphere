@@ -1,8 +1,8 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.log.annotation.Log;
-import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.Plugin;

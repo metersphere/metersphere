@@ -6,9 +6,9 @@ import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.dto.LogDTO;
-import io.metersphere.sdk.log.constants.OperationLogModule;
-import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -126,6 +126,7 @@ public class APIDefinitionLogService {
 
     /**
      * 批量更新接口日志
+     *
      * @return
      */
     public List<LogDTO> batchUpdateLog(List<String> ids) {

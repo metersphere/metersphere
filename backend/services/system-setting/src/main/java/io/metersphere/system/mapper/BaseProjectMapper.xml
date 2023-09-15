@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.BaseProjectMapper">
+    <select id="selectOne" resultType="io.metersphere.project.domain.Project">
+        SELECT *
+        FROM project
+        LIMIT 1
+    </select>
+
+    <select id="selectProjectByIdList" resultType="io.metersphere.project.domain.Project">
+        SELECT id, name
+        FROM project
+        WHERE id IN
+        <foreach collection="list" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

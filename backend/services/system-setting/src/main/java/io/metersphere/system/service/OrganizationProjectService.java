@@ -2,8 +2,8 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.log.constants.OperationLogModule;
-import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRoleRelation;

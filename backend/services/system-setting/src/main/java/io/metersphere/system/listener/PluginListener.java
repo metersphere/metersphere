@@ -3,7 +3,7 @@ package io.metersphere.system.listener;
 
 import io.metersphere.sdk.constants.KafkaPluginTopicType;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
-import io.metersphere.sdk.service.PluginLoadService;
+import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.dto.PluginNotifiedDTO;

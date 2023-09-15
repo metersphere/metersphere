@@ -5,7 +5,6 @@ import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;

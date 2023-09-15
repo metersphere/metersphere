@@ -1,15 +1,15 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.Permission;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
-import io.metersphere.sdk.log.constants.OperationLogType;
-import io.metersphere.sdk.service.BaseUserRolePermissionService;
-import io.metersphere.sdk.service.BaseUserRoleRelationService;
-import io.metersphere.sdk.uid.UUID;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.service.BaseUserRolePermissionService;
+import io.metersphere.system.service.BaseUserRoleRelationService;
+import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.controller.param.PermissionSettingUpdateRequestDefinition;
@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.sdk.constants.InternalUserRole.MEMBER;
-import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
-import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static io.metersphere.system.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
+import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_USER_ROLE_EXIST;
 import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_USER_ROLE_PERMISSION;
 

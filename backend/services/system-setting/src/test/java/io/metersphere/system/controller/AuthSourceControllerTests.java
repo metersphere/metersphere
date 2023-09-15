@@ -1,13 +1,13 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
-import io.metersphere.sdk.ldap.service.LdapService;
-import io.metersphere.sdk.ldap.vo.LdapLoginRequest;
-import io.metersphere.sdk.ldap.vo.LdapRequest;
+import io.metersphere.system.ldap.service.LdapService;
+import io.metersphere.system.ldap.vo.LdapLoginRequest;
+import io.metersphere.system.ldap.vo.LdapRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.AuthSource;

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.BaseOrganizationMapper">
+
+    <select id="selectOrganizationByIdList" resultType="io.metersphere.system.domain.Organization">
+        SELECT id, name
+        FROM organization
+        WHERE id IN
+        <foreach collection="list" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

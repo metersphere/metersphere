@@ -2,11 +2,11 @@ package io.metersphere.system.controller.user;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.base.BaseTest;
-import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.*;
-import io.metersphere.sdk.log.constants.OperationLogType;
-import io.metersphere.sdk.uid.UUID;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;

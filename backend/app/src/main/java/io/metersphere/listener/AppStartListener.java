@@ -2,7 +2,7 @@ package io.metersphere.listener;
 
 import io.metersphere.api.event.APIEventSource;
 import io.metersphere.plan.listener.ExecEventListener;
-import io.metersphere.sdk.service.PluginLoadService;
+import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;

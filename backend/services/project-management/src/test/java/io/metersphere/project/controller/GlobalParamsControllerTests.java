@@ -1,10 +1,8 @@
 package io.metersphere.project.controller;
 
-import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.VariableTypeConstants;
-import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.domain.ProjectParameters;
 import io.metersphere.sdk.domain.ProjectParametersExample;
 import io.metersphere.sdk.dto.environment.GlobalParamsDTO;
@@ -13,6 +11,8 @@ import io.metersphere.sdk.dto.environment.KeyValue;
 import io.metersphere.sdk.dto.environment.variables.CommonVariables;
 import io.metersphere.sdk.mapper.ProjectParametersMapper;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

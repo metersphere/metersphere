@@ -1,6 +1,6 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.CustomFieldType;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
@@ -8,10 +8,10 @@ import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.dto.CustomFieldDTO;
 import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.dto.request.CustomFieldUpdateRequest;
-import io.metersphere.sdk.log.constants.OperationLogType;
-import io.metersphere.sdk.service.BaseCustomFieldOptionService;
-import io.metersphere.sdk.service.BaseCustomFieldService;
-import io.metersphere.sdk.service.BaseUserService;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.service.BaseCustomFieldOptionService;
+import io.metersphere.system.service.BaseCustomFieldService;
+import io.metersphere.system.service.BaseUserService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
 import io.metersphere.system.domain.CustomField;
@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
-import static io.metersphere.sdk.controller.handler.result.CommonResultCode.*;
-import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
+import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 
 /**
  * @author jianxing

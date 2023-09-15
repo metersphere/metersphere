@@ -1,6 +1,6 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;

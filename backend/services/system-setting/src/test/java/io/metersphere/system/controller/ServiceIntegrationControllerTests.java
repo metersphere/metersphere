@@ -1,10 +1,10 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.log.constants.OperationLogType;
-import io.metersphere.sdk.service.PluginLoadService;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.param.ServiceIntegrationUpdateRequestDefinition;
 import io.metersphere.system.domain.Organization;
@@ -36,9 +36,9 @@ import java.util.List;
 import java.util.Map;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
-import static io.metersphere.sdk.controller.handler.result.CommonResultCode.PLUGIN_ENABLE;
-import static io.metersphere.sdk.controller.handler.result.CommonResultCode.PLUGIN_PERMISSION;
-import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static io.metersphere.system.controller.handler.result.CommonResultCode.PLUGIN_ENABLE;
+import static io.metersphere.system.controller.handler.result.CommonResultCode.PLUGIN_PERMISSION;
+import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.SERVICE_INTEGRATION_EXIST;
 import static io.metersphere.system.service.ServiceIntegrationService.PLUGIN_IMAGE_GET_PATH;
 import static org.mockserver.model.HttpRequest.request;

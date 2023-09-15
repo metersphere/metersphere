@@ -1,9 +1,9 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;

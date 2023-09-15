@@ -1,6 +1,5 @@
 package io.metersphere.sdk.exception;
 
-import io.metersphere.sdk.controller.handler.result.IResultCode;
 import org.apache.commons.lang3.StringUtils;
 
 public class MSException extends RuntimeException {

@@ -1,12 +1,12 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.log.constants.OperationLogType;
-import io.metersphere.sdk.service.BaseUserService;
-import io.metersphere.sdk.service.JdbcDriverPluginService;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.service.BaseUserService;
+import io.metersphere.system.service.JdbcDriverPluginService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.param.PluginUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
@@ -29,8 +29,8 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.metersphere.sdk.controller.handler.result.CommonResultCode.FILE_NAME_ILLEGAL;
-import static io.metersphere.sdk.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static io.metersphere.system.controller.handler.result.CommonResultCode.FILE_NAME_ILLEGAL;
+import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
