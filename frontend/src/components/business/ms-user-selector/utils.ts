@@ -7,6 +7,7 @@ import {
 import { getOrgUserGroupOption, getSystemUserGroupOption } from '@/api/modules/setting/usergroup';
 import { getUser, getProjectList } from '@/api/modules/setting/member';
 import { getProjectMemberOptions } from '@/api/modules/project-management/projectMember';
+import { getProjectUserGroupOptions } from '@/api/modules/project-management/usergroup';
 
 // eslint-disable-next-line no-shadow
 export enum UserRequesetTypeEnum {
@@ -22,6 +23,7 @@ export enum UserRequesetTypeEnum {
   SYSTEM_ORGANIZATION_PROJECT = 'SYSTEM_ORGANIZATION_PROJECT',
   SYSTEM_ORGANIZATION_MEMBER = 'SYSTEM_ORGANIZATION_MEMBER',
   PROJECT_PERMISSION_MEMBER = 'PROJECT_PERMISSION_MEMBER',
+  PROJECT_USER_GROUP = 'PROJECT_USER_GROUP',
 }
 export default function initOptionsFunc(type: string, params: Record<string, any>) {
   if (type === UserRequesetTypeEnum.SYSTEM_USER_GROUP) {
@@ -57,7 +59,11 @@ export default function initOptionsFunc(type: string, params: Record<string, any
     return getUser(params.organizationId, params.keyword);
   }
   if (type === UserRequesetTypeEnum.PROJECT_PERMISSION_MEMBER) {
-    // 系统-组织-项目成员
+    // 项目-项目成员
     return getProjectMemberOptions(params.projectId, params.keyword);
+  }
+  if (type === UserRequesetTypeEnum.PROJECT_USER_GROUP) {
+    // 项目-用户组
+    return getProjectUserGroupOptions(params.projectId, params.userRoleId, params.keyword);
   }
 }

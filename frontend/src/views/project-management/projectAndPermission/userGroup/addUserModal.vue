@@ -17,9 +17,9 @@
         >
           <MsUserSelector
             v-model:value="form.name"
-            :type="UserRequesetTypeEnum.ORGANIZATION_PROJECT"
-            :load-option-params="{ organizationId: currentOrgId, projectId: props.projectId }"
-            disabled-key="memberFlag"
+            :type="UserRequesetTypeEnum.PROJECT_USER_GROUP"
+            :load-option-params="{ projectId: props.projectId, userRoleId: props.userRoleId }"
+            disabled-key="checkRoleFlag"
           />
         </a-form-item>
       </a-form>
@@ -37,21 +37,18 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect, onUnmounted, computed } from 'vue';
-  import { addProjectMemberByOrg } from '@/api/modules/setting/organizationAndProject';
+  import { reactive, ref, watchEffect, onUnmounted } from 'vue';
+  import { addUserToUserGroup } from '@/api/modules/project-management/usergroup';
   import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
   import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
-  import { useAppStore } from '@/store';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
-    projectId?: string;
+    projectId: string;
+    userRoleId: string;
   }>();
-  const appStore = useAppStore();
-
-  const currentOrgId = computed(() => appStore.currentOrgId);
 
   const emit = defineEmits<{
     (e: 'cancel', shouldSearch: boolean): void;
@@ -80,10 +77,10 @@
       if (errors) {
         loading.value = false;
       }
-      const { projectId } = props;
+      const { projectId, userRoleId } = props;
       try {
         loading.value = true;
-        await addProjectMemberByOrg({ userIds: form.name, projectId });
+        await addUserToUserGroup({ userIds: form.name, projectId, userRoleId });
         Message.success(t('system.organization.addSuccess'));
         handleCancel(true);
       } catch (error) {

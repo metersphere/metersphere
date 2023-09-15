@@ -42,18 +42,18 @@
   </a-drawer>
   <AddUserModal
     :project-id="props.projectId"
-    :organization-id="props.organizationId"
+    :user-role-id="props.userRoleId"
     :visible="userVisible"
     @cancel="handleHideUserModal"
   />
 </template>
 
 <script lang="ts" setup>
-  import { postProjectMemberByProjectId, deleteProjectMemberByOrg } from '@/api/modules/setting/organizationAndProject';
+  import { postUserByUserGroup, deleteUserFromUserGroup } from '@/api/modules/project-management/usergroup';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { useI18n } from '@/hooks/useI18n';
-  import { watch, ref } from 'vue';
+  import { ref, watchEffect } from 'vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import AddUserModal from './addUserModal.vue';
   import { TableData, Message } from '@arco-design/web-vue';
@@ -61,8 +61,8 @@
 
   export interface projectDrawerProps {
     visible: boolean;
-    organizationId?: string;
-    projectId?: string;
+    userRoleId: string;
+    projectId: string;
   }
   const { t } = useI18n();
   const props = defineProps<projectDrawerProps>();
@@ -98,7 +98,7 @@
     { title: 'system.organization.operation', slotName: 'operation' },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postProjectMemberByProjectId, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserByUserGroup, {
     heightUsed: 240,
     columns: projectColumn,
     scroll: { x: '100%' },
@@ -134,34 +134,26 @@
 
   const handleRemove = async (record: TableData) => {
     try {
-      if (props.projectId) {
-        await deleteProjectMemberByOrg(props.projectId, record.id);
+      const { projectId, userRoleId } = props;
+      if (projectId && userRoleId) {
+        await deleteUserFromUserGroup({ projectId, userRoleId, userIds: [record.id] });
       }
       Message.success(t('common.removeSuccess'));
       fetchData();
+      emit('requestFetchData');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);
     }
   };
-  watch(
-    () => props.projectId,
-    () => {
-      setLoadListParams({ projectId: props.projectId });
+  watchEffect(() => {
+    currentVisible.value = props.visible;
+  });
+  watchEffect(() => {
+    const { projectId, userRoleId } = props;
+    if (projectId && userRoleId) {
+      setLoadListParams({ projectId, userRoleId });
       fetchData();
     }
-  );
-  watch(
-    () => props.visible,
-    (visible) => {
-      currentVisible.value = visible;
-    }
-  );
+  });
 </script>
-
-<style lang="less" scoped>
-  :deep(.custom-height) {
-    height: 100vh !important;
-    border: 1px solid red;
-  }
-</style>

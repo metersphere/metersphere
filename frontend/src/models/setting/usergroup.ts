@@ -48,6 +48,8 @@ export interface CurrentUserGroupItem {
   type: AuthScopeEnum;
   // 是否是内置用户组
   internal: boolean;
+  // 组ID
+  scopeId?: string;
 }
 
 export interface SystemUserGroupParams {

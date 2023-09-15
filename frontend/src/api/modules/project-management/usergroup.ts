@@ -5,12 +5,12 @@ import {
   UserGroupItem,
   SystemUserGroupParams,
   UserGroupAuthSetting,
-  SaveGlobalUSettingData,
   UserTableItem,
+  SaveGlobalUSettingData,
 } from '@/models/setting/usergroup';
 
 // 项目-创建或修改用户组
-export function updateOrAddUserGroup(data: SystemUserGroupParams) {
+export function updateOrAddProjectUserGroup(data: SystemUserGroupParams) {
   return MSR.post<UserGroupItem>({
     url: data.id ? ugUrl.updateUrl : ugUrl.addUrl,
     data,
@@ -27,22 +27,14 @@ export function deleteUserGroup(id: string) {
   return MSR.get<string>({ url: `${ugUrl.deleteUrl}${id}` });
 }
 
-// 项目-获取需要关联的用户选项
-export function getUserGroupOption(organizationId: string, roleId: string, keyword: string) {
-  return MSR.get<UserTableItem[]>({
-    url: `${ugUrl.getMemberOptionsUrl}${organizationId}/${roleId}`,
-    params: { keyword },
-  });
-}
-
 // 项目-编辑用户组对应的权限配置
-export function saveUSetting(data: SaveGlobalUSettingData) {
+export function saveProjectUGSetting(data: SaveGlobalUSettingData) {
   return MSR.post<UserGroupAuthSetting[]>({ url: ugUrl.updatePermissionUrl, data });
 }
 
 // 项目-获取用户组对应的权限
-export function postAuthByUserGroup(data: TableQueryParams) {
-  return MSR.post<CommonList<UserTableItem[]>>({ url: ugUrl.listPermissionUrl, data });
+export function getAuthByUserGroup(id: string) {
+  return MSR.get<UserGroupAuthSetting[]>({ url: ugUrl.listPermissionUrl + id });
 }
 
 // 项目-获取用户组对应的用户列表
@@ -51,11 +43,19 @@ export function postUserByUserGroup(data: TableQueryParams) {
 }
 
 // 项目-删除用户组对应的用户
-export function deleteUserFromUserGroup(data: { userRoleId: string; userIds: string[]; organizationId: string }) {
+export function deleteUserFromUserGroup(data: { projectId: string; userRoleId: string; userIds: string[] }) {
   return MSR.post<CommonList<UserTableItem[]>>({ url: ugUrl.removeMemberUrl, data });
 }
 
+// 项目-获取需要关联的用户选项
+export function getProjectUserGroupOptions(projectId: string, userRoleId: string, keyword: string) {
+  return MSR.get<UserTableItem[]>({
+    url: `${ugUrl.getMemberOptionsUrl}${projectId}/${userRoleId}`,
+    params: { keyword },
+  });
+}
+
 // 项目-添加用户到用户组
-export function addUserToUserGroup(data: { userRoleId: string; userIds: string[]; organizationId: string }) {
+export function addUserToUserGroup(data: { projectId: string; userRoleId: string; userIds: string[] }) {
   return MSR.post<string>({ url: ugUrl.addMemberUrl, data });
 }
