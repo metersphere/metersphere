@@ -4,9 +4,9 @@ import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.system.dto.IdNameStructureDTO;
 import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.request.OrgMemberExtendProjectRequest;
 import io.metersphere.system.request.OrganizationMemberExtendRequest;
@@ -336,11 +336,11 @@ public class OrganizationControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<IdNameStructureDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), IdNameStructureDTO.class);
+        List<OptionDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(projectList));
-        List<String> ids = projectList.stream().map(IdNameStructureDTO::getId).toList();
+        List<String> ids = projectList.stream().map(OptionDTO::getId).toList();
         Assertions.assertTrue(ids.contains("sys_org_projectId"));
-        List<String> names = projectList.stream().map(IdNameStructureDTO::getName).toList();
+        List<String> names = projectList.stream().map(OptionDTO::getName).toList();
         Assertions.assertTrue(names.contains("sys_org_projectId"));
     }
 
@@ -355,7 +355,7 @@ public class OrganizationControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<IdNameStructureDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), IdNameStructureDTO.class);
+        List<OptionDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
         Assertions.assertTrue(CollectionUtils.isEmpty(projectList));
 
     }
@@ -383,11 +383,11 @@ public class OrganizationControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<IdNameStructureDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), IdNameStructureDTO.class);
+        List<OptionDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(projectList));
-        List<String> ids = projectList.stream().map(IdNameStructureDTO::getId).toList();
+        List<String> ids = projectList.stream().map(OptionDTO::getId).toList();
         Assertions.assertTrue(ids.contains("sys_default_org_role_id_3"));
-        List<String> names = projectList.stream().map(IdNameStructureDTO::getName).toList();
+        List<String> names = projectList.stream().map(OptionDTO::getName).toList();
         Assertions.assertTrue(names.contains("sys_default_org_role_id_3"));
     }
 
@@ -402,12 +402,12 @@ public class OrganizationControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<IdNameStructureDTO> userRoleList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), IdNameStructureDTO.class);
+        List<OptionDTO> userRoleList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(userRoleList));
-        List<String> ids = userRoleList.stream().map(IdNameStructureDTO::getId).toList();
+        List<String> ids = userRoleList.stream().map(OptionDTO::getId).toList();
         Assertions.assertTrue(ids.contains("org_admin"));
         Assertions.assertTrue(ids.contains("org_member"));
-        List<String> names = userRoleList.stream().map(IdNameStructureDTO::getName).toList();
+        List<String> names = userRoleList.stream().map(OptionDTO::getName).toList();
         Assertions.assertTrue(names.contains("组织管理员"));
         Assertions.assertTrue(names.contains("组织成员"));
 
@@ -437,11 +437,11 @@ public class OrganizationControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<IdNameStructureDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), IdNameStructureDTO.class);
+        List<OptionDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(projectList));
-        List<String> ids = projectList.stream().map(IdNameStructureDTO::getId).toList();
+        List<String> ids = projectList.stream().map(OptionDTO::getId).toList();
         Assertions.assertTrue(ids.contains("sys_default_user5"));
-        List<String> names = projectList.stream().map(IdNameStructureDTO::getName).toList();
+        List<String> names = projectList.stream().map(OptionDTO::getName).toList();
         Assertions.assertTrue(names.contains("testUserFive"));
     }
 
@@ -456,7 +456,7 @@ public class OrganizationControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<IdNameStructureDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), IdNameStructureDTO.class);
+        List<OptionDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(projectList));
 
     }
@@ -502,25 +502,25 @@ public class OrganizationControllerTests extends BaseTest {
         }
         if (compare) {
             Assertions.assertNotNull(orgUserExtend.getUserRoleIdNameMap());
-            List<String> userRoleIds = orgUserExtend.getUserRoleIdNameMap().stream().map(IdNameStructureDTO::getId).toList();
+            List<String> userRoleIds = orgUserExtend.getUserRoleIdNameMap().stream().map(OptionDTO::getId).toList();
             Assertions.assertTrue(userRoleIds.contains(userRoleId));
 
             if (StringUtils.isNotBlank(projectId)) {
                 Assertions.assertNotNull(orgUserExtend.getProjectIdNameMap());
-                List<String> projectIds = orgUserExtend.getProjectIdNameMap().stream().map(IdNameStructureDTO::getId).toList();
+                List<String> projectIds = orgUserExtend.getProjectIdNameMap().stream().map(OptionDTO::getId).toList();
                 Assertions.assertTrue(projectIds.contains(projectId));
-                List<String> projectNames = orgUserExtend.getProjectIdNameMap().stream().map(IdNameStructureDTO::getName).toList();
+                List<String> projectNames = orgUserExtend.getProjectIdNameMap().stream().map(OptionDTO::getName).toList();
                 Assertions.assertTrue(projectNames.contains(projectId));
             }
         }
         if (checkPart) {
             Assertions.assertNotNull(orgUserExtend.getUserRoleIdNameMap());
-            List<String> userRoleIds = orgUserExtend.getUserRoleIdNameMap().stream().map(IdNameStructureDTO::getId).toList();
+            List<String> userRoleIds = orgUserExtend.getUserRoleIdNameMap().stream().map(OptionDTO::getId).toList();
             Assertions.assertFalse(userRoleIds.contains(noUserRoleId));
 
             if (StringUtils.isNotBlank(noProjectId)) {
                 Assertions.assertNotNull(orgUserExtend.getProjectIdNameMap());
-                List<String> projectIds = orgUserExtend.getProjectIdNameMap().stream().map(IdNameStructureDTO::getId).toList();
+                List<String> projectIds = orgUserExtend.getProjectIdNameMap().stream().map(OptionDTO::getId).toList();
                 Assertions.assertFalse(projectIds.contains(noProjectId));
             }
 

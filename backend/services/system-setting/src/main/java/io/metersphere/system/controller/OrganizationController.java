@@ -3,13 +3,13 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
-import io.metersphere.system.dto.IdNameDisabledDTO;
-import io.metersphere.system.dto.IdNameStructureDTO;
+import io.metersphere.system.dto.OptionDisabledDTO;
 import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.request.*;
 import io.metersphere.system.service.OrganizationService;
@@ -90,21 +90,21 @@ public class OrganizationController {
     @GetMapping("/project/list/{organizationId}")
     @Operation(summary = "系统设置-组织-成员-获取当前组织下的所有项目")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
-    public List<IdNameStructureDTO> getProjectList(@PathVariable(value = "organizationId") String organizationId, @Schema(description = "查询关键字，根据项目名查询", requiredMode = Schema.RequiredMode.REQUIRED) @RequestParam(value = "keyword", required = false) String keyword) {
+    public List<OptionDTO> getProjectList(@PathVariable(value = "organizationId") String organizationId, @Schema(description = "查询关键字，根据项目名查询", requiredMode = Schema.RequiredMode.REQUIRED) @RequestParam(value = "keyword", required = false) String keyword) {
         return organizationService.getProjectList(organizationId, keyword);
     }
 
     @GetMapping("/user/role/list/{organizationId}")
     @Operation(summary = "系统设置-组织-成员-获取当前组织下的所有自定义用户组以及组织级别的用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_READ)
-    public List<IdNameStructureDTO> getUserRoleList(@PathVariable(value = "organizationId") String organizationId) {
+    public List<OptionDTO> getUserRoleList(@PathVariable(value = "organizationId") String organizationId) {
         return organizationService.getUserRoleList(organizationId);
     }
 
     @GetMapping("/not-exist/user/list/{organizationId}")
     @Operation(summary = "系统设置-组织-成员-获取不在当前组织的所有用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
-    public List<IdNameDisabledDTO> getUserList(@PathVariable(value = "organizationId") String organizationId, @Schema(description = "查询关键字，根据用户名查询", requiredMode = Schema.RequiredMode.REQUIRED)
+    public List<OptionDisabledDTO> getUserList(@PathVariable(value = "organizationId") String organizationId, @Schema(description = "查询关键字，根据用户名查询", requiredMode = Schema.RequiredMode.REQUIRED)
     @RequestParam(value = "keyword", required = false) String keyword) {
         return organizationService.getUserList(organizationId, keyword);
     }

@@ -98,7 +98,7 @@
         group by temp.id
     </select>
 
-    <select id="selectListMemberByOrg" resultType="io.metersphere.system.dto.IdNameDisabledDTO">
+    <select id="selectListMemberByOrg" resultType="io.metersphere.system.dto.OptionDisabledDTO">
         select id, name
         from user
         where deleted = 0

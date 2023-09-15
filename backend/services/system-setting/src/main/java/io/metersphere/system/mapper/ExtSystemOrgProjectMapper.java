@@ -1,6 +1,6 @@
 package io.metersphere.system.mapper;
 
-import io.metersphere.system.dto.IdNameStructureDTO;
+import io.metersphere.sdk.dto.OptionDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -14,5 +14,5 @@ public interface ExtSystemOrgProjectMapper {
      * @param keyword 组织项目列表请求参数
      * @return 组织项目列表数据
      */
-    List<IdNameStructureDTO> selectListProjectByOrg(@Param("organizationId") String organizationId, @Param("keyword") String keyword);
+    List<OptionDTO> selectListProjectByOrg(@Param("organizationId") String organizationId, @Param("keyword") String keyword);
 }
