@@ -312,7 +312,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         userIds.add("project-message-user-del");
         messageTaskRequest.setReceiverIds(userIds);
         messageTaskRequest.setRobotId("test_message_robot2");
-        messageTaskRequest.setEnable(true);
+        messageTaskRequest.setEnable(false);
         messageTaskRequest.setTemplate("发送消息测试");
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -338,7 +338,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         userIds.add("FOLLOW_PEOPLE");
         messageTaskRequest.setReceiverIds(userIds);
         messageTaskRequest.setRobotId("test_message_robot2");
-        messageTaskRequest.setEnable(null);
+        messageTaskRequest.setEnable(false);
         messageTaskRequest.setTemplate("发送消息测试");
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)

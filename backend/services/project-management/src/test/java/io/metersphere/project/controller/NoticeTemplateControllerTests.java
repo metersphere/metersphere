@@ -51,4 +51,17 @@ public class NoticeTemplateControllerTests extends BaseTest {
             Assertions.assertTrue(CollectionUtils.isNotEmpty(projectList));
         }
     }
+    @Test
+    @Order(2)
+    public void getTemplateFieldsEmptySuccess() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/template/get/fields/default" )
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<OptionDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
+        Assertions.assertTrue(CollectionUtils.isEmpty(projectList));
+    }
 }
