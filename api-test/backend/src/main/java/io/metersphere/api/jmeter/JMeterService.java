@@ -11,10 +11,7 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.config.KafkaConfig;
 import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.ApiFileUtil;
-import io.metersphere.commons.utils.GenerateHashTreeUtil;
-import io.metersphere.commons.utils.HashTreeUtil;
-import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.*;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.dto.*;
 import io.metersphere.engine.Engine;
@@ -56,6 +53,8 @@ public class JMeterService {
     private ApiPoolDebugService apiPoolDebugService;
     @Resource
     private PluginService pluginService;
+    @Resource
+    private ResourcePoolCalculation resourcePoolCalculation;
 
     @PostConstruct
     private void init() {
@@ -106,6 +105,7 @@ public class JMeterService {
                 if (request.getHashTree() != null) {
                     this.fileProcessing(request);
                 }
+                request.setCorePoolSize(resourcePoolCalculation.k8sMaxCoreSize(request.getPoolId()));
                 LoggerUtil.info("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行", request.getReportId());
                 final Engine engine = EngineFactory.createApiEngine(request);
                 engine.start();
