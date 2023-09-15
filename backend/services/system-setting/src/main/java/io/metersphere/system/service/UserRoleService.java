@@ -1,23 +1,31 @@
 package io.metersphere.system.service;
 
-import io.metersphere.system.domain.UserRole;
-import io.metersphere.system.domain.UserRoleExample;
-import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.domain.*;
+import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class UserRoleService {
     @Resource
+    private ExtUserMapper extUserMapper;
+    @Resource
     private UserRoleMapper userRoleMapper;
+    @Resource
+    private UserRoleRelationMapper userRoleRelationMapper;
 
     public List<UserRole> selectByUserRoleRelations(List<UserRoleRelation> userRoleRelations) {
         if (CollectionUtils.isNotEmpty(userRoleRelations)) {
@@ -28,5 +36,44 @@ public class UserRoleService {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    public List<UserExtend> getMember(String sourceId, String roleId, String keyword) {
+        List<UserExtend> userExtends = new ArrayList<>();
+        // 查询组织或项目下所有用户关系
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andSourceIdEqualTo(sourceId);
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(userRoleRelations)) {
+            Map<String, List<String>> userRoleMap = userRoleRelations.stream().collect(Collectors.groupingBy(UserRoleRelation::getUserId,
+                    Collectors.mapping(UserRoleRelation::getRoleId, Collectors.toList())));
+            userRoleMap.forEach((k, v) -> {
+                UserExtend userExtend = new UserExtend();
+                userExtend.setId(k);
+                v.forEach(roleItem -> {
+                    if (StringUtils.equals(roleItem, roleId)) {
+                        // 该用户已存在用户组关系, 设置为选中状态
+                        userExtend.setCheckRoleFlag(true);
+                    }
+                });
+                userExtends.add(userExtend);
+            });
+            // 设置用户信息, 用户不存在或者已删除, 则不展示
+            List<String> userIds = userExtends.stream().map(UserExtend::getId).toList();
+            List<User> users = extUserMapper.getRoleUserByParam(userIds, keyword);
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(users)) {
+                Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
+                userExtends.removeIf(userExtend -> {
+                    if (userMap.containsKey(userExtend.getId())) {
+                        BeanUtils.copyBean(userExtend, userMap.get(userExtend.getId()));
+                        return false;
+                    }
+                    return true;
+                });
+            } else {
+                userExtends.clear();
+            }
+        }
+        return userExtends;
     }
 }

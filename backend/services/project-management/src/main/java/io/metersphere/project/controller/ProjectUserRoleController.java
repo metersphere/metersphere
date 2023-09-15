@@ -21,6 +21,7 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.service.UserRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -40,6 +41,9 @@ public class ProjectUserRoleController {
 
     @Resource
     ProjectUserRoleService projectUserRoleService;
+    @Resource
+    UserRoleService userRoleService;
+
 
     @PostMapping("/list")
     @Operation(summary = "项目管理-项目与权限-用户组-获取用户组列表")
@@ -97,13 +101,16 @@ public class ProjectUserRoleController {
 
     @GetMapping("/get-member/option/{projectId}/{roleId}")
     @Operation(summary = "项目管理-项目与权限-用户组-获取成员下拉选项")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_GROUP_READ})
     @Parameters({
             @Parameter(name = "projectId", description = "当前项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
             @Parameter(name = "roleId", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     })
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_GROUP_READ})
-    public List<UserExtend> getMember(@PathVariable String projectId, @PathVariable String roleId) {
-        return projectUserRoleService.getMember(projectId, roleId);
+    public List<UserExtend> getMember(@PathVariable String projectId,
+                                      @PathVariable String roleId,
+                                      @Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                      @RequestParam(required = false) String keyword) {
+        return userRoleService.getMember(projectId, roleId, keyword);
     }
 
     @PostMapping("/list-member")

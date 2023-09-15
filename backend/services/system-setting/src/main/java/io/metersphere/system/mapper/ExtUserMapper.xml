@@ -45,5 +45,15 @@
         limit 100
     </select>
 
-
+    <select id="getRoleUserByParam" resultType="io.metersphere.system.domain.User">
+        select * from user
+        where deleted = 0 and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        <if test="keyword != null and keyword != ''">
+            and (name like concat('%', #{keyword}, '%') or email like concat('%', #{keyword}, '%'))
+        </if>
+        limit 100
+    </select>
 </mapper>
