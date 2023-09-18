@@ -10,7 +10,7 @@
             ur.name like concat('%', #{request.keyword}, '%')
             )
         </if>
-        order by ur.create_time desc
+        order by ur.create_time
     </select>
 
     <select id="getRelationByRoleIds" resultType="io.metersphere.system.domain.UserRoleRelation">
