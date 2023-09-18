@@ -177,6 +177,30 @@
           {
             "id": "PROJECT_APPLICATION_API:UPDATE",
             "name": "permission.project_application_api.update"
+          },
+          {
+            "id": "PROJECT_APPLICATION_CASE:READ",
+            "name": "permission.project_application_case.read"
+          },
+          {
+            "id": "PROJECT_APPLICATION_CASE:UPDATE",
+            "name": "permission.project_application_case.update"
+          },
+          {
+            "id": "PROJECT_APPLICATION_ISSUE:READ",
+            "name": "permission.project_application_issue.read"
+          },
+          {
+            "id": "PROJECT_APPLICATION_ISSUE:UPDATE",
+            "name": "permission.project_application_issue.update"
+          },
+          {
+            "id": "PROJECT_APPLICATION_WORKSTATION:READ",
+            "name": "permission.project_application_workstation.reda"
+          },
+          {
+            "id": "PROJECT_APPLICATION_WORKSTATION:UPDATE",
+            "name": "permission.project_application_workstation.update"
           }
         ]
       },
