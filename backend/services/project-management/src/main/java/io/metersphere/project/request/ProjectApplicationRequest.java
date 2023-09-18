@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * @author wx
@@ -18,11 +17,11 @@ import java.util.List;
 public class ProjectApplicationRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description =  "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_application.project_id.not_blank}")
     private String projectId;
 
-    @Schema(description =  "配置类型列表", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "配置类型列表", allowableValues = {"WORKSTATION", "TEST_PLAN", "UI", "PERFORMANCE_TEST", "API", "CASE", "ISSUE"}, requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{project_application.type.not_blank}")
-    private List<String> types;
+    private String type;
 }
