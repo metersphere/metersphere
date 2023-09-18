@@ -1,6 +1,6 @@
 <template>
-  <div class="flex h-full flex-col overflow-auto px-[24px] py-[24px]">
-    <div class="sticky top-0 z-[999] w-[252px] bg-white">
+  <div class="flex h-full flex-col overflow-y-auto px-[24px] pb-[24px]">
+    <div class="sticky top-0 z-[999] w-[252px] bg-white pt-[24px]">
       <a-input-search
         :placeholder="t('system.userGroup.searchHolder')"
         allow-clear
