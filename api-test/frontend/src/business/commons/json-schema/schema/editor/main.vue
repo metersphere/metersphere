@@ -62,6 +62,7 @@
       </el-col>
       <el-col v-if="showColumns('MIX_LENGTH')" class="item kv-select ms-col-name" style="width: 150px; padding: 0 5px">
         <el-input-number
+          v-if="pickValue.type !== 'integer'"
           :min="0"
           :controls="false"
           v-model="pickValue.minLength"
@@ -75,14 +76,45 @@
             pickValue.type === 'null'
           "
           style="width: 140px" />
+        <el-input-number
+          v-else
+          :min="0"
+          :controls="false"
+          v-model="pickValue.minimum"
+          :placeholder="$t('schema.minimum')"
+          size="small"
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
+          style="width: 140px" />
       </el-col>
 
       <el-col v-if="showColumns('MAX_LENGTH')" class="item kv-select ms-col-name" style="width: 150px; padding: 0 5px">
         <el-input-number
+          v-if="pickValue.type !== 'integer'"
           :min="0"
           :controls="false"
           v-model="pickValue.maxLength"
           :placeholder="$t('schema.maxLength')"
+          size="small"
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
+          style="width: 140px" />
+        <el-input-number
+          v-else
+          :min="0"
+          :controls="false"
+          v-model="pickValue.maximum"
+          :placeholder="$t('schema.maximum')"
           size="small"
           :disabled="
             disabled ||
@@ -290,6 +322,7 @@ import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import CustomInput from '../custom-input/index';
 import CustomTextarea from '../custom-textarea/index';
+import {pick} from "mockjs/src/mock/random/helper";
 
 export default {
   name: 'JsonSchemaEditor',
@@ -435,6 +468,7 @@ export default {
     },
   },
   methods: {
+    pick,
     showColumns(columns) {
       if (!this.paramColumns) {
         return false;
