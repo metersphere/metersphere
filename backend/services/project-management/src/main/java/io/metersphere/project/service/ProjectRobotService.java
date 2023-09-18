@@ -1,10 +1,12 @@
 package io.metersphere.project.service;
 
+import io.metersphere.project.domain.MessageTaskExample;
 import io.metersphere.project.domain.ProjectRobot;
 import io.metersphere.project.domain.ProjectRobotExample;
 import io.metersphere.project.dto.ProjectRobotDTO;
 import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.enums.ProjectRobotType;
+import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
 import io.metersphere.project.request.ProjectRobotRequest;
 import io.metersphere.sdk.exception.MSException;
@@ -25,6 +27,9 @@ public class ProjectRobotService {
 
     @Resource
     private ProjectRobotMapper robotMapper;
+
+    @Resource
+    private MessageTaskMapper messageTaskMapper;
 
     public void add(ProjectRobot projectRobot) {
         projectRobot.setId(UUID.randomUUID().toString());
@@ -63,9 +68,11 @@ public class ProjectRobotService {
         return projectRobotInDB;
     }
 
-
     public void delete(String id) {
         checkRobotExist(id);
+        MessageTaskExample messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria().andProjectRobotIdEqualTo(id);
+        messageTaskMapper.deleteByExample(messageTaskExample);
         robotMapper.deleteByPrimaryKey(id);
     }
 
@@ -104,7 +111,6 @@ public class ProjectRobotService {
 
         return robotMapper.selectByExample(projectExample);
     }
-
 
     public ProjectRobotDTO getDetail(String robotId) {
         ProjectRobot projectRobotInDB = checkRobotExist(robotId);

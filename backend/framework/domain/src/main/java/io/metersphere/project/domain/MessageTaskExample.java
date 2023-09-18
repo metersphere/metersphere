@@ -913,6 +913,196 @@ public class MessageTaskExample {
             addCriterion("update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }
+
+        public Criteria andUseDefaultTemplateIsNull() {
+            addCriterion("use_default_template is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateIsNotNull() {
+            addCriterion("use_default_template is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateEqualTo(Boolean value) {
+            addCriterion("use_default_template =", value, "useDefaultTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateNotEqualTo(Boolean value) {
+            addCriterion("use_default_template <>", value, "useDefaultTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateGreaterThan(Boolean value) {
+            addCriterion("use_default_template >", value, "useDefaultTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("use_default_template >=", value, "useDefaultTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateLessThan(Boolean value) {
+            addCriterion("use_default_template <", value, "useDefaultTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateLessThanOrEqualTo(Boolean value) {
+            addCriterion("use_default_template <=", value, "useDefaultTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateIn(List<Boolean> values) {
+            addCriterion("use_default_template in", values, "useDefaultTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateNotIn(List<Boolean> values) {
+            addCriterion("use_default_template not in", values, "useDefaultTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateBetween(Boolean value1, Boolean value2) {
+            addCriterion("use_default_template between", value1, value2, "useDefaultTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultTemplateNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("use_default_template not between", value1, value2, "useDefaultTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectIsNull() {
+            addCriterion("use_default_subject is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectIsNotNull() {
+            addCriterion("use_default_subject is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectEqualTo(Boolean value) {
+            addCriterion("use_default_subject =", value, "useDefaultSubject");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectNotEqualTo(Boolean value) {
+            addCriterion("use_default_subject <>", value, "useDefaultSubject");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectGreaterThan(Boolean value) {
+            addCriterion("use_default_subject >", value, "useDefaultSubject");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("use_default_subject >=", value, "useDefaultSubject");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectLessThan(Boolean value) {
+            addCriterion("use_default_subject <", value, "useDefaultSubject");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectLessThanOrEqualTo(Boolean value) {
+            addCriterion("use_default_subject <=", value, "useDefaultSubject");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectIn(List<Boolean> values) {
+            addCriterion("use_default_subject in", values, "useDefaultSubject");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectNotIn(List<Boolean> values) {
+            addCriterion("use_default_subject not in", values, "useDefaultSubject");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectBetween(Boolean value1, Boolean value2) {
+            addCriterion("use_default_subject between", value1, value2, "useDefaultSubject");
+            return (Criteria) this;
+        }
+
+        public Criteria andUseDefaultSubjectNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("use_default_subject not between", value1, value2, "useDefaultSubject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectIsNull() {
+            addCriterion("subject is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectIsNotNull() {
+            addCriterion("subject is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectEqualTo(String value) {
+            addCriterion("subject =", value, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectNotEqualTo(String value) {
+            addCriterion("subject <>", value, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectGreaterThan(String value) {
+            addCriterion("subject >", value, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectGreaterThanOrEqualTo(String value) {
+            addCriterion("subject >=", value, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectLessThan(String value) {
+            addCriterion("subject <", value, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectLessThanOrEqualTo(String value) {
+            addCriterion("subject <=", value, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectLike(String value) {
+            addCriterion("subject like", value, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectNotLike(String value) {
+            addCriterion("subject not like", value, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectIn(List<String> values) {
+            addCriterion("subject in", values, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectNotIn(List<String> values) {
+            addCriterion("subject not in", values, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectBetween(String value1, String value2) {
+            addCriterion("subject between", value1, value2, "subject");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubjectNotBetween(String value1, String value2) {
+            addCriterion("subject not between", value1, value2, "subject");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

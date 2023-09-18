@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import io.metersphere.system.notice.NoticeModel;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -39,17 +38,15 @@ public class NoticeSendService {
 
 
     private AbstractNoticeSender getNoticeSender(MessageDetail messageDetail) {
-        AbstractNoticeSender noticeSender = null;
+        AbstractNoticeSender noticeSender;
         switch (messageDetail.getType()) {
             case NoticeConstants.Type.MAIL -> noticeSender = mailNoticeSender;
             case NoticeConstants.Type.WECOM_ROBOT -> noticeSender = weComNoticeSender;
             case NoticeConstants.Type.DING_CUSTOM_ROBOT -> noticeSender = dingCustomNoticeSender;
             case NoticeConstants.Type.DING_ENTERPRISE_ROBOT -> noticeSender = dingEnterPriseNoticeSender;
             case NoticeConstants.Type.LARK_ROBOT -> noticeSender = larkNoticeSender;
-            case NoticeConstants.Type.IN_SITE -> noticeSender = inSiteNoticeSender;
             case NoticeConstants.Type.CUSTOM_WEBHOOK_ROBOT -> noticeSender = webhookNoticeSender;
-            default -> {
-            }
+            default -> noticeSender = inSiteNoticeSender;
         }
 
         return noticeSender;
@@ -85,13 +82,11 @@ public class NoticeSendService {
         // api和定时任务调用不排除自己
         noticeModel.setExcludeSelf(false);
         try {
-            List<MessageDetail> messageDetails = new ArrayList<>();
+            List<MessageDetail> messageDetails;
 
             if (StringUtils.equals(triggerMode, NoticeConstants.Mode.SCHEDULE)) {
                 messageDetails = messageDetailService.searchMessageByTestId(noticeModel.getTestId());
-            }
-
-            if (StringUtils.equals(triggerMode, NoticeConstants.Mode.API)) {
+            } else {
                 String projectId = (String) noticeModel.getParamMap().get("projectId");
                 messageDetails = messageDetailService.searchMessageByTypeAndProjectId(NoticeConstants.TaskType.JENKINS_TASK, projectId);
             }
@@ -116,7 +111,7 @@ public class NoticeSendService {
     @Async
     public void send(Project project, String taskType, NoticeModel noticeModel) {
         try {
-            List<MessageDetail> messageDetails  = messageDetailService.searchMessageByTypeAndProjectId(taskType, project.getId());
+            List<MessageDetail> messageDetails = messageDetailService.searchMessageByTypeAndProjectId(taskType, project.getId());
             // 异步发送通知
             messageDetails.stream()
                     .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))

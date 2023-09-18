@@ -6,6 +6,7 @@ import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
 import io.metersphere.system.notice.MessageDetail;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,8 @@ public class MessageDetailService {
 
     /**
      * 获取唯一的消息任务
-     * @param taskType 任务类型
+     *
+     * @param taskType  任务类型
      * @param projectId 项目ID
      * @return List<MessageDetail>list
      */
@@ -45,10 +47,8 @@ public class MessageDetailService {
 
     private List<MessageDetail> getMessageDetails(String type, String projectId) {
         List<MessageDetail> messageDetails = new ArrayList<>();
-
         //根据项目id找到所有开启的消息通知任务 以及模版配置，机器人配置
         MessageTaskExample example = new MessageTaskExample();
-
         example.createCriteria()
                 .andTaskTypeEqualTo(type)
                 .andProjectIdEqualTo(projectId).andEnableEqualTo(true);
@@ -57,21 +57,19 @@ public class MessageDetailService {
         getMessageDetails(messageDetails, messageTaskLists);
         return messageDetails.stream()
                 .sorted(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed())
-                .toList()
-                .stream()
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     private void getMessageDetails(List<MessageDetail> messageDetails, List<MessageTask> messageTaskLists) {
-        List<String> messageTaskIds = messageTaskLists.stream().map(MessageTask::getId).toList();
+        List<String> messageTaskIds = messageTaskLists.stream().map(MessageTask::getId).collect(Collectors.toList());
         MessageTaskBlobExample blobExample = new MessageTaskBlobExample();
         blobExample.createCriteria()
                 .andIdIn(messageTaskIds);
         List<MessageTaskBlob> messageTaskBlobs = messageTaskBlobMapper.selectByExample(blobExample);
         Map<String, MessageTaskBlob> messageTaskBlobMap = messageTaskBlobs.stream().collect(Collectors.toMap(MessageTaskBlob::getId, item -> item));
 
-        List<String> robotIds = messageTaskLists.stream().map(MessageTask::getProjectRobotId).distinct().toList();
+        List<String> robotIds = messageTaskLists.stream().map(MessageTask::getProjectRobotId).distinct().collect(Collectors.toList());
         ProjectRobotExample projectRobotExample = new ProjectRobotExample();
         projectRobotExample.createCriteria().andIdIn(robotIds).andEnableEqualTo(true);
         List<ProjectRobot> projectRobots = projectRobotMapper.selectByExample(projectRobotExample);
@@ -105,15 +103,38 @@ public class MessageDetailService {
             if (StringUtils.isNotBlank(projectRobot.getAppSecret())) {
                 messageDetail.setAppSecret(projectRobot.getAppSecret());
             }
+            if (!messageTask.getUseDefaultSubject() && StringUtils.isNotBlank(messageTask.getSubject())) {
+                messageDetail.setSubject(messageTask.getSubject());
+            } else {
+                String subject = getSubject(messageTask.getTaskType(), messageTask.getEvent());
+                messageDetail.setSubject(subject);
+            }
+
             MessageTaskBlob messageTaskBlob = messageTaskBlobMap.get(messageTask.getId());
-            messageDetail.setTemplate(messageTaskBlob.getTemplate());
+            if (!messageTask.getUseDefaultTemplate() && StringUtils.isNotBlank(messageTaskBlob.getTemplate())) {
+                messageDetail.setTemplate(messageTaskBlob.getTemplate());
+            } else {
+                String template = getTemplate(messageTask.getTaskType(), messageTask.getEvent());
+                messageDetail.setTemplate(template);
+            }
             messageDetails.add(messageDetail);
         });
+    }
+
+    private String getTemplate(String taskType, String event) {
+        Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
+        return defaultTemplateMap.get(taskType + "_" + event);
+    }
+
+    private String getSubject(String taskType, String event) {
+        Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateTitleMap();
+        return "MeterSphere " + defaultTemplateTitleMap.get(taskType + "_" + event);
     }
 
 
     /**
      * 根据用例ID获取所有该用例的定时任务的任务通知
+     *
      * @param testId 用例id
      * @return List<MessageDetail>
      */
