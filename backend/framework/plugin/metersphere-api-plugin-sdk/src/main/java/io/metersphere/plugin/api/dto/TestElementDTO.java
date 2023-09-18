@@ -44,8 +44,13 @@ public abstract class TestElementDTO implements Serializable {
     /**
      * 预加载数据
      */
-    public void preload() throws Exception {
+    public void preload(List<TestElementDTO> children, BaseConfigDTO config) throws Exception {
         PluginLogUtils.info("TestElementDTO preload");
+        if (children != null && !children.isEmpty()) {
+            for (TestElementDTO el : children) {
+                el.preload(el.children, config);
+            }
+        }
     }
 
     /**
