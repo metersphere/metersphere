@@ -1,10 +1,12 @@
 package io.metersphere.project.controller;
 
+import com.jayway.jsonpath.JsonPath;
 import io.metersphere.project.controller.param.ProjectApplicationDefinition;
 import io.metersphere.project.controller.param.ProjectApplicationRequestDefinition;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.sdk.constants.ProjectApplicationType;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -15,18 +17,24 @@ import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SpringBootTest
@@ -45,47 +53,45 @@ public class ProjectApplicationControllerTests extends BaseTest {
     /**
      * ==========测试计划配置 start==========
      */
-    // 测试计划
     public static final String TEST_PLAN_UPDATE_URL = "/project/application/update/test-plan";
-    //获取配置
     public static final String GET_TEST_PLAN_URL = "/project/application/test-plan";
 
-    //应用配置 - 测试计划 - 清理报告配置
+    //测试计划 - 清理报告配置
     @Test
     @Order(1)
     @Sql(scripts = {"/dml/init_project_application_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testTestPlanClean() throws Exception {
         this.testGetTestPlan();
         //新增
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_CLEAN_TEST_PLAN_REPORT.name(), TIME_TYPE_VALUE);
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name()), TIME_TYPE_VALUE);
+
         this.requestPost(TEST_PLAN_UPDATE_URL, request);
         //更新
-        request.setTypeValue("4M");
+        request.get(0).setTypeValue("4M");
         this.requestPost(TEST_PLAN_UPDATE_URL, request);
         // @@异常参数校验
         updatedGroupParamValidateTest(ProjectApplicationDefinition.class, TEST_PLAN_UPDATE_URL);
 
     }
 
-    //应用管理 - 测试计划 - 分享报告配置
+    //测试计划 - 分享报告配置
     @Test
     @Order(2)
     public void testTestPlanShare() throws Exception {
         //新增
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_SHARE_TEST_PLAN_REPORT.name(), TIME_TYPE_VALUE);
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.TEST_PLAN.TEST_PLAN_SHARE_REPORT.name()), TIME_TYPE_VALUE);
         this.requestPost(TEST_PLAN_UPDATE_URL, request);
         //更新
-        request.setTypeValue("5M");
+        request.get(0).setTypeValue("5M");
         this.requestPost(TEST_PLAN_UPDATE_URL, request);
     }
 
-    //应用管理 - 测试计划 - 获取配置
+    //测试计划 - 获取配置
     @Test
     @Order(3)
     public void testGetTestPlan() throws Exception {
         //清理报告 + 分享报告
-        List<String> types = Arrays.asList(ProjectApplicationType.APPLICATION_CLEAN_TEST_PLAN_REPORT.name(), ProjectApplicationType.APPLICATION_SHARE_TEST_PLAN_REPORT.name());
-        ProjectApplicationRequest request = this.getRequest(types);
+        ProjectApplicationRequest request = this.getRequest("TEST_PLAN");
         this.requestPostWithOkAndReturn(GET_TEST_PLAN_URL, request);
         // @@异常参数校验
         updatedGroupParamValidateTest(ProjectApplicationRequestDefinition.class, GET_TEST_PLAN_URL);
@@ -98,53 +104,54 @@ public class ProjectApplicationControllerTests extends BaseTest {
     /**
      * ==========UI测试 start==========
      */
-    // UI
     public static final String UI_UPDATE_URL = "/project/application/update/ui";
-    //获取配置
     public static final String GET_UI_URL = "/project/application/ui";
-    //获取资源池
     public static final String GET_UI_RESOURCE_POOL_URL = "/project/application/ui/resource/pool";
 
-    //应用配置 - UI测试 - 清理报告配置
+    //UI测试 - 清理报告配置
     @Test
     @Order(4)
     public void testUiClean() throws Exception {
         //新增
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_CLEAN_UI_REPORT.name(), TIME_TYPE_VALUE);
-        this.requestPost(UI_UPDATE_URL, request);
-        //更新
-        request.setTypeValue("4M");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.UI.UI_CLEAN_REPORT.name()), TIME_TYPE_VALUE);
         this.requestPost(UI_UPDATE_URL, request);
         // @@异常参数校验
         updatedGroupParamValidateTest(ProjectApplicationDefinition.class, UI_UPDATE_URL);
 
     }
 
-    //应用管理 - UI测试 - 分享报告配置
+    //UI测试 - 分享报告配置
     @Test
     @Order(5)
     public void testUiShare() throws Exception {
         //新增
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_SHARE_UI_REPORT.name(), TIME_TYPE_VALUE);
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.UI.UI_SHARE_REPORT.name()), TIME_TYPE_VALUE);
         this.requestPost(UI_UPDATE_URL, request);
         //更新
-        request.setTypeValue("5M");
+        request.get(0).setTypeValue("5M");
         this.requestPost(UI_UPDATE_URL, request);
     }
 
-    //应用管理 - UI测试 - 获取配置
+    //UI测试 - 执行资源池
+    @Test
+    @Order(5)
+    public void testUiResourcePool() throws Exception {
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.UI.UI_RESOURCE_POOL.name()), "local");
+        this.requestPost(UI_UPDATE_URL, request);
+    }
+
+    //UI测试 - 获取配置
     @Test
     @Order(6)
     public void testGetUi() throws Exception {
         //清理报告 + 分享报告
-        List<String> types = Arrays.asList(ProjectApplicationType.APPLICATION_CLEAN_UI_REPORT.name(), ProjectApplicationType.APPLICATION_SHARE_UI_REPORT.name());
-        ProjectApplicationRequest request = this.getRequest(types);
+        ProjectApplicationRequest request = this.getRequest("UI");
         this.requestPostWithOkAndReturn(GET_UI_URL, request);
         // @@异常参数校验
         updatedGroupParamValidateTest(ProjectApplicationRequestDefinition.class, GET_UI_URL);
     }
 
-    //应用管理 - UI测试 - 获取资源池
+    //UI测试 - 获取资源池
     @Test
     @Order(6)
     public void testGetUiResourcePool() throws Exception {
@@ -158,62 +165,58 @@ public class ProjectApplicationControllerTests extends BaseTest {
     /**
      * ==========性能测试 start==========
      */
-    // 性能测试
     public static final String PERFORMANCE_UPDATE_URL = "/project/application/update/performance-test";
-    //获取配置
     public static final String GET_PERFORMANCE_URL = "/project/application/performance-test";
-    //获取脚本审核人
     public static final String GET_USER_URL = "/project/application/performance-test/user";
 
-    //应用配置 - 性能测试 - 清理报告配置
+    //性能测试 - 清理报告配置
     @Test
     @Order(7)
     public void testPerformanceClean() throws Exception {
         //新增
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_CLEAN_PERFORMANCE_TEST_REPORT.name(), TIME_TYPE_VALUE);
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_CLEAN_REPORT.name()), TIME_TYPE_VALUE);
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
         //更新
-        request.setTypeValue("4M");
+        request.get(0).setTypeValue("4M");
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
         // @@异常参数校验
         updatedGroupParamValidateTest(ProjectApplicationDefinition.class, PERFORMANCE_UPDATE_URL);
 
     }
 
-    //应用管理 - 性能测试 - 分享报告配置
+    //性能测试 - 分享报告配置
     @Test
     @Order(8)
     public void testPerformanceShare() throws Exception {
         //新增
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_SHARE_PERFORMANCE_TEST_REPORT.name(), TIME_TYPE_VALUE);
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_SHARE_REPORT.name()), TIME_TYPE_VALUE);
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
         //更新
-        request.setTypeValue("5M");
+        request.get(0).setTypeValue("5M");
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
     }
 
-    //应用管理 - 性能测试 - 脚本审核
+    //性能测试 - 脚本审核
     @Test
     @Order(9)
     public void testPerformanceReviewer() throws Exception {
         //新增
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_PERFORMANCE_TEST_SCRIPT_REVIEWER.name(), "admin");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_SCRIPT_REVIEWER.name()), "admin");
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
     }
 
-    //应用管理 - 性能测试 - 获取配置
+    //性能测试 - 获取配置
     @Test
     @Order(10)
     public void testGetPerformance() throws Exception {
         //清理报告 + 分享报告
-        List<String> types = Arrays.asList(ProjectApplicationType.APPLICATION_CLEAN_PERFORMANCE_TEST_REPORT.name(), ProjectApplicationType.APPLICATION_SHARE_PERFORMANCE_TEST_REPORT.name(), ProjectApplicationType.APPLICATION_PERFORMANCE_TEST_SCRIPT_REVIEWER.name());
-        ProjectApplicationRequest request = this.getRequest(types);
+        ProjectApplicationRequest request = this.getRequest("PERFORMANCE_TEST");
         this.requestPostWithOkAndReturn(GET_PERFORMANCE_URL, request);
         // @@异常参数校验
         updatedGroupParamValidateTest(ProjectApplicationRequestDefinition.class, GET_PERFORMANCE_URL);
     }
 
-    //应用管理 - 性能测试 - 获取项目成员
+    //性能测试 - 获取项目成员
     @Test
     @Order(11)
     public void testGetUser() throws Exception {
@@ -227,84 +230,77 @@ public class ProjectApplicationControllerTests extends BaseTest {
     /**
      * ==========接口测试 start==========
      */
-    // 接口测试
     public static final String API_UPDATE_URL = "/project/application/update/api";
-    //获取配置
     public static final String GET_API_URL = "/project/application/api";
-    //获取脚本审核人
     public static final String GET_API_USER_URL = "/project/application/api/user";
-    //获取资源池
     public static final String GET_API_RESOURCE_POOL_URL = "/project/application/api/resource/pool";
 
-    //应用配置 - 接口测试 - URL可重复
+    //接口测试 - URL可重复
     @Test
     @Order(12)
     public void testUrlRepeatable() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_API_URL_REPEATABLE.name(), "true");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_URL_REPEATABLE.name()), "true");
         this.requestPost(API_UPDATE_URL, request);
 
     }
 
-    //应用配置 - 接口测试 - 清理报告配置
+    //接口测试 - 清理报告配置
     @Test
     @Order(13)
     public void testApiClean() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_CLEAN_API_REPORT.name(), TIME_TYPE_VALUE);
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_CLEAN_REPORT.name()), TIME_TYPE_VALUE);
         this.requestPost(API_UPDATE_URL, request);
     }
 
-    //应用管理 - 接口测试 - 分享报告配置
+    //接口测试 - 分享报告配置
     @Test
     @Order(14)
     public void testApiShare() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_SHARE_API_REPORT.name(), TIME_TYPE_VALUE);
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_SHARE_REPORT.name()), TIME_TYPE_VALUE);
         this.requestPost(API_UPDATE_URL, request);
     }
 
-    //应用管理 - 接口测试 - 执行资源池
+    //接口测试 - 执行资源池
     @Test
     @Order(15)
     public void testApiResourcePool() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_API_RESOURCE_POOL.name(), "local");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_RESOURCE_POOL.name()), "local");
         this.requestPost(API_UPDATE_URL, request);
     }
 
-    //应用管理 - 接口测试 - 脚本审核
+    //接口测试 - 脚本审核
     @Test
     @Order(16)
     public void testApiReviewer() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_API_SCRIPT_REVIEWER.name(), "admin");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_SCRIPT_REVIEWER.name()), "admin");
         this.requestPost(API_UPDATE_URL, request);
     }
 
-    //应用管理 - 接口测试 - 自定义误报规则
+    //接口测试 - 自定义误报规则
     @Test
     @Order(17)
     public void testApiErrorReportRule() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_API_ERROR_REPORT_RULE.name(), "true");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_ERROR_REPORT_RULE.name()), "true");
         this.requestPost(API_UPDATE_URL, request);
     }
 
-    //应用管理 - 接口测试 - 接口变更同步case
+    //接口测试 - 接口变更同步case
     @Test
     @Order(18)
     public void testApiSyncCase() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_API_SYNC_CASE.name(), "true");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_SYNC_CASE.name()), "true");
         this.requestPost(API_UPDATE_URL, request);
     }
 
-    //应用管理 - 接口测试 - 获取配置
+    //接口测试 - 获取配置
     @Test
     @Order(19)
     public void testGetApi() throws Exception {
-        List<String> types = Arrays.asList(ProjectApplicationType.APPLICATION_API_URL_REPEATABLE.name(), ProjectApplicationType.APPLICATION_CLEAN_API_REPORT.name(), ProjectApplicationType.APPLICATION_SHARE_API_REPORT.name(),
-                ProjectApplicationType.APPLICATION_API_RESOURCE_POOL.name(), ProjectApplicationType.APPLICATION_API_SCRIPT_REVIEWER.name(), ProjectApplicationType.APPLICATION_API_ERROR_REPORT_RULE.name(),
-                ProjectApplicationType.APPLICATION_API_SYNC_CASE.name());
-        ProjectApplicationRequest request = this.getRequest(types);
+        ProjectApplicationRequest request = this.getRequest("API");
         this.requestPostWithOkAndReturn(GET_API_URL, request);
     }
 
-    //应用管理 - 接口测试 - 获取项目成员
+    //接口测试 - 获取项目成员
     @Test
     @Order(20)
     public void testGetApiUser() throws Exception {
@@ -312,7 +308,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     }
 
 
-    //应用管理 - 接口测试 - 获取资源池
+    //接口测试 - 获取资源池
     @Test
     @Order(21)
     public void testGetApiResourcePool() throws Exception {
@@ -332,32 +328,31 @@ public class ProjectApplicationControllerTests extends BaseTest {
 
     public static final String GET_PLATFORM_INFO_URL = "/project/application/case/platform/info";
 
-    //应用配置 - 用例管理 - 公共用例库
+    //用例管理 - 公共用例库
     @Test
     @Order(22)
     public void testCasePublic() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_CASE_PUBLIC.name(), "true");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.CASE.CASE_PUBLIC.name()), "true");
         this.requestPost(CASE_UPDATE_URL, request);
     }
 
-    //应用配置 - 用例管理 - 重新提审
+    //用例管理 - 重新提审
     @Test
     @Order(23)
     public void testReview() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.APPLICATION_RE_REVIEW.name(), "true");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.CASE.CASE_RE_REVIEW.name()), "true");
         this.requestPost(CASE_UPDATE_URL, request);
     }
 
-    //应用管理 - 用例管理 - 获取配置
+    //用例管理 - 获取配置
     @Test
     @Order(24)
     public void testGetCase() throws Exception {
-        List<String> types = Arrays.asList(ProjectApplicationType.APPLICATION_CASE_PUBLIC.name(), ProjectApplicationType.APPLICATION_RE_REVIEW.name());
-        ProjectApplicationRequest request = this.getRequest(types);
+        ProjectApplicationRequest request = this.getRequest("CASE");
         this.requestPostWithOkAndReturn(GET_CASE_URL, request);
     }
 
-    //应用管理 - 用例管理 - 获取平台下拉列表
+    //用例管理 - 获取平台下拉列表
     @Test
     @Order(25)
     public void testGetPlatform() throws Exception {
@@ -371,7 +366,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     }
 
 
-    //应用管理 - 用例管理 - 获取平台信息
+    //用例管理 - 获取平台信息
     @Test
     @Order(26)
     public void testGetPlatformInfo() throws Exception {
@@ -385,8 +380,140 @@ public class ProjectApplicationControllerTests extends BaseTest {
     }
 
     /**
-     * ==========用例管理 start==========
+     * ==========用例管理 end==========
      */
+
+
+    /**
+     * ==========工作台 start==========
+     */
+    public static final String WORKSTATION_UPDATE_URL = "/project/application/update/workstation";
+    public static final String GET_WORKSTATION_URL = "/project/application/workstation";
+
+    //工作台
+    @Test
+    @Order(27)
+    public void testWorkstation() throws Exception {
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.WORKSTATION.WORKSTATION.name()), "true");
+        this.requestPost(WORKSTATION_UPDATE_URL, request);
+    }
+
+    @Test
+    @Order(28)
+    public void testGetWorkstation() throws Exception {
+        ProjectApplicationRequest request = this.getRequest("WORKSTATION");
+        this.requestPostWithOkAndReturn(GET_WORKSTATION_URL, request);
+    }
+    /**
+     * ==========工作台 end==========
+     */
+
+
+    /**
+     * ==========缺陷管理 start==========
+     */
+    public static final String ISSUE_UPDATE_URL = "/project/application/update/issue";
+    public static final String GET_ISSUE_URL = "/project/application/issue";
+    public static final String GET_ISSUE_PLATFORM_URL = "/project/application/issue/platform";
+
+    public static final String GET_ISSUE_PLATFORM_INFO_URL = "/project/application/issue/platform/info";
+
+    //工作台
+    @Test
+    @Order(29)
+    public void testIssue() throws Exception {
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.ISSUE.ISSUE_SYNC.name()), "true");
+        this.requestPost(ISSUE_UPDATE_URL, request);
+    }
+
+    @Test
+    @Order(30)
+    public void testGetIssue() throws Exception {
+        ProjectApplicationRequest request = this.getRequest("ISSUE");
+        this.requestPostWithOkAndReturn(GET_ISSUE_URL, request);
+    }
+
+    //缺陷管理 - 获取平台下拉列表
+    @Test
+    @Order(31)
+    public void testGetIssuePlatform() throws Exception {
+        this.requestGetWithOkAndReturn(GET_ISSUE_PLATFORM_URL + "/100002");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_ISSUE_PLATFORM_URL + "/100001");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    //缺陷管理 - 获取平台信息
+    @Test
+    @Order(32)
+    public void testGetIssuePlatformInfo() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_ISSUE_PLATFORM_INFO_URL + "/" + plugin.getId());
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    /**
+     * ==========缺陷管理 end==========
+     */
+
+
+    /**
+     * 全部
+     *
+     * @return
+     * @throws Exception
+     */
+    public static final String GET_ALL_URL = "/project/application/all";
+
+    @Test
+    @Order(33)
+    public void testGetAll() throws Exception {
+        this.loginTest();
+        this.requestGetTest();
+        this.requestGetWithOkAndReturn(GET_ALL_URL + "/" + PROJECT_ID);
+        this.adminlogin();
+        this.requestGetWithOkAndReturn(GET_ALL_URL + "/" + PROJECT_ID);
+
+    }
+
+    private void adminlogin() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
+        csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
+    }
+
+    private void requestGetTest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(GET_ALL_URL + "/" + PROJECT_ID)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+
+    public void loginTest() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .content("{\"username\":\"wx-test\",\"password\":\"metersphere\"}")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
+        csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
+    }
+
 
     public Plugin addPlugin() throws Exception {
         PluginUpdateRequest request = new PluginUpdateRequest();
@@ -404,19 +531,23 @@ public class ProjectApplicationControllerTests extends BaseTest {
     }
 
 
-    private ProjectApplicationRequest getRequest(List<String> types) {
+    private ProjectApplicationRequest getRequest(String type) {
         ProjectApplicationRequest request = new ProjectApplicationRequest();
         request.setProjectId(PROJECT_ID);
-        request.setTypes(types);
+        request.setType(type);
         return request;
     }
 
-    private ProjectApplication creatRequest(String type, String typeValue) {
-        ProjectApplication projectApplication = new ProjectApplication();
-        projectApplication.setProjectId(PROJECT_ID);
-        projectApplication.setType(type);
-        projectApplication.setTypeValue(typeValue);
-        return projectApplication;
+    private List<ProjectApplication> creatRequest(List<String> type, String typeValue) {
+        List<ProjectApplication> list = new ArrayList<>();
+        type.forEach(t -> {
+            ProjectApplication projectApplication = new ProjectApplication();
+            projectApplication.setProjectId(PROJECT_ID);
+            projectApplication.setType(t);
+            projectApplication.setTypeValue(typeValue);
+            list.add(projectApplication);
+        });
+        return list;
     }
 
 }
