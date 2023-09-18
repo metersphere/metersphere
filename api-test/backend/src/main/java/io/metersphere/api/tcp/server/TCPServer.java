@@ -10,10 +10,10 @@ import java.net.Socket;
  * @Date 2021/8/11 10:35 上午
  */
 public class TCPServer implements Runnable {
-    private int port;
+    private final int port;
     private ServerSocket serverSocket;
 
-    private TCPService servicer;
+    private TCPService server;
 
     public TCPServer(int port) {
         this.port = port;
@@ -22,30 +22,23 @@ public class TCPServer implements Runnable {
     public void openSocket() throws Exception {
         this.serverSocket = new ServerSocket(this.port);
 
-        while (true) {
+        do {
             if (!this.serverSocket.isClosed()) {
                 Socket socket = this.serverSocket.accept();
-                servicer = new TCPService(socket, port);
-                servicer.run();
+                server = new TCPService(socket, port);
+                server.run();
             }
-            if (this.serverSocket.isClosed()) {
-                break;
-            }
-        }
+        } while (!this.serverSocket.isClosed());
     }
 
     public boolean isSocketOpen() {
-        if (this.serverSocket != null && !this.serverSocket.isClosed()) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.serverSocket != null && !this.serverSocket.isClosed();
     }
 
     public void closeSocket() throws Exception {
         if (this.serverSocket != null && !this.serverSocket.isClosed()) {
-            if (servicer != null) {
-                servicer.close();
+            if (server != null) {
+                server.close();
             }
             this.serverSocket.close();
         }

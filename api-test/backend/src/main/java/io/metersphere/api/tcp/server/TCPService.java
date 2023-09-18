@@ -9,30 +9,51 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.mock.MockApiUtils;
 import io.metersphere.service.MockConfigService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.protocol.tcp.sampler.ReadException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class TCPService {
-    private Socket s;
-    private InputStream is;
-    private OutputStream os;
-    private int port;
+    private final Socket socket;
+    private final int port;
 
-    public TCPService(Socket s, int port) {
-        this.s = s;
+    public TCPService(Socket socket, int port) {
+        this.socket = socket;
         this.port = port;
     }
 
-    public void run() {
-        byte[] b = new byte[1024];
-        try {
-            is = s.getInputStream();
-            os = s.getOutputStream();
-            int len = is.read(b);
-            String message = new String(b, 0, len);
+    public String read(InputStream is) throws ReadException {
+        try (ByteArrayOutputStream w = new ByteArrayOutputStream()) {
+            final int size = 1024;
+            byte[] buffer = new byte[size];
+            while (true) {
+                try {
+                    int x = is.read(buffer);
+                    if (x < size) {
+                        w.write(buffer, 0, x);
+                        break;
+                    }
+                    w.write(buffer, 0, x);
+                } catch (IOException e) {
+                    break;
+                }
+            }
+            return w.toString(StandardCharsets.UTF_8);
+        } catch (UnsupportedEncodingException e) {
+            throw new ReadException("Error decoding bytes from server with " + StandardCharsets.UTF_8 + ", bytes read: ",
+                    e, "<Read bytes with bad encoding>");
+        } catch (IOException e) {
+            throw new ReadException("Error reading from server, bytes read: ", e, StringUtils.EMPTY);
+        }
+    }
+
+    public void run() throws IOException {
+        try (InputStream is = socket.getInputStream();
+             OutputStream os = socket.getOutputStream()) {
+            String message = this.read(is);
             TCPMockReturnDTO returnDTO = this.getReturnMsg(message);
 
             if (StringUtils.isNotEmpty(returnDTO.getEncode())) {
@@ -106,25 +127,9 @@ public class TCPService {
         return returnDTO;
     }
 
-    public void close() {
-        //关闭资源
-        try {
-            is.close();
-        } catch (Exception e) {
-            LogUtil.error(e);
-        } finally {
-            try {
-                os.close();
-            } catch (Exception e) {
-                LogUtil.error(e);
-            } finally {
-                try {
-                    s.close();
-                } catch (Exception e) {
-                    LogUtil.error(e);
-                }
-            }
+    public void close() throws IOException {
+        if (socket != null) {
+            socket.close();
         }
     }
-
 }

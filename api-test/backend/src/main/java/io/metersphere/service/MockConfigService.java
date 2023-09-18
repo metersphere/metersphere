@@ -1084,7 +1084,7 @@ public class MockConfigService {
             builder.parse(new InputSource(new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8))));
             isXml = true;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return isXml;
     }
