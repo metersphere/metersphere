@@ -42,6 +42,11 @@ public abstract class TestElementDTO implements Serializable {
     private LinkedList<TestElementDTO> children;
 
     /**
+     * 预加载数据
+     */
+    public abstract void preload() throws Exception;
+
+    /**
      * 自组件重新这个方法
      */
     public void toHashTree(HashTree tree, List<TestElementDTO> children, BaseConfigDTO config) {
