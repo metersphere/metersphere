@@ -10,9 +10,14 @@ import io.metersphere.project.mapper.MessageTaskBlobMapper;
 import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
+import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.MessageTaskRequest;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
@@ -270,5 +275,27 @@ public class NoticeMessageTaskService {
             list.add(messageTaskDTO);
         });
         return list;
+    }
+
+    /**
+     * 添加接口日志
+     *
+     * @param messageTaskRequest 消息配置参数
+     * @return LogDTO
+     */
+    public LogDTO addLog(MessageTaskRequest messageTaskRequest) {
+        LogDTO dto = new LogDTO(
+                messageTaskRequest.getProjectId(),
+                "",
+                messageTaskRequest.getTaskType(),
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.API_DEFINITION,
+                messageTaskRequest.getTaskType());
+
+        dto.setPath("/notice/message/task/save");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(messageTaskRequest));
+        return dto;
     }
 }
