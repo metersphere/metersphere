@@ -1,5 +1,5 @@
 <template>
-  <a-drawer
+  <ms-drawer
     :mask="false"
     :width="680"
     :visible="currentVisible"
@@ -22,7 +22,7 @@
       </div>
       <ms-base-table v-bind="propsRes" v-on="propsEvent" />
     </div>
-  </a-drawer>
+  </ms-drawer>
 </template>
 
 <script lang="ts" setup>
@@ -32,6 +32,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { watch, ref } from 'vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 
   export interface projectDrawerProps {
     visible: boolean;

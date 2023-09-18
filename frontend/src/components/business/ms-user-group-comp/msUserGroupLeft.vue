@@ -1,245 +1,259 @@
 <template>
-  <a-input-search
-    class="w-[252px]"
-    :placeholder="t('system.userGroup.searchHolder')"
-    allow-clear
-    @press-enter="enterData"
-    @search="searchData"
-  />
-  <div v-if="showSystem" class="mt-2 w-[252px]">
-    <CreateUserGroupPopup
-      :list="systemUserGroupList"
-      :visible="systemUserGroupVisible"
-      :auth-scope="AuthScopeEnum.SYSTEM"
-      @cancel="systemUserGroupVisible = false"
-      @submit="handleCreateUserGroup"
-    >
-      <div class="flex items-center justify-between px-[4px] py-[7px]">
-        <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
-          <MsIcon
-            v-if="systemToggle"
-            class="cursor-pointer"
-            type="icon-icon_expand-down_filled"
-            size="12"
-            @click="systemToggle = false"
-          />
-          <MsIcon
-            v-else
-            class="cursor-pointer"
-            type="icon-icon_expand-right_filled"
-            size="12"
-            @click="systemToggle = true"
-          />
-          <div class="text-[14px]">
-            {{ t('system.userGroup.systemUserGroup') }}
+  <div class="flex h-full flex-col overflow-auto px-[24px] py-[24px]">
+    <div class="sticky top-0 z-[999] w-[252px] bg-white">
+      <a-input-search
+        :placeholder="t('system.userGroup.searchHolder')"
+        allow-clear
+        @press-enter="enterData"
+        @search="searchData"
+      />
+    </div>
+    <div v-if="showSystem" class="mt-2 w-[252px]">
+      <CreateUserGroupPopup
+        :list="systemUserGroupList"
+        :visible="systemUserGroupVisible"
+        :auth-scope="AuthScopeEnum.SYSTEM"
+        @cancel="systemUserGroupVisible = false"
+        @submit="handleCreateUserGroup"
+      >
+        <div class="flex items-center justify-between px-[4px] py-[7px]">
+          <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
+            <MsIcon
+              v-if="systemToggle"
+              class="cursor-pointer"
+              type="icon-icon_expand-down_filled"
+              size="12"
+              @click="systemToggle = false"
+            />
+            <MsIcon
+              v-else
+              class="cursor-pointer"
+              type="icon-icon_expand-right_filled"
+              size="12"
+              @click="systemToggle = true"
+            />
+            <div class="text-[14px]">
+              {{ t('system.userGroup.systemUserGroup') }}
+            </div>
+          </div>
+          <MsMoreAction :list="createSystemUGActionItem" @select="systemUserGroupVisible = true">
+            <icon-plus-circle-fill class="text-[rgb(var(--primary-7))]" size="20" />
+          </MsMoreAction>
+        </div>
+      </CreateUserGroupPopup>
+      <Transition>
+        <div v-if="systemToggle">
+          <div
+            v-for="element in systemUserGroupList"
+            :key="element.id"
+            class="flex h-[38px] cursor-pointer items-center py-[7px] pl-[20px] pr-[4px]"
+            :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
+            @click="handleListItemClick(element)"
+          >
+            <CreateUserGroupPopup
+              :list="systemUserGroupList"
+              v-bind="popVisible[element.id]"
+              @cancel="handleRenameCancel(element)"
+              @submit="handleRenameCancel(element, element.id)"
+            >
+              <div class="flex grow flex-row items-center justify-between">
+                <a-tooltip :content="element.name">
+                  <div
+                    class="one-line-text max-w-[156px] text-[var(--color-text-1)]"
+                    :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
+                    >{{ element.name }}</div
+                  >
+                </a-tooltip>
+                <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
+                  <MsMoreAction
+                    v-if="element.type === systemType"
+                    :list="addMemberActionItem"
+                    @select="handleAddMember"
+                  >
+                    <div class="icon-button">
+                      <MsIcon type="icon-icon_add_outlined" size="16" />
+                    </div>
+                  </MsMoreAction>
+                  <MsMoreAction
+                    :list="moreAction"
+                    @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.SYSTEM)"
+                  >
+                    <div class="icon-button">
+                      <MsIcon type="icon-icon_more_outlined" size="16" />
+                    </div>
+                  </MsMoreAction>
+                </div>
+              </div>
+            </CreateUserGroupPopup>
+          </div>
+          <a-divider class="my-[0px] mt-[6px]" />
+        </div>
+      </Transition>
+    </div>
+    <div v-if="showOrg" class="mt-2 w-[252px]">
+      <CreateUserGroupPopup
+        :list="orgUserGroupList"
+        :visible="orgUserGroupVisible"
+        :auth-scope="AuthScopeEnum.ORGANIZATION"
+        @cancel="orgUserGroupVisible = false"
+        @submit="handleCreateUserGroup"
+      >
+        <div class="flex items-center justify-between px-[4px] py-[7px]">
+          <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
+            <MsIcon
+              v-if="orgToggle"
+              class="cursor-pointer"
+              type="icon-icon_expand-down_filled"
+              size="12"
+              @click="orgToggle = false"
+            />
+            <MsIcon
+              v-else
+              class="cursor-pointer"
+              type="icon-icon_expand-right_filled"
+              size="12"
+              @click="orgToggle = true"
+            />
+            <div class="text-[14px]">
+              {{ t('system.userGroup.orgUserGroup') }}
+            </div>
+          </div>
+          <MsMoreAction :list="createOrgUGActionItem" @select="orgUserGroupVisible = true">
+            <icon-plus-circle-fill class="text-[rgb(var(--primary-7))]" size="20" />
+          </MsMoreAction>
+        </div>
+      </CreateUserGroupPopup>
+      <Transition>
+        <div v-if="orgToggle">
+          <div
+            v-for="element in orgUserGroupList"
+            :key="element.id"
+            class="flex h-[38px] cursor-pointer items-center py-[7px] pl-[20px] pr-[4px]"
+            :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
+            @click="handleListItemClick(element)"
+          >
+            <CreateUserGroupPopup
+              :list="orgUserGroupList"
+              v-bind="popVisible[element.id]"
+              @cancel="handleRenameCancel(element)"
+              @submit="handleRenameCancel(element, element.id)"
+            >
+              <div class="flex grow flex-row items-center justify-between">
+                <a-tooltip :content="element.name">
+                  <div
+                    class="one-line-text max-w-[156px] text-[var(--color-text-1)]"
+                    :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
+                    >{{ element.name }}</div
+                  >
+                </a-tooltip>
+                <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
+                  <MsMoreAction
+                    v-if="element.type === systemType"
+                    :list="addMemberActionItem"
+                    @select="handleAddMember"
+                  >
+                    <div class="icon-button">
+                      <MsIcon type="icon-icon_add_outlined" size="16" />
+                    </div>
+                  </MsMoreAction>
+                  <MsMoreAction
+                    :list="moreAction"
+                    @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.ORGANIZATION)"
+                  >
+                    <div class="icon-button">
+                      <MsIcon type="icon-icon_more_outlined" size="16" />
+                    </div>
+                  </MsMoreAction>
+                </div>
+              </div>
+            </CreateUserGroupPopup>
+          </div>
+          <a-divider v-if="showSystem" class="my-[0px] mt-[6px]" />
+        </div>
+      </Transition>
+    </div>
+    <div v-if="showProject" class="mt-2 w-[252px]">
+      <CreateUserGroupPopup
+        :list="projectUserGroupList"
+        :visible="projectUserGroupVisible"
+        :auth-scope="AuthScopeEnum.PROJECT"
+        @cancel="projectUserGroupVisible = false"
+        @submit="handleCreateUserGroup"
+      >
+        <div class="flex items-center justify-between px-[4px] py-[7px]">
+          <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
+            <MsIcon
+              v-if="projectToggle"
+              class="cursor-pointer"
+              type="icon-icon_expand-down_filled"
+              size="12"
+              @click="projectToggle = false"
+            />
+            <MsIcon
+              v-else
+              class="cursor-pointer"
+              type="icon-icon_expand-right_filled"
+              size="12"
+              @click="projectToggle = true"
+            />
+            <div class="text-[14px]">
+              {{ t('system.userGroup.projectUserGroup') }}
+            </div>
+          </div>
+          <MsMoreAction :list="createProjectUGActionItem" @select="projectUserGroupVisible = true">
+            <icon-plus-circle-fill class="text-[rgb(var(--primary-7))]" size="20" />
+          </MsMoreAction>
+        </div>
+      </CreateUserGroupPopup>
+      <Transition>
+        <div v-if="projectToggle">
+          <div
+            v-for="element in projectUserGroupList"
+            :key="element.id"
+            class="flex h-[38px] cursor-pointer items-center py-[7px] pl-[20px] pr-[4px]"
+            :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
+            @click="handleListItemClick(element)"
+          >
+            <CreateUserGroupPopup
+              :list="projectUserGroupList"
+              v-bind="popVisible[element.id]"
+              @cancel="handleRenameCancel(element)"
+              @submit="handleRenameCancel(element, element.id)"
+            >
+              <div class="flex grow flex-row items-center justify-between">
+                <a-tooltip :content="element.name">
+                  <div
+                    class="one-line-text max-w-[156px] text-[var(--color-text-1)]"
+                    :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
+                    >{{ element.name }}</div
+                  >
+                </a-tooltip>
+                <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
+                  <MsMoreAction
+                    v-if="element.type === systemType"
+                    :list="addMemberActionItem"
+                    @select="handleAddMember"
+                  >
+                    <div class="icon-button">
+                      <MsIcon type="icon-icon_add_outlined" size="16" />
+                    </div>
+                  </MsMoreAction>
+                  <MsMoreAction
+                    :list="moreAction"
+                    @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.PROJECT)"
+                  >
+                    <div class="icon-button">
+                      <MsIcon type="icon-icon_more_outlined" size="16" />
+                    </div>
+                  </MsMoreAction>
+                </div>
+              </div>
+            </CreateUserGroupPopup>
           </div>
         </div>
-        <MsMoreAction :list="createSystemUGActionItem" @select="systemUserGroupVisible = true">
-          <icon-plus-circle-fill class="text-[rgb(var(--primary-7))]" size="20" />
-        </MsMoreAction>
-      </div>
-    </CreateUserGroupPopup>
-    <Transition>
-      <div v-if="systemToggle">
-        <div
-          v-for="element in systemUserGroupList"
-          :key="element.id"
-          class="flex h-[38px] cursor-pointer items-center py-[7px] pl-[20px] pr-[4px]"
-          :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
-          @click="handleListItemClick(element)"
-        >
-          <CreateUserGroupPopup
-            :list="systemUserGroupList"
-            v-bind="popVisible[element.id]"
-            @cancel="handleRenameCancel(element)"
-            @submit="handleRenameCancel(element, element.id)"
-          >
-            <div class="flex grow flex-row items-center justify-between">
-              <a-tooltip :content="element.name">
-                <div
-                  class="one-line-text max-w-[156px] text-[var(--color-text-1)]"
-                  :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
-                  >{{ element.name }}</div
-                >
-              </a-tooltip>
-              <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
-                <MsMoreAction v-if="element.type === systemType" :list="addMemberActionItem" @select="handleAddMember">
-                  <div class="icon-button">
-                    <MsIcon type="icon-icon_add_outlined" size="16" />
-                  </div>
-                </MsMoreAction>
-                <MsMoreAction
-                  :list="moreAction"
-                  @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.SYSTEM)"
-                >
-                  <div class="icon-button">
-                    <MsIcon type="icon-icon_more_outlined" size="16" />
-                  </div>
-                </MsMoreAction>
-              </div>
-            </div>
-          </CreateUserGroupPopup>
-        </div>
-        <a-divider class="my-[0px] mt-[6px]" />
-      </div>
-    </Transition>
+      </Transition>
+    </div>
   </div>
-  <div v-if="showOrg" class="mt-2 w-[252px]">
-    <CreateUserGroupPopup
-      :list="orgUserGroupList"
-      :visible="orgUserGroupVisible"
-      :auth-scope="AuthScopeEnum.ORGANIZATION"
-      @cancel="orgUserGroupVisible = false"
-      @submit="handleCreateUserGroup"
-    >
-      <div class="flex items-center justify-between px-[4px] py-[7px]">
-        <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
-          <MsIcon
-            v-if="orgToggle"
-            class="cursor-pointer"
-            type="icon-icon_expand-down_filled"
-            size="12"
-            @click="orgToggle = false"
-          />
-          <MsIcon
-            v-else
-            class="cursor-pointer"
-            type="icon-icon_expand-right_filled"
-            size="12"
-            @click="orgToggle = true"
-          />
-          <div class="text-[14px]">
-            {{ t('system.userGroup.orgUserGroup') }}
-          </div>
-        </div>
-        <MsMoreAction :list="createOrgUGActionItem" @select="orgUserGroupVisible = true">
-          <icon-plus-circle-fill class="text-[rgb(var(--primary-7))]" size="20" />
-        </MsMoreAction>
-      </div>
-    </CreateUserGroupPopup>
-    <Transition>
-      <div v-if="orgToggle">
-        <div
-          v-for="element in orgUserGroupList"
-          :key="element.id"
-          class="flex h-[38px] cursor-pointer items-center py-[7px] pl-[20px] pr-[4px]"
-          :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
-          @click="handleListItemClick(element)"
-        >
-          <CreateUserGroupPopup
-            :list="orgUserGroupList"
-            v-bind="popVisible[element.id]"
-            @cancel="handleRenameCancel(element)"
-            @submit="handleRenameCancel(element, element.id)"
-          >
-            <div class="flex grow flex-row items-center justify-between">
-              <a-tooltip :content="element.name">
-                <div
-                  class="one-line-text max-w-[156px] text-[var(--color-text-1)]"
-                  :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
-                  >{{ element.name }}</div
-                >
-              </a-tooltip>
-              <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
-                <MsMoreAction v-if="element.type === systemType" :list="addMemberActionItem" @select="handleAddMember">
-                  <div class="icon-button">
-                    <MsIcon type="icon-icon_add_outlined" size="16" />
-                  </div>
-                </MsMoreAction>
-                <MsMoreAction
-                  :list="moreAction"
-                  @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.ORGANIZATION)"
-                >
-                  <div class="icon-button">
-                    <MsIcon type="icon-icon_more_outlined" size="16" />
-                  </div>
-                </MsMoreAction>
-              </div>
-            </div>
-          </CreateUserGroupPopup>
-        </div>
-        <a-divider v-if="showSystem" class="my-[0px] mt-[6px]" />
-      </div>
-    </Transition>
-  </div>
-  <div v-if="showProject" class="mt-2 w-[252px]">
-    <CreateUserGroupPopup
-      :list="projectUserGroupList"
-      :visible="projectUserGroupVisible"
-      :auth-scope="AuthScopeEnum.PROJECT"
-      @cancel="projectUserGroupVisible = false"
-      @submit="handleCreateUserGroup"
-    >
-      <div class="flex items-center justify-between px-[4px] py-[7px]">
-        <div class="flex flex-row items-center gap-1 text-[var(--color-text-4)]">
-          <MsIcon
-            v-if="projectToggle"
-            class="cursor-pointer"
-            type="icon-icon_expand-down_filled"
-            size="12"
-            @click="projectToggle = false"
-          />
-          <MsIcon
-            v-else
-            class="cursor-pointer"
-            type="icon-icon_expand-right_filled"
-            size="12"
-            @click="projectToggle = true"
-          />
-          <div class="text-[14px]">
-            {{ t('system.userGroup.projectUserGroup') }}
-          </div>
-        </div>
-        <MsMoreAction :list="createProjectUGActionItem" @select="projectUserGroupVisible = true">
-          <icon-plus-circle-fill class="text-[rgb(var(--primary-7))]" size="20" />
-        </MsMoreAction>
-      </div>
-    </CreateUserGroupPopup>
-    <Transition>
-      <div v-if="projectToggle">
-        <div
-          v-for="element in projectUserGroupList"
-          :key="element.id"
-          class="flex h-[38px] cursor-pointer items-center py-[7px] pl-[20px] pr-[4px]"
-          :class="{ 'bg-[rgb(var(--primary-1))]': element.id === currentId }"
-          @click="handleListItemClick(element)"
-        >
-          <CreateUserGroupPopup
-            :list="projectUserGroupList"
-            v-bind="popVisible[element.id]"
-            @cancel="handleRenameCancel(element)"
-            @submit="handleRenameCancel(element, element.id)"
-          >
-            <div class="flex grow flex-row items-center justify-between">
-              <a-tooltip :content="element.name">
-                <div
-                  class="one-line-text max-w-[156px] text-[var(--color-text-1)]"
-                  :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
-                  >{{ element.name }}</div
-                >
-              </a-tooltip>
-              <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
-                <MsMoreAction v-if="element.type === systemType" :list="addMemberActionItem" @select="handleAddMember">
-                  <div class="icon-button">
-                    <MsIcon type="icon-icon_add_outlined" size="16" />
-                  </div>
-                </MsMoreAction>
-                <MsMoreAction
-                  :list="moreAction"
-                  @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.PROJECT)"
-                >
-                  <div class="icon-button">
-                    <MsIcon type="icon-icon_more_outlined" size="16" />
-                  </div>
-                </MsMoreAction>
-              </div>
-            </div>
-          </CreateUserGroupPopup>
-        </div>
-      </div>
-    </Transition>
-  </div>
-
   <AddUserModal :visible="userModalVisible" :current-id="currentItem.id" @cancel="userModalVisible = false" />
 </template>
 
@@ -256,7 +270,7 @@
     getProjectUserGroupList,
     deleteOrgUserGroup,
   } from '@/api/modules/setting/usergroup';
-  import { computed, onMounted, ref, inject } from 'vue';
+  import { computed, ref, inject } from 'vue';
   import CreateUserGroupPopup from './createOrUpdateUserGroup.vue';
   import AddUserModal from './addUserModal.vue';
   import { Message } from '@arco-design/web-vue';
@@ -268,7 +282,7 @@
   const { t } = useI18n();
 
   const emit = defineEmits<{
-    (e: 'onSelect', element: UserGroupItem): void;
+    (e: 'handleSelect', element: UserGroupItem): void;
   }>();
   const appStore = useAppStore();
   const { openModal } = useModal();
@@ -283,7 +297,7 @@
   const userGroupList = ref<UserGroupItem[]>([]);
 
   const currentItem = ref<CurrentUserGroupItem>({ id: '', name: '', internal: false, type: AuthScopeEnum.SYSTEM });
-  const currentId = computed(() => currentItem.value.id);
+  const currentId = ref('');
   const currentName = computed(() => currentItem.value.name);
 
   const userModalVisible = ref(false);
@@ -349,11 +363,12 @@
   const handleListItemClick = (element: UserGroupItem) => {
     const { id, name, type, internal } = element;
     currentItem.value = { id, name, type, internal };
-    emit('onSelect', element);
+    currentId.value = id;
+    emit('handleSelect', element);
   };
 
   // 用户组数据初始化
-  const initData = async (id?: string) => {
+  const initData = async (id?: string, isSelect = true) => {
     try {
       let res: UserGroupItem[] = [];
       if (systemType === AuthScopeEnum.SYSTEM) {
@@ -369,7 +384,13 @@
         if (id) {
           tmpItem = res.find((i) => i.id === id) || res[0];
         }
-        handleListItemClick(tmpItem);
+        if (isSelect) {
+          // leftCollapse 切换时不重复数据请求
+          handleListItemClick(tmpItem);
+        } else {
+          // leftCollapse 切换时调用
+          currentId.value = id || '';
+        }
         // 弹窗赋值
         const tmpObj: PopVisible = {};
         res.forEach((element) => {
@@ -449,12 +470,12 @@
   };
   const handleRenameCancel = (element: UserGroupItem, id?: string) => {
     if (id) {
-      initData(id);
+      initData(id, true);
     }
     popVisible.value[element.id].visible = false;
   };
-  onMounted(() => {
-    initData();
+  defineExpose({
+    initData,
   });
 </script>
 
