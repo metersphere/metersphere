@@ -3,6 +3,8 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.MessageTaskDTO;
+import io.metersphere.project.dto.MessageTaskDetailDTO;
+import io.metersphere.project.dto.MessageTaskTypeDTO;
 import io.metersphere.project.dto.ProjectRobotConfigDTO;
 import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.enums.result.ProjectResultCode;
@@ -10,9 +12,14 @@ import io.metersphere.project.mapper.MessageTaskBlobMapper;
 import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
+import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.MessageTaskRequest;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.domain.UserExample;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
@@ -31,6 +38,10 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,10 +68,6 @@ public class NoticeMessageTaskService {
     public static final String USER_IDS = "user_ids";
 
     public static final String NO_USER_NAMES = "no_user_names";
-
-    public static final String CREATOR = "CREATOR";
-
-    public static final String FOLLOW_PEOPLE = "FOLLOW_PEOPLE";
 
 
     public ResultHolder saveMessageTask(MessageTaskRequest messageTaskRequest, String userId) {
@@ -98,34 +105,39 @@ public class NoticeMessageTaskService {
 
     /**
      * 新增MessageTask
-     * @param messageTaskRequest 入参
-     * @param userId 当前用户i的
-     * @param mapper MessageTaskMapper
-     * @param blobMapper MessageTaskBlobMapper
-     * @param existUserIds 系统中还存在的入参传过来的接收人
+     *
+     * @param messageTaskRequest   入参
+     * @param userId               当前用户i的
+     * @param mapper               MessageTaskMapper
+     * @param blobMapper           MessageTaskBlobMapper
+     * @param existUserIds         系统中还存在的入参传过来的接收人
      * @param messageTaskReceivers 更新过后还有多少接收人需要保存
      */
-    private static void insertMessageTask(MessageTaskRequest messageTaskRequest, String userId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper, List<String> existUserIds, List<String> messageTaskReceivers) {
-        String testId = messageTaskRequest.getTestId() == null ? "NONE" : messageTaskRequest.getTestId();
-        boolean enable = messageTaskRequest.getEnable() != null && messageTaskRequest.getEnable();
+    private void insertMessageTask(MessageTaskRequest messageTaskRequest, String userId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper, List<String> existUserIds, List<String> messageTaskReceivers) {
+        List<MessageTask> messageTasks = new ArrayList<>();
         for (String receiverId : existUserIds) {
             if (CollectionUtils.isNotEmpty(messageTaskReceivers) && messageTaskReceivers.contains(receiverId)) {
                 continue;
             }
             MessageTask messageTask = new MessageTask();
-            buildMessageTask(messageTaskRequest, userId, messageTaskRequest.getRobotId(), testId, enable, receiverId, messageTask);
+            buildMessageTask(messageTaskRequest, userId, receiverId, messageTask);
             mapper.insert(messageTask);
             MessageTaskBlob messageTaskBlob = new MessageTaskBlob();
             messageTaskBlob.setId(messageTask.getId());
+            if (!messageTask.getUseDefaultTemplate()) {
+                messageTaskBlob.setTemplate(messageTaskRequest.getTemplate());
+            }
             messageTaskBlob.setTemplate(messageTaskRequest.getTemplate());
+            messageTasks.add(messageTask);
             blobMapper.insert(messageTaskBlob);
         }
     }
 
     /**
      * 查询默认机器人id
+     *
      * @param projectId 项目id
-     * @param robotId 机器人id
+     * @param robotId   机器人id
      * @return String
      */
     private String setDefaultRobot(String projectId, String robotId) {
@@ -140,15 +152,19 @@ public class NoticeMessageTaskService {
 
     /**
      * 检查数据库是否有同类型数据，有则更新
+     *
      * @param messageTaskRequest 入参
-     * @param userId 当前用户ID
-     * @param mapper MessageTaskMapper
-     * @param blobMapper MessageTaskBlobMapper
-     * @param existUserIds 系统中还存在的入参传过来的接收人
+     * @param userId             当前用户ID
+     * @param mapper             MessageTaskMapper
+     * @param blobMapper         MessageTaskBlobMapper
+     * @param existUserIds       系统中还存在的入参传过来的接收人
      * @return List<MessageTask>
      */
     private List<MessageTask> updateMessageTasks(MessageTaskRequest messageTaskRequest, String userId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper, List<String> existUserIds) {
         boolean enable = messageTaskRequest.getEnable() != null && messageTaskRequest.getEnable();
+        boolean useDefaultSubject = messageTaskRequest.getUseDefaultSubject() == null || messageTaskRequest.getUseDefaultSubject();
+        boolean useDefaultTemplate = messageTaskRequest.getUseDefaultTemplate() == null || messageTaskRequest.getUseDefaultTemplate();
+
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andReceiverIn(existUserIds).andProjectIdEqualTo(messageTaskRequest.getProjectId())
                 .andProjectRobotIdEqualTo(messageTaskRequest.getRobotId()).andTaskTypeEqualTo(messageTaskRequest.getTaskType()).andEventEqualTo(messageTaskRequest.getEvent());
@@ -160,6 +176,11 @@ public class NoticeMessageTaskService {
             messageTask.setUpdateTime(System.currentTimeMillis());
             messageTask.setUpdateUser(userId);
             messageTask.setEnable(enable);
+            messageTask.setUseDefaultSubject(useDefaultSubject);
+            messageTask.setUseDefaultTemplate(useDefaultTemplate);
+            if (!useDefaultSubject) {
+                messageTask.setSubject(messageTaskRequest.getSubject());
+            }
             mapper.updateByPrimaryKeySelective(messageTask);
         }
         List<String> messageTaskIds = messageTasks.stream().map(MessageTask::getId).toList();
@@ -167,38 +188,52 @@ public class NoticeMessageTaskService {
         messageTaskBlobExample.createCriteria().andIdIn(messageTaskIds);
         List<MessageTaskBlob> messageTaskBlobs = messageTaskBlobMapper.selectByExample(messageTaskBlobExample);
         for (MessageTaskBlob messageTaskBlob : messageTaskBlobs) {
-            messageTaskBlob.setTemplate(messageTaskRequest.getTemplate());
-            blobMapper.updateByPrimaryKeySelective(messageTaskBlob);
+            if (!useDefaultTemplate) {
+                messageTaskBlob.setTemplate(messageTaskRequest.getTemplate());
+                blobMapper.updateByPrimaryKeySelective(messageTaskBlob);
+            }
         }
         return messageTasks;
     }
 
-    private static void buildMessageTask(MessageTaskRequest messageTaskRequest, String userId, String robotId, String testId, boolean enable, String receiverId, MessageTask messageTask) {
+    private static void buildMessageTask(MessageTaskRequest messageTaskRequest, String userId, String receiverId, MessageTask messageTask) {
+        String testId = messageTaskRequest.getTestId() == null ? "NONE" : messageTaskRequest.getTestId();
+        boolean enable = messageTaskRequest.getEnable() != null && messageTaskRequest.getEnable();
+        boolean useDefaultSubject = messageTaskRequest.getUseDefaultSubject() == null || messageTaskRequest.getUseDefaultSubject();
+        boolean useDefaultTemplate = messageTaskRequest.getUseDefaultTemplate() == null || messageTaskRequest.getUseDefaultTemplate();
+
         String insertId = UUID.randomUUID().toString();
         messageTask.setId(insertId);
         messageTask.setTaskType(messageTaskRequest.getTaskType());
         messageTask.setEvent(messageTaskRequest.getEvent());
         messageTask.setReceiver(receiverId);
         messageTask.setProjectId(messageTaskRequest.getProjectId());
-        messageTask.setProjectRobotId(robotId);
+        messageTask.setProjectRobotId(messageTaskRequest.getRobotId());
         messageTask.setTestId(testId);
         messageTask.setCreateUser(userId);
         messageTask.setCreateTime(System.currentTimeMillis());
         messageTask.setUpdateUser(userId);
         messageTask.setUpdateTime(System.currentTimeMillis());
         messageTask.setEnable(enable);
+        messageTask.setUseDefaultTemplate(useDefaultTemplate);
+        messageTask.setUseDefaultSubject(useDefaultSubject);
+        if (!useDefaultSubject) {
+            messageTask.setSubject(messageTaskRequest.getSubject());
+        }
     }
 
     /**
      * 检查用户是否存在
+     *
      * @param receiverIds 接收人ids
-     * @param projectId 项目id
-     * @return Map<String, List<String>>
+     * @param projectId   项目id
+     * @return Map<String, List < String>>
      */
     private Map<String, List<String>> checkUserExistProject(List<String> receiverIds, String projectId) {
-        List<String>normalUserIds = new ArrayList<>();
+        List<String> normalUserIds = new ArrayList<>();
+        List<String> defaultRelatedUser = MessageTemplateUtils.getDefaultRelatedUser();
         for (String receiverId : receiverIds) {
-            if (!StringUtils.equalsIgnoreCase(receiverId, CREATOR) && !StringUtils.equalsIgnoreCase(receiverId, FOLLOW_PEOPLE)) {
+            if (!defaultRelatedUser.contains(receiverId)) {
                 normalUserIds.add(receiverId);
             }
         }
@@ -209,19 +244,26 @@ public class NoticeMessageTaskService {
             List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
             userIds = new ArrayList<>(userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().toList());
         }
-        if (receiverIds.contains(CREATOR)) {
-            userIds.add(CREATOR);
+        if (receiverIds.contains(NoticeConstants.RelatedUser.CREATE_USER)) {
+            userIds.add(NoticeConstants.RelatedUser.CREATE_USER);
         }
-        if (receiverIds.contains(FOLLOW_PEOPLE)) {
-            userIds.add(FOLLOW_PEOPLE);
+        if (receiverIds.contains(NoticeConstants.RelatedUser.FOLLOW_PEOPLE)) {
+            userIds.add(NoticeConstants.RelatedUser.FOLLOW_PEOPLE);
+        }
+        if (receiverIds.contains(NoticeConstants.RelatedUser.OPERATOR)) {
+            userIds.add(NoticeConstants.RelatedUser.OPERATOR);
         }
         Map<String, List<String>> map = new HashMap<>();
         List<String> noUserNames = new ArrayList<>();
         if (userIds.size() < receiverIds.size()) {
             for (String receiverId : receiverIds) {
-                if (!StringUtils.equalsIgnoreCase(receiverId, CREATOR) && !StringUtils.equalsIgnoreCase(receiverId, FOLLOW_PEOPLE) && !userIds.contains(receiverId)) {
+                if (!defaultRelatedUser.contains(receiverId) && !userIds.contains(receiverId)) {
                     User user = userMapper.selectByPrimaryKey(receiverId);
-                    noUserNames.add(user.getName());
+                    if (user == null) {
+                        noUserNames.add(receiverId);
+                    } else {
+                        noUserNames.add(user.getName());
+                    }
                     break;
                 }
             }
@@ -231,44 +273,136 @@ public class NoticeMessageTaskService {
         return map;
     }
 
+    /**
+     * 根据项目id 获取当前项目的消息设置
+     *
+     * @param projectId 项目ID
+     * @return List<MessageTaskDTO>
+     */
     public List<MessageTaskDTO> getMessageList(String projectId) {
         checkProjectExist(projectId);
+        //获取返回数据结构
+        StringBuilder jsonStr = new StringBuilder();
+        InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                jsonStr.append(line);
+            }
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        List<MessageTaskDTO> messageTaskDTOList = JSON.parseArray(jsonStr.toString(), MessageTaskDTO.class);
+        //查询数据
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectIdEqualTo(projectId);
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
         if (CollectionUtils.isEmpty(messageTasks)) {
-            return new ArrayList<>();
+            return messageTaskDTOList;
         }
         List<String> messageTaskIds = messageTasks.stream().map(MessageTask::getId).toList();
         MessageTaskBlobExample messageTaskBlobExample = new MessageTaskBlobExample();
         messageTaskBlobExample.createCriteria().andIdIn(messageTaskIds);
         List<MessageTaskBlob> messageTaskBlobs = messageTaskBlobMapper.selectByExample(messageTaskBlobExample);
+        List<String> robotIds = messageTasks.stream().map(MessageTask::getProjectRobotId).toList();
+        ProjectRobotExample projectRobotExample = new ProjectRobotExample();
+        projectRobotExample.createCriteria().andIdIn(robotIds);
+        List<ProjectRobot> projectRobots = projectRobotMapper.selectByExample(projectRobotExample);
+        Map<String, ProjectRobot> robotMap = projectRobots.stream().collect(Collectors.toMap(ProjectRobot::getId, item -> item));
+        List<String> userIds = messageTasks.stream().map(MessageTask::getReceiver).toList();
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(userIds).andDeletedEqualTo(false);
+        List<User> users = userMapper.selectByExample(userExample);
+        Map<String, String> userNameMap = users.stream().collect(Collectors.toMap(User::getId, User::getName));
+        Map<String, String> defaultRelatedUserMap = MessageTemplateUtils.getDefaultRelatedUserMap();
+        userNameMap.putAll(defaultRelatedUserMap);
+        //开始准备数据
         Map<String, MessageTaskBlob> messageTaskBlobMap = messageTaskBlobs.stream().collect(Collectors.toMap(MessageTaskBlob::getId, item -> item));
-        Map<String, List<MessageTask>> messageMap = messageTasks.stream().collect(Collectors.groupingBy(t -> (t.getTaskType() + "-" + t.getEvent())));
-        List<MessageTaskDTO> list = new ArrayList<>();
-        messageMap.forEach((key, messageTaskList) -> {
-            MessageTaskDTO messageTaskDTO = new MessageTaskDTO();
-            int i = key.indexOf("-");
-            String taskType = key.substring(0, i);
-            String event = key.substring(i+1);
+        Map<String, List<MessageTask>> messageMap = messageTasks.stream().collect(Collectors.groupingBy(MessageTask::getTaskType));
+        //获取默认数据
+        Map<String, String> moduleMap = MessageTemplateUtils.getModuleMap();
+        Map<String, String> taskTypeMap = MessageTemplateUtils.getTaskTypeMap();
+        Map<String, String> eventMap = MessageTemplateUtils.getEventMap();
+        Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
+        Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateTitleMap();
+        String robotId = setDefaultRobot(projectId, null);
+
+        for (MessageTaskDTO messageTaskDTO : messageTaskDTOList) {
             messageTaskDTO.setProjectId(projectId);
-            messageTaskDTO.setTaskType(taskType);
-            messageTaskDTO.setEvent(event);
-            Set<String>receiverIds = new HashSet<>();
-            List<ProjectRobotConfigDTO>projectRobotConfigList = new ArrayList<>();
-            for (MessageTask messageTask : messageTaskList) {
-                MessageTaskBlob messageTaskBlob = messageTaskBlobMap.get(messageTask.getId());
-                receiverIds.add(messageTask.getReceiver());
-                ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
-                projectRobotConfigDTO.setRobotId(messageTask.getProjectRobotId());
-                projectRobotConfigDTO.setEnable(messageTask.getEnable());
-                projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
-                projectRobotConfigList.add(projectRobotConfigDTO);
+            messageTaskDTO.setName(moduleMap.get(messageTaskDTO.getType()));
+            for (MessageTaskTypeDTO messageTaskTypeDTO : messageTaskDTO.getMessageTaskTypeDTOList()) {
+                List<MessageTask> messageTaskTypeList = messageMap.get(messageTaskTypeDTO.getTaskType());
+                if (CollectionUtils.isEmpty(messageTaskTypeList)) {
+                    continue;
+                }
+                Map<String, List<MessageTask>> messageEventMap = messageTaskTypeList.stream().collect(Collectors.groupingBy(MessageTask::getEvent));
+                messageTaskTypeDTO.setTaskTypeName(taskTypeMap.get(messageTaskTypeDTO.getTaskType()));
+                for (MessageTaskDetailDTO messageTaskDetailDTO : messageTaskTypeDTO.getMessageTaskDetailDTOList()) {
+                    messageTaskDetailDTO.setEventName(eventMap.get(messageTaskDetailDTO.getEvent()));
+                    List<MessageTask> messageTaskList = messageEventMap.get(messageTaskDetailDTO.getEvent());
+                    List<OptionDTO> receivers = new ArrayList<>();
+
+                    List<ProjectRobotConfigDTO> projectRobotConfigList = new ArrayList<>();
+                    String defaultTemplate = defaultTemplateMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
+                    if (CollectionUtils.isEmpty(messageTaskList)) {
+                        String defaultSubject = defaultTemplateTitleMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
+                        ProjectRobotConfigDTO projectRobotConfigDTO = getDefaultProjectRobotConfigDTO(defaultTemplate, defaultSubject, robotId);
+                        projectRobotConfigList.add(projectRobotConfigDTO);
+                    } else {
+                        for (MessageTask messageTask : messageTaskList) {
+                            MessageTaskBlob messageTaskBlob = messageTaskBlobMap.get(messageTask.getId());
+                            OptionDTO optionDTO = new OptionDTO();
+                            optionDTO.setId(messageTask.getReceiver());
+                            optionDTO.setName(userNameMap.get(messageTask.getReceiver()));
+                            receivers.add(optionDTO);
+                            String platform = robotMap.get(messageTask.getProjectRobotId()).getPlatform();
+                            String defaultSubject;
+                            if (StringUtils.equalsIgnoreCase(platform, ProjectRobotPlatform.MAIL.toString())) {
+                                defaultSubject = "MeterSphere " + defaultTemplateTitleMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
+                            } else {
+                                defaultSubject = defaultTemplateTitleMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
+                            }
+                            ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, platform, messageTask, messageTaskBlob);
+                            projectRobotConfigList.add(projectRobotConfigDTO);
+                        }
+                    }
+                    List<OptionDTO> distinctReceivers = receivers.stream().distinct().toList();
+                    messageTaskDetailDTO.setReceivers(distinctReceivers);
+                    messageTaskDetailDTO.setProjectRobotConfigList(projectRobotConfigList);
+                }
             }
-            messageTaskDTO.setReceiverIds(new ArrayList<>(receiverIds));
-            messageTaskDTO.setProjectRobotConfigList(projectRobotConfigList);
-            list.add(messageTaskDTO);
-        });
-        return list;
+        }
+        return messageTaskDTOList;
     }
+
+    private static ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, String robotPlatForm, MessageTask messageTask, MessageTaskBlob messageTaskBlob) {
+        ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
+        projectRobotConfigDTO.setRobotId(messageTask.getProjectRobotId());
+        projectRobotConfigDTO.setPlatform(robotPlatForm);
+        projectRobotConfigDTO.setEnable(messageTask.getEnable());
+        projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
+        projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
+        projectRobotConfigDTO.setSubject(messageTask.getSubject());
+        projectRobotConfigDTO.setDefaultSubject(defaultSubject);
+        projectRobotConfigDTO.setUseDefaultSubject(messageTask.getUseDefaultSubject());
+        projectRobotConfigDTO.setUseDefaultTemplate(messageTask.getUseDefaultTemplate());
+        return projectRobotConfigDTO;
+    }
+
+    private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, String robotId) {
+        ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
+        projectRobotConfigDTO.setRobotId(robotId);
+        projectRobotConfigDTO.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
+        projectRobotConfigDTO.setEnable(false);
+        projectRobotConfigDTO.setTemplate("");
+        projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
+        projectRobotConfigDTO.setSubject("");
+        projectRobotConfigDTO.setDefaultSubject(defaultSubject);
+        projectRobotConfigDTO.setUseDefaultSubject(true);
+        projectRobotConfigDTO.setUseDefaultTemplate(true);
+        return projectRobotConfigDTO;
+    }
+
 }
