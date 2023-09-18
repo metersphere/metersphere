@@ -99,7 +99,6 @@
       revokeDeletedSlot: 'revokeDelete',
       editType: ColumnEditTypeEnum.INPUT,
       showTooltip: true,
-      width: 300,
     },
     {
       title: 'system.organization.member',
@@ -122,6 +121,7 @@
         sorter: true,
         sortDirections: ['ascend', 'descend'],
       },
+      width: 200,
     },
     {
       title: 'system.organization.creator',
@@ -151,16 +151,18 @@
     }
   };
 
-  tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
+  // tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
 
   const { propsRes, propsEvent, loadList, setKeyword } = useTable(
     postProjectTable,
     {
+      columns: organizationColumns,
       tableKey: TableKeyEnum.SYSTEM_PROJECT,
+      scroll: { x: '1600px' },
       selectable: false,
       noDisable: false,
       size: 'default',
-      showSetting: true,
+      // showSetting: true,
       editKey: 'name',
     },
     undefined,

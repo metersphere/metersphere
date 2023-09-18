@@ -1,5 +1,11 @@
 <template>
-  <a-popover :popup-visible="currentVisible" position="bl" trigger="click" class="w-[276px]">
+  <a-popover
+    :popup-visible="currentVisible"
+    position="bl"
+    trigger="click"
+    class="w-[277px]"
+    :content-class="props.id ? 'move-left' : ''"
+  >
     <template #content>
       <div class="form">
         <a-form
@@ -18,7 +24,7 @@
           <a-form-item field="name" :rules="[{ validator: validateName }]">
             <a-input
               v-model="form.name"
-              class="w-[228px]"
+              class="w-[243px]"
               :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
               @press-enter="handleBeforeOk"
               @keyup.esc="handleCancel"
@@ -146,3 +152,10 @@
     form.name = props.defaultName || '';
   });
 </script>
+
+<style lang="less">
+  .move-left {
+    position: relative;
+    right: 22px;
+  }
+</style>

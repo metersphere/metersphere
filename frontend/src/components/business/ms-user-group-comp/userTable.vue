@@ -72,7 +72,6 @@
     }
 
     return postOrgUserByUserGroup;
-    // TODO: 项目
   };
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(getRequestBySystemType(), {
@@ -81,7 +80,7 @@
     selectable: false,
     noDisable: true,
     showSetting: false,
-    heightUsed: 340,
+    heightUsed: 380,
   });
 
   const fetchData = async () => {

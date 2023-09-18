@@ -34,14 +34,13 @@
       </div>
     </template>
   </MsBaseTable>
-  <a-drawer
+  <MsDrawer
     :width="928"
     :visible="authVisible"
     unmount-on-close
     :footer="!currentItem.internal"
     :title="currentItem.name"
     :mask="false"
-    class="ms-drawer-no-mask"
     @cancel="authVisible = false"
   >
     <AuthTable ref="authRef" :current="currentItem" />
@@ -55,7 +54,7 @@
         }}</a-button>
       </div>
     </template>
-  </a-drawer>
+  </MsDrawer>
   <UserDrawer
     :visible="userVisible"
     :project-id="currentProjectId"
@@ -114,6 +113,7 @@
   import MsButton from '@/components/pure/ms-button/not-mr.vue';
   import useModal from '@/hooks/useModal';
   import { Message, ValidatedError } from '@arco-design/web-vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 
   provide('systemType', AuthScopeEnum.PROJECT);
 

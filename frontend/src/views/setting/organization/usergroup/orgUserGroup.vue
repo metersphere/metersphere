@@ -1,14 +1,18 @@
 <template>
-  <MsCard simple>
-    <div class="flex flex-row">
-      <div class="user-group-left" :style="{ padding: leftCollapse ? '24px 24px 24px 0' : 0 }">
-        <UserGroupLeft v-if="leftCollapse" @on-select="handleSelect" />
-        <div class="usergroup-collapse" @click="handleCollapse">
-          <MsIcon v-if="leftCollapse" type="icon-icon_up-left_outlined" class="icon" />
-          <MsIcon v-else type="icon-icon_down-right_outlined" class="icon" />
+  <div class="card">
+    <div class="flex h-full flex-row">
+      <Transition>
+        <div v-if="leftCollapse" class="user-group-left">
+          <UserGroupLeft ref="ugLeftRef" @handle-select="handleSelect" />
         </div>
-      </div>
-      <div class="relative w-[100%] overflow-x-scroll p-[24px]">
+      </Transition>
+      <Transition>
+        <div class="usergroup-collapse" :style="leftCollapse ? 'left: 300px' : 'left: 0'" @click="handleCollapse">
+          <icon-double-left v-if="leftCollapse" class="text-[12px] text-[var(--color-text-brand)]" />
+          <icon-double-right v-else class="text-[12px] text-[var(--color-text-brand)]" />
+        </div>
+      </Transition>
+      <div class="w-[100%] p-[24px]">
         <div class="flex flex-row items-center justify-between">
           <a-tooltip :content="currentUserGroupItem.name">
             <div class="one-line-text max-w-[300px]">{{ currentUserGroupItem.name }}</div>
@@ -39,7 +43,7 @@
         </div>
       </div>
     </div>
-  </MsCard>
+  </div>
   <div
     v-if="currentTable === 'auth'"
     class="fixed bottom-[16px] right-[16px] z-[999] flex justify-between bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
@@ -53,13 +57,11 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, watchEffect, nextTick, provide } from 'vue';
+  import { ref, computed, watchEffect, nextTick, provide, onMounted } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
-  import MsCard from '@/components/pure/ms-card/index.vue';
   import UserGroupLeft from '@/components/business/ms-user-group-comp/msUserGroupLeft.vue';
   import UserTable from '@/components/business/ms-user-group-comp//userTable.vue';
   import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { useAppStore } from '@/store';
   import { AuthScopeEnum } from '@/enums/commonEnum';
@@ -72,6 +74,7 @@
 
   const { t } = useI18n();
   const currentKeyword = ref('');
+  const ugLeftRef = ref();
   const currentUserGroupItem = ref<CurrentUserGroupItem>({
     id: '',
     name: '',
@@ -114,13 +117,18 @@
 
   const handleCollapse = () => {
     leftCollapse.value = !leftCollapse.value;
+    if (leftCollapse.value) {
+      nextTick(() => {
+        ugLeftRef.value?.initData(currentUserGroupItem.value.id, false);
+      });
+    }
   };
   const menuWidth = computed(() => {
     const width = appStore.menuCollapse ? 86 : appStore.menuWidth;
     if (leftCollapse.value) {
       return width + 300;
     }
-    return width + 24;
+    return width;
   });
 
   const handleReset = () => {
@@ -144,40 +152,48 @@
       currentTable.value = 'auth';
     }
   });
+  onMounted(() => {
+    ugLeftRef.value?.initData();
+  });
 </script>
 
 <style lang="scss" scoped>
-  .title {
-    color: var(--color-text-1);
-  }
-  .user-group {
-    height: calc(100vh - 72px);
+  .card {
+    @apply overflow-hidden bg-white;
+
+    position: relative;
+    height: calc(100vh - 88px);
+    border-radius: var(--border-radius-large);
+    box-shadow: 0 0 10px rgb(120 56 135 / 5%);
   }
   .user-group-left {
     position: relative;
+    overflow: hidden;
     width: 300px;
-    height: calc(100vh - 125px);
-    border-right: 1px solid var(--color-border);
-    .usergroup-collapse {
-      position: absolute;
-      top: 50%;
-      right: -16px;
-      z-index: 100;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 16px;
-      height: 36px;
-      background-color: var(--color-text-n8);
-      opacity: 0;
-      cursor: pointer;
-      &:hover {
-        opacity: 1;
-      }
-      .icon {
-        font-size: 12px;
-        color: var(--color-text-brand);
-      }
-    }
+    min-width: 300px;
+    height: 100%;
+    border-right: 1px solid var(--color-border-1);
+  }
+  .usergroup-collapse {
+    position: absolute;
+    top: 50%;
+    left: 300px;
+    z-index: 101;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 16px;
+    height: 36px;
+    background-color: var(--color-text-n8);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .v-enter-active,
+  .v-leave-active {
+    transition: opacity 0.5s ease;
+  }
+  .v-enter-from,
+  .v-leave-to {
+    opacity: 0;
   }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <a-drawer
+  <MsDrawer
     :width="680"
     :visible="currentVisible"
     unmount-on-close
@@ -39,7 +39,7 @@
         </template>
       </ms-base-table>
     </div>
-  </a-drawer>
+  </MsDrawer>
   <AddUserModal
     :project-id="props.projectId"
     :user-role-id="props.userRoleId"
@@ -58,6 +58,7 @@
   import AddUserModal from './addUserModal.vue';
   import { TableData, Message } from '@arco-design/web-vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 
   export interface projectDrawerProps {
     visible: boolean;
