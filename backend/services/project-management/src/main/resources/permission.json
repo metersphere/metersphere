@@ -104,6 +104,24 @@
         ]
       },
       {
+        "id": "PROJECT_VERSION",
+        "name": "permission.project_version.name",
+        "permissions": [
+          {
+            "id": "PROJECT_VERSION:READ"
+          },
+          {
+            "id": "PROJECT_VERSION:READ+ADD"
+          },
+          {
+            "id": "PROJECT_VERSION:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_VERSION:READ+DELETE"
+          }
+        ]
+      },
+      {
         "id": "PROJECT_FAKE_ERROR",
         "name": "permission.project_fake_error.name",
         "license": true,
