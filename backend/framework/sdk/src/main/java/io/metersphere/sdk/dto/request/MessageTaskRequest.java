@@ -38,8 +38,16 @@ public class MessageTaskRequest {
     @Schema(description = "消息配置机器人是否开启")
     public Boolean enable;
 
-    @Schema(description = "消息配置消息模版")
-    @NotBlank(message = "{message_task.template.not_blank}", groups = {Created.class, Updated.class})
+    @Schema(description = "消息配置企业用户自定义的消息模版")
     public String template;
+
+    @Schema(description = "消息配置企业用户自定义的邮件标题")
+    public String subject;
+
+    @Schema(description = "是否使用默认模版")
+    private Boolean useDefaultTemplate;
+
+    @Schema(description = "是否使用默认邮件标题")
+    private Boolean useDefaultSubject;
 
 }

@@ -16,6 +16,7 @@ public class MessageDetail implements Serializable {
     private String type;
     private String testId;
     private Long createTime;
+    private String subject;
     private String template;
     private String appKey;
     private String appSecret;

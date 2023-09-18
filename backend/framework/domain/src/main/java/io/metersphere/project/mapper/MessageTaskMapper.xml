@@ -14,6 +14,9 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="use_default_template" jdbcType="BIT" property="useDefaultTemplate" />
+    <result column="use_default_subject" jdbcType="BIT" property="useDefaultSubject" />
+    <result column="subject" jdbcType="VARCHAR" property="subject" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -75,7 +78,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, event, receiver, project_robot_id, task_type, test_id, project_id, `enable`, 
-    create_user, create_time, update_user, update_time
+    create_user, create_time, update_user, update_time, use_default_template, use_default_subject, 
+    subject
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.MessageTaskExample" resultMap="BaseResultMap">
     select
@@ -111,12 +115,14 @@
     insert into message_task (id, event, receiver, 
       project_robot_id, task_type, test_id, 
       project_id, `enable`, create_user, 
-      create_time, update_user, update_time
+      create_time, update_user, update_time, 
+      use_default_template, use_default_subject, subject
       )
     values (#{id,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, #{receiver,jdbcType=VARCHAR}, 
       #{projectRobotId,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}
+      #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
+      #{useDefaultTemplate,jdbcType=BIT}, #{useDefaultSubject,jdbcType=BIT}, #{subject,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.MessageTask">
@@ -158,6 +164,15 @@
       <if test="updateTime != null">
         update_time,
       </if>
+      <if test="useDefaultTemplate != null">
+        use_default_template,
+      </if>
+      <if test="useDefaultSubject != null">
+        use_default_subject,
+      </if>
+      <if test="subject != null">
+        subject,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -195,6 +210,15 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="useDefaultTemplate != null">
+        #{useDefaultTemplate,jdbcType=BIT},
+      </if>
+      <if test="useDefaultSubject != null">
+        #{useDefaultSubject,jdbcType=BIT},
+      </if>
+      <if test="subject != null">
+        #{subject,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -243,6 +267,15 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.useDefaultTemplate != null">
+        use_default_template = #{record.useDefaultTemplate,jdbcType=BIT},
+      </if>
+      <if test="record.useDefaultSubject != null">
+        use_default_subject = #{record.useDefaultSubject,jdbcType=BIT},
+      </if>
+      <if test="record.subject != null">
+        subject = #{record.subject,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -261,7 +294,10 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      use_default_template = #{record.useDefaultTemplate,jdbcType=BIT},
+      use_default_subject = #{record.useDefaultSubject,jdbcType=BIT},
+      subject = #{record.subject,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -302,6 +338,15 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="useDefaultTemplate != null">
+        use_default_template = #{useDefaultTemplate,jdbcType=BIT},
+      </if>
+      <if test="useDefaultSubject != null">
+        use_default_subject = #{useDefaultSubject,jdbcType=BIT},
+      </if>
+      <if test="subject != null">
+        subject = #{subject,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -317,20 +362,25 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_user = #{updateUser,jdbcType=VARCHAR},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      use_default_template = #{useDefaultTemplate,jdbcType=BIT},
+      use_default_subject = #{useDefaultSubject,jdbcType=BIT},
+      subject = #{subject,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into message_task
     (id, event, receiver, project_robot_id, task_type, test_id, project_id, `enable`, 
-      create_user, create_time, update_user, update_time)
+      create_user, create_time, update_user, update_time, use_default_template, use_default_subject, 
+      subject)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.event,jdbcType=VARCHAR}, #{item.receiver,jdbcType=VARCHAR}, 
         #{item.projectRobotId,jdbcType=VARCHAR}, #{item.taskType,jdbcType=VARCHAR}, #{item.testId,jdbcType=VARCHAR}, 
         #{item.projectId,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}
-        )
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.useDefaultTemplate,jdbcType=BIT}, #{item.useDefaultSubject,jdbcType=BIT}, 
+        #{item.subject,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -378,6 +428,15 @@
         </if>
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'use_default_template'.toString() == column.value">
+          #{item.useDefaultTemplate,jdbcType=BIT}
+        </if>
+        <if test="'use_default_subject'.toString() == column.value">
+          #{item.useDefaultSubject,jdbcType=BIT}
+        </if>
+        <if test="'subject'.toString() == column.value">
+          #{item.subject,jdbcType=VARCHAR}
         </if>
       </foreach>
       )
