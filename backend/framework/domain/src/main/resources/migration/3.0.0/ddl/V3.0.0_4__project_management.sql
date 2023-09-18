@@ -228,21 +228,23 @@ CREATE TABLE IF NOT EXISTS custom_function_blob
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '自定义函数-代码片段大字段';
 
-CREATE TABLE IF NOT EXISTS message_task
-(
-   `id` VARCHAR(50) NOT NULL   COMMENT '' ,
-   `event` VARCHAR(255) NOT NULL   COMMENT '通知事件类型' ,
-   `receiver` VARCHAR(50) NOT NULL   COMMENT '接收人id' ,
-   `project_robot_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '机器人id' ,
-   `task_type` VARCHAR(64) NOT NULL   COMMENT '任务类型' ,
-   `test_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '具体测试的ID' ,
-   `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
-   `enable` BIT NOT NULL  DEFAULT 0 COMMENT '是否启用' ,
-   `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-   `create_time` BIGINT NOT NULL  DEFAULT 0 COMMENT '创建时间' ,
-   `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
-   `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-   PRIMARY KEY (id)
+CREATE TABLE IF NOT EXISTS message_task(
+       `id` VARCHAR(50) NOT NULL   COMMENT '' ,
+       `event` VARCHAR(255) NOT NULL   COMMENT '通知事件类型' ,
+       `receiver` VARCHAR(50) NOT NULL   COMMENT '接收人id' ,
+       `project_robot_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '机器人id' ,
+       `task_type` VARCHAR(64) NOT NULL   COMMENT '任务类型' ,
+       `test_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '具体测试的ID' ,
+       `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
+       `enable` BIT NOT NULL  DEFAULT 0 COMMENT '是否启用' ,
+       `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+       `create_time` BIGINT NOT NULL  DEFAULT 0 COMMENT '创建时间' ,
+       `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
+       `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+       `use_default_template` BIT NOT NULL  DEFAULT 1 COMMENT '是否使用默认模版' ,
+       `use_default_subject` BIT NOT NULL  DEFAULT 1 COMMENT '是否使用默认标题（仅邮件）' ,
+       `subject` VARCHAR(64)    COMMENT '邮件标题' ,
+       PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci
@@ -257,6 +259,8 @@ CREATE INDEX idx_task_type ON message_task(task_type);
 CREATE INDEX idx_project_robot_id ON message_task(project_robot_id);
 CREATE INDEX idx_event ON message_task(event);
 CREATE INDEX idx_enable ON message_task(enable);
+CREATE INDEX idx_use_default_subject ON message_task(use_default_subject);
+CREATE INDEX idx_use_default_template ON message_task(use_default_template);
 
 CREATE TABLE IF NOT EXISTS message_task_blob
 (

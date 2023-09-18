@@ -153,13 +153,237 @@ VALUES (uuid(), 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMES
 INSERT INTO template_custom_field(id, field_id, template_id, required, pos, api_field_id, default_value)
 VALUES(uuid(), (select id from custom_field where name = 'functional_priority'), (select id from template where name = 'functional_default'), 1, 0, NULL, NULL);
 
-
--- 初始化内置消息机器人
-Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), '100001100001', '站内信', 'IN_SITE', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
-Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), '100001100001', '邮件', 'MAIL', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
-
 -- 初始化默认项目版本
 INSERT INTO project_version (id, project_id, name, description, status, latest, publish_time, start_time, end_time, create_time, create_user) VALUES (UUID_SHORT(), '100001100001', 'v1.0', NULL, 'open', 0, NULL, NULL, NULL, UNIX_TIMESTAMP() * 1000, 'admin');
+
+-- 初始化内置消息机器人
+SET @robot_in_site_id = UUID_SHORT();
+Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description)
+VALUES (@robot_in_site_id, '100001100001', '站内信', 'IN_SITE', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
+Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), '100001100001', '邮件', 'MAIL', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
+
+-- 初始化消息设置数据
+-- 初始化测试计划相关的消息数据
+SET @test_plan_task_update_creator_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@test_plan_task_update_creator_id, 'UPDATE', 'CREATE_USER', @robot_in_site_id, 'TEST_PLAN_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.test_plan_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@test_plan_task_update_creator_id, 'message.test_plan_task_update');
+
+SET @test_plan_task_update_follower_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@test_plan_task_update_follower_id, 'UPDATE', 'FOLLOW_PEOPLE', @robot_in_site_id, 'TEST_PLAN_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.test_plan_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@test_plan_task_update_follower_id, 'message.test_plan_task_update');
+
+SET @test_plan_task_delete_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@test_plan_task_delete_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'TEST_PLAN_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.test_plan_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@test_plan_task_delete_id, 'message.test_plan_task_update');
+
+SET @test_plan_task_execute_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@test_plan_task_execute_id, 'EXECUTE_COMPLETED', 'OPERATOR', @robot_in_site_id, 'TEST_PLAN_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.test_plan_task_execute_completed');
+INSERT INTO message_task_blob(id, template) VALUES (@test_plan_task_execute_id, 'message.test_plan_task_execute_completed');
+
+SET @test_plan_task_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@test_plan_task_report_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'TEST_PLAN_REPORT_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.test_plan_report_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@test_plan_task_report_id, 'message.test_plan_report_task_delete');
+
+-- 初始化缺陷相关的消息数据
+SET @bug_update_creator_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@bug_update_creator_id, 'UPDATE', 'CREATE_USER', @robot_in_site_id, 'BUG_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@bug_update_creator_id, 'message.bug_task_update');
+
+SET @bug_update_follower_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@bug_update_follower_id, 'UPDATE', 'FOLLOW_PEOPLE', @robot_in_site_id, 'BUG_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@bug_update_follower_id, 'message.bug_task_update');
+
+SET @bug_delete_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@bug_delete_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'BUG_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@bug_delete_id, 'message.bug_task_delete');
+
+SET @bug_comment_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@bug_comment_id, 'COMMENT', 'CREATE_USER', @robot_in_site_id, 'BUG_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_task_comment');
+INSERT INTO message_task_blob(id, template) VALUES (@bug_comment_id, 'message.bug_task_comment');
+
+SET @bug_comment_at_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@bug_comment_at_id, 'COMMENT', 'CREATE_USER', @robot_in_site_id, 'BUG_TASK_AT', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_task_comment');
+INSERT INTO message_task_blob(id, template) VALUES (@bug_comment_at_id, 'message.bug_task_at_comment');
+
+SET @bug_sync_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@bug_sync_id, 'EXECUTE_COMPLETED', 'OPERATOR', @robot_in_site_id, 'BUG_SYNC_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_sync_task_execute_completed');
+INSERT INTO message_task_blob(id, template) VALUES (@bug_sync_id, 'message.bug_sync_task_execute_completed');
+
+-- 初始化用例管理消息设置数据
+SET @functional_creator_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@functional_creator_id, 'UPDATE', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@functional_creator_id, 'message.functional_case_task_update');
+
+SET @functional_follower_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@functional_follower_id, 'UPDATE', 'FOLLOW_PEOPLE', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@functional_follower_id, 'message.functional_case_task_update');
+
+SET @functional_delete_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@functional_delete_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@functional_delete_id, 'message.functional_case_task_delete');
+
+SET @functional_comment_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@functional_comment_id, 'COMMENT', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
+INSERT INTO message_task_blob(id, template) VALUES (@functional_comment_id, 'message.functional_case_task_comment');
+
+SET @functional_comment_at_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@functional_comment_at_id, 'COMMENT', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK_AT', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
+INSERT INTO message_task_blob(id, template) VALUES (@functional_comment_at_id, 'message.functional_case_task_at_comment');
+
+SET @case_creator_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@case_creator_id, 'UPDATE', 'CREATE_USER', @robot_in_site_id, 'CASE_REVIEW_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@case_creator_id, 'message.case_review_task_update');
+
+SET @case_follower_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@case_follower_id, 'UPDATE', 'FOLLOW_PEOPLE', @robot_in_site_id, 'CASE_REVIEW_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@case_follower_id, 'message.case_review_task_update');
+
+SET @case_delete_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@case_delete_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'CASE_REVIEW_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@case_delete_id, 'message.case_review_task_delete');
+
+SET @case_execute_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@case_execute_id, 'EXECUTE_REVIEW', 'CREATE_USER', @robot_in_site_id, 'CASE_REVIEW_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_execute_review');
+INSERT INTO message_task_blob(id, template) VALUES (@case_execute_id, 'message.case_review_task_execute_review');
+
+SET @case_review_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@case_review_id, 'REVIEW_COMPLETED', 'CREATE_USER', @robot_in_site_id, 'CASE_REVIEW_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_review_completed');
+INSERT INTO message_task_blob(id, template) VALUES (@case_review_id, 'message.case_review_task_review_completed');
+
+-- 初始化接口文档消息数据
+SET @api_creator_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_creator_id, 'UPDATE', 'CREATE_USER', @robot_in_site_id, 'API_DEFINITION_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_definition_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@api_creator_id, 'message.api_definition_task_update');
+
+SET @api_delete_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_delete_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'API_DEFINITION_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_definition_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@api_delete_id, 'message.api_definition_task_delete');
+
+SET @api_case_update_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_case_update_id, 'CASE_UPDATE', 'CREATE_USER', @robot_in_site_id, 'API_DEFINITION_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_definition_task_case_update');
+INSERT INTO message_task_blob(id, template) VALUES (@api_case_update_id, 'message.api_definition_task_case_update');
+
+SET @api_case_delete_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_case_delete_id, 'CASE_DELETE', 'CREATE_USER', @robot_in_site_id, 'API_DEFINITION_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_definition_task_case_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@api_case_delete_id, 'message.api_definition_task_delete');
+
+SET @api_execute_success_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_execute_success_id, 'CASE_EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'API_DEFINITION_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_definition_task_case_execute_successful');
+INSERT INTO message_task_blob(id, template) VALUES (@api_execute_success_id, 'message.api_definition_task_case_execute');
+
+SET @api_fake_error_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_fake_error_id, 'CASE_EXECUTE_FAKE_ERROR', 'CREATE_USER', @robot_in_site_id, 'API_DEFINITION_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_definition_task_case_execute_fake_error');
+INSERT INTO message_task_blob(id, template) VALUES (@api_fake_error_id, 'message.api_definition_task_case_execute');
+
+SET @api_execute_failed_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_execute_failed_id, 'CASE_EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'API_DEFINITION_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_definition_task_case_execute_failed');
+INSERT INTO message_task_blob(id, template) VALUES (@api_execute_failed_id, 'message.api_definition_task_case_execute');
+
+-- 初始化接口场景消息设置数据
+SET @api_scenario_update_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_scenario_update_id, 'UPDATE', 'CREATE_USER', @robot_in_site_id, 'API_SCENARIO_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_scenario_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@api_scenario_update_id, 'message.api_scenario_task_update');
+
+SET @api_scenario_delete_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_scenario_delete_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'API_SCENARIO_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_scenario_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@api_scenario_delete_id, 'message.api_scenario_task_delete');
+
+SET @api_scenario_execute_success_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_scenario_execute_success_id, 'SCENARIO_EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'API_SCENARIO_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_scenario_task_scenario_execute_successful');
+INSERT INTO message_task_blob(id, template) VALUES (@api_scenario_execute_success_id, 'message.api_scenario_task_scenario_execute');
+
+SET @api_scenario_fake_error_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_scenario_fake_error_id, 'SCENARIO_EXECUTE_FAKE_ERROR', 'CREATE_USER', @robot_in_site_id, 'API_SCENARIO_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_scenario_task_scenario_execute_fake_error');
+INSERT INTO message_task_blob(id, template) VALUES (@api_scenario_fake_error_id, 'message.api_scenario_task_scenario_execute');
+
+SET @api_scenario_execute_failed_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_scenario_execute_failed_id, 'SCENARIO_EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'API_SCENARIO_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_scenario_task_scenario_execute_failed');
+INSERT INTO message_task_blob(id, template) VALUES (@api_scenario_execute_failed_id, 'message.api_scenario_task_scenario_execute');
+
+SET @api_scenario_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@api_scenario_report_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'API_REPORT_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_report_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@api_scenario_report_id, 'message.api_report_task_delete');
+
+-- 初始化UI消息数据
+SET @ui_update_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@ui_update_id, 'UPDATE', 'CREATE_USER', @robot_in_site_id, 'UI_SCENARIO_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.ui_scenario_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@ui_update_id, 'message.ui_scenario_task_update');
+
+SET @ui_delete_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@ui_delete_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'UI_SCENARIO_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.ui_scenario_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@ui_delete_id, 'message.ui_scenario_task_delete');
+
+SET @ui_execute_successful_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@ui_execute_successful_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'UI_SCENARIO_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.ui_scenario_task_execute_successful');
+INSERT INTO message_task_blob(id, template) VALUES (@ui_execute_successful_id, 'message.ui_scenario_task_execute');
+
+SET @ui_execute_failed_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@ui_execute_failed_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'UI_SCENARIO_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.ui_scenario_task_execute_failed');
+INSERT INTO message_task_blob(id, template) VALUES (@ui_execute_failed_id, 'message.ui_scenario_task_execute');
+
+SET @ui_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@ui_report_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'UI_REPORT_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.ui_report_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@ui_report_id, 'message.ui_report_task_delete');
+
+-- 初始化性能测试消息数据
+SET @load_create_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_create_id, 'UPDATE', 'CREATE_USER', @robot_in_site_id, 'LOAD_TEST_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.load_test_task_update');
+INSERT INTO message_task_blob(id, template) VALUES (@load_create_id, 'message.load_test_task_update');
+
+SET @load_delete_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_delete_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'LOAD_TEST_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.load_test_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@load_delete_id, 'message.load_test_task_delete');
+
+SET @load_execute_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_execute_id, 'EXECUTE_COMPLETED', 'OPERATOR', @robot_in_site_id, 'LOAD_TEST_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.load_test_task_execute_completed');
+INSERT INTO message_task_blob(id, template) VALUES (@load_execute_id, 'message.load_test_task_execute_completed');
+
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'LOAD_REPORT_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.load_report_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.load_report_task_delete');
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
