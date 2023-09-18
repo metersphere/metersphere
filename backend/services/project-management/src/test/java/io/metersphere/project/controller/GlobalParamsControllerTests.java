@@ -1,18 +1,21 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.dto.environment.GlobalParams;
+import io.metersphere.project.dto.environment.GlobalParamsRequest;
+import io.metersphere.project.dto.environment.KeyValue;
+import io.metersphere.project.dto.environment.variables.CommonVariables;
+
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.VariableTypeConstants;
+
 import io.metersphere.sdk.domain.ProjectParameters;
 import io.metersphere.sdk.domain.ProjectParametersExample;
-import io.metersphere.sdk.dto.environment.GlobalParamsDTO;
-import io.metersphere.sdk.dto.environment.GlobalParamsRequest;
-import io.metersphere.sdk.dto.environment.KeyValue;
-import io.metersphere.sdk.dto.environment.variables.CommonVariables;
 import io.metersphere.sdk.mapper.ProjectParametersMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -126,78 +129,80 @@ public class GlobalParamsControllerTests extends BaseTest {
         //添加全局参数 有headers 有envVariables
         GlobalParamsRequest request = new GlobalParamsRequest();
         request.setProjectId("projectId1");
-        GlobalParamsDTO globalParamsDTO = new GlobalParamsDTO();
-        globalParamsDTO.setHeaders(getHeaders(1));
-        globalParamsDTO.setCommonVariables(getEnvVariables(1));
-        request.setGlobalParams(globalParamsDTO);
+        GlobalParams globalParams = new GlobalParams();
+        globalParams.setHeaders(getHeaders(1));
+        globalParams.setCommonVariables(getEnvVariables(1));
+        request.setGlobalParams(globalParams);
         MvcResult mvcResult = this.responsePost(add, request);
         GlobalParamsRequest globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
         Assertions.assertNotNull(globalParamsRequest);
         ProjectParameters projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
         Assertions.assertEquals("projectId1", projectParameters.getProjectId());
-        Assertions.assertEquals(1, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getHeaders().size());
-        Assertions.assertEquals(1, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getCommonVariables().size());
+        Assertions.assertEquals(1, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getHeaders().size());
+        Assertions.assertEquals(1, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getCommonVariables().size());
 
         //添加全局参数 有headers 无envVariables
         request = new GlobalParamsRequest();
         request.setProjectId("projectId2");
-        globalParamsDTO = new GlobalParamsDTO();
-        globalParamsDTO.setHeaders(getHeaders(1));
-        globalParamsDTO.setCommonVariables(new ArrayList<>());
-        request.setGlobalParams(globalParamsDTO);
+        globalParams = new GlobalParams();
+        globalParams.setHeaders(getHeaders(1));
+        globalParams.setCommonVariables(new ArrayList<>());
+        request.setGlobalParams(globalParams);
         mvcResult = this.responsePost(add, request);
         globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
         Assertions.assertNotNull(globalParamsRequest);
         projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
         Assertions.assertEquals("projectId2", projectParameters.getProjectId());
-        Assertions.assertEquals(1, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getHeaders().size());
-        Assertions.assertEquals(0, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getCommonVariables().size());
+        Assertions.assertEquals(1, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getHeaders().size());
+        Assertions.assertEquals(0, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getCommonVariables().size());
 
         //添加全局参数 无headers 有envVariables
         request = new GlobalParamsRequest();
         request.setProjectId("projectId3");
-        globalParamsDTO = new GlobalParamsDTO();
-        globalParamsDTO.setHeaders(new ArrayList<>());
-        globalParamsDTO.setCommonVariables(getEnvVariables(1));
-        request.setGlobalParams(globalParamsDTO);
+        globalParams = new GlobalParams();
+        globalParams.setHeaders(new ArrayList<>());
+        globalParams.setCommonVariables(getEnvVariables(1));
+        request.setGlobalParams(globalParams);
         mvcResult = this.responsePost(add, request);
         globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
         Assertions.assertNotNull(globalParamsRequest);
         projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
         Assertions.assertEquals("projectId3", projectParameters.getProjectId());
-        Assertions.assertEquals(0, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getHeaders().size());
-        Assertions.assertEquals(1, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getCommonVariables().size());
+        Assertions.assertEquals(0, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getHeaders().size());
+        Assertions.assertEquals(1, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getCommonVariables().size());
 
         //添加全局参数 无headers 无envVariables
         request = new GlobalParamsRequest();
         request.setProjectId("projectId4");
-        globalParamsDTO = new GlobalParamsDTO();
-        globalParamsDTO.setHeaders(new ArrayList<>());
-        globalParamsDTO.setCommonVariables(new ArrayList<>());
-        request.setGlobalParams(globalParamsDTO);
+        globalParams = new GlobalParams();
+        globalParams.setHeaders(new ArrayList<>());
+        globalParams.setCommonVariables(new ArrayList<>());
+        request.setGlobalParams(globalParams);
         mvcResult = this.responsePost(add, request);
         globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
         Assertions.assertNotNull(globalParamsRequest);
         projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
         Assertions.assertEquals("projectId4", projectParameters.getProjectId());
-        Assertions.assertEquals(0, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getHeaders().size());
-        Assertions.assertEquals(0, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getCommonVariables().size());
+        Assertions.assertEquals(0, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getHeaders().size());
+        Assertions.assertEquals(0, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getCommonVariables().size());
 
         request = new GlobalParamsRequest();
         request.setProjectId("projectId5");
-        request.setGlobalParams(new GlobalParamsDTO());
+        request.setGlobalParams(new GlobalParams());
         mvcResult = this.responsePost(add, request);
         globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
         Assertions.assertNotNull(globalParamsRequest);
+        //校验日志
+        checkLog(globalParamsRequest.getId(), OperationLogType.ADD);
         projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
         Assertions.assertEquals("projectId5", projectParameters.getProjectId());
-        Assertions.assertNull(JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getHeaders());
-        Assertions.assertNull(JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getCommonVariables());
+        Assertions.assertNull(JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getHeaders());
+        Assertions.assertNull(JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getCommonVariables());
 
         //校验权限
         request = new GlobalParamsRequest();
@@ -234,18 +239,20 @@ public class GlobalParamsControllerTests extends BaseTest {
         GlobalParamsRequest request = new GlobalParamsRequest();
         request.setProjectId("projectId1");
         request.setId(projectParametersList.get(0).getId());
-        GlobalParamsDTO globalParamsDTO = new GlobalParamsDTO();
-        globalParamsDTO.setHeaders(getHeaders(2));
-        globalParamsDTO.setCommonVariables(getEnvVariables(2));
-        request.setGlobalParams(globalParamsDTO);
+        GlobalParams globalParams = new GlobalParams();
+        globalParams.setHeaders(getHeaders(2));
+        globalParams.setCommonVariables(getEnvVariables(2));
+        request.setGlobalParams(globalParams);
         MvcResult mvcResult = this.responsePost(update, request);
         GlobalParamsRequest globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
         Assertions.assertNotNull(globalParamsRequest);
+        //校验日志
+        checkLog(globalParamsRequest.getId(), OperationLogType.UPDATE);
         ProjectParameters projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
         Assertions.assertEquals("projectId1", projectParameters.getProjectId());
-        Assertions.assertEquals(2, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getHeaders().size());
-        Assertions.assertEquals(2, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParamsDTO.class).getCommonVariables().size());
+        Assertions.assertEquals(2, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getHeaders().size());
+        Assertions.assertEquals(2, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getCommonVariables().size());
 
         //校验权限
         request = new GlobalParamsRequest();
