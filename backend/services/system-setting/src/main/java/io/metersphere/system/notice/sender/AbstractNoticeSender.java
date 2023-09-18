@@ -35,7 +35,6 @@ import org.apache.commons.text.StringSubstitutor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class AbstractNoticeSender implements NoticeSender {
@@ -62,17 +61,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         handleCustomFields(noticeModel);
         // 处理 userIds 中包含的特殊值
         noticeModel.setReceivers(getRealUserIds(messageDetail, noticeModel, messageDetail.getEvent()));
-        //TODO：apiReceiver特殊处理（v2接口同步的通知，v3这里待讨论）
-        /*String apiSpecialType = (String) noticeModel.getParamMap().get("apiSpecialType");
-        if (apiSpecialType != null && apiSpecialType.equals("API_SPECIAL")) {
-            String specialReceivers = (String) noticeModel.getParamMap().get("specialReceivers");
-            List list = JSON.parseArray(specialReceivers);
-            if (CollectionUtils.isNotEmpty(list)) {
-                for (Object o : list) {
-                    noticeModel.getReceivers().add(new Receiver(o.toString(), NotificationConstants.Type.MENTIONED_ME.name()));
-                }
-            }
-        }*/
         // 如果配置了模版就直接使用模版
         if (StringUtils.isNotBlank(messageDetail.getTemplate())) {
             return getContent(messageDetail.getTemplate(), noticeModel.getParamMap());
@@ -108,9 +96,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     if (value instanceof String && StringUtils.isNotEmpty((String) value)) {
                         String v = StringUtils.unwrap((String) value, "\"");
                         noticeModel.getParamMap().put(customField.getName(), v); // 处理人
-                        if (StringUtils.equals(customField.getName(), "处理人")) {
-                            noticeModel.getParamMap().put(NoticeConstants.RelatedUser.PROCESSOR, v); // 处理人
-                        }
                     }
                 }
             }
@@ -152,27 +137,16 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         Map<String, Object> paramMap = noticeModel.getParamMap();
         for (String userId : messageDetail.getReceiverIds()) {
             switch (userId) {
-                case NoticeConstants.RelatedUser.EXECUTOR -> {
-                    if (StringUtils.equals(NoticeConstants.Event.CREATE, event)) {
-                        getRelateUsers(toUsers, paramMap);
-                    }
-                    if (paramMap.containsKey(NoticeConstants.RelatedUser.EXECUTOR)) {
-                        toUsers.add(new Receiver((String) paramMap.get(NoticeConstants.RelatedUser.EXECUTOR), NotificationConstants.Type.SYSTEM_NOTICE.name()));
-                    }
-                }
                 case NoticeConstants.RelatedUser.CREATE_USER -> {
                     String createUser = (String) paramMap.get(NoticeConstants.RelatedUser.CREATE_USER);
                     if (StringUtils.isNotBlank(createUser)) {
                         toUsers.add(new Receiver(createUser, NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
                 }
-                case NoticeConstants.RelatedUser.MAINTAINER -> {
-                    if (StringUtils.equals(NoticeConstants.Event.COMMENT, event)) {
-                        getRelateUsers(toUsers, paramMap);
-
-                        if (paramMap.containsKey(NoticeConstants.RelatedUser.MAINTAINER)) {
-                            toUsers.add(new Receiver((String) paramMap.get(NoticeConstants.RelatedUser.MAINTAINER), NotificationConstants.Type.SYSTEM_NOTICE.name()));
-                        }
+                case NoticeConstants.RelatedUser.OPERATOR -> {
+                    String operator = (String) paramMap.get(NoticeConstants.RelatedUser.OPERATOR);
+                    if (StringUtils.isNotBlank(operator)) {
+                        toUsers.add(new Receiver(operator, NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
                 }
                 case NoticeConstants.RelatedUser.FOLLOW_PEOPLE -> {
@@ -183,13 +157,16 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         LogUtils.error("查询关注人失败: ", e);
                     }
                 }
-                case NoticeConstants.RelatedUser.PROCESSOR -> {
-                    Object value = paramMap.get(NoticeConstants.RelatedUser.PROCESSOR); // 处理人
-                    if (!Objects.isNull(value)) {
-                        toUsers.add(new Receiver(value.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                default -> toUsers.add(new Receiver(userId, NotificationConstants.Type.MENTIONED_ME.name()));
+            }
+            //TODO：接口同步时通知的接收人特殊处理（v2接口同步的通知，v3这里待讨论）
+            //处理评论人
+            if (messageDetail.getTaskType().contains("AT_COMMENT")) {
+                if (CollectionUtils.isNotEmpty(noticeModel.getRelatedUsers())) {
+                    for (String relatedUser : noticeModel.getRelatedUsers()) {
+                        toUsers.add(new Receiver(relatedUser, NotificationConstants.Type.MENTIONED_ME.name()));
                     }
                 }
-                default -> toUsers.add(new Receiver(userId, NotificationConstants.Type.MENTIONED_ME.name()));
             }
         }
         // 去重复
@@ -198,22 +175,12 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 .collect(Collectors.toList());
     }
 
-    private void getRelateUsers(List<Receiver> toUsers, Map<String, Object> paramMap) {
-        List<String> relatedUsers = (List<String>) paramMap.get("userIds");
-        if (CollectionUtils.isNotEmpty(relatedUsers)) {
-            List<Receiver> receivers = relatedUsers.stream()
-                    .map(u -> new Receiver(u, NotificationConstants.Type.SYSTEM_NOTICE.name()))
-                    .toList();
-            toUsers.addAll(receivers);
-        }
-    }
-
     private List<Receiver> handleFollows(MessageDetail messageDetail, NoticeModel noticeModel) {
         List<Receiver> receivers = new ArrayList<>();
         String id = (String) noticeModel.getParamMap().get("id");
         String taskType = messageDetail.getTaskType();
         switch (taskType) {
-            case NoticeConstants.TaskType.TEST_PLAN_TASK:
+            case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
                 TestPlanFollowerExample testPlanFollowerExample = new TestPlanFollowerExample();
                 testPlanFollowerExample.createCriteria().andTestPlanIdEqualTo(id);
                 List<TestPlanFollower> testPlanFollowers = testPlanFollowerMapper.selectByExample(testPlanFollowerExample);
@@ -221,8 +188,8 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         .stream()
                         .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
                         .collect(Collectors.toList());
-                break;
-            case NoticeConstants.TaskType.CASE_REVIEW_TASK:
+            }
+            case NoticeConstants.TaskType.CASE_REVIEW_TASK -> {
                 CaseReviewFollowerExample caseReviewFollowerExample = new CaseReviewFollowerExample();
                 caseReviewFollowerExample.createCriteria().andReviewIdEqualTo(id);
                 List<CaseReviewFollower> caseReviewFollowers = caseReviewFollowerMapper.selectByExample(caseReviewFollowerExample);
@@ -230,8 +197,8 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         .stream()
                         .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
                         .collect(Collectors.toList());
-                break;
-            case NoticeConstants.TaskType.API_SCENARIO_TASK:
+            }
+            case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
                 ApiScenarioFollowerExample apiScenarioFollowerExample = new ApiScenarioFollowerExample();
                 apiScenarioFollowerExample.createCriteria().andApiScenarioIdEqualTo(id);
                 List<ApiScenarioFollower> apiScenarioFollowers = apiScenarioFollowerMapper.selectByExample(apiScenarioFollowerExample);
@@ -239,26 +206,26 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         .stream()
                         .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
                         .collect(Collectors.toList());
-                break;
-            case NoticeConstants.TaskType.API_DEFINITION_TASK:
+            }
+            case NoticeConstants.TaskType.API_DEFINITION_TASK -> {
                 ApiDefinitionFollowerExample apiDefinitionFollowerExample = new ApiDefinitionFollowerExample();
                 apiDefinitionFollowerExample.createCriteria().andApiDefinitionIdEqualTo(id);
-                List<ApiDefinitionFollower> apiDefinitionFollowers= apiDefinitionFollowerMapper.selectByExample(apiDefinitionFollowerExample);
+                List<ApiDefinitionFollower> apiDefinitionFollowers = apiDefinitionFollowerMapper.selectByExample(apiDefinitionFollowerExample);
                 receivers = apiDefinitionFollowers
                         .stream()
                         .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
                         .collect(Collectors.toList());
-                break;
-            case NoticeConstants.TaskType.LOAD_TEST_TASK:
+            }
+            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
                 LoadTestFollowerExample loadTestFollowerExample = new LoadTestFollowerExample();
                 loadTestFollowerExample.createCriteria().andTestIdEqualTo(id);
-                List<LoadTestFollower> loadTestFollowers= loadTestFollowerMapper.selectByExample(loadTestFollowerExample);
+                List<LoadTestFollower> loadTestFollowers = loadTestFollowerMapper.selectByExample(loadTestFollowerExample);
                 receivers = loadTestFollowers
                         .stream()
                         .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
                         .collect(Collectors.toList());
-                break;
-            case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK:
+            }
+            case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> {
                 FunctionalCaseFollowerExample functionalCaseFollowerExample = new FunctionalCaseFollowerExample();
                 functionalCaseFollowerExample.createCriteria().andCaseIdEqualTo(id);
                 List<FunctionalCaseFollower> functionalCaseFollowers = functionalCaseFollowerMapper.selectByExample(functionalCaseFollowerExample);
@@ -266,9 +233,9 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         .stream()
                         .map(t -> new Receiver(t.getUserId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
                         .collect(Collectors.toList());
-                break;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
         LogUtils.info("FOLLOW_PEOPLE: {}", receivers);
         return receivers;
