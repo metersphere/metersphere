@@ -168,5 +168,13 @@ public class PermissionConstants {
     public static final String PROJECT_ENVIRONMENT_READ_EXPORT = "PROJECT_ENVIRONMENT:READ+EXPORT";
     /*------ end: PROJECT_ENVIRONMENT ------*/
 
-
+    /**
+     * 项目版本权限
+     */
+    /*------ start: PROJECT_VERSION ------*/
+    public static final String PROJECT_VERSION_READ = "PROJECT_VERSION:READ";
+    public static final String PROJECT_VERSION_READ_ADD = "PROJECT_VERSION:READ+ADD";
+    public static final String PROJECT_VERSION_READ_UPDATE = "PROJECT_VERSION:READ+UPDATE";
+    public static final String PROJECT_VERSION_READ_DELETE = "PROJECT_VERSION:READ+DELETE";
+    /*------ end: PROJECT_VERSION ------*/
 }

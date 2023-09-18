@@ -31,10 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -102,6 +99,7 @@ public class ProjectMemberService {
             User user = userMap.get(projectUser.getId());
             BeanUtils.copyBean(projectUser, user);
         });
+        projectUsers.sort(Comparator.comparing(ProjectUserDTO::getName));
         return projectUsers;
     }
 

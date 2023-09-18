@@ -14,6 +14,7 @@
             </if>
             <include refid="filter"/>
         </where>
+        order by u.name
     </select>
 
     <select id="getMemberByOrg" resultType="io.metersphere.sdk.dto.UserExtend">
