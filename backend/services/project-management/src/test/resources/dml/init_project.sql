@@ -28,3 +28,6 @@ replace INTO user_role_relation (id, user_id, role_id, source_id, organization_i
 replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user )VALUES ('user_role_relation4','admin1','project_member','projectId2','100001','1684747668321','admin');
 replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user )VALUES ('user_role_relation5','admin1','project_member','projectId3','100001','1684747668321','admin');
 replace INTO user_role_permission(id, role_id, permission_id) VALUES ('user_role_permission1','project_member','PROJECT_BASE_INFO:READ');
+
+#插入测试数据   环境
+replace INTO environment (id, name, project_id, create_user, update_user, create_time, update_time) VALUES ('environmentId1', '环境1', 'projectId1', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
