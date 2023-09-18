@@ -60,7 +60,7 @@
   import { ref, computed, watchEffect, nextTick, provide, onMounted } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import UserGroupLeft from '@/components/business/ms-user-group-comp/msUserGroupLeft.vue';
-  import UserTable from '@/components/business/ms-user-group-comp//userTable.vue';
+  import UserTable from '@/components/business/ms-user-group-comp/userTable.vue';
   import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { useAppStore } from '@/store';
