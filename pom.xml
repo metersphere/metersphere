@@ -88,6 +88,8 @@
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
         <commons-dbcp2-version>2.9.0</commons-dbcp2-version>
+        <jgit-version>6.7.0.202309050840-r</jgit-version>
+
     </properties>
 
     <modules>
