@@ -20,6 +20,7 @@ import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.MicroService;
 import io.metersphere.service.SystemProjectService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -86,6 +87,9 @@ public class SystemProjectController {
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public Pager<List<ProjectDTO>> getProjectList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ProjectRequest request) {
+        if (StringUtils.isBlank(request.getWorkspaceId())) {
+            return new Pager<>();
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, systemProjectService.getProjectList(request));
     }
