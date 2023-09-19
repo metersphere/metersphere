@@ -96,7 +96,8 @@ public class MsExtract extends MsTestElement {
         if (extractRegex.isMultipleMatching()) {
             extractor.setMatchNumber(-1);
         }
-        extractor.setTemplate("$1$");
+        // $1$提取 JSON 响应中的第一个匹配项 $0$用于提取整个 JSON 响应
+        extractor.setTemplate("$0$");
         extract.add(extractor.getRefName());
 
         return extractor;
