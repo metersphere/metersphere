@@ -70,8 +70,8 @@
 
 <script>
 import BugManageBtn from "./BugManageBtn";
-import {getCurrentUser, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import {AZURE_DEVOPS,AZURE_DEVOP_URL} from "metersphere-frontend/src/utils/constants";
+import {getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
+import {AZURE_DEVOPS} from "metersphere-frontend/src/utils/constants";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import MsPersonRouter from "metersphere-frontend/src/components/personal/PersonRouter";
 import {
@@ -124,10 +124,10 @@ export default {
   },
   methods: {
     init() {
-      const {lastWorkspaceId} = getCurrentUser();
+      const workspaceId = getCurrentWorkspaceId();
       let param = {};
       param.platform = AZURE_DEVOPS;
-      param.workspaceId = lastWorkspaceId;
+      param.workspaceId = workspaceId;
       this.$parent.loading = getServiceIntegration(param).then(res => {
         let data = res.data;
         if (data.configuration) {
@@ -157,8 +157,7 @@ export default {
             issuetype: this.form.issuetype,
             storytype: this.form.storytype
           };
-          const {lastWorkspaceId} = getCurrentUser();
-          param.workspaceId = lastWorkspaceId;
+          param.workspaceId = getCurrentWorkspaceId();
           param.platform = AZURE_DEVOPS;
           param.configuration = JSON.stringify(auth);
           this.$parent.loading = saveServiceIntegration(param).then(() => {
@@ -203,9 +202,9 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              const {lastWorkspaceId} = getCurrentUser();
+              const workspaceId = getCurrentWorkspaceId();
               let param = {};
-              param.workspaceId = lastWorkspaceId;
+              param.workspaceId = workspaceId;
               param.platform = AZURE_DEVOPS;
               this.$parent.loading = delServiceIntegration(param).then(() => {
                 this.$success(this.$t('organization.integration.successful_operation'));

@@ -64,15 +64,11 @@
 
 <script>
 import BugManageBtn from "./BugManageBtn";
-import {getCurrentUser} from "metersphere-frontend/src/utils/token";
+import {getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import MsPersonRouter from "metersphere-frontend/src/components/personal/PersonRouter";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
-import {
-  delServiceIntegration,
-  getServiceIntegration,
-  saveServiceIntegration
-} from "../../../api/workspace";
+import {delServiceIntegration, getServiceIntegration, saveServiceIntegration} from "../../../api/workspace";
 import {generatePlatformResourceUrl, validateServiceIntegration} from "@/api/platform-plugin";
 import {getPlatformFormRules} from "metersphere-frontend/src/utils/platform";
 
@@ -103,10 +99,10 @@ export default {
     init() {
       this.rules = getPlatformFormRules(this.config);
 
-      const {lastWorkspaceId} = getCurrentUser();
+      const workspaceId = getCurrentWorkspaceId();
       let param = {};
       param.platform = this.config.key;
-      param.workspaceId = lastWorkspaceId;
+      param.workspaceId = workspaceId;
       this.$parent.loading = getServiceIntegration(param).then(res => {
         let data = res.data;
         if (data.configuration) {
@@ -130,9 +126,9 @@ export default {
         if (valid) {
           let config = {};
           Object.assign(config, this.form);
-          const {lastWorkspaceId} = getCurrentUser();
+          const workspaceId = getCurrentWorkspaceId();
           let param = {};
-          param.workspaceId = lastWorkspaceId;
+          param.workspaceId = workspaceId;
           param.platform = this.config.key;
           param.configuration = JSON.stringify(config);
           this.$parent.loading = saveServiceIntegration(param).then(() => {
@@ -171,9 +167,9 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            const {lastWorkspaceId} = getCurrentUser();
+            const workspaceId = getCurrentWorkspaceId();
             let param = {};
-            param.workspaceId = lastWorkspaceId;
+            param.workspaceId = workspaceId;
             param.platform = this.config.key;
             this.$parent.loading = delServiceIntegration(param).then(() => {
               this.$success(this.$t('organization.integration.successful_operation'));
