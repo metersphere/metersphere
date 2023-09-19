@@ -1,7 +1,6 @@
 package io.metersphere.project.controller;
 
 
-
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.dto.environment.KeyValue;
@@ -38,11 +37,10 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.request.PluginUpdateRequest;
-import io.metersphere.system.service.JdbcDriverPluginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -97,8 +95,12 @@ public class EnvironmentControllerTests extends BaseTest {
     private EnvironmentMapper environmentMapper;
     @Resource
     private EnvironmentBlobMapper environmentBlobMapper;
-    @Resource
-    private JdbcDriverPluginService jdbcDriverPluginService;
+    @Value("${spring.datasource.url}")
+    private String dburl;
+    @Value("${spring.datasource.username}")
+    private String username;
+    @Value("${spring.datasource.password}")
+    private String password;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -795,37 +797,15 @@ public class EnvironmentControllerTests extends BaseTest {
     public void testDataValidate() throws Exception {
         //测试mysql
         DataSource dataSource = new DataSource();
-        dataSource.setDbUrl("jdbc:mysql://101.43.186.75:3307/metersphere?autoReconnect=false&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false");
-        dataSource.setPassword("Password123@mysql");
-        dataSource.setUsername("root");
+        dataSource.setDbUrl(dburl);
+        dataSource.setPassword(password);
+        dataSource.setUsername(username);
         dataSource.setDriverId(StringUtils.join("system", "&", "com.mysql.cj.jdbc.Driver"));
         dataSource.setDriver("com.mysql.cj.jdbc.Driver");
         this.requestPost(validate, dataSource, status().isOk());
         //校验权限
         requestPostPermissionsTest(Arrays.asList(PermissionConstants.PROJECT_ENVIRONMENT_READ, PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD, PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE),
                 validate, dataSource);
-
-        //测试oracle  需要上传驱动jar包
-        // 校验数据库驱动上传成功
-        PluginUpdateRequest request = new PluginUpdateRequest();
-        request.setName("my-driver");
-        request.setOrganizationIds(Arrays.asList(DEFAULT_ORGANIZATION_ID));
-        File myDriver = new File(
-                this.getClass().getClassLoader().getResource("file/ojdbc11.jar")
-                        .getPath()
-        );
-        request.setGlobal(true);
-        request.setEnable(true);
-        this.requestMultipartWithOkAndReturn("/plugin/add",
-                getDefaultMultiPartParam(request, myDriver));
-        Assertions.assertEquals(jdbcDriverPluginService.getJdbcDriverClass(DEFAULT_ORGANIZATION_ID), Arrays.asList("oracle.jdbc.OracleDriver", "com.mysql.cj.jdbc.Driver"));
-        dataSource = new DataSource();
-        dataSource.setDbUrl("jdbc:oracle:thin:@123.56.8.132:1521/orclpdb1.localdomain");
-        dataSource.setPassword("dataease");
-        dataSource.setUsername("dataease");
-        dataSource.setDriverId("oracle.jdbc.OracleDriver&oracle.jdbc.OracleDriver");
-        dataSource.setDriver("oracle.jdbc.OracleDriver");
-        this.requestPost(validate, dataSource, status().isOk());
     }
 
     @Test

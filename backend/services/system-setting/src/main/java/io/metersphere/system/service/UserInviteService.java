@@ -99,7 +99,7 @@ public class UserInviteService {
                 "                                    <tr>\n" +
                 "                                        <td style=\"padding: 14px 24px 7px; color: #8492a6;\">\n" +
                 "                                            <span style=\"color:#7952B3\">" + inviteUser + "</span>\n" +
-                "                                            " + Translator.get("user.email.invite_ms") + "MeterSphere\n" +
+                "                                            " + Translator.get("user.email.invite_ms") + "\n" +
                 "                                        </td>\n" +
                 "                                    </tr>\n" +
                 "                                    <tr>\n" +
