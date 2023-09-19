@@ -50,7 +50,7 @@
 
 <script>
 import BugManageBtn from "./BugManageBtn";
-import {getCurrentUser, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
+import {getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {TAPD} from "metersphere-frontend/src/utils/constants";
 import MsPersonRouter from "metersphere-frontend/src/components/personal/PersonRouter";
 import {
@@ -91,10 +91,10 @@ export default {
   },
   methods: {
     init() {
-      const {lastWorkspaceId} = getCurrentUser();
+      const workspaceId = getCurrentWorkspaceId();
       let param = {};
       param.platform = TAPD;
-      param.workspaceId = lastWorkspaceId;
+      param.workspaceId = workspaceId;
       this.$parent.loading = getServiceIntegration(param).then(res => {
         let data = res.data;
         if (data.configuration) {
@@ -115,8 +115,7 @@ export default {
             account: this.form.account,
             password: this.form.password,
           };
-          const {lastWorkspaceId} = getCurrentUser();
-          param.workspaceId = lastWorkspaceId;
+          param.workspaceId = getCurrentWorkspaceId();
           param.platform = TAPD;
           param.configuration = JSON.stringify(auth);
           this.$parent.loading = saveServiceIntegration(param).then(() => {
@@ -158,9 +157,9 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              const {lastWorkspaceId} = getCurrentUser();
+              const workspaceId = getCurrentWorkspaceId();
               let param = {};
-              param.workspaceId = lastWorkspaceId;
+              param.workspaceId = workspaceId;
               param.platform = TAPD;
               this.$parent.loading = delServiceIntegration(param).then(() => {
                 this.$success(this.$t('organization.integration.successful_operation'));
