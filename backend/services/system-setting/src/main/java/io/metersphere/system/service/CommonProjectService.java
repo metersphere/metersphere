@@ -10,18 +10,18 @@ import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.invoker.ProjectServiceInvoker;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.invoker.ProjectServiceInvoker;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -118,6 +118,8 @@ public class CommonProjectService {
             memberRequest.setUserIds(addProjectDTO.getUserIds());
         }
         projectMapper.insertSelective(project);
+        // 创建项目时初始化资源
+        serviceInvoker.invokeCreateServices(project.getId());
         //添加项目管理员   创建的时候如果没有传管理员id  则默认创建者为管理员
         this.addProjectAdmin(memberRequest, createUser, path,
                 OperationLogType.ADD.name(), Translator.get("add"), module);
