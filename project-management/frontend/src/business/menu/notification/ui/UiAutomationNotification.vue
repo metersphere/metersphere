@@ -259,11 +259,8 @@ export default {
 
       switch (row.event) {
         case "CREATE":
-          receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
-          if (row.isSet) {
-            if (i2 < 0) {
-              row.userIds.unshift('CREATOR');
-            }
+          if (i2 > -1) {
+            row.userIds.splice(i2, 1);
           }
           break;
         case "UPDATE":
