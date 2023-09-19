@@ -28,7 +28,6 @@ public class CleanupEnvironmentTests {
     @Order(1)
     public void testCleanupResource() throws Exception {
         serviceInvoker.invokeServices("test");
-        cleanupEnvironmentResourceService.deleteResources("test");
         cleanupEnvironmentResourceService.cleanReportResources("test");
     }
 

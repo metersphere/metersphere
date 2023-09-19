@@ -118,6 +118,7 @@ public class CommonProjectService {
             memberRequest.setUserIds(addProjectDTO.getUserIds());
         }
         projectMapper.insertSelective(project);
+        serviceInvoker.invokeCreateServices(project.getId());
         //添加项目管理员   创建的时候如果没有传管理员id  则默认创建者为管理员
         this.addProjectAdmin(memberRequest, createUser, path,
                 OperationLogType.ADD.name(), Translator.get("add"), module);
