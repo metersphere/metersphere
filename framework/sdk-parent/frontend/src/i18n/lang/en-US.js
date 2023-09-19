@@ -789,7 +789,7 @@ const message = {
                 "3. To use the @ feature, the selected recipient must be a user included in the group, the recipient’s phone number is required and should be the phone number used by Dingding.",
             message: "Event, receiver and receiving method are required\n",
             message_webhook:
-                "Webhook is required when the receiving mode is WeChat Enterprise, Dingding or Feishu",
+                "Webhook is required when the receiving mode is WeChat Enterprise, Dingding, Feishu or Webhook",
             template: "Template",
             track: "Track notification",
             api: "Api notification",
