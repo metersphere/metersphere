@@ -146,6 +146,7 @@
       showTooltip: true,
       ellipsis: true,
       sortIndex: 0,
+      showDrag: true,
     },
     {
       title: 'organization.member.tableColunmName',
@@ -153,6 +154,7 @@
       showInTable: true,
       showTooltip: true,
       ellipsis: true,
+      showDrag: false,
     },
     {
       title: 'organization.member.tableColunmPhone',
@@ -161,6 +163,7 @@
       width: 200,
       showTooltip: true,
       ellipsis: true,
+      showDrag: true,
     },
     {
       title: 'organization.member.tableColunmPro',
@@ -168,6 +171,7 @@
       dataIndex: 'projectIdNameMap',
       showInTable: true,
       isTag: true,
+      showDrag: true,
     },
     {
       title: 'organization.member.tableColunmUsergroup',
@@ -175,6 +179,7 @@
       dataIndex: 'userRoleIdNameMap',
       showInTable: true,
       isTag: true,
+      showDrag: true,
     },
     {
       title: 'organization.member.tableColunmStatus',
@@ -182,6 +187,7 @@
       dataIndex: 'enable',
       showInTable: true,
       width: 200,
+      showDrag: true,
     },
     {
       title: 'organization.member.tableColunmActions',
@@ -190,6 +196,7 @@
       fixed: 'right',
       width: 140,
       showInTable: true,
+      showDrag: false,
     },
   ];
   tableStore.initColumn(TableKeyEnum.ORGANIZATION_MEMBER, columns, 'drawer');

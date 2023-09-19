@@ -133,9 +133,9 @@
     @apply flex items-center rounded-md;
   }
   .ms-item-0 {
-    background: url('@/assets/images/ms_plugindownload.jpg') no-repeat center / cover;
+    background: url('@/assets/images/ms_plugindownload.jpg') no-repeat center / auto;
   }
   .ms-item-1 {
-    background: url('@/assets/images/ms_configplugin.jpg') no-repeat center / cover;
+    background: url('@/assets/images/ms_configplugin.jpg') no-repeat center / auto;
   }
 </style>

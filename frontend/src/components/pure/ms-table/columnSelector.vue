@@ -9,9 +9,19 @@
     @cancel="handleCancel"
   >
     <div class="ms-table-column-seletor">
-      <div class="mb-2">
+      <div class="mb-2 flex items-center">
         <span class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.mode') }}</span>
-        <icon-question-circle class="ml-1 text-[var(--color-text-brand)]" />
+        <a-tooltip :content="t('msTable.columnSetting.tooltipContent')">
+          <template #content>
+            <span>{{ t('msTable.columnSetting.tooltipContentDrawer') }}</span
+            ><br />
+            <span>{{ t('msTable.columnSetting.tooltipContentWindow') }}</span>
+          </template>
+          <span class="inline-block align-middle"
+            ><icon-question-circle
+              class="ml-[4px] mt-[3px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+          /></span>
+        </a-tooltip>
       </div>
       <a-radio-group :model-value="currentMode" type="button" @change="handleModeChange">
         <a-radio value="drawer">
@@ -35,7 +45,11 @@
       <div class="flex-col">
         <div v-for="item in nonSortColumn" :key="item.dataIndex" class="column-item">
           <div>{{ t(item.title as string) }}</div>
-          <a-switch v-model="item.showInTable" size="small" />
+          <a-switch
+            v-model="item.showInTable"
+            size="small"
+            :disabled="item.dataIndex === 'name' || item.dataIndex === 'operation'"
+          />
         </div>
       </div>
       <a-divider orientation="center" class="non-sort"

@@ -25,6 +25,8 @@ export default {
       header: 'Header Settings',
       resetDefault: 'Reset default',
       nonSort: 'The above properties cannot be sorted',
+      tooltipContentDrawer: 'Drawer: open a new page as a drawer',
+      tooltipContentWindow: 'New Window: open a new page with a new page',
     },
     cancel: 'Cancel',
     confirm: 'Confirm',

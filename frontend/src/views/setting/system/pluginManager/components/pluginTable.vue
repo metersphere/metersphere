@@ -444,4 +444,7 @@
       }
     }
   }
+  :deep(.arco-table-th) {
+    color: var(--color-text-3);
+  }
 </style>

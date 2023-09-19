@@ -1,5 +1,5 @@
 export default {
-  'msBatchModal.batchModalSubTitle': '已选 {count} 个用户）',
+  'msBatchModal.batchModalSubTitle': '（已选 {count} 个用户）',
   'msBatchModal.batchModalTip': '默认为成员添加项目成员用户组',
   'msBatchModal.batchOptional': '可选',
   'msBatchModal.batchChosen': '已选',
