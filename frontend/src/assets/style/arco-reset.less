@@ -554,6 +554,18 @@
     background-color: var(--color-text-input-border);
   }
 }
+.ms-scroll-bar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background-color: var(--color-text-input-border);
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-4);
+  }
+}
 
 /** 开关 **/
 .arco-switch:not(.arco-switch-disabled) {
