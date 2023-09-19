@@ -85,7 +85,10 @@ public class LoginController {
 
     @GetMapping(value = "/signout")
     @Operation(summary = "退出登录")
-    public ResultHolder logout(HttpServletResponse response) throws Exception {
+    public ResultHolder logout() throws Exception {
+        if (SessionUtils.getUser() == null) {
+            return ResultHolder.success("logout success");
+        }
         baseUserService.saveLog(SessionUtils.getUserId(), HttpMethodConstants.GET.name(), "/signout", "登出成功", OperationLogType.LOGOUT.name());
         SecurityUtils.getSubject().logout();
         return ResultHolder.success("logout success");
