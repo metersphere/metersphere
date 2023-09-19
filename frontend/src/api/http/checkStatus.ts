@@ -12,10 +12,10 @@ export default function checkStatus(status: number, msg: string, errorMessageMod
       errMessage = `${msg}`;
       break;
     case 401: {
+      errMessage = msg || t('api.errMsg401');
       if (!isLoginPage()) {
         // 不是登录页再调用logout
         logout();
-        errMessage = msg || t('api.errMsg401');
       }
       break;
     }
