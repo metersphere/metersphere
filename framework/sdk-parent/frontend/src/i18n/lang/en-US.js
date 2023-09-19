@@ -795,6 +795,7 @@ const message = {
             api: "Api notification",
             performance: "Performance notification",
             notice_count: "Number",
+            ui: "UI notification"
         },
         integration: {
             select_defect_platform:
@@ -2394,7 +2395,7 @@ const message = {
         definition: "Api Definition",
         automation: "Api Automation",
         report: "Test Report",
-        ui_automation: "Ui Automation",
+        ui_automation: "Ui Test",
     },
     ldap: {
         url: "LDAP URL",

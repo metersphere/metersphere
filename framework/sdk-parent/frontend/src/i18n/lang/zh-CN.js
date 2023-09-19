@@ -782,7 +782,7 @@ const message = {
             api: "接口测试任务通知",
             performance: "性能测试任务通知",
             notice_count: "通知数",
-            ui: "UI自动化消息配置",
+            ui: "UI测试任务通知",
         },
         integration: {
             select_defect_platform: "请选择要集成的缺陷管理平台：",
@@ -2301,7 +2301,7 @@ const message = {
         definition: "接口定义",
         automation: "接口自动化",
         report: "测试报告",
-        ui_automation: "UI自动化",
+        ui_automation: "UI测试",
     },
     ldap: {
         url: "LDAP地址",
