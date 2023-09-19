@@ -117,6 +117,7 @@ public class BaseUserRoleService {
             put("READ+DELETE", "permission.delete");
             put("READ+IMPORT", "permission.import");
             put("READ+RECOVER", "permission.recover");
+            put("READ+EXPORT", "permission.export");
         }};
         return Translator.get(translationMap.get(permissionKey));
     }

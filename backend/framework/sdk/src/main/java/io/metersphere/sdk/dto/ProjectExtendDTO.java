@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ProjectExtendDTO extends Project implements Serializable {
+public class ProjectExtendDTO extends ProjectDTO implements Serializable {
     private List<String> moduleIds;
 
     private static final long serialVersionUID = 1L;

@@ -52,7 +52,7 @@ public class OrganizationProjectController {
     @Operation(summary = "系统设置-组织-项目-根据ID获取项目信息")
     @Parameter(name = "id", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
-    public Project getProject(@PathVariable @NotBlank String id) {
+    public ProjectExtendDTO getProject(@PathVariable @NotBlank String id) {
         return organizationProjectService.get(id);
     }
 
@@ -88,7 +88,7 @@ public class OrganizationProjectController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.recoverLog(#id)", msClass = OrganizationProjectLogService.class)
     @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public int revokeProject(@PathVariable String id) {
-        return organizationProjectService.revoke(id);
+        return organizationProjectService.revoke(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/enable/{id}")
@@ -97,7 +97,7 @@ public class OrganizationProjectController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = OrganizationProjectLogService.class)
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE)
     public void enable(@PathVariable String id) {
-        organizationProjectService.enable(id);
+        organizationProjectService.enable(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/disable/{id}")
@@ -106,7 +106,7 @@ public class OrganizationProjectController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = OrganizationProjectLogService.class)
     public void disable(@PathVariable String id) {
-        organizationProjectService.disable(id);
+        organizationProjectService.disable(id, SessionUtils.getUserId());
     }
 
     @PostMapping("/member-list")

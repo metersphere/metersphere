@@ -57,6 +57,8 @@ public class CommonProjectService {
     @Resource
     private BaseUserService baseUserService;
     private final ProjectServiceInvoker serviceInvoker;
+    @Resource
+    private OrganizationMapper organizationMapper;
 
     @Autowired
     public CommonProjectService(ProjectServiceInvoker serviceInvoker) {
@@ -68,6 +70,7 @@ public class CommonProjectService {
         ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
         if (ObjectUtils.isNotEmpty(project)) {
             BeanUtils.copyBean(projectExtendDTO, project);
+            projectExtendDTO.setOrganizationName(organizationMapper.selectByPrimaryKey(project.getOrganizationId()).getName());
             if (StringUtils.isNotEmpty(project.getModuleSetting())) {
                 projectExtendDTO.setModuleIds(JSON.parseArray(project.getModuleSetting(), String.class));
             }
@@ -100,7 +103,7 @@ public class CommonProjectService {
         project.setDescription(addProjectDTO.getDescription());
         addProjectDTO.setId(project.getId());
         BeanUtils.copyBean(projectExtendDTO, project);
-
+        projectExtendDTO.setOrganizationName(organizationMapper.selectByPrimaryKey(project.getOrganizationId()).getName());
         //判断是否有模块设置
         if (CollectionUtils.isNotEmpty(addProjectDTO.getModuleIds())) {
             project.setModuleSetting(JSON.toJSONString(addProjectDTO.getModuleIds()));
@@ -229,6 +232,7 @@ public class CommonProjectService {
         project.setUpdateTime(System.currentTimeMillis());
         checkProjectExistByName(project);
         checkProjectNotExist(project.getId());
+        projectExtendDTO.setOrganizationName(organizationMapper.selectByPrimaryKey(project.getOrganizationId()).getName());
         BeanUtils.copyBean(projectExtendDTO, project);
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(project.getId()).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
@@ -422,13 +426,15 @@ public class CommonProjectService {
         return userRoleRelationMapper.deleteByExample(userRoleRelationExample);
     }
 
-    public int revoke(String id) {
+    public int revoke(String id, String updateUser) {
         checkProjectNotExist(id);
         Project project = new Project();
         project.setId(id);
         project.setDeleted(false);
         project.setDeleteTime(null);
         project.setDeleteUser(null);
+        project.setUpdateUser(updateUser);
+        project.setUpdateTime(System.currentTimeMillis());
         return projectMapper.updateByPrimaryKeySelective(project);
     }
 
@@ -487,20 +493,22 @@ public class CommonProjectService {
         logDTOList.add(dto);
     }
 
-    public void enable(String id) {
+    public void enable(String id, String updateUser) {
         checkProjectNotExist(id);
         Project project = new Project();
         project.setId(id);
         project.setEnable(true);
+        project.setUpdateUser(updateUser);
         project.setUpdateTime(System.currentTimeMillis());
         projectMapper.updateByPrimaryKeySelective(project);
     }
 
-    public void disable(String id) {
+    public void disable(String id, String updateUser) {
         checkProjectNotExist(id);
         Project project = new Project();
         project.setId(id);
         project.setEnable(false);
+        project.setUpdateUser(updateUser);
         project.setUpdateTime(System.currentTimeMillis());
         projectMapper.updateByPrimaryKeySelective(project);
     }

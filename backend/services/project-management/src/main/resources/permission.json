@@ -10,6 +10,9 @@
         "permissions": [
           {
             "id": "PROJECT:READ"
+          },
+          {
+            "id": "PROJECT:READ+UPDATE"
           }
         ]
       },
@@ -64,6 +67,12 @@
           },
           {
             "id": "PROJECT_ENVIRONMENT:READ+DELETE"
+          },
+          {
+            "id": "PROJECT_ENVIRONMENT:READ+IMPORT"
+          },
+          {
+            "id": "PROJECT_ENVIRONMENT:READ+EXPORT"
           }
         ]
       },
@@ -128,7 +137,6 @@
         "permissions": [
           {
             "id": "PROJECT_FAKE_ERROR:READ"
-
           },
           {
             "id": "PROJECT_FAKE_ERROR:READ+ADD"

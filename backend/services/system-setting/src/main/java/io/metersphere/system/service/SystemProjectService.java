@@ -79,8 +79,8 @@ public class SystemProjectService {
         return commonProjectService.removeProjectMember(projectId, userId, createUser, OperationLogModule.SETTING_SYSTEM_ORGANIZATION, StringUtils.join(REMOVE_PROJECT_MEMBER, projectId, "/", userId));
     }
 
-    public int revoke(String id) {
-        return commonProjectService.revoke(id);
+    public int revoke(String id, String updateUser) {
+        return commonProjectService.revoke(id, updateUser);
     }
 
     public void deleteProject(List<Project> projects) {
@@ -91,11 +91,11 @@ public class SystemProjectService {
         return extSystemProjectMapper.selectProjectOptions(organizationId);
     }
 
-    public void enable(String id) {
-        commonProjectService.enable(id);
+    public void enable(String id, String updateUser) {
+        commonProjectService.enable(id, updateUser);
     }
 
-    public void disable(String id) {
-        commonProjectService.disable(id);
+    public void disable(String id, String updateUser) {
+        commonProjectService.disable(id, updateUser);
     }
 }
