@@ -153,5 +153,8 @@ VALUES(uuid(), (select id from custom_field where name = 'functional_priority'),
 Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), '100001100001', '站内信', 'IN_SITE', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
 Insert into project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES (UUID_SHORT(), '100001100001', '邮件', 'MAIL', 'NONE', null, null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
 
+-- 初始化默认项目版本
+INSERT INTO project_version (id, project_id, name, description, status, latest, publish_time, start_time, end_time, create_time, create_user) VALUES (UUID_SHORT(), 'default_project', 'v1.0', NULL, 'open', 0, NULL, NULL, NULL, UNIX_TIMESTAMP(), 'admin');
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
