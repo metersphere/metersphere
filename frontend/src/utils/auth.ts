@@ -1,4 +1,5 @@
 import { isLogin as isLoginFun } from '@/api/modules/user';
+import { WHITE_LIST_NAME } from '@/router/constants';
 
 const SESSION_ID = 'sessionId';
 const CSRF_TOKEN = 'csrfToken';
@@ -26,7 +27,10 @@ const clearToken = () => {
   localStorage.removeItem(CSRF_TOKEN);
 };
 
-const hasToken = () => {
+const hasToken = (name: string) => {
+  if (WHITE_LIST_NAME.includes(name)) {
+    return true;
+  }
   return !!localStorage.getItem(SESSION_ID) && !!localStorage.getItem(CSRF_TOKEN);
 };
 
