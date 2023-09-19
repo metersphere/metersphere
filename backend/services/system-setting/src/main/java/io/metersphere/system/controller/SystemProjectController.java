@@ -57,7 +57,7 @@ public class SystemProjectController {
     @Operation(summary = "系统设置-系统-组织与项目-项目-根据ID获取项目信息")
     @Parameter(name = "id", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public Project getProject(@PathVariable @NotBlank String id) {
+    public ProjectExtendDTO getProject(@PathVariable @NotBlank String id) {
         return systemProjectService.get(id);
     }
 
@@ -93,7 +93,7 @@ public class SystemProjectController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.recoverLog(#id)", msClass = SystemProjectLogService.class)
     @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public int revokeProject(@PathVariable String id) {
-       return systemProjectService.revoke(id);
+       return systemProjectService.revoke(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/enable/{id}")
@@ -102,7 +102,7 @@ public class SystemProjectController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = SystemProjectLogService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     public void enable(@PathVariable String id) {
-        systemProjectService.enable(id);
+        systemProjectService.enable(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/disable/{id}")
@@ -111,7 +111,7 @@ public class SystemProjectController {
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = SystemProjectLogService.class)
     public void disable(@PathVariable String id) {
-        systemProjectService.disable(id);
+        systemProjectService.disable(id, SessionUtils.getUserId());
     }
 
     @PostMapping("/member-list")

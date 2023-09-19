@@ -18,6 +18,8 @@ replace INTO project (id, num, organization_id, name, description, create_user, 
 replace INTO project (id, num, organization_id, name, description, create_user, update_user, create_time,update_time,enable, module_setting) VALUES ('projectId3', null, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目3', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000,1,'["apiTest","uiTest"]');
 replace INTO project (id, num, organization_id, name, description, create_user, update_user, create_time,update_time,enable, module_setting) VALUES ('projectId4', null, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目4', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000,1,'["apiTest","uiTest","loadTest"]');
 replace INTO project (id, num, organization_id, name, description, create_user, update_user, create_time,update_time,enable,module_setting) VALUES ('projectId5', null, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目5', '系统默认创建的项目', 'test', 'test', unix_timestamp() * 1000, unix_timestamp() * 1000,1,'["apiTest","uiTest"]');
+replace INTO organization(id,num, name, description, create_time, update_time, create_user, update_user, delete_user, delete_time) VALUE
+    ('organizationId',null, 'test-org', 'project', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'admin', null, null);
 
 
 # 插入测试数据  给组织增加成员

@@ -1,19 +1,26 @@
 package io.metersphere.project.service;
 
 
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.dto.environment.datasource.DataSource;
+import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentBlob;
 import io.metersphere.sdk.domain.EnvironmentBlobExample;
 import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -41,11 +48,14 @@ public class EnvironmentService {
     private MinioRepository minioRepository;
     @Resource
     private JdbcDriverPluginService jdbcDriverPluginService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private OperationLogService operationLogService;
 
     private static final String DIR_PATH = "/project-management/environment/";
     private static final String USERNAME = "user";
     private static final String PASSWORD = "password";
-
 
     public List<OptionDTO> getDriverOptions(String organizationId) {
         return jdbcDriverPluginService.getJdbcDriverOption(organizationId);
@@ -190,6 +200,10 @@ public class EnvironmentService {
                 // 拿到的参数是一个list
                 List<EnvironmentRequest> environmentRequests = JSON.parseArray(content, EnvironmentRequest.class);
                 if (CollectionUtils.isNotEmpty(environmentRequests)) {
+                    List<Environment> environments = new ArrayList<>();
+                    List<EnvironmentBlob> environmentBlobs = new ArrayList<>();
+                    List<LogDTO> logDTOS = new ArrayList<>();
+                    Project project = projectMapper.selectByPrimaryKey(currentProjectId);
                     environmentRequests.forEach(environmentRequest -> {
                         Environment environment = new Environment();
                         environment.setId(UUID.randomUUID().toString());
@@ -201,12 +215,27 @@ public class EnvironmentService {
                         checkEnvironmentExist(environment);
                         environment.setCreateTime(System.currentTimeMillis());
                         environment.setProjectId(currentProjectId);
-                        environmentMapper.insert(environment);
+                        environments.add(environment);
                         EnvironmentBlob environmentBlob = new EnvironmentBlob();
                         environmentBlob.setId(environment.getId());
                         environmentBlob.setConfig(JSON.toJSONBytes(environmentRequest.getConfig()));
-                        environmentBlobMapper.insert(environmentBlob);
+                        environmentBlobs.add(environmentBlob);
+                        LogDTO logDTO = new LogDTO(
+                                currentProjectId,
+                                project.getOrganizationId(),
+                                environment.getId(),
+                                userId,
+                                OperationLogType.ADD.name(),
+                                OperationLogModule.PROJECT_ENVIRONMENT_SETTING,
+                                environment.getName());
+                        logDTO.setMethod(HttpMethodConstants.POST.name());
+                        logDTO.setOriginalValue(JSON.toJSONBytes(environmentRequest.getConfig()));
+                        logDTO.setPath("/project/environment/import");
+                        logDTOS.add(logDTO);
                     });
+                    environmentMapper.batchInsert(environments);
+                    environmentBlobMapper.batchInsert(environmentBlobs);
+                    operationLogService.batchAdd(logDTOS);
                 }
             } catch (Exception e) {
                 LogUtils.error("获取文件输入流异常", e);

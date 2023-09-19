@@ -8,8 +8,10 @@ import io.metersphere.project.request.ProjectSwitchRequest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.dto.ProjectExtendDTO;
 import io.metersphere.sdk.dto.SessionUser;
+import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.domain.Organization;
 import io.metersphere.system.service.BaseUserService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -20,6 +22,7 @@ import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.service.CommonProjectService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -42,6 +45,8 @@ public class ProjectService {
     private BaseUserService baseUserService;
     @Resource
     private OrganizationMapper organizationMapper;
+    @Resource
+    private CommonProjectService commonProjectService;
 
 
     public List<Project> getUserProject(String organizationId, String userId) {
@@ -82,6 +87,8 @@ public class ProjectService {
         ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
         if (ObjectUtils.isNotEmpty(project)) {
             BeanUtils.copyBean(projectExtendDTO, project);
+            Organization organization = organizationMapper.selectByPrimaryKey(project.getOrganizationId());
+            projectExtendDTO.setOrganizationName(organization.getName());
             if (StringUtils.isNotEmpty(project.getModuleSetting())) {
                 projectExtendDTO.setModuleIds(JSON.parseArray(project.getModuleSetting(), String.class));
             }
@@ -89,5 +96,61 @@ public class ProjectService {
             return null;
         }
         return projectExtendDTO;
+    }
+
+    public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
+        Project project = new Project();
+        ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
+        project.setId(updateProjectDto.getId());
+        project.setName(updateProjectDto.getName());
+        project.setDescription(updateProjectDto.getDescription());
+        project.setOrganizationId(updateProjectDto.getOrganizationId());
+        project.setEnable(updateProjectDto.getEnable());
+        project.setUpdateUser(updateUser);
+        project.setCreateUser(null);
+        project.setCreateTime(null);
+        project.setUpdateTime(System.currentTimeMillis());
+        checkProjectExistByName(project);
+        checkProjectNotExist(project.getId());
+        projectExtendDTO.setOrganizationName(organizationMapper.selectByPrimaryKey(updateProjectDto.getOrganizationId()).getName());
+        BeanUtils.copyBean(projectExtendDTO, project);
+        //判断是否有模块设置
+        if (CollectionUtils.isNotEmpty(updateProjectDto.getModuleIds())) {
+            project.setModuleSetting(JSON.toJSONString(updateProjectDto.getModuleIds()));
+            projectExtendDTO.setModuleIds(updateProjectDto.getModuleIds());
+        }
+
+        projectMapper.updateByPrimaryKeySelective(project);
+        return projectExtendDTO;
+    }
+
+    private void checkProjectExistByName(Project project) {
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andNameEqualTo(project.getName()).andOrganizationIdEqualTo(project.getOrganizationId()).andIdNotEqualTo(project.getId());
+        if (projectMapper.selectByExample(example).size() > 0) {
+            throw new MSException(Translator.get("project_name_already_exists"));
+        }
+    }
+
+    public void checkProjectNotExist(String id) {
+        if (projectMapper.selectByPrimaryKey(id) == null) {
+            throw new MSException(Translator.get("project_is_not_exist"));
+        }
+    }
+
+    public int delete(String id, String deleteUser) {
+        return commonProjectService.delete(id,deleteUser);
+    }
+
+    public int revoke(String id, String updateUser) {
+        return commonProjectService.revoke(id, updateUser);
+    }
+
+    public void enable(String id, String updateUser) {
+        commonProjectService.enable(id, updateUser);
+    }
+
+    public void disable(String id, String updateUser) {
+        commonProjectService.disable(id, updateUser);
     }
 }

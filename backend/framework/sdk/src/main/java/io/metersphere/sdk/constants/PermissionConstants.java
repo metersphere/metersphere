@@ -159,6 +159,10 @@ public class PermissionConstants {
     public static final String PROJECT_APPLICATION_WORKSTATION_UPDATE = "PROJECT_APPLICATION_WORKSTATION:UPDATE";
     /*------ end: PROJECT_APPLICATION ------*/
     public static final String PROJECT_BASE_INFO_READ = "PROJECT_BASE_INFO:READ";
+    public static final String PROJECT_BASE_INFO_READ_UPDATE = "PROJECT_BASE_INFO:READ+UPDATE";
+
+    public static final String PROJECT_BASE_INFO_READ_DELETE = "PROJECT_BASE_INFO:READ+DELETE";
+    public static final String PROJECT_BASE_INFO_READ_RECOVER = "PROJECT_BASE_INFO:READ+RECOVER";
 
     /**
      * 项目环境权限
