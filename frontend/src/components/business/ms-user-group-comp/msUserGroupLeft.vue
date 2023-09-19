@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full flex-col overflow-y-auto px-[24px] pb-[24px]">
+  <div class="ms-ug-left flex h-full flex-col px-[24px] pb-[24px]">
     <div class="sticky top-0 z-[999] w-[252px] bg-white pt-[24px]">
       <a-input-search
         :placeholder="t('system.userGroup.searchHolder')"
@@ -480,9 +480,6 @@
 </script>
 
 <style lang="less" scoped>
-  .icon-increase {
-    background-color: rgb(var(--primary-7));
-  }
   .icon-button {
     display: flex;
     box-sizing: border-box;

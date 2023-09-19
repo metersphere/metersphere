@@ -2,7 +2,7 @@
   <div class="card">
     <div class="flex h-full flex-row">
       <Transition>
-        <div v-if="leftCollapse" class="user-group-left">
+        <div v-if="leftCollapse" class="user-group-left ms-scroll-bar">
           <UserGroupLeft ref="ugLeftRef" @handle-select="handleSelect" />
         </div>
       </Transition>
@@ -168,8 +168,9 @@
   }
   .user-group-left {
     position: relative;
-    overflow: hidden;
-    width: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-right: 6px;
     min-width: 300px;
     height: 100%;
     border-right: 1px solid var(--color-border-1);
@@ -177,7 +178,6 @@
   .usergroup-collapse {
     position: absolute;
     top: 50%;
-    left: 300px;
     z-index: 101;
     display: flex;
     justify-content: center;
