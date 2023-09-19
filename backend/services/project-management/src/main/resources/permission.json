@@ -106,6 +106,7 @@
       {
         "id": "PROJECT_VERSION",
         "name": "permission.project_version.name",
+        "license": true,
         "permissions": [
           {
             "id": "PROJECT_VERSION:READ"
