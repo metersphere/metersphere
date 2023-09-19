@@ -1,5 +1,6 @@
 import JSEncrypt from 'jsencrypt';
 import { isObject } from './is';
+import dayjs from 'dayjs';
 
 type TargetContext = '_self' | '_parent' | '_blank' | '_top';
 
@@ -273,4 +274,11 @@ export const downloadUrlFile = (url: string, fileName: string) => {
   link.download = fileName;
   link.style.display = 'none';
   link.click();
+};
+/**
+ * 时间格式转换
+ * @param time 时间戳
+ */
+export const getTime = (time: string): string => {
+  return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
 };

@@ -25,6 +25,8 @@ export default {
       header: '表头设置',
       resetDefault: '恢复默认',
       nonSort: '以上属性不可排序',
+      tooltipContentDrawer: '抽屉：以抽屉形式打开新页面',
+      tooltipContentWindow: '新窗口：以新开网页打开新页面',
     },
     cancel: '取消',
     confirm: '确定',

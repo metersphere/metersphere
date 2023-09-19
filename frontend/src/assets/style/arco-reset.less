@@ -574,6 +574,9 @@
 .arco-switch-checked:not(.arco-switch-disabled) {
   background: rgb(var(--primary-6)) !important;
 }
+.arco-switch[disabled] {
+  background: var(--color-text-n8);
+}
 
 /** 分页 **/
 .ms-pagination {
@@ -718,7 +721,7 @@
   }
   .arco-checkbox-label {
     overflow: hidden;
-    width: 214px;
+    width: 207px;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
