@@ -96,7 +96,7 @@ export default {
     }
   },
   watch: {
-    'testCase.steptResults.length'() {
+    'testCase.steptResults'() {
       this.$nextTick(() => {
         this.resizeTextarea();
         for (let i = 0; i < this.testCase.steptResults.length; i++) {
