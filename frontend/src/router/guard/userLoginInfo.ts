@@ -8,7 +8,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
     if (isLoginExpires()) {
       clearToken();
     }
-    if (to.name !== 'login' && hasToken()) {
+    if (to.name !== 'login' && hasToken(to.name as string)) {
       next();
     } else {
       // 未登录的都直接跳转至登录页，访问的页面地址缓存到 query 上
