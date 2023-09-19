@@ -72,6 +72,7 @@ export default {
         { value: 'EXECUTE_FAILED', label: this.$t('schedule.event_failed') },
       ],
       receiveTypeOptions: [
+        {value: 'IN_SITE', label: this.$t('organization.message.in_site')},
         { value: 'EMAIL', label: this.$t('organization.message.mail') },
         {
           value: 'NAIL_ROBOT',
