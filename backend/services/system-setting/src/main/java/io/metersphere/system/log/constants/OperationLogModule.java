@@ -76,12 +76,18 @@ public class OperationLogModule {
     public static final String SETTING_SYSTEM_ORGANIZATION_CUSTOM_FIELD = "SETTING_SYSTEM_ORGANIZATION_CUSTOM_FIELD";
     public static final String SETTING_SYSTEM_ORGANIZATION_TEMPLATE = "SETTING_SYSTEM_ORGANIZATION_TEMPLATE";
 
-    //项目管理
-    public static final String PROJECT_MANAGEMENT = "PROJECT_MANAGEMENT"; // 项目管理
-    public static final String PROJECT_MANAGEMENT_PERMISSION = "PROJECT_MANAGEMENT_PERMISSION"; // 项目管理-项目与权限
-    public static final String PROJECT_MANAGEMENT_PERMISSION_MEMBER = "PROJECT_MANAGEMENT_PERMISSION_MEMBER";// 项目管理-项目与权限-成员
-    public static final String PROJECT_MANAGEMENT_PERMISSION_USER_ROLE = "PROJECT_USER_GROUP";// 项目管理-项目与权限-用户组
-    public static final String PROJECT_MANAGEMENT_ENVIRONMENT = "PROJECT_MANAGEMENT_ENVIRONMENT";// 项目管理-环境
+    // 项目管理
+    public static final String PROJECT_MANAGEMENT = "PROJECT_MANAGEMENT";
+    // 项目管理-项目与权限
+    public static final String PROJECT_MANAGEMENT_PERMISSION = "PROJECT_MANAGEMENT_PERMISSION";
+    // 项目管理-项目与权限-成员
+    public static final String PROJECT_MANAGEMENT_PERMISSION_MEMBER = "PROJECT_MANAGEMENT_PERMISSION_MEMBER";
+    // 项目管理-项目与权限-用户组
+    public static final String PROJECT_MANAGEMENT_PERMISSION_USER_ROLE = "PROJECT_USER_GROUP";
+    // 项目管理-环境
+    public static final String PROJECT_MANAGEMENT_ENVIRONMENT = "PROJECT_MANAGEMENT_ENVIRONMENT";
+    // 项目管理-版本管理
+    public static final String PROJECT_MANAGEMENT_PERMISSION_VERSION = "PROJECT_MANAGEMENT_PERMISSION_VERSION";
 
 
 }
