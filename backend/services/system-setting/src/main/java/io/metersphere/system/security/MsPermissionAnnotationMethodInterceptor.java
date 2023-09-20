@@ -1,7 +1,7 @@
 package io.metersphere.system.security;
 
 import io.metersphere.project.domain.Project;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;

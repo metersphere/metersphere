@@ -5,7 +5,7 @@ import io.metersphere.project.service.GlobalParamsLogService;
 import io.metersphere.project.service.GlobalParamsService;
 import io.metersphere.sdk.constants.PermissionConstants;
 
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.validation.groups.Created;

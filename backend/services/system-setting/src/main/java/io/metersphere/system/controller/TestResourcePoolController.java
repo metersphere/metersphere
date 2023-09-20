@@ -13,7 +13,7 @@ import io.metersphere.system.service.TestResourcePoolService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.consul.CacheNode;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.validation.groups.Created;

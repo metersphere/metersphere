@@ -7,7 +7,7 @@ import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
@@ -50,10 +50,6 @@ public class TestPlanService {
     private TestPlanFunctionCaseService testPlanFunctionCaseService;
 
     public TestPlanDTO add(@NotNull TestPlanDTO testPlanCreateRequest) {
-        User user = SessionUtils.getUser();
-        if (user == null) {
-            throw new MSException("Cannot find user!");
-        }
         if (StringUtils.equals(testPlanCreateRequest.getParentId(), testPlanCreateRequest.getId())) {
             throw new MSException("The parent test plan cannot be the same as the current test plan!");
         }
@@ -61,8 +57,6 @@ public class TestPlanService {
         if (StringUtils.isBlank(testPlanCreateRequest.getId())) {
             testPlanCreateRequest.setId(UUID.randomUUID().toString());
         }
-        testPlanCreateRequest.setCreateUser(user.getId());
-        testPlanCreateRequest.setUpdateUser(user.getId());
         testPlanCreateRequest.setCreateTime(System.currentTimeMillis());
         testPlanCreateRequest.setUpdateTime(System.currentTimeMillis());
 

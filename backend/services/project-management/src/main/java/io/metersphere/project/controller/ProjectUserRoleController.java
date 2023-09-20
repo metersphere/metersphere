@@ -18,7 +18,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.service.UserRoleService;

@@ -11,7 +11,7 @@ import io.metersphere.system.service.BaseUserRolePermissionService;
 import io.metersphere.system.service.BaseUserRoleRelationService;
 import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.controller.param.PermissionSettingUpdateRequestDefinition;
 import io.metersphere.system.controller.param.UserRoleUpdateRequestDefinition;
 import io.metersphere.system.domain.User;

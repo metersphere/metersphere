@@ -7,7 +7,7 @@ import io.metersphere.sdk.dto.request.CustomFieldUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.service.OrganizationCustomFieldLogService;
 import io.metersphere.system.service.OrganizationCustomFieldService;

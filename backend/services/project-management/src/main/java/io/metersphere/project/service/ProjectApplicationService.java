@@ -13,14 +13,14 @@ import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ExtPluginMapper;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
-import io.metersphere.system.sechedule.BaseScheduleService;
+import io.metersphere.system.sechedule.ScheduleService;
 import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -43,7 +43,7 @@ public class ProjectApplicationService {
     private ProjectApplicationMapper projectApplicationMapper;
 
     @Resource
-    private BaseScheduleService baseScheduleService;
+    private ScheduleService scheduleService;
 
     @Resource
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
@@ -68,10 +68,10 @@ public class ProjectApplicationService {
      * @param applications
      * @return
      */
-    public void update(List<ProjectApplication> applications) {
+    public void update(List<ProjectApplication> applications, String currentUser) {
         applications.forEach(application -> {
             //定时任务配置，检查是否存在定时任务配置，存在则更新，不存在则新增
-            this.doBeforeUpdate(application);
+            this.doBeforeUpdate(application, currentUser);
             //配置信息入库
             this.createOrUpdateConfig(application);
         });
@@ -91,7 +91,7 @@ public class ProjectApplicationService {
         }
     }
 
-    private void doBeforeUpdate(ProjectApplication application) {
+    private void doBeforeUpdate(ProjectApplication application, String currentUser) {
         String type = application.getType();
         //TODO 自定义id配置 &其他配置
         if (StringUtils.equals(type, ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name())
@@ -99,20 +99,21 @@ public class ProjectApplicationService {
                 || StringUtils.equals(type, ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_CLEAN_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.API.API_CLEAN_REPORT.name())) {
             //清除 测试计划/UI测试/性能测试/接口测试 报告 定时任务
-            this.doHandleSchedule(application);
+            this.doHandleSchedule(application, currentUser);
         }
     }
 
-    private void doHandleSchedule(ProjectApplication application) {
+    private void doHandleSchedule(ProjectApplication application, String currentUser) {
         String typeValue = application.getTypeValue();
         String projectId = application.getProjectId();
         Boolean enable = BooleanUtils.isTrue(Boolean.valueOf(typeValue));
-        Schedule schedule = baseScheduleService.getScheduleByResource(application.getProjectId(), CleanUpReportJob.class.getName());
+        Schedule schedule = scheduleService.getScheduleByResource(application.getProjectId(), CleanUpReportJob.class.getName());
         Optional<Schedule> optional = Optional.ofNullable(schedule);
         optional.ifPresentOrElse(s -> {
             s.setEnable(enable);
-            baseScheduleService.editSchedule(s);
-            baseScheduleService.addOrUpdateCronJob(s,
+            s.setCreateUser(currentUser);
+            scheduleService.editSchedule(s);
+            scheduleService.addOrUpdateCronJob(s,
                     CleanUpReportJob.getJobKey(projectId),
                     CleanUpReportJob.getTriggerKey(projectId),
                     CleanUpReportJob.class);
@@ -123,13 +124,13 @@ public class ProjectApplicationService {
             request.setKey(projectId);
             request.setProjectId(projectId);
             request.setEnable(enable);
-            request.setCreateUser(SessionUtils.getUserId());
+            request.setCreateUser(currentUser);
             request.setType(ScheduleType.CRON.name());
             // 每天凌晨2点执行清理任务
             request.setValue("0 0 2 * * ?");
             request.setJob(CleanUpReportJob.class.getName());
-            baseScheduleService.addSchedule(request);
-            baseScheduleService.addOrUpdateCronJob(request,
+            scheduleService.addSchedule(request);
+            scheduleService.addOrUpdateCronJob(request,
                     CleanUpReportJob.getJobKey(projectId),
                     CleanUpReportJob.getTriggerKey(projectId),
                     CleanUpReportJob.class);

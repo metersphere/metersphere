@@ -7,7 +7,7 @@ import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.service.GlobalUserRoleLogService;
 import io.metersphere.system.service.GlobalUserRoleService;

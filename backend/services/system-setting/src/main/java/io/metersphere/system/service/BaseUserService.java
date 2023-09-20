@@ -13,7 +13,7 @@ import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.sdk.util.CodingUtil;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.mapper.UserMapper;

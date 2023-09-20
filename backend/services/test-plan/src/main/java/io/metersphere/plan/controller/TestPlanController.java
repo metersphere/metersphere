@@ -3,6 +3,7 @@ package io.metersphere.plan.controller;
 import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
@@ -20,6 +21,8 @@ public class TestPlanController {
 
     @PostMapping("/add")
     public TestPlanDTO addUser(@Validated({Created.class}) @RequestBody TestPlanDTO testPlan) {
+        testPlan.setCreateUser(SessionUtils.getUserId());
+        testPlan.setUpdateUser(SessionUtils.getUserId());
         return testPlanService.add(testPlan);
     }
 

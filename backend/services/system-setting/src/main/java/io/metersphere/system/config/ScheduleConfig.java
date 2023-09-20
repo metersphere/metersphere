@@ -1,6 +1,6 @@
 package io.metersphere.system.config;
 
-import io.metersphere.system.sechedule.BaseScheduleService;
+import io.metersphere.system.sechedule.ScheduleService;
 import io.metersphere.system.sechedule.ScheduleManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,7 @@ public class ScheduleConfig {
 
     @Bean
     @ConditionalOnProperty(prefix = "quartz", value = "enabled", havingValue = "true")
-    public BaseScheduleService baseScheduleService() {
-        return new BaseScheduleService();
+    public ScheduleService scheduleService() {
+        return new ScheduleService();
     }
 }

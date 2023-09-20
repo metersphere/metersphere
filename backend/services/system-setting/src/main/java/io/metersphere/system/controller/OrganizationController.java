@@ -8,7 +8,7 @@ import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.dto.OptionDisabledDTO;
 import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.request.*;

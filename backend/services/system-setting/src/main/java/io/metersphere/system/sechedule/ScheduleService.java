@@ -1,7 +1,6 @@
 package io.metersphere.system.sechedule;
 
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.mapper.ScheduleMapper;
@@ -18,7 +17,7 @@ import java.util.Optional;
 import io.metersphere.system.uid.UUID;
 
 @Transactional(rollbackFor = Exception.class)
-public class BaseScheduleService {
+public class ScheduleService {
 
     @Resource
     private ScheduleMapper scheduleMapper;
@@ -89,7 +88,7 @@ public class BaseScheduleService {
         if (Optional.ofNullable(enable).isPresent() && StringUtils.isNotBlank(cronExpression)) {
             try {
                 scheduleManager.addOrUpdateCronJob(jobKey, triggerKey, clazz, cronExpression,
-                        scheduleManager.getDefaultJobDataMap(request, cronExpression, SessionUtils.getUser().getId()));
+                        scheduleManager.getDefaultJobDataMap(request, cronExpression, request.getCreateUser()));
             } catch (SchedulerException e) {
                 throw new MSException("定时任务开启异常: " + e.getMessage());
             }

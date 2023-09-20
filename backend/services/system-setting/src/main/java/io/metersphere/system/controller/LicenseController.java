@@ -4,7 +4,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.LicenseDTO;
 import io.metersphere.system.service.LicenseService;
 import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.shiro.authz.annotation.Logical;

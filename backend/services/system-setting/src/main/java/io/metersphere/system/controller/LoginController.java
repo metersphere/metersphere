@@ -13,7 +13,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.BaseUserService;
 import io.metersphere.sdk.util.RsaKey;
 import io.metersphere.sdk.util.RsaUtil;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.sdk.util.Translator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
