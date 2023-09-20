@@ -1,4 +1,4 @@
-import { ColumnEditTypeEnum } from '@/enums/tableEnum';
+import { ColumnEditTypeEnum, SelectAllEnum } from '@/enums/tableEnum';
 import { TableColumnData, TableData, TableDraggable, TableChangeExtra } from '@arco-design/web-vue';
 
 export interface MsPaginationI {
@@ -42,56 +42,37 @@ export type MsTableDataItem<T> = T & {
 export interface MsTableProps<T> {
   // 表格数据 - 详见 TableData  https://arco.design/web-vue/components/table-data;
   data: MsTableDataItem<T>[];
-  // 表格key, 用于存储表格列配置
-  tableKey: string;
+  tableKey: string; // 表格key, 用于存储表格列配置,pageSize等
+  rowKey: string; // 表格行的key rowId
   // 表格列 - 详见 TableColumn  https://arco.design/web-vue/components/table-column;
   columns: MsTableColumnData[];
-  // 表格尺寸
-  size?: 'mini' | 'small' | 'default' | 'large';
-  // 表格是否可滚动
+  size?: 'mini' | 'small' | 'default' | 'large'; // 表格尺寸
   scroll?: {
     x?: number | string;
     y?: number | string;
     maxHeight?: number | string;
     minWidth?: number | string;
-  };
-  // 表格是否可拖拽
-  enableDrag?: boolean;
+  }; // 表格是否可滚动
+  heightUsed?: number; // 已经使用的高度
+  enableDrag?: boolean; // 表格是否可拖拽
   draggable?: TableDraggable;
-  // 表格是否可编辑
-  editable?: boolean;
-  // 表格是否可筛选
-  filterable?: boolean;
-  // 表格是否可排序
-  sortable?: boolean;
-  // 表格是否可选中
-  selectable?: boolean;
-  // 展示自定义全选
-  showSelectAll?: boolean;
-  // 表格是否可固定表头
-  fixedHeader?: boolean;
-  // 表格是否可固定列
-  fixedColumns?: boolean;
-  // rowKey
-  rowKey?: string;
-  // loading
-  loading?: boolean;
-  bordered?: boolean;
+  /** 选择器相关 */
+  selectable?: boolean; // 是否显示选择器
+  selectorType: 'none' | 'checkbox' | 'radio'; // 选择器类型
+  selectedKeys: Set<string>; // 选中的key
+  excludeKeys: Set<string>; // 排除的key
+  selectorStatus: SelectAllEnum; // 选择器状态
+  /** end */
+  loading?: boolean; // 加载效果
+  bordered?: boolean; // 是否显示边框
   msPagination?: MsPaginationI;
-  // 展示列表选择按钮
-  showSetting?: boolean;
-  // 分页是否是简单模式
-  pageSimple?: boolean;
-  // 是否展示禁用的行
-  noDisable?: boolean;
-  // 表格的错误状态，默认为false
-  tableErrorStatus?: MsTableErrorStatus;
-  // debug模式，开启后会打印表格所有state
-  debug?: boolean;
-  // 是否展示第一行的操作
-  showFirstOperation?: boolean;
-  // 已经使用的高度
-  heightUsed?: number;
+  showSetting?: boolean; // 展示列表选择按钮
+  pageSimple?: boolean; // 分页是否是简单模式
+  noDisable?: boolean; // 是否展示禁用的行
+  tableErrorStatus?: MsTableErrorStatus; // 表格的错误状态，默认为false
+  debug?: boolean; // debug模式，开启后会打印表格所有state
+  showFirstOperation?: boolean; // 是否展示第一行的操作
+
   [key: string]: any;
 }
 
@@ -123,4 +104,9 @@ export interface BatchActionConfig {
 
 export interface renamePopconfirmVisibleType {
   [key: string]: boolean;
+}
+
+export interface SetPaginationPrams {
+  current: number;
+  total?: number;
 }

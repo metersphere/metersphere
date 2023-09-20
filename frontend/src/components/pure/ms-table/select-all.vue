@@ -20,18 +20,12 @@
   const { t } = useI18n();
 
   const emit = defineEmits<{
-    (e: 'change', value: string): void;
+    (e: 'change', value: SelectAllEnum): void;
   }>();
 
-  const props = defineProps({
-    current: {
-      type: Number,
-      default: 0,
-    },
-    total: {
-      type: Number,
-      default: 0,
-    },
+  const props = withDefaults(defineProps<{ current: number; total: number; type: 'checkbox' | 'radio' }>(), {
+    current: 0,
+    total: 0,
   });
 
   const checked = ref(false);
@@ -44,14 +38,14 @@
     } else if (props.current < props.total) {
       checked.value = false;
       indeterminate.value = true;
-    } else if (props.current >= props.total) {
+    } else if (props.current === props.total) {
       checked.value = true;
       indeterminate.value = false;
     }
   });
 
   const handleSelect = (v: string | number | Record<string, any> | undefined) => {
-    emit('change', v as string);
+    emit('change', v as SelectAllEnum);
   };
 
   const handleCheckChange = () => {
