@@ -438,6 +438,7 @@ export default {
         this.$refs.crontabResult.resultList = [];
       }
       removeGoBackListener(this.close);
+      this.testId = '';
     },
     intervalShortValidate() {
       if (this.schedule.enable && this.getIntervalTime() < 3 * 60 * 1000) {

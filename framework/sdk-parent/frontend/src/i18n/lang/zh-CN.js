@@ -2301,7 +2301,7 @@ const message = {
         definition: "接口定义",
         automation: "接口自动化",
         report: "测试报告",
-        ui_automation: "UI测试",
+        ui_automation: "UI自动化",
     },
     ldap: {
         url: "LDAP地址",

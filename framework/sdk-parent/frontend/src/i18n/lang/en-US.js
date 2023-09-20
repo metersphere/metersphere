@@ -2395,7 +2395,7 @@ const message = {
         definition: "Api Definition",
         automation: "Api Automation",
         report: "Test Report",
-        ui_automation: "Ui Test",
+        ui_automation: "Ui Automation",
     },
     ldap: {
         url: "LDAP URL",
