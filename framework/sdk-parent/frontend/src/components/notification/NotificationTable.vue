@@ -194,6 +194,7 @@ export default {
       } else {
         data[index].isSet = false;
       }
+      this.$emit("refresh");
     },
     deleteRowTask(index, data) { //删除
       this.loading = deleteNoticeTask(data.identification).then(() => {
