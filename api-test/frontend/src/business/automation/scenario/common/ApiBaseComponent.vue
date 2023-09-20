@@ -26,7 +26,7 @@
             @click.stop />
           <span @click.stop v-if="isShowInput && isShowNameInput">
             <el-input
-              :draggable="draggable"
+              draggable="disabled"
               size="mini"
               v-model="data.name"
               class="name-input"
