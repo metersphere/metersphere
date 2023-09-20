@@ -236,6 +236,10 @@ public class FileServer {
         reserveFile(filename, charsetName, alias, false);
     }
 
+    private boolean hasThreadContext() {
+        return JMeterContextService.getContext() != null && JMeterContextService.getContext().getThread() != null;
+    }
+
     /**
      * Creates an association between a filename and a File inputOutputObject,
      * and stores it for later use - unless it is already stored.
@@ -259,10 +263,11 @@ public class FileServer {
             log.error("file does not exist [ " + filename + " ]");
             return "";
         }
-
-        String threadName = JMeterContextService.getContext().getThread().getThreadName();
-        if (!StringUtils.contains(alias, threadName)) {
-            alias = StringUtils.join(threadName, alias);
+        if (hasThreadContext()) {
+            String threadName = JMeterContextService.getContext().getThread().getThreadName();
+            if (!StringUtils.contains(alias, threadName)) {
+                alias = StringUtils.join(threadName, alias);
+            }
         }
         FileEntry fileEntry = files.get(alias);
         if (fileEntry == null) {
@@ -342,11 +347,12 @@ public class FileServer {
      */
     public synchronized String readLine(String filename, boolean recycle,
                                         boolean ignoreFirstLine) throws IOException {
-        String threadName = JMeterContextService.getContext().getThread().getThreadName();
-        if (!StringUtils.contains(filename, threadName)) {
-            filename = StringUtils.join(threadName, filename);
+        if (hasThreadContext()) {
+            String threadName = JMeterContextService.getContext().getThread().getThreadName();
+            if (!StringUtils.contains(filename, threadName)) {
+                filename = StringUtils.join(threadName, filename);
+            }
         }
-
         FileEntry fileEntry = files.get(filename);
         if (fileEntry != null) {
             if (fileEntry.inputOutputObject == null) {
@@ -398,9 +404,11 @@ public class FileServer {
      * @return {@link BufferedReader}
      */
     private BufferedReader getReader(String alias, boolean recycle, boolean ignoreFirstLine) throws IOException {
-        String threadName = JMeterContextService.getContext().getThread().getThreadName();
-        if (!StringUtils.contains(alias, threadName)) {
-            alias = StringUtils.join(threadName, alias);
+        if (hasThreadContext()) {
+            String threadName = JMeterContextService.getContext().getThread().getThreadName();
+            if (!StringUtils.contains(alias, threadName)) {
+                alias = StringUtils.join(threadName, alias);
+            }
         }
 
         FileEntry fileEntry = files.get(alias);
@@ -459,9 +467,11 @@ public class FileServer {
     }
 
     public synchronized void write(String filename, String value) throws IOException {
-        String threadName = JMeterContextService.getContext().getThread().getThreadName();
-        if (!StringUtils.contains(filename, threadName)) {
-            filename = StringUtils.join(threadName, filename);
+        if (hasThreadContext()) {
+            String threadName = JMeterContextService.getContext().getThread().getThreadName();
+            if (!StringUtils.contains(filename, threadName)) {
+                filename = StringUtils.join(threadName, filename);
+            }
         }
         FileEntry fileEntry = files.get(filename);
         if (fileEntry != null) {
@@ -519,11 +529,12 @@ public class FileServer {
      * @throws IOException when closing of the aliased file fails
      */
     public synchronized void closeFile(String name) throws IOException {
-        String threadName = JMeterContextService.getContext().getThread().getThreadName();
-        if (!StringUtils.contains(name, threadName)) {
-            name = StringUtils.join(threadName, name);
+        if (hasThreadContext()) {
+            String threadName = JMeterContextService.getContext().getThread().getThreadName();
+            if (!StringUtils.contains(name, threadName)) {
+                name = StringUtils.join(threadName, name);
+            }
         }
-
         FileEntry fileEntry = files.get(name);
         closeFile(name, fileEntry);
     }
@@ -580,9 +591,11 @@ public class FileServer {
 
         // If path is absolute, then File constructor will simply return it
         String alias = path;
-        String threadName = JMeterContextService.getContext().getThread().getThreadName();
-        if (!StringUtils.contains(alias, threadName)) {
-            alias = StringUtils.join(threadName, path);
+        if (hasThreadContext()) {
+            String threadName = JMeterContextService.getContext().getThread().getThreadName();
+            if (!StringUtils.contains(alias, threadName)) {
+                alias = StringUtils.join(threadName, path);
+            }
         }
         FileEntry fileEntry = files.containsKey(alias) ? files.get(alias) : files.get(path);
         return fileEntry != null ? fileEntry.file : null;
