@@ -5,7 +5,7 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.service.BaseUserService;
 import jakarta.annotation.Resource;

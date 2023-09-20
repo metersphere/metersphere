@@ -8,7 +8,7 @@ import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.request.OrganizationMemberRequest;

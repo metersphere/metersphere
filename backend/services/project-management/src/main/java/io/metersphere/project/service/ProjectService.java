@@ -15,7 +15,7 @@ import io.metersphere.system.domain.Organization;
 import io.metersphere.system.service.BaseUserService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
@@ -78,8 +78,9 @@ public class ProjectService {
         user.setLastProjectId(request.getProjectId());
         baseUserService.updateUser(user);
         UserDTO userDTO = baseUserService.getUserDTO(user.getId());
-        SessionUtils.putUser(SessionUser.fromUser(userDTO, SessionUtils.getSessionId()));
-        return SessionUtils.getUser();
+        SessionUser sessionUser = SessionUser.fromUser(userDTO, SessionUtils.getSessionId());
+        SessionUtils.putUser(sessionUser);
+        return sessionUser;
     }
 
     public ProjectExtendDTO getProjectById(String id) {

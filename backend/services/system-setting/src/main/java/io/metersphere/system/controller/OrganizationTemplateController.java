@@ -6,7 +6,7 @@ import io.metersphere.sdk.dto.request.TemplateUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.service.OrganizationTemplateLogService;
 import io.metersphere.system.service.OrganizationTemplateService;

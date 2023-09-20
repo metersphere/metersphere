@@ -9,7 +9,7 @@ import io.metersphere.system.log.vo.OperationLogRequest;
 import io.metersphere.system.log.vo.OperationLogResponse;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.response.OrganizationProjectOptionsResponse;

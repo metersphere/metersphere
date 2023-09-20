@@ -8,7 +8,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.ProjectExtendDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.dto.UserDTO;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.validation.groups.Updated;

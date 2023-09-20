@@ -4,7 +4,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.dto.PluginDTO;
 import io.metersphere.system.request.PluginUpdateRequest;

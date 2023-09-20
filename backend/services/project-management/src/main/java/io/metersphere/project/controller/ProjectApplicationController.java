@@ -7,7 +7,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.SessionUser;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -43,7 +43,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_TEST_PLAN_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateTestPlanLog(#applications)", msClass = ProjectApplicationService.class)
     public void updateTestPlan(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications);
+        projectApplicationService.update(applications, SessionUtils.getUserId());
     }
 
     @PostMapping("/test-plan")
@@ -64,7 +64,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateUiLog(#applications)", msClass = ProjectApplicationService.class)
     public void updateUI(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications);
+        projectApplicationService.update(applications, SessionUtils.getUserId());
     }
 
     @PostMapping("/ui")
@@ -92,7 +92,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePerformanceLog(#applications)", msClass = ProjectApplicationService.class)
     public void updatePerformanceTest(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications);
+        projectApplicationService.update(applications, SessionUtils.getUserId());
     }
 
     @PostMapping("/performance-test")
@@ -120,7 +120,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateApiLog(#applications)", msClass = ProjectApplicationService.class)
     public void updateApi(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications);
+        projectApplicationService.update(applications, SessionUtils.getUserId());
     }
 
     @PostMapping("/api")
@@ -156,7 +156,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateCaseLog(#applications)", msClass = ProjectApplicationService.class)
     public void updateCase(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications);
+        projectApplicationService.update(applications, SessionUtils.getUserId());
     }
 
 
@@ -194,7 +194,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_WORKSTATION_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#applications)", msClass = ProjectApplicationService.class)
     public void updateWorkstation(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications);
+        projectApplicationService.update(applications, SessionUtils.getUserId());
     }
 
     @PostMapping("/workstation")
@@ -215,7 +215,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#applications)", msClass = ProjectApplicationService.class)
     public void updateIssue(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications);
+        projectApplicationService.update(applications, SessionUtils.getUserId());
     }
 
     @PostMapping("/issue")

@@ -5,7 +5,7 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.util.CodingUtil;
 import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;

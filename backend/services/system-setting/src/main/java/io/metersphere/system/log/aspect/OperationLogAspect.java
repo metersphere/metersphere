@@ -6,7 +6,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.CollectionUtils;
