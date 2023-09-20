@@ -178,7 +178,7 @@
 
 <script lang="ts" setup>
   import { ref, computed, Ref, onBeforeMount } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { IconCompass, IconQuestionCircle, IconFile, IconInfoCircle } from '@arco-design/web-vue/es/icon';
   // import { Message } from '@arco-design/web-vue';
   // import { useFullscreen } from '@vueuse/core';
@@ -204,6 +204,7 @@
   const appStore = useAppStore();
   // const { logout } = useUser();
   const route = useRoute();
+  const router = useRouter();
   const { t } = useI18n();
 
   const projectList: Ref<ProjectListItem[]> = ref([]);
@@ -227,6 +228,13 @@
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     appStore.setCurrentProjectId(value as string);
+    router.replace({
+      path: route.path,
+      query: {
+        organizationId: appStore.currentOrgId,
+        projectId: appStore.currentProjectId,
+      },
+    });
   }
 
   const helpCenterList = [

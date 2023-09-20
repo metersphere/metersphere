@@ -59,7 +59,7 @@
   export interface SwitchProps {
     switchTooltip?: string; // 展示开关提示信息描述
     switchName?: string; // 开关后边的名称
-    enable: boolean | undefined; // 开关绑定值
+    enable?: boolean | undefined; // 开关绑定值
     showSwitch: boolean; // 是否展示开关
   }
 

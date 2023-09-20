@@ -22,8 +22,8 @@
         </div>
       </div>
     </div>
-    <MsCard simple :other-width="290" :min-width="700">
-      <router-view></router-view>
+    <MsCard simple :other-width="290" :min-width="700" :loading="loading">
+      <router-view @update-loading="updateLoading"></router-view>
     </MsCard>
   </div>
 </template>
@@ -91,6 +91,11 @@
       currentKey.value = itemName;
       router.push({ name: itemName });
     }
+  };
+  const loading = ref<boolean>(false);
+
+  const updateLoading = (flag: boolean) => {
+    loading.value = flag;
   };
 
   const setInitRoute = () => {
