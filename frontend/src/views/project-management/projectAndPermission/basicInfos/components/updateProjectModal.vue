@@ -6,31 +6,18 @@
     :close="closeHandler"
     :confirm="confirmHandler"
     :switch-props="{
-      enable: isEnable,
-      switchName: t('project.basicInfo.status'),
-      switchTooltip: t('project.basicInfo.createTip'),
-      showSwitch: true,
+      showSwitch: false,
     }"
   >
     <div class="form">
-      <a-form ref="memberFormRef" :model="form" layout="vertical">
+      <a-form ref="projectFormRef" :model="form" layout="vertical">
         <a-form-item
           field="name"
           :label="t('project.basicInfo.projectName')"
           asterisk-position="end"
           :rules="[{ required: true, message: t('project.basicInfo.projectNameTip') }]"
         >
-          <a-input v-model="form.name" allow-clear />
-        </a-form-item>
-        <a-form-item field="userRoleIds" :label="t('project.basicInfo.organization')" asterisk-position="end">
-          <a-select
-            v-model="form.userRoleIds"
-            multiple
-            allow-clear
-            :placeholder="t('project.basicInfo.selectOrganization')"
-          >
-            <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-          </a-select>
+          <a-input v-model="form.name" allow-clear :max-length="250" />
         </a-form-item>
         <a-form-item field="description" :label="t('project.basicInfo.Description')" asterisk-position="end">
           <a-textarea v-model="form.description" allow-clear auto-size />
@@ -41,37 +28,76 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
   import MsDialog from '@/components/pure/ms-dialog/index.vue';
   import { useI18n } from '@/hooks/useI18n';
+  import { updateProject } from '@/api/modules/project-management/basicInfo';
+  import { FormInstance, Message } from '@arco-design/web-vue';
+  import type { UpdateProject, ProjectBasicInfoModel } from '@/models/projectManagement/basicInfo';
 
   const { t } = useI18n();
 
+  const emits = defineEmits<{
+    (e: 'update:visible', visible: boolean): void;
+    (e: 'success'): void;
+  }>();
+
   const initForm = {
+    organizationId: '',
     name: '',
-    userRoleIds: [],
     description: '',
+    enable: false,
+    moduleIds: [], // 模块设置
+    id: '',
+    userIds: [], // 成员数
   };
-  const form = ref({ ...initForm });
+  const form = ref<UpdateProject>({ ...initForm });
 
   const updateVisible = ref<boolean>(false);
-
-  const isEnable = ref<boolean>(false);
-
-  const confirmHandler = (enable: boolean | undefined) => {
-    console.log(enable);
-  };
+  const projectFormRef = ref<FormInstance | null>(null);
 
   const closeHandler = () => {
+    projectFormRef.value?.resetFields();
     updateVisible.value = false;
+    form.value = { ...initForm };
   };
 
-  const userGroupOptions = ref([
-    {
-      name: '',
-      id: '',
-    },
-  ]);
+  const confirmHandler = async () => {
+    await projectFormRef.value?.validate().then(async (error) => {
+      if (!error) {
+        try {
+          await updateProject(form.value);
+          Message.success(t('project.basicInfo.updateContentTip'));
+          emits('success');
+          closeHandler();
+        } catch (e) {
+          console.log(e);
+        }
+      } else {
+        return false;
+      }
+    });
+  };
+
+  const editProject = (projectItem: ProjectBasicInfoModel) => {
+    const { id, name, description } = projectItem;
+    form.value = {
+      id,
+      name,
+      description,
+    };
+  };
+
+  watch(
+    () => updateVisible.value,
+    (val) => {
+      emits('update:visible', val);
+    }
+  );
+
+  defineExpose({
+    editProject,
+  });
 </script>
 
 <style scoped></style>
