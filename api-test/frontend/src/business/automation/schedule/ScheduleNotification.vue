@@ -221,7 +221,9 @@ export default {
   },
   watch: {
     testId() {
-      this.initForm();
+      if (this.testId) {
+        this.initForm();
+      }
     },
   },
   methods: {
