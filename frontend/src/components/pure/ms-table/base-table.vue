@@ -1,25 +1,32 @@
 <template>
   <div class="ms-base-table">
-    <select-all
-      v-if="attrs.selectable && attrs.showSelectAll"
-      class="custom-action"
-      :total="selectTotal"
-      :current="selectCurrent"
-      @change="handleChange"
-    />
     <a-table
       v-bind="$attrs"
       :row-class="getRowClass"
-      :selected-keys="props.selectedKeys"
       :span-method="spanMethod"
       :columns="currentColumns"
-      @selection-change="(e) => selectionChange(e, true)"
       @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
     >
       <template #optional="{ rowIndex, record }">
         <slot name="optional" v-bind="{ rowIndex, record }" />
       </template>
       <template #columns>
+        <a-table-column v-if="attrs.selectable && props.selectedKeys" :width="60">
+          <template #title>
+            <select-all
+              :total="selectTotal"
+              :current="selectCurrent"
+              :type="attrs.selectorType as ('checkbox' | 'radio')"
+              @change="handleSelectAllChange"
+            />
+          </template>
+          <template #cell="{ record }">
+            <MsCheckbox
+              :value="props.selectedKeys.has(record[rowKey || 'id'])"
+              @change="rowSelectChange(record[rowKey || 'id'])"
+            />
+          </template>
+        </a-table-column>
         <a-table-column
           v-for="(item, idx) in currentColumns"
           :key="idx"
@@ -57,16 +64,16 @@
             <div class="flex flex-row flex-nowrap items-center">
               <template v-if="item.dataIndex === SpecialColumnEnum.ENABLE">
                 <slot name="enable" v-bind="{ record }">
-                  <template v-if="record.enable">
-                    <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-                    {{ item.enableTitle ? t(item.enableTitle) : t('msTable.enable') }}
-                  </template>
-                  <template v-else>
-                    <MsIcon type="icon-icon_disable" class="mr-[2px] text-[var(--color-text-4)]" />
-                    <span class="text-[var(--color-text-1)]">
+                  <div v-if="record.enable" class="flex flex-row flex-nowrap items-center gap-[2px]">
+                    <icon-check-circle-fill class="text-[rgb(var(--success-6))]" />
+                    <div>{{ item.enableTitle ? t(item.enableTitle) : t('msTable.enable') }}</div>
+                  </div>
+                  <div v-else class="flex flex-row flex-nowrap items-center gap-[2px]">
+                    <MsIcon type="icon-icon_disable" class="text-[var(--color-text-4)]" />
+                    <div class="text-[var(--color-text-1)]">
                       {{ item.disableTitle ? t(item.disableTitle) : t('msTable.disable') }}
-                    </span>
-                  </template>
+                    </div>
+                  </div>
                 </slot>
               </template>
               <template v-else-if="item.isTag">
@@ -146,10 +153,10 @@
         :select-row-count="selectCurrent"
         :action-config="props.actionConfig"
         @batch-action="(item: BatchActionParams) => emit('batchAction', item)"
-        @clear="selectionChange([], true)"
+        @clear="emit('clearSelector')"
       />
       <ms-pagination
-        v-else-if="attrs.showPagination"
+        v-if="attrs.showPagination"
         size="small"
         v-bind="attrs.msPagination"
         hide-on-single-page
@@ -171,17 +178,20 @@
   import ColumnSelector from './columnSelector.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
-  import type { MsTableProps, MsPaginationI, BatchActionParams, BatchActionConfig, MsTableColumn } from './type';
+  import type { MsTableProps, BatchActionParams, BatchActionConfig, MsTableColumn, MsPaginationI } from './type';
   import type { TableData } from '@arco-design/web-vue';
+  import MsCheckbox from '../ms-checkbox/MsCheckbox.vue';
 
   const batchleft = ref('10px');
   const { t } = useI18n();
   const tableStore = useTableStore();
-  const appStore = useAppStore();
   const currentColumns = ref<MsTableColumn>([]);
+  const appStore = useAppStore();
 
   const props = defineProps<{
-    selectedKeys?: (string | number)[];
+    selectedKeys: Set<string>;
+    excludeKeys: Set<string>;
+    selectorStatus: SelectAllEnum;
     actionConfig?: BatchActionConfig;
     noDisable?: boolean;
     showSetting?: boolean;
@@ -189,19 +199,35 @@
     spanMethod?: (params: { record: TableData; rowIndex: number; columnIndex: number }) => void;
   }>();
   const emit = defineEmits<{
-    (e: 'selectedChange', value: (string | number)[]): void;
     (e: 'batchAction', value: BatchActionParams): void;
     (e: 'pageChange', value: number): void;
     (e: 'pageSizeChange', value: number): void;
     (e: 'rowNameChange', value: TableData): void;
+    (e: 'rowSelectChange', key: string): void;
+    (e: 'selectAllChange', value: SelectAllEnum): void;
     (e: 'sorterChange', value: { [key: string]: string }): void;
+    (e: 'clearSelector'): void;
   }>();
-  const isSelectAll = ref(false);
   const attrs = useAttrs();
-  // 全选按钮-当前的条数
-  const selectCurrent = ref(0);
+
   // 全选按钮-总条数
-  const selectTotal = ref(0);
+  const selectTotal = computed(() => {
+    const { selectorStatus } = props;
+    if (selectorStatus === SelectAllEnum.ALL) {
+      return (attrs.msPagination as MsPaginationI)?.total || appStore.pageSize;
+    }
+    return (attrs.msPagination as MsPaginationI).pageSize || appStore.pageSize;
+  });
+
+  // 全选按钮-当前的条数
+  const selectCurrent = computed(() => {
+    const { selectorStatus, excludeKeys, selectedKeys } = props;
+    if (selectorStatus === SelectAllEnum.ALL) {
+      return selectTotal.value - excludeKeys.size;
+    }
+    return selectedKeys.size;
+  });
+
   // 编辑按钮的Active状态
   const editActiveKey = ref<string>('');
   // 编辑input的Ref
@@ -233,15 +259,6 @@
     return undefined;
   });
 
-  const setSelectAllTotal = (isAll: boolean) => {
-    const { data, msPagination }: Partial<MsTableProps<any>> = attrs;
-    if (isAll) {
-      selectTotal.value = msPagination?.total || data?.length || appStore.pageSize;
-    } else {
-      selectTotal.value = data ? data.length : appStore.pageSize;
-    }
-  };
-
   const initColumn = () => {
     let tmpArr: MsTableColumn = [];
     if (props.showSetting) {
@@ -252,41 +269,13 @@
     currentColumns.value = tmpArr;
   };
 
-  // 选择公共执行方法
-  const selectionChange = (arr: (string | number)[], setCurrentSelect: boolean, isAll = false) => {
-    setSelectAllTotal(isAll);
-    emit('selectedChange', arr);
-    if (setCurrentSelect) {
-      selectCurrent.value = arr.length;
-    }
-  };
-
   // 全选change事件
-  const handleChange = (v: string) => {
-    const { data, msPagination }: Partial<MsTableProps<any>> = attrs;
-    isSelectAll.value = v === SelectAllEnum.ALL;
-    if (v === SelectAllEnum.NONE) {
-      selectionChange([], true);
-    }
-    if (v === SelectAllEnum.CURRENT) {
-      if (data && data.length > 0) {
-        selectionChange(
-          data.map((item: any) => item[rowKey || 'id']),
-          true
-        );
-      }
-    }
-    if (v === SelectAllEnum.ALL) {
-      const { total } = msPagination as MsPaginationI;
-      if (data && data.length > 0) {
-        selectionChange(
-          data.map((item: any) => item[rowKey || 'id']),
-          false,
-          true
-        );
-        selectCurrent.value = total;
-      }
-    }
+  const handleSelectAllChange = (v: SelectAllEnum) => {
+    emit('selectAllChange', v);
+  };
+  // 行选择器change事件
+  const rowSelectChange = (key: string) => {
+    emit('rowSelectChange', key);
   };
 
   // 分页change事件
@@ -376,15 +365,6 @@
 <style lang="less" scoped>
   .ms-base-table {
     position: relative;
-    .custom-action {
-      position: absolute;
-      top: 13px;
-      left: v-bind(batchleft);
-      z-index: 99;
-      border-radius: 2px;
-      line-height: 40px;
-      cursor: pointer;
-    }
     .batch-action {
       justify-content: flex-start;
     }
@@ -423,11 +403,6 @@
     }
     .arco-icon-hover:hover::before {
       background: none;
-    }
-  }
-  :deep(.ms-table-select-all) {
-    .arco-checkbox {
-      margin-left: 0.5rem;
     }
   }
   :deep(.arco-checkbox-icon) {

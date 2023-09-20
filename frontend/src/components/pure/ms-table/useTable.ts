@@ -6,7 +6,8 @@ import dayjs from 'dayjs';
 import { useAppStore, useTableStore } from '@/store';
 import type { TableData } from '@arco-design/web-vue';
 import type { TableQueryParams, CommonList } from '@/models/common';
-import type { MsTableProps, MsTableDataItem, MsTableColumn, MsTableErrorStatus } from './type';
+import { SelectAllEnum } from '@/enums/tableEnum';
+import type { MsTableProps, MsTableDataItem, MsTableColumn, MsTableErrorStatus, SetPaginationPrams } from './type';
 
 export interface Pagination {
   current: number;
@@ -24,39 +25,38 @@ export default function useTableProps<T>(
   // 编辑操作的保存回调函数
   saveCallBack?: (item: T) => Promise<any>
 ) {
-  // 行选择
-  const rowSelection = {
-    type: 'checkbox',
-    showCheckedAll: false,
-  };
-
   const defaultProps: MsTableProps<T> = {
-    tableKey: '',
-    bordered: true,
-    showPagination: true,
-    size: 'default',
-    heightUsed: 294,
-    scroll: { x: 1400, y: appStore.innerHeight - 294 },
-    checkable: true,
-    loading: false,
-    data: [],
+    tableKey: '', // 缓存pageSize 或 column 的 key
+    bordered: true, // 是否显示边框
+    showPagination: true, // 是否显示分页
+    size: 'default', // 表格大小
+    heightUsed: 294, // 表格所在的页面已经使用的高度
+    scroll: { x: 1400, y: appStore.innerHeight - 294 }, // 表格滚动配置
+    loading: false, // 加载效果
+    data: [], // 表格数据
+    /**
+     * 表格列配置
+     * 当showSetting为true时，此配置无效,通过TableStore.initColumnsk(tableKey: string, column: MsTableColumn)初始化。
+     * 当showSetting为false时，此配置生效
+     */
     columns: [] as MsTableColumn,
-    rowKey: 'id',
-    selectedKeys: [],
-    selectedAll: false,
-    enableDrag: false,
-    showSelectAll: true,
-    showSetting: false,
+    rowKey: 'id', // 表格行的key
+    /** 选择器相关 */
+    rowSelection: null, // 禁用表格默认的选择器
+    selectable: false, // 是否显示选择器
+    selectorType: 'checkbox', // 选择器类型
+    selectedKeys: new Set<string>(), // 选中的key
+    excludeKeys: new Set<string>(), // 排除的key
+    selectorStatus: SelectAllEnum.NONE, // 选择器状态
+    /** end */
+    enableDrag: false, // 是否可拖拽
+    showSetting: false, // 是否展示列选择器
     columnResizable: true,
-    // 禁用 arco-table 的分页
-    pagination: false,
-    // 简易分页模式
-    pageSimple: false,
-    // 表格的错误状态
-    tableErrorStatus: false,
-    debug: false,
-    // 展示第一行的操作
-    showFirstOperation: false,
+    pagination: false, // 禁用 arco-table 的分页
+    pageSimple: false, // 简易分页模式
+    tableErrorStatus: false, // 表格的错误状态
+    debug: false, // debug 模式
+    showFirstOperation: false, // 展示第一行的操作
     ...props,
   };
 
@@ -96,11 +96,6 @@ export default function useTableProps<T>(
     };
   }
 
-  // 是否可选中
-  if (propsRes.value.selectable) {
-    propsRes.value.rowSelection = rowSelection;
-  }
-
   // 是否可拖拽
   if (propsRes.value.enableDrag) {
     propsRes.value.draggable = { type: 'handle' };
@@ -126,13 +121,7 @@ export default function useTableProps<T>(
    * 分页设置
    * @param current //当前页数
    * @param total //总页数默认是0条，可选
-   * @param fetchData 获取列表数据,可选
    */
-  interface SetPaginationPrams {
-    current: number;
-    total?: number;
-  }
-
   const setPagination = ({ current, total }: SetPaginationPrams) => {
     if (propsRes.value.msPagination && typeof propsRes.value.msPagination === 'object') {
       propsRes.value.msPagination.current = current;
@@ -161,9 +150,19 @@ export default function useTableProps<T>(
     keyword.value = v;
   };
 
+  // 给表格设置选中项 - add rowKey to selectedKeys
+  const setTableSelected = (key: string) => {
+    const { selectedKeys } = propsRes.value;
+    if (!selectedKeys.has(key)) {
+      selectedKeys.add(key);
+    }
+    propsRes.value.selectedKeys = selectedKeys;
+  };
+
   // 加载分页列表数据
   const loadList = async () => {
     const { current, pageSize } = propsRes.value.msPagination as Pagination;
+    const { rowKey, selectorStatus, excludeKeys } = propsRes.value;
     setLoading(true);
     try {
       const data = await loadListFunc({
@@ -185,6 +184,12 @@ export default function useTableProps<T>(
         if (dataTransform) {
           item = dataTransform(item);
         }
+        if (selectorStatus === SelectAllEnum.ALL) {
+          if (!excludeKeys.has(item[rowKey])) {
+            setTableSelected(item[rowKey]);
+          }
+        }
+
         return item;
       });
       if (data.total === 0) {
@@ -201,7 +206,7 @@ export default function useTableProps<T>(
       // debug 模式下打印属性
       if (propsRes.value.debug && import.meta.env.DEV) {
         // eslint-disable-next-line no-console
-        console.log('Table propsRes: ', propsRes.value);
+        // console.log('Table propsRes: ', propsRes.value);
       }
     }
   };
@@ -212,6 +217,13 @@ export default function useTableProps<T>(
       propsRes.value.msPagination.current = 1;
       propsRes.value.msPagination.pageSize = appStore.pageSize;
     }
+  };
+
+  // 重置选择器
+  const resetSelector = () => {
+    propsRes.value.selectedKeys.clear();
+    propsRes.value.excludeKeys.clear();
+    propsRes.value.selectorStatus = SelectAllEnum.NONE;
   };
 
   // 事件触发组
@@ -243,17 +255,6 @@ export default function useTableProps<T>(
       }
       loadList();
     },
-    // 选择触发
-    selectedChange: (arr: (string | number)[]) => {
-      if (arr.length === 0) {
-        propsRes.value.showPagination = true;
-        propsRes.value.msPagination = oldPagination.value;
-      } else {
-        oldPagination.value = propsRes.value.msPagination as Pagination;
-        propsRes.value.showPagination = false;
-      }
-      propsRes.value.selectedKeys = arr;
-    },
     change: (_data: MsTableDataItem<T>[]) => {
       if (propsRes.value.draggable && _data instanceof Array) {
         (propsRes.value.data as MsTableDataItem<T>[]) = _data;
@@ -268,6 +269,45 @@ export default function useTableProps<T>(
     // 重置排序
     resetSort: () => {
       sortItem.value = {};
+    },
+    // 重置筛选
+    clearSelector: () => {
+      resetSelector();
+    },
+
+    // 表格SelectAll change
+    selectAllChange: (v: SelectAllEnum) => {
+      propsRes.value.selectorStatus = v;
+      const { data, rowKey, selectedKeys } = propsRes.value;
+      if (v === SelectAllEnum.NONE) {
+        // 清空选中项
+        resetSelector();
+      } else {
+        data.forEach((item) => {
+          if (item[rowKey] && !selectedKeys.has(item[rowKey])) {
+            selectedKeys.add(item[rowKey]);
+          }
+        });
+        propsRes.value.selectedKeys = selectedKeys;
+      }
+    },
+
+    // 表格行的选中/取消事件
+    rowSelectChange: (key: string) => {
+      const { selectedKeys, excludeKeys } = propsRes.value;
+      if (selectedKeys.has(key)) {
+        // 当前已选中，取消选中
+        selectedKeys.delete(key);
+        excludeKeys.add(key);
+      } else {
+        // 当前未选中，选中
+        selectedKeys.add(key);
+        if (excludeKeys.has(key)) {
+          excludeKeys.delete(key);
+        }
+      }
+      propsRes.value.selectedKeys = selectedKeys;
+      propsRes.value.excludeKeys = excludeKeys;
     },
   });
 
