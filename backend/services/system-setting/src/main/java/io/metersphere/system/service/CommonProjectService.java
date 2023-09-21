@@ -588,7 +588,7 @@ public class CommonProjectService {
         projectMapper.updateByPrimaryKeySelective(project);
     }
 
-    public List<TestResourcePool> getTestResourcePoolOptions(String organizationId) {
+    public List<OptionDTO> getTestResourcePoolOptions(String organizationId) {
         //获取制定组织的资源池  和全部组织的资源池
         List<TestResourcePool> testResourcePools = new ArrayList<>();
         TestResourcePoolOrganizationExample example = new TestResourcePoolOrganizationExample();
@@ -606,6 +606,8 @@ public class CommonProjectService {
         testResourcePools.addAll(testResourcePoolMapper.selectByExample(poolExample));
 
         testResourcePools = testResourcePools.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
-        return testResourcePools;
+        return testResourcePools.stream().map(testResourcePool ->
+                new OptionDTO(testResourcePool.getId(), testResourcePool.getName())
+        ).toList();
     }
 }

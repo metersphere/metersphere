@@ -10,6 +10,7 @@ import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.project.request.ProjectSwitchRequest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.ModuleType;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
@@ -161,14 +162,14 @@ public class ProjectService {
         return poolIds;
     }
 
-    public List<TestResourcePool> getPoolOptions(String projectId, String type) {
-        //判断项目是否关联了资源池
+    public List<OptionDTO> getPoolOptions(String projectId, String type) {
         checkProjectNotExist(projectId);
         List<String> poolIds = getPoolIds(projectId);
         TestResourcePoolExample example = new TestResourcePoolExample();
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
         criteria.andIdIn(poolIds).andEnableEqualTo(true).andDeletedEqualTo(false);
-        return switch (type) {
+        List<TestResourcePool> testResourcePools = new ArrayList<>();
+        testResourcePools =  switch (type) {
             case ModuleType.API_TEST-> {
                 criteria.andApiTestEqualTo(true);
                 yield testResourcePoolMapper.selectByExample(example);
@@ -183,5 +184,8 @@ public class ProjectService {
             }
             default -> new ArrayList<>();
         };
+        return testResourcePools.stream().map(testResourcePool ->
+            new OptionDTO(testResourcePool.getId(), testResourcePool.getName())
+        ).toList();
     }
 }
