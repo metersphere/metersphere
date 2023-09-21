@@ -256,7 +256,7 @@ public class ProjectControllerTests extends BaseTest {
     @Test
     @Order(7)
     public void testUpdateProject() throws Exception {
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId1","project-TestName", "Edit name", true, List.of("admin1"));
+        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId1", "project-TestName", "Edit name", true, List.of("admin1"));
         Project projectExtend = projectMapper.selectByPrimaryKey("projectId1");
         List<String> moduleIds = new ArrayList<>();
         if (StringUtils.isNotBlank(projectExtend.getModuleSetting())) {
@@ -299,19 +299,19 @@ public class ProjectControllerTests extends BaseTest {
     @Order(8)
     public void testUpdateProjectError() throws Exception {
         //项目名称存在 500
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId3","project-TestName", "description", true, List.of("admin"));
+        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId3", "project-TestName", "description", true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
-        project = this.generatorUpdate(null, "projectId",null, null, true , List.of("admin"));
+        project = this.generatorUpdate(null, "projectId", null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目Id为空
-        project = this.generatorUpdate("organizationId", null,null, null, true, List.of("admin"));
+        project = this.generatorUpdate("organizationId", null, null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目名称为空
-        project = this.generatorUpdate("organizationId", "projectId",null, null, true, List.of("admin"));
+        project = this.generatorUpdate("organizationId", "projectId", null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目不存在
-        project = this.generatorUpdate("organizationId", "1111","123", null, true, List.of("admin"));
+        project = this.generatorUpdate("organizationId", "1111", "123", null, true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
 
     }
@@ -319,15 +319,19 @@ public class ProjectControllerTests extends BaseTest {
     @Test
     @Order(9)
     public void testGetPoolOptions() throws Exception {
-        MvcResult mvcResult = this.responseGet(getPoolOptions + ModuleType.API_TEST + "/"+DEFAULT_PROJECT_ID);
-        mvcResult = this.responseGet(getPoolOptions + ModuleType.UI_TEST + "/"+DEFAULT_PROJECT_ID);
-        mvcResult = this.responseGet(getPoolOptions + ModuleType.LOAD_TEST + "/"+DEFAULT_PROJECT_ID);
-        mvcResult = this.responseGet(getPoolOptions + "test" + "/"+DEFAULT_PROJECT_ID);
+        MvcResult mvcResult = this.responseGet(getPoolOptions + ModuleType.API_TEST + "/" + DEFAULT_PROJECT_ID);
+        mvcResult = this.responseGet(getPoolOptions + ModuleType.UI_TEST + "/" + DEFAULT_PROJECT_ID);
+        mvcResult = this.responseGet(getPoolOptions + ModuleType.LOAD_TEST + "/" + DEFAULT_PROJECT_ID);
+        mvcResult = this.responseGet(getPoolOptions + "test" + "/" + DEFAULT_PROJECT_ID);
         List<TestResourcePool> list = parseObjectFromMvcResult(mvcResult, List.class);
         //断言为空的list
         Assertions.assertEquals(0, list.size());
+        mvcResult = this.responseGet(getPoolOptions + ModuleType.API_TEST + "/" + "projectId");
+        mvcResult = this.responseGet(getPoolOptions + ModuleType.UI_TEST + "/" + "projectId");
+        mvcResult = this.responseGet(getPoolOptions + ModuleType.LOAD_TEST + "/" + "projectId");
+
         //权限校验
-        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getPoolOptions + "api_test" + "/"+DEFAULT_PROJECT_ID);
+        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getPoolOptions + "api_test" + "/" + DEFAULT_PROJECT_ID);
     }
 
 

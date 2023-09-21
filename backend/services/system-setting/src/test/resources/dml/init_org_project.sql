@@ -42,3 +42,4 @@ values ('resourcePoolId1', 'resourcePoolName1', 'node', 'resourcePoolDescription
         unix_timestamp() * 1000, 'admin', 1, 1, 1, 'http://localhost:8080', 1, 0);
 replace into project_test_resource_pool(project_id, test_resource_pool_id) value ('projectId', 'resourcePoolId');
 replace into project_test_resource_pool(project_id, test_resource_pool_id) value ('projectId', 'resourcePoolId1');
+replace into test_resource_pool_organization(id , test_resource_pool_id, org_id) value (UUID_SHORT(),'resourcePoolId', '100001');
