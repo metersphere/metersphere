@@ -9,7 +9,7 @@
   >
     <template #title> {{ t('system.organization.addMember') }} </template>
     <div class="form">
-      <a-form ref="formRef" :model="form" size="large" :style="{ width: '600px' }" layout="vertical">
+      <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
         <a-form-item
           field="name"
           :label="t('system.organization.member')"

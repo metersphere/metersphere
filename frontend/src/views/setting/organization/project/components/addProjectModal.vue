@@ -1,7 +1,7 @@
 <template>
   <a-modal
     v-model:visible="currentVisible"
-    width="680px"
+    title-align="start"
     class="ms-modal-form ms-modal-medium"
     unmount-on-close
     @cancel="handleCancel(false)"
@@ -16,7 +16,7 @@
       </span>
     </template>
     <div class="form">
-      <a-form ref="formRef" :model="form" size="large" :style="{ width: '632px' }" layout="vertical">
+      <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
         <a-form-item
           field="name"
           required
