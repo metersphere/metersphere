@@ -4,22 +4,22 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.*;
-import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.util.PageUtils;
+import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.sdk.util.PageUtils;
-import io.metersphere.sdk.util.Pager;
-import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.request.OrganizationProjectRequest;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.service.OrganizationProjectLogService;
 import io.metersphere.system.service.OrganizationProjectService;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -161,7 +161,7 @@ public class OrganizationProjectController {
     @GetMapping("/pool-options/{organizationId}")
     @Operation(summary = "系统设置-组织-项目-获取资源池下拉选项")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
-    public List<TestResourcePool> getProjectOptions(@PathVariable String organizationId) {
+    public List<OptionDTO> getProjectOptions(@PathVariable String organizationId) {
         return organizationProjectService.getTestResourcePoolOptions(organizationId);
     }
 

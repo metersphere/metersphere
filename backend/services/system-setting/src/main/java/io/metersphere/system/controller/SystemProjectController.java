@@ -4,10 +4,10 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.*;
+import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.ProjectDTO;
@@ -156,7 +156,7 @@ public class SystemProjectController {
     @GetMapping("/pool-options/{organizationId}")
     @Operation(summary = "系统设置-系统-组织与项目-项目-获取资源池下拉选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public List<TestResourcePool> getProjectOptions(@PathVariable String organizationId) {
+    public List<OptionDTO> getProjectOptions(@PathVariable String organizationId) {
         return systemProjectService.getTestResourcePoolOptions(organizationId);
     }
 

@@ -5,10 +5,10 @@ import io.metersphere.project.request.ProjectSwitchRequest;
 import io.metersphere.project.service.ProjectLogService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
-import io.metersphere.sdk.dto.UserDTO;
-import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.SessionUtils;
@@ -61,7 +61,7 @@ public class ProjectController {
     @GetMapping("/pool-options/{type}/{projectId}")
     @Operation(summary = "项目管理-获取项目下的资源池")
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
-    public List<TestResourcePool> getPoolOptions(@PathVariable String type ,@PathVariable String projectId) {
+    public List<OptionDTO> getPoolOptions(@PathVariable String type , @PathVariable String projectId) {
         return projectService.getPoolOptions(projectId, type);
     }
 

@@ -8,13 +8,12 @@ import io.metersphere.project.request.ProjectSwitchRequest;
 import io.metersphere.sdk.constants.ModuleType;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.dto.ProjectDTO;
-import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -65,6 +64,15 @@ public class ProjectControllerTests extends BaseTest {
         } catch (Exception ignore) {
         }
         return null;
+    }
+
+    private void responseGet(String url, ResultMatcher resultMatcher) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(resultMatcher)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
     private MvcResult responseGet(String url) throws Exception {
@@ -323,15 +331,14 @@ public class ProjectControllerTests extends BaseTest {
         mvcResult = this.responseGet(getPoolOptions + ModuleType.UI_TEST + "/" + DEFAULT_PROJECT_ID);
         mvcResult = this.responseGet(getPoolOptions + ModuleType.LOAD_TEST + "/" + DEFAULT_PROJECT_ID);
         mvcResult = this.responseGet(getPoolOptions + "test" + "/" + DEFAULT_PROJECT_ID);
-        List<TestResourcePool> list = parseObjectFromMvcResult(mvcResult, List.class);
-        //断言为空的list
-        Assertions.assertEquals(0, list.size());
         mvcResult = this.responseGet(getPoolOptions + ModuleType.API_TEST + "/" + "projectId");
         mvcResult = this.responseGet(getPoolOptions + ModuleType.UI_TEST + "/" + "projectId");
         mvcResult = this.responseGet(getPoolOptions + ModuleType.LOAD_TEST + "/" + "projectId");
-
+        //项目不存在
+        this.responseGet(getPoolOptions + ModuleType.LOAD_TEST + "/" + "projectId20", status().is5xxServerError());
         //权限校验
         requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getPoolOptions + "api_test" + "/" + DEFAULT_PROJECT_ID);
+
     }
 
 

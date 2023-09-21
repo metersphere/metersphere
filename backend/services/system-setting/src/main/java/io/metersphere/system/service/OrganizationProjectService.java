@@ -1,17 +1,17 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.dto.*;
+import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.UserRoleRelation;
-import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
@@ -130,7 +130,7 @@ public class OrganizationProjectService {
         }
     }
 
-    public List<TestResourcePool> getTestResourcePoolOptions(String organizationId) {
+    public List<OptionDTO> getTestResourcePoolOptions(String organizationId) {
         return commonProjectService.getTestResourcePoolOptions(organizationId);
     }
 }
