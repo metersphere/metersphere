@@ -146,17 +146,18 @@
     </a-table>
     <div
       class="mt-[16px] flex h-[32px] w-[100%] flex-row flex-nowrap items-center justify-end px-0"
-      :class="{ 'batch-action': showBatchAction }"
+      :class="{ 'justify-between': showBatchAction }"
     >
       <batch-action
         v-if="showBatchAction"
         :select-row-count="selectCurrent"
         :action-config="props.actionConfig"
-        @batch-action="(item: BatchActionParams) => emit('batchAction', item)"
+        @batch-action="handleBatchAction"
         @clear="emit('clearSelector')"
       />
       <ms-pagination
         v-if="attrs.showPagination"
+        v-show="props.selectorStatus !== SelectAllEnum.CURRENT"
         size="small"
         v-bind="attrs.msPagination"
         hide-on-single-page
@@ -178,7 +179,14 @@
   import ColumnSelector from './columnSelector.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
-  import type { MsTableProps, BatchActionParams, BatchActionConfig, MsTableColumn, MsPaginationI } from './type';
+  import type {
+    MsTableProps,
+    BatchActionParams,
+    BatchActionConfig,
+    MsTableColumn,
+    MsPaginationI,
+    BatchActionQueryParams,
+  } from './type';
   import type { TableData } from '@arco-design/web-vue';
   import MsCheckbox from '../ms-checkbox/MsCheckbox.vue';
 
@@ -199,7 +207,7 @@
     spanMethod?: (params: { record: TableData; rowIndex: number; columnIndex: number }) => void;
   }>();
   const emit = defineEmits<{
-    (e: 'batchAction', value: BatchActionParams): void;
+    (e: 'batchAction', value: BatchActionParams, queryParams: BatchActionQueryParams): void;
     (e: 'pageChange', value: number): void;
     (e: 'pageSizeChange', value: number): void;
     (e: 'rowNameChange', value: TableData): void;
@@ -213,10 +221,10 @@
   // 全选按钮-总条数
   const selectTotal = computed(() => {
     const { selectorStatus } = props;
-    if (selectorStatus === SelectAllEnum.ALL) {
-      return (attrs.msPagination as MsPaginationI)?.total || appStore.pageSize;
+    if (selectorStatus === SelectAllEnum.CURRENT) {
+      return (attrs.msPagination as MsPaginationI)?.pageSize || appStore.pageSize;
     }
-    return (attrs.msPagination as MsPaginationI).pageSize || appStore.pageSize;
+    return (attrs.msPagination as MsPaginationI)?.total || appStore.pageSize;
   });
 
   // 全选按钮-当前的条数
@@ -288,8 +296,21 @@
   };
 
   const showBatchAction = computed(() => {
-    return selectCurrent.value > 0 && attrs.showSelectAll;
+    return selectCurrent.value > 0 && attrs.selectable;
   });
+
+  const handleBatchAction = (value: BatchActionParams) => {
+    const { selectorStatus, selectedKeys, excludeKeys } = props;
+    const queryParams: BatchActionQueryParams = {
+      selectedIds: Array.from(selectedKeys),
+      excludeIds: Array.from(excludeKeys),
+      selectAll: selectorStatus === SelectAllEnum.ALL,
+      params: {
+        ...(attrs.msPagination as MsPaginationI),
+      },
+    };
+    emit('batchAction', value, queryParams);
+  };
 
   const handleEditInputEnter = (record: TableData) => {
     editActiveKey.value = '';
@@ -365,9 +386,6 @@
 <style lang="less" scoped>
   .ms-base-table {
     position: relative;
-    .batch-action {
-      justify-content: flex-start;
-    }
     .ms-table-edit-active {
       color: rgb(var(--primary-5));
     }

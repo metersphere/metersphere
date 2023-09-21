@@ -1,4 +1,5 @@
 import { ColumnEditTypeEnum, SelectAllEnum } from '@/enums/tableEnum';
+import { TableQueryParams } from '@/models/common';
 import { TableColumnData, TableData, TableDraggable, TableChangeExtra } from '@arco-design/web-vue';
 
 export interface MsPaginationI {
@@ -109,4 +110,11 @@ export interface renamePopconfirmVisibleType {
 export interface SetPaginationPrams {
   current: number;
   total?: number;
+}
+
+export interface BatchActionQueryParams {
+  excludeIds?: string[]; // 排除的id
+  selectedIds?: string[]; // 选中的id
+  selectAll: boolean; // 是否跨页全选
+  params?: TableQueryParams; // 查询参数
 }
