@@ -62,16 +62,6 @@ export default function useTableProps<T>(
 
   // 属性组
   const propsRes = ref<MsTableProps<T>>(defaultProps);
-  const oldPagination = ref<Pagination>({
-    current: 1,
-    pageSize: appStore.pageSize,
-    total: 0,
-    showPageSize: appStore.showPageSize,
-    showTotal: appStore.showTotal,
-    showJumper: appStore.showJumper,
-    hideOnSinglePage: appStore.hideOnSinglePage,
-    simple: defaultProps.pageSimple,
-  } as Pagination);
 
   // 排序
   const sortItem = ref<object>({});

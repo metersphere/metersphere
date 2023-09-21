@@ -6,7 +6,7 @@ export default {
     disable: '禁用',
     batch: {
       title: '批量操作',
-      selected: '已选择 {count} 项',
+      selected: '已选择 {count} 条',
       export: '导出',
       edit: '编辑',
       delete: '删除',
