@@ -2,7 +2,10 @@ package io.metersphere.system.controller;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.domain.ProjectTestResourcePool;
+import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -66,6 +69,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     private final static String enableProject = prefix + "/enable/";
     private final static String getAdminList = prefix + "/user-admin-list/";
     private final static String getMemberList = prefix + "/user-member-list/";
+    private final static String getPoolOptions = prefix + "/pool-options/";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -79,6 +83,8 @@ public class OrganizationProjectControllerTests extends BaseTest {
     private OrganizationService organizationService;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
 
     private OrganizationDTO getDefault() {
         return organizationService.getDefault();
@@ -183,7 +189,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testAddProjectSuccess() throws Exception {
         AddProjectRequest project = this.generatorAdd("organizationId","organization-name", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
-        ProjectExtendDTO result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         List<Project> projects = projectMapper.selectByExample(projectExample);
@@ -209,7 +215,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         //userId为空的时候
         project = this.generatorAdd("organizationId","organization-userIdIsNull", "description", true, new ArrayList<>());
         mvcResult = this.responsePost(addProject, project);
-        result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         projects = projectMapper.selectByExample(projectExample);
@@ -236,7 +242,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         project.setModuleIds(moduleIds);
         project.setName("org-moduleSetting");
         mvcResult = this.responsePost(addProject, project);
-        result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         projects = projectMapper.selectByExample(projectExample);
@@ -255,6 +261,28 @@ public class OrganizationProjectControllerTests extends BaseTest {
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         projectExtend = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleIds));
+
+        //设置资源池
+        project.setResourcePoolIds(List.of("resourcePoolId"));
+        project.setName("org-resourcePool");
+        mvcResult = this.responsePost(addProject, project);
+        result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
+        projectExample = new ProjectExample();
+        projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
+        projects = projectMapper.selectByExample(projectExample);
+        assert result != null;
+        projectId = result.getId();
+        // 校验日志
+        checkLog(projectId, OperationLogType.ADD);
+
+        compareProjectDTO(projects.get(0), result);
+        //校验资源池
+        ProjectTestResourcePoolExample projectTestResourcePoolExample = new ProjectTestResourcePoolExample();
+        projectTestResourcePoolExample.createCriteria().andProjectIdEqualTo(projectId);
+        List<ProjectTestResourcePool> projectTestResourcePools = projectTestResourcePoolMapper.selectByExample(projectTestResourcePoolExample);
+        Assertions.assertTrue(projectTestResourcePools.stream().map(ProjectTestResourcePool::getTestResourcePoolId).toList().contains("resourcePoolId"));
+
+
 
         project.setName("organization-testAddProjectSuccess1");
         project.setOrganizationId(getDefault().getId());
@@ -282,6 +310,10 @@ public class OrganizationProjectControllerTests extends BaseTest {
         //项目成员在系统中不存在
         project = this.generatorAdd("organizationId", "name", null, true, List.of("admin", "admin1", "admin3"));
         this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
+        //资源池不存在
+        project = this.generatorAdd("organizationId", "org-pool-error", null, true, List.of("admin"));
+        project.setResourcePoolIds(List.of("resourcePoolId3"));
+        this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
 
     }
     @Test
@@ -289,16 +321,20 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testGetProject() throws Exception {
         AddProjectRequest project = this.generatorAdd("organizationId","organization-getName", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
-        ProjectExtendDTO result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         assert result != null;
         projectId = result.getId();
         mvcResult = this.responseGet(getProject + projectId);
-        Project getProjects = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        Project getProjects = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         Assertions.assertTrue(StringUtils.equals(getProjects.getId(), projectId));
 
+        mvcResult = this.responseGet(getProject + "projectId");
+        getProjects = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
+        assert getProjects != null;
+        Assertions.assertTrue(StringUtils.equals(getProjects.getId(), "projectId"));
 
         mvcResult = this.responseGet(getProject + "projectId1");
-        getProjects = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        getProjects = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         assert getProjects != null;
         Assertions.assertTrue(StringUtils.equals(getProjects.getId(), "projectId1"));
         // @@校验权限
@@ -309,7 +345,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testGetProjectError() throws Exception {
         //项目不存在
         MvcResult mvcResult = this.responseGet(getProject + "111111");
-        ProjectExtendDTO project = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        ProjectDTO project = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         Assertions.assertNull(project);
     }
 
@@ -428,7 +464,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         }
         project.setModuleIds(moduleIds);
         MvcResult mvcResult = this.responsePost(updateProject, project);
-        ProjectExtendDTO result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         Project currentProject = projectMapper.selectByPrimaryKey(project.getId());
         compareProjectDTO(currentProject, result);
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
@@ -447,7 +483,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         //用户id为空
         project = this.generatorUpdate("organizationId", "projectId2", "organization-TestNameUserIdIsNull", "Edit name", true, new ArrayList<>());
         mvcResult = this.responsePost(updateProject, project);
-        result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
         compareProjectDTO(currentProject, result);
         userRoleRelationExample = new UserRoleRelationExample();
@@ -466,7 +502,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         moduleIds.add("uiTest");
         project.setModuleIds(moduleIds);
         mvcResult = this.responsePost(updateProject, project);
-        result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
         compareProjectDTO(currentProject, result);
         userRoleRelationExample = new UserRoleRelationExample();
@@ -477,6 +513,20 @@ public class OrganizationProjectControllerTests extends BaseTest {
         //断言模块设置
         projectExtend = projectMapper.selectByPrimaryKey("projectId2");
         Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleIds));
+
+        //设置资源池
+        project = this.generatorUpdate("organizationId", "projectId3", "org-updatePools", "org-updatePools", true, new ArrayList<>());
+        project.setResourcePoolIds(List.of("resourcePoolId","resourcePoolId1"));
+        mvcResult = this.responsePost(updateProject, project);
+        result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
+        currentProject = projectMapper.selectByPrimaryKey(project.getId());
+        compareProjectDTO(currentProject, result);
+        //校验资源池
+        ProjectTestResourcePoolExample projectTestResourcePoolExample = new ProjectTestResourcePoolExample();
+        projectTestResourcePoolExample.createCriteria().andProjectIdEqualTo("projectId3");
+        List<ProjectTestResourcePool> projectTestResourcePools = projectTestResourcePoolMapper.selectByExample(projectTestResourcePoolExample);
+        Assertions.assertTrue(projectTestResourcePools.stream().map(ProjectTestResourcePool::getTestResourcePoolId).toList().containsAll(project.getResourcePoolIds()));
+
         // @@校验权限
         project.setName("organization-TestName2");
         project.setId("projectId1");
@@ -503,6 +553,10 @@ public class OrganizationProjectControllerTests extends BaseTest {
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目不存在
         project = this.generatorUpdate("organizationId", "1111","123", null, true, List.of("admin"));
+        this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
+        //资源池不存在
+        project = this.generatorUpdate("organizationId", "projectId","org-Module-pool", null, true, List.of("admin"));
+        project.setResourcePoolIds(List.of("resourcePoolId3"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
 
     }
@@ -793,6 +847,14 @@ public class OrganizationProjectControllerTests extends BaseTest {
         projectId = "projectId111";
         this.responseGet(getMemberList + organizationId + "/" + projectId, ERROR_REQUEST_MATCHER);
 
+    }
+
+    @Test
+    @Order(23)
+    public void testGetOptions() throws Exception {
+        this.requestGetWithOkAndReturn(getPoolOptions + "organizationId");
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getPoolOptions + "organizationId");
     }
 
 }

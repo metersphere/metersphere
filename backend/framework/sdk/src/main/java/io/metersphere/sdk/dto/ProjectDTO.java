@@ -21,6 +21,8 @@ public class ProjectDTO extends Project implements Serializable {
     private Boolean projectCreateUserIsAdmin;
     @Schema(description =  "模块设置", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<String> moduleIds;
+    @Schema(description =  "资源池", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private List<ProjectResourcePoolDTO> resourcePoolList;
 
     private static final long serialVersionUID = 1L;
 }

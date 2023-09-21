@@ -5,6 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.*;
+import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
@@ -42,7 +43,7 @@ public class OrganizationProjectController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#project)", msClass = OrganizationProjectLogService.class)
     @Operation(summary = "系统设置-组织-项目-创建项目")
-    public ProjectExtendDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
+    public ProjectDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
         return organizationProjectService.add(project, SessionUtils.getUserId());
     }
 
@@ -51,7 +52,7 @@ public class OrganizationProjectController {
     @Operation(summary = "系统设置-组织-项目-根据ID获取项目信息")
     @Parameter(name = "id", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
-    public ProjectExtendDTO getProject(@PathVariable @NotBlank String id) {
+    public ProjectDTO getProject(@PathVariable @NotBlank String id) {
         return organizationProjectService.get(id);
     }
 
@@ -68,7 +69,7 @@ public class OrganizationProjectController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = OrganizationProjectLogService.class)
     @Operation(summary = "系统设置-组织-项目-编辑")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE)
-    public ProjectExtendDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
+    public ProjectDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
         return organizationProjectService.update(project, SessionUtils.getUserId());
     }
 
@@ -152,6 +153,13 @@ public class OrganizationProjectController {
                                               @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                               @RequestParam(value = "keyword", required = false) String keyword) {
         return organizationProjectService.getUserMemberList(organizationId, projectId, keyword);
+    }
+
+    @GetMapping("/pool-options/{organizationId}")
+    @Operation(summary = "系统设置-组织-项目-获取资源池下拉选项")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
+    public List<TestResourcePool> getProjectOptions(@PathVariable String organizationId) {
+        return organizationProjectService.getTestResourcePoolOptions(organizationId);
     }
 
 }

@@ -7,8 +7,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.List;
-
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class UpdateProjectRequest extends ProjectBaseRequest {
@@ -17,6 +15,4 @@ public class UpdateProjectRequest extends ProjectBaseRequest {
     @NotBlank(message = "{project.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{project.id.length_range}", groups = {Updated.class})
     private String id;
-    @Schema(description =  "成员数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private List<String> userIds;
 }

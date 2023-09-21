@@ -1,6 +1,7 @@
 package io.metersphere.system.mapper;
 
 import io.metersphere.sdk.dto.ProjectDTO;
+import io.metersphere.sdk.dto.ProjectResourcePoolDTO;
 import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.request.ProjectMemberRequest;
@@ -24,4 +25,6 @@ public interface ExtSystemProjectMapper {
     List<UserExtend> getUserMemberList(@Param("userIds") List<String> userIds, @Param("projectId") String projectId, @Param("keyword") String keyword);
 
     List<ProjectDTO> getProjectExtendDTOList(@Param("projectIds") List<String> projectIds);
+
+    List<ProjectResourcePoolDTO> getProjectResourcePoolDTOList(@Param("projectIds") List<String> projectIds);
 }

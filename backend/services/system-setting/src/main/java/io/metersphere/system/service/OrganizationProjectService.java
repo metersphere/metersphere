@@ -2,6 +2,7 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
@@ -44,7 +45,7 @@ public class OrganizationProjectService {
     private final static String REMOVE_PROJECT_MEMBER = PREFIX + "/remove-member/";
     private final static String ADD_MEMBER = PREFIX + "/add-member";
 
-    public ProjectExtendDTO get(String id) {
+    public ProjectDTO get(String id) {
         return commonProjectService.get(id);
     }
 
@@ -52,7 +53,7 @@ public class OrganizationProjectService {
      * @param addProjectDTO 添加项目的时候  默认给用户组添加管理员的权限
      * @return
      */
-    public ProjectExtendDTO add(AddProjectRequest addProjectDTO, String createUser) {
+    public ProjectDTO add(AddProjectRequest addProjectDTO, String createUser) {
         return commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.SETTING_ORGANIZATION_PROJECT);
     }
 
@@ -63,7 +64,7 @@ public class OrganizationProjectService {
         return commonProjectService.buildUserInfo(projectList);
     }
 
-    public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
+    public ProjectDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
         return commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.SETTING_ORGANIZATION_PROJECT);
     }
 
@@ -124,5 +125,9 @@ public class OrganizationProjectService {
         if (organizationMapper.selectByPrimaryKey(organizationId) == null) {
             throw new MSException(Translator.get("organization_not_exists"));
         }
+    }
+
+    public List<TestResourcePool> getTestResourcePoolOptions(String organizationId) {
+        return commonProjectService.getTestResourcePoolOptions(organizationId);
     }
 }

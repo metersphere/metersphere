@@ -1,21 +1,24 @@
 package io.metersphere.system.service;
 
+import io.metersphere.project.domain.ProjectTestResourcePoolExample;
+import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import io.metersphere.system.uid.UUID;
 
 @Service
 @Transactional
@@ -44,6 +46,8 @@ public class TestResourcePoolService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private OrganizationMapper organizationMapper;
+    @Resource
+    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
 
 
     public TestResourcePool addTestResourcePool(TestResourcePoolDTO testResourcePool) {
@@ -164,10 +168,17 @@ public class TestResourcePoolService {
         }
         //删除与组织的关系
         deleteOrgRelation(testResourcePoolId);
+        deleteProjectRelation(testResourcePoolId);
         testResourcePool.setUpdateTime(System.currentTimeMillis());
         testResourcePool.setEnable(false);
         testResourcePool.setDeleted(true);
         testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
+    }
+
+    private void deleteProjectRelation(String testResourcePoolId) {
+        ProjectTestResourcePoolExample projectTestResourcePoolExample = new ProjectTestResourcePoolExample();
+        projectTestResourcePoolExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolId);
+        projectTestResourcePoolMapper.deleteByExample(projectTestResourcePoolExample);
     }
 
     private void deleteOrgRelation(String testResourcePoolId) {

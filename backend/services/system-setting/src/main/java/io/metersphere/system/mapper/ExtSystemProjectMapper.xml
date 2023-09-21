@@ -167,6 +167,20 @@
         ) temp on p.id = temp.source_id
         group by p.id
     </select>
+    <select id="getProjectResourcePoolDTOList" resultType="io.metersphere.sdk.dto.ProjectResourcePoolDTO">
+        SELECT p.project_id, t.*
+        from project_test_resource_pool p
+                 INNER JOIN test_resource_pool t on p.test_resource_pool_id = t.id
+        <where>
+            t.enable = true and t.deleted = false
+            <if test="projectIds != null and projectIds.size > 0 ">
+                and p.project_id in
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </if>
+        </where>
+    </select>
 
 
 </mapper>
