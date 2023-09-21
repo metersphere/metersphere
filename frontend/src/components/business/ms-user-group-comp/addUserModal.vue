@@ -2,7 +2,6 @@
   <a-modal
     v-model:visible="currentVisible"
     class="ms-modal-form ms-modal-medium"
-    width="680px"
     text-align="start"
     :ok-text="t('system.userGroup.add')"
     unmount-on-close
@@ -10,7 +9,7 @@
   >
     <template #title> {{ t('system.userGroup.addUser') }} </template>
     <div class="form">
-      <a-form ref="formRef" :model="form" size="large" :style="{ width: '600px' }" layout="vertical">
+      <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
         <a-form-item
           field="name"
           :label="t('system.userGroup.user')"

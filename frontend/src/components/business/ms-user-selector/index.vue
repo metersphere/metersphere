@@ -5,6 +5,7 @@
     multiple
     :value-key="props.valueKey"
     :disabled="props.disabled"
+    :filter-option="false"
     allow-clear
     @change="change"
     @search="debouncedSearch"
@@ -12,7 +13,7 @@
     <template #label="{ data }">
       <span class="text-[var(--color-text-1)]"> {{ data.value.name }} </span>
     </template>
-    <a-option v-for="data in currentOptions" :key="data.id" :disabled="data.disabled" :value="data">
+    <a-option v-for="data in allOptions" :key="data.id" :disabled="data.disabled" :value="data">
       <span :class="data.disabled ? 'text-[var(--color-text-4)]' : 'text-[var(--color-text-1)]'">
         {{ data.name }}
       </span>
@@ -62,25 +63,18 @@
   }>();
   const { t } = useI18n();
 
+  const allOptions = ref<MsUserSelectorOption[]>([]);
   const currentOptions = ref<MsUserSelectorOption[]>([]);
   const currentLoadParams = ref<Record<string, any>>(props.loadOptionParams || {});
+  const loading = ref(false);
 
   const currentValue = computed(() => {
     return currentOptions.value.filter((item) => props.value.includes(item.id)) || [];
   });
 
-  const change = (
-    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
-  ) => {
-    const tmpArr = Array.isArray(value) ? value : [value];
-    const { valueKey } = props;
-    emit(
-      'update:value',
-      tmpArr.map((item) => item[valueKey])
-    );
-  };
   const loadList = async () => {
     try {
+      loading.value = true;
       const list = (await initOptionsFunc(props.type, currentLoadParams.value || {})) || [];
       const { firstLabelKey, secondLabelKey, disabledKey, valueKey } = props;
       list.forEach((item: MsUserSelectorOption) => {
@@ -97,23 +91,49 @@
           item.id = item[valueKey] as string;
         }
       });
-      currentOptions.value = [...list];
+      allOptions.value = [...list];
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-      currentOptions.value = [];
+      allOptions.value = [];
     }
   };
 
-  const search = async (value: string) => {
-    currentLoadParams.value = {
-      ...currentLoadParams.value,
-      keyword: value,
-    };
-    await loadList();
+  const debouncedSearch = async (value: string) => {
+    if (!value) {
+      currentLoadParams.value = {
+        ...currentLoadParams.value,
+        keyword: value,
+      };
+      await loadList();
+    } else {
+      const fn = debounce(
+        () => {
+          currentLoadParams.value = {
+            ...currentLoadParams.value,
+            keyword: value,
+          };
+          loadList();
+        },
+        300,
+        { maxWait: 1000 }
+      );
+      fn();
+    }
   };
 
-  const debouncedSearch = debounce(search, 300, { maxWait: 1000 });
+  const change = (
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) => {
+    const tmpArr = Array.isArray(value) ? value : [value];
+    currentOptions.value = tmpArr;
+    const { valueKey } = props;
+    emit(
+      'update:value',
+      tmpArr.map((item) => item[valueKey])
+    );
+    debouncedSearch('');
+  };
 
   onMounted(async () => {
     await loadList();

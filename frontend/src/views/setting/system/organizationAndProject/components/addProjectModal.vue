@@ -4,6 +4,7 @@
     width="680px"
     class="ms-modal-form ms-modal-medium"
     :ok-text="isEdit ? t('common.update') : t('common.create')"
+    title-align="start"
     unmount-on-close
     @cancel="handleCancel(false)"
   >
@@ -17,7 +18,7 @@
       </span>
     </template>
     <div class="form">
-      <a-form ref="formRef" :model="form" size="large" :style="{ width: '600px' }" layout="vertical">
+      <a-form ref="formRef" :model="form" :style="{ width: '600px' }" layout="vertical">
         <a-form-item
           field="name"
           required

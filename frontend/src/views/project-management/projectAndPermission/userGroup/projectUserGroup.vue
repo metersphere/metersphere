@@ -66,19 +66,18 @@
     v-model:visible="addUserGroupVisible"
     :ok-text="t('common.create')"
     title-align="start"
-    class="ms-modal-form ms-modal-medium"
-    width="480px"
+    class="ms-modal-form ms-modal-small"
   >
     <template #title> {{ t('project.userGroup.addUserGroup') }} </template>
     <div class="form">
-      <a-form ref="addUserGroupFormRef" :model="form" size="large" layout="vertical">
+      <a-form ref="addUserGroupFormRef" :model="form" layout="vertical">
         <a-form-item
           field="name"
           :label="t('project.userGroup.name')"
           :rules="[{ required: true, message: t('project.userGroup.addRequired') }]"
           asterisk-position="end"
         >
-          <a-input v-model="form.name" class="w-100" />
+          <a-input v-model="form.name" />
         </a-form-item>
       </a-form>
     </div>
