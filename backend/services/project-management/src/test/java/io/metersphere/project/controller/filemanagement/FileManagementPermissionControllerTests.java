@@ -22,7 +22,7 @@ import org.springframework.util.MultiValueMap;
 import java.util.ArrayList;
 import java.util.Objects;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class FileManagementPermissionControllerTests extends BaseTest {

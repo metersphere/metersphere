@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-@SpringBootTest
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserControllerPermissionTests extends BaseTest {

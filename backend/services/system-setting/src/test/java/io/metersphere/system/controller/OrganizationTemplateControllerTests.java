@@ -39,7 +39,7 @@ import static io.metersphere.system.controller.handler.result.MsHttpResultCode.N
  * @author jianxing
  * @date : 2023-8-30
  */
-@SpringBootTest
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class OrganizationTemplateControllerTests extends BaseTest {
