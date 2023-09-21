@@ -648,6 +648,7 @@ export default {
       this.$emit('reloadItems');
     },
     reloadItems() {
+      this.$emit('bodyReload');
       if (!this.hidden) {
         this.hidden = !this.hidden;
         this.$nextTick(() => {

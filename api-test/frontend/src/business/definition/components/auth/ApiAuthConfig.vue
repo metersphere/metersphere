@@ -125,6 +125,7 @@ export default {
         this.authConfig = authManager;
         this.request.authManager = this.authConfig;
       }
+      this.$emit('headersChange');
     },
     initData() {
       if (this.request.hashTree) {

@@ -135,7 +135,7 @@
         </el-tab-pane>
 
         <!-- 认证配置 -->
-        <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig">
+        <el-tab-pane v-if="isBodyShow" :label="$t('api_test.definition.request.auth_config')" name="authConfig">
           <el-tooltip
             class="item-tabs"
             effect="dark"
@@ -150,7 +150,7 @@
             </span>
           </el-tooltip>
 
-          <ms-api-auth-config :is-read-only="isReadOnly" :request="request" v-if="activeName === 'authConfig'" />
+          <ms-api-auth-config :is-read-only="isReadOnly" :request="request" v-if="activeName === 'authConfig'" @headersChange="reloadBody"/>
         </el-tab-pane>
 
         <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="advancedConfig">
@@ -371,35 +371,15 @@ export default {
       return this.request.authManager && this.request.authManager.verification !== 'No Auth';
     },
     showSubscript() {
-      if (!this.request.body || !this.request.body.type) {
-        return false;
-      }
-      switch (this.request.body.type) {
-        case BODY_TYPE.RAW:
-        case BODY_TYPE.XML:
-          return this.request.body.raw;
-        case BODY_TYPE.BINARY:
-          return (
-            this.request.body.binary &&
-            this.request.body.binary.length > 0 &&
-            this.request.body.binary[0].files &&
-            this.request.body.binary[0].files.length > 0
-          );
-        case BODY_TYPE.KV:
-          return this.request.body.kvs && this.request.body.kvs.length > 1;
-        case BODY_TYPE.JSON: {
-          if (this.request.body.format && this.request.body.format === 'JSON-SCHEMA') {
-            return this.request.body.jsonSchema;
-          } else {
-            return this.request.body.raw;
-          }
-        }
-        case BODY_TYPE.FORM_DATA:
-        case BODY_TYPE.WWW_FORM:
-          return this.request.body.kvs && this.request.body.kvs.length > 1;
-        default:
-          return false;
-      }
+      return (
+        (this.request.body.kvs && this.request.body.kvs.length > 1) ||
+        this.request.body.raw ||
+        (this.request.body.binary &&
+          this.request.body.binary.length > 0 &&
+          this.request.body.binary[0].files &&
+          this.request.body.binary[0].files.length > 0) ||
+        (this.request.body.jsonSchema && this.request.body.jsonSchema.properties && Object.keys(this.request.body.jsonSchema.properties).length !== 0)
+      );
     },
     refreshApiParamsField() {
       let oldActiveName = this.activeName;

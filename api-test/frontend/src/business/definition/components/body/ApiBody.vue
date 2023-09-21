@@ -63,6 +63,7 @@
         :body="body"
         :scenario-definition="scenarioDefinition"
         @editScenarioAdvance="editScenarioAdvance"
+        @headersChange="reloadBody"
         :is-read-only="isReadOnly"
         ref="jsonCodeEdit" />
       <ms-code-edit
@@ -195,6 +196,9 @@ export default {
     },
   },
   methods: {
+    reloadBody() {
+      this.$emit('headersChange');
+    },
     refreshApiParamsField() {
       this.reloadedApiVariable = false;
       this.$nextTick(() => {

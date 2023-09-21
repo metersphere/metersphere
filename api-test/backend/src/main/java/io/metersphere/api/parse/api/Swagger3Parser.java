@@ -40,6 +40,8 @@ import org.json.JSONObject;
 import org.springframework.http.HttpMethod;
 
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -107,17 +109,28 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
         }
         // 设置 query 参数
+        StringBuilder pathBuilder = new StringBuilder();
+        pathBuilder.append(request.getSwaggerUrl());
+        if (!request.getSwaggerUrl().contains("?")) {
+            pathBuilder.append("?");
+        }
         if (!CollectionUtils.isEmpty(request.getArguments())) {
             for (KeyValue keyValue : request.getArguments()) {
                 if (StringUtils.isNotBlank(keyValue.getName())) {
                     AuthorizationValue authorizationValue = new AuthorizationValue();
                     authorizationValue.setType("query");
                     authorizationValue.setKeyName(keyValue.getName());
-                    authorizationValue.setValue(keyValue.getValue());
+                    try {
+                        authorizationValue.setValue(keyValue.isUrlEncode() ? URLEncoder.encode(keyValue.getValue(), StandardCharsets.UTF_8) : keyValue.getValue());
+                    } catch (Exception e) {
+                        LogUtil.info("swagger3 url encode error: " + e);
+                    }
+                    pathBuilder.append(keyValue.getName()).append("=").append(authorizationValue.getValue()).append("&");
                     auths.add(authorizationValue);
                 }
             }
         }
+        request.setSwaggerUrl(pathBuilder.substring(0, pathBuilder.length() - 1));
         return CollectionUtils.size(auths) == 0 ? null : auths;
     }
 
