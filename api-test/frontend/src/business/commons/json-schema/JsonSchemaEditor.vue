@@ -24,7 +24,7 @@
           </div>
         </div>
         <div :style="jsonSchemaDisable ? '' : 'min-height: 200px'">
-          <div style="overflow: auto">
+          <div style="overflow: auto; width: 100%">
             <json-schema-editor
               v-if="reloadedApiVariable"
               class="schema"
