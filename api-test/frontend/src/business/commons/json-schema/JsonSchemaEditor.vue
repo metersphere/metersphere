@@ -34,6 +34,7 @@
               :expand-all-params="expandAllParams"
               :scenario-definition="scenarioDefinition"
               @editScenarioAdvance="editScenarioAdvance"
+              @bodyReload="reloadBody"
               :param-columns="apiJsonSchemaShowColumns"
               :need-mock="needMock"
               lang="zh_CN"
@@ -141,6 +142,9 @@ export default {
     };
   },
   methods: {
+    reloadBody() {
+      this.$emit('headersChange');
+    },
     refreshApiParamsField() {
       this.apiJsonSchemaShowColumns = getShowFields(this.storageKey);
     },
