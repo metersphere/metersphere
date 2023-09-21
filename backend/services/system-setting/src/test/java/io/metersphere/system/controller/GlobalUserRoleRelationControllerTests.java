@@ -41,7 +41,7 @@ import static io.metersphere.system.controller.handler.result.CommonResultCode.U
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GlobalUserRoleRelationControllerTests extends BaseTest {

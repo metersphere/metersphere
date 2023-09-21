@@ -40,7 +40,7 @@ import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_US
 import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_USER_ROLE_PERMISSION;
 
 
-@SpringBootTest
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GlobalUserRoleControllerTests extends BaseTest {

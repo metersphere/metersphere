@@ -48,7 +48,7 @@ import static org.mockserver.model.HttpResponse.response;
  * @author jianxing
  * @date : 2023-8-9
  */
-@SpringBootTest
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ServiceIntegrationControllerTests extends BaseTest {
