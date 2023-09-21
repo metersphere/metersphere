@@ -227,7 +227,7 @@ import { getApiParamsConfigFields } from 'metersphere-frontend/src/utils/custom_
 import MsApiVariable from '../../ApiVariable';
 import MsApiAssertions from '../../assertion/ApiAssertions';
 import MsApiExtract from '../../extract/ApiExtract';
-import { Body, KeyValue } from '../../../model/ApiTestModel';
+import { Body, BODY_TYPE, KeyValue } from '../../../model/ApiTestModel';
 import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import BatchAddParameter from '../../basis/BatchAddParameter';
@@ -371,17 +371,35 @@ export default {
       return this.request.authManager && this.request.authManager.verification !== 'No Auth';
     },
     showSubscript() {
-      return (
-        (this.request.body.kvs && this.request.body.kvs.length > 1) ||
-        this.request.body.raw ||
-        this.request.body.xml ||
-        this.request.body.json ||
-        this.request.body.jsonSchema ||
-        (this.request.body.binary &&
-          this.request.body.binary.length > 0 &&
-          this.request.body.binary[0].files &&
-          this.request.body.binary[0].files.length > 0)
-      );
+      if (!this.request.body || !this.request.body.type) {
+        return false;
+      }
+      switch (this.request.body.type) {
+        case BODY_TYPE.RAW:
+        case BODY_TYPE.XML:
+          return this.request.body.raw;
+        case BODY_TYPE.BINARY:
+          return (
+            this.request.body.binary &&
+            this.request.body.binary.length > 0 &&
+            this.request.body.binary[0].files &&
+            this.request.body.binary[0].files.length > 0
+          );
+        case BODY_TYPE.KV:
+          return this.request.body.kvs && this.request.body.kvs.length > 1;
+        case BODY_TYPE.JSON: {
+          if (this.request.body.format && this.request.body.format === 'JSON-SCHEMA') {
+            return this.request.body.jsonSchema;
+          } else {
+            return this.request.body.raw;
+          }
+        }
+        case BODY_TYPE.FORM_DATA:
+        case BODY_TYPE.WWW_FORM:
+          return this.request.body.kvs && this.request.body.kvs.length > 1;
+        default:
+          return false;
+      }
     },
     refreshApiParamsField() {
       let oldActiveName = this.activeName;

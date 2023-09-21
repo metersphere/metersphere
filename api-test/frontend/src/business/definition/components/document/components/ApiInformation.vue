@@ -8,7 +8,7 @@
         </div>
         <i class="el-icon-share" slot="reference" style="margin-right: 10px; cursor: pointer"></i>
       </el-popover>
-      <el-tooltip :content="$t('commons.export')" placement="top">
+      <el-tooltip :content="$t('commons.export')" placement="top" v-if="!isTemplate">
         <i
           class="el-icon-download"
           @click="handleExportHtml()"
@@ -173,6 +173,7 @@ export default {
   },
   props: {
     projectId: String,
+    isTemplate: String,
     apiInfo: Object,
   },
   computed: {},

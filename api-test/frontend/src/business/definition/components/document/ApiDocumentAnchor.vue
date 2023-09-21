@@ -161,7 +161,7 @@
               :share-url="batchShareUrl"
               style="float: right; margin: 6px; font-size: 17px" />
 
-            <el-tooltip :content="$t('commons.export')" placement="top" v-xpack>
+            <el-tooltip :content="$t('commons.export')" placement="top" v-if="!isTemplate" v-xpack>
               <i
                 class="el-icon-download"
                 @click="handleExportHtml()"
@@ -176,6 +176,7 @@
               :key="apiInfo.id"
               :api-info="apiInfo"
               :project-id="projectId"
+              :isTemplate="isTemplate"
               @handleExportHtml="handleExportHtml"
               ref="apiDocInfoDivItem" />
           </div>
@@ -218,7 +219,7 @@ import { API_METHOD_COLOUR } from '@/business/definition/model/JsonData';
 import MsCodeEdit from 'metersphere-frontend/src/components/MsCodeEdit';
 import ApiStatus from '@/business/definition/components/list/ApiStatus';
 import MsJsonCodeEdit from '@/business/commons/json-schema/JsonSchemaEditor';
-import { generateApiDocumentShareInfo, documentShareUrl, selectApiInfoByParam } from '@/api/share';
+import { documentShareUrl, generateApiDocumentShareInfo, selectApiInfoByParam } from '@/api/share';
 import ApiInformation from '@/business/definition/components/document/components/ApiInformation';
 import { getCurrentUser } from 'metersphere-frontend/src/utils/token';
 import { request } from 'metersphere-frontend/src/plugins/request';
@@ -446,14 +447,13 @@ export default {
         let response = '#export-doc';
         this.apiInfoArray = response.listObject;
         this.total = response.itemCount;
-        if (response.length > this.maxComponentSize) {
-          this.needAsyncSelect = true;
-        } else {
-          this.needAsyncSelect = false;
-        }
+        this.needAsyncSelect = response.length > this.maxComponentSize;
         //每次查询完成之后定位右侧的步骤
         this.$nextTick(() => {
-          this.handleScroll();
+          let apiNodeDom = document.getElementsByName('apiInfoStepNode');
+          if (apiNodeDom) {
+            this.changeApiStepNodeClass(apiNodeDom[0], true);
+          }
         });
       } else {
         selectApiInfoByParam(simpleRequest, this.currentPage, this.pageSize).then((response) => {
@@ -527,8 +527,8 @@ export default {
     handleScroll() {
       if (!this.clickStepFlag && this.$refs.apiDocInfoDiv) {
         //apiNodeDom:设置右侧节点的样式
-        let apiNodeDoms = document.getElementsByName('apiInfoStepNode');
-        if (!apiNodeDoms) {
+        let apiNodeDom = document.getElementsByName('apiInfoStepNode');
+        if (!apiNodeDom) {
           return;
         }
 
@@ -539,16 +539,15 @@ export default {
         let mainDivHeight = this.$refs.apiDocInfoDiv.clientHeight;
 
         let apiDocDivScrollTop = scrollTopCount;
-        let screenHeight = mainDivHeight;
         for (let index = 0; index < this.apiInfoArray.length; index++) {
           let itemHeight = this.$refs.apiDocInfoDivItem[index].getHeight() + 3;
           if (apiDocDivScrollTop > itemHeight) {
-            this.changeApiStepNodeClass(apiNodeDoms[index], false);
+            this.changeApiStepNodeClass(apiNodeDom[index], false);
           } else {
-            if (screenHeight + apiDocDivScrollTop > 0) {
-              this.changeApiStepNodeClass(apiNodeDoms[index], true);
+            if (mainDivHeight + apiDocDivScrollTop > 0) {
+              this.changeApiStepNodeClass(apiNodeDom[index], true);
             } else {
-              this.changeApiStepNodeClass(apiNodeDoms[index], false);
+              this.changeApiStepNodeClass(apiNodeDom[index], false);
             }
           }
           apiDocDivScrollTop = apiDocDivScrollTop - itemHeight;
