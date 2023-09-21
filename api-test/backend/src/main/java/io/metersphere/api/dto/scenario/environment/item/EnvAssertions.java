@@ -23,4 +23,5 @@ public class EnvAssertions extends BaseEnvElement {
     private MsAssertionDuration duration;
     private String type = ElementConstants.ASSERTIONS;
     private MsAssertionDocument document;
+    private String xpathType;
 }
