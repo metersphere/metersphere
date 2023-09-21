@@ -85,6 +85,7 @@
         <table tableName="message_task"/>
         <table tableName="message_task_blob"/>
         <table tableName="notification"/>
+        <table tableName="project_test_resource_pool"/>
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">
              <ignoreColumn column="follow_people"/>

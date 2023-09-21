@@ -318,5 +318,15 @@ CREATE INDEX idx_platform ON project_robot(platform);
 CREATE INDEX idx_webhook ON project_robot(webhook);
 
 
+CREATE TABLE IF NOT EXISTS project_test_resource_pool(
+                                `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
+                                `test_resource_pool_id` VARCHAR(50) NOT NULL   COMMENT '资源池ID' ,
+                                 PRIMARY KEY (project_id,test_resource_pool_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci
+    COMMENT = '项目与资源池关系表';
+
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

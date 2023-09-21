@@ -1,15 +1,15 @@
 package io.metersphere.system.service;
 
 import io.metersphere.project.domain.Project;
-import io.metersphere.sdk.dto.AddProjectRequest;
-import io.metersphere.sdk.dto.ProjectDTO;
-import io.metersphere.sdk.dto.ProjectExtendDTO;
-import io.metersphere.sdk.dto.UpdateProjectRequest;
+import io.metersphere.sdk.dto.*;
+import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.dto.AddProjectRequest;
+import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
-import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
@@ -36,7 +36,7 @@ public class SystemProjectService {
     private final static String REMOVE_PROJECT_MEMBER = PREFIX + "/remove-member/";
     private final static String ADD_MEMBER = PREFIX + "/add-member";
 
-    public ProjectExtendDTO get(String id) {
+    public ProjectDTO get(String id) {
         return commonProjectService.get(id);
     }
 
@@ -44,7 +44,7 @@ public class SystemProjectService {
      * @param addProjectDTO 添加项目的时候  默认给用户组添加管理员的权限
      * @return
      */
-    public ProjectExtendDTO add(AddProjectRequest addProjectDTO, String createUser) {
+    public ProjectDTO add(AddProjectRequest addProjectDTO, String createUser) {
         return commonProjectService.add(addProjectDTO, createUser, ADD_PROJECT, OperationLogModule.SETTING_SYSTEM_ORGANIZATION);
     }
 
@@ -53,7 +53,7 @@ public class SystemProjectService {
         return commonProjectService.buildUserInfo(projectList);
     }
 
-    public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
+    public ProjectDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
         return commonProjectService.update(updateProjectDto, updateUser, UPDATE_PROJECT, OperationLogModule.SETTING_SYSTEM_ORGANIZATION);
     }
 
@@ -97,5 +97,10 @@ public class SystemProjectService {
 
     public void disable(String id, String updateUser) {
         commonProjectService.disable(id, updateUser);
+    }
+
+    public List<TestResourcePool> getTestResourcePoolOptions(String organizationId) {
+        return commonProjectService.getTestResourcePoolOptions(organizationId);
+
     }
 }

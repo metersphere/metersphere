@@ -2,7 +2,7 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.dto.ProjectDTO;
+import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;

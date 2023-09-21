@@ -32,4 +32,10 @@ public class ProjectBaseRequest {
 
     @Schema(description =  "模块设置")
     private List<String> moduleIds;
+
+    @Schema(description =  "成员数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private List<String> userIds;
+
+    @Schema(description =  "资源池", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private List<String> resourcePoolIds;
 }

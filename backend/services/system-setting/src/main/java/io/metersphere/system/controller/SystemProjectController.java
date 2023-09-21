@@ -5,13 +5,15 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.*;
-import io.metersphere.system.log.annotation.Log;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.system.utils.SessionUtils;
+import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.system.dto.AddProjectRequest;
+import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.UpdateProjectRequest;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
@@ -19,6 +21,7 @@ import io.metersphere.system.request.ProjectRequest;
 import io.metersphere.system.service.SystemProjectLogService;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.service.UserService;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,7 +50,7 @@ public class SystemProjectController {
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#project)", msClass = SystemProjectLogService.class)
     @Operation(summary = "系统设置-系统-组织与项目-项目-创建项目")
-    public ProjectExtendDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
+    public ProjectDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
         return systemProjectService.add(project, SessionUtils.getUserId());
     }
 
@@ -56,7 +59,7 @@ public class SystemProjectController {
     @Operation(summary = "系统设置-系统-组织与项目-项目-根据ID获取项目信息")
     @Parameter(name = "id", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public ProjectExtendDTO getProject(@PathVariable @NotBlank String id) {
+    public ProjectDTO getProject(@PathVariable @NotBlank String id) {
         return systemProjectService.get(id);
     }
 
@@ -73,7 +76,7 @@ public class SystemProjectController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = SystemProjectLogService.class)
     @Operation(summary = "系统设置-系统-组织与项目-项目-编辑")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
-    public ProjectExtendDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
+    public ProjectDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
         return systemProjectService.update(project, SessionUtils.getUserId());
     }
 
@@ -148,6 +151,13 @@ public class SystemProjectController {
     public List<User> getUserList(@Schema(description = "查询关键字，根据邮箱和用户名查询")
                                       @RequestParam(value = "keyword", required = false) String keyword) {
         return userService.getUserList(keyword);
+    }
+
+    @GetMapping("/pool-options/{organizationId}")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-获取资源池下拉选项")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
+    public List<TestResourcePool> getProjectOptions(@PathVariable String organizationId) {
+        return systemProjectService.getTestResourcePoolOptions(organizationId);
     }
 
 }

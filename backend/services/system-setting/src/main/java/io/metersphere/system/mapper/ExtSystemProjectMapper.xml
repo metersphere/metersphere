@@ -22,7 +22,7 @@
         </where>
                  ORDER BY `user`.update_time DESC) temp GROUP BY temp.id ORDER BY adminFlag DESC
     </select>
-    <select id="getProjectList" resultType="io.metersphere.sdk.dto.ProjectDTO">
+    <select id="getProjectList" resultType="io.metersphere.system.dto.ProjectDTO">
         select p.id,
                p.num,
                p.organization_id,
@@ -150,7 +150,7 @@
         order by u.create_time desc
         limit 100
     </select>
-    <select id="getProjectExtendDTOList" resultType="io.metersphere.sdk.dto.ProjectDTO">
+    <select id="getProjectExtendDTOList" resultType="io.metersphere.system.dto.ProjectDTO">
         select p.id, count(distinct temp.id) as memberCount
         FROM project p
         LEFT JOIN (SELECT ur.source_id, u.id
@@ -166,6 +166,20 @@
         </where>
         ) temp on p.id = temp.source_id
         group by p.id
+    </select>
+    <select id="getProjectResourcePoolDTOList" resultType="io.metersphere.system.dto.ProjectResourcePoolDTO">
+        SELECT p.project_id, t.*
+        from project_test_resource_pool p
+                 INNER JOIN test_resource_pool t on p.test_resource_pool_id = t.id
+        <where>
+            t.enable = true and t.deleted = false
+            <if test="projectIds != null and projectIds.size > 0 ">
+                and p.project_id in
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </if>
+        </where>
     </select>
 
 
