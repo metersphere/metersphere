@@ -5,14 +5,16 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.request.ProjectSwitchRequest;
+import io.metersphere.sdk.constants.ModuleType;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.dto.ProjectExtendDTO;
-import io.metersphere.sdk.dto.UpdateProjectRequest;
+import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -45,10 +47,8 @@ public class ProjectControllerTests extends BaseTest {
     private static final String prefix = "/project";
     private static final String getOptions = prefix + "/list/options/";
     private final static String updateProject = prefix + "/update";
-    private final static String deleteProject = prefix + "/delete/";
-    private final static String revokeProject = prefix + "/revoke/";
-    private final static String disableProject = prefix + "/disable/";
-    private final static String enableProject = prefix + "/enable/";
+
+    private static final String getPoolOptions = prefix + "/pool-options/";
 
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
@@ -73,15 +73,6 @@ public class ProjectControllerTests extends BaseTest {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
-    }
-
-    private void responseGet(String url, ResultMatcher resultMatcher) throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(url)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(resultMatcher)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
@@ -135,7 +126,7 @@ public class ProjectControllerTests extends BaseTest {
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testGetProject() throws Exception {
         MvcResult mvcResult = responseGet(prefix + "/get/projectId");
-        ProjectExtendDTO getProjects = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        ProjectDTO getProjects = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         Assertions.assertNotNull(getProjects);
         //权限校验
         requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, prefix + "/get/projectId");
@@ -147,7 +138,7 @@ public class ProjectControllerTests extends BaseTest {
     public void testGetProjectError() throws Exception {
         //项目不存在
         MvcResult mvcResult = this.responseGet(prefix + "/get/111111");
-        ProjectExtendDTO project = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        ProjectDTO project = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         Assertions.assertNull(project);
     }
 
@@ -273,7 +264,7 @@ public class ProjectControllerTests extends BaseTest {
         }
         project.setModuleIds(moduleIds);
         MvcResult mvcResult = this.responsePost(updateProject, project);
-        ProjectExtendDTO result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         Project currentProject = projectMapper.selectByPrimaryKey(project.getId());
         compareProjectDTO(currentProject, result);
         //断言模块设置
@@ -289,7 +280,7 @@ public class ProjectControllerTests extends BaseTest {
         moduleIds.add("uiTest");
         project.setModuleIds(moduleIds);
         mvcResult = this.responsePost(updateProject, project);
-        result = parseObjectFromMvcResult(mvcResult, ProjectExtendDTO.class);
+        result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
         compareProjectDTO(currentProject, result);
         //断言模块设置
@@ -327,84 +318,17 @@ public class ProjectControllerTests extends BaseTest {
 
     @Test
     @Order(9)
-    public void testDeleteProject() throws Exception {
-        MvcResult mvcResult = this.responseGet(deleteProject + "projectId4");
-        int count = parseObjectFromMvcResult(mvcResult, Integer.class);
-        Project currentProject = projectMapper.selectByPrimaryKey("projectId4");
-        Assertions.assertEquals(currentProject.getDeleted(), true);
-        Assertions.assertEquals(currentProject.getId(), "projectId4");
-        Assertions.assertEquals(1, count);
-        // 校验日志
-        checkLog("projectId4", OperationLogType.DELETE);
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ_DELETE, deleteProject + DEFAULT_PROJECT_ID);
+    public void testGetPoolOptions() throws Exception {
+        MvcResult mvcResult = this.responseGet(getPoolOptions + ModuleType.API_TEST + "/"+DEFAULT_PROJECT_ID);
+        mvcResult = this.responseGet(getPoolOptions + ModuleType.UI_TEST + "/"+DEFAULT_PROJECT_ID);
+        mvcResult = this.responseGet(getPoolOptions + ModuleType.LOAD_TEST + "/"+DEFAULT_PROJECT_ID);
+        mvcResult = this.responseGet(getPoolOptions + "test" + "/"+DEFAULT_PROJECT_ID);
+        List<TestResourcePool> list = parseObjectFromMvcResult(mvcResult, List.class);
+        //断言为空的list
+        Assertions.assertEquals(0, list.size());
+        //权限校验
+        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getPoolOptions + "api_test" + "/"+DEFAULT_PROJECT_ID);
     }
 
-    @Test
-    @Order(10)
-    public void testDeleteProjectError() throws Exception {
-        String id = "1111";
-        this.responseGet(deleteProject + id, ERROR_REQUEST_MATCHER);
-    }
-
-    @Test
-    @Order(11)
-    public void revokeSuccess() throws Exception {
-        MvcResult mvcResult = this.responseGet(revokeProject + "projectId4");
-        int count = parseObjectFromMvcResult(mvcResult, Integer.class);
-        Project currentProject = projectMapper.selectByPrimaryKey("projectId4");
-        Assertions.assertEquals(currentProject.getDeleted(), false);
-        Assertions.assertEquals(currentProject.getId(), "projectId4");
-        Assertions.assertEquals(1, count);
-        // 校验日志
-        checkLog("projectId4", OperationLogType.RECOVER);
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ_RECOVER, revokeProject + DEFAULT_PROJECT_ID);
-    }
-
-    @Test
-    @Order(12)
-    public void testRevokeProjectError() throws Exception {
-        String id = "1111";
-        this.responseGet(revokeProject + id, ERROR_REQUEST_MATCHER);
-    }
-
-    @Test
-    @Order(19)
-    public void disableSuccess() throws Exception {
-        String id = "projectId4";
-        this.responseGet(disableProject + id,status().isOk());
-        Project currentProject = projectMapper.selectByPrimaryKey(id);
-        Assertions.assertEquals(currentProject.getEnable(), false);
-        checkLog(id, OperationLogType.UPDATE);
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ_UPDATE, disableProject + DEFAULT_PROJECT_ID);
-    }
-
-    @Test
-    @Order(20)
-    public void disableError() throws Exception {
-        String id = "1111";
-        this.responseGet(disableProject + id, ERROR_REQUEST_MATCHER);
-    }
-
-    @Test
-    @Order(19)
-    public void enableSuccess() throws Exception {
-        String id = "projectId4";
-        this.responseGet(enableProject + id,status().isOk());
-        Project currentProject = projectMapper.selectByPrimaryKey(id);
-        Assertions.assertEquals(currentProject.getEnable(), true);
-        checkLog(id, OperationLogType.UPDATE);
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ_UPDATE, enableProject + DEFAULT_PROJECT_ID);
-    }
-
-    @Test
-    @Order(20)
-    public void enableError() throws Exception {
-        String id = "1111";
-        this.responseGet(enableProject + id, ERROR_REQUEST_MATCHER);
-    }
 
 }

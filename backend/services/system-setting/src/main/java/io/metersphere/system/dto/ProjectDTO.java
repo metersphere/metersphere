@@ -1,6 +1,7 @@
-package io.metersphere.sdk.dto;
+package io.metersphere.system.dto;
 
 import io.metersphere.project.domain.Project;
+import io.metersphere.sdk.dto.UserExtend;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,6 +22,8 @@ public class ProjectDTO extends Project implements Serializable {
     private Boolean projectCreateUserIsAdmin;
     @Schema(description =  "模块设置", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<String> moduleIds;
+    @Schema(description =  "资源池", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private List<ProjectResourcePoolDTO> resourcePoolList;
 
     private static final long serialVersionUID = 1L;
 }

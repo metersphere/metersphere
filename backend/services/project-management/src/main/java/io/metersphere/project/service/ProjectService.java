@@ -2,34 +2,37 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.domain.ProjectTestResourcePool;
+import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.project.request.ProjectSwitchRequest;
 import io.metersphere.sdk.constants.InternalUserRole;
-import io.metersphere.sdk.dto.ProjectExtendDTO;
+import io.metersphere.sdk.constants.ModuleType;
 import io.metersphere.sdk.dto.SessionUser;
-import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.domain.Organization;
-import io.metersphere.system.service.BaseUserService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserRoleRelation;
-import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.mapper.OrganizationMapper;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
+import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.service.BaseUserService;
 import io.metersphere.system.service.CommonProjectService;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -47,6 +50,12 @@ public class ProjectService {
     private OrganizationMapper organizationMapper;
     @Resource
     private CommonProjectService commonProjectService;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
+    @Resource
+    private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
 
 
     public List<Project> getUserProject(String organizationId, String userId) {
@@ -83,25 +92,13 @@ public class ProjectService {
         return sessionUser;
     }
 
-    public ProjectExtendDTO getProjectById(String id) {
-        Project project = projectMapper.selectByPrimaryKey(id);
-        ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
-        if (ObjectUtils.isNotEmpty(project)) {
-            BeanUtils.copyBean(projectExtendDTO, project);
-            Organization organization = organizationMapper.selectByPrimaryKey(project.getOrganizationId());
-            projectExtendDTO.setOrganizationName(organization.getName());
-            if (StringUtils.isNotEmpty(project.getModuleSetting())) {
-                projectExtendDTO.setModuleIds(JSON.parseArray(project.getModuleSetting(), String.class));
-            }
-        } else {
-            return null;
-        }
-        return projectExtendDTO;
+    public ProjectDTO getProjectById(String id) {
+        return commonProjectService.get(id);
     }
 
-    public ProjectExtendDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
+    public ProjectDTO update(UpdateProjectRequest updateProjectDto, String updateUser) {
         Project project = new Project();
-        ProjectExtendDTO projectExtendDTO = new ProjectExtendDTO();
+        ProjectDTO projectDTO = new ProjectDTO();
         project.setId(updateProjectDto.getId());
         project.setName(updateProjectDto.getName());
         project.setDescription(updateProjectDto.getDescription());
@@ -113,16 +110,16 @@ public class ProjectService {
         project.setUpdateTime(System.currentTimeMillis());
         checkProjectExistByName(project);
         checkProjectNotExist(project.getId());
-        projectExtendDTO.setOrganizationName(organizationMapper.selectByPrimaryKey(updateProjectDto.getOrganizationId()).getName());
-        BeanUtils.copyBean(projectExtendDTO, project);
+        projectDTO.setOrganizationName(organizationMapper.selectByPrimaryKey(updateProjectDto.getOrganizationId()).getName());
+        BeanUtils.copyBean(projectDTO, project);
         //判断是否有模块设置
         if (CollectionUtils.isNotEmpty(updateProjectDto.getModuleIds())) {
             project.setModuleSetting(JSON.toJSONString(updateProjectDto.getModuleIds()));
-            projectExtendDTO.setModuleIds(updateProjectDto.getModuleIds());
+            projectDTO.setModuleIds(updateProjectDto.getModuleIds());
         }
 
         projectMapper.updateByPrimaryKeySelective(project);
-        return projectExtendDTO;
+        return projectDTO;
     }
 
     private void checkProjectExistByName(Project project) {
@@ -139,19 +136,52 @@ public class ProjectService {
         }
     }
 
-    public int delete(String id, String deleteUser) {
-        return commonProjectService.delete(id,deleteUser);
+    private List<String> getPoolIds(String projectId) {
+        List<String> poolIds = new ArrayList<>();
+        ProjectTestResourcePoolExample example = new ProjectTestResourcePoolExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        List<ProjectTestResourcePool> projectPools = projectTestResourcePoolMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(projectPools)) {
+            return projectPools.stream().map(ProjectTestResourcePool::getTestResourcePoolId).toList();
+        }
+        //判断项目所属组织是否关联了资源池
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        TestResourcePoolOrganizationExample orgExample = new TestResourcePoolOrganizationExample();
+        orgExample.createCriteria().andOrgIdEqualTo(project.getOrganizationId());
+        List<TestResourcePoolOrganization> orgPools = testResourcePoolOrganizationMapper.selectByExample(orgExample);
+        if (CollectionUtils.isNotEmpty(orgPools)) {
+            poolIds.addAll(orgPools.stream().map(TestResourcePoolOrganization::getTestResourcePoolId).toList());
+        }
+        //获取应用全部组织的资源池
+        TestResourcePoolExample poolExample = new TestResourcePoolExample();
+        poolExample.createCriteria().andAllOrgEqualTo(true).andEnableEqualTo(true).andDeletedEqualTo(false);
+        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(poolExample);
+        poolIds.addAll(testResourcePools.stream().map(TestResourcePool::getId).toList());
+        poolIds = poolIds.stream().distinct().filter(StringUtils::isNotBlank).toList();
+        return poolIds;
     }
 
-    public int revoke(String id, String updateUser) {
-        return commonProjectService.revoke(id, updateUser);
-    }
-
-    public void enable(String id, String updateUser) {
-        commonProjectService.enable(id, updateUser);
-    }
-
-    public void disable(String id, String updateUser) {
-        commonProjectService.disable(id, updateUser);
+    public List<TestResourcePool> getPoolOptions(String projectId, String type) {
+        //判断项目是否关联了资源池
+        checkProjectNotExist(projectId);
+        List<String> poolIds = getPoolIds(projectId);
+        TestResourcePoolExample example = new TestResourcePoolExample();
+        TestResourcePoolExample.Criteria criteria = example.createCriteria();
+        criteria.andIdIn(poolIds).andEnableEqualTo(true).andDeletedEqualTo(false);
+        return switch (type) {
+            case ModuleType.API_TEST-> {
+                criteria.andApiTestEqualTo(true);
+                yield testResourcePoolMapper.selectByExample(example);
+            }
+            case ModuleType.UI_TEST -> {
+                criteria.andUiTestEqualTo(true);
+                yield testResourcePoolMapper.selectByExample(example);
+            }
+            case ModuleType.LOAD_TEST -> {
+                criteria.andLoadTestEqualTo(true);
+                yield testResourcePoolMapper.selectByExample(example);
+            }
+            default -> new ArrayList<>();
+        };
     }
 }
