@@ -73,4 +73,5 @@ export default {
   'system.project.affiliatedOrgRequired': 'Affiliated organization cannot be empty',
   'system.project.createProjectSuccess': 'Create project success',
   'system.project.updateProjectSuccess': 'Update project success',
+  'system.project.resourcePool': 'Resource pool',
 };

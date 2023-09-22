@@ -151,18 +151,17 @@
     }
   };
 
-  // tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
+  tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
 
   const { propsRes, propsEvent, loadList, setKeyword } = useTable(
     postProjectTable,
     {
-      columns: organizationColumns,
       tableKey: TableKeyEnum.SYSTEM_PROJECT,
       scroll: { x: '1600px' },
       selectable: false,
       noDisable: false,
       size: 'default',
-      // showSetting: true,
+      showSetting: true,
       editKey: 'name',
     },
     undefined,
@@ -235,7 +234,7 @@
   };
 
   const showAddProjectModal = (record: any) => {
-    const { id, name, description, enable, adminList, organizationId, moduleIds } = record;
+    const { id, name, description, enable, adminList, organizationId, moduleIds, resourcePoolList } = record;
     addProjectVisible.value = true;
     currentUpdateProject.value = {
       id,
@@ -245,6 +244,7 @@
       userIds: adminList.map((item: UserItem) => item.id),
       organizationId,
       moduleIds,
+      resourcePoolIds: resourcePoolList.map((item: { id: string }) => item.id),
     };
   };
 
