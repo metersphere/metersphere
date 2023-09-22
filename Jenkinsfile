@@ -67,11 +67,11 @@ pipeline {
                         # echo $LOCAL_REPOSITORY
                         mkdir -p backend/app/target/dependency && (cd backend/app/target/dependency && jar -xf ../*.jar);
 
-                        libraries=('metersphere-ui-test-impl' 'metersphere-load-test-impl')
-                        for library in "${libraries[@]}";
-                        do
-                            cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
-                        done
+                        #   libraries=('metersphere-ui-test-impl' 'metersphere-load-test-impl')
+                        #   for library in "${libraries[@]}";
+                        #   do
+                        #       cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
+                        #   done
 
                         cp $LOCAL_REPOSITORY/io/metersphere/metersphere-xpack/${REVISION}/metersphere-xpack-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
                     '''
