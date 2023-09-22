@@ -25,6 +25,15 @@ public class ProjectApplication implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public ProjectApplication(String projectId, String type, String typeValue) {
+        this.projectId = projectId;
+        this.type = type;
+        this.typeValue = typeValue;
+    }
+
+    public ProjectApplication() {
+    }
+
     public enum Column {
         projectId("project_id", "projectId", "VARCHAR", false),
         type("type", "type", "VARCHAR", true),

@@ -7,7 +7,7 @@ public class ProjectApplicationType {
 
     //工作台
     public enum WORKSTATION {
-        WORKSTATION
+        WORKSTATION_SYNC_RULE
     }
 
     //测试计划
@@ -51,8 +51,13 @@ public class ProjectApplicationType {
     //用例管理
     public enum CASE{
         CASE_PUBLIC,
-        CASE_ASSOCIATION_REQUIREMENTS,
         CASE_RE_REVIEW,
+    }
+
+    //用例管理-关联需求
+    public enum CASE_RELATED_CONFIG{
+        CASE_RELATED,
+        ENABLE,
     }
 
 
@@ -62,7 +67,11 @@ public class ProjectApplicationType {
     }
 
 
-
-
+    //缺陷管理-同步配置项
+    public enum ISSUE_SYNC_CONFIG{
+        CRON_EXPRESSION,
+        ENABLE,
+        MECHANISM,
+    }
 
 }

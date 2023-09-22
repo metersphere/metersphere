@@ -27,9 +27,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -155,7 +153,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(6)
     public void testGetUiResourcePool() throws Exception {
-        this.requestGetWithOkAndReturn(GET_UI_RESOURCE_POOL_URL + "/default_organization");
+        this.requestGetWithOkAndReturn(GET_UI_RESOURCE_POOL_URL + "/" + DEFAULT_PROJECT_ID);
     }
     /**
      * ==========UI测试 end==========
@@ -312,7 +310,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(21)
     public void testGetApiResourcePool() throws Exception {
-        this.requestGetWithOkAndReturn(GET_API_RESOURCE_POOL_URL + "/100001");
+        this.requestGetWithOkAndReturn(GET_API_RESOURCE_POOL_URL + "/" + DEFAULT_PROJECT_ID);
     }
     /**
      * ==========接口测试 end==========
@@ -394,7 +392,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(27)
     public void testWorkstation() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.WORKSTATION.WORKSTATION.name()), "true");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.WORKSTATION.WORKSTATION_SYNC_RULE.name()), "true");
         this.requestPost(WORKSTATION_UPDATE_URL, request);
     }
 
@@ -550,4 +548,125 @@ public class ProjectApplicationControllerTests extends BaseTest {
         return list;
     }
 
+
+    public static final String UPDATE_ISSUE_CONFIG_URL = "/project/application/update/issue/sync";
+    public static final String GET_ISSUE_CONFIG_INFO_URL = "/project/application/issue/sync/info";
+
+    @Test
+    @Order(34)
+    public void testIssueConfig() throws Exception {
+        Map<String, String> congifs = mockTeseData();
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", congifs);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+
+        //更新
+        congifs.put("jiraKey", "222");
+        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", congifs);
+        // 获取返回值
+        String updateData = updateResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder updateResultHolder = JSON.parseObject(updateData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(updateResultHolder);
+    }
+
+    private Map<String, String> mockTeseData() {
+        Map<String, String> configs = new HashMap<>();
+        configs.put("platform", "jira");
+        configs.put("jiraKey", "111");
+        configs.put("jiraIssueTypeId", "10086");
+        configs.put("jiraStoryTypeId", "10010");
+        configs.put("CRON_EXPRESSION", "0 0 0/1 * * ?");
+        configs.put("ENABLE", "true");
+        configs.put("MECHANISM", "1");
+        return configs;
+    }
+
+    @Test
+    @Order(35)
+    public void testIssueConfigInfo() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_ISSUE_CONFIG_INFO_URL + "/default-project-2");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    public static final String GET_MODULE_SETTING_URL = "/project/application/module-setting";
+
+    @Test
+    @Order(36)
+    public void testGetModuleSetting() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_MODULE_SETTING_URL + "/100001100001");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+
+        //更新
+        List<ProjectApplication> request = creatRequest(Arrays.asList("bugManagement"), "false");
+        request.get(0).setProjectId("100001100001");
+        this.requestPost(ISSUE_UPDATE_URL, request);
+        MvcResult updateMvcResult = this.requestGetWithOkAndReturn(GET_MODULE_SETTING_URL + "/100001100001");
+        // 获取返回值
+        String updateReturnData = updateMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder updateResultHolder = JSON.parseObject(updateReturnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(updateResultHolder);
+    }
+
+
+
+
+    public static final String UPDATE_CASE_RELATED_CONFIG_URL = "/project/application/update/case/related";
+    public static final String GET_CASE_RELATED_CONFIG_INFO_URL = "/project/application/case/related/info";
+
+    @Test
+    @Order(37)
+    public void testCaseRelatedConfig() throws Exception {
+        Map<String, String> congifs = mockRelatedTeseData();
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/default-project-2", congifs);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+
+        //更新
+        congifs.put("jiraKey", "222");
+        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/default-project-2", congifs);
+        // 获取返回值
+        String updateData = updateResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder updateResultHolder = JSON.parseObject(updateData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(updateResultHolder);
+    }
+
+    private Map<String, String> mockRelatedTeseData() {
+        Map<String, String> configs = new HashMap<>();
+        configs.put("platform", "jira");
+        configs.put("jiraKey", "111");
+        configs.put("jiraIssueTypeId", "10086");
+        configs.put("jiraStoryTypeId", "10010");
+        configs.put("ENABLE", "true");
+        return configs;
+    }
+
+
+    @Test
+    @Order(38)
+    public void testCaseRelatedConfigInfo() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_CASE_RELATED_CONFIG_INFO_URL + "/default-project-2");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
 }

@@ -12,4 +12,9 @@
         where urr.user_id = #{userId} and  u.type = 'PROJECT'
           AND p.organization_id = #{organizationId} and p.enable = 1 and user.deleted = 0
     </select>
+
+
+    <select id="getModuleSetting" resultType="java.lang.String">
+        select module_setting from project where id = #{projectId}
+    </select>
 </mapper>
