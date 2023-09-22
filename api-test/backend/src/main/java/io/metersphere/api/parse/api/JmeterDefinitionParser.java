@@ -454,11 +454,11 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
         assertions.setRegex(new LinkedList<>());
         assertions.setDuration(new MsAssertionDuration());
         assertions.setType("Assertions");
-        if (key instanceof ResponseAssertion) {
+        if (key instanceof ResponseAssertion assertion) {
             MsAssertionRegex assertionRegex = new MsAssertionRegex();
-            ResponseAssertion assertion = (ResponseAssertion) key;
             assertionRegex.setDescription(assertion.getName());
             assertionRegex.setAssumeSuccess(assertion.getAssumeSuccess());
+            assertionRegex.setEnable(assertion.isEnabled());
             if (assertion.getTestStrings() != null && !assertion.getTestStrings().isEmpty()) {
                 assertionRegex.setExpression(assertion.getTestStrings().get(0).getStringValue());
             }
@@ -485,35 +485,35 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             }
             assertions.setName(assertion.getName());
             assertions.getRegex().add(assertionRegex);
-        } else if (key instanceof JSONPathAssertion) {
+        } else if (key instanceof JSONPathAssertion jsonPathAssertion) {
             MsAssertionJsonPath assertionJsonPath = new MsAssertionJsonPath();
-            JSONPathAssertion jsonPathAssertion = (JSONPathAssertion) key;
             assertionJsonPath.setDescription(jsonPathAssertion.getName());
             assertionJsonPath.setExpression(jsonPathAssertion.getJsonPath());
             assertionJsonPath.setExpect(jsonPathAssertion.getExpectedValue());
+            assertionJsonPath.setEnable(jsonPathAssertion.isEnabled());
             assertionJsonPath.setOption(jsonPathAssertion.getPropertyAsString(PropertyConstant.ASS_OPTION));
             assertions.setName(jsonPathAssertion.getName());
             assertions.getJsonPath().add(assertionJsonPath);
-        } else if (key instanceof XPath2Assertion) {
+        } else if (key instanceof XPath2Assertion xPath2Assertion) {
             MsAssertionXPath2 assertionXPath2 = new MsAssertionXPath2();
-            XPath2Assertion xPath2Assertion = (XPath2Assertion) key;
             assertionXPath2.setExpression(xPath2Assertion.getXPathString());
+            assertionXPath2.setEnable(xPath2Assertion.isEnabled());
             assertions.setName(xPath2Assertion.getName());
             assertions.getXpath2().add(assertionXPath2);
-        } else if (key instanceof JSR223Assertion) {
+        } else if (key instanceof JSR223Assertion jsr223Assertion) {
             MsAssertionJSR223 msAssertionJSR223 = new MsAssertionJSR223();
-            JSR223Assertion jsr223Assertion = (JSR223Assertion) key;
             msAssertionJSR223.setName(jsr223Assertion.getName());
             msAssertionJSR223.setDesc(jsr223Assertion.getName());
+            msAssertionJSR223.setEnable(jsr223Assertion.isEnabled());
             msAssertionJSR223.setScript(jsr223Assertion.getPropertyAsString(ElementConstants.SCRIPT));
             msAssertionJSR223.setScriptLanguage(jsr223Assertion.getPropertyAsString("scriptLanguage"));
             assertions.setName(jsr223Assertion.getName());
 
             assertions.getJsr223().add(msAssertionJSR223);
-        } else if (key instanceof DurationAssertion) {
+        } else if (key instanceof DurationAssertion durationAssertion) {
             MsAssertionDuration assertionDuration = new MsAssertionDuration();
-            DurationAssertion durationAssertion = (DurationAssertion) key;
             assertionDuration.setValue(durationAssertion.getProperty("DurationAssertion.duration").getIntValue());
+            assertionDuration.setEnable(durationAssertion.isEnabled());
             assertions.setName(durationAssertion.getName());
             assertions.setDuration(assertionDuration);
         }
