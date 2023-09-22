@@ -21,6 +21,8 @@ export interface CreateOrUpdateSystemProjectParams {
   moduleIds?: string[];
   // 所属组织
   organizationId?: string;
+  // 资源池
+  resourcePoolIds: string[];
   // 列表里的
 }
 
@@ -31,6 +33,7 @@ export interface CreateOrUpdateOrgProjectParams {
   enable?: boolean;
   userIds?: string[];
   organizationId?: string;
+  resourcePoolIds?: string[];
 }
 
 export interface SystemOrgOption {
@@ -54,4 +57,5 @@ export interface OrgProjectTableItem {
   createTime: number;
   memberCount: number;
   userIds: string[];
+  resourcePoolIds: string[];
 }

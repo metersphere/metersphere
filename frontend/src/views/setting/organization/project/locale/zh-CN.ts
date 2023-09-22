@@ -68,4 +68,5 @@ export default {
   'system.project.affiliatedOrgRequired': '所属组织不能为空',
   'system.project.createProjectSuccess': '创建项目成功',
   'system.project.updateProjectSuccess': '更新项目成功',
+  'system.project.resourcePool': '资源池',
 };

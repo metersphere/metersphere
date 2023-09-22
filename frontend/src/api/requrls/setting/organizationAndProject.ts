@@ -86,3 +86,5 @@ export const getDeleteProjectByOrgUrl = '/organization/project/delete/';
 export const getUserByOrganizationOrProjectUrl = '/organization/project/user-member-list/';
 // 获取管理员下拉选项
 export const getAdminByOrganizationOrProjectUrl = '/organization/project/user-admin-list/';
+// 系统或组织-获取项目资源池下拉选项
+export const getProjectPoolByOrgOrSystemUrl = '/system/project/pool-options';

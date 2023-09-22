@@ -1,7 +1,6 @@
 <template>
   <a-modal
     v-model:visible="currentVisible"
-    width="680px"
     class="ms-modal-form ms-modal-medium"
     :ok-text="isEdit ? t('common.update') : t('common.create')"
     title-align="start"
@@ -18,7 +17,7 @@
       </span>
     </template>
     <div class="form">
-      <a-form ref="formRef" :model="form" :style="{ width: '600px' }" layout="vertical">
+      <a-form ref="formRef" :model="form" layout="vertical">
         <a-form-item
           field="name"
           required
@@ -51,15 +50,23 @@
             placeholder="system.project.projectAdminPlaceholder"
           />
         </a-form-item>
-        <a-form-item field="description" :label="t('system.organization.description')">
-          <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
-        </a-form-item>
         <a-form-item field="module" :label="t('system.project.moduleSetting')">
           <a-checkbox-group v-model="form.moduleIds" :options="moduleOption">
             <template #label="{ data }">
               <span>{{ t(data.label) }}</span>
             </template>
           </a-checkbox-group>
+        </a-form-item>
+        <a-form-item field="resourcePool" :label="t('system.project.resourcePool')">
+          <MsSystemPool v-model:modelValue="form.resourcePoolIds" :organization-id="form.organizationId" />
+        </a-form-item>
+        <a-form-item field="description" :label="t('system.organization.description')">
+          <a-textarea
+            v-model="form.description"
+            :placeholder="t('system.organization.descriptionPlaceholder')"
+            allow-clear
+            :auto-size="{ minRows: 1 }"
+          />
         </a-form-item>
       </a-form>
     </div>
@@ -96,6 +103,7 @@
   import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
   import useLicenseStore from '@/store/modules/setting/license';
   import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import MsSystemPool from '@/components/business/ms-system-pool/MsSystemPool.vue';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -130,6 +138,7 @@
     description: '',
     enable: true,
     moduleIds: [],
+    resourcePoolIds: [],
   });
 
   const currentVisible = ref(props.visible);
@@ -151,8 +160,8 @@
     form.moduleIds = [];
   };
   const handleCancel = (shouldSearch: boolean) => {
-    formReset();
     emit('cancel', shouldSearch);
+    formReset();
   };
 
   const handleBeforeOk = async () => {
@@ -195,6 +204,7 @@
       form.userIds = props.currentProject.userIds;
       form.organizationId = props.currentProject.organizationId;
       form.moduleIds = props.currentProject.moduleIds;
+      form.resourcePoolIds = props.currentProject.resourcePoolIds;
     }
   });
 </script>

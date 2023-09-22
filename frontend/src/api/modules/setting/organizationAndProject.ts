@@ -167,3 +167,11 @@ export function getUserByProjectByOrg(organizationId: string, projectId: string,
     params: { keyword },
   });
 }
+
+// 系统或组织-获取项目下的资源池options
+export function getPoolOptionsByOrgOrSystem(organizationId?: string) {
+  return MSR.get({
+    url: orgUrl.getProjectPoolByOrgOrSystemUrl,
+    params: { organizationId },
+  });
+}
