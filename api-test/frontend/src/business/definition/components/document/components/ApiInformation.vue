@@ -173,7 +173,7 @@ export default {
   },
   props: {
     projectId: String,
-    isTemplate: String,
+    isTemplate: Boolean,
     apiInfo: Object,
   },
   computed: {},
