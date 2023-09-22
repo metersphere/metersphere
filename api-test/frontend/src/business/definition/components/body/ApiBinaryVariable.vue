@@ -31,7 +31,7 @@
         </el-col>
 
         <el-col>
-          <ms-api-body-file-upload :parameter="item" />
+          <ms-api-body-file-upload :parameter="item" :disabled="isReadOnly" />
         </el-col>
 
         <el-col class="kv-delete">
