@@ -233,7 +233,7 @@
           },
           {
             "id": "PROJECT_APPLICATION_WORKSTATION:READ",
-            "name": "permission.project_application_workstation.reda"
+            "name": "permission.project_application_workstation.read"
           },
           {
             "id": "PROJECT_APPLICATION_WORKSTATION:UPDATE",

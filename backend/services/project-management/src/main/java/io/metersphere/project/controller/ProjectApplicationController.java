@@ -3,14 +3,16 @@ package io.metersphere.project.controller;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
+import io.metersphere.project.service.ProjectService;
+import io.metersphere.sdk.constants.ModuleType;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.SessionUser;
-import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -33,6 +36,8 @@ public class ProjectApplicationController {
     @Resource
     private ProjectApplicationService projectApplicationService;
 
+    @Resource
+    private ProjectService projectService;
 
     /**
      * ==========测试计划==========
@@ -75,11 +80,11 @@ public class ProjectApplicationController {
         return projectApplicationService.get(request, types);
     }
 
-    @GetMapping("/ui/resource/pool/{organizationId}")
+    @GetMapping("/ui/resource/pool/{projectId}")
     @Operation(summary = "UI测试-获取资源池列表")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_READ)
-    public List<OptionDTO> getUiResourcePoolList(@PathVariable String organizationId) {
-        return projectApplicationService.getResourcePoolList(StringUtils.defaultIfBlank(organizationId, SessionUtils.getCurrentOrganizationId()));
+    public List<OptionDTO> getUiPoolOptions(@PathVariable String projectId) {
+        return projectService.getPoolOptions(projectId, ModuleType.UI_TEST);
     }
 
 
@@ -139,11 +144,11 @@ public class ProjectApplicationController {
     }
 
 
-    @GetMapping("/api/resource/pool/{organizationId}")
+    @GetMapping("/api/resource/pool/{projectId}")
     @Operation(summary = "接口测试-获取资源池列表")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_READ)
-    public List<OptionDTO> getResourcePoolList(@PathVariable String organizationId) {
-        return projectApplicationService.getResourcePoolList(StringUtils.defaultIfBlank(organizationId, SessionUtils.getCurrentOrganizationId()));
+    public List<OptionDTO> getApiPoolOptions(@PathVariable String projectId) {
+        return projectService.getPoolOptions(projectId, ModuleType.API_TEST);
     }
 
 
@@ -182,6 +187,22 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_READ)
     public Object getCasePlatformInfo(@PathVariable String pluginId) {
         return projectApplicationService.getPluginScript(pluginId);
+    }
+
+
+    @PostMapping("/update/case/related/{projectId}")
+    @Operation(summary = "用例管理-关联需求")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateRelatedRequirementsLog(#projectId, #configs)", msClass = ProjectApplicationService.class)
+    public void updateRelated(@PathVariable("projectId") String projectId, @RequestBody Map<String, String> configs) {
+        projectApplicationService.updateRelated(projectId, configs);
+    }
+
+    @GetMapping("/case/related/info/{projectId}")
+    @Operation(summary = "用例管理-获取关联需求信息")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_READ)
+    public Map<String, String> getRelatedConfigInfo(@PathVariable("projectId") String projectId) {
+        return projectApplicationService.getRelatedConfigInfo(projectId);
     }
 
 
@@ -242,6 +263,23 @@ public class ProjectApplicationController {
     }
 
 
+    @PostMapping("/update/issue/sync/{projectId}")
+    @Operation(summary = "缺陷管理-同步缺陷配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateIssueSyncLog(#projectId, #configs)", msClass = ProjectApplicationService.class)
+    public void syncIssueConfig(@PathVariable("projectId") String projectId, @RequestBody Map<String, String> configs) {
+        projectApplicationService.syncIssueConfig(projectId, configs);
+    }
+
+
+    @GetMapping("/issue/sync/info/{projectId}")
+    @Operation(summary = "缺陷管理-获取同步缺陷信息")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_READ)
+    public Map<String, String> getIssueConfigInfo(@PathVariable("projectId") String projectId) {
+        return projectApplicationService.getIssueConfigInfo(projectId);
+    }
+
+
     /**
      * ==========全部==========
      */
@@ -252,4 +290,12 @@ public class ProjectApplicationController {
         SessionUser user = Objects.requireNonNull(SessionUtils.getUser());
         return projectApplicationService.getAllConfigs(user, projectId);
     }
+
+
+    @GetMapping("/module-setting/{projectId}")
+    @Operation(summary = "获取菜单列表")
+    public Map<String, Boolean> getModuleSetting(@PathVariable String projectId) {
+        return projectApplicationService.getModuleSetting(projectId);
+    }
+
 }
