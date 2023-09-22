@@ -23,6 +23,7 @@
             :placeholder="$t('api_test.request.tcp.username')"
             v-model="authConfig.username"
             class="ms-http-input"
+            :disabled="isReadOnly"
             size="small">
           </el-input>
         </el-form-item>
@@ -36,6 +37,7 @@
             :placeholder="$t('commons.password')"
             show-password
             autocomplete="off"
+            :disabled="isReadOnly"
             maxlength="100"
             show-word-limit />
         </el-form-item>
