@@ -98,7 +98,7 @@
                   "
                   ref="currentInputRef"
                   v-model="record[item.dataIndex as string]"
-                  @blur="handleEditInputBlur()"
+                  @blur="handleEditInputBlur(record, item.dataIndex as string)"
                   @press-enter="handleEditInputEnter(record)"
                 />
                 <a-tooltip v-else placement="top" :content="String(record[item.dataIndex as string])">
@@ -119,7 +119,7 @@
                     class="ml-2 cursor-pointer"
                     :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
                     type="icon-icon_edit_outlined"
-                    @click="handleEdit(item.dataIndex as string, rowIndex)"
+                    @click="handleEdit(item.dataIndex as string, rowIndex, record)"
                   />
                 </div>
                 <div>
@@ -238,8 +238,10 @@
 
   // 编辑按钮的Active状态
   const editActiveKey = ref<string>('');
-  // 编辑input的Ref
+  // 编辑项的Ref
   const currentInputRef = ref();
+  // 编辑项的初始值，用于blur时恢复旧值
+  const currentEditValue = ref<string>('');
   const { rowKey }: Partial<MsTableProps<any>> = attrs;
   // 第一行表格合并
   const currentSpanMethod = ({
@@ -317,9 +319,11 @@
     emit('rowNameChange', record);
   };
 
-  const handleEditInputBlur = () => {
+  const handleEditInputBlur = (record: TableData, dataIndex: string) => {
+    record[dataIndex] = currentEditValue.value;
     currentInputRef.value = null;
     editActiveKey.value = '';
+    currentEditValue.value = '';
   };
 
   // 排序change事件
@@ -341,8 +345,9 @@
   };
 
   // 编辑单元格的input
-  const handleEdit = (dataIndex: string, rowIndex: number) => {
+  const handleEdit = (dataIndex: string, rowIndex: number, record: TableData) => {
     editActiveKey.value = dataIndex + rowIndex;
+    currentEditValue.value = record[dataIndex];
     if (currentInputRef.value) {
       currentInputRef.value[0].focus();
     } else {
