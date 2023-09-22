@@ -19,7 +19,7 @@
 
     <properties>
         <revision>3.x</revision>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <dubbo.version>2.7.22</dubbo.version>
         <platform-plugin-sdk.version>1.5.0</platform-plugin-sdk.version>
         <shiro.version>1.12.0</shiro.version>
