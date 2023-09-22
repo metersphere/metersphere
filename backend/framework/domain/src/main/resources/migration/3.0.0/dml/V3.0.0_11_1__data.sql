@@ -4,7 +4,7 @@ SET SESSION innodb_lock_wait_timeout = 7200;
 -- 初始化组织
 INSERT INTO organization (id, num, name, description, create_user, update_user, create_time, update_time) VALUES ('100001', 100001, '默认组织', '系统默认创建的组织', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 -- 初始化项目
-INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES ('100001100001', 100001, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time, module_setting) VALUES ('100001100001', 100001, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000,'["workstation","loadTest","testPlan","bugManagement","caseManagement","apiTest","uiTest"]');
 
 -- 初始化用户
 insert into user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source, last_project_id, create_user, update_user,deleted)
