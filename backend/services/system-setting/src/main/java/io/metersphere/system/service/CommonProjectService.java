@@ -591,14 +591,16 @@ public class CommonProjectService {
     public List<OptionDTO> getTestResourcePoolOptions(String organizationId) {
         //获取制定组织的资源池  和全部组织的资源池
         List<TestResourcePool> testResourcePools = new ArrayList<>();
-        TestResourcePoolOrganizationExample example = new TestResourcePoolOrganizationExample();
-        example.createCriteria().andOrgIdEqualTo(organizationId);
-        List<TestResourcePoolOrganization> orgPools = testResourcePoolOrganizationMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(orgPools)) {
-            List<String> poolIds = orgPools.stream().map(TestResourcePoolOrganization::getTestResourcePoolId).toList();
-            TestResourcePoolExample poolExample = new TestResourcePoolExample();
-            poolExample.createCriteria().andIdIn(poolIds).andEnableEqualTo(true).andDeletedEqualTo(false);
-            testResourcePools.addAll(testResourcePoolMapper.selectByExample(poolExample));
+        if (StringUtils.isNotBlank(organizationId)) {
+            TestResourcePoolOrganizationExample example = new TestResourcePoolOrganizationExample();
+            example.createCriteria().andOrgIdEqualTo(organizationId);
+            List<TestResourcePoolOrganization> orgPools = testResourcePoolOrganizationMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(orgPools)) {
+                List<String> poolIds = orgPools.stream().map(TestResourcePoolOrganization::getTestResourcePoolId).toList();
+                TestResourcePoolExample poolExample = new TestResourcePoolExample();
+                poolExample.createCriteria().andIdIn(poolIds).andEnableEqualTo(true).andDeletedEqualTo(false);
+                testResourcePools.addAll(testResourcePoolMapper.selectByExample(poolExample));
+            }
         }
         //获取应用全部组织的资源池
         TestResourcePoolExample poolExample = new TestResourcePoolExample();

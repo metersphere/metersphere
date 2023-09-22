@@ -153,10 +153,10 @@ public class SystemProjectController {
         return userService.getUserList(keyword);
     }
 
-    @GetMapping("/pool-options/{organizationId}")
+    @GetMapping("/pool-options")
     @Operation(summary = "系统设置-系统-组织与项目-项目-获取资源池下拉选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public List<OptionDTO> getProjectOptions(@PathVariable String organizationId) {
+    public List<OptionDTO> getProjectOptions(@RequestParam(value = "organizationId",required = false) String organizationId) {
         return systemProjectService.getTestResourcePoolOptions(organizationId);
     }
 
