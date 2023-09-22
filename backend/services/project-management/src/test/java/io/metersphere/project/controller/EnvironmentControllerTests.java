@@ -582,7 +582,9 @@ public class EnvironmentControllerTests extends BaseTest {
         checkLog(response.getId(), OperationLogType.ADD);
 
         //ssl配置
-        envConfig.setSslConfig(createKeyStoreConfig());
+        AuthConfig authConfig = envConfig.getAuthConfig();
+        authConfig.setSslConfig(createKeyStoreConfig());
+        envConfig.setAuthConfig(authConfig);
         request.setName("sslConfig");
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
@@ -600,8 +602,8 @@ public class EnvironmentControllerTests extends BaseTest {
         if (StringUtils.isNotBlank(config)) {
             EnvironmentConfig environmentConfig = JSON.parseObject(config, EnvironmentConfig.class);
             Assertions.assertNotNull(environmentConfig);
-            Assertions.assertNotNull(environmentConfig.getSslConfig());
-            Assertions.assertEquals(envConfig.getSslConfig(), environmentConfig.getSslConfig());
+            Assertions.assertNotNull(environmentConfig.getAuthConfig());
+            Assertions.assertEquals(envConfig.getAuthConfig().getSslConfig(), environmentConfig.getAuthConfig().getSslConfig());
         }
         //校验日志
         checkLog(response.getId(), OperationLogType.ADD);

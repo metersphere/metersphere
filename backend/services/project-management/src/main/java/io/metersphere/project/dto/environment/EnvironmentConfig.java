@@ -8,7 +8,6 @@ import io.metersphere.project.dto.environment.host.HostConfig;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.script.post.EnvironmentPostScript;
 import io.metersphere.project.dto.environment.script.pre.EnvironmentPreScript;
-import io.metersphere.project.dto.environment.ssl.KeyStoreConfig;
 import io.metersphere.project.dto.environment.tcp.TCPConfig;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -37,8 +36,6 @@ public class EnvironmentConfig implements Serializable {
     private TCPConfig tcpConfig;
     @Schema(description = "认证配置")
     private AuthConfig authConfig;
-    @Schema(description = "SSL配置")
-    private KeyStoreConfig sslConfig;
     @Schema(description = "全局前置脚本")
     private EnvironmentPreScript preScript;
     @Schema(description = "全局后置脚本")
@@ -58,7 +55,6 @@ public class EnvironmentConfig implements Serializable {
         this.preScript = new EnvironmentPreScript();
         this.postScript = new EnvironmentPostScript();
         this.assertions = new EnvironmentAssertions();
-        this.sslConfig = new KeyStoreConfig();
     }
 
 }
