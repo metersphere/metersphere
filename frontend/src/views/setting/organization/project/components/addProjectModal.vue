@@ -23,13 +23,14 @@
           :label="t('system.project.name')"
           :rules="[{ required: true, message: t('system.project.projectNameRequired') }]"
         >
-          <a-input v-model="form.name" :placeholder="t('system.project.projectNamePlaceholder')" />
+          <a-input v-model="form.name" allow-clear :placeholder="t('system.project.projectNamePlaceholder')" />
         </a-form-item>
         <a-form-item field="organizationId" :label="t('system.project.affiliatedOrg')">
           <a-select
             v-model="form.organizationId"
             disabled
             allow-search
+            allow-clear
             :options="affiliatedOrgOption"
             :default-value="isXpack ? '' : '100001'"
             :placeholder="t('system.project.affiliatedOrgPlaceholder')"
@@ -54,8 +55,16 @@
             </template>
           </a-checkbox-group>
         </a-form-item>
+        <a-form-item field="resourcePool" :label="t('system.project.resourcePool')">
+          <MsSystemPool v-model:modelValue="form.resourcePoolIds" :organization-id="currentOrgId" />
+        </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">
-          <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
+          <a-textarea
+            v-model="form.description"
+            :placeholder="t('system.organization.descriptionPlaceholder')"
+            allow-clear
+            :auto-size="{ minRows: 1 }"
+          />
         </a-form-item>
       </a-form>
     </div>
@@ -93,6 +102,7 @@
   import useLicenseStore from '@/store/modules/setting/license';
   import { useAppStore } from '@/store';
   import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import MsSystemPool from '@/components/business/ms-system-pool/MsSystemPool.vue';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -127,6 +137,7 @@
     userIds: [],
     organizationId: currentOrgId.value,
     description: '',
+    resourcePoolIds: [],
     enable: true,
     moduleIds: [],
   });
@@ -148,6 +159,7 @@
     form.description = '';
     form.enable = true;
     form.moduleIds = [];
+    form.resourcePoolIds = [];
   };
   const handleCancel = (shouldSearch: boolean) => {
     formReset();
@@ -193,6 +205,7 @@
       form.userIds = props.currentProject.userIds;
       form.organizationId = props.currentProject.organizationId;
       form.moduleIds = props.currentProject.moduleIds;
+      form.resourcePoolIds = props.currentProject.resourcePoolIds;
     }
   });
 </script>
