@@ -68,7 +68,7 @@ public class SystemProjectControllerTests extends BaseTest {
     private final static String disableProject = prefix + "/disable/";
     private final static String enableProject = prefix + "/enable/";
     private final static String userList = prefix + "/user-list";
-    private final static String getPoolOptions = prefix + "/pool-options/";
+    private final static String getPoolOptions = prefix + "/pool-options";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -767,8 +767,9 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(22)
     public void testGetOptions() throws Exception {
-        this.requestGetWithOkAndReturn(getPoolOptions + "organizationId");
+        this.requestGetWithOkAndReturn(getPoolOptions);
+        this.requestGetWithOkAndReturn(getPoolOptions + "?organizationId=organizationId");
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getPoolOptions + "organizationId");
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getPoolOptions + "?organizationId=organizationId");
     }
 }
