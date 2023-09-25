@@ -11,21 +11,35 @@
   >
     <template #content>
       <div class="mb-[8px] font-medium">
-        {{ props.mode === 'add' ? t('project.fileManagement.addSubModule') : t('project.fileManagement.rename') }}
+        {{
+          props.title ||
+          (props.mode === 'add' ? t('project.fileManagement.addSubModule') : t('project.fileManagement.rename'))
+        }}
       </div>
       <a-form ref="formRef" :model="form" layout="vertical">
         <a-form-item
           class="hidden-item"
-          field="name"
+          field="field"
           :rules="[{ required: true, message: t('project.fileManagement.nameNotNull') }, { validator: validateName }]"
         >
-          <a-input
-            v-model:model-value="form.name"
-            :max-length="50"
-            :placeholder="props.placeholder || t('project.fileManagement.namePlaceholder')"
+          <a-textarea
+            v-if="props.fieldConfig?.isTextArea"
+            v-model:model-value="form.field"
+            :max-length="props.fieldConfig?.maxLength"
+            :auto-size="{ maxRows: 4 }"
+            :placeholder="props.fieldConfig?.placeholder || t('project.fileManagement.namePlaceholder')"
             class="w-[245px]"
             @press-enter="beforeConfirm(undefined)"
-          ></a-input>
+          >
+          </a-textarea>
+          <a-input
+            v-else
+            v-model:model-value="form.field"
+            :max-length="props.fieldConfig?.maxLength"
+            :placeholder="props.fieldConfig?.placeholder || t('project.fileManagement.namePlaceholder')"
+            class="w-[245px]"
+            @press-enter="beforeConfirm(undefined)"
+          />
         </a-form-item>
       </a-form>
     </template>
@@ -34,11 +48,19 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
+  import { onBeforeMount, ref, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { Message } from '@arco-design/web-vue';
 
-  import type { FormInstance } from '@arco-design/web-vue';
+  import type { FormInstance, FieldRule } from '@arco-design/web-vue';
+
+  interface FieldConfig {
+    field?: string;
+    rules?: FieldRule[];
+    placeholder?: string;
+    maxLength?: number;
+    isTextArea?: boolean;
+  }
 
   const props = defineProps<{
     mode: 'add' | 'rename';
@@ -46,7 +68,7 @@
     title?: string;
     allNames: string[];
     popupContainer?: string;
-    placeholder?: string;
+    fieldConfig?: FieldConfig;
   }>();
 
   const emit = defineEmits(['update:visible', 'close']);
@@ -55,15 +77,15 @@
 
   const innerVisible = ref(props.visible || false);
   const form = ref({
-    name: props.title || '',
+    field: props.fieldConfig?.field || '',
   });
   const formRef = ref<FormInstance>();
   const loading = ref(false);
 
   watch(
-    () => props.title,
+    () => props.fieldConfig?.field,
     (val) => {
-      form.value.name = val || '';
+      form.value.field = val || '';
     }
   );
 
@@ -117,7 +139,7 @@
   }
 
   function reset() {
-    form.value.name = '';
+    form.value.field = '';
     formRef.value?.resetFields();
   }
 </script>

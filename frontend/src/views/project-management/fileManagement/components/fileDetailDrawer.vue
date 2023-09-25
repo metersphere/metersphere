@@ -77,20 +77,31 @@
       </div>
     </template>
     <div class="flex h-full">
-      <a-spin :loading="fileLoading">
-        <div class="file-detail">
-          <div class="file-detail-icon" @click="handleFileIconClick">
-            <img
-              v-if="fileType === 'image'"
-              src="https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/6480dbc69be1b5de95010289787d64f1.png~tplv-uwbnlip3yd-webp.webp"
-              class="h-full w-full"
+      <div class="file-detail">
+        <a-skeleton v-if="fileLoading" :loading="fileLoading" :animation="true">
+          <a-skeleton-shape size="large" class="mb-[16px] h-[102px] w-[102px]" />
+          <a-space direction="vertical" class="w-[28%]" size="large">
+            <a-skeleton-line :rows="11" :line-height="24" />
+          </a-space>
+          <a-space direction="vertical" class="ml-[4%] w-[68%]" size="large">
+            <a-skeleton-line :rows="11" :line-height="24" />
+          </a-space>
+        </a-skeleton>
+        <template v-else>
+          <div class="mb-[16px] w-[102px]">
+            <MsPreviewCard
+              mode="hover"
+              :type="fileDetail?.type"
+              :url="fileDetail?.url"
+              :footer-text="t('project.fileManagement.replaceFile')"
+              @click="handleFileIconClick"
             />
-            <MsIcon v-else :type="FileIconMap[fileType][UploadStatus.done]" class="h-full w-full" />
-            <div class="file-detail-icon-footer">
-              {{ t('project.fileManagement.replaceFile') }}
-            </div>
           </div>
-          <MsDescription :descriptions="fileDescriptions" label-width="80px" :add-tag-func="addFileTag">
+          <MsDescription
+            :descriptions="fileDescriptions"
+            :label-width="currentLocale === 'zh-CN' ? '80px' : '100px'"
+            :add-tag-func="addFileTag"
+          >
             <template #value="{ item }">
               <div class="flex flex-wrap items-center">
                 <a-tooltip
@@ -99,7 +110,7 @@
                   :disabled="item.value === undefined || item.value === null || item.value?.toString() === ''"
                   mini
                 >
-                  <div :class="['one-line-text', item.key === 'name' ? 'max-w-[100px]' : '']">
+                  <div :class="['one-line-text', 'flex-1']">
                     {{
                       item.value === undefined || item.value === null || item.value?.toString() === ''
                         ? '-'
@@ -108,18 +119,43 @@
                   </div>
                 </a-tooltip>
                 <template v-if="item.key === 'name'">
-                  <popConfirm mode="rename" :title="t('common.rename')" :all-names="[]">
-                    <MsButton class="!mr-[4px] ml-[8px]">{{ t('common.rename') }}</MsButton>
+                  <popConfirm
+                    mode="rename"
+                    :field-config="{ placeholder: t('project.fileManagement.fileNamePlaceholder') }"
+                    :all-names="[]"
+                  >
+                    <MsButton class="!mr-0 ml-[8px]">{{ t('common.rename') }}</MsButton>
                   </popConfirm>
-                  <MsButton v-if="fileType === 'image'" class="ml-0" @click="previewVisible = true">
-                    {{ t('common.preview') }}
-                  </MsButton>
+                  <template v-if="fileType === 'image'">
+                    <a-divider
+                      direction="vertical"
+                      class="mx-[8px] min-h-[12px] rounded-[var(--border-radius-small)]"
+                    />
+                    <MsButton class="ml-0" @click="previewVisible = true">
+                      {{ t('common.preview') }}
+                    </MsButton>
+                  </template>
+                </template>
+                <template v-if="item.key === 'desc'">
+                  <popConfirm
+                    mode="rename"
+                    :title="t('project.fileManagement.desc')"
+                    :field-config="{
+                      field: item.value as string,
+                      placeholder: t('project.fileManagement.descPlaceholder'),
+                      maxLength: 250,
+                      isTextArea: true,
+                    }"
+                    :all-names="[]"
+                  >
+                    <MsButton class="ml-[8px]"><MsIcon type="icon-icon_edit_outlined"></MsIcon></MsButton>
+                  </popConfirm>
                 </template>
               </div>
             </template>
           </MsDescription>
-        </div>
-      </a-spin>
+        </template>
+      </div>
       <div class="file-relation">
         <a-tabs v-model:active-key="activeTab" :disabled="fileLoading" class="no-content">
           <a-tab-pane key="case" :title="t('project.fileManagement.cases')" />
@@ -170,15 +206,16 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import { getFileEnum, FileIconMap } from '@/components/pure/ms-upload/iconMap';
+  import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
   import MsDescription, { type Description } from '@/components/pure/ms-description/index.vue';
   import popConfirm from './popConfirm.vue';
-  import { UploadStatus } from '@/enums/uploadEnum';
   import useTable from '@/components/pure/ms-table/useTable';
   import { getFileDetail, getFileCases, getFileVersions } from '@/api/modules/project-management/fileManagement';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import MsPreviewCard from '@/components/business/ms-thumbnail-card/index.vue';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { downloadUrlFile } from '@/utils';
+  import useLocale from '@/locale/useLocale';
 
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
 
@@ -193,6 +230,7 @@
 
   const { file: newFile, open } = useFileSystemAccess();
   const { t } = useI18n();
+  const { currentLocale } = useLocale();
 
   const innerVisible = ref(false);
   const fileDetail = ref();
@@ -227,6 +265,11 @@
           label: t('project.fileManagement.name'),
           value: fileDetail.value.name,
           key: 'name',
+        },
+        {
+          label: t('project.fileManagement.desc'),
+          value: fileDetail.value.desc,
+          key: 'desc',
         },
         {
           label: t('project.fileManagement.type'),
@@ -289,9 +332,6 @@
     () => props.fileId,
     () => {
       initFileDetail();
-    },
-    {
-      immediate: true,
     }
   );
 
@@ -414,14 +454,17 @@
     {
       title: 'project.fileManagement.record',
       dataIndex: 'record',
+      showTooltip: true,
     },
     {
       title: 'project.fileManagement.creator',
       dataIndex: 'creator',
+      showTooltip: true,
     },
     {
       title: 'project.fileManagement.createTime',
       dataIndex: 'createTime',
+      width: 180,
     },
   ];
   const {
@@ -436,10 +479,12 @@
   });
 
   watchEffect(() => {
-    if (activeTab.value === 'case') {
-      loadCaseList();
-    } else {
-      loadVersionList();
+    if (innerVisible.value) {
+      if (activeTab.value === 'case') {
+        loadCaseList();
+      } else {
+        loadVersionList();
+      }
     }
   });
 </script>
@@ -451,30 +496,6 @@
     padding: 16px;
     width: 300px;
     border-right: 1px solid var(--color-text-n8);
-    .file-detail-icon {
-      @apply relative inline-block cursor-pointer overflow-hidden;
-
-      margin-bottom: 16px;
-      width: 102px;
-      height: 102px;
-      border-radius: var(--border-radius-small);
-      background-color: var(--color-text-n9);
-      &:hover {
-        .file-detail-icon-footer {
-          @apply visible;
-        }
-      }
-      .file-detail-icon-footer {
-        @apply invisible absolute w-full text-center;
-
-        bottom: 0;
-        padding: 2px 0;
-        font-size: 12px;
-        font-weight: 500;
-        color: #ffffff;
-        background-color: #00000050;
-      }
-    }
   }
   .file-relation {
     width: 660px;

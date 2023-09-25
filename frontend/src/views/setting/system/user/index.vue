@@ -298,9 +298,9 @@
   /**
    * 重置密码
    */
-  function resetPassword(record: any, isBatch?: boolean) {
+  function resetPassword(record?: UserListItem, isBatch?: boolean) {
     let title = t('system.user.resetPswTip', { name: characterLimit(record?.name) });
-    let selectIds = [record?.id];
+    let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('system.user.batchResetPswTip', { count: tableSelected.value.length });
       selectIds = tableSelected.value as string[];
@@ -330,9 +330,9 @@
   /**
    * 禁用用户
    */
-  function disabledUser(record: any, isBatch?: boolean) {
+  function disabledUser(record?: UserListItem, isBatch?: boolean) {
     let title = t('system.user.disableUserTip', { name: characterLimit(record?.name) });
-    let selectIds = [record?.id];
+    let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('system.user.batchDisableUserTip', { count: tableSelected.value.length });
       selectIds = tableSelected.value as string[];
@@ -365,9 +365,9 @@
   /**
    * 启用用户
    */
-  function enableUser(record: any, isBatch?: boolean) {
+  function enableUser(record?: UserListItem, isBatch?: boolean) {
     let title = t('system.user.enableUserTip', { name: characterLimit(record?.name) });
-    let selectIds = [record?.id];
+    let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('system.user.batchEnableUserTip', { count: tableSelected.value.length });
       selectIds = tableSelected.value as string[];
@@ -400,9 +400,9 @@
   /**
    * 删除用户
    */
-  function deleteUser(record: any, isBatch?: boolean) {
+  function deleteUser(record?: UserListItem, isBatch?: boolean) {
     let title = t('system.user.deleteUserTip', { name: characterLimit(record?.name) });
-    let selectIds = [record?.id];
+    let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('system.user.batchDeleteUserTip', { count: tableSelected.value.length });
       selectIds = tableSelected.value as string[];
@@ -508,16 +508,16 @@
         showBatchModal.value = true;
         break;
       case 'resetPassword':
-        resetPassword(null, true);
+        resetPassword(undefined, true);
         break;
       case 'disabled':
-        disabledUser(null, true);
+        disabledUser(undefined, true);
         break;
       case 'enable':
-        enableUser(null, true);
+        enableUser(undefined, true);
         break;
       case 'delete':
-        deleteUser(null, true);
+        deleteUser(undefined, true);
         break;
       default:
         break;
@@ -528,7 +528,7 @@
    * 处理表格更多按钮事件
    * @param item
    */
-  function handleSelect(item: ActionsItem, record: any) {
+  function handleSelect(item: ActionsItem, record: UserListItem) {
     switch (item.eventTag) {
       case 'resetPassword':
         resetPassword(record);

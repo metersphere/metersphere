@@ -29,7 +29,12 @@
       </div>
     </template>
     <template #itemAction="{ item }">
-      <popConfirm mode="rename" :title="renameStorageTitle" :all-names="[]" @close="resetFocusItemKey">
+      <popConfirm
+        mode="rename"
+        :field-config="{ field: renameStorageTitle }"
+        :all-names="[]"
+        @close="resetFocusItemKey"
+      >
         <span :id="`renameSpan${item.key}`" class="relative"></span>
       </popConfirm>
     </template>

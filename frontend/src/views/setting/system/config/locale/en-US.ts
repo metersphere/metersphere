@@ -39,6 +39,8 @@ export default {
   'system.config.email.passwordRequired': 'SMTP password cannot be empty',
   'system.config.email.passwordPlaceholder': 'Please enter SMTP password',
   'system.config.email.fromPlaceholder': 'Please enter the designated sender email',
+  'system.config.email.fromTip':
+    'Note: It must be an email address that has been verified by the mail server, otherwise it will be sent by SMTP account by default',
   'system.config.email.recipientPlaceholder': 'Please enter the email address of the test recipient',
   'system.config.email.sslTip': 'If the SMTP port is 465, SSL needs to be enabled',
   'system.config.email.tslTip': 'If the SMTP port is 587, TSL needs to be enabled',

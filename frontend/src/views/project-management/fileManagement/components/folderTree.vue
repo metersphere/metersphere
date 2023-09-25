@@ -3,7 +3,7 @@
     v-model:model-value="moduleKeyword"
     :placeholder="t('project.fileManagement.folderSearchPlaceholder')"
     allow-clear
-    class="mb-[8px]"
+    class="mb-[16px]"
   ></a-input>
   <MsTree
     v-model:focus-node-key="focusNodeKey"
@@ -13,7 +13,8 @@
     :node-more-actions="folderMoreActions"
     :expand-all="props.isExpandAll"
     :empty-text="t('project.fileManagement.noFolder')"
-    draggable
+    :draggable="!props.isModal"
+    :virtual-list-props="virtualListProps"
     block-node
     @select="folderNodeSelect"
     @more-action-select="handleFolderMoreSelect"
@@ -21,15 +22,15 @@
   >
     <template #title="nodeData">
       <span class="text-[var(--color-text-1)]">{{ nodeData.title }}</span>
-      <span class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count }})</span>
+      <span v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count }})</span>
     </template>
-    <template #extra="nodeData">
+    <template v-if="!props.isModal" #extra="nodeData">
       <popConfirm mode="add" :all-names="[]" @close="resetFocusNodeKey">
         <MsButton type="icon" size="mini" class="ms-tree-node-extra__btn !mr-0" @click="setFocusNodeKe(nodeData)">
           <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
         </MsButton>
       </popConfirm>
-      <popConfirm mode="rename" :title="renameFolderTitle" :all-names="[]" @close="resetFocusNodeKey">
+      <popConfirm mode="rename" :field-config="{ field: renameFolderTitle }" :all-names="[]" @close="resetFocusNodeKey">
         <span :id="`renameSpan${nodeData.key}`" class="relative"></span>
       </popConfirm>
     </template>
@@ -37,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import useModal from '@/hooks/useModal';
   import { useI18n } from '@/hooks/useI18n';
@@ -52,12 +53,23 @@
   const props = defineProps<{
     isExpandAll: boolean;
     selectedKeys?: Array<string | number>; // 选中的节点 key
+    isModal?: boolean; // 是否是弹窗模式
   }>();
   const emit = defineEmits(['update:selectedKeys', 'folderNodeSelect']);
 
   const { t } = useI18n();
   const { openModal } = useModal();
 
+  const virtualListProps = computed(() => {
+    if (props.isModal) {
+      return {
+        height: 'calc(60vh - 190px)',
+      };
+    }
+    return {
+      height: 'calc(100vh - 320px)',
+    };
+  });
   const moduleKeyword = ref('');
   const folderTree = ref([
     {
@@ -70,6 +82,36 @@
           key: 'node2',
           count: 28,
         },
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
       ],
     },
     {
@@ -77,6 +119,36 @@
       key: 'node3',
       count: 180,
       children: [
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
         {
           title: 'Leaf',
           key: 'node4',
