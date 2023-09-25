@@ -1,6 +1,7 @@
 export default {
   'common.pleaseSelectMember': '请选择成员',
   'common.add': '添加',
+  'common.saveAndContinue': '保存并继续添加',
   'common.edit': '编辑',
   'common.delete': '删除',
   'common.save': '保存',

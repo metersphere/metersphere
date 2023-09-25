@@ -39,6 +39,7 @@ export default {
   'system.config.email.passwordRequired': 'SMTP 密码不能为空',
   'system.config.email.passwordPlaceholder': '请输入SMTP 密码',
   'system.config.email.fromPlaceholder': '请输入指定发件人邮箱',
+  'system.config.email.fromTip': '注：必须是邮件服务器验证通过的邮箱，否则默认为 SMTP 账户发送',
   'system.config.email.recipientPlaceholder': '请输入测试收件人邮箱',
   'system.config.email.sslTip': '若 SMTP 端口是 465，需要启用 SSL',
   'system.config.email.tslTip': '若 SMTP 端口是 587，需要启用 TSL',

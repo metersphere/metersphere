@@ -157,13 +157,14 @@
             allow-clear
           />
         </a-form-item>
-        <a-form-item :label="t('system.config.email.from')" field="from" asterisk-position="end" :rules="[emailRule]">
+        <a-form-item :label="t('system.config.email.from')" field="from" asterisk-position="end">
           <a-input
             v-model:model-value="emailConfigForm.from"
             :max-length="250"
             :placeholder="t('system.config.email.fromPlaceholder')"
             allow-clear
           ></a-input>
+          <MsFormItemSub :text="t('system.config.email.fromTip')" :show-fill-icon="false" />
         </a-form-item>
         <a-form-item
           :label="t('system.config.email.recipient')"

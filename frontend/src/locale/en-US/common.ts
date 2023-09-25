@@ -1,6 +1,7 @@
 export default {
   'common.pleaseSelectMember': 'Please select member',
   'common.add': 'Add',
+  'common.saveAndContinue': 'Save & Continue',
   'common.edit': 'Edit',
   'common.delete': 'Delete',
   'common.save': 'Save',

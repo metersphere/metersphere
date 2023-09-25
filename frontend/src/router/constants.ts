@@ -1,7 +1,7 @@
 // 路由白名单，无需校验权限与登录状态
 export const WHITE_LIST = [
-  { name: 'notFound', children: [] },
-  { name: 'invite', children: [] },
+  { name: 'notFound', path: '/notFound', children: [] },
+  { name: 'invite', path: '/invite', children: [] },
 ];
 
 // 左侧菜单底部对齐的菜单数组，数组项为一级路由的name

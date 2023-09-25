@@ -345,7 +345,6 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
   import { getYaml, YamlType, job } from './template';

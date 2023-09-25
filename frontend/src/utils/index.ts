@@ -282,3 +282,23 @@ export const downloadUrlFile = (url: string, fileName: string) => {
 export const getTime = (time: string): string => {
   return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
 };
+
+/**
+ * 获取 URL 哈希参数
+ * @returns 参数对象
+ */
+export const getHashParameters = (): Record<string, string> => {
+  const query = window.location.hash.split('?')[1]; // 获取 URL 哈希参数部分
+  const paramsArray = query.split('&'); // 将哈希参数字符串分割成数组
+  const params: Record<string, string> = {};
+
+  // 遍历数组并解析参数
+  paramsArray.forEach((param) => {
+    const [key, value] = param.split('=');
+    if (key && value) {
+      params[key] = decodeURIComponent(value); // 解码参数值
+    }
+  });
+
+  return params;
+};
