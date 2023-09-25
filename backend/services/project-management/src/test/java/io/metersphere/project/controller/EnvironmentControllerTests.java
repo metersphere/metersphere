@@ -1,9 +1,7 @@
 package io.metersphere.project.controller;
 
 
-import io.metersphere.project.dto.environment.EnvironmentConfig;
-import io.metersphere.project.dto.environment.EnvironmentRequest;
-import io.metersphere.project.dto.environment.KeyValue;
+import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.assertions.*;
 import io.metersphere.project.dto.environment.auth.AuthConfig;
 import io.metersphere.project.dto.environment.common.CommonParams;
@@ -79,7 +77,7 @@ public class EnvironmentControllerTests extends BaseTest {
     private static final String get = prefix + "/get/";
     private static final String update = prefix + "/update";
     private static final String delete = prefix + "/delete/";
-    private static final String list = prefix + "/list/";
+    private static final String list = prefix + "/list";
     private static final String getEnTry = prefix + "/get/entry";
     private static final String importEnv = prefix + "/import";
     private static final String exportEnv = prefix + "/export";
@@ -144,13 +142,13 @@ public class EnvironmentControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    protected MvcResult requestMultipartWithOk(String url, MultiValueMap<String, Object> paramMap) throws Exception {
+    protected MvcResult requestMultipartWithOk(String url, MultiValueMap<String, Object> paramMap, String projectId) throws Exception {
         MockMultipartHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilderWithParam(url, paramMap);
         MockHttpServletRequestBuilder header = requestBuilder
                 .header(SessionConstants.HEADER_TOKEN, sessionId)
                 .header(SessionConstants.CSRF_TOKEN, csrfToken)
                 .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN")
-                .header("PROJECT", "projectId");
+                .header("PROJECT", projectId);
         return mockMvc.perform(header)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
@@ -694,7 +692,7 @@ public class EnvironmentControllerTests extends BaseTest {
         MockMultipartFile file11 = new MockMultipartFile("file", "测试一下a", MediaType.APPLICATION_OCTET_STREAM_VALUE, "Test content".getBytes());
         paramMap.add("file", List.of(file, file11));
         paramMap.set("request", JSON.toJSONString(request));
-        mvcResult = requestMultipartWithOk(add, paramMap);
+        mvcResult = requestMultipartWithOk(add, paramMap, "projectId");
         response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
@@ -882,7 +880,7 @@ public class EnvironmentControllerTests extends BaseTest {
         MockMultipartFile file11 = new MockMultipartFile("file", "测试一下a", MediaType.APPLICATION_OCTET_STREAM_VALUE, "Test content".getBytes());
         paramMap.add("file", List.of(file, file11));
         paramMap.set("request", JSON.toJSONString(request));
-        mvcResult = requestMultipartWithOk(update, paramMap);
+        mvcResult = requestMultipartWithOk(update, paramMap, "projectId");
         response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
@@ -984,15 +982,25 @@ public class EnvironmentControllerTests extends BaseTest {
     @Test
     @Order(11)
     public void testList() throws Exception {
-        MvcResult mvcResult = this.responseGet(list + "projectId");
+        EnvironmentDTO environmentDTO = new EnvironmentDTO();
+        environmentDTO.setProjectId("projectId");
+        MvcResult mvcResult = this.responsePost(list, environmentDTO);
         List<Environment> response = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertNotNull(response);
-
+        //输入搜索值
+        environmentDTO.setKeyword("commonParams");
+        mvcResult = this.responsePost(list, environmentDTO);
+        response = parseObjectFromMvcResult(mvcResult, List.class);
+        Assertions.assertNotNull(response);
+        //校验拿到的数据包含搜索值
+        Assertions.assertEquals(1, response.size());
+        environmentDTO.setProjectId(DEFAULT_PROJECT_ID);
         //校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, list + DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, list , environmentDTO);
 
         //项目不存在 返回内容为[]
-        mvcResult = this.responseGet(list + "ceshi");
+        environmentDTO.setProjectId("ceshi");
+        mvcResult = this.responsePost(list ,environmentDTO);
         response = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertEquals(0, response.size());
     }
@@ -1009,7 +1017,7 @@ public class EnvironmentControllerTests extends BaseTest {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", List.of(file));
         paramMap.set("request", password);
-        MvcResult mvcResult = requestMultipartWithOk(getEnTry, paramMap);
+        MvcResult mvcResult = requestMultipartWithOk(getEnTry, paramMap, "projectId");
         List<KeyStoreEntry> response = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertNotNull(response);
 
@@ -1039,21 +1047,28 @@ public class EnvironmentControllerTests extends BaseTest {
     @Test
     @Order(13)
     public void testExport() throws Exception {
-        //校验参数
-        EnvironmentExample example = new EnvironmentExample();
-        example.createCriteria().andProjectIdEqualTo("projectId");
-        List<Environment> environments = environmentMapper.selectByExample(example);
-        //把环境的id整理为一个集合
-        List<String> ids = environments.stream().map(Environment::getId).toList();
+        //指定id
+        EnvironmentExportDTO environmentExportDTO = new EnvironmentExportDTO();
+        environmentExportDTO.setProjectId("projectId");
+        environmentExportDTO.setSelectIds(List.of("environmentId1"));
 
-        MvcResult mvcResult = this.responsePost(exportEnv, ids);
+        MvcResult mvcResult = this.responsePost(exportEnv, environmentExportDTO);
         String response = parseObjectFromMvcResult(mvcResult, String.class);
+        //判断response只有一条数据
+        Assertions.assertNotNull(response);
+        List<EnvironmentRequest> environments = JSON.parseArray(response, EnvironmentRequest.class);
+        Assertions.assertEquals(1, environments.size());
+        //全选
+        environmentExportDTO.setSelectIds(List.of("environmentId1"));
+        environmentExportDTO.setSelectAll(true);
+        environmentExportDTO.setExcludeIds(List.of("environmentId1"));
+        mvcResult = this.responsePost(exportEnv, environmentExportDTO);
+        response = parseObjectFromMvcResult(mvcResult, String.class);
         Assertions.assertNotNull(response);
 
-        //传id为空
-        mvcResult = this.responsePost(exportEnv, new ArrayList<>());
-        response = parseObjectFromMvcResult(mvcResult, String.class);
-        Assertions.assertNull(response);
+        environmentExportDTO.setProjectId(DEFAULT_PROJECT_ID);
+        //校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ_EXPORT, exportEnv, environmentExportDTO);
     }
 
     @Test
@@ -1066,7 +1081,9 @@ public class EnvironmentControllerTests extends BaseTest {
         MockMultipartFile file = new MockMultipartFile("file", "huanj.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", List.of(file));
-        requestMultipartWithOk(importEnv, paramMap);
+        requestMultipartWithOk(importEnv, paramMap, DEFAULT_PROJECT_ID);
+        //校验权限
+        requestMultipartPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ_IMPORT, importEnv, paramMap);
 
     }
 }
