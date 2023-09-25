@@ -15,6 +15,7 @@ import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
@@ -26,6 +27,7 @@ import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.BaseUserService;
 import io.metersphere.system.service.CommonProjectService;
+import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -187,5 +189,9 @@ public class ProjectService {
         return testResourcePools.stream().map(testResourcePool ->
             new OptionDTO(testResourcePool.getId(), testResourcePool.getName())
         ).toList();
+    }
+
+    public static Project checkResourceExist(String id) {
+        return ServiceUtils.checkResourceExist(CommonBeanFactory.getBean(ProjectMapper.class).selectByPrimaryKey(id), "permission.project.name");
     }
 }

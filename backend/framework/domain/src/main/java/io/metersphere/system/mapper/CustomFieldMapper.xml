@@ -12,6 +12,8 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+    <result column="enable_option_key" jdbcType="BIT" property="enableOptionKey" />
     <result column="scope_id" jdbcType="VARCHAR" property="scopeId" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -74,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, scene, `type`, remark, internal, scope_type, create_time, update_time, 
-    create_user, scope_id
+    create_user, ref_id, enable_option_key, scope_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.CustomFieldExample" resultMap="BaseResultMap">
     select
@@ -110,11 +112,13 @@
     insert into custom_field (id, `name`, scene, 
       `type`, remark, internal, 
       scope_type, create_time, update_time, 
-      create_user, scope_id)
+      create_user, ref_id, enable_option_key, 
+      scope_id)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{scene,jdbcType=VARCHAR}, 
       #{type,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{internal,jdbcType=BIT}, 
       #{scopeType,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{scopeId,jdbcType=VARCHAR})
+      #{createUser,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, #{enableOptionKey,jdbcType=BIT}, 
+      #{scopeId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.CustomField">
     insert into custom_field
@@ -148,6 +152,12 @@
       </if>
       <if test="createUser != null">
         create_user,
+      </if>
+      <if test="refId != null">
+        ref_id,
+      </if>
+      <if test="enableOptionKey != null">
+        enable_option_key,
       </if>
       <if test="scopeId != null">
         scope_id,
@@ -183,6 +193,12 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="enableOptionKey != null">
+        #{enableOptionKey,jdbcType=BIT},
       </if>
       <if test="scopeId != null">
         #{scopeId,jdbcType=VARCHAR},
@@ -228,6 +244,12 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.enableOptionKey != null">
+        enable_option_key = #{record.enableOptionKey,jdbcType=BIT},
+      </if>
       <if test="record.scopeId != null">
         scope_id = #{record.scopeId,jdbcType=VARCHAR},
       </if>
@@ -248,6 +270,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
+      enable_option_key = #{record.enableOptionKey,jdbcType=BIT},
       scope_id = #{record.scopeId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -283,6 +307,12 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="enableOptionKey != null">
+        enable_option_key = #{enableOptionKey,jdbcType=BIT},
+      </if>
       <if test="scopeId != null">
         scope_id = #{scopeId,jdbcType=VARCHAR},
       </if>
@@ -300,19 +330,22 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
+      enable_option_key = #{enableOptionKey,jdbcType=BIT},
       scope_id = #{scopeId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into custom_field
     (id, `name`, scene, `type`, remark, internal, scope_type, create_time, update_time, 
-      create_user, scope_id)
+      create_user, ref_id, enable_option_key, scope_id)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.scene,jdbcType=VARCHAR}, 
         #{item.type,jdbcType=VARCHAR}, #{item.remark,jdbcType=VARCHAR}, #{item.internal,jdbcType=BIT}, 
         #{item.scopeType,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.scopeId,jdbcType=VARCHAR})
+        #{item.createUser,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, #{item.enableOptionKey,jdbcType=BIT}, 
+        #{item.scopeId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -354,6 +387,12 @@
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'ref_id'.toString() == column.value">
+          #{item.refId,jdbcType=VARCHAR}
+        </if>
+        <if test="'enable_option_key'.toString() == column.value">
+          #{item.enableOptionKey,jdbcType=BIT}
         </if>
         <if test="'scope_id'.toString() == column.value">
           #{item.scopeId,jdbcType=VARCHAR}

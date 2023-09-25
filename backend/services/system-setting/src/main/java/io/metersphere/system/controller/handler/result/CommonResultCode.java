@@ -14,16 +14,17 @@ public enum CommonResultCode implements IResultCode {
     /**
      * 调用获取全局用户组接口，如果操作的是内置的用户组，会返回该响应码
      */
-    INTERNAL_USER_ROLE_PERMISSION(101003, "internal_user_role_permission_error"),
+    INTERNAL_USER_ROLE_PERMISSION(100003, "internal_user_role_permission_error"),
     USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION(100004, "user_role_relation_remove_admin_user_permission_error"),
     FILE_NAME_ILLEGAL(100005, "file_name_illegal_error"),
     PLUGIN_ENABLE(100006, "plugin_enable_error"),
     PLUGIN_PERMISSION(100007, "plugin_permission_error"),
-    INTERNAL_CUSTOM_FIELD_PERMISSION(101008, "internal_custom_field_permission_error"),
-    INTERNAL_TEMPLATE_PERMISSION(101009, "internal_template_permission_error"),
-    TEMPLATE_SCENE_ILLEGAL(101010, "template_scene_illegal_error"),
-    CUSTOM_FIELD_EXIST(101012, "custom_field.exist"),
-    TEMPLATE_EXIST(101013, "template.exist");
+    INTERNAL_CUSTOM_FIELD_PERMISSION(100008, "internal_custom_field_permission_error"),
+    INTERNAL_TEMPLATE_PERMISSION(100009, "internal_template_permission_error"),
+    TEMPLATE_SCENE_ILLEGAL(100010, "template_scene_illegal_error"),
+    CUSTOM_FIELD_EXIST(100012, "custom_field.exist"),
+    TEMPLATE_EXIST(100013, "template.exist"),
+    DEFAULT_TEMPLATE_PERMISSION(100014, "default_template_permission_error");
 
 
     private int code;

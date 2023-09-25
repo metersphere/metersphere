@@ -3,6 +3,7 @@ package io.metersphere.system.service;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.request.TemplateUpdateRequest;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
@@ -31,6 +32,23 @@ public class OrganizationTemplateLogService {
                 OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
                 request.getName());
         dto.setOriginalValue(JSON.toJSONBytes(request));
+        return dto;
+    }
+
+    public LogDTO setDefaultTemplateLog(TemplateUpdateRequest request) {
+        Template template = organizationTemplateService.getWithCheck(request.getId());
+        LogDTO dto = null;
+        if (template != null) {
+            dto = new LogDTO(
+                    OperationLogConstants.ORGANIZATION,
+                    null,
+                    template.getId(),
+                    null,
+                    String.join(Translator.get("set_default_template"), ":", OperationLogType.UPDATE.name()),
+                    OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                    template.getName());
+            dto.setOriginalValue(JSON.toJSONBytes(template));
+        }
         return dto;
     }
 

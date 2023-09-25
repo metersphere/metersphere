@@ -3,11 +3,11 @@ package io.metersphere.system.controller;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.TemplateDTO;
 import io.metersphere.sdk.dto.request.TemplateUpdateRequest;
-import io.metersphere.system.log.annotation.Log;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.Template;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.OrganizationTemplateLogService;
 import io.metersphere.system.service.OrganizationTemplateService;
 import io.metersphere.validation.groups.Created;
@@ -78,5 +78,22 @@ public class OrganizationTemplateController {
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = OrganizationTemplateLogService.class)
     public void delete(@PathVariable String id) {
         organizationTemplateservice.delete(id);
+    }
+
+    @GetMapping("/disable/{organizationId}/{scene}")
+    @Operation(summary = "关闭组织模板，开启项目模板")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_ENABLE)
+    // todo 操作日志待页面设计
+    // @Log(type = OperationLogType.UPDATE, expression = "#msClass.update(#id)", msClass = OrganizationTemplateLogService.class)
+    public void disableOrganizationTemplate(@PathVariable String organizationId, @PathVariable String scene) {
+        organizationTemplateservice.disableOrganizationTemplate(organizationId, scene);
+    }
+
+    @GetMapping("/set-default/{id}")
+    @Operation(summary = "设置模板模板")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.setDefaultTemplateLog(#id)", msClass = OrganizationTemplateLogService.class)
+    public void setDefaultTemplate(@PathVariable String id) {
+        organizationTemplateservice.setDefaultTemplate(id);
     }
 }

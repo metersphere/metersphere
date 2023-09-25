@@ -1,6 +1,7 @@
 package io.metersphere.sdk.dto.request;
 
 import io.metersphere.sdk.constants.CustomFieldType;
+import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.valid.EnumValue;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -26,7 +27,8 @@ public class CustomFieldUpdateRequest {
 
     @Schema(title = "使用场景", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field.scene.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 30, message = "{custom_field.scene.length_range}", groups = {Created.class, Updated.class})
+    @EnumValue(enumClass = TemplateScene.class, groups = {Created.class})
+    @Size(min = 1, max = 30, message = "{custom_field.scene.length_range}", groups = {Created.class})
     private String scene;
 
     @Schema(title = "自定义字段类型", requiredMode = Schema.RequiredMode.REQUIRED)

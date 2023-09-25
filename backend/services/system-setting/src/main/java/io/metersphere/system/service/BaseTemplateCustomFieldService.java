@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import io.metersphere.system.uid.UUID;
@@ -32,6 +33,15 @@ public class BaseTemplateCustomFieldService {
     public void deleteByTemplateId(String templateId) {
         TemplateCustomFieldExample example = new TemplateCustomFieldExample();
         example.createCriteria().andTemplateIdEqualTo(templateId);
+        templateCustomFieldMapper.deleteByExample(example);
+    }
+
+    public void deleteByTemplateIds(List<String> projectTemplateIds) {
+        if (CollectionUtils.isEmpty(projectTemplateIds)) {
+            return;
+        }
+        TemplateCustomFieldExample example = new TemplateCustomFieldExample();
+        example.createCriteria().andTemplateIdIn(projectTemplateIds);
         templateCustomFieldMapper.deleteByExample(example);
     }
 
@@ -62,6 +72,15 @@ public class BaseTemplateCustomFieldService {
     public List<TemplateCustomField> getByTemplateId(String id) {
         TemplateCustomFieldExample example = new TemplateCustomFieldExample();
         example.createCriteria().andTemplateIdEqualTo(id);
+        return templateCustomFieldMapper.selectByExample(example);
+    }
+
+    public List<TemplateCustomField> getByTemplateIds(List<String> projectTemplateIds) {
+        if (CollectionUtils.isEmpty(projectTemplateIds)) {
+            return new ArrayList(0);
+        }
+        TemplateCustomFieldExample example = new TemplateCustomFieldExample();
+        example.createCriteria().andTemplateIdIn(projectTemplateIds);
         return templateCustomFieldMapper.selectByExample(example);
     }
 }

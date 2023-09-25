@@ -47,6 +47,6 @@ public class TemplateUpdateRequestDefinition {
 
     @Schema(title = "使用场景", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{template.scene.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 30, message = "{template.scene.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 30, message = "{template.scene.length_range}", groups = {Created.class})
     private String scene;
 }

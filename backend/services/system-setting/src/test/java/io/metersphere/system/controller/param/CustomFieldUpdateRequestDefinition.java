@@ -19,7 +19,7 @@ public class CustomFieldUpdateRequestDefinition {
     private String name;
 
     @NotBlank(groups = {Created.class})
-    @Size(min = 1, max = 30, groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 30, groups = {Created.class})
     private String scene;
 
     @NotBlank(groups = {Created.class})
