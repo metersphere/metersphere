@@ -310,6 +310,7 @@
       selectedIds: Array.from(selectedKeys),
       excludeIds: Array.from(excludeKeys),
       selectAll: selectorStatus === SelectAllEnum.ALL,
+      currentSelectCount: selectCurrent.value,
       params: {
         ...(attrs.msPagination as MsPaginationI),
       },
