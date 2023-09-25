@@ -36,9 +36,16 @@
         </component>
       </div>
       <div class="flex flex-1">
+        <TimerSelect
+          v-if="getQueryContentType('time-select')"
+          :model-value="form.queryContent.value"
+          v-bind="form.queryContent.props"
+          :operation-type="form.operatorCondition.value"
+          @update-time="updateTimeValue"
+        />
         <component
           :is="form.queryContent.type"
-          v-if="form.queryContent.type !== 'time-select'"
+          v-else
           v-bind="form.queryContent.props"
           v-model="form.queryContent.value"
           @change="filterKeyChange"
@@ -48,7 +55,7 @@
               opt.label
             }}</a-option>
           </template>
-          <template v-if="form.queryContent.type === 'a-select-group'">
+          <template v-else-if="form.queryContent.type === 'a-select-group'">
             <a-select v-model="form.queryContent.value" v-bind="form.queryContent.props">
               <a-optgroup v-for="group of form.searchKey.options" :key="group.id" :label="group.label">
                 <a-option v-for="groupOptions of group.options" :key="groupOptions.id" :value="groupOptions.id">{{
@@ -58,13 +65,6 @@
             </a-select>
           </template>
         </component>
-        <TimerSelect
-          v-else
-          :model-value="form.queryContent.value"
-          v-bind="form.queryContent.props"
-          :operation-type="form.operatorCondition.value"
-          @update-time="updateTimeValue"
-        />
         <div class="minus"> <slot></slot></div>
       </div>
     </div>
@@ -76,16 +76,16 @@
   import { cloneDeep } from 'lodash-es';
   import { useI18n } from '@/hooks/useI18n';
   import { TEST_PLAN_TEST_CASE } from './caseUtils';
-  import TimerSelect from './component/ms-date-picker.vue';
+  import TimerSelect from './time-select.vue';
   import { SelectOptionData } from '@arco-design/web-vue';
 
   const { t } = useI18n();
 
   const props = defineProps<{
-    formItem: Record<string, any>;
-    index: number;
-    formList: Record<string, any>[];
-    selectGroupList: SelectOptionData[];
+    formItem: Record<string, any>; // 当前筛选项
+    index: number; // 当前操作的项索引
+    formList: Record<string, any>[]; // 全部项列表筛选项列表
+    selectGroupList: SelectOptionData[]; // 条件字段筛选下拉列表
   }>();
 
   const emits = defineEmits(['dataUpdated']);
@@ -131,6 +131,17 @@
   const updateTimeValue = (time: string | []) => {
     form.value.queryContent.value = time;
     emits('dataUpdated', form.value, props.index);
+  };
+
+  // 判断当前情况
+  const getQueryContentType = (type: string) => {
+    switch (type) {
+      // 时间选择面板
+      case 'time-select':
+        return true;
+      default:
+        return false;
+    }
   };
 </script>
 
