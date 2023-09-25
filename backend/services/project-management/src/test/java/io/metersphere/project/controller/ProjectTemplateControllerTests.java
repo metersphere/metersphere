@@ -1,6 +1,5 @@
-package io.metersphere.system.controller;
+package io.metersphere.project.controller;
 
-import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.OrganizationParameterConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
@@ -16,7 +15,10 @@ import io.metersphere.system.domain.*;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.mapper.TemplateMapper;
-import io.metersphere.system.service.*;
+import io.metersphere.system.service.BaseCustomFieldService;
+import io.metersphere.system.service.BaseTemplateCustomFieldService;
+import io.metersphere.system.service.BaseTemplateService;
+import io.metersphere.system.service.BaseUserService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -29,10 +31,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static io.metersphere.project.enums.result.ProjectResultCode.PROJECT_TEMPLATE_PERMISSION;
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
-import static io.metersphere.system.controller.result.SystemResultCode.ORGANIZATION_TEMPLATE_PERMISSION;
 
 /**
  * @author jianxing
@@ -41,10 +43,9 @@ import static io.metersphere.system.controller.result.SystemResultCode.ORGANIZAT
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class OrganizationTemplateControllerTests extends BaseTest {
-    private static final String BASE_PATH = "/organization/template/";
+public class ProjectTemplateControllerTests extends BaseTest {
+    private static final String BASE_PATH = "/project/template/";
     private static final String LIST = "list/{0}/{1}";
-    private static final String DISABLE_ORG_TEMPLATE = "disable/{0}/{1}";
     private static final String SET_DEFAULT = "set-default/{0}";
 
     @Resource
@@ -59,12 +60,6 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     private BaseTemplateCustomFieldService baseTemplateCustomFieldService;
     @Resource
     private OrganizationParameterMapper organizationParameterMapper;
-    @Resource
-    private BaseOrganizationParameterService organizationParameterService;
-    @Resource
-    private OrganizationTemplateService organizationTemplateService;
-    @Resource
-    private ProjectMapper projectMapper;
 
     private static Template addTemplate;
     private static Template anotherTemplateField;
@@ -79,7 +74,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     @Order(0)
     public void listEmpty() throws Exception {
         // @@校验没有数据的情况
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(LIST, DEFAULT_ORGANIZATION_ID, TemplateScene.FUNCTIONAL.name());
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(LIST, DEFAULT_PROJECT_ID, TemplateScene.FUNCTIONAL.name());
         List<Template> templates = getResultDataArray(mvcResult, Template.class);
         this.defaultTemplate = templates.get(0);
     }
@@ -87,6 +82,8 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     @Test
     @Order(1)
     public void add() throws Exception {
+        // 开启项目模板
+        changeOrgTemplateEnable(false);
         String scene = TemplateScene.FUNCTIONAL.name();
         // @@请求成功
         TemplateUpdateRequest request = new TemplateUpdateRequest();
@@ -95,7 +92,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         request.setName("test");
         request.setRemark("AAA");
         request.setEnableThirdPart(true);
-        request.setScopeId(DEFAULT_ORGANIZATION_ID);
+        request.setScopeId(DEFAULT_PROJECT_ID);
         request.setCustomFields(List.of(templateCustomFieldRequest));
 
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
@@ -110,18 +107,16 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         Assertions.assertEquals(copyRequest, BeanUtils.copyBean(new TemplateUpdateRequest(), template));
         Assertions.assertEquals(template.getCreateUser(), ADMIN.getValue());
         Assertions.assertEquals(template.getInternal(), false);
-        Assertions.assertEquals(template.getScopeType(), TemplateScopeType.ORGANIZATION.name());
+        Assertions.assertEquals(template.getScopeType(), TemplateScopeType.PROJECT.name());
         asserTemplateCustomFields(request, template);
-        asserRefTemplate(template);
 
         // @@重名校验异常
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), TEMPLATE_EXIST);
 
-        // @校验是否开启组织模板
-        request.setName("test1");
-        changeOrgTemplateEnable(false);
-        assertErrorCode(this.requestPost(DEFAULT_ADD, request), ORGANIZATION_TEMPLATE_PERMISSION);
+        // @校验是否开启项目模板
         changeOrgTemplateEnable(true);
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), PROJECT_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(false);
 
         // @@校验组织是否存在
         request.setScopeId("1111");
@@ -129,7 +124,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), NOT_FOUND);
 
         // 插入另一条数据，用户更新时重名校验
-        request.setScopeId(DEFAULT_ORGANIZATION_ID);
+        request.setScopeId(DEFAULT_PROJECT_ID);
         MvcResult anotherMvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         this.anotherTemplateField = templateMapper.selectByPrimaryKey(getResultData(anotherMvcResult, Template.class).getId());
 
@@ -138,46 +133,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         // @@异常参数校验
         createdGroupParamValidateTest(TemplateUpdateRequestDefinition.class, DEFAULT_ADD);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_ADD, DEFAULT_ADD, request);
-    }
-
-    /**
-     * 校验变更组织模板时，有没有同步变更项目模板
-     *
-     * @param template
-     */
-    private void asserRefTemplate(Template template) {
-        List<Template> refTemplates = organizationTemplateService.getByRefId(template.getId());
-        refTemplates.forEach(refTemplate -> {
-            Assertions.assertEquals(refTemplate.getEnableThirdPart(), template.getEnableThirdPart());
-            Assertions.assertEquals(refTemplate.getScene(), template.getScene());
-            Assertions.assertEquals(refTemplate.getRemark(), template.getRemark());
-            Assertions.assertEquals(refTemplate.getName(), template.getName());
-            Assertions.assertEquals(refTemplate.getInternal(), template.getInternal());
-            Assertions.assertEquals(refTemplate.getCreateUser(), template.getCreateUser());
-            Assertions.assertEquals(refTemplate.getScopeType(), TemplateScopeType.PROJECT.name());
-        });
-    }
-
-    private List<Template> getTemplateByScopeId(String scopeId) {
-        TemplateExample example = new TemplateExample();
-        example.createCriteria().andScopeIdEqualTo(scopeId);
-        return templateMapper.selectByExample(example);
-    }
-
-    private void changeOrgTemplateEnable(boolean enable) {
-        if (enable) {
-            organizationParameterMapper.deleteByPrimaryKey(DEFAULT_ORGANIZATION_ID, OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
-        } else {
-            OrganizationParameter organizationParameter = new OrganizationParameter();
-            organizationParameter.setOrganizationId(DEFAULT_ORGANIZATION_ID);
-            organizationParameter.setParamKey(OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
-            organizationParameter.setParamValue(BooleanUtils.toStringTrueFalse(false));
-            if (organizationParameterMapper.selectByPrimaryKey(DEFAULT_ORGANIZATION_ID,
-                    OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY) == null) {
-                organizationParameterMapper.insert(organizationParameter);
-            }
-        }
+        requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_ADD, DEFAULT_ADD, request);
     }
 
     private void asserTemplateCustomFields(TemplateUpdateRequest request, Template template) {
@@ -195,7 +151,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     }
 
     private TemplateCustomFieldRequest getTemplateCustomFieldRequest(String scene) {
-        List<CustomField> customFields = baseCustomFieldService.getByScopeIdAndScene(DEFAULT_ORGANIZATION_ID, scene);
+        List<CustomField> customFields = baseCustomFieldService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, scene);
         CustomField customField = customFields.stream()
                 .filter(item -> item.getName().equals("functional_priority"))
                 .findFirst()
@@ -219,7 +175,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         request.setScene(scene);
         request.setName("test2");
         request.setRemark("AAA1");
-        request.setScopeId("1111");
+        request.setScopeId(DEFAULT_PROJECT_ID);
         request.setScene(TemplateScene.UI.name());
         request.setEnableThirdPart(true);
         request.setCustomFields(new ArrayList<>(0));
@@ -228,14 +184,13 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         // 校验请求成功数据
         Assertions.assertEquals(template.getName(), request.getName());
         Assertions.assertEquals(template.getRemark(), request.getRemark());
-        Assertions.assertEquals(template.getScopeId(), DEFAULT_ORGANIZATION_ID);
+        Assertions.assertEquals(template.getScopeId(), DEFAULT_PROJECT_ID);
         Assertions.assertEquals(template.getCreateUser(), ADMIN.getValue());
         Assertions.assertEquals(template.getInternal(), false);
-        Assertions.assertEquals(template.getScopeType(), TemplateScopeType.ORGANIZATION.name());
+        Assertions.assertEquals(template.getScopeType(), TemplateScopeType.PROJECT.name());
         Assertions.assertEquals(template.getScene(), scene);
         Assertions.assertEquals(template.getEnableThirdPart(), request.getEnableThirdPart());
         asserTemplateCustomFields(request, template);
-        asserRefTemplate(template);
 
         // 带字段的更新
         TemplateCustomFieldRequest templateCustomFieldRequest = getTemplateCustomFieldRequest(scene);
@@ -248,10 +203,10 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         Assertions.assertEquals(baseTemplateCustomFieldService.getByTemplateId(template.getId()).size(), 1);
 
-        // @校验是否开启组织模板
-        changeOrgTemplateEnable(false);
-        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), ORGANIZATION_TEMPLATE_PERMISSION);
+        // @校验是否开启项目模板
         changeOrgTemplateEnable(true);
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), PROJECT_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(false);
 
         // @@重名校验异常
         request.setName(anotherTemplateField.getName());
@@ -267,7 +222,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         // @@异常参数校验
         updatedGroupParamValidateTest(TemplateUpdateRequestDefinition.class, DEFAULT_UPDATE);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, DEFAULT_UPDATE, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, DEFAULT_UPDATE, request);
     }
 
     @Test
@@ -275,16 +230,16 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     public void list() throws Exception {
         String scene = TemplateScene.FUNCTIONAL.name();
         // @@请求成功
-        MvcResult mvcResult = this.requestGetWithOk(LIST, DEFAULT_ORGANIZATION_ID, scene)
+        MvcResult mvcResult = this.requestGetWithOk(LIST, DEFAULT_PROJECT_ID, scene)
                 .andReturn();
         // 校验数据是否正确
         List<Template> resultList = getResultDataArray(mvcResult, Template.class);
-        List<Template> Templates = baseTemplateService.getTemplates(DEFAULT_ORGANIZATION_ID, scene);
-        List<String> userIds = Templates.stream().map(Template::getCreateUser).toList();
+        List<Template> templates = baseTemplateService.getTemplates(DEFAULT_PROJECT_ID, scene);
+        List<String> userIds = templates.stream().map(Template::getCreateUser).toList();
         Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
         for (int i = 0; i < resultList.size(); i++) {
             Template resultItem = resultList.get(i);
-            Template template = Templates.get(i);
+            Template template = templates.get(i);
             template.setCreateUser(userNameMap.get(template.getCreateUser()));
             if (template.getInternal()) {
                 // 校验内置用户名称是否翻译
@@ -298,10 +253,10 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         assertErrorCode(this.requestGet(LIST, "1111", scene), NOT_FOUND);
 
         // @@校验使用场景不合法
-        assertErrorCode(this.requestGet(LIST, DEFAULT_ORGANIZATION_ID, "111"), TEMPLATE_SCENE_ILLEGAL);
+        assertErrorCode(this.requestGet(LIST, DEFAULT_PROJECT_ID, "111"), TEMPLATE_SCENE_ILLEGAL);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, LIST, DEFAULT_ORGANIZATION_ID, scene);
+        requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_READ, LIST, DEFAULT_PROJECT_ID, scene);
     }
 
     @Test
@@ -327,49 +282,62 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         }
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, DEFAULT_GET, templateDTO.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_READ, DEFAULT_GET, templateDTO.getId());
     }
 
     @Test
     @Order(5)
-    public void disableOrganizationTemplate() throws Exception {
-        // @@请求成功
-        this.requestGetWithOk(DISABLE_ORG_TEMPLATE, addTemplate.getScopeId(), addTemplate.getScene());
-        String value = organizationParameterService.getValue(addTemplate.getScopeId(),
-                organizationParameterService.getOrgTemplateEnableKeyByScene(addTemplate.getScene()));
-        Assertions.assertEquals(value, BooleanUtils.toStringTrueFalse(false));
-
-        // 将数据改回来
-        changeOrgTemplateEnable(true);
-
-        // 提高覆盖率
-        this.requestGetWithOk(DISABLE_ORG_TEMPLATE, addTemplate.getScopeId(), addTemplate.getScene());
-
-        // todo @@校验日志
-        //  checkLog(addTemplate.getId(), OperationLogType.DELETE);
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_ENABLE, DISABLE_ORG_TEMPLATE, addTemplate.getScopeId(), addTemplate.getScene());
-    }
-
-    @Test
-    @Order(6)
     public void setDefaultTemplate() throws Exception {
-        changeOrgTemplateEnable(true);
+        changeOrgTemplateEnable(false);
         // @@请求成功
         this.requestGetWithOk(SET_DEFAULT, addTemplate.getId());
         Template template = templateMapper.selectByPrimaryKey(addTemplate.getId());
         assertSetDefaultTemplate(template);
-        asserRefSetDefaultTemplate(template);
 
-        // @校验是否开启组织模板
-        changeOrgTemplateEnable(false);
-        assertErrorCode(this.requestGet(SET_DEFAULT, addTemplate.getId()), ORGANIZATION_TEMPLATE_PERMISSION);
+        // @校验是否开启项目模板
         changeOrgTemplateEnable(true);
+        assertErrorCode(this.requestGet(SET_DEFAULT, addTemplate.getId()), PROJECT_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(false);
 
         // @@校验日志
         checkLog(addTemplate.getId(), OperationLogType.UPDATE);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, SET_DEFAULT, addTemplate.getScopeId(), addTemplate.getScene());
+    }
+
+    @Test
+    @Order(6)
+    public void delete() throws Exception {
+        // @校验是否开启项目模板
+        changeOrgTemplateEnable(true);
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, addTemplate.getId()), PROJECT_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(false);
+
+        // @@校验删除默认模板
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, addTemplate.getId()), DEFAULT_TEMPLATE_PERMISSION);
+        // 设置回来，保证正常删除
+        this.requestGetWithOk(SET_DEFAULT, defaultTemplate.getId());
+        
+        // @@请求成功
+        this.requestGetWithOk(DEFAULT_DELETE, addTemplate.getId());
+        Assertions.assertNull(templateMapper.selectByPrimaryKey(addTemplate.getId()));
+        Assertions.assertTrue(CollectionUtils.isEmpty(baseTemplateCustomFieldService.getByTemplateId(addTemplate.getId())));
+
+        // @@校验内置模板删除异常
+        TemplateExample example = new TemplateExample();
+        example.createCriteria()
+                .andScopeTypeEqualTo(TemplateScopeType.PROJECT.name())
+                .andInternalEqualTo(true);
+        Template internalTemplate = templateMapper.selectByExample(example).get(0);
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, internalTemplate.getId()), INTERNAL_TEMPLATE_PERMISSION);
+
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, "1111"), NOT_FOUND);
+
+        // @@校验日志
+        checkLog(addTemplate.getId(), OperationLogType.DELETE);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_DELETE, DEFAULT_DELETE, addTemplate.getId());
     }
 
     private void assertSetDefaultTemplate(Template template) {
@@ -381,51 +349,24 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         Assertions.assertEquals(defaultCount, 1);
     }
 
-    /**
-     * 校验变更组织模板时，有没有同步变更项目模板
-     *
-     * @param template
-     */
-    private void asserRefSetDefaultTemplate(Template template) {
-        List<Template> refTemplates = organizationTemplateService.getByRefId(template.getId());
-        refTemplates.forEach(this::assertSetDefaultTemplate);
+    private List<Template> getTemplateByScopeId(String scopeId) {
+        TemplateExample example = new TemplateExample();
+        example.createCriteria().andScopeIdEqualTo(scopeId);
+        return templateMapper.selectByExample(example);
     }
 
-    @Test
-    @Order(7)
-    public void delete() throws Exception {
-
-        // @校验是否开启组织模板
-        changeOrgTemplateEnable(false);
-        assertErrorCode(this.requestGet(DEFAULT_DELETE, addTemplate.getId()), ORGANIZATION_TEMPLATE_PERMISSION);
-        changeOrgTemplateEnable(true);
-
-        // @@校验删除默认模板
-        assertErrorCode(this.requestGet(DEFAULT_DELETE, addTemplate.getId()), DEFAULT_TEMPLATE_PERMISSION);
-        // 设置回来，保证正常删除
-        this.requestGetWithOk(SET_DEFAULT, defaultTemplate.getId());
-
-        // @@请求成功
-        this.requestGetWithOk(DEFAULT_DELETE, addTemplate.getId());
-        Assertions.assertNull(templateMapper.selectByPrimaryKey(addTemplate.getId()));
-        Assertions.assertTrue(CollectionUtils.isEmpty(baseTemplateCustomFieldService.getByTemplateId(addTemplate.getId())));
-        // 校验是否同步删除了项目模板
-        Assertions.assertTrue(CollectionUtils.isEmpty(organizationTemplateService.getByRefId(addTemplate.getId())));
-
-        // @@校验内置模板删除异常
-        TemplateExample example = new TemplateExample();
-        example.createCriteria()
-                .andScopeTypeEqualTo(TemplateScopeType.ORGANIZATION.name())
-                .andInternalEqualTo(true);
-        Template internalTemplate = templateMapper.selectByExample(example).get(0);
-        assertErrorCode(this.requestGet(DEFAULT_DELETE, internalTemplate.getId()), INTERNAL_TEMPLATE_PERMISSION);
-
-        // @@校验 NOT_FOUND 异常
-        assertErrorCode(this.requestGet(DEFAULT_DELETE, "1111"), NOT_FOUND);
-
-        // @@校验日志
-        checkLog(addTemplate.getId(), OperationLogType.DELETE);
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_DELETE, DEFAULT_DELETE, addTemplate.getId());
+    private void changeOrgTemplateEnable(boolean enable) {
+        if (enable) {
+            organizationParameterMapper.deleteByPrimaryKey(DEFAULT_ORGANIZATION_ID, OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
+        } else {
+            OrganizationParameter organizationParameter = new OrganizationParameter();
+            organizationParameter.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            organizationParameter.setParamKey(OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
+            organizationParameter.setParamValue(BooleanUtils.toStringTrueFalse(false));
+            if (organizationParameterMapper.selectByPrimaryKey(DEFAULT_ORGANIZATION_ID,
+                    OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY) == null) {
+                organizationParameterMapper.insert(organizationParameter);
+            }
+        }
     }
 }

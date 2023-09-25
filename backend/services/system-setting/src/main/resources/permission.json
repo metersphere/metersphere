@@ -291,6 +291,10 @@
           },
           {
             "id": "ORGANIZATION_TEMPLATE:READ+DELETE"
+          },
+          {
+            "id": "ORGANIZATION_TEMPLATE:READ+ENABLE",
+            "name": "permission.system_organization_template.enable"
           }
         ]
       },

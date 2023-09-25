@@ -6,27 +6,30 @@ import io.metersphere.project.domain.ProjectTestResourcePool;
 import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
+import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.base.BaseTest;
-import io.metersphere.sdk.constants.InternalUserRole;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.sdk.dto.*;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
+import io.metersphere.system.job.CleanProjectJob;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.Pager;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserRoleRelation;
-import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
+import io.metersphere.system.service.BaseCustomFieldService;
+import io.metersphere.system.service.BaseTemplateService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -82,6 +85,14 @@ public class SystemProjectControllerTests extends BaseTest {
     private UserMapper userMapper;
     @Resource
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
+    @Resource
+    private BaseTemplateService baseTemplateService;
+    @Resource
+    private BaseCustomFieldService baseCustomFieldService;
+    @Resource
+    private OrganizationParameterMapper organizationParameterMapper;
+    @Resource
+    private CleanProjectJob cleanProjectJob;
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(url)
@@ -180,7 +191,7 @@ public class SystemProjectControllerTests extends BaseTest {
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testAddProjectSuccess() throws Exception {
-        AddProjectRequest project = this.generatorAdd("organizationId","name", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"name", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
         ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         ProjectExample projectExample = new ProjectExample();
@@ -196,15 +207,20 @@ public class SystemProjectControllerTests extends BaseTest {
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
-        userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(DEFAULT_ORGANIZATION_ID).andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
          userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         Project currentProject = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertNull(currentProject.getModuleSetting());
+        // 项目模板未启用时，校验是否创建了项目模板
+        assertionsRefTemplateCreate(projectId);
 
         //userId为空的时候
-        project = this.generatorAdd("organizationId","userIdIsNull", "description", true, new ArrayList<>());
+        project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"userIdIsNull", "description", true, new ArrayList<>());
+        // 开启项目模板
+        changeOrgTemplateEnable(false);
         mvcResult = this.responsePost(addProject, project);
+        changeOrgTemplateEnable(true);
         result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
@@ -219,11 +235,13 @@ public class SystemProjectControllerTests extends BaseTest {
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
-        userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(DEFAULT_ORGANIZATION_ID).andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         currentProject = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertNull(currentProject.getModuleSetting());
+        // 项目模板开启时，校验是否初始化了项目模板
+        assertionsInitTemplate(projectId);
 
         //设置了模块模版
         List<String> moduleIds = new ArrayList<>();
@@ -246,7 +264,7 @@ public class SystemProjectControllerTests extends BaseTest {
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
-        userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(DEFAULT_ORGANIZATION_ID).andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         currentProject = projectMapper.selectByPrimaryKey(projectId);
@@ -272,10 +290,90 @@ public class SystemProjectControllerTests extends BaseTest {
         List<ProjectTestResourcePool> projectTestResourcePools = projectTestResourcePoolMapper.selectByExample(projectTestResourcePoolExample);
         Assertions.assertTrue(projectTestResourcePools.stream().map(ProjectTestResourcePool::getTestResourcePoolId).toList().contains("resourcePoolId"));
 
-
         project.setName("testAddProjectSuccess1");
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD, addProject, project);
+    }
+
+    public void assertionsRefTemplateCreate(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+
+        // 校验是否初始化了项目字段
+        List<CustomField> orgFields = baseCustomFieldService.getByScopeId(project.getOrganizationId());
+        List<CustomField> projectFields = baseCustomFieldService.getByScopeId(projectId);
+        Assertions.assertEquals(orgFields.size(), projectFields.size());
+        orgFields.forEach(orgField -> {
+            CustomField projectField = projectFields.stream()
+                    .filter(field -> StringUtils.equals(field.getRefId(), orgField.getId()))
+                    .findFirst()
+                    .get();
+
+            CustomField copyField = BeanUtils.copyBean(new CustomField(), orgField);
+            copyField.setId(projectField.getId());
+            copyField.setScopeId(projectId);
+            copyField.setScopeType(TemplateScopeType.PROJECT.name());
+            copyField.setCreateTime(projectField.getCreateTime());
+            copyField.setUpdateTime(projectField.getUpdateTime());
+            copyField.setRefId(orgField.getId());
+            Assertions.assertEquals(copyField, projectField);
+        });
+
+        // 校验是否初始化了项目模板
+        List<Template> orgTemplates = baseTemplateService.getByScopeId(project.getOrganizationId());
+        List<Template> projectTemplates = baseTemplateService.getByScopeId(projectId);
+        Assertions.assertEquals(orgTemplates.size(), projectTemplates.size());
+        orgTemplates.forEach(orgTemplate -> {
+            Template projectTemplate = projectTemplates.stream()
+                    .filter(template -> StringUtils.equals(template.getRefId(), orgTemplate.getId()))
+                    .findFirst()
+                    .get();
+
+            Template copyTemplate = BeanUtils.copyBean(new Template(), orgTemplate);
+            copyTemplate.setId(projectTemplate.getId());
+            copyTemplate.setScopeId(projectId);
+            copyTemplate.setScopeType(TemplateScopeType.PROJECT.name());
+            copyTemplate.setUpdateTime(projectTemplate.getUpdateTime());
+            copyTemplate.setCreateTime(projectTemplate.getCreateTime());
+            copyTemplate.setRefId(orgTemplate.getId());
+            Assertions.assertEquals(copyTemplate, projectTemplate);
+        });
+    }
+
+    public void assertionsInitTemplate(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        // 校验是否初始化了项目字段
+        List<CustomField> fields = baseCustomFieldService.getByScopeId(project.getId());
+        Assertions.assertEquals(fields.size(), DefaultFunctionalCustomField.values().length);
+        for (DefaultFunctionalCustomField value : DefaultFunctionalCustomField.values()) {
+            CustomField customField = fields.stream()
+                    .filter(field -> StringUtils.equals(field.getName(), value.getName()))
+                    .findFirst().get();
+            Assertions.assertEquals(customField.getType(), value.getType().name());
+        }
+        // 校验是否初始化了项目模板
+        List<Template> templates = baseTemplateService.getByScopeId(project.getId());
+        Assertions.assertEquals(templates.size(), TemplateScene.values().length);
+        for (TemplateScene scene : TemplateScene.values()) {
+            Template template = templates.stream()
+                    .filter(field -> StringUtils.equals(field.getScene(), scene.name()))
+                    .findFirst().get();
+            Assertions.assertNotNull(template);
+        }
+    }
+
+    private void changeOrgTemplateEnable(boolean enable) {
+        if (enable) {
+            organizationParameterMapper.deleteByPrimaryKey(DEFAULT_ORGANIZATION_ID, OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
+        } else {
+            OrganizationParameter organizationParameter = new OrganizationParameter();
+            organizationParameter.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            organizationParameter.setParamKey(OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
+            organizationParameter.setParamValue(BooleanUtils.toStringTrueFalse(false));
+            if (organizationParameterMapper.selectByPrimaryKey(DEFAULT_ORGANIZATION_ID,
+                    OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY) == null) {
+                organizationParameterMapper.insert(organizationParameter);
+            }
+        }
     }
 
     @Test
@@ -284,22 +382,22 @@ public class SystemProjectControllerTests extends BaseTest {
      * 测试添加项目失败的用例
      */
     public void testAddProjectError() throws Exception {
-        AddProjectRequest project = this.generatorAdd("organizationId","nameError", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"nameError", "description", true, List.of("admin"));
         this.responsePost(addProject, project);
         //项目名称存在 500
-        project = this.generatorAdd("organizationId","nameError", "description", true, List.of("admin"));
+        project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"nameError", "description", true, List.of("admin"));
         this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorAdd(null, null, null, true, List.of("admin"));
         this.requestPost(addProject, project, BAD_REQUEST_MATCHER);
         //项目名称为空
-        project = this.generatorAdd("organizationId", null, null, true, List.of("admin"));
+        project = this.generatorAdd(DEFAULT_ORGANIZATION_ID, null, null, true, List.of("admin"));
         this.requestPost(addProject, project, BAD_REQUEST_MATCHER);
         //项目成员在系统中不存在
-        project = this.generatorAdd("organizationId", "name", null, true, List.of("admin", "admin1", "admin3"));
+        project = this.generatorAdd(DEFAULT_ORGANIZATION_ID, "name", null, true, List.of("admin", "admin1", "admin3"));
         this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
         //资源池不存在
-        project = this.generatorAdd("organizationId", "pool", null, true, List.of("admin"));
+        project = this.generatorAdd(DEFAULT_ORGANIZATION_ID, "pool", null, true, List.of("admin"));
         project.setResourcePoolIds(List.of("resourcePoolId3"));
         this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
 
@@ -307,7 +405,7 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void testGetProject() throws Exception {
-        AddProjectRequest project = this.generatorAdd("organizationId","getName", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"getName", "description", true, List.of("admin"));
         List<String> moduleIds = new ArrayList<>();
         moduleIds.add("apiTest");
         moduleIds.add("uiTest");
@@ -436,7 +534,7 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(7)
     public void testUpdateProject() throws Exception {
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId1","TestName", "Edit name", true, List.of("admin", "admin1"));
+        UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId1","TestName", "Edit name", true, List.of("admin", "admin1"));
         MvcResult mvcResult = this.responsePost(updateProject, project);
         ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         Project currentProject = projectMapper.selectByPrimaryKey(project.getId());
@@ -445,12 +543,12 @@ public class SystemProjectControllerTests extends BaseTest {
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId1").andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().containsAll(List.of("admin", "admin1")));
-        userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(DEFAULT_ORGANIZATION_ID).andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().containsAll(List.of("admin", "admin1")));
 
         //用户id为空
-        project = this.generatorUpdate("organizationId", "projectId1", "TestNameUserIdIsNull", "Edit name", true, new ArrayList<>());
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId1", "TestNameUserIdIsNull", "Edit name", true, new ArrayList<>());
         Project projectExtend = projectMapper.selectByPrimaryKey("projectId1");
         projectExtend.setModuleSetting(null);
         mvcResult = this.responsePost(updateProject, project);
@@ -464,7 +562,7 @@ public class SystemProjectControllerTests extends BaseTest {
         Assertions.assertTrue(userRoleRelations.isEmpty());
 
         // 修改模块设置
-        project = this.generatorUpdate("organizationId", "projectId1", "Module", "Edit name", true, new ArrayList<>());
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId1", "Module", "Edit name", true, new ArrayList<>());
         List<String> moduleIds = new ArrayList<>();
         moduleIds.add("apiTest");
         moduleIds.add("uiTest");
@@ -484,7 +582,7 @@ public class SystemProjectControllerTests extends BaseTest {
         Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleIds));
 
         //设置资源池
-        project = this.generatorUpdate("organizationId", "projectId5", "updatePools", "updatePools", true, new ArrayList<>());
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId5", "updatePools", "updatePools", true, new ArrayList<>());
         project.setResourcePoolIds(List.of("resourcePoolId","resourcePoolId1"));
         mvcResult = this.responsePost(updateProject, project);
         result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
@@ -506,22 +604,22 @@ public class SystemProjectControllerTests extends BaseTest {
     @Order(8)
     public void testUpdateProjectError() throws Exception {
         //项目名称存在 500
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId2","TestName2", "description", true, List.of("admin"));
+        UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId2","TestName2", "description", true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorUpdate(null, "projectId",null, null, true , List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目Id为空
-        project = this.generatorUpdate("organizationId", null,null, null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, null,null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目名称为空
-        project = this.generatorUpdate("organizationId", "projectId",null, null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId",null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目不存在
-        project = this.generatorUpdate("organizationId", "1111","123", null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "1111","123", null, true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //资源池不存在
-        project = this.generatorUpdate("organizationId", "projectId2","pool-edit", "description", true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId2","pool-edit", "description", true, List.of("admin"));
         project.setResourcePoolIds(List.of("resourcePoolId3"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
 
@@ -768,8 +866,25 @@ public class SystemProjectControllerTests extends BaseTest {
     @Order(22)
     public void testGetOptions() throws Exception {
         this.requestGetWithOkAndReturn(getPoolOptions);
-        this.requestGetWithOkAndReturn(getPoolOptions + "?organizationId=organizationId");
+        this.requestGetWithOkAndReturn(getPoolOptions + "?organizationId=" + DEFAULT_ORGANIZATION_ID);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getPoolOptions + "?organizationId=organizationId");
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getPoolOptions + "?organizationId=" + DEFAULT_ORGANIZATION_ID);
+    }
+
+    @Test
+    @Order(23)
+    public void testDeleteForce() {
+        String id = "projectId";
+        // 设置成过期，强制删除
+        Project project = new Project();
+        project.setId(id);
+        project.setDeleteTime(1L);
+        project.setDeleted(true);
+        projectMapper.updateByPrimaryKeySelective(project);
+
+        // 直接调用删除项目资源的定时任务，校验资源是否删除
+        cleanProjectJob.cleanupProject();
+        Assertions.assertTrue(CollectionUtils.isEmpty(baseCustomFieldService.getByScopeId(id)));
+        Assertions.assertTrue(CollectionUtils.isEmpty(baseTemplateService.getByScopeId(id)));
     }
 }

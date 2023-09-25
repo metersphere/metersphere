@@ -4,5 +4,6 @@ public enum TemplateScene {
     FUNCTIONAL,
     ISSUE,
     API,
-    UI
+    UI,
+    TEST_PLAN
 }

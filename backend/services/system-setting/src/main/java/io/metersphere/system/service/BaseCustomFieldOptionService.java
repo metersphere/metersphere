@@ -10,6 +10,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,6 +31,15 @@ public class BaseCustomFieldOptionService {
         customFieldOptionMapper.deleteByExample(example);
     }
 
+    public void deleteByFieldIds(List<String> fieldIds) {
+        if (CollectionUtils.isEmpty(fieldIds)) {
+            return;
+        }
+        CustomFieldOptionExample example = new CustomFieldOptionExample();
+        example.createCriteria().andFieldIdIn(fieldIds);
+        customFieldOptionMapper.deleteByExample(example);
+    }
+
     public List<CustomFieldOption> getByFieldId(String fieldId) {
         CustomFieldOptionExample example = new CustomFieldOptionExample();
         example.createCriteria().andFieldIdEqualTo(fieldId);
@@ -37,6 +47,10 @@ public class BaseCustomFieldOptionService {
     }
 
     public void addByFieldId(String fieldId, List<CustomFieldOptionRequest> customFieldOptionRequests) {
+        this.addByFieldId(fieldId, customFieldOptionRequests, false);
+    }
+
+    public void addByFieldId(String fieldId, List<CustomFieldOptionRequest> customFieldOptionRequests, boolean isInternal) {
         if (CollectionUtils.isEmpty(customFieldOptionRequests)) {
             return;
         }
@@ -44,7 +58,7 @@ public class BaseCustomFieldOptionService {
             CustomFieldOption customFieldOption = new CustomFieldOption();
             BeanUtils.copyBean(customFieldOption, item);
             customFieldOption.setFieldId(fieldId);
-            customFieldOption.setInternal(false);
+            customFieldOption.setInternal(isInternal);
             return customFieldOption;
         }).toList();
         customFieldOptionMapper.batchInsert(customFieldOptions);
@@ -72,5 +86,14 @@ public class BaseCustomFieldOptionService {
             return customFieldOption;
         }).toList();
         customFieldOptionMapper.batchInsert(customFieldOptions);
+    }
+
+    public List<CustomFieldOption> getByFieldIds(List<String> fieldIds) {
+        if (CollectionUtils.isEmpty(fieldIds)) {
+            return new ArrayList<>(0);
+        }
+        CustomFieldOptionExample example = new CustomFieldOptionExample();
+        example.createCriteria().andFieldIdIn(fieldIds);
+        return customFieldOptionMapper.selectByExample(example);
     }
 }

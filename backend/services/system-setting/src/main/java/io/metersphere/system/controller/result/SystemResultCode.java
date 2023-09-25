@@ -20,6 +20,10 @@ public enum SystemResultCode implements IResultCode {
      */
     NO_ORG_USER_ROLE_PERMISSION(101007, "organization_user_role_permission_error"),
     PLUGIN_EXIST(101008, "plugin.exist"),
+    /**
+     * 开启项目模板，操作组织模板时，会返回
+     */
+    ORGANIZATION_TEMPLATE_PERMISSION(101009, "organization_template_permission_error"),
     PLUGIN_SCRIPT_EXIST(101010, "plugin.script.exist"),
     PLUGIN_SCRIPT_FORMAT(101011, "plugin.script.format"),
     NO_PROJECT_USER_ROLE_PERMISSION(101012, "project_user_role_permission_error");
