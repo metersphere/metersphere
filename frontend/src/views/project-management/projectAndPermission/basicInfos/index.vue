@@ -18,10 +18,7 @@
           <span v-if="!projectDetail?.deleted && projectDetail?.enable" class="button enable-button mr-1">{{
             t('project.basicInfo.enable')
           }}</span>
-          <span v-if="!projectDetail?.deleted && !projectDetail?.enable" class="button disabled-button mr-1">{{
-            t('project.basicInfo.disabled')
-          }}</span>
-          <span v-if="projectDetail?.deleted" class="button delete-button">{{ t('project.basicInfo.deleted') }}</span>
+          <span v-else class="button delete-button">{{ t('project.basicInfo.deleted') }}</span>
         </div>
         <div class="one-line-text text-xs text-[--color-text-4]">{{ projectDetail?.description }}</div>
       </div>
@@ -38,11 +35,11 @@
     </div>
     <div class="label-item">
       <span class="label">{{ t('project.basicInfo.resourcePool') }}</span>
-      <MsTag>资源池</MsTag>
+      <MsTag v-for="pool of projectDetail?.resourcePoolList" :key="pool.id">{{ pool.name }}</MsTag>
     </div>
     <div class="label-item">
       <span class="label">{{ t('project.basicInfo.createTime') }}</span>
-      <span>{{ getTime(projectDetail?.createTime as string) }}</span>
+      <span>{{ dayjs(projectDetail?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
     </div>
   </div>
   <UpdateProjectModal ref="projectDetailRef" v-model:visible="isVisible" @success="getProjectDetail()" />
@@ -56,7 +53,7 @@
   import { useAppStore } from '@/store';
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
   import type { ProjectBasicInfoModel } from '@/models/projectManagement/basicInfo';
-  import { getTime } from '@/utils';
+  import dayjs from 'dayjs';
 
   const { t } = useI18n();
   const appStore = useAppStore();

@@ -6,7 +6,7 @@ import type { AppRouteRecordRaw } from '../types';
 const FeatureTest: AppRouteRecordRaw = {
   path: '/feature-test',
   name: FeatureTestRouteEnum.FEATURE_TEST,
-  redirect: '/feature-test/index',
+  redirect: '/feature-test/featureCase',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.featureTest',
@@ -15,12 +15,15 @@ const FeatureTest: AppRouteRecordRaw = {
     hideChildrenInMenu: true,
   },
   children: [
+    // 功能用例
     {
-      path: 'index',
-      name: 'featureTestIndex',
-      component: () => import('@/views/feature-test/index.vue'),
+      path: 'featureCase',
+      name: FeatureTestRouteEnum.FEATURE_TEST_CASE,
+      component: () => import('@/views/feature-test/featureCase/index.vue'),
       meta: {
+        locale: 'menu.featureTest.featureCase',
         roles: ['*'],
+        isTopMenu: true,
       },
     },
   ],

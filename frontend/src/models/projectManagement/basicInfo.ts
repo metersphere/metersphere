@@ -40,6 +40,7 @@ export interface ProjectBasicInfoModel {
   adminList: AdminList[]; // 管理员
   projectCreateUserIsAdmin: boolean; // 创建人是否是管理员
   moduleIds: string[];
+  resourcePoolList: { name: string; id: string }[]; // 资源池列表
 }
 
 export interface UpdateProject {

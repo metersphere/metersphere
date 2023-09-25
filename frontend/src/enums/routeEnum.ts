@@ -8,6 +8,7 @@ export enum BugManagementRouteEnum {
 
 export enum FeatureTestRouteEnum {
   FEATURE_TEST = 'featureTest',
+  FEATURE_TEST_CASE = 'featureTestCase',
 }
 
 export enum PerformanceTestRouteEnum {

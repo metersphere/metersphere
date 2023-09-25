@@ -119,12 +119,18 @@
           </a-table-column>
         </template>
         <template #expand-icon="{ record, expanded }">
-          <span v-if="(record.pluginForms || []).length && !expanded" class="collapsebtn"
-            ><icon-plus :style="{ 'font-size': '12px' }"
-          /></span>
-          <span v-else-if="(record.pluginForms || []).length && expanded" class="expand"
-            ><icon-minus class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }"
-          /></span>
+          <span
+            v-if="(record.pluginForms || []).length && !expanded"
+            class="collapsebtn flex items-center justify-center"
+          >
+            <icon-right class="text-[var(--color-text-4)]" :style="{ 'font-size': '12px' }" />
+          </span>
+          <span
+            v-else-if="(record.pluginForms || []).length && expanded"
+            class="expand flex items-center justify-center"
+          >
+            <icon-down class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }" />
+          </span>
         </template>
       </a-table>
     </div>
@@ -403,23 +409,27 @@
     padding: 0 !important;
   }
   :deep(.collapsebtn) {
-    padding: 0 1px;
-    border: 1px solid var(--color-text-4);
-    border-radius: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-text-n8) !important;
     @apply bg-white;
   }
   :deep(.expand) {
-    padding: 0 1px;
-    border: 1px solid rgb(var(--primary-5));
-    border-radius: 3px;
-    @apply bg-white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(var(--primary-1));
   }
   :deep(.arco-table-expand-btn) {
     width: 16px;
     height: 16px;
-    border-width: 2px;
-    border-radius: 3px;
-    @apply bg-white;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-text-n8) !important;
+  }
+  :deep(.arco-table .arco-table-expand-btn:hover) {
+    border-color: transparent;
   }
   .ms-footerNum {
     width: 100%;
