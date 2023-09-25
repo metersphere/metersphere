@@ -8,7 +8,7 @@
                        :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
                        :env-add-permission="ENV_CREATE"
                        :delete-fuc="openDelEnv" @itemSelected="environmentSelected" ref="environmentItems"/>
-        <environment-edit :if-create="ifCreate" :environment="currentEnvironment"
+        <environment-edit :if-create="ifCreate" :environment="currentEnvironment" v-if="visible"
                           ref="environmentEdit" :is-read-only="isReadOnly"
                           @confirm="save" :is-project="true" :key="currentEnvironment.id"
                           @close="close" @refreshAfterSave="refresh">
@@ -164,9 +164,7 @@ export default {
         }
       })
       this.$refs.environmentEdit._save(newEnvironment);
-      this.environments.unshift(newEnvironment);
-      this.$refs.environmentItems.itemSelected(this.environments.length - 1, newEnvironment);
-      this.refresh();
+      this.getEnvironments();
     },
     validateEnvironment(environment) {
       if (!this.$refs.environmentEdit.validate()) {
@@ -199,6 +197,7 @@ export default {
       if (this.projectId) {
         this.result = getEnvironmentByProjectId(this.projectId).then(response => {
           this.environments = response.data;
+          this.currentEnvironment.id = null;
           if (this.environments.length > 0) {
             if (this.selectEnvironmentId) {
               const index = this.environments.findIndex(e => e.id === this.selectEnvironmentId);
