@@ -216,6 +216,25 @@ export default function useTableProps<T>(
     propsRes.value.selectorStatus = SelectAllEnum.NONE;
   };
 
+  // 获取当前表格的选中项数量
+  const getSelectedCount = () => {
+    const { selectorStatus, msPagination, excludeKeys, selectedKeys } = propsRes.value;
+    if (msPagination) {
+      if (selectorStatus === SelectAllEnum.ALL) {
+        // 如果是全选状态，返回总数减去排除的数量
+        return msPagination.total - excludeKeys.size;
+      }
+      // if (selectorStatus === SelectAllEnum.NONE) {
+      // 如果是全不选状态，返回选中的数量
+      return selectedKeys.size;
+      // }
+      // if (selectorStatus === SelectAllEnum.CURRENT) {
+      //   // 如果是当前页状态，返回当前页减去排除的数量
+      //   return msPagination.pageSize - excludeKeys.size;
+      // }
+    }
+  };
+
   // 事件触发组
   const propsEvent = ref({
     // 排序触发
@@ -318,5 +337,6 @@ export default function useTableProps<T>(
     setLoadListParams,
     setKeyword,
     resetPagination,
+    getSelectedCount,
   };
 }
