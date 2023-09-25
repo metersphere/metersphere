@@ -109,31 +109,29 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
         }
         // 设置 query 参数
-        StringBuilder pathBuilder = new StringBuilder();
-        pathBuilder.append(request.getSwaggerUrl());
-        if (!request.getSwaggerUrl().contains("?")) {
-            pathBuilder.append("?");
-        }
         if (!CollectionUtils.isEmpty(request.getArguments())) {
+            StringBuilder pathBuilder = new StringBuilder();
+            pathBuilder.append(request.getSwaggerUrl());
+            if (StringUtils.isNotBlank(request.getSwaggerUrl()) && !request.getSwaggerUrl().contains("?")) {
+                pathBuilder.append("?");
+            }
             for (KeyValue keyValue : request.getArguments()) {
                 if (StringUtils.isNotBlank(keyValue.getName())) {
                     AuthorizationValue authorizationValue = new AuthorizationValue();
                     authorizationValue.setType("query");
                     authorizationValue.setKeyName(keyValue.getName());
                     try {
-                        authorizationValue.setValue(keyValue.isUrlEncode() ? URLEncoder.encode(keyValue.getValue(), StandardCharsets.UTF_8) : keyValue.getValue());
+                        authorizationValue.setValue(URLEncoder.encode(keyValue.getValue(), StandardCharsets.UTF_8));
                     } catch (Exception e) {
                         LogUtil.info("swagger3 url encode error: " + e);
                     }
                     pathBuilder.append(keyValue.getName()).append("=").append(authorizationValue.getValue()).append("&");
-                    auths.add(authorizationValue);
                 }
             }
+            request.setSwaggerUrl(pathBuilder.substring(0, pathBuilder.length() - 1));
         }
-        request.setSwaggerUrl(pathBuilder.substring(0, pathBuilder.length() - 1));
         return CollectionUtils.size(auths) == 0 ? null : auths;
     }
-
 
     private List<ApiDefinitionWithBLOBs> parseRequests(OpenAPI openAPI, ApiTestImportRequest importRequest) {
         Paths paths = openAPI.getPaths();
