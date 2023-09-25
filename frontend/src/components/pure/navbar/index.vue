@@ -12,7 +12,7 @@
       <template v-if="showProjectSelect">
         <a-divider direction="vertical" class="ml-0" />
         <a-select
-          class="w-auto max-w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
+          class="w-auto min-w-[150px] max-w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
           :default-value="appStore.getCurrentProjectId"
           :bordered="false"
           @change="selectProject"
@@ -214,6 +214,7 @@
       const res = await getProjectList(appStore.getCurrentOrgId);
       projectList.value = res;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   });

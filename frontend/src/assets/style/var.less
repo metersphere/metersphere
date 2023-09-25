@@ -4,7 +4,6 @@
 @border-radius-large: 12px;
 
 @color-white: #fff;
-@color-fill-2: rgb(var(--primary-9));
 @color-text-5: #aeaeb2;
 
 /** 常用颜色类 **/
@@ -58,6 +57,10 @@
     border: 1px solid var(--color-text-input-border) !important;
     color: var(--color-text-4) !important;
   }
+}
+.btn-outline-danger-default() {
+  border-color: rgb(var(--danger-6)) !important;
+  color: rgb(var(--danger-6)) !important;
 }
 .btn-outline-danger-hover() {
   &:not(:disabled):hover {
@@ -181,5 +184,38 @@
     &::-webkit-scrollbar-thumb {
       @apply block;
     }
+  }
+}
+
+/** 容器内部上下阴影类 **/
+.ms-container--shadow() {
+  @apply relative;
+  &::before {
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    width: 100%;
+    height: 10px;
+    box-shadow: none;
+    transition: box-shadow 0.1s cubic-bezier(0, 0, 1, 1);
+    content: '';
+    pointer-events: none;
+  }
+  &-shadow-top::before {
+    box-shadow: inset 0 10px 6px -10px rgb(0 0 0 / 15%);
+  }
+  &::after {
+    position: absolute;
+    bottom: 0;
+    z-index: 1;
+    width: 100%;
+    height: 10px;
+    box-shadow: none;
+    transition: box-shadow 0.1s cubic-bezier(0, 0, 1, 1);
+    content: '';
+    pointer-events: none;
+  }
+  &-shadow-bottom::after {
+    box-shadow: inset 0 -10px 6px -10px rgb(0 0 0 / 15%);
   }
 }

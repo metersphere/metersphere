@@ -3,7 +3,6 @@ import { MENU_LEVEL, pathMap, PathMapItem, PathMapRoute } from '@/config/pathMap
 import { TreeNode, findNodeByKey, mapTree } from '@/utils';
 
 export default function usePathMap() {
-  const router = useRouter();
   /**
    * 根据菜单级别过滤映射树
    * @param level 菜单级别
@@ -38,6 +37,7 @@ export default function usePathMap() {
    * @param openNewPage 是否在新页面打开
    */
   const jumpRouteByMapKey = (key: PathMapRoute, routeQuery?: Record<string, any>, openNewPage = false) => {
+    const router = useRouter();
     const pathNode = findNodeByKey<PathMapItem>(pathMap, key as unknown as string);
     if (pathNode) {
       if (openNewPage) {

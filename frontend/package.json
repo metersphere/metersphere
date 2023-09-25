@@ -37,8 +37,8 @@
   "dependencies": {
     "@7polo/kity": "2.0.8",
     "@7polo/kityminder-core": "1.4.53",
-    "@arco-design/web-vue": "^2.51.1",
-    "@arco-themes/vue-ms-theme-default": "^0.0.29",
+    "@arco-design/web-vue": "^2.51.2",
+    "@arco-themes/vue-ms-theme-default": "^0.0.30",
     "@form-create/arco-design": "^3.1.23",
     "@types/color": "^3.0.4",
     "@vueuse/core": "^10.4.1",

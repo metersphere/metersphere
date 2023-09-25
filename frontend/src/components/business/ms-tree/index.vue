@@ -1,65 +1,68 @@
 <template>
-  <a-tree
-    v-bind="props"
-    ref="treeRef"
-    v-model:expanded-keys="expandedKeys"
-    :selected-keys="selectedKeys"
-    :data="treeData"
-    class="ms-tree"
-    @drop="onDrop"
-    @select="select"
-  >
-    <template v-if="$slots['title']" #title="_props">
-      <slot name="title" v-bind="_props"></slot>
-    </template>
-    <template v-if="$slots['extra']" #extra="_props">
-      <div
-        :class="[
-          'ms-tree-node-extra',
-          innerFocusNodeKey === _props[props.fieldNames.key] ? 'ms-tree-node-extra--focus' : '',
-        ]"
-      >
-        <div
-          class="ml-[-4px] flex h-[32px] items-center rounded-[var(--border-radius-small)] bg-[rgb(var(--primary-1))]"
-        >
-          <slot name="extra" v-bind="_props"></slot>
-          <MsTableMoreAction
-            v-if="props.nodeMoreActions"
-            :list="props.nodeMoreActions"
-            trigger="click"
-            @select="handleNodeMoreSelect($event, _props)"
-            @close="moreActionsClose"
-          >
-            <MsButton
-              type="text"
-              size="mini"
-              class="ms-tree-node-extra__more"
-              @click="innerFocusNodeKey = _props[props.fieldNames.key]"
-            >
-              <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
-            </MsButton>
-          </MsTableMoreAction>
-        </div>
-      </div>
-    </template>
-  </a-tree>
-  <slot name="empty">
-    <div
-      v-show="treeData.length === 0 && props.emptyText"
-      class="rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[8px] text-[12px] text-[var(--color-text-4)]"
+  <div ref="treeContainerRef" :class="['ms-tree-container', containerStatusClass]">
+    <a-tree
+      v-bind="props"
+      ref="treeRef"
+      v-model:expanded-keys="expandedKeys"
+      :selected-keys="selectedKeys"
+      :data="treeData"
+      class="ms-tree"
+      @drop="onDrop"
+      @select="select"
     >
-      {{ props.emptyText }}
-    </div>
-  </slot>
+      <template v-if="$slots['title']" #title="_props">
+        <slot name="title" v-bind="_props"></slot>
+      </template>
+      <template v-if="$slots['extra']" #extra="_props">
+        <div
+          :class="[
+            'ms-tree-node-extra',
+            innerFocusNodeKey === _props[props.fieldNames.key] ? 'ms-tree-node-extra--focus' : '',
+          ]"
+        >
+          <div
+            class="ml-[-4px] flex h-[32px] items-center rounded-[var(--border-radius-small)] bg-[rgb(var(--primary-1))]"
+          >
+            <slot name="extra" v-bind="_props"></slot>
+            <MsTableMoreAction
+              v-if="props.nodeMoreActions"
+              :list="props.nodeMoreActions"
+              trigger="click"
+              @select="handleNodeMoreSelect($event, _props)"
+              @close="moreActionsClose"
+            >
+              <MsButton
+                type="text"
+                size="mini"
+                class="ms-tree-node-extra__more"
+                @click="innerFocusNodeKey = _props[props.fieldNames.key]"
+              >
+                <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
+              </MsButton>
+            </MsTableMoreAction>
+          </div>
+        </div>
+      </template>
+    </a-tree>
+    <slot name="empty">
+      <div
+        v-show="treeData.length === 0 && props.emptyText"
+        class="rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[8px] text-[12px] text-[var(--color-text-4)]"
+      >
+        {{ props.emptyText }}
+      </div>
+    </slot>
+  </div>
 </template>
 
 <script setup lang="ts">
-  import { onBeforeMount, ref, h, watch, Ref, watchEffect } from 'vue';
+  import { onBeforeMount, ref, h, watch, Ref, watchEffect, nextTick } from 'vue';
   import { debounce } from 'lodash-es';
   import { mapTree } from '@/utils/index';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import useContainerShadow from '@/hooks/useContainerShadow';
 
   import type { MsTreeNodeData, MsTreeFieldNames, MsTreeSelectedData } from './types';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -80,6 +83,7 @@
       nodeMoreActions?: ActionsItem[]; // 节点展示在省略号按钮内的更多操作
       expandAll?: boolean; // 是否展开/折叠所有节点，true 为全部展开，false 为全部折叠
       emptyText?: string; // 空数据时的文案
+      virtualListProps?: Record<string, unknown>; // 虚拟滚动列表的属性
     }>(),
     {
       searchDebounce: 300,
@@ -109,7 +113,12 @@
     (e: 'moreActionsClose'): void;
   }>();
 
+  const treeContainerRef: Ref = ref(null);
   const treeRef: Ref = ref(null);
+  const { isInitListener, containerStatusClass, setContainer, initScrollListener } = useContainerShadow({
+    overHeight: 32,
+    containerClassName: 'ms-tree-container',
+  });
   const originalTreeData = ref<MsTreeNodeData[]>([]);
 
   function init() {
@@ -128,6 +137,19 @@
       }
       node.disabled = false;
       return node;
+    });
+    nextTick(() => {
+      if (props.defaultExpandAll) {
+        treeRef.value?.expandAll(true);
+      }
+      if (!isInitListener.value && treeRef.value) {
+        setContainer(
+          props.virtualListProps?.height
+            ? (treeRef.value.$el.querySelector('.arco-virtual-list') as HTMLElement)
+            : treeRef.value.$el
+        );
+        initScrollListener();
+      }
     });
   }
 
@@ -318,86 +340,90 @@
 </script>
 
 <style lang="less">
-  .ms-tree {
-    .arco-tree-node {
-      border-radius: var(--border-radius-small);
-      &:hover {
-        background-color: rgb(var(--primary-1));
-      }
-      .arco-tree-node-minus-icon,
-      .arco-tree-node-plus-icon {
-        border: 1px solid var(--color-text-4);
-        border-radius: var(--border-radius-mini);
-        background-color: white;
-        &::after,
-        &::before {
-          background-color: var(--color-text-4);
-        }
-      }
-      .arco-tree-node-switcher {
-        .arco-tree-node-switcher-icon {
-          @apply flex;
-
-          color: var(--color-text-4);
-        }
-      }
-      .arco-tree-node-title {
+  .ms-tree-container {
+    .ms-container--shadow();
+    .ms-tree {
+      .ms-scroll-bar();
+      .arco-tree-node {
+        border-radius: var(--border-radius-small);
         &:hover {
           background-color: rgb(var(--primary-1));
-          + .ms-tree-node-extra {
-            @apply block;
-          }
         }
-        .arco-tree-node-drag-icon {
-          .arco-icon {
-            font-size: 14px;
-          }
-        }
-      }
-      .ms-tree-node-extra {
-        @apply relative hidden;
-        &:hover {
-          @apply block;
-        }
-        .ms-tree-node-extra__btn,
-        .ms-tree-node-extra__more {
-          padding: 4px;
+        .arco-tree-node-minus-icon,
+        .arco-tree-node-plus-icon {
+          border: 1px solid var(--color-text-4);
           border-radius: var(--border-radius-mini);
+          background-color: white;
+          &::after,
+          &::before {
+            background-color: var(--color-text-4);
+          }
+        }
+        .arco-tree-node-switcher {
+          .arco-tree-node-switcher-icon {
+            @apply flex;
+
+            color: var(--color-text-4);
+          }
+        }
+        .arco-tree-node-title {
           &:hover {
-            background-color: rgb(var(--primary-9));
+            background-color: rgb(var(--primary-1));
+            + .ms-tree-node-extra {
+              @apply block;
+            }
+          }
+          .arco-tree-node-drag-icon {
             .arco-icon {
-              color: rgb(var(--primary-5));
+              font-size: 14px;
             }
           }
         }
-        .ms-tree-node-extra__more {
-          margin-right: 4px;
+        .ms-tree-node-extra {
+          @apply relative hidden;
+          &:hover {
+            @apply block;
+          }
+          .ms-tree-node-extra__btn,
+          .ms-tree-node-extra__more {
+            padding: 4px;
+            border-radius: var(--border-radius-mini);
+            &:hover {
+              background-color: rgb(var(--primary-9));
+              .arco-icon {
+                color: rgb(var(--primary-5));
+              }
+            }
+          }
+          .ms-tree-node-extra__more {
+            margin-right: 4px;
+          }
+        }
+        .ms-tree-node-extra--focus {
+          @apply block;
+        }
+        .arco-tree-node-custom-icon {
+          @apply hidden;
         }
       }
-      .ms-tree-node-extra--focus {
-        @apply block;
-      }
-      .arco-tree-node-custom-icon {
-        @apply hidden;
-      }
-    }
-    .arco-tree-node-selected {
-      .arco-tree-node-minus-icon,
-      .arco-tree-node-plus-icon {
-        border: 1px solid rgb(var(--primary-5));
-        border-radius: var(--border-radius-mini);
-        background-color: white;
-        &::after,
-        &::before {
-          background-color: rgb(var(--primary-5));
+      .arco-tree-node-selected {
+        .arco-tree-node-minus-icon,
+        .arco-tree-node-plus-icon {
+          border: 1px solid rgb(var(--primary-5));
+          border-radius: var(--border-radius-mini);
+          background-color: white;
+          &::after,
+          &::before {
+            background-color: rgb(var(--primary-5));
+          }
         }
-      }
-      .arco-tree-node-switcher-icon .arco-icon,
-      .arco-tree-node-title {
-        font-weight: 500 !important;
-        color: rgb(var(--primary-5));
-        * {
+        .arco-tree-node-switcher-icon .arco-icon,
+        .arco-tree-node-title {
+          font-weight: 500 !important;
           color: rgb(var(--primary-5));
+          * {
+            color: rgb(var(--primary-5));
+          }
         }
       }
     }

@@ -20,17 +20,18 @@
           <div v-if="props.switchProps?.showSwitch" class="flex flex-row items-center justify-center">
             <a-switch v-model="switchEnable" class="mr-1" size="small" />
             <a-tooltip v-if="props.switchProps?.switchTooltip" :content="t(props.switchProps?.switchTooltip)">
-              <span class="flex items-center"
-                ><span class="mr-1">{{ props.switchProps?.switchName }}</span>
-                <span class="mt-[2px]"
-                  ><IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" /></span
-              ></span>
+              <span class="flex items-center">
+                <span class="mr-1">{{ props.switchProps?.switchName }}</span>
+                <span class="mt-[2px]">
+                  <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
+                </span>
+              </span>
             </a-tooltip>
           </div>
           <div class="flex justify-end">
-            <a-button v-if="showCancel" type="secondary" @click="handleCancel">{{
-              props.cancelText ? t(props.cancelText) : t('ms.dialog.cancel')
-            }}</a-button>
+            <a-button v-if="showCancel" type="secondary" @click="handleCancel">
+              {{ props.cancelText ? t(props.cancelText) : t('ms.dialog.cancel') }}
+            </a-button>
             <!-- 自定义确认与取消之间其他按钮可以直接使用loading按钮插槽 -->
             <slot name="self-button"></slot>
             <a-button
@@ -73,7 +74,7 @@
   }> & {
     dialogSize: SizeType; // 弹窗的宽度尺寸 medium large small
     title: string;
-    confirm?: (enable: boolean | undefined) => void; // 确定
+    confirm?: (enable: boolean | undefined) => Promise<any>; // 确定
     visible: boolean;
     close: () => void;
   };
@@ -137,6 +138,7 @@
         await props.confirm(switchEnable.value);
         confirmLoading.value = false;
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       } finally {
         confirmLoading.value = false;

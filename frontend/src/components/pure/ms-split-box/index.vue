@@ -27,6 +27,7 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   const props = withDefaults(
     defineProps<{

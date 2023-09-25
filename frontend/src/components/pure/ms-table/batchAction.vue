@@ -6,7 +6,7 @@
       <a-button
         v-else
         :class="{
-          'delete': element.danger,
+          'arco-btn-outline--danger': element.danger,
           'ml-4': true,
         }"
         type="outline"
@@ -57,6 +57,7 @@
     }
   }
   .delete {
+    border-color: rgb(var(--danger-6)) !important;
     color: rgb(var(--danger-6));
   }
 </style>
