@@ -55,7 +55,7 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "@/business/common/tableItems/planview/TypeTableItem";
 import TestCaseRelateList from "@/business/issue/TestCaseRelateList";
-import {getTestCaseIssueList} from "@/api/testCase";
+import { getTestCaseIssueList } from "@/api/testCase";
 
 export default {
   name: "TestCaseIssueList",
@@ -83,6 +83,7 @@ export default {
           exec: this.handleDelete,
         },
       ],
+      cacheAddRows: [], // 缓存关联用例信息
     };
   },
   props: {
@@ -103,6 +104,7 @@ export default {
       this.testCaseContainIds.delete(item.id);
       this.tableData.splice(index, 1);
       this.deleteIds.add(item.id);
+      this.cacheAddRows.splice(index, 1);
     },
     clear() {
       this.addIds.clear();
@@ -121,6 +123,9 @@ export default {
             this.testCaseContainIds.add(item.id);
           });
           this.$refs.table.reloadTable();
+          if (this.cacheAddRows.length > 0) {
+            this.tableData.push(...this.cacheAddRows);
+          }
           this.result.loading = false;
         });
       }
@@ -138,6 +143,7 @@ export default {
         this.addIds.add(i.id);
       });
       this.tableData.push(...selectData);
+      this.cacheAddRows.push(...selectData);
     },
   },
 };
