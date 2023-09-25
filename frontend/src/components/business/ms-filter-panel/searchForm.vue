@@ -23,20 +23,7 @@
         >
           <div
             v-show="formModels.length > 1"
-            :class="[
-              'flex',
-              'h-[32px]',
-              'w-[32px]',
-              'p-[2px]',
-              'cursor-pointer',
-              'items-center',
-              'justify-center',
-              'text-[var(--color-text-4)]',
-              'hover:text-[rgb(var(--primary-5))]',
-              'hover:bg-[rgb(var(--primary-9))]',
-              'rounded',
-              'ml-[8px]',
-            ]"
+            class="remove-button ml-[8px] h-[32px] w-[32px] p-[2px]"
             @click="removeField(index)"
           >
             <icon-minus-circle />
@@ -226,6 +213,14 @@
     @apply mt-1 rounded-md p-3;
     .condition-text {
       color: var(--color-text-2);
+    }
+  }
+  .remove-button {
+    color: var(--color-text-4);
+    @apply flex cursor-pointer items-center justify-center  rounded;
+    &:hover {
+      color: rgb(var(--primary-5));
+      background: rgb(var(--primary-9));
     }
   }
 </style>
