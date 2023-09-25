@@ -338,5 +338,6 @@ export default function useTableProps<T>(
     setKeyword,
     resetPagination,
     getSelectedCount,
+    resetSelector,
   };
 }
