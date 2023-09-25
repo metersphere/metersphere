@@ -446,8 +446,6 @@ export default {
   max-height: 350px;
 }
 .env-container {
-  max-height: 400px;
-  overflow-y: auto;
   padding-bottom: 1px;
 }
 

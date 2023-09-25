@@ -38,7 +38,12 @@
         @change="changeWorkspace"
         class="ms-header-workspace"
         size="small">
-        <el-option v-for="(item, index) in workspaceList" :key="index" :label="item.name" :value="item.id" />
+        <el-option
+          v-for="item in workspaceList"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id"
+          :title="item.name" />
       </el-select>
       <select-menu
         :data="projects"
