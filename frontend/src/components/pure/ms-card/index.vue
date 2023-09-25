@@ -25,7 +25,7 @@
             height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight}px)`,
           }"
         >
-          <div :class="[`min-w-[${props.minWidth || 1000}px]`]">
+          <div :style="{ minWidth: `${props.minWidth || 1000}px` }">
             <slot></slot>
           </div>
         </a-scrollbar>

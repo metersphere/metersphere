@@ -174,7 +174,14 @@
     </template>
   </a-modal>
   <inviteModal v-model:visible="inviteVisible" :user-group-options="userGroupOptions"></inviteModal>
-  <batchModal v-model:visible="showBatchModal" :table-selected="tableSelected" :action="batchAction"></batchModal>
+  <batchModal
+    v-model:visible="showBatchModal"
+    :table-selected="tableSelected"
+    :action="batchAction"
+    :batch-params="batchModalParams"
+    :keyword="keyword"
+    @finished="resetSelector"
+  ></batchModal>
 </template>
 
 <script setup lang="ts">
@@ -210,7 +217,7 @@
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
 
   import type { FormInstance, ValidatedError, FileItem } from '@arco-design/web-vue';
-  import type { MsTableColumn, BatchActionParams } from '@/components/pure/ms-table/type';
+  import type { MsTableColumn, BatchActionParams, BatchActionQueryParams } from '@/components/pure/ms-table/type';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { SimpleUserInfo, SystemRole, UserListItem } from '@/models/setting/user';
   import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
@@ -257,12 +264,12 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 90,
+      width: 110,
     },
   ];
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.SYSTEM_USER, columns, 'drawer');
-  const { propsRes, propsEvent, loadList, setKeyword } = useTable(
+  const { propsRes, propsEvent, loadList, setKeyword, resetSelector } = useTable(
     getUserList,
     {
       tableKey: TableKeyEnum.SYSTEM_USER,
@@ -298,11 +305,11 @@
   /**
    * 重置密码
    */
-  function resetPassword(record?: UserListItem, isBatch?: boolean) {
+  function resetPassword(record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('system.user.resetPswTip', { name: characterLimit(record?.name) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
-      title = t('system.user.batchResetPswTip', { count: tableSelected.value.length });
+      title = t('system.user.batchResetPswTip', { count: params?.currentSelectCount || tableSelected.value.length });
       selectIds = tableSelected.value as string[];
     }
     openModal({
@@ -315,11 +322,14 @@
         try {
           await resetUserPassword({
             selectIds,
-            selectAll: false,
-            condition: {},
+            selectAll: !!params?.selectAll,
+            excludeIds: params?.excludeIds || [],
+            condition: { keyword: keyword.value },
           });
           Message.success(t('system.user.resetPswSuccess'));
+          resetSelector();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -330,11 +340,11 @@
   /**
    * 禁用用户
    */
-  function disabledUser(record?: UserListItem, isBatch?: boolean) {
+  function disabledUser(record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('system.user.disableUserTip', { name: characterLimit(record?.name) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
-      title = t('system.user.batchDisableUserTip', { count: tableSelected.value.length });
+      title = t('system.user.batchDisableUserTip', { count: params?.currentSelectCount || tableSelected.value.length });
       selectIds = tableSelected.value as string[];
     }
     openModal({
@@ -348,13 +358,16 @@
         try {
           await toggleUserStatus({
             selectIds,
-            selectAll: false,
-            condition: {},
+            selectAll: !!params?.selectAll,
+            excludeIds: params?.excludeIds || [],
+            condition: { keyword: keyword.value },
             enable: false,
           });
           Message.success(t('system.user.disableUserSuccess'));
+          resetSelector();
           loadList();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -365,11 +378,11 @@
   /**
    * 启用用户
    */
-  function enableUser(record?: UserListItem, isBatch?: boolean) {
+  function enableUser(record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('system.user.enableUserTip', { name: characterLimit(record?.name) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
-      title = t('system.user.batchEnableUserTip', { count: tableSelected.value.length });
+      title = t('system.user.batchEnableUserTip', { count: params?.currentSelectCount || tableSelected.value.length });
       selectIds = tableSelected.value as string[];
     }
     openModal({
@@ -383,13 +396,16 @@
         try {
           await toggleUserStatus({
             selectIds,
-            selectAll: false,
-            condition: {},
+            selectAll: !!params?.selectAll,
+            excludeIds: params?.excludeIds || [],
+            condition: { keyword: keyword.value },
             enable: true,
           });
           Message.success(t('system.user.enableUserSuccess'));
+          resetSelector();
           loadList();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -400,11 +416,11 @@
   /**
    * 删除用户
    */
-  function deleteUser(record?: UserListItem, isBatch?: boolean) {
+  function deleteUser(record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('system.user.deleteUserTip', { name: characterLimit(record?.name) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
-      title = t('system.user.batchDeleteUserTip', { count: tableSelected.value.length });
+      title = t('system.user.batchDeleteUserTip', { count: params?.currentSelectCount || tableSelected.value.length });
       selectIds = tableSelected.value as string[];
     }
     openModal({
@@ -421,12 +437,15 @@
         try {
           await deleteUserInfo({
             selectIds,
-            selectAll: false,
-            condition: {},
+            selectAll: !!params?.selectAll,
+            excludeIds: params?.excludeIds || [],
+            condition: { keyword: keyword.value },
           });
           Message.success(t('system.user.deleteUserSuccess'));
+          resetSelector();
           loadList();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -494,30 +513,32 @@
 
   const showBatchModal = ref(false);
   const batchAction = ref(''); // 表格选中批量操作动作
+  const batchModalParams = ref();
 
   /**
    * 处理表格选中后批量操作
    * @param event 批量操作事件对象
    */
-  function handleTableBatch(event: BatchActionParams) {
+  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     switch (event.eventTag) {
       case 'batchAddProject':
       case 'batchAddUserGroup':
       case 'batchAddOrganization':
         batchAction.value = event.eventTag;
+        batchModalParams.value = params;
         showBatchModal.value = true;
         break;
       case 'resetPassword':
-        resetPassword(undefined, true);
+        resetPassword(undefined, true, params);
         break;
       case 'disabled':
-        disabledUser(undefined, true);
+        disabledUser(undefined, true, params);
         break;
       case 'enable':
-        enableUser(undefined, true);
+        enableUser(undefined, true, params);
         break;
       case 'delete':
-        deleteUser(undefined, true);
+        deleteUser(undefined, true, params);
         break;
       default:
         break;
@@ -577,6 +598,7 @@
           .map((e: SystemRole) => e.id);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -740,6 +762,7 @@
           userForm.value.list = [...list];
           await cb();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         } finally {
           loading.value = false;
@@ -852,6 +875,7 @@
       importFailCount.value = failCount;
       showImportResult();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       importLoading.value = false;
