@@ -145,7 +145,7 @@
       </template>
     </a-table>
     <div
-      class="mt-[16px] flex h-[32px] w-[100%] flex-row flex-nowrap items-center justify-end px-0"
+      class="mt-[16px] flex h-[32px] w-[100%] min-w-[952px] flex-row flex-nowrap items-center justify-end px-0"
       :class="{ 'justify-between': showBatchAction }"
     >
       <batch-action

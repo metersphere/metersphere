@@ -399,7 +399,7 @@ export default defineComponent({
               {slots.total?.({ total: props.total }) ?? t('msPagination.total', { total: props.total })}
             </span>
           )}
-          {props.showPageSize && (
+          {props.showPageSize && !props.simple && (
             <PageOptions
               disabled={props.disabled}
               sizeOptions={props.pageSizeOptions}
