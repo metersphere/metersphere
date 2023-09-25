@@ -36,13 +36,13 @@ import static io.metersphere.system.controller.handler.result.CommonResultCode.*
 public class BaseTemplateService {
 
     @Resource
-    private TemplateMapper templateMapper;
+    protected TemplateMapper templateMapper;
     @Resource
-    private BaseTemplateCustomFieldService baseTemplateCustomFieldService;
+    protected BaseTemplateCustomFieldService baseTemplateCustomFieldService;
     @Resource
-    private BaseUserService baseUserService;
+    protected BaseUserService baseUserService;
     @Resource
-    private BaseCustomFieldService baseCustomFieldService;
+    protected BaseCustomFieldService baseCustomFieldService;
 
     public List<Template> list(String scopeId, String scene) {
         checkScene(scene);
@@ -109,6 +109,7 @@ public class BaseTemplateService {
         template.setCreateTime(System.currentTimeMillis());
         template.setUpdateTime(System.currentTimeMillis());
         template.setInternal(false);
+        template.setEnableDefault(false);
         templateMapper.insert(template);
         baseTemplateCustomFieldService.deleteByTemplateId(template.getId());
         baseTemplateCustomFieldService.addByTemplateId(template.getId(), customFields);
@@ -132,6 +133,7 @@ public class BaseTemplateService {
         template.setScopeId(null);
         template.setCreateUser(null);
         template.setCreateTime(null);
+        template.setEnableDefault(null);
         // customFields 为 null 则不修改
         if (customFields != null) {
             baseTemplateCustomFieldService.deleteByTemplateId(template.getId());
@@ -142,14 +144,48 @@ public class BaseTemplateService {
     }
 
     public void delete(String id) {
-        checkResourceExist(id);
+        Template template = checkResourceExist(id);
+        checkInternal(template);
+        checkDefault(template);
         templateMapper.deleteByPrimaryKey(id);
         baseTemplateCustomFieldService.deleteByTemplateId(id);
     }
 
+    public void setDefaultTemplate(String id) {
+        Template originTemplate = templateMapper.selectByPrimaryKey(id);
+        // 将当前模板设置成默认模板
+        Template template = new Template();
+        template.setId(id);
+        template.setEnableDefault(true);
+        templateMapper.updateByPrimaryKeySelective(template);
+
+        // 将其他模板设置成非默认模板
+        template = new Template();
+        template.setEnableDefault(false);
+        TemplateExample example = new TemplateExample();
+        example.createCriteria()
+                .andIdNotEqualTo(id)
+                .andScopeIdEqualTo(originTemplate.getScopeId());
+        templateMapper.updateByExampleSelective(template, example);
+    }
+
+    /**
+     * 校验时候是内置模板
+     * @param template
+     */
     protected void checkInternal(Template template) {
         if (template.getInternal()) {
             throw new MSException(INTERNAL_TEMPLATE_PERMISSION);
+        }
+    }
+
+    /**
+     * 设置成默认模板后不能删除
+     * @param template
+     */
+    protected void checkDefault(Template template) {
+        if (template.getEnableDefault()) {
+            throw new MSException(DEFAULT_TEMPLATE_PERMISSION);
         }
     }
 
@@ -179,5 +215,9 @@ public class BaseTemplateService {
 
     private Template checkResourceExist(String id) {
         return ServiceUtils.checkResourceExist(templateMapper.selectByPrimaryKey(id), "permission.system_template.name");
+    }
+
+    public boolean isOrganizationTemplateEnable(String orgId, String scene) {
+        return baseCustomFieldService.isOrganizationTemplateEnable(orgId, scene);
     }
 }

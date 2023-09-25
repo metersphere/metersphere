@@ -51,6 +51,13 @@ public class CustomField implements Serializable {
     @Schema(description = "创建人")
     private String createUser;
 
+    @Schema(description = "项目字段所关联的组织字段ID")
+    private String refId;
+
+    @Schema(description = "是否需要手动输入选项key", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{custom_field.enable_option_key.not_blank}", groups = {Created.class})
+    private Boolean enableOptionKey;
+
     @Schema(description = "组织或项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field.scope_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{custom_field.scope_id.length_range}", groups = {Created.class, Updated.class})
@@ -69,6 +76,8 @@ public class CustomField implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
+        refId("ref_id", "refId", "VARCHAR", false),
+        enableOptionKey("enable_option_key", "enableOptionKey", "BIT", false),
         scopeId("scope_id", "scopeId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";

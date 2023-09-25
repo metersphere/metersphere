@@ -100,6 +100,7 @@
         <table tableName="template_custom_field"/>
         <table tableName="status_item"/>
         <table tableName="status_definition"/>
+        <table tableName="organization_parameter"/>
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">

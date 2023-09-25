@@ -90,7 +90,6 @@ public class OperationLogModule {
     public static final String PROJECT_MANAGEMENT_PERMISSION_VERSION = "PROJECT_MANAGEMENT_PERMISSION_VERSION";
     //项目管理-消息设置
     public static final String PROJECT_MANAGEMENT_MESSAGE = "PROJECT_MANAGEMENT_MESSAGE";
-
-
-
+    public static final String PROJECT_TEMPLATE = "PROJECT_TEMPLATE";// 项目模板
+    public static final String PROJECT_CUSTOM_FIELD = "PROJECT_CUSTOM_FIELD";// 项目字段
 }

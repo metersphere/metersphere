@@ -50,6 +50,13 @@ public class Template implements Serializable {
     @NotNull(message = "{template.enable_third_part.not_blank}", groups = {Created.class})
     private Boolean enableThirdPart;
 
+    @Schema(description = "是否是默认模板", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{template.enable_default.not_blank}", groups = {Created.class})
+    private Boolean enableDefault;
+
+    @Schema(description = "项目模板所关联的组织模板ID")
+    private String refId;
+
     @Schema(description = "使用场景", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{template.scene.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 30, message = "{template.scene.length_range}", groups = {Created.class, Updated.class})
@@ -68,6 +75,8 @@ public class Template implements Serializable {
         scopeType("scope_type", "scopeType", "VARCHAR", false),
         scopeId("scope_id", "scopeId", "VARCHAR", false),
         enableThirdPart("enable_third_part", "enableThirdPart", "BIT", false),
+        enableDefault("enable_default", "enableDefault", "BIT", false),
+        refId("ref_id", "refId", "VARCHAR", false),
         scene("scene", "scene", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";

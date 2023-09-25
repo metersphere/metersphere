@@ -5,19 +5,24 @@ import io.metersphere.sdk.dto.CustomFieldDTO;
 import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.mapper.CustomFieldMapper;
+import io.metersphere.system.uid.UUID;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import io.metersphere.system.uid.UUID;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
 
 /**
@@ -28,11 +33,13 @@ import static io.metersphere.system.controller.handler.result.CommonResultCode.*
 @Transactional(rollbackFor = Exception.class)
 public class BaseCustomFieldService {
     @Resource
-    private CustomFieldMapper customFieldMapper;
+    protected CustomFieldMapper customFieldMapper;
     @Resource
-    private BaseUserService baseUserService;
+    protected BaseUserService baseUserService;
     @Resource
-    private BaseCustomFieldOptionService baseCustomFieldOptionService;
+    protected BaseCustomFieldOptionService baseCustomFieldOptionService;
+    @Resource
+    protected BaseOrganizationParameterService baseOrganizationParameterService;
 
     public List<CustomField> list(String scopeId, String scene) {
         checkScene(scene);
@@ -164,5 +171,22 @@ public class BaseCustomFieldService {
         example.createCriteria()
                 .andIdIn(fieldIds);
         return customFieldMapper.selectByExample(example);
+    }
+
+    public List<CustomField> getByRefIds(List<String> fieldIds) {
+        if (CollectionUtils.isEmpty(fieldIds)) {
+            return new ArrayList<>(0);
+        }
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria()
+                .andRefIdIn(fieldIds);
+        return customFieldMapper.selectByExample(example);
+    }
+
+    public boolean isOrganizationTemplateEnable(String orgId, String scene) {
+        String key = baseOrganizationParameterService.getOrgTemplateEnableKeyByScene(scene);
+        String value = baseOrganizationParameterService.getValue(orgId, key);
+        // 没有配置默认为 true
+        return !StringUtils.equals(BooleanUtils.toStringTrueFalse(false), value);
     }
 }

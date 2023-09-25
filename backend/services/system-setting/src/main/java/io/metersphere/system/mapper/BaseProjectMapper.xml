@@ -16,4 +16,9 @@
             #{id}
         </foreach>
     </select>
+    <select id="getProjectIdByOrgId" resultType="java.lang.String">
+        SELECT id
+        FROM project
+        WHERE organization_id = #{orgId}
+    </select>
 </mapper>

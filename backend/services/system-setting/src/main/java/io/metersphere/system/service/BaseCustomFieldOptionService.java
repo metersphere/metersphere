@@ -30,6 +30,12 @@ public class BaseCustomFieldOptionService {
         customFieldOptionMapper.deleteByExample(example);
     }
 
+    public void deleteByFieldIds(List<String> fieldIds) {
+        CustomFieldOptionExample example = new CustomFieldOptionExample();
+        example.createCriteria().andFieldIdIn(fieldIds);
+        customFieldOptionMapper.deleteByExample(example);
+    }
+
     public List<CustomFieldOption> getByFieldId(String fieldId) {
         CustomFieldOptionExample example = new CustomFieldOptionExample();
         example.createCriteria().andFieldIdEqualTo(fieldId);

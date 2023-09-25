@@ -1,23 +1,22 @@
-package io.metersphere.system.controller;
+package io.metersphere.project.controller;
 
-import io.metersphere.project.domain.Project;
-import io.metersphere.project.domain.ProjectExample;
-import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.dto.CustomFieldDTO;
 import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.dto.request.CustomFieldUpdateRequest;
-import io.metersphere.system.domain.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
+import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.domain.CustomFieldExample;
+import io.metersphere.system.domain.CustomFieldOption;
+import io.metersphere.system.domain.OrganizationParameter;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
 import io.metersphere.system.service.BaseUserService;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
-import io.metersphere.system.mapper.CustomFieldMapper;
-import io.metersphere.system.service.OrganizationCustomFieldService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -30,20 +29,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static io.metersphere.project.enums.result.ProjectResultCode.PROJECT_TEMPLATE_PERMISSION;
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
-import static io.metersphere.system.controller.result.SystemResultCode.ORGANIZATION_TEMPLATE_PERMISSION;
 
 /**
  * @author jianxing
  * @date : 2023-8-29
  */
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class OrganizationCustomFieldControllerTests extends BaseTest {
-    private static final String BASE_PATH = "/organization/custom/field/";
+public class ProjectCustomFieldControllerTests extends BaseTest {
+    private static final String BASE_PATH = "/project/custom/field/";
 
     private static final String LIST = "list/{0}/{1}";
 
@@ -57,10 +56,6 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
     private BaseUserService baseUserService;
     @Resource
     private OrganizationParameterMapper organizationParameterMapper;
-    @Resource
-    private ProjectMapper projectMapper;
-    @Resource
-    private OrganizationCustomFieldService organizationCustomFieldService;
     private static CustomField addCustomField;
     private static CustomField anotherAddCustomField;
 
@@ -73,19 +68,21 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
     @Order(0)
     public void listEmpty() throws Exception {
         // @@校验没有数据的情况
-        this.requestGetWithOk(LIST, DEFAULT_ORGANIZATION_ID, TemplateScene.UI.name());
+        this.requestGetWithOk(LIST, DEFAULT_PROJECT_ID, TemplateScene.UI.name());
     }
 
     @Test
     @Order(1)
     public void add() throws Exception {
+        // 开启项目模板
+        changeOrgTemplateEnable(false);
         // @@请求成功
         CustomFieldUpdateRequest request = new CustomFieldUpdateRequest();
         request.setScene(TemplateScene.FUNCTIONAL.name());
         request.setName("test");
         request.setType(CustomFieldType.SELECT.name());
         request.setRemark("AAA");
-        request.setScopeId(DEFAULT_ORGANIZATION_ID);
+        request.setScopeId(DEFAULT_PROJECT_ID);
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("1111");
         customFieldOptionRequest.setText("test");
@@ -103,7 +100,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         Assertions.assertEquals(request, BeanUtils.copyBean(new CustomFieldUpdateRequest(), customField));
         Assertions.assertEquals(customField.getCreateUser(), ADMIN.getValue());
         Assertions.assertEquals(customField.getInternal(), false);
-        Assertions.assertEquals(customField.getScopeType(), TemplateScopeType.ORGANIZATION.name());
+        Assertions.assertEquals(customField.getScopeType(), TemplateScopeType.PROJECT.name());
         List<CustomFieldOption> options = baseCustomFieldOptionService.getByFieldId(customField.getId());
         for (int i = 0; i < options.size(); i++) {
             CustomFieldOptionRequest optionRequestItem = optionRequests.get(i);
@@ -113,12 +110,11 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             Assertions.assertEquals(false, optionItem.getInternal());
             Assertions.assertEquals(customField.getId(), optionItem.getFieldId());
         }
-        asserRefCustomField(customField);
 
-        // @校验是否开启组织模板
-        changeOrgTemplateEnable(false);
-        assertErrorCode(this.requestPost(DEFAULT_ADD, request), ORGANIZATION_TEMPLATE_PERMISSION);
+        // @校验是否开启项目模板
         changeOrgTemplateEnable(true);
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), PROJECT_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(false);
 
         // @@重名校验异常
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), CUSTOM_FIELD_EXIST);
@@ -129,7 +125,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), NOT_FOUND);
 
         // 插入另一条数据，用户更新时重名校验
-        request.setScopeId(DEFAULT_ORGANIZATION_ID);
+        request.setScopeId(DEFAULT_PROJECT_ID);
         MvcResult anotherMvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         this.anotherAddCustomField = customFieldMapper.selectByPrimaryKey(getResultData(anotherMvcResult, CustomField.class).getId());
 
@@ -138,7 +134,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         // @@异常参数校验
         createdGroupParamValidateTest(CustomFieldUpdateRequestDefinition.class, DEFAULT_ADD);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_ADD, DEFAULT_ADD, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_CUSTOM_FIELD_ADD, DEFAULT_ADD, request);
     }
 
     @Test
@@ -162,11 +158,11 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         // 校验请求成功数据
         request.setOptions(null);
         request.setId(customField.getId());
-        request.setScopeId(DEFAULT_ORGANIZATION_ID);
+        request.setScopeId(DEFAULT_PROJECT_ID);
         Assertions.assertEquals(request, BeanUtils.copyBean(new CustomFieldUpdateRequest(), customField));
         Assertions.assertEquals(customField.getCreateUser(), ADMIN.getValue());
         Assertions.assertEquals(customField.getInternal(), false);
-        Assertions.assertEquals(customField.getScopeType(), TemplateScopeType.ORGANIZATION.name());
+        Assertions.assertEquals(customField.getScopeType(), TemplateScopeType.PROJECT.name());
         List<CustomFieldOption> options = baseCustomFieldOptionService.getByFieldId(customField.getId());
         for (int i = 0; i < options.size(); i++) {
             CustomFieldOptionRequest optionRequestItem = optionRequests.get(i);
@@ -176,12 +172,11 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             Assertions.assertEquals(false, optionItem.getInternal());
             Assertions.assertEquals(customField.getId(), optionItem.getFieldId());
         }
-        asserRefCustomField(customField);
 
-        // @校验是否开启组织模板
-        changeOrgTemplateEnable(false);
-        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), ORGANIZATION_TEMPLATE_PERMISSION);
+        // @校验是否开启项目模板
         changeOrgTemplateEnable(true);
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), PROJECT_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(false);
 
         // @@重名校验异常
         request.setName(anotherAddCustomField.getName());
@@ -197,7 +192,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         // @@异常参数校验
         updatedGroupParamValidateTest(CustomFieldUpdateRequestDefinition.class, DEFAULT_UPDATE);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_UPDATE, DEFAULT_UPDATE, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_CUSTOM_FIELD_UPDATE, DEFAULT_UPDATE, request);
     }
 
     @Test
@@ -205,11 +200,11 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
     public void list() throws Exception {
         String scene = TemplateScene.FUNCTIONAL.name();
         // @@请求成功
-        MvcResult mvcResult = this.requestGetWithOk(LIST, DEFAULT_ORGANIZATION_ID, scene)
+        MvcResult mvcResult = this.requestGetWithOk(LIST, DEFAULT_PROJECT_ID, scene)
                 .andReturn();
         // 校验数据是否正确
         List<CustomField> resultList = getResultDataArray(mvcResult, CustomField.class);
-        List<CustomField> customFields = baseCustomFieldService.getByScopeIdAndScene(DEFAULT_ORGANIZATION_ID, scene);
+        List<CustomField> customFields = baseCustomFieldService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, scene);
         List<String> userIds = customFields.stream().map(CustomField::getCreateUser).toList();
         Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
         for (int i = 0; i < resultList.size(); i++) {
@@ -228,10 +223,10 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         assertErrorCode(this.requestGet(LIST, "1111", scene), NOT_FOUND);
 
         // @@校验使用场景不合法
-        assertErrorCode(this.requestGet(LIST, DEFAULT_ORGANIZATION_ID, "111"), TEMPLATE_SCENE_ILLEGAL);
+        assertErrorCode(this.requestGet(LIST, DEFAULT_PROJECT_ID, "111"), TEMPLATE_SCENE_ILLEGAL);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_READ, LIST, DEFAULT_ORGANIZATION_ID, scene);
+        requestGetPermissionTest(PermissionConstants.PROJECT_CUSTOM_FIELD_READ, LIST, DEFAULT_PROJECT_ID, scene);
     }
 
     @Test
@@ -248,16 +243,16 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         Assertions.assertEquals(options, baseCustomFieldOptionService.getByFieldId(customField.getId()));
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_READ, DEFAULT_GET, customFieldDTO.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_CUSTOM_FIELD_READ, DEFAULT_GET, customFieldDTO.getId());
     }
 
     @Test
     @Order(5)
     public void delete() throws Exception {
-        // @校验是否开启组织模板
-        changeOrgTemplateEnable(false);
-        assertErrorCode(this.requestGet(DEFAULT_DELETE, addCustomField.getId()), ORGANIZATION_TEMPLATE_PERMISSION);
+        // @校验是否开启项目模板
         changeOrgTemplateEnable(true);
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, addCustomField.getId()), PROJECT_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(false);
 
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addCustomField.getId());
@@ -277,39 +272,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         // @@校验日志
         checkLog(addCustomField.getId(), OperationLogType.DELETE);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_DELETE, DEFAULT_DELETE, addCustomField.getId());
-    }
-
-    /**
-     * 校验变更组织字段时，有没有同步变更项目字段
-     */
-    private void asserRefCustomField(CustomField customField) {
-        List<CustomField> refFields = organizationCustomFieldService.getByRefId(customField.getId());
-        List<Project> orgProjects = getProjectByOrgId(customField.getScopeId());
-        // 校验所有项目下是否都有同步变更
-        Assertions.assertEquals(getCustomFieldByScopeId(customField.getScopeId()).size(),
-                getCustomFieldByScopeId(orgProjects.get(0).getId()).size() * orgProjects.size());
-        refFields.forEach(refField -> {
-            Assertions.assertEquals(refField.getScene(), customField.getScene());
-            Assertions.assertEquals(refField.getRemark(), customField.getRemark());
-            Assertions.assertEquals(refField.getName(), customField.getName());
-            Assertions.assertEquals(refField.getInternal(), customField.getInternal());
-            Assertions.assertEquals(refField.getCreateUser(), customField.getCreateUser());
-            Assertions.assertEquals(refField.getType(), customField.getType());
-            Assertions.assertEquals(refField.getScopeType(), TemplateScopeType.PROJECT.name());
-        });
-    }
-
-    private List<Project> getProjectByOrgId(String orgId) {
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andOrganizationIdEqualTo(orgId);
-        return projectMapper.selectByExample(projectExample);
-    }
-
-    private List<CustomField> getCustomFieldByScopeId(String scopeId) {
-        CustomFieldExample example = new CustomFieldExample();
-        example.createCriteria().andScopeIdEqualTo(scopeId);
-        return customFieldMapper.selectByExample(example);
+        requestGetPermissionTest(PermissionConstants.PROJECT_CUSTOM_FIELD_DELETE, DEFAULT_DELETE, addCustomField.getId());
     }
 
     private void changeOrgTemplateEnable(boolean enable) {
