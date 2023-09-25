@@ -192,7 +192,7 @@ public class IssuesService {
             issuesRequest.setId(issues.getId());
             issuesRequest.setPlatformId(issues.getPlatformId());
             // 用例与第三方缺陷平台中的缺陷关联
-            handleTestCaseIssues(issuesRequest);
+            issuesService.handleTestCaseIssues(issuesRequest);
 
             // 如果是复制新增, 同步MS附件到Jira, 需过滤移除的附件
             if (StringUtils.isNotEmpty(issuesRequest.getCopyIssueId())) {
@@ -334,6 +334,8 @@ public class IssuesService {
         }
     }
 
+    // 新建子事务, 防止被父方法事务异常回滚
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {
         String issuesId = issuesRequest.getId();
         List<String> deleteCaseIds = issuesRequest.getDeleteResourceIds();
@@ -369,10 +371,13 @@ public class IssuesService {
     public IssuesWithBLOBs updateIssues(IssuesUpdateRequest issuesRequest) {
         PlatformIssuesUpdateRequest platformIssuesUpdateRequest = JSON.parseObject(JSON.toJSONString(issuesRequest), PlatformIssuesUpdateRequest.class);
         Project project = baseProjectService.getProjectById(issuesRequest.getProjectId());
+        if (StringUtils.isNotBlank(project.getPlatform()) && !StringUtils.equals(project.getPlatform(), issuesRequest.getPlatform())) {
+            // 如果项目平台与缺陷平台不一致, 则修改报错, 只保存用例与缺陷关联关系
+            issuesService.handleTestCaseIssues(issuesRequest);
+            MSException.throwException(Translator.get("platform_not_match"));
+        }
         if (PlatformPluginService.isPluginPlatform(project.getPlatform())) {
-
             Platform platform = platformPluginService.getPlatform(project.getPlatform());
-
             if (platform.isAttachmentUploadSupport()) {
                 AttachmentRequest attachmentRequest = new AttachmentRequest();
                 attachmentRequest.setBelongId(issuesRequest.getId());
@@ -397,7 +402,7 @@ public class IssuesService {
 
             issue.setUpdateTime(System.currentTimeMillis());
             issuesMapper.updateByPrimaryKeySelective(issue);
-            handleTestCaseIssues(issuesRequest);
+            issuesService.handleTestCaseIssues(issuesRequest);
         } else {
             List<IssuesPlatform> platformList = getUpdatePlatforms(issuesRequest);
             platformList.forEach(platform -> {
@@ -1328,13 +1333,13 @@ public class IssuesService {
                 issueDTO.setPlatformStatus(issue.getPlatformStatus());
                 planReportIssueDTOList.add(issueDTO);
             });
-            this.calculatePlanReport(planReportIssueDTOList, report);
+            calculatePlanReport(planReportIssueDTOList, report);
         }
     }
 
     public void calculatePlanReport(String planId, TestPlanReportDataStruct report) {
         List<PlanReportIssueDTO> planReportIssueDTOList = extIssuesMapper.selectForPlanReport(planId);
-        this.calculatePlanReport(planReportIssueDTOList, report);
+        calculatePlanReport(planReportIssueDTOList, report);
     }
 
     public void calculatePlanReport(List<PlanReportIssueDTO> planReportIssueDTOList, TestPlanReportDataStruct report) {
@@ -1489,7 +1494,9 @@ public class IssuesService {
 
     public List<IssuesWithBLOBs> getIssuesByPlatformIds(List<String> platformIds, String projectId) {
 
-        if (CollectionUtils.isEmpty(platformIds)) return new ArrayList<>();
+        if (CollectionUtils.isEmpty(platformIds)) {
+            return new ArrayList<>();
+        }
         IssuesExample example = new IssuesExample();
         example.createCriteria()
                 .andPlatformIdIn(platformIds)
@@ -1655,7 +1662,7 @@ public class IssuesService {
         issuesRequest.setWorkspaceId(project.getWorkspaceId());
         if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Tapd.name())) {
             TapdPlatform tapd = new TapdPlatform(issuesRequest);
-            this.doCheckThirdProjectExist(tapd, project.getTapdId());
+            doCheckThirdProjectExist(tapd, project.getTapdId());
         }
     }
 
@@ -2007,7 +2014,7 @@ public class IssuesService {
         }
         for (int i = 0; i < talVals.size(); i++) {
             String val = talVals.get(i).toString();
-            JSONObject jsonOption = this.findJsonOption(options, val);
+            JSONObject jsonOption = findJsonOption(options, val);
             if (jsonOption == null) {
                 return StringUtils.EMPTY;
             } else {
