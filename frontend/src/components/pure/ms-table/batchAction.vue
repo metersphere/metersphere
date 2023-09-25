@@ -20,10 +20,10 @@
         <a-button type="outline"><MsIcon type="icon-icon_more_outlined" /></a-button>
         <template #content>
           <template v-for="element in props.actionConfig.moreAction" :key="element.label">
-            <a-divider v-if="element.isDivider" margin="0" />
-            <a-doption v-else :value="element" :class="{ delete: element.danger }">{{
-              t(element.label as string)
-            }}</a-doption>
+            <a-divider v-if="element.isDivider" margin="4px" />
+            <a-doption v-else :value="element" :class="{ delete: element.danger }">
+              {{ t(element.label as string) }}
+            </a-doption>
           </template>
         </template>
       </a-dropdown>

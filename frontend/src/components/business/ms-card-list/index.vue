@@ -219,7 +219,7 @@
     @apply overflow-hidden;
     .ms-container--shadow();
     .ms-card-list {
-      @apply grid h-full overflow-auto;
+      @apply grid overflow-auto;
 
       .ms-scroll-bar();
 

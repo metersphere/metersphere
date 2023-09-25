@@ -239,10 +239,10 @@
   <fileDetailDrawerVue
     v-model:visible="showDetailDrawer"
     :file-id="activeFileId"
-    :is-first="activeFileIsFirst"
-    :is-last="activeFileIsLast"
-    @prev-file="openPrevFile"
-    @next-file="openNextFile"
+    :active-file-index="activeFileIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="propsRes.msPagination"
   />
 </template>
 
@@ -629,54 +629,11 @@
   const showDetailDrawer = ref(false);
   const activeFileId = ref<string | number>('');
   const activeFileIndex = ref(0);
-  // 当前查看的文件是否是总数据的第一条数据，用当前查看数据的下标是否等于0，且当前页码是否等于1
-  const activeFileIsFirst = computed(() => activeFileIndex.value === 0 && propsRes.value.msPagination?.current === 1);
-  const activeFileIsLast = computed(
-    // 当前查看的文件是否是总数据的最后一条数据，用当前页码*每页条数+当前查看的条数下标，是否等于总条数
-    () =>
-      activeFileIndex.value === propsRes.value.data.length - 1 &&
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      propsRes.value.msPagination!.current * propsRes.value.msPagination!.pageSize + activeFileIndex.value >=
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        propsRes.value.msPagination!.total
-  );
 
   async function openFileDetail(id: string | number, index: number) {
     showDetailDrawer.value = true;
     activeFileId.value = id;
     activeFileIndex.value = index;
-  }
-
-  async function openPrevFile() {
-    if (!activeFileIsFirst.value) {
-      // 当前不是第一条，则往前查看
-      if (activeFileIndex.value === 0 && propsRes.value.msPagination) {
-        // 当前查看的是当前页的第一条数据，则需要加载上一页的数据
-        await propsEvent.value.pageChange(propsRes.value.msPagination.current - 1);
-        activeFileId.value = propsRes.value.data[propsRes.value.data.length - 1].id;
-        activeFileIndex.value = propsRes.value.data.length - 1;
-      } else {
-        // 当前查看的不是当前页的第一条数据，则直接查看上一条数据
-        activeFileId.value = propsRes.value.data[activeFileIndex.value - 1].id;
-        activeFileIndex.value -= 1;
-      }
-    }
-  }
-
-  async function openNextFile() {
-    if (!activeFileIsLast.value) {
-      // 当前不是最后一条，则往后查看
-      if (activeFileIndex.value === propsRes.value.data.length - 1 && propsRes.value.msPagination) {
-        // 当前查看的是当前页的最后一条数据，则需要加载下一页的数据
-        await propsEvent.value.pageChange(propsRes.value.msPagination.current + 1);
-        activeFileId.value = propsRes.value.data[0].id;
-        activeFileIndex.value = 0;
-      } else {
-        // 当前查看的不是当前页的最后一条数据，则直接查看下一条数据
-        activeFileId.value = propsRes.value.data[activeFileIndex.value + 1].id;
-        activeFileIndex.value += 1;
-      }
-    }
   }
 
   const uploadDrawerVisible = ref(false); // 模块-上传文件抽屉

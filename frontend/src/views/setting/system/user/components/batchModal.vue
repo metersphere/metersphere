@@ -3,7 +3,11 @@
     <template #title>
       {{ batchTitle }}
       <div class="text-[var(--color-text-4)]">
-        {{ t('system.user.batchModalSubTitle', { count: props.tableSelected.length }) }}
+        {{
+          t('system.user.batchModalSubTitle', {
+            count: props.batchParams?.currentSelectCount || props.tableSelected.length,
+          })
+        }}
       </div>
     </template>
     <a-spin :loading="loading">
@@ -47,6 +51,7 @@
   import MsTransfer from '@/components/pure/ms-transfer/index.vue';
 
   import type { OrgsItem } from '@/models/setting/user';
+  import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
   const { t } = useI18n();
 
@@ -55,13 +60,15 @@
       tableSelected: (string | number)[];
       visible: boolean;
       action: string;
+      batchParams?: BatchActionQueryParams;
+      keyword?: string;
     }>(),
     {
       visible: false,
     }
   );
 
-  const emit = defineEmits(['update:visible']);
+  const emit = defineEmits(['update:visible', 'finished']);
 
   const showBatchModal = ref(false);
   const batchTitle = ref('');
@@ -136,8 +143,11 @@
     try {
       const params = {
         selectIds: props.tableSelected as string[],
-        selectAll: false,
-        condition: {},
+        selectAll: !!props.batchParams?.selectAll,
+        excludeIds: props.batchParams?.excludeIds,
+        condition: {
+          keyword: props.keyword,
+        },
         roleIds: target.value,
       };
       switch (batchModalMode.value) {
@@ -155,6 +165,7 @@
       }
       Message.success(t('system.user.batchModalSuccess'));
       showBatchModal.value = false;
+      emit('finished');
     } catch (error) {
       console.log(error);
     } finally {
