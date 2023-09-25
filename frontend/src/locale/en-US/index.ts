@@ -28,6 +28,7 @@ export default {
     'menu.performanceTest': 'Performance Test',
     'menu.projectManagement': 'Project',
     'menu.projectManagement.fileManagement': 'File Management',
+    'menu.featureTest.featureCase': 'Feature Case',
     'menu.projectManagement.projectPermission': 'Project Permission',
     'menu.projectManagement.log': 'Log',
     'menu.settings': 'Settings',
