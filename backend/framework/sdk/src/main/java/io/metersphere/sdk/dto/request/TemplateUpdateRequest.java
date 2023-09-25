@@ -1,5 +1,7 @@
 package io.metersphere.sdk.dto.request;
 
+import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.valid.EnumValue;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,7 +37,8 @@ public class TemplateUpdateRequest {
 
     @Schema(title = "使用场景", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{template.scene.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 30, message = "{template.scene.length_range}", groups = {Created.class, Updated.class})
+    @EnumValue(enumClass = TemplateScene.class, groups = {Created.class})
+    @Size(min = 1, max = 30, message = "{template.scene.length_range}", groups = {Created.class})
     private String scene;
 
     @Valid

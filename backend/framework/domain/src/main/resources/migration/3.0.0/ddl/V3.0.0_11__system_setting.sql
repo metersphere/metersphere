@@ -352,6 +352,8 @@ CREATE TABLE IF NOT EXISTS custom_field(
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `ref_id` VARCHAR(50)    COMMENT '项目字段所关联的组织字段ID' ,
+    `enable_option_key` BIT   DEFAULT 0 COMMENT '是否需要手动输入选项key' ,
     `scope_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
     PRIMARY KEY (id)
     ) ENGINE = InnoDB
@@ -381,9 +383,11 @@ CREATE TABLE IF NOT EXISTS template(
     `scope_type` VARCHAR(50) NOT NULL  COMMENT '组织或项目级别字段（PROJECT, ORGANIZATION）' ,
     `scope_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
     `enable_third_part` BIT NOT NULL  DEFAULT 0 COMMENT '是否开启api字段名配置' ,
+    `enable_default` BIT NOT NULL  DEFAULT 0 COMMENT '是否是默认模板' ,
+    `ref_id` VARCHAR(50)    COMMENT '项目模板所关联的组织模板ID' ,
     `scene` VARCHAR(30) NOT NULL   COMMENT '使用场景' ,
     PRIMARY KEY (id)
-    ) ENGINE = InnoDB
+) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci
     COMMENT = '模版';
@@ -444,8 +448,15 @@ CREATE TABLE IF NOT EXISTS status_flow(
     COLLATE = utf8mb4_general_ci
     COMMENT = '状态流转';
 
--- set innodb lock wait timeout to default
-SET SESSION innodb_lock_wait_timeout = DEFAULT;
+-- 组织级别参数
+CREATE TABLE IF NOT EXISTS organization_parameter(
+   `organization_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
+   `param_key` VARCHAR(50) NOT NULL   COMMENT '配置项' ,
+   `param_value` VARCHAR(255)    COMMENT '配置值' ,
+   PRIMARY KEY (organization_id,param_key)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '组织参数';
 
 -- 用户邀请记录
 CREATE TABLE IF NOT EXISTS user_invite
@@ -457,5 +468,10 @@ CREATE TABLE IF NOT EXISTS user_invite
     `invite_time` BIGINT       NOT NULL COMMENT '邀请时间',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '用户邀请记录';
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '用户邀请记录';
+
+-- set innodb lock wait timeout to default
+SET SESSION innodb_lock_wait_timeout = DEFAULT;
+
+

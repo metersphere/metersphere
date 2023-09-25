@@ -1,23 +1,31 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.DefaultFunctionalCustomField;
 import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.dto.CustomFieldDTO;
 import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
+import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.mapper.CustomFieldMapper;
+import io.metersphere.system.uid.UUID;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import io.metersphere.system.uid.UUID;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
 
 /**
@@ -28,11 +36,13 @@ import static io.metersphere.system.controller.handler.result.CommonResultCode.*
 @Transactional(rollbackFor = Exception.class)
 public class BaseCustomFieldService {
     @Resource
-    private CustomFieldMapper customFieldMapper;
+    protected CustomFieldMapper customFieldMapper;
     @Resource
-    private BaseUserService baseUserService;
+    protected BaseUserService baseUserService;
     @Resource
-    private BaseCustomFieldOptionService baseCustomFieldOptionService;
+    protected BaseCustomFieldOptionService baseCustomFieldOptionService;
+    @Resource
+    protected BaseOrganizationParameterService baseOrganizationParameterService;
 
     public List<CustomField> list(String scopeId, String scene) {
         checkScene(scene);
@@ -83,11 +93,30 @@ public class BaseCustomFieldService {
     }
 
     public CustomField add(CustomField customField, List<CustomFieldOptionRequest> options) {
+        customField.setInternal(false);
+        List<CustomFieldOption> customFieldOptions = parseCustomFieldOptionRequest2Option(options);
+        return this.baseAdd(customField, customFieldOptions);
+    }
+
+    public List<CustomFieldOption> parseCustomFieldOptionRequest2Option(List<CustomFieldOptionRequest> options) {
+        return options == null ? null : options.stream().map(item -> {
+            CustomFieldOption customFieldOption = new CustomFieldOption();
+            BeanUtils.copyBean(customFieldOption, item);
+            return customFieldOption;
+        }).toList();
+    }
+
+    /**
+     * 添加自定义字段，不设置是否是内置字段
+     * @param customField
+     * @param options
+     * @return
+     */
+    public CustomField baseAdd(CustomField customField, List<CustomFieldOption> options) {
         checkAddExist(customField);
         customField.setId(UUID.randomUUID().toString());
         customField.setCreateTime(System.currentTimeMillis());
         customField.setUpdateTime(System.currentTimeMillis());
-        customField.setInternal(false);
         customFieldMapper.insert(customField);
         baseCustomFieldOptionService.addByFieldId(customField.getId(), options);
         return customField;
@@ -164,5 +193,78 @@ public class BaseCustomFieldService {
         example.createCriteria()
                 .andIdIn(fieldIds);
         return customFieldMapper.selectByExample(example);
+    }
+
+    public List<CustomField> getByRefIdsAndScopeId(List<String> fieldIds, String scopeId) {
+        if (CollectionUtils.isEmpty(fieldIds)) {
+            return new ArrayList<>(0);
+        }
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria()
+                .andRefIdIn(fieldIds)
+                .andScopeIdEqualTo(scopeId);
+        return customFieldMapper.selectByExample(example);
+    }
+
+    public boolean isOrganizationTemplateEnable(String orgId, String scene) {
+        String key = baseOrganizationParameterService.getOrgTemplateEnableKeyByScene(scene);
+        String value = baseOrganizationParameterService.getValue(orgId, key);
+        // 没有配置默认为 true
+        return !StringUtils.equals(BooleanUtils.toStringTrueFalse(false), value);
+    }
+
+    public void deleteByScopeId(String copeId) {
+        // 删除字段
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria()
+                .andScopeIdEqualTo(copeId);
+        customFieldMapper.deleteByExample(example);
+
+        // 删除字段选项
+        List<String> ids = customFieldMapper.selectByExample(example)
+                .stream()
+                .map(CustomField::getId)
+                .toList();
+        baseCustomFieldOptionService.deleteByFieldIds(ids);
+    }
+
+    public List<CustomField> getByScopeId(String scopeId) {
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria()
+                .andScopeIdEqualTo(scopeId);
+        return customFieldMapper.selectByExample(example);
+    }
+
+    public CustomField initDefaultCustomField(CustomField customField) {
+        customField.setId(UUID.randomUUID().toString());
+        customField.setInternal(true);
+        customField.setCreateTime(System.currentTimeMillis());
+        customField.setUpdateTime(System.currentTimeMillis());
+        customField.setCreateUser("admin");
+        customFieldMapper.insert(customField);
+        return customField;
+    }
+
+    /**
+     * 初始化功能用例模板
+     * @param scopeType
+     * @param scopeId
+     * @return
+     */
+    public List<CustomField> initFunctionalDefaultCustomField(TemplateScopeType scopeType, String scopeId) {
+        List<CustomField> customFields = new ArrayList<>();
+        for (DefaultFunctionalCustomField defaultFunctionalCustomField : DefaultFunctionalCustomField.values()) {
+            CustomField customField = new CustomField();
+            customField.setName(defaultFunctionalCustomField.getName());
+            customField.setScene(TemplateScene.FUNCTIONAL.name());
+            customField.setType(defaultFunctionalCustomField.getType().name());
+            customField.setScopeType(scopeType.name());
+            customField.setScopeId(scopeId);
+            customField.setEnableOptionKey(false);
+            customFields.add(this.initDefaultCustomField(customField));
+            // 初始化选项
+            baseCustomFieldOptionService.addByFieldId(customField.getId(), defaultFunctionalCustomField.getOptions());
+        }
+       return customFields;
     }
 }

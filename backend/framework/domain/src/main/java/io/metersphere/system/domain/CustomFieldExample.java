@@ -774,6 +774,136 @@ public class CustomFieldExample {
             return (Criteria) this;
         }
 
+        public Criteria andRefIdIsNull() {
+            addCriterion("ref_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdIsNotNull() {
+            addCriterion("ref_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdEqualTo(String value) {
+            addCriterion("ref_id =", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdNotEqualTo(String value) {
+            addCriterion("ref_id <>", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdGreaterThan(String value) {
+            addCriterion("ref_id >", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdGreaterThanOrEqualTo(String value) {
+            addCriterion("ref_id >=", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdLessThan(String value) {
+            addCriterion("ref_id <", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdLessThanOrEqualTo(String value) {
+            addCriterion("ref_id <=", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdLike(String value) {
+            addCriterion("ref_id like", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdNotLike(String value) {
+            addCriterion("ref_id not like", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdIn(List<String> values) {
+            addCriterion("ref_id in", values, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdNotIn(List<String> values) {
+            addCriterion("ref_id not in", values, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdBetween(String value1, String value2) {
+            addCriterion("ref_id between", value1, value2, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdNotBetween(String value1, String value2) {
+            addCriterion("ref_id not between", value1, value2, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyIsNull() {
+            addCriterion("enable_option_key is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyIsNotNull() {
+            addCriterion("enable_option_key is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyEqualTo(Boolean value) {
+            addCriterion("enable_option_key =", value, "enableOptionKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyNotEqualTo(Boolean value) {
+            addCriterion("enable_option_key <>", value, "enableOptionKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyGreaterThan(Boolean value) {
+            addCriterion("enable_option_key >", value, "enableOptionKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("enable_option_key >=", value, "enableOptionKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyLessThan(Boolean value) {
+            addCriterion("enable_option_key <", value, "enableOptionKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyLessThanOrEqualTo(Boolean value) {
+            addCriterion("enable_option_key <=", value, "enableOptionKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyIn(List<Boolean> values) {
+            addCriterion("enable_option_key in", values, "enableOptionKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyNotIn(List<Boolean> values) {
+            addCriterion("enable_option_key not in", values, "enableOptionKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyBetween(Boolean value1, Boolean value2) {
+            addCriterion("enable_option_key between", value1, value2, "enableOptionKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnableOptionKeyNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("enable_option_key not between", value1, value2, "enableOptionKey");
+            return (Criteria) this;
+        }
+
         public Criteria andScopeIdIsNull() {
             addCriterion("scope_id is null");
             return (Criteria) this;

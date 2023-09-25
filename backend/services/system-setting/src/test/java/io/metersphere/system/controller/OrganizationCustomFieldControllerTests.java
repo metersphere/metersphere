@@ -1,25 +1,26 @@
 package io.metersphere.system.controller;
 
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.system.base.BaseTest;
-import io.metersphere.sdk.constants.CustomFieldType;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.TemplateScene;
-import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.dto.CustomFieldDTO;
 import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.dto.request.CustomFieldUpdateRequest;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
 import io.metersphere.system.service.BaseUserService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
-import io.metersphere.system.domain.CustomField;
-import io.metersphere.system.domain.CustomFieldExample;
-import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.mapper.CustomFieldMapper;
+import io.metersphere.system.service.OrganizationCustomFieldService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +33,7 @@ import java.util.Map;
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static io.metersphere.system.controller.result.SystemResultCode.ORGANIZATION_TEMPLATE_PERMISSION;
 
 /**
  * @author jianxing
@@ -53,6 +55,12 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
     private BaseCustomFieldService baseCustomFieldService;
     @Resource
     private BaseUserService baseUserService;
+    @Resource
+    private OrganizationParameterMapper organizationParameterMapper;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private OrganizationCustomFieldService organizationCustomFieldService;
     private static CustomField addCustomField;
     private static CustomField anotherAddCustomField;
 
@@ -105,6 +113,12 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             Assertions.assertEquals(false, optionItem.getInternal());
             Assertions.assertEquals(customField.getId(), optionItem.getFieldId());
         }
+        asserRefCustomField(customField);
+
+        // @校验是否开启组织模板
+        changeOrgTemplateEnable(false);
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), ORGANIZATION_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(true);
 
         // @@重名校验异常
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), CUSTOM_FIELD_EXIST);
@@ -162,6 +176,12 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             Assertions.assertEquals(false, optionItem.getInternal());
             Assertions.assertEquals(customField.getId(), optionItem.getFieldId());
         }
+        asserRefCustomField(customField);
+
+        // @校验是否开启组织模板
+        changeOrgTemplateEnable(false);
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), ORGANIZATION_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(true);
 
         // @@重名校验异常
         request.setName(anotherAddCustomField.getName());
@@ -234,6 +254,11 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void delete() throws Exception {
+        // @校验是否开启组织模板
+        changeOrgTemplateEnable(false);
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, addCustomField.getId()), ORGANIZATION_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(true);
+
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addCustomField.getId());
         Assertions.assertNull(customFieldMapper.selectByPrimaryKey(addCustomField.getId()));
@@ -253,5 +278,52 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         checkLog(addCustomField.getId(), OperationLogType.DELETE);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_DELETE, DEFAULT_DELETE, addCustomField.getId());
+    }
+
+    /**
+     * 校验变更组织字段时，有没有同步变更项目字段
+     */
+    private void asserRefCustomField(CustomField customField) {
+        List<CustomField> refFields = organizationCustomFieldService.getByRefId(customField.getId());
+        List<Project> orgProjects = getProjectByOrgId(customField.getScopeId());
+        // 校验所有项目下是否都有同步变更
+        Assertions.assertEquals(getCustomFieldByScopeId(customField.getScopeId()).size(),
+                getCustomFieldByScopeId(orgProjects.get(0).getId()).size() * orgProjects.size());
+        refFields.forEach(refField -> {
+            Assertions.assertEquals(refField.getScene(), customField.getScene());
+            Assertions.assertEquals(refField.getRemark(), customField.getRemark());
+            Assertions.assertEquals(refField.getName(), customField.getName());
+            Assertions.assertEquals(refField.getInternal(), customField.getInternal());
+            Assertions.assertEquals(refField.getCreateUser(), customField.getCreateUser());
+            Assertions.assertEquals(refField.getType(), customField.getType());
+            Assertions.assertEquals(refField.getScopeType(), TemplateScopeType.PROJECT.name());
+        });
+    }
+
+    private List<Project> getProjectByOrgId(String orgId) {
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andOrganizationIdEqualTo(orgId);
+        return projectMapper.selectByExample(projectExample);
+    }
+
+    private List<CustomField> getCustomFieldByScopeId(String scopeId) {
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria().andScopeIdEqualTo(scopeId);
+        return customFieldMapper.selectByExample(example);
+    }
+
+    private void changeOrgTemplateEnable(boolean enable) {
+        if (enable) {
+            organizationParameterMapper.deleteByPrimaryKey(DEFAULT_ORGANIZATION_ID, OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
+        } else {
+            OrganizationParameter organizationParameter = new OrganizationParameter();
+            organizationParameter.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            organizationParameter.setParamKey(OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
+            organizationParameter.setParamValue(BooleanUtils.toStringTrueFalse(false));
+            if (organizationParameterMapper.selectByPrimaryKey(DEFAULT_ORGANIZATION_ID,
+                    OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY) == null) {
+                organizationParameterMapper.insert(organizationParameter);
+            }
+        }
     }
 }
