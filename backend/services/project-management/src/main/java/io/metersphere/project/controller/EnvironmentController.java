@@ -1,5 +1,7 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.dto.environment.EnvironmentDTO;
+import io.metersphere.project.dto.environment.EnvironmentExportDTO;
 import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
@@ -36,11 +38,11 @@ public class EnvironmentController {
     @Resource
     private CommandService commandService;
 
-    @GetMapping("/list/{projectId}")
+    @PostMapping("/list")
     @Operation(summary = "项目管理-环境-环境目录-列表")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
-    public List<Environment> list(@PathVariable String projectId) {
-        return environmentService.list(projectId);
+    public List<Environment> list(@Validated @RequestBody EnvironmentDTO request) {
+        return environmentService.list(request);
     }
 
     @GetMapping("/get/{environmentId}")
@@ -101,8 +103,8 @@ public class EnvironmentController {
     @PostMapping("/export")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_EXPORT)
     @Operation(summary = "项目管理-环境-环境目录-导出")
-    public String export(@RequestBody List<String> environmentIds) {
-        return environmentService.export(environmentIds);
+    public String export(@Validated @RequestBody EnvironmentExportDTO request) {
+        return environmentService.export(request);
     }
 
     @PostMapping(value = "/get/entry")

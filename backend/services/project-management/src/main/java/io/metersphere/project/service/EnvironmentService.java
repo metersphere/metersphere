@@ -3,8 +3,11 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
+import io.metersphere.project.dto.environment.EnvironmentDTO;
+import io.metersphere.project.dto.environment.EnvironmentExportDTO;
 import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.dto.environment.datasource.DataSource;
+import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.domain.Environment;
@@ -18,14 +21,14 @@ import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.service.JdbcDriverPluginService;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.sql.Driver;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -52,10 +56,13 @@ public class EnvironmentService {
     private ProjectMapper projectMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private ExtEnvironmentMapper extEnvironmentMapper;
 
     private static final String DIR_PATH = "/project-management/environment/";
     private static final String USERNAME = "user";
     private static final String PASSWORD = "password";
+    private static final String PATH = "/project/environment/import";
 
     public List<OptionDTO> getDriverOptions(String organizationId) {
         return jdbcDriverPluginService.getJdbcDriverOption(organizationId);
@@ -125,11 +132,8 @@ public class EnvironmentService {
         return request;
     }
 
-    public List<Environment> list(String projectId) {
-        EnvironmentExample example = new EnvironmentExample();
-        example.createCriteria().andProjectIdEqualTo(projectId);
-        example.setOrderByClause("update_time desc");
-        return environmentMapper.selectByExample(example);
+    public List<Environment> list(EnvironmentDTO request) {
+        return extEnvironmentMapper.selectByKeyword(request.getKeyword(), false, request.getProjectId());
     }
 
     public EnvironmentRequest get(String environmentId) {
@@ -146,37 +150,47 @@ public class EnvironmentService {
         return environmentRequest;
     }
 
-    public String export(List<String> environmentIds) {
-        if (CollectionUtils.isNotEmpty(environmentIds)) {
-            // 查询环境
-            EnvironmentExample environmentExample = new EnvironmentExample();
-            environmentExample.createCriteria().andIdIn(environmentIds);
-            List<Environment> environments = environmentMapper.selectByExample(environmentExample);
-            Map<String, Environment> environmentMap = new HashMap<>();
-            environments.forEach(environment -> environmentMap.put(environment.getId(), environment));
-            // 查询环境配置
-            EnvironmentBlobExample environmentBlobExample = new EnvironmentBlobExample();
-            environmentBlobExample.createCriteria().andIdIn(environmentIds);
-            List<EnvironmentBlob> environmentBlobs = environmentBlobMapper.selectByExampleWithBLOBs(environmentBlobExample);
-            Map<String, EnvironmentBlob> environmentBlobMap = new HashMap<>();
-            environmentBlobs.forEach(environmentBlob -> environmentBlobMap.put(environmentBlob.getId(), environmentBlob));
+    public String export(EnvironmentExportDTO environmentExportDTO) {
+        List<String> environmentIds = this.getEnvironmentIds(environmentExportDTO);
+        // 查询环境
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andIdIn(environmentIds);
+        List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+        Map<String, Environment> environmentMap = new HashMap<>();
+        environments.forEach(environment -> environmentMap.put(environment.getId(), environment));
+        // 查询环境配置
+        EnvironmentBlobExample environmentBlobExample = new EnvironmentBlobExample();
+        environmentBlobExample.createCriteria().andIdIn(environmentIds);
+        List<EnvironmentBlob> environmentBlobs = environmentBlobMapper.selectByExampleWithBLOBs(environmentBlobExample);
+        Map<String, EnvironmentBlob> environmentBlobMap = new HashMap<>();
+        environmentBlobs.forEach(environmentBlob -> environmentBlobMap.put(environmentBlob.getId(), environmentBlob));
 
-            List<EnvironmentRequest> environmentRequests = new ArrayList<>();
-            environmentIds.forEach(environmentId -> {
-                EnvironmentRequest environmentRequest = new EnvironmentRequest();
-                Environment environment = environmentMap.get(environmentId);
-                EnvironmentBlob environmentBlob = environmentBlobMap.get(environmentId);
-                environmentRequest.setProjectId(environment.getProjectId());
-                environmentRequest.setName(environment.getName());
-                environmentRequest.setId(environment.getId());
-                if (environmentBlob != null) {
-                    environmentRequest.setConfig(JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class));
-                }
-                environmentRequests.add(environmentRequest);
-            });
-            return JSON.toJSONString(environmentRequests);
+        List<EnvironmentRequest> environmentRequests = new ArrayList<>();
+        environmentIds.forEach(environmentId -> {
+            EnvironmentRequest environmentRequest = new EnvironmentRequest();
+            Environment environment = environmentMap.get(environmentId);
+            EnvironmentBlob environmentBlob = environmentBlobMap.get(environmentId);
+            environmentRequest.setProjectId(environment.getProjectId());
+            environmentRequest.setName(environment.getName());
+            environmentRequest.setId(environment.getId());
+            if (environmentBlob != null) {
+                environmentRequest.setConfig(JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class));
+            }
+            environmentRequests.add(environmentRequest);
+        });
+        return JSON.toJSONString(environmentRequests);
+    }
+
+    private List<String> getEnvironmentIds(EnvironmentExportDTO request) {
+        if (request.isSelectAll()) {
+            List<Environment> environments = extEnvironmentMapper.selectByKeyword(request.getCondition().getKeyword(), true, request.getProjectId());
+            List<String> environmentIds = environments.stream().map(Environment::getId).collect(Collectors.toList());
+            if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                environmentIds.removeAll(request.getExcludeIds());
+            }
+            return environmentIds;
         } else {
-            return null;
+            return request.getSelectIds();
         }
     }
 
@@ -230,7 +244,7 @@ public class EnvironmentService {
                                 environment.getName());
                         logDTO.setMethod(HttpMethodConstants.POST.name());
                         logDTO.setOriginalValue(JSON.toJSONBytes(environmentRequest.getConfig()));
-                        logDTO.setPath("/project/environment/import");
+                        logDTO.setPath(PATH);
                         logDTOS.add(logDTO);
                     });
                     environmentMapper.batchInsert(environments);
