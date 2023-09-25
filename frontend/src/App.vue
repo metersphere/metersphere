@@ -83,7 +83,7 @@
 
   onMounted(async () => {
     await getPublicKey();
-    if (WHITE_LIST.find((el) => el.name === route.name) === undefined) {
+    if (WHITE_LIST.find((el) => el.path === window.location.hash.split('#')[1]) === undefined) {
       await checkIsLogin();
     }
     const { height } = useWindowSize();

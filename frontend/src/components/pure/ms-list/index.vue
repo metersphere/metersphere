@@ -3,7 +3,7 @@
     v-bind="props"
     ref="listRef"
     :data="data"
-    :class="['ms-list', listStatusClass]"
+    :class="['ms-list', containerStatusClass]"
     @reach-bottom="handleReachBottom"
   >
     <template #item="{ item, index }">
@@ -59,11 +59,12 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, nextTick, onBeforeUnmount, Ref, ref, watch } from 'vue';
+  import { nextTick, Ref, ref, watch } from 'vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { useI18n } from '@/hooks/useI18n';
+  import useContainerShadow from '@/hooks/useContainerShadow';
 
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
@@ -136,23 +137,12 @@
   }
 
   const listRef: Ref = ref(null);
-  const isArrivedTop = ref(true);
-  const isArrivedBottom = ref(true);
-  const isInitListener = ref(false);
 
-  /**
-   * 监听列表内容区域滚动，以切换顶部底部阴影
-   * @param event 滚动事件
-   */
-  function listenScroll(event: Event) {
-    if (event.target) {
-      const listContent = event.target as HTMLElement;
-      const { scrollTop, scrollHeight, clientHeight } = listContent;
-      const scrollBottom = scrollHeight - clientHeight - scrollTop;
-      isArrivedTop.value = scrollTop < props.itemHeight;
-      isArrivedBottom.value = scrollBottom < props.itemHeight;
-    }
-  }
+  const { isArrivedBottom, isInitListener, containerStatusClass, setContainer, initScrollListener } =
+    useContainerShadow({
+      overHeight: props.itemHeight,
+      containerClassName: 'ms-list',
+    });
 
   watch(
     props.data,
@@ -160,16 +150,18 @@
       if (props.data.length > 0 && !isInitListener.value) {
         nextTick(() => {
           const listContent = listRef.value?.$el.querySelector('.arco-list-content');
-          isInitListener.value = true;
-          listContent.addEventListener('scroll', listenScroll);
+          setContainer(listContent);
+          initScrollListener();
         });
       }
-      nextTick(() => {
-        // 为了在列表数据滚动加载时，能够正确判断是否滚动到底部，因为此时没有触发滚动事件，而在加载前触发了滚动到底部的判断
-        const listContent = listRef.value?.$el.querySelector('.arco-list-content');
-        const { scrollTop, scrollHeight, clientHeight } = listContent;
-        isArrivedBottom.value = scrollHeight - clientHeight - scrollTop < props.itemHeight;
-      });
+      if (props.data.length > 0) {
+        nextTick(() => {
+          // 为了在列表数据滚动加载时，能够正确判断是否滚动到底部，因为此时没有触发滚动事件，而在加载前触发了滚动到底部的判断
+          const listContent = listRef.value?.$el.querySelector('.arco-list-content');
+          const { scrollTop, scrollHeight, clientHeight } = listContent;
+          isArrivedBottom.value = scrollHeight - clientHeight - scrollTop < props.itemHeight;
+        });
+      }
     },
     {
       immediate: true,
@@ -181,36 +173,11 @@
       emit('reachBottom');
     }
   }
-
-  const listStatusClass = computed(() => {
-    if (isArrivedTop.value && isArrivedBottom.value) {
-      // 内容不足一屏，不展示阴影
-      return 'ms-list-hidden-shadow';
-    }
-    if (isArrivedTop.value) {
-      // 滚动到顶部，隐藏顶部阴影
-      return 'ms-list--hidden-top-shadow';
-    }
-    if (isArrivedBottom.value) {
-      // 滚动到底部，隐藏底部阴影
-      return 'ms-list--hidden-bottom-shadow';
-    }
-    // 滚动到中间，展示两侧阴影
-    return '';
-  });
-
-  onBeforeUnmount(() => {
-    const listContent = listRef.value?.$el.querySelector('.arco-list-content');
-    if (listContent) {
-      listContent.removeEventListener('scroll', listenScroll);
-    }
-  });
 </script>
 
 <style lang="less" scoped>
   .ms-list {
-    box-shadow: inset 0 10px 6px -10px rgb(0 0 0 / 15%), inset 0 -10px 6px -10px rgb(0 0 0 / 15%);
-    transition: box-shadow 0.1s cubic-bezier(0.165, 0.84, 0.44, 1);
+    .ms-container--shadow();
     :deep(.arco-list) {
       @apply rounded-none;
       .ms-list-item {
@@ -262,14 +229,5 @@
         margin-right: 4px;
       }
     }
-  }
-  .ms-list-hidden-shadow {
-    box-shadow: none;
-  }
-  .ms-list--hidden-top-shadow {
-    box-shadow: inset 0 -10px 6px -10px rgb(0 0 0 / 15%);
-  }
-  .ms-list--hidden-bottom-shadow {
-    box-shadow: inset 0 10px 6px -10px rgb(0 0 0 / 15%);
   }
 </style>

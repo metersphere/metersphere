@@ -96,6 +96,11 @@
     padding: 8px 0;
   }
 }
+.ms-modal-no-padding {
+  .arco-modal-body {
+    padding: 0;
+  }
+}
 .ms-modal-upload {
   .arco-modal-body {
     padding: 2px 0;
@@ -177,6 +182,12 @@
   .btn-outline-sec-hover();
   .btn-outline-sec-active();
   .btn-outline-sec-disabled();
+}
+.arco-btn-outline--danger {
+  .btn-outline-danger-default();
+  .btn-outline-danger-hover();
+  .btn-outline-danger-active();
+  .btn-outline-danger-disabled();
 }
 
 /** 输入框，选择器，文本域 **/
@@ -268,6 +279,9 @@
       }
     }
   }
+}
+.arco-textarea {
+  .ms-scroll-bar();
 }
 
 /** form-item **/
@@ -696,6 +710,9 @@
 }
 
 /** tooltip **/
+.arco-tooltip-content {
+  @apply break-all;
+}
 .arco-trigger-arrow {
   border-bottom-right-radius: var(--border-radius-mini) !important;
 }
@@ -724,20 +741,5 @@
     width: 207px;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-}
-
-/** 隐藏drawer-mask **/
-.ms-drawer-no-mask {
-  left: auto;
-  .arco-drawer {
-    box-shadow: -1px 0 4px 0 rgb(2 2 2 / 10%);
-    &-header {
-      .arco-drawer-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--color-text-1);
-      }
-    }
   }
 }

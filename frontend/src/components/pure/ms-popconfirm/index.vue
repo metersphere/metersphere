@@ -29,6 +29,7 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
   import { ref, useAttrs, watchEffect } from 'vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   export type types = 'error' | 'info' | 'success' | 'warning';
 

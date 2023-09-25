@@ -11,6 +11,8 @@
 </template>
 
 <script setup lang="ts">
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+
   const props = withDefaults(
     defineProps<{
       text: string;
