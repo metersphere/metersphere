@@ -1,20 +1,21 @@
 <template>
   <div v-if="props.actionConfig" class="ms-table__patch-action">
     <span class="title">{{ t('msTable.batch.selected', { count: props.selectRowCount }) }}</span>
-    <template v-for="element in props.actionConfig.baseAction" :key="element.label">
+    <template v-for="(element, idx) in props.actionConfig.baseAction" :key="element.label">
       <a-divider v-if="element.isDivider" class="mx-0 my-[6px]" />
       <a-button
         v-else
+        class="ml-[12px]"
         :class="{
           'arco-btn-outline--danger': element.danger,
-          'ml-4': true,
+          'ml-[16px]': idx === 0,
         }"
         type="outline"
         @click="handleSelect(element)"
         >{{ t(element.label as string) }}</a-button
       >
     </template>
-    <div v-if="props.actionConfig.moreAction" class="relative top-[2px] ml-3 inline-block">
+    <div v-if="props.actionConfig.moreAction" class="relative top-[2px] ml-[16px] inline-block">
       <a-dropdown position="tr" @select="handleSelect">
         <a-button type="outline"><MsIcon type="icon-icon_more_outlined" /></a-button>
         <template #content>
@@ -27,7 +28,7 @@
         </template>
       </a-dropdown>
     </div>
-    <a-button class="ml-3" type="text" @click="emit('clear')">{{ t('msTable.batch.clear') }}</a-button>
+    <a-button class="ml-[16px]" type="text" @click="emit('clear')">{{ t('msTable.batch.clear') }}</a-button>
   </div>
 </template>
 
