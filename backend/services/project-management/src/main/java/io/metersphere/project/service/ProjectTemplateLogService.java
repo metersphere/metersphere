@@ -1,68 +1,68 @@
-package io.metersphere.system.service;
+package io.metersphere.project.service;
 
-import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.request.TemplateUpdateRequest;
-import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Template;
+import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.metersphere.system.log.constants.OperationLogModule;
+
 /**
  * @author jianxing
  * @date : 2023-8-30
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class OrganizationTemplateLogService {
+public class ProjectTemplateLogService {
 
     @Resource
-    private OrganizationTemplateService organizationTemplateService;
+    private ProjectTemplateService projectTemplateService;
 
     public LogDTO addLog(TemplateUpdateRequest request) {
         LogDTO dto = new LogDTO(
-                OperationLogConstants.ORGANIZATION,
+                null,
                 null,
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                OperationLogModule.PROJECT_TEMPLATE,
                 request.getName());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
     }
 
-    public LogDTO setDefaultTemplateLog(TemplateUpdateRequest request) {
-        Template template = organizationTemplateService.getWithCheck(request.getId());
+    public LogDTO updateLog(TemplateUpdateRequest request) {
+        Template template = projectTemplateService.getWithCheck(request.getId());
         LogDTO dto = null;
         if (template != null) {
             dto = new LogDTO(
-                    OperationLogConstants.ORGANIZATION,
+                    null,
                     null,
                     template.getId(),
                     null,
-                    String.join(Translator.get("set_default_template"), ":", OperationLogType.UPDATE.name()),
-                    OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.PROJECT_TEMPLATE,
                     template.getName());
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
         return dto;
     }
 
-    public LogDTO updateLog(TemplateUpdateRequest request) {
-        Template template = organizationTemplateService.getWithCheck(request.getId());
+    public LogDTO setDefaultTemplateLog(TemplateUpdateRequest request) {
+        Template template = projectTemplateService.getWithCheck(request.getId());
         LogDTO dto = null;
         if (template != null) {
             dto = new LogDTO(
-                    OperationLogConstants.ORGANIZATION,
+                    null,
                     null,
                     template.getId(),
                     null,
-                    OperationLogType.UPDATE.name(),
-                    OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                    String.join(Translator.get("set_default_template"), ":", OperationLogType.UPDATE.name()),
+                    OperationLogModule.PROJECT_TEMPLATE,
                     template.getName());
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
@@ -70,14 +70,14 @@ public class OrganizationTemplateLogService {
     }
 
     public LogDTO deleteLog(String id) {
-        Template template = organizationTemplateService.getWithCheck(id);
+        Template template = projectTemplateService.getWithCheck(id);
         LogDTO dto = new LogDTO(
-                OperationLogConstants.ORGANIZATION,
+                null,
                 null,
                 template.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                OperationLogModule.PROJECT_TEMPLATE,
                 template.getName());
         dto.setOriginalValue(JSON.toJSONBytes(template));
         return dto;

@@ -12,6 +12,8 @@
     <result column="scope_type" jdbcType="VARCHAR" property="scopeType" />
     <result column="scope_id" jdbcType="VARCHAR" property="scopeId" />
     <result column="enable_third_part" jdbcType="BIT" property="enableThirdPart" />
+    <result column="enable_default" jdbcType="BIT" property="enableDefault" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="scene" jdbcType="VARCHAR" property="scene" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -74,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, remark, internal, update_time, create_time, create_user, scope_type, 
-    scope_id, enable_third_part, scene
+    scope_id, enable_third_part, enable_default, ref_id, scene
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.TemplateExample" resultMap="BaseResultMap">
     select
@@ -110,11 +112,13 @@
     insert into template (id, `name`, remark, 
       internal, update_time, create_time, 
       create_user, scope_type, scope_id, 
-      enable_third_part, scene)
+      enable_third_part, enable_default, ref_id, 
+      scene)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{internal,jdbcType=BIT}, #{updateTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, 
       #{createUser,jdbcType=VARCHAR}, #{scopeType,jdbcType=VARCHAR}, #{scopeId,jdbcType=VARCHAR}, 
-      #{enableThirdPart,jdbcType=BIT}, #{scene,jdbcType=VARCHAR})
+      #{enableThirdPart,jdbcType=BIT}, #{enableDefault,jdbcType=BIT}, #{refId,jdbcType=VARCHAR}, 
+      #{scene,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.Template">
     insert into template
@@ -148,6 +152,12 @@
       </if>
       <if test="enableThirdPart != null">
         enable_third_part,
+      </if>
+      <if test="enableDefault != null">
+        enable_default,
+      </if>
+      <if test="refId != null">
+        ref_id,
       </if>
       <if test="scene != null">
         scene,
@@ -183,6 +193,12 @@
       </if>
       <if test="enableThirdPart != null">
         #{enableThirdPart,jdbcType=BIT},
+      </if>
+      <if test="enableDefault != null">
+        #{enableDefault,jdbcType=BIT},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
       </if>
       <if test="scene != null">
         #{scene,jdbcType=VARCHAR},
@@ -228,6 +244,12 @@
       <if test="record.enableThirdPart != null">
         enable_third_part = #{record.enableThirdPart,jdbcType=BIT},
       </if>
+      <if test="record.enableDefault != null">
+        enable_default = #{record.enableDefault,jdbcType=BIT},
+      </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
       <if test="record.scene != null">
         scene = #{record.scene,jdbcType=VARCHAR},
       </if>
@@ -248,6 +270,8 @@
       scope_type = #{record.scopeType,jdbcType=VARCHAR},
       scope_id = #{record.scopeId,jdbcType=VARCHAR},
       enable_third_part = #{record.enableThirdPart,jdbcType=BIT},
+      enable_default = #{record.enableDefault,jdbcType=BIT},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
       scene = #{record.scene,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -283,6 +307,12 @@
       <if test="enableThirdPart != null">
         enable_third_part = #{enableThirdPart,jdbcType=BIT},
       </if>
+      <if test="enableDefault != null">
+        enable_default = #{enableDefault,jdbcType=BIT},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
       <if test="scene != null">
         scene = #{scene,jdbcType=VARCHAR},
       </if>
@@ -300,19 +330,22 @@
       scope_type = #{scopeType,jdbcType=VARCHAR},
       scope_id = #{scopeId,jdbcType=VARCHAR},
       enable_third_part = #{enableThirdPart,jdbcType=BIT},
+      enable_default = #{enableDefault,jdbcType=BIT},
+      ref_id = #{refId,jdbcType=VARCHAR},
       scene = #{scene,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into template
     (id, `name`, remark, internal, update_time, create_time, create_user, scope_type, 
-      scope_id, enable_third_part, scene)
+      scope_id, enable_third_part, enable_default, ref_id, scene)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.remark,jdbcType=VARCHAR}, 
         #{item.internal,jdbcType=BIT}, #{item.updateTime,jdbcType=BIGINT}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.scopeType,jdbcType=VARCHAR}, #{item.scopeId,jdbcType=VARCHAR}, 
-        #{item.enableThirdPart,jdbcType=BIT}, #{item.scene,jdbcType=VARCHAR})
+        #{item.enableThirdPart,jdbcType=BIT}, #{item.enableDefault,jdbcType=BIT}, #{item.refId,jdbcType=VARCHAR}, 
+        #{item.scene,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -354,6 +387,12 @@
         </if>
         <if test="'enable_third_part'.toString() == column.value">
           #{item.enableThirdPart,jdbcType=BIT}
+        </if>
+        <if test="'enable_default'.toString() == column.value">
+          #{item.enableDefault,jdbcType=BIT}
+        </if>
+        <if test="'ref_id'.toString() == column.value">
+          #{item.refId,jdbcType=VARCHAR}
         </if>
         <if test="'scene'.toString() == column.value">
           #{item.scene,jdbcType=VARCHAR}

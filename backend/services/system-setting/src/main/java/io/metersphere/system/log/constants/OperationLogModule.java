@@ -88,6 +88,6 @@ public class OperationLogModule {
     public static final String PROJECT_MANAGEMENT_ENVIRONMENT = "PROJECT_MANAGEMENT_ENVIRONMENT";
     // 项目管理-版本管理
     public static final String PROJECT_MANAGEMENT_PERMISSION_VERSION = "PROJECT_MANAGEMENT_PERMISSION_VERSION";
-
-
+    public static final String PROJECT_TEMPLATE = "PROJECT_TEMPLATE";// 项目模板
+    public static final String PROJECT_CUSTOM_FIELD = "PROJECT_CUSTOM_FIELD";// 项目字段
 }

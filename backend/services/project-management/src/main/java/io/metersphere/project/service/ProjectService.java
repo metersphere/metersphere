@@ -188,4 +188,8 @@ public class ProjectService {
             new OptionDTO(testResourcePool.getId(), testResourcePool.getName())
         ).toList();
     }
+
+    public Project checkResourceExist(String id) {
+        return ServiceUtils.checkResourceExist(projectMapper.selectByPrimaryKey(id), "permission.project.name");
+    }
 }

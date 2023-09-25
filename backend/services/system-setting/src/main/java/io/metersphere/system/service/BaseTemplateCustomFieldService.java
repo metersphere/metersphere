@@ -35,6 +35,12 @@ public class BaseTemplateCustomFieldService {
         templateCustomFieldMapper.deleteByExample(example);
     }
 
+    public void deleteByTemplateIds(List<String> projectTemplateIds) {
+        TemplateCustomFieldExample example = new TemplateCustomFieldExample();
+        example.createCriteria().andTemplateIdIn(projectTemplateIds);
+        templateCustomFieldMapper.deleteByExample(example);
+    }
+
     public void addByTemplateId(String id, List<TemplateCustomFieldRequest> customFieldRequests) {
         if (CollectionUtils.isEmpty(customFieldRequests)) {
             return;
