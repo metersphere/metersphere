@@ -77,7 +77,6 @@
   <MSBatchModal
     ref="batchModalRef"
     v-model:visible="batchVisible"
-    :table-selected="tableSelected"
     :action="batchAction"
     :select-data="selectData"
     @add-user-group="addUserGroup"
@@ -101,7 +100,7 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { useTableStore, useUserStore } from '@/store';
   import useModal from '@/hooks/useModal';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import type { MsTableColumn, BatchActionParams, BatchActionQueryParams } from '@/components/pure/ms-table/type';
   import { characterLimit } from '@/utils';
   import AddMemberModal from './components/addMemberModal.vue';
   import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
@@ -182,9 +181,10 @@
 
   const handleTableSelect = (selectArr: (string | number)[]) => {
     tableSelected.value = selectArr;
+    console.log(selectArr, 'selectArrselectArrselectArr');
   };
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getProjectMemberList, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getProjectMemberList, {
     tableKey: TableKeyEnum.PROJECT_MEMBER,
     selectable: true,
     showSetting: true,
@@ -217,11 +217,14 @@
     initData();
   };
 
+  // 跨页选择项
+  const selectData = ref<string[] | undefined>([]);
+
   // 批量移除项目成员
   const batchRemoveHandler = () => {
     openModal({
       type: 'error',
-      title: t('project.member.batchRemoveTip', { number: tableSelected.value.length }),
+      title: t('project.member.batchRemoveTip', { number: (selectData.value || []).length }),
       content: t('project.member.batchRemoveContent'),
       okText: t('project.member.deleteMemberConfirm'),
       cancelText: t('project.member.Cancel'),
@@ -232,11 +235,12 @@
         try {
           const params: ActionProjectMember = {
             projectId: lastProjectId,
-            userIds: tableSelected.value,
+            userIds: selectData.value,
           };
           await batchRemoveMember(params);
           Message.success(t('project.member.deleteMemberSuccess'));
           loadList();
+          resetSelector();
         } catch (error) {
           console.log(error);
         }
@@ -255,6 +259,7 @@
         await removeProjectMember(lastProjectId, record.id);
         Message.success(t('project.member.deleteMemberSuccess'));
         loadList();
+        resetSelector();
       }
     } catch (error) {
       console.log(error);
@@ -264,7 +269,6 @@
   };
 
   const batchVisible = ref<boolean>(false);
-  const selectData = ref<string[]>([]);
   const batchAction = ref('');
   const userGroupOptions = ref<ProjectUserOption[]>([]);
   const batchModalRef = ref();
@@ -273,25 +277,27 @@
   const addUserGroup = async (target: string[]) => {
     const params = {
       projectId: lastProjectId,
-      userIds: tableSelected.value,
+      userIds: selectData.value,
       roleIds: target,
     };
     try {
       await batchModalRef.value.batchRequestFun(addProjectUserGroup, params);
       loadList();
+      resetSelector();
     } catch (error) {
       console.log(error);
     }
   };
 
   // 表格批量处理
-  const handleTableBatch = (actionItem: any) => {
-    if (actionItem.eventTag === 'batchActionRemove') {
+  const handleTableBatch = (event: BatchActionParams, params: BatchActionQueryParams) => {
+    selectData.value = params.selectedIds;
+    if (event.eventTag === 'batchActionRemove') {
       batchRemoveHandler();
     }
-    if (actionItem.eventTag === 'batchAddUserGroup') {
+    if (event.eventTag === 'batchAddUserGroup') {
       batchVisible.value = true;
-      batchAction.value = actionItem.eventTag;
+      batchAction.value = event.eventTag;
       batchModalRef.value.getTreeList(getProjectUserGroup, lastProjectId);
     }
   };

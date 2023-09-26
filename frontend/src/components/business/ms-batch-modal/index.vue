@@ -3,7 +3,7 @@
     <template #title>
       {{ batchTitle }}
       <div class="text-[var(--color-text-4)]">
-        {{ t('msBatchModal.batchModalSubTitle', { count: props.tableSelected.length }) }}
+        {{ t('msBatchModal.batchModalSubTitle', { count: (props.selectData || []).length }) }}
       </div>
     </template>
     <a-spin :loading="loading">
@@ -47,9 +47,9 @@
 
   const props = withDefaults(
     defineProps<{
-      tableSelected: (string | number)[];
       visible: boolean;
       action: string;
+      selectData: string[] | undefined;
     }>(),
     {
       visible: false,

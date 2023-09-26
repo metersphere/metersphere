@@ -34,8 +34,10 @@
   import { updateProject } from '@/api/modules/project-management/basicInfo';
   import { FormInstance, Message } from '@arco-design/web-vue';
   import type { UpdateProject, ProjectBasicInfoModel } from '@/models/projectManagement/basicInfo';
+  import { useAppStore } from '@/store';
 
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const emits = defineEmits<{
     (e: 'update:visible', visible: boolean): void;
@@ -85,6 +87,7 @@
       id,
       name,
       description,
+      organizationId: appStore.currentOrgId,
     };
   };
 
