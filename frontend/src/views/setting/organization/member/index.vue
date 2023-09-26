@@ -97,9 +97,8 @@
   <MSBatchModal
     ref="batchModalRef"
     v-model:visible="showBatchModal"
-    :table-selected="tableSelected"
     :action="batchAction"
-    :select-data="selectData"
+    :select-data="selectedData"
     @add-project="addProjectOrAddUserGroup"
     @add-user-group="addProjectOrAddUserGroup"
   />
@@ -127,9 +126,9 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
   import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import { useTableStore, useUserStore } from '@/store';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import type { MsTableColumn, BatchActionParams, BatchActionQueryParams } from '@/components/pure/ms-table/type';
   import type { MemberItem, AddorUpdateMemberModel, LinkList, BatchAddProjectModel } from '@/models/setting/member';
-  import { characterLimit, findNodeByKey } from '@/utils';
+  import { characterLimit } from '@/utils';
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
 
   const tableStore = useTableStore();
@@ -213,7 +212,7 @@
       },
     ],
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getMemberList, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getMemberList, {
     tableKey: TableKeyEnum.ORGANIZATION_MEMBER,
     scroll: { x: 2000 },
     selectable: true,
@@ -222,7 +221,8 @@
   });
   const keyword = ref('');
   const tableSelected = ref<(string | number)[]>([]);
-  const selectData = ref<string[]>([]);
+  // 跨页多选
+  const selectedData = ref<string[] | undefined>([]);
 
   const initData = async () => {
     setLoadListParams({ keyword: keyword.value, organizationId: lastOrganizationId });
@@ -250,6 +250,7 @@
       if (lastOrganizationId) await deleteMemberReq(lastOrganizationId, record.id);
       Message.success(t('organization.member.deleteMemberSuccess'));
       initData();
+      resetSelector();
     } catch (error) {
       console.log(error);
     } finally {
@@ -286,7 +287,7 @@
     const currentType = batchList.find((item) => item.type === type);
     const params: BatchAddProjectModel = {
       organizationId: lastOrganizationId,
-      memberIds: tableSelected.value,
+      memberIds: selectedData.value,
     };
     if (type === 'project') {
       params.projectIds = target;
@@ -295,13 +296,16 @@
     }
     if (currentType) await batchModalRef.value.batchRequestFun(currentType.request, params);
     loadList();
+    resetSelector();
   };
+
   // 批量操作
-  const handleTableBatch = (actionItem: any) => {
+  const handleTableBatch = (event: BatchActionParams, params: BatchActionQueryParams) => {
     showBatchModal.value = true;
-    batchAction.value = actionItem.eventTag;
-    if (actionItem.eventTag === 'batchAddProject') getData(getProjectList);
-    if (actionItem.eventTag === 'batchAddUserGroup') getData(getGlobalUserGroup);
+    selectedData.value = params.selectedIds;
+    if (event.eventTag) batchAction.value = event.eventTag;
+    if (event.eventTag === 'batchAddProject') getData(getProjectList);
+    if (event.eventTag === 'batchAddUserGroup') getData(getGlobalUserGroup);
   };
   // 列表编辑更新用户组和项目
   const updateUserOrProject = async (record: MemberItem) => {
@@ -315,6 +319,7 @@
       await addOrUpdate(params, 'edit');
       Message.success(t('organization.member.batchUpdateSuccess'));
       initData();
+      resetSelector();
     } catch (error) {
       console.log(error);
     } finally {

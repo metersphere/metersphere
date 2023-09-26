@@ -10,7 +10,7 @@
       </a-select>
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('featureTest.featureCase.versionPlaceholder')"
+        :placeholder="t('featureTest.featureCase.searchByNameAndId')"
         allow-clear
         class="mx-[8px] w-[240px]"
       ></a-input-search>

@@ -22,14 +22,14 @@
         </div>
       </div>
     </div>
-    <MsCard simple :other-width="290" :min-width="700" :loading="loading">
-      <router-view @update-loading="updateLoading"></router-view>
+    <MsCard simple :other-width="290" :min-width="700" :loading="isLoading">
+      <router-view></router-view>
     </MsCard>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, onBeforeMount } from 'vue';
+  import { ref, onBeforeMount, provide } from 'vue';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -92,11 +92,13 @@
       router.push({ name: itemName });
     }
   };
-  const loading = ref<boolean>(false);
 
-  const updateLoading = (flag: boolean) => {
-    loading.value = flag;
+  const isLoading = ref(false);
+
+  const reload = (flag: boolean) => {
+    isLoading.value = flag;
   };
+  provide('reload', reload);
 
   const setInitRoute = () => {
     if (route?.name) currentKey.value = route.name as string;

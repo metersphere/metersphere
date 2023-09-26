@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onBeforeMount } from 'vue';
+  import { ref, onBeforeMount, inject } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import UpdateProjectModal from './components/updateProjectModal.vue';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
@@ -58,20 +58,18 @@
   const { t } = useI18n();
   const appStore = useAppStore();
 
-  const emits = defineEmits<{
-    (e: 'updateLoading', loading: boolean): void;
-  }>();
+  const updateLoading = inject('reload', (flag: boolean) => {});
 
   const projectDetail = ref<ProjectBasicInfoModel>();
 
   const getProjectDetail = async () => {
-    emits('updateLoading', true);
+    updateLoading(true);
     try {
       projectDetail.value = await getProjectInfo(appStore.currentProjectId);
     } catch (error) {
       console.log(error);
     } finally {
-      emits('updateLoading', false);
+      updateLoading(false);
     }
   };
 
