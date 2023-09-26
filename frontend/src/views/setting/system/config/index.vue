@@ -1,27 +1,17 @@
 <template>
-  <MsCard
-    class="mb-[16px]"
-    :title="t('system.config.parameterConfig')"
-    hide-back
-    hide-footer
-    auto-height
-    no-content-padding
-  >
-    <a-tabs v-model:active-key="activeTab" class="no-content">
-      <a-tab-pane key="baseConfig" :title="t('system.config.baseConfig')" />
-      <a-tab-pane key="pageConfig" :title="t('system.config.pageConfig')" />
-      <a-tab-pane key="authConfig" :title="t('system.config.authConfig')" />
-    </a-tabs>
-  </MsCard>
+  <MsTabCard v-model:active-tab="activeTab" :title="t('system.config.parameterConfig')" :tab-list="tabList" />
   <baseConfig v-show="activeTab === 'baseConfig'" />
-  <pageConfig v-if="isInitedPageConfig" v-show="activeTab === 'pageConfig'" />
-  <authConfig v-if="isInitedAuthConfig" v-show="activeTab === 'authConfig'" ref="authConfigRef" />
+  <pageConfig v-if="isInitPageConfig" v-show="activeTab === 'pageConfig'" />
+  <authConfig v-if="isInitAuthConfig" v-show="activeTab === 'authConfig'" ref="authConfigRef" />
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 系统设置-系统参数
+   */
   import { onMounted, ref, watch } from 'vue';
   import { useRoute } from 'vue-router';
-  import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsTabCard from '@/components/pure/ms-tab-card/index.vue';
   import { useI18n } from '@/hooks/useI18n';
   import baseConfig from './components/baseConfig.vue';
   import pageConfig from './components/pageConfig.vue';
@@ -31,17 +21,22 @@
   const route = useRoute();
 
   const activeTab = ref((route.query.tab as string) || 'baseConfig');
-  const isInitedPageConfig = ref(activeTab.value === 'pageConfig');
-  const isInitedAuthConfig = ref(activeTab.value === 'authConfig');
+  const isInitPageConfig = ref(activeTab.value === 'pageConfig');
+  const isInitAuthConfig = ref(activeTab.value === 'authConfig');
   const authConfigRef = ref<AuthConfigInstance | null>();
+  const tabList = [
+    { key: 'baseConfig', title: t('system.config.baseConfig') },
+    { key: 'pageConfig', title: t('system.config.pageConfig') },
+    { key: 'authConfig', title: t('system.config.authConfig') },
+  ];
 
   watch(
     () => activeTab.value,
     (val) => {
-      if (val === 'pageConfig' && !isInitedPageConfig.value) {
-        isInitedPageConfig.value = true;
-      } else if (val === 'authConfig' && !isInitedAuthConfig.value) {
-        isInitedAuthConfig.value = true;
+      if (val === 'pageConfig' && !isInitPageConfig.value) {
+        isInitPageConfig.value = true;
+      } else if (val === 'authConfig' && !isInitAuthConfig.value) {
+        isInitAuthConfig.value = true;
       }
     },
     {
@@ -56,10 +51,4 @@
   });
 </script>
 
-<style lang="less" scoped>
-  :deep(.no-content) {
-    .arco-tabs-content {
-      display: none;
-    }
-  }
-</style>
+<style lang="less" scoped></style>

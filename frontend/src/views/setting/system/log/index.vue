@@ -3,6 +3,9 @@
 </template>
 
 <script lang="tsx" setup>
+  /**
+   * @description 系统设置-日志
+   */
   import logCards from './components/logCards.vue';
 </script>
 

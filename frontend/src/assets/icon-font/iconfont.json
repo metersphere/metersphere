@@ -6,6 +6,69 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "37505843",
+      "name": "icon_drilling_outlined",
+      "font_class": "icon_drilling_outlined",
+      "unicode": "e764",
+      "unicode_decimal": 59236
+    },
+    {
+      "icon_id": "37384148",
+      "name": "icon_stroke",
+      "font_class": "icon_stroke",
+      "unicode": "e762",
+      "unicode_decimal": 59234
+    },
+    {
+      "icon_id": "37384147",
+      "name": "icon_color-picker",
+      "font_class": "icon_color-picker",
+      "unicode": "e763",
+      "unicode_decimal": 59235
+    },
+    {
+      "icon_id": "37315020",
+      "name": "icon_share",
+      "font_class": "icon_share",
+      "unicode": "e761",
+      "unicode_decimal": 59233
+    },
+    {
+      "icon_id": "37275130",
+      "name": "icon_mail",
+      "font_class": "icon_mail",
+      "unicode": "e760",
+      "unicode_decimal": 59232
+    },
+    {
+      "icon_id": "37243383",
+      "name": "logo_wechat-work",
+      "font_class": "logo_wechat-work",
+      "unicode": "e75f",
+      "unicode_decimal": 59231
+    },
+    {
+      "icon_id": "37243340",
+      "name": "logo_dingtalk",
+      "font_class": "logo_dingtalk",
+      "unicode": "e75d",
+      "unicode_decimal": 59229
+    },
+    {
+      "icon_id": "37243341",
+      "name": "logo_lark",
+      "font_class": "logo_lark",
+      "unicode": "e75e",
+      "unicode_decimal": 59230
+    },
+    {
+      "icon_id": "37243297",
+      "name": "icon_line-height_outlined",
+      "font_class": "icon_line-height_outlined",
+      "unicode": "e75c",
+      "unicode_decimal": 59228
+    },
+    {
       "icon_id": "37233527",
       "name": "icon_folder_expansion",
       "font_class": "icon_folder_expansion1",
