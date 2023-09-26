@@ -261,18 +261,6 @@
             <groupId>com.google.guava</groupId>
             <version>${guava.version}</version>
         </dependency>
-        <!--解决升级JDK11后动态加载JAR 需要JVM的JCA签名信任才能作为加密提供者-->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>${bcprov-jdk15on.version}</version>
-        </dependency>
-        <!-- jdk11 环境下有 Illegal reflective access   -->
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>${guice.version}</version>
-        </dependency>
         <!--   排除jmeter中的 xstream 解决bug     -->
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
@@ -285,12 +273,6 @@
             <version>${xmlbeans.version}</version>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.commonmark</groupId>
             <artifactId>commonmark</artifactId>
@@ -347,23 +329,6 @@
             <artifactId>generex</artifactId>
             <version>${generex.version}</version>
         </dependency>
-        <dependency>
-            <groupId>net.sf.json-lib</groupId>
-            <artifactId>json-lib</artifactId>
-            <version>${json-lib.version}</version>
-            <classifier>jdk15</classifier>
-            <exclusions>
-                <exclusion>
-                    <artifactId>commons-collections</artifactId>
-                    <groupId>commons-collections</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-beanutils</artifactId>
-                    <groupId>commons-beanutils</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!--java json schema json格式校验-->
         <dependency>
             <groupId>com.github.java-json-tools</groupId>

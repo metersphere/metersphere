@@ -20,12 +20,11 @@
     <properties>
         <revision>3.x</revision>
         <java.version>21</java.version>
-        <dubbo.version>2.7.22</dubbo.version>
         <platform-plugin-sdk.version>1.5.0</platform-plugin-sdk.version>
         <shiro.version>1.12.0</shiro.version>
-        <java-websocket.version>1.5.3</java-websocket.version>
+        <java-websocket.version>1.5.4</java-websocket.version>
         <easyexcel.version>3.3.2</easyexcel.version>
-        <dom4j.version>2.1.3</dom4j.version>
+        <dom4j.version>2.1.4</dom4j.version>
         <guava.version>32.0.1-jre</guava.version>
         <pagehelper.version>5.3.3</pagehelper.version>
         <metersphere-jmeter-functions.version>1.5</metersphere-jmeter-functions.version>
@@ -35,14 +34,13 @@
         <mybatis-starter.version>3.0.2</mybatis-starter.version>
         <reflections.version>0.10.2</reflections.version>
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.13.0</commons-io.version>
         <commons-text.version>1.10.0</commons-text.version>
         <xstream.version>1.4.20</xstream.version>
-        <xmlbeans.version>3.1.0</xmlbeans.version>
-        <swagger-parser.version>2.1.12</swagger-parser.version>
+        <xmlbeans.version>5.1.1</xmlbeans.version>
+        <swagger-parser.version>2.1.16</swagger-parser.version>
         <swagger.version>2.2.8</swagger.version>
         <springdoc-openapi-ui.version>2.1.0</springdoc-openapi-ui.version>
-        <jsoup.version>1.15.3</jsoup.version>
         <commonmark.version>0.19.0</commonmark.version>
         <commons-compress.version>1.21</commons-compress.version>
         <htmlcleaner.version>2.26</htmlcleaner.version>
@@ -51,7 +49,6 @@
         <plexus.version>3.0.24</plexus.version>
         <common-random.version>1.0.14</common-random.version>
         <generex.version>1.0.2</generex.version>
-        <json-lib.version>2.4</json-lib.version>
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
         <xz.version>1.9</xz.version>
         <flatten.version>1.2.7</flatten.version>
@@ -70,7 +67,6 @@
         <dec.version>0.1.2</dec.version>
         <dingtalk-sdk.version>2.0.0</dingtalk-sdk.version>
         <dingtalk-client.version>2.0.29</dingtalk-client.version>
-        <org-json.version>20220924</org-json.version>
         <minio.version>8.5.2</minio.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>

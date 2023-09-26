@@ -7,7 +7,7 @@ import io.metersphere.system.mapper.BaseWorkerNodeMapper;
 import io.metersphere.system.uid.utils.DockerUtils;
 import io.metersphere.system.uid.utils.NetUtils;
 import jakarta.annotation.Resource;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -55,7 +55,7 @@ public class DisposableWorkerIdAssigner implements WorkerIdAssigner {
         } else {
             workerNode.setType(WorkerNodeType.ACTUAL.value());
             workerNode.setHostName(NetUtils.getLocalAddress());
-            workerNode.setPort(System.currentTimeMillis() + "-" + RandomUtils.nextInt(100000));
+            workerNode.setPort(System.currentTimeMillis() + "-" + RandomUtils.nextInt());
         }
         workerNode.setCreated(System.currentTimeMillis());
         workerNode.setModified(System.currentTimeMillis());

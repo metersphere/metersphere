@@ -7,7 +7,7 @@ import io.metersphere.system.uid.utils.TimeUtils;
 import io.metersphere.system.uid.worker.WorkerIdAssigner;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

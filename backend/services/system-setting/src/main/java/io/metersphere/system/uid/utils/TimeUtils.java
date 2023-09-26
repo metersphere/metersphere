@@ -1,6 +1,6 @@
 package io.metersphere.system.uid.utils;
 
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * DateUtils provides date formatting, parsing
  */
-public abstract class TimeUtils extends org.apache.commons.lang.time.DateUtils {
+public abstract class TimeUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * Patterns
      */
