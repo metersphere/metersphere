@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1693882799546') format('woff2'), url('iconfont.woff?t=1693882799546') format('woff'),
-    url('iconfont.ttf?t=1693882799546') format('truetype'), url('iconfont.svg?t=1693882799546#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1695722459901') format('woff2'), url('iconfont.woff?t=1695722459901') format('woff'),
+    url('iconfont.ttf?t=1695722459901') format('truetype'), url('iconfont.svg?t=1695722459901#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,33 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_drilling_outlined::before {
+  content: '\e764';
+}
+.icon-icon_stroke::before {
+  content: '\e762';
+}
+.icon-icon_color-picker::before {
+  content: '\e763';
+}
+.icon-icon_share::before {
+  content: '\e761';
+}
+.icon-icon_mail::before {
+  content: '\e760';
+}
+.icon-logo_wechat-work::before {
+  content: '\e75f';
+}
+.icon-logo_dingtalk::before {
+  content: '\e75d';
+}
+.icon-logo_lark::before {
+  content: '\e75e';
+}
+.icon-icon_line-height_outlined::before {
+  content: '\e75c';
 }
 .icon-icon_folder_expansion1::before {
   content: '\e75b';

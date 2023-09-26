@@ -336,6 +336,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 系统设置-资源池详情
+   */
   import { computed, onBeforeMount, Ref, ref, watchEffect, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message, FormInstance, SelectOptionData } from '@arco-design/web-vue';
