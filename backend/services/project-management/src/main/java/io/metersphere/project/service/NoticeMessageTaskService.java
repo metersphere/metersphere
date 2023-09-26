@@ -315,8 +315,6 @@ public class NoticeMessageTaskService {
         Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateTitleMap();
         String robotId = setDefaultRobot(projectId, null);
 
-
-
         for (MessageTaskDTO messageTaskDTO : messageTaskDTOList) {
             messageTaskDTO.setProjectId(projectId);
             messageTaskDTO.setName(moduleMap.get(messageTaskDTO.getType()));

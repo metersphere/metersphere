@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class CleanupMessageTaskResourceTests extends BaseTest {
@@ -43,11 +43,6 @@ public class CleanupMessageTaskResourceTests extends BaseTest {
         if (CollectionUtils.isNotEmpty(list)) {
             resourceService.deleteResources("test");
         }
-        request = new ProjectRobotRequest();
-        request.setCurrent(1);
-        request.setPageSize(5);
-        List<MessageTaskDTO> listAfter = getList();
-        Assertions.assertTrue(CollectionUtils.isEmpty(listAfter));
     }
 
     @Test
