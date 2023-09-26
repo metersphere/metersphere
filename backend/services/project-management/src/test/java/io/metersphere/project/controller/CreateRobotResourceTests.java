@@ -1,10 +1,8 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.project.domain.ProjectRobot;
-import io.metersphere.project.request.ProjectRobotRequest;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
@@ -29,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class CreateRobotResourceTests extends BaseTest {
     private final ProjectServiceInvoker serviceInvoker;
 
-    public static final String ROBOT_LIST = "/project/robot/list/page";
+    public static final String ROBOT_LIST = "/project/robot/list/";
 
     @Autowired
     public CreateRobotResourceTests(ProjectServiceInvoker serviceInvoker) {
@@ -40,25 +38,19 @@ public class CreateRobotResourceTests extends BaseTest {
     @Order(1)
     public void testCleanupResource() throws Exception {
         serviceInvoker.invokeCreateServices("test");
-        ProjectRobotRequest request = new ProjectRobotRequest();
-        request.setCurrent(1);
-        request.setPageSize(5);
-        request.setProjectId("test");
-        Pager<?> sortPageDataAfter = getPager(request);
-        List<ProjectRobot> projectRobotAfters = JSON.parseArray(JSON.toJSONString(sortPageDataAfter.getList()), ProjectRobot.class);
+        List<ProjectRobot> projectRobotAfters = getList();
         Assertions.assertEquals(2, projectRobotAfters.size());
     }
 
-    private Pager<?> getPager(ProjectRobotRequest request) throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(ROBOT_LIST)
+    private List<ProjectRobot> getList() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(ROBOT_LIST + "test")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(request))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
-        return JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
+        return JSON.parseArray(JSON.toJSONString(sortHolder.getData()), ProjectRobot.class);
     }
 }

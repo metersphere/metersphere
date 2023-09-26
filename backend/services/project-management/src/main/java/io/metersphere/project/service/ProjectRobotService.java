@@ -1,12 +1,13 @@
 package io.metersphere.project.service;
 
+import io.metersphere.project.domain.MessageTaskExample;
 import io.metersphere.project.domain.ProjectRobot;
 import io.metersphere.project.domain.ProjectRobotExample;
 import io.metersphere.project.dto.ProjectRobotDTO;
 import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.enums.ProjectRobotType;
+import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
-import io.metersphere.project.request.ProjectRobotRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -25,6 +26,9 @@ public class ProjectRobotService {
 
     @Resource
     private ProjectRobotMapper robotMapper;
+
+    @Resource
+    private MessageTaskMapper messageTaskMapper;
 
     public void add(ProjectRobot projectRobot) {
         projectRobot.setId(UUID.randomUUID().toString());
@@ -63,9 +67,11 @@ public class ProjectRobotService {
         return projectRobotInDB;
     }
 
-
     public void delete(String id) {
         checkRobotExist(id);
+        MessageTaskExample messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria().andProjectRobotIdEqualTo(id);
+        messageTaskMapper.deleteByExample(messageTaskExample);
         robotMapper.deleteByPrimaryKey(id);
     }
 
@@ -83,28 +89,15 @@ public class ProjectRobotService {
         robotMapper.updateByPrimaryKeySelective(projectRobot);
     }
 
-    public List<ProjectRobot> getList(ProjectRobotRequest request) {
+    public List<ProjectRobot> getList(String projectId) {
 
         ProjectRobotExample projectExample = new ProjectRobotExample();
         ProjectRobotExample.Criteria criteria = projectExample.createCriteria();
-
-        if (StringUtils.isNotBlank(request.getKeyword())) {
-            criteria.andNameLike(StringUtils.wrapIfMissing(request.getKeyword(), "%"));
-        }
-
-        if (request.getEnable() != null) {
-            criteria.andEnableEqualTo(request.getEnable());
-        }
-
-        if (request.getProjectId() != null) {
-            criteria.andProjectIdEqualTo(request.getProjectId());
-        }
-
+        criteria.andProjectIdEqualTo(projectId);
         projectExample.setOrderByClause("create_time desc");
 
         return robotMapper.selectByExample(projectExample);
     }
-
 
     public ProjectRobotDTO getDetail(String robotId) {
         ProjectRobot projectRobotInDB = checkRobotExist(robotId);
