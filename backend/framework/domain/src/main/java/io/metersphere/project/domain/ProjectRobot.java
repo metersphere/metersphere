@@ -25,7 +25,7 @@ public class ProjectRobot implements Serializable {
     @Size(min = 1, max = 255, message = "{project_robot.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description = "所属平台（飞书，钉钉，企业微信，自定义）", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "所属平台（飞书:LARK，钉钉:DING_TALK，企业微信:WE_COM，自定义:CUSTOM, 站内信:IN_SITE, 邮件:MAIL）", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_robot.platform.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{project_robot.platform.length_range}", groups = {Created.class, Updated.class})
     private String platform;
@@ -35,7 +35,7 @@ public class ProjectRobot implements Serializable {
     @Size(min = 1, max = 255, message = "{project_robot.webhook.length_range}", groups = {Created.class, Updated.class})
     private String webhook;
 
-    @Schema(description = "自定义和内部")
+    @Schema(description = "钉钉机器人的种类: 自定义:CUSTOM, 企业内部:ENTERPRISE")
     private String type;
 
     @Schema(description = "钉钉AppKey")

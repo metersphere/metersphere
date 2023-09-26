@@ -1,15 +1,11 @@
 package io.metersphere.project.controller;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+
 import io.metersphere.project.domain.ProjectRobot;
 import io.metersphere.project.dto.ProjectRobotDTO;
-import io.metersphere.project.request.ProjectRobotRequest;
 import io.metersphere.project.service.ProjectRobotService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.PageUtils;
-import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -31,12 +27,11 @@ public class ProjectRobotController {
     private ProjectRobotService projectRobotService;
 
 
-    @PostMapping("/list/page")
+    @PostMapping("/list/{projectId}")
     @Operation(summary = "项目管理-项目与权限-消息管理-获取机器人列表")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ)
-    public Pager<List<ProjectRobot>> listResourcePools(@Validated @RequestBody ProjectRobotRequest request) {
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
-        return PageUtils.setPageInfo(page, projectRobotService.getList(request));
+    public List<ProjectRobot> listResourcePools(@PathVariable(value = "projectId") String projectId) {
+        return projectRobotService.getList(projectId);
     }
 
     @PostMapping("add")
