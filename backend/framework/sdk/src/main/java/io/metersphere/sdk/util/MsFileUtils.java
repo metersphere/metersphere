@@ -14,7 +14,7 @@ public class MsFileUtils {
     public static void validateFileName(String... fileNames) {
         if (fileNames != null) {
             for (String fileName : fileNames) {
-                if (StringUtils.isNotEmpty(fileName) && StringUtils.contains(fileName, "." + File.separator)) {
+                if (StringUtils.isNotBlank(fileName) && StringUtils.contains(fileName, "." + File.separator)) {
                     throw new MSException(Translator.get("invalid_parameter"));
                 }
             }

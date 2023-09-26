@@ -57,6 +57,7 @@ public class LocalFileRepository implements FileRepository {
 
     @Override
     public void deleteFolder(FileRequest request) throws Exception {
+        MsFileUtils.validateFileName(request.getProjectId(), request.getFileName());
         this.delete(request);
     }
 
@@ -81,10 +82,12 @@ public class LocalFileRepository implements FileRepository {
     }
 
     private String getFilePath(FileRequest request) {
+        MsFileUtils.validateFileName(request.getProjectId(), request.getFileName());
         return StringUtils.join(getFileDir(request), "/", request.getFileName());
     }
 
     private String getFileDir(FileRequest request) {
+        MsFileUtils.validateFileName(request.getProjectId(), request.getFileName());
         return StringUtils.join(MsFileUtils.DATE_ROOT_DIR, "/", request.getProjectId());
     }
 }
