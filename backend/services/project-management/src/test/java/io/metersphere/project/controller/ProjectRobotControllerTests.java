@@ -363,7 +363,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     }
 
     private List<ProjectRobot> getList(String projectId) throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(ROBOT_LIST + projectId)
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_LIST + projectId)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
