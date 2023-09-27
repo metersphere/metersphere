@@ -143,7 +143,13 @@ export default {
         return this.modules[key] === 'ENABLE';
       }
       let microApps = JSON.parse(sessionStorage.getItem("micro_apps"));
-      return this.modules[key] === 'ENABLE' && microApps && microApps[key];
+      if (sessionStorage.getItem("project_id") === 'no_such_project') {
+        // 如果是空的工作空间, 模块只启用工作台, 系统设置
+        return (key === 'workstation' && microApps && microApps[key]) || (key === 'setting' && microApps && microApps[key]);
+      } else {
+        // 如果是有项目的工作空间, 模块按原有逻辑展示
+        return this.modules[key] === 'ENABLE' && microApps && microApps[key];
+      }
     },
     getUiIndex() {
       if (hasLicense()) {
