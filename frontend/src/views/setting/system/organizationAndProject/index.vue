@@ -34,6 +34,9 @@
 </template>
 
 <script lang="ts" setup>
+  /**
+   * @description 系统设置-系统-组织与项目
+   */
   import { ref, watch, nextTick, onBeforeMount } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
