@@ -279,21 +279,17 @@ public class NoticeMessageTaskService {
      * @param projectId 项目ID
      * @return List<MessageTaskDTO>
      */
-    public List<MessageTaskDTO> getMessageList(String projectId) {
+    public List<MessageTaskDTO> getMessageList(String projectId) throws IOException {
         checkProjectExist(projectId);
         //获取返回数据结构
         StringBuilder jsonStr = new StringBuilder();
         InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                jsonStr.append(line);
-            }
-            reader.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        while ((line = reader.readLine()) != null) {
+            jsonStr.append(line);
         }
+        reader.close();
         List<MessageTaskDTO> messageTaskDTOList = JSON.parseArray(jsonStr.toString(), MessageTaskDTO.class);
         //查询数据
         MessageTaskExample messageTaskExample = new MessageTaskExample();

@@ -19,13 +19,13 @@ public class ProjectRobotDTO {
     @NotBlank(message = "{project_robot.name.not_blank}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description = "所属平台（飞书，钉钉，企业微信，自定义）", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "所属平台（飞书:LARK，钉钉:DING_TALK，企业微信:WE_COM，自定义:CUSTOM, 站内信:IN_SITE, 邮件:MAIL）", requiredMode = Schema.RequiredMode.REQUIRED)
     private String platform;
 
     @Schema(description = "webhook", requiredMode = Schema.RequiredMode.REQUIRED)
     private String webhook;
 
-    @Schema(description = "钉钉自定义和内部")
+    @Schema(description = "钉钉机器人的种类: 自定义:CUSTOM, 企业内部:ENTERPRISE")
     private String type;
 
     @Schema(description = "钉钉AppKey")

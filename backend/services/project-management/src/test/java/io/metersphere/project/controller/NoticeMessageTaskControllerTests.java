@@ -86,6 +86,9 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskRequest.setRobotId("test_message_robot2");
         messageTaskRequest.setEnable(true);
         messageTaskRequest.setTemplate("发送消息测试");
+        messageTaskRequest.setUseDefaultTemplate(true);
+        messageTaskRequest.setSubject("发送消息测试标题");
+        messageTaskRequest.setUseDefaultTemplate(true);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -300,8 +303,9 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
         messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
         List<String> userIds = new ArrayList<>();
-        userIds.add("CREATE_USER");
-        userIds.add("FOLLOW_PEOPLE");
+        userIds.add(NoticeConstants.RelatedUser.CREATE_USER);
+        userIds.add(NoticeConstants.RelatedUser.FOLLOW_PEOPLE);
+        userIds.add(NoticeConstants.RelatedUser.OPERATOR);
         messageTaskRequest.setReceiverIds(userIds);
         messageTaskRequest.setRobotId("test_message_robot2");
         messageTaskRequest.setEnable(true);
@@ -326,8 +330,8 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
         messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
         List<String> userIds = new ArrayList<>();
-        userIds.add("CREATE_USER");
-        userIds.add("FOLLOW_PEOPLE");
+        userIds.add(NoticeConstants.RelatedUser.CREATE_USER);
+        userIds.add(NoticeConstants.RelatedUser.FOLLOW_PEOPLE);
         userIds.add("project-message-user-5");
         messageTaskRequest.setReceiverIds(userIds);
         messageTaskRequest.setRobotId("test_message_robot2");
@@ -353,8 +357,8 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
         messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
         List<String> userIds = new ArrayList<>();
-        userIds.add("CREATE_USER");
-        userIds.add("FOLLOW_PEOPLE");
+        userIds.add(NoticeConstants.RelatedUser.CREATE_USER);
+        userIds.add(NoticeConstants.RelatedUser.FOLLOW_PEOPLE);
         userIds.add("project-message-user-6");
         userIds.add("project-message-user-del");
         messageTaskRequest.setReceiverIds(userIds);
@@ -375,14 +379,44 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
 
     @Test
     @Order(14)
+    public void updateMessageTaskCheckSpecialUserThreeSuccess() throws Exception {
+        MessageTaskRequest messageTaskRequest = new MessageTaskRequest();
+        messageTaskRequest.setProjectId("project-message-test");
+        messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
+        messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
+        List<String> userIds = new ArrayList<>();
+        userIds.add(NoticeConstants.RelatedUser.CREATE_USER);
+        userIds.add(NoticeConstants.RelatedUser.FOLLOW_PEOPLE);
+        userIds.add("project-message-user-6");
+        messageTaskRequest.setReceiverIds(userIds);
+        messageTaskRequest.setRobotId("test_message_robot2");
+        messageTaskRequest.setEnable(false);
+        messageTaskRequest.setTemplate("发送消息测试");
+        messageTaskRequest.setSubject("发送消息测试标题");
+        messageTaskRequest.setUseDefaultTemplate(false);
+        messageTaskRequest.setUseDefaultSubject(false);
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(messageTaskRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        Assertions.assertEquals(100200, resultHolder.getCode());
+    }
+
+    @Test
+    @Order(15)
     public void closeMessageTaskSuccess() throws Exception {
         MessageTaskRequest messageTaskRequest = new MessageTaskRequest();
         messageTaskRequest.setProjectId("project-message-test");
         messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
         messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
         List<String> userIds = new ArrayList<>();
-        userIds.add("CREATE_USER");
-        userIds.add("FOLLOW_PEOPLE");
+        userIds.add(NoticeConstants.RelatedUser.CREATE_USER);
+        userIds.add(NoticeConstants.RelatedUser.FOLLOW_PEOPLE);
         messageTaskRequest.setReceiverIds(userIds);
         messageTaskRequest.setRobotId("test_message_robot2");
         messageTaskRequest.setEnable(false);
