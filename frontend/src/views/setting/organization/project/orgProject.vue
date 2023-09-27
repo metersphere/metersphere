@@ -56,6 +56,9 @@
 </template>
 
 <script lang="ts" setup>
+  /**
+   * @description 系统设置-组织-项目
+   */
   import { useI18n } from '@/hooks/useI18n';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';

@@ -143,6 +143,10 @@
           </div>
         </slot>
       </template>
+      <template #expand-icon="{ expanded }">
+        <icon-down-circle v-if="expanded" />
+        <icon-right-circle v-else />
+      </template>
     </a-table>
     <div
       class="mt-[16px] flex h-[32px] w-[100%] min-w-[952px] flex-row flex-nowrap items-center justify-end px-0"

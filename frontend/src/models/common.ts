@@ -9,9 +9,9 @@ export default interface CommonResponse<T> {
 // 表格查询
 export interface TableQueryParams {
   // 当前页
-  current: number;
+  current?: number;
   // 每页条数
-  pageSize: number;
+  pageSize?: number;
   // 排序仅针对单个字段
   sort?: object;
   // 排序仅针对单个字段

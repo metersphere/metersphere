@@ -7,12 +7,12 @@
         </div>
       </Transition>
       <Transition>
-        <div class="usergroup-collapse" :style="leftCollapse ? 'left: 300px' : 'left: 0'" @click="handleCollapse">
+        <div class="usergroup-collapse" :style="{ left: leftCollapse ? '300px' : '0' }" @click="handleCollapse">
           <icon-double-left v-if="leftCollapse" class="text-[12px] text-[var(--color-text-brand)]" />
           <icon-double-right v-if="!leftCollapse" class="text-[12px] text-[var(--color-text-brand)]" />
         </div>
       </Transition>
-      <div class="w-[100%] p-[24px]">
+      <div class="p-[24px]" :style="{ width: leftCollapse ? 'calc(100% - 300px)' : '100%' }">
         <div class="flex flex-row items-center justify-between">
           <a-tooltip :content="currentUserGroupItem.name">
             <div class="one-line-text max-w-[300px]">{{ currentUserGroupItem.name }}</div>
@@ -57,6 +57,9 @@
 </template>
 
 <script lang="ts" setup>
+  /**
+   * @description 系统设置-系统-用户组
+   */
   import { ref, computed, watchEffect, nextTick, provide, onMounted } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import UserGroupLeft from '@/components/business/ms-user-group-comp/msUserGroupLeft.vue';
@@ -171,6 +174,7 @@
     overflow-x: hidden;
     overflow-y: auto;
     padding-right: 6px;
+    width: 300px;
     min-width: 300px;
     height: 100%;
     border-right: 1px solid var(--color-border-1);

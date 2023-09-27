@@ -9,4 +9,14 @@ export enum AuthScopeEnum {
   PROJECT = 'PROJECT',
 }
 
+export enum MenuEnum {
+  workstation = 'workstation',
+  loadTest = 'loadTest',
+  testPlan = 'testPlan',
+  bugManagement = 'bugManagement',
+  caseManagement = 'caseManagement',
+  apiTest = 'apiTest',
+  uiTest = 'uiTest',
+}
+
 export default {};

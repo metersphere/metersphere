@@ -267,7 +267,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 110,
+      width: 100,
     },
   ];
   const tableStore = useTableStore();
@@ -280,6 +280,7 @@
       size: 'default',
       selectable: true,
       pageSimple: true,
+      showSetting: true,
     },
     (record) => ({
       ...record,

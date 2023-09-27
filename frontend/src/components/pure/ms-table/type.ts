@@ -47,6 +47,7 @@ export interface MsTableProps<T> {
   rowKey: string; // 表格行的key rowId
   // 表格列 - 详见 TableColumn  https://arco.design/web-vue/components/table-column;
   columns: MsTableColumnData[];
+  showPagination?: boolean; // 是否显示分页
   size?: 'mini' | 'small' | 'default' | 'large'; // 表格尺寸
   scroll?: {
     x?: number | string;

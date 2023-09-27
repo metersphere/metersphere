@@ -8,6 +8,7 @@ import type { TableData } from '@arco-design/web-vue';
 import type { TableQueryParams, CommonList } from '@/models/common';
 import { SelectAllEnum } from '@/enums/tableEnum';
 import type { MsTableProps, MsTableDataItem, MsTableColumn, MsTableErrorStatus, SetPaginationPrams } from './type';
+import { set } from 'nprogress';
 
 export interface Pagination {
   current: number;
@@ -151,52 +152,82 @@ export default function useTableProps<T>(
 
   // 加载分页列表数据
   const loadList = async () => {
-    const { current, pageSize } = propsRes.value.msPagination as Pagination;
-    const { rowKey, selectorStatus, excludeKeys } = propsRes.value;
-    setLoading(true);
-    try {
-      const data = await loadListFunc({
-        current,
-        pageSize,
-        sort: sortItem.value,
-        filter: filterItem.value,
-        keyword: keyword.value,
-        ...loadListParams.value,
-      });
-      const tmpArr = data.list;
-      (propsRes.value.data as MsTableDataItem<T>[]) = tmpArr.map((item) => {
-        if (item.updateTime) {
-          item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
-        }
-        if (item.createTime) {
-          item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
-        }
-        if (dataTransform) {
-          item = dataTransform(item);
-        }
-        if (selectorStatus === SelectAllEnum.ALL) {
-          if (!excludeKeys.has(item[rowKey])) {
-            setTableSelected(item[rowKey]);
+    if (propsRes.value.showPagination) {
+      const { current, pageSize } = propsRes.value.msPagination as Pagination;
+      const { rowKey, selectorStatus, excludeKeys } = propsRes.value;
+      try {
+        setLoading(true);
+        const data = await loadListFunc({
+          current,
+          pageSize,
+          sort: sortItem.value,
+          filter: filterItem.value,
+          keyword: keyword.value,
+          ...loadListParams.value,
+        });
+        const tmpArr = data.list;
+        (propsRes.value.data as MsTableDataItem<T>[]) = tmpArr.map((item) => {
+          if (item.updateTime) {
+            item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
           }
+          if (item.createTime) {
+            item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
+          }
+          if (dataTransform) {
+            item = dataTransform(item);
+          }
+          if (selectorStatus === SelectAllEnum.ALL) {
+            if (!excludeKeys.has(item[rowKey])) {
+              setTableSelected(item[rowKey]);
+            }
+          }
+          return item;
+        });
+        if (data.total === 0) {
+          setTableErrorStatus('empty');
+        } else {
+          setTableErrorStatus(false);
         }
-
-        return item;
-      });
-      if (data.total === 0) {
-        setTableErrorStatus('empty');
-      } else {
-        setTableErrorStatus(false);
+        setPagination({ current: data.current, total: data.total });
+        return data;
+      } catch (err) {
+        setTableErrorStatus('error');
+      } finally {
+        setLoading(false);
+        // debug 模式下打印属性
+        if (propsRes.value.debug && import.meta.env.DEV) {
+          // eslint-disable-next-line no-console
+          // console.log('Table propsRes: ', propsRes.value);
+        }
       }
-      setPagination({ current: data.current, total: data.total });
-      return data;
-    } catch (err) {
-      setTableErrorStatus('error');
-    } finally {
-      setLoading(false);
-      // debug 模式下打印属性
-      if (propsRes.value.debug && import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
-        // console.log('Table propsRes: ', propsRes.value);
+    } else {
+      // 没分页的情况下，直接调用loadListFunc
+      try {
+        setLoading(true);
+        const data = await loadListFunc({ keyword: keyword.value, ...loadListParams.value });
+        if (data.total === 0) {
+          setTableErrorStatus('empty');
+          return;
+        }
+        setTableErrorStatus(false);
+        const tmpArr = data.list;
+        (propsRes.value.data as MsTableDataItem<T>[]) = tmpArr.map((item) => {
+          if (item.updateTime) {
+            item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
+          }
+          if (item.createTime) {
+            item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
+          }
+          if (dataTransform) {
+            item = dataTransform(item);
+          }
+          return item;
+        });
+        return data;
+      } catch (err) {
+        setTableErrorStatus('error');
+      } finally {
+        setLoading(false);
       }
     }
   };
