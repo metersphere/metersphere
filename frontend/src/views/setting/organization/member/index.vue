@@ -105,6 +105,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 系统管理-组织-成员
+   */
   import { onBeforeMount, ref } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';

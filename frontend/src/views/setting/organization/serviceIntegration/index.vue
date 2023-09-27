@@ -51,6 +51,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 系统管理-组织-服务集成
+   */
   import { ref } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -59,7 +62,6 @@
   import type { StepListType, SkipTitle } from '@/models/setting/serviceIntegration';
   import { openWindow } from '@/utils/index';
   import { SettingRouteEnum } from '@/enums/routeEnum';
-  import settings from '@/locale/zh-CN/settings';
 
   const { t } = useI18n();
   const router = useRouter();

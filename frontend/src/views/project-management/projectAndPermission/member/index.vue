@@ -84,6 +84,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 项目管理-项目与权限-成员
+   */
   import { ref, onBeforeMount } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';

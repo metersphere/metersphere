@@ -68,6 +68,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 功能测试-功能用例
+   */
   import { computed, ref } from 'vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';

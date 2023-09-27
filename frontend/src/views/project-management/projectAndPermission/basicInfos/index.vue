@@ -46,6 +46,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 项目管理-项目与权限-基本信息
+   */
   import { ref, onBeforeMount, inject } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import UpdateProjectModal from './components/updateProjectModal.vue';
