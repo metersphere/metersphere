@@ -246,6 +246,7 @@ public class BaseUserService {
         if (StringUtils.equals("workspace", sign)) {
             user.setLastWorkspaceId(sourceId);
             sessionUser.setLastWorkspaceId(sourceId);
+            user.setLastProjectId(StringUtils.EMPTY);
             List<Project> projects = getProjectListByWsAndUserId(sessionUser.getId(), sourceId);
             if (CollectionUtils.isNotEmpty(projects)) {
                 user.setLastProjectId(projects.get(0).getId());
