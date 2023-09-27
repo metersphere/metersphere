@@ -1,23 +1,70 @@
 <template>
-  <a-popover v-bind="attrs" :type="props.type" :popup-visible="currentVisible" class="w-[352px]" trigger="click">
+  <a-popover
+    v-bind="attrs"
+    :type="props.type"
+    :popup-visible="currentVisible"
+    :class="props.isDelete ? 'w-[352px]' : ''"
+    trigger="click"
+    :popup-container="props.popupContainer || 'body'"
+    :position="props.isDelete ? 'bottom' : 'rb'"
+    @popup-visible-change="reset"
+  >
     <template #content>
       <div class="flex flex-row flex-nowrap items-center">
         <slot name="icon">
-          <MsIcon type="icon-icon_warning_filled" class="mr-[2px] text-xl text-[rgb(var(--danger-6))]" />
+          <MsIcon
+            v-if="props.isDelete"
+            type="icon-icon_warning_filled"
+            class="mr-[2px] text-xl text-[rgb(var(--danger-6))]"
+          />
         </slot>
-        <span class="ml-2 font-semibold">
-          {{ props.title }}
+        <span :class="titleClass">
+          {{ characterLimit(props.title) || '' }}
         </span>
       </div>
-      <div class="ml-8 mt-2 text-sm text-[var(--color-text-2)]">
+      <!-- 描述展示 -->
+      <div v-if="props.subTitleTip" class="ml-8 mt-2 text-sm text-[var(--color-text-2)]">
         {{ props.subTitleTip }}
       </div>
+      <!-- 表单展示 -->
+      <a-form v-else ref="formRef" :model="form" layout="vertical">
+        <a-form-item
+          class="hidden-item"
+          field="field"
+          :rules="
+            props.fieldConfig?.rules || [
+              { required: true, message: t('popConfirm.nameNotNull') },
+              { validator: validateName },
+            ]
+          "
+        >
+          <a-textarea
+            v-if="props.fieldConfig?.isTextArea"
+            v-model:model-value="form.field"
+            :max-length="props.fieldConfig?.maxLength"
+            :auto-size="{ maxRows: 4 }"
+            :placeholder="props.fieldConfig?.placeholder"
+            class="w-[245px]"
+            :rules="props.fieldConfig?.rules || []"
+            @press-enter="handleConfirm"
+          >
+          </a-textarea>
+          <a-input
+            v-else
+            v-model:model-value="form.field"
+            :max-length="50"
+            :placeholder="props.fieldConfig?.placeholder"
+            class="w-[245px]"
+            @press-enter="handleConfirm"
+          />
+        </a-form-item>
+      </a-form>
       <div class="mt-4 flex flex-row flex-nowrap justify-end gap-2">
         <a-button type="secondary" size="mini" :disabled="props.loading" @click="handleCancel">
           {{ props.cancelText || t('common.cancel') }}
         </a-button>
         <a-button type="primary" size="mini" :loading="props.loading" @click="handleConfirm">
-          {{ props.okText || t('common.remove') }}
+          {{ props.isDelete ? t('common.remove') : props.okText || t('common.confirm') }}
         </a-button>
       </div>
     </template>
@@ -28,45 +75,134 @@
 
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
-  import { ref, useAttrs, watchEffect } from 'vue';
+  import { computed, ref, useAttrs, watch } from 'vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import type { FormInstance, FieldRule } from '@arco-design/web-vue';
+  import { characterLimit } from '@/utils';
 
   export type types = 'error' | 'info' | 'success' | 'warning';
 
   const { t } = useI18n();
 
+  interface FieldConfig {
+    field?: string;
+    rules?: FieldRule[];
+    placeholder?: string;
+    maxLength?: number;
+    isTextArea?: boolean;
+    nameExistTipText?: string; // 添加重复提示文本
+  }
+
   const props = withDefaults(
     defineProps<{
-      title: string;
-      subTitleTip: string;
-      type: types;
+      title: string; // 文本提示标题
+      subTitleTip?: string; // 子内容提示
+      type?: types;
+      isDelete?: boolean; // 当前使用是否是移除
       loading?: boolean;
-      okText?: string;
+      okText?: string; // 确定按钮文本
       cancelText?: string;
-      visible?: boolean;
+      visible?: boolean; // 是否打开
+      popupContainer?: string;
+      fieldConfig?: FieldConfig; // 表单配置项
+      allNames?: string[]; // 添加或者重命名名称重复
     }>(),
     {
       type: 'warning',
+      isDelete: true, // 默认移除pop
     }
   );
   const emits = defineEmits<{
-    (e: 'confirm'): void;
+    (e: 'confirm', isPass: boolean): void;
     (e: 'cancel'): void;
+    (e: 'update:visible', visible: boolean): void;
   }>();
 
   const currentVisible = ref(props.visible || false);
 
   const attrs = useAttrs();
-  const handleConfirm = () => {
-    emits('confirm');
+  const formRef = ref<FormInstance>();
+  const isPass = ref(false);
+
+  const setValidateResult = (isValidatePass: boolean) => {
+    isPass.value = isValidatePass;
+  };
+
+  // 校验表单
+  const validateForm = async () => {
+    await formRef.value?.validate((errors) => {
+      if (!errors) {
+        setValidateResult(true);
+      } else {
+        setValidateResult(false);
+      }
+    });
+  };
+
+  const handleConfirm = async () => {
+    await validateForm();
+    emits('confirm', isPass.value);
+  };
+
+  // 表单
+  const form = ref({
+    field: props.fieldConfig?.field || '',
+  });
+
+  // 重置
+  const reset = () => {
+    form.value.field = '';
+    formRef.value?.resetFields();
   };
 
   const handleCancel = () => {
+    currentVisible.value = false;
     emits('cancel');
+    reset();
   };
 
-  watchEffect(() => {
-    currentVisible.value = props.visible;
+  // 获取当前标题的样式
+  const titleClass = computed(() => {
+    return props.isDelete ? 'ml-2 font-semibold' : 'mb-[8px] font-medium text-[var(--color-text-1)] text-[14px]';
+  });
+
+  watch(
+    () => props.fieldConfig?.field,
+    (val) => {
+      form.value.field = val || '';
+    }
+  );
+
+  watch(
+    () => props.visible,
+    (val) => {
+      currentVisible.value = val;
+    }
+  );
+
+  watch(
+    () => currentVisible.value,
+    (val) => {
+      if (!val) {
+        emits('cancel');
+      }
+      emits('update:visible', val);
+    }
+  );
+
+  // 校验名称是否重复
+  const validateName = (value: any, callback: (error?: string | undefined) => void) => {
+    if ((props.allNames || []).includes(value)) {
+      if (props.fieldConfig && props.fieldConfig.nameExistTipText) {
+        callback(t(props.fieldConfig.nameExistTipText));
+      } else {
+        callback(t('popConfirm.nameExist'));
+      }
+    }
+  };
+
+  defineExpose({
+    form,
   });
 </script>
 

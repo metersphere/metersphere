@@ -109,6 +109,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 系统管理-系统-授权管理
+   */
   import { ref, onBeforeMount, watch, reactive } from 'vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { getLicenseInfo, addLicense } from '@/api/modules/setting/authorizedManagement';

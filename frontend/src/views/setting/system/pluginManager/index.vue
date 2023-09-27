@@ -16,6 +16,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 系统管理-系统-插件管理
+   */
   import pluginTable from './components/pluginTable.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { useI18n } from '@/hooks/useI18n';

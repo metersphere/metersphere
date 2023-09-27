@@ -29,6 +29,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 项目管理-项目与权限
+   */
   import { ref, onBeforeMount, provide } from 'vue';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
   import { useI18n } from '@/hooks/useI18n';
