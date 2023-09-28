@@ -15,6 +15,7 @@
     <div v-for="(formItem, index) in formModels" :key="index" class="mb-[8px]">
       <a-scrollbar class="overflow-y-auto" :style="{ 'max-height': props.maxHeight || '300px' }">
         <QueryFromItem
+          ref="queryFromRef"
           :form-item="formItem"
           :form-list="formModels"
           :select-group-list="selectGroupList"
@@ -162,6 +163,11 @@
       type: 'a-input',
       value: '',
       field: 'condition',
+      props: {
+        'max-length': 60,
+        'show-word-limit': true,
+        'allow-clear': true,
+      },
     },
   };
 
@@ -169,17 +175,37 @@
 
   // 移除查询条件项
   const removeField = (index: number) => {
+    debugger;
     formModels.value.splice(index, 1);
   };
 
+  // 校验结果列表
+  const allValidateResult = ref<string[]>([]);
+
+  const queryFromRef = ref();
+
   // 添加查询条件项
-  const addField = () => {
+  const addField = async () => {
+    allValidateResult.value = [];
+    // 全部校验通过可进行添加
+    await Promise.all(
+      queryFromRef.value.map((item: any) => {
+        return new Promise<void>((resolve) => {
+          item.validateQueryContent(async (isValidated: string) => {
+            allValidateResult.value.push(isValidated);
+            resolve();
+          });
+        });
+      })
+    );
+    const isValidateSuccess = allValidateResult.value.every((item: string) => item === 'ok');
     const ishasCondition = formModels.value.some((item) => !item.searchKey.value);
     if (ishasCondition) {
       Message.warning(t('searchPanel.selectTip'));
-      return;
     }
-    formModels.value.push(deaultTemplate);
+    if (isValidateSuccess && !ishasCondition) {
+      formModels.value.push(deaultTemplate);
+    }
   };
 
   // 处理更新后的数据
@@ -222,5 +248,8 @@
       color: rgb(var(--primary-5));
       background: rgb(var(--primary-9));
     }
+  }
+  :deep(.arco-scrollbar-track-direction-vertical .arco-scrollbar-thumb-bar) {
+    margin: 7px;
   }
 </style>

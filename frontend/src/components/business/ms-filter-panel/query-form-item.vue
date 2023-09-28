@@ -6,11 +6,11 @@
           :is="form.searchKey.type"
           v-bind="form.searchKey.props"
           v-model="form.searchKey.value"
-          @change="cate1ChangeHandler"
+          @change="searchKeyChange"
         >
           <a-optgroup
-            v-for="(group, index) of props.selectGroupList"
-            :key="`${group.label as string + index}`"
+            v-for="(group, i) of props.selectGroupList"
+            :key="`${group.label as string}-${i}`"
             :label="group.label"
           >
             <a-option
@@ -36,35 +36,46 @@
         </component>
       </div>
       <div class="flex flex-1">
-        <TimerSelect
-          v-if="getQueryContentType('time-select')"
-          :model-value="form.queryContent.value"
-          v-bind="form.queryContent.props"
-          :operation-type="form.operatorCondition.value"
-          @update-time="updateTimeValue"
-        />
-        <component
-          :is="form.queryContent.type"
-          v-else
-          v-bind="form.queryContent.props"
-          v-model="form.queryContent.value"
-          @change="filterKeyChange"
-        >
-          <template v-if="form.queryContent.type === 'a-select'">
-            <a-option v-for="opt of form.queryContent.options" :key="opt.value" :value="opt.value">{{
-              opt.label
-            }}</a-option>
-          </template>
-          <template v-else-if="form.queryContent.type === 'a-select-group'">
-            <a-select v-model="form.queryContent.value" v-bind="form.queryContent.props">
-              <a-optgroup v-for="group of form.searchKey.options" :key="group.id" :label="group.label">
-                <a-option v-for="groupOptions of group.options" :key="groupOptions.id" :value="groupOptions.id">{{
-                  groupOptions.label
+        <a-form ref="queryContentFormRef" :model="form.queryContent">
+          <a-form-item
+            required
+            field="value"
+            :rules="form.queryContent.rules || [{ required: true, message: '请输入筛选内容' }]"
+            hide-label
+            hide-asterisk
+            class="mb-0"
+          >
+            <TimerSelect
+              v-if="form.queryContent.type === 'time-select'"
+              :model-value="form.queryContent.value"
+              v-bind="form.queryContent.props"
+              :operation-type="form.operatorCondition.value"
+              @update-time="updateTimeValue"
+            />
+            <component
+              :is="form.queryContent.type"
+              v-else
+              v-bind="form.queryContent.props"
+              v-model="form.queryContent.value"
+              @change="filterKeyChange"
+            >
+              <template v-if="form.queryContent.type === 'a-select'">
+                <a-option v-for="opt of form.queryContent.options" :key="opt.value" :value="opt.value">{{
+                  opt.label
                 }}</a-option>
-              </a-optgroup>
-            </a-select>
-          </template>
-        </component>
+              </template>
+              <template v-else-if="form.queryContent.type === 'a-select-group'">
+                <a-select v-model="form.queryContent.value" v-bind="form.queryContent.props">
+                  <a-optgroup v-for="group of form.searchKey.options" :key="group.id" :label="group.label">
+                    <a-option v-for="groupOptions of group.options" :key="groupOptions.id" :value="groupOptions.id">{{
+                      groupOptions.label
+                    }}</a-option>
+                  </a-optgroup>
+                </a-select>
+              </template>
+            </component>
+          </a-form-item>
+        </a-form>
         <div class="minus"> <slot></slot></div>
       </div>
     </div>
@@ -78,6 +89,8 @@
   import { TEST_PLAN_TEST_CASE } from './caseUtils';
   import TimerSelect from './time-select.vue';
   import { SelectOptionData } from '@arco-design/web-vue';
+  import type { FormInstance } from '@arco-design/web-vue';
+  import type { SearchKeyType } from './type';
 
   const { t } = useI18n();
 
@@ -93,20 +106,24 @@
   const form = ref({ ...cloneDeep(props.formItem) });
 
   watchEffect(() => {
-    form.value.queryContent.value = props.formItem.queryContent.value;
+    form.value = { ...cloneDeep(props.formItem) };
   });
 
   // 一级属性变化回调
-  const cate1ChangeHandler = (value: string) => {
+  const searchKeyChange = (value: string) => {
     const { operatorCondition, queryContent } = form.value;
     operatorCondition.value = '';
     operatorCondition.options = [];
+    queryContent.value = '';
     // 获取当前选中查询Key属性的配置项
-    const currentKeysConfig = TEST_PLAN_TEST_CASE.find((item) => item.key === value);
+    const currentKeysConfig = TEST_PLAN_TEST_CASE.find((item: any) => item.key === value);
     if (currentKeysConfig) {
       operatorCondition.options = currentKeysConfig.operator.options;
       operatorCondition.value = currentKeysConfig.operator.options[0].value;
       queryContent.type = currentKeysConfig.type;
+      if (currentKeysConfig.rules) {
+        queryContent.rules = currentKeysConfig.rules;
+      }
     }
     emits('dataUpdated', form.value, props.index);
   };
@@ -132,17 +149,22 @@
     form.value.queryContent.value = time;
     emits('dataUpdated', form.value, props.index);
   };
+  const queryContentFormRef = ref<FormInstance>();
 
-  // 判断当前情况
-  const getQueryContentType = (type: string) => {
-    switch (type) {
-      // 时间选择面板
-      case 'time-select':
-        return true;
-      default:
-        return false;
-    }
+  // 校验表单
+  const validateQueryContent = (callBack: (isSuccess: string) => void) => {
+    queryContentFormRef.value?.validate((errors) => {
+      if (!errors) {
+        callBack('ok');
+      } else {
+        callBack('no');
+      }
+    });
   };
+
+  defineExpose({
+    validateQueryContent,
+  });
 </script>
 
 <style scoped></style>
