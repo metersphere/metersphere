@@ -1,11 +1,15 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectRobot;
+import io.metersphere.project.dto.MessageTaskDTO;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class CreateRobotResourceTests extends BaseTest {
@@ -34,16 +38,32 @@ public class CreateRobotResourceTests extends BaseTest {
         this.serviceInvoker = serviceInvoker;
     }
 
+    @Resource
+    private ProjectMapper projectMapper;
+
     @Test
     @Order(1)
     public void testCleanupResource() throws Exception {
-        serviceInvoker.invokeCreateServices("test");
+        Project project = new Project();
+        project.setId("test_message");
+        project.setOrganizationId("organization-message-test");
+        project.setName("默认项目");
+        project.setDescription("系统默认创建的项目");
+        project.setCreateUser("admin");
+        project.setUpdateUser("admin");
+        project.setCreateTime(System.currentTimeMillis());
+        project.setUpdateTime(System.currentTimeMillis());
+        projectMapper.insertSelective(project);
+        serviceInvoker.invokeCreateServices("test_message");
         List<ProjectRobot> projectRobotAfters = getList();
         Assertions.assertEquals(2, projectRobotAfters.size());
+        List<MessageTaskDTO> messageList = getMessageList();
+        Assertions.assertTrue(messageList.size() > 0);
+        System.out.println(messageList);
     }
 
     private List<ProjectRobot> getList() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_LIST + "test")
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_LIST + "test_message")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -52,5 +72,16 @@ public class CreateRobotResourceTests extends BaseTest {
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         return JSON.parseArray(JSON.toJSONString(sortHolder.getData()), ProjectRobot.class);
+    }
+
+    private List<MessageTaskDTO> getMessageList() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/task/get/test_message")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
     }
 }
