@@ -1,31 +1,94 @@
-DROP TABLE IF EXISTS api_definition;
-CREATE TABLE api_definition(
-  `id` VARCHAR(50) NOT NULL   COMMENT '接口pk' ,
-  `name` VARCHAR(255) NOT NULL   COMMENT '接口名称' ,
-  `protocol` VARCHAR(20) NOT NULL   COMMENT '接口协议' ,
-  `module_path` VARCHAR(1000)    COMMENT '模块全路径-用于导入处理' ,
-  `status` VARCHAR(50) NOT NULL   COMMENT '接口状态/进行中/已完成' ,
-  `module_id` VARCHAR(50)   DEFAULT 'NONE' COMMENT '模块fk' ,
-  `num` INT    COMMENT '自定义id' ,
-  `tags` VARCHAR(500)    COMMENT '标签' ,
-  `pos` BIGINT NOT NULL   COMMENT '自定义排序' ,
-  `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-  `environment_id` VARCHAR(50)    COMMENT '环境fk' ,
-  `latest` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是' ,
-  `version_id` VARCHAR(50)    COMMENT '版本fk' ,
-  `ref_id` VARCHAR(50)    COMMENT '版本引用fk' ,
-  `description` VARCHAR(500)    COMMENT '描述' ,
-  `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-  `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-  `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
-  `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
-  `delete_user` VARCHAR(50)    COMMENT '删除人' ,
-  `delete_time` BIGINT    COMMENT '删除时间' ,
-  `deleted` BIT(1) NOT NULL  DEFAULT 0 COMMENT '删除状态' ,
-  PRIMARY KEY (id)
+-- set innodb lock wait timeout
+SET SESSION innodb_lock_wait_timeout = 7200;
+
+DROP TABLE IF EXISTS api_debug;
+CREATE TABLE api_debug(
+    `id` VARCHAR(50) NOT NULL   COMMENT '接口pk' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '接口名称' ,
+    `protocol` VARCHAR(20) NOT NULL   COMMENT '接口协议' ,
+    `method` VARCHAR(20)    COMMENT 'http协议类型post/get/其它协议则是协议名(mqtt)' ,
+    `path` VARCHAR(500)    COMMENT 'http协议路径/其它协议则为空' ,
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
+    `module_id` VARCHAR(50)   DEFAULT 'NONE' COMMENT '模块fk' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
+    `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '接口定义';
+  COLLATE = utf8mb4_general_ci COMMENT = '接口调试';
+
+CREATE INDEX idx_project_id ON api_debug(project_id);
+CREATE INDEX idx_module_id ON api_debug(module_id);
+CREATE INDEX idx_protocol ON api_debug(protocol);
+CREATE INDEX idx_create_time ON api_debug(create_time);
+CREATE INDEX idx_create_user ON api_debug(create_user);
+CREATE INDEX idx_name ON api_debug(name);
+
+
+DROP TABLE IF EXISTS api_debug_blob;
+CREATE TABLE api_debug_blob(
+    `id` VARCHAR(50) NOT NULL   COMMENT '接口fk/ 一对一关系' ,
+    `request` LONGBLOB    COMMENT '请求内容' ,
+    `response` LONGBLOB    COMMENT '响应内容' ,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '接口调试详情内容';
+
+DROP TABLE IF EXISTS api_debug_module;
+CREATE TABLE api_debug_module(
+    `id` VARCHAR(50) NOT NULL   COMMENT '接口模块pk' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
+    `protocol` VARCHAR(64) NOT NULL   COMMENT '协议' ,
+    `parent_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父级fk' ,
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
+    `level` INT NOT NULL  DEFAULT 1 COMMENT '树节点级别' ,
+    `pos` INT NOT NULL   COMMENT '排序' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
+    `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '接口调试模块';
+
+CREATE INDEX idx_project_id ON api_debug_module(project_id);
+CREATE INDEX idx_protocol ON api_debug_module(protocol);
+CREATE INDEX idx_pos ON api_debug_module(pos);
+
+
+DROP TABLE IF EXISTS api_definition;
+CREATE TABLE api_definition(
+    `id` VARCHAR(50) NOT NULL   COMMENT '接口pk' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '接口名称' ,
+    `protocol` VARCHAR(20) NOT NULL   COMMENT '接口协议' ,
+    `method` VARCHAR(20)    COMMENT 'http协议类型post/get/其它协议则是协议名(mqtt)' ,
+    `path` VARCHAR(500)    COMMENT 'http协议路径/其它协议则为空' ,
+    `status` VARCHAR(50) NOT NULL   COMMENT '接口状态/进行中/已完成' ,
+    `num` INT    COMMENT '自定义id' ,
+    `tags` VARCHAR(500)    COMMENT '标签' ,
+    `pos` BIGINT NOT NULL   COMMENT '自定义排序' ,
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
+    `module_id` VARCHAR(50)   DEFAULT 'NONE' COMMENT '模块fk' ,
+    `environment_id` VARCHAR(50)    COMMENT '环境fk' ,
+    `latest` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是' ,
+    `version_id` VARCHAR(50)    COMMENT '版本fk' ,
+    `ref_id` VARCHAR(50)    COMMENT '版本引用fk' ,
+    `description` VARCHAR(500)    COMMENT '描述' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
+    `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
+    `delete_user` VARCHAR(50)    COMMENT '删除人' ,
+    `delete_time` BIGINT    COMMENT '删除时间' ,
+    `deleted` BIT(1) NOT NULL  DEFAULT 0 COMMENT '删除状态' ,
+    PRIMARY KEY (id)
+)  ENGINE = InnoDB
+   DEFAULT CHARSET = utf8mb4
+   COLLATE = utf8mb4_general_ci COMMENT = '接口定义';
 
 
 CREATE INDEX idx_project_id ON api_definition(project_id);
@@ -118,35 +181,34 @@ CREATE INDEX idx_pos ON api_definition_module(pos);
 
 DROP TABLE IF EXISTS api_scenario;
 CREATE TABLE api_scenario(
-  `id` VARCHAR(50) NOT NULL   COMMENT '' ,
-  `name` VARCHAR(255) NOT NULL   COMMENT '场景名称' ,
-  `level` VARCHAR(10) NOT NULL   COMMENT '场景级别/P0/P1等' ,
-  `status` VARCHAR(20) NOT NULL   COMMENT '场景状态/未规划/已完成 等' ,
-  `principal` VARCHAR(50) NOT NULL   COMMENT '责任人/用户fk' ,
-  `step_total` INT NOT NULL  DEFAULT 0 COMMENT '场景步骤总数' ,
-  `pass_rate` BIGINT NOT NULL  DEFAULT 0 COMMENT '通过率' ,
-  `last_report_status` VARCHAR(50)    COMMENT '最后一次执行的结果状态' ,
-  `last_report_id` VARCHAR(50)    COMMENT '最后一次执行的报告fk' ,
-  `num` INT    COMMENT '编号' ,
-  `custom_num` VARCHAR(50)    COMMENT '自定义id' ,
-  `deleted` BIT(1) NOT NULL  DEFAULT 0 COMMENT '删除状态' ,
-  `pos` BIGINT NOT NULL   COMMENT '自定义排序' ,
-  `version_id` VARCHAR(50)    COMMENT '版本fk' ,
-  `ref_id` VARCHAR(50)    COMMENT '引用资源fk' ,
-  `latest` BIT(1)   DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是' ,
-  `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-  `api_scenario_module_id` VARCHAR(50)    COMMENT '场景模块fk' ,
-  `description` VARCHAR(500)    COMMENT '描述信息' ,
-  `module_path` VARCHAR(1000)    COMMENT '模块全路径/用于导入模块创建' ,
-  `tags` VARCHAR(1000)    COMMENT '标签' ,
-  `grouped` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否为环境组' ,
-  `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-  `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-  `delete_time` BIGINT    COMMENT '删除时间' ,
-  `delete_user` VARCHAR(50)    COMMENT '删除人' ,
-  `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
-  `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-  PRIMARY KEY (id)
+    `id` VARCHAR(50) NOT NULL   COMMENT '' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '场景名称' ,
+    `level` VARCHAR(10) NOT NULL   COMMENT '场景级别/P0/P1等' ,
+    `status` VARCHAR(20) NOT NULL   COMMENT '场景状态/未规划/已完成 等' ,
+    `principal` VARCHAR(50) NOT NULL   COMMENT '责任人/用户fk' ,
+    `step_total` INT NOT NULL  DEFAULT 0 COMMENT '场景步骤总数' ,
+    `pass_rate` BIGINT NOT NULL  DEFAULT 0 COMMENT '通过率' ,
+    `last_report_status` VARCHAR(50)    COMMENT '最后一次执行的结果状态' ,
+    `last_report_id` VARCHAR(50)    COMMENT '最后一次执行的报告fk' ,
+    `num` INT    COMMENT '编号' ,
+    `custom_num` VARCHAR(50)    COMMENT '自定义id' ,
+    `deleted` BIT(1) NOT NULL  DEFAULT 0 COMMENT '删除状态' ,
+    `pos` BIGINT NOT NULL   COMMENT '自定义排序' ,
+    `version_id` VARCHAR(50)    COMMENT '版本fk' ,
+    `ref_id` VARCHAR(50)    COMMENT '引用资源fk' ,
+    `latest` BIT(1)   DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是' ,
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
+    `api_scenario_module_id` VARCHAR(50)    COMMENT '场景模块fk' ,
+    `description` VARCHAR(500)    COMMENT '描述信息' ,
+    `tags` VARCHAR(1000)    COMMENT '标签' ,
+    `grouped` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否为环境组' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `delete_time` BIGINT    COMMENT '删除时间' ,
+    `delete_user` VARCHAR(50)    COMMENT '删除人' ,
+    `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
+    `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '场景';
@@ -472,3 +534,5 @@ CREATE INDEX idx_api_scenario_id ON api_scenario_environment(api_scenario_id);
 CREATE INDEX idx_project_id ON api_scenario_environment(project_id);
 CREATE INDEX idx_environment_id ON api_scenario_environment(environment_id);
 
+-- set innodb lock wait timeout to default
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

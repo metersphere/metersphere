@@ -1,30 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.api.mapper.ApiDefinitionMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinition">
+<mapper namespace="io.metersphere.api.mapper.ApiDebugMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDebug">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="protocol" jdbcType="VARCHAR" property="protocol" />
     <result column="method" jdbcType="VARCHAR" property="method" />
     <result column="path" jdbcType="VARCHAR" property="path" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="num" jdbcType="INTEGER" property="num" />
-    <result column="tags" jdbcType="VARCHAR" property="tags" />
-    <result column="pos" jdbcType="BIGINT" property="pos" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
-    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
-    <result column="latest" jdbcType="BIT" property="latest" />
-    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
-    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
-    <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
-    <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
-    <result column="deleted" jdbcType="BIT" property="deleted" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -85,17 +73,16 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, protocol, `method`, `path`, `status`, num, tags, pos, project_id, module_id, 
-    environment_id, latest, version_id, ref_id, description, create_time, create_user, 
-    update_time, update_user, delete_user, delete_time, deleted
+    id, `name`, protocol, `method`, `path`, project_id, module_id, create_time, create_user, 
+    update_time, update_user
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDefinitionExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDebugExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from api_definition
+    from api_debug
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -106,39 +93,31 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from api_definition
+    from api_debug
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from api_definition
+    delete from api_debug
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiDefinitionExample">
-    delete from api_definition
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiDebugExample">
+    delete from api_debug
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinition">
-    insert into api_definition (id, `name`, protocol, 
-      `method`, `path`, `status`, 
-      num, tags, pos, project_id, 
-      module_id, environment_id, latest, 
-      version_id, ref_id, description, 
-      create_time, create_user, update_time, 
-      update_user, delete_user, delete_time, 
-      deleted)
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiDebug">
+    insert into api_debug (id, `name`, protocol, 
+      `method`, `path`, project_id, 
+      module_id, create_time, create_user, 
+      update_time, update_user)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, 
-      #{method,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{num,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
-      #{moduleId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, 
-      #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
-      #{updateUser,jdbcType=VARCHAR}, #{deleteUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
-      #{deleted,jdbcType=BIT})
+      #{method,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{moduleId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinition">
-    insert into api_definition
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDebug">
+    insert into api_debug
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -155,38 +134,11 @@
       <if test="path != null">
         `path`,
       </if>
-      <if test="status != null">
-        `status`,
-      </if>
-      <if test="num != null">
-        num,
-      </if>
-      <if test="tags != null">
-        tags,
-      </if>
-      <if test="pos != null">
-        pos,
-      </if>
       <if test="projectId != null">
         project_id,
       </if>
       <if test="moduleId != null">
         module_id,
-      </if>
-      <if test="environmentId != null">
-        environment_id,
-      </if>
-      <if test="latest != null">
-        latest,
-      </if>
-      <if test="versionId != null">
-        version_id,
-      </if>
-      <if test="refId != null">
-        ref_id,
-      </if>
-      <if test="description != null">
-        description,
       </if>
       <if test="createTime != null">
         create_time,
@@ -199,15 +151,6 @@
       </if>
       <if test="updateUser != null">
         update_user,
-      </if>
-      <if test="deleteUser != null">
-        delete_user,
-      </if>
-      <if test="deleteTime != null">
-        delete_time,
-      </if>
-      <if test="deleted != null">
-        deleted,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -226,38 +169,11 @@
       <if test="path != null">
         #{path,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="num != null">
-        #{num,jdbcType=INTEGER},
-      </if>
-      <if test="tags != null">
-        #{tags,jdbcType=VARCHAR},
-      </if>
-      <if test="pos != null">
-        #{pos,jdbcType=BIGINT},
-      </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="moduleId != null">
         #{moduleId,jdbcType=VARCHAR},
-      </if>
-      <if test="environmentId != null">
-        #{environmentId,jdbcType=VARCHAR},
-      </if>
-      <if test="latest != null">
-        #{latest,jdbcType=BIT},
-      </if>
-      <if test="versionId != null">
-        #{versionId,jdbcType=VARCHAR},
-      </if>
-      <if test="refId != null">
-        #{refId,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -271,25 +187,16 @@
       <if test="updateUser != null">
         #{updateUser,jdbcType=VARCHAR},
       </if>
-      <if test="deleteUser != null">
-        #{deleteUser,jdbcType=VARCHAR},
-      </if>
-      <if test="deleteTime != null">
-        #{deleteTime,jdbcType=BIGINT},
-      </if>
-      <if test="deleted != null">
-        #{deleted,jdbcType=BIT},
-      </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiDefinitionExample" resultType="java.lang.Long">
-    select count(*) from api_definition
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiDebugExample" resultType="java.lang.Long">
+    select count(*) from api_debug
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update api_definition
+    update api_debug
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -306,38 +213,11 @@
       <if test="record.path != null">
         `path` = #{record.path,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
-      </if>
-      <if test="record.num != null">
-        num = #{record.num,jdbcType=INTEGER},
-      </if>
-      <if test="record.tags != null">
-        tags = #{record.tags,jdbcType=VARCHAR},
-      </if>
-      <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=BIGINT},
-      </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.moduleId != null">
         module_id = #{record.moduleId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.environmentId != null">
-        environment_id = #{record.environmentId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.latest != null">
-        latest = #{record.latest,jdbcType=BIT},
-      </if>
-      <if test="record.versionId != null">
-        version_id = #{record.versionId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.refId != null">
-        ref_id = #{record.refId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -351,51 +231,30 @@
       <if test="record.updateUser != null">
         update_user = #{record.updateUser,jdbcType=VARCHAR},
       </if>
-      <if test="record.deleteUser != null">
-        delete_user = #{record.deleteUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.deleteTime != null">
-        delete_time = #{record.deleteTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.deleted != null">
-        deleted = #{record.deleted,jdbcType=BIT},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update api_definition
+    update api_debug
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       protocol = #{record.protocol,jdbcType=VARCHAR},
       `method` = #{record.method,jdbcType=VARCHAR},
       `path` = #{record.path,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
-      num = #{record.num,jdbcType=INTEGER},
-      tags = #{record.tags,jdbcType=VARCHAR},
-      pos = #{record.pos,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       module_id = #{record.moduleId,jdbcType=VARCHAR},
-      environment_id = #{record.environmentId,jdbcType=VARCHAR},
-      latest = #{record.latest,jdbcType=BIT},
-      version_id = #{record.versionId,jdbcType=VARCHAR},
-      ref_id = #{record.refId,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      update_user = #{record.updateUser,jdbcType=VARCHAR},
-      delete_user = #{record.deleteUser,jdbcType=VARCHAR},
-      delete_time = #{record.deleteTime,jdbcType=BIGINT},
-      deleted = #{record.deleted,jdbcType=BIT}
+      update_user = #{record.updateUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiDefinition">
-    update api_definition
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiDebug">
+    update api_debug
     <set>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
@@ -409,38 +268,11 @@
       <if test="path != null">
         `path` = #{path,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="num != null">
-        num = #{num,jdbcType=INTEGER},
-      </if>
-      <if test="tags != null">
-        tags = #{tags,jdbcType=VARCHAR},
-      </if>
-      <if test="pos != null">
-        pos = #{pos,jdbcType=BIGINT},
-      </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="moduleId != null">
         module_id = #{moduleId,jdbcType=VARCHAR},
-      </if>
-      <if test="environmentId != null">
-        environment_id = #{environmentId,jdbcType=VARCHAR},
-      </if>
-      <if test="latest != null">
-        latest = #{latest,jdbcType=BIT},
-      </if>
-      <if test="versionId != null">
-        version_id = #{versionId,jdbcType=VARCHAR},
-      </if>
-      <if test="refId != null">
-        ref_id = #{refId,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -454,63 +286,37 @@
       <if test="updateUser != null">
         update_user = #{updateUser,jdbcType=VARCHAR},
       </if>
-      <if test="deleteUser != null">
-        delete_user = #{deleteUser,jdbcType=VARCHAR},
-      </if>
-      <if test="deleteTime != null">
-        delete_time = #{deleteTime,jdbcType=BIGINT},
-      </if>
-      <if test="deleted != null">
-        deleted = #{deleted,jdbcType=BIT},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDefinition">
-    update api_definition
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDebug">
+    update api_debug
     set `name` = #{name,jdbcType=VARCHAR},
       protocol = #{protocol,jdbcType=VARCHAR},
       `method` = #{method,jdbcType=VARCHAR},
       `path` = #{path,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
-      num = #{num,jdbcType=INTEGER},
-      tags = #{tags,jdbcType=VARCHAR},
-      pos = #{pos,jdbcType=BIGINT},
       project_id = #{projectId,jdbcType=VARCHAR},
       module_id = #{moduleId,jdbcType=VARCHAR},
-      environment_id = #{environmentId,jdbcType=VARCHAR},
-      latest = #{latest,jdbcType=BIT},
-      version_id = #{versionId,jdbcType=VARCHAR},
-      ref_id = #{refId,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
-      update_user = #{updateUser,jdbcType=VARCHAR},
-      delete_user = #{deleteUser,jdbcType=VARCHAR},
-      delete_time = #{deleteTime,jdbcType=BIGINT},
-      deleted = #{deleted,jdbcType=BIT}
+      update_user = #{updateUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into api_definition
-    (id, `name`, protocol, `method`, `path`, `status`, num, tags, pos, project_id, module_id, 
-      environment_id, latest, version_id, ref_id, description, create_time, create_user, 
-      update_time, update_user, delete_user, delete_time, deleted)
+    insert into api_debug
+    (id, `name`, protocol, `method`, `path`, project_id, module_id, create_time, create_user, 
+      update_time, update_user)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.protocol,jdbcType=VARCHAR}, 
-        #{item.method,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, 
-        #{item.num,jdbcType=INTEGER}, #{item.tags,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, 
-        #{item.projectId,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, 
-        #{item.latest,jdbcType=BIT}, #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, 
-        #{item.description,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.deleteUser,jdbcType=VARCHAR}, 
-        #{item.deleteTime,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT})
+        #{item.method,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.moduleId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into api_definition (
+    insert into api_debug (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>
@@ -534,38 +340,11 @@
         <if test="'path'.toString() == column.value">
           #{item.path,jdbcType=VARCHAR}
         </if>
-        <if test="'status'.toString() == column.value">
-          #{item.status,jdbcType=VARCHAR}
-        </if>
-        <if test="'num'.toString() == column.value">
-          #{item.num,jdbcType=INTEGER}
-        </if>
-        <if test="'tags'.toString() == column.value">
-          #{item.tags,jdbcType=VARCHAR}
-        </if>
-        <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=BIGINT}
-        </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
         </if>
         <if test="'module_id'.toString() == column.value">
           #{item.moduleId,jdbcType=VARCHAR}
-        </if>
-        <if test="'environment_id'.toString() == column.value">
-          #{item.environmentId,jdbcType=VARCHAR}
-        </if>
-        <if test="'latest'.toString() == column.value">
-          #{item.latest,jdbcType=BIT}
-        </if>
-        <if test="'version_id'.toString() == column.value">
-          #{item.versionId,jdbcType=VARCHAR}
-        </if>
-        <if test="'ref_id'.toString() == column.value">
-          #{item.refId,jdbcType=VARCHAR}
-        </if>
-        <if test="'description'.toString() == column.value">
-          #{item.description,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
@@ -578,15 +357,6 @@
         </if>
         <if test="'update_user'.toString() == column.value">
           #{item.updateUser,jdbcType=VARCHAR}
-        </if>
-        <if test="'delete_user'.toString() == column.value">
-          #{item.deleteUser,jdbcType=VARCHAR}
-        </if>
-        <if test="'delete_time'.toString() == column.value">
-          #{item.deleteTime,jdbcType=BIGINT}
-        </if>
-        <if test="'deleted'.toString() == column.value">
-          #{item.deleted,jdbcType=BIT}
         </if>
       </foreach>
       )

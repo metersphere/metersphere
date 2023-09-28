@@ -21,7 +21,6 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="api_scenario_module_id" jdbcType="VARCHAR" property="apiScenarioModuleId" />
     <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="grouped" jdbcType="BIT" property="grouped" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
@@ -92,8 +91,8 @@
   <sql id="Base_Column_List">
     id, `name`, `level`, `status`, principal, step_total, pass_rate, last_report_status, 
     last_report_id, num, custom_num, deleted, pos, version_id, ref_id, latest, project_id, 
-    api_scenario_module_id, description, module_path, tags, grouped, create_user, create_time, 
-    delete_time, delete_user, update_user, update_time
+    api_scenario_module_id, description, tags, grouped, create_user, create_time, delete_time, 
+    delete_user, update_user, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioExample" resultMap="BaseResultMap">
     select
@@ -132,20 +131,20 @@
       num, custom_num, deleted, 
       pos, version_id, ref_id, 
       latest, project_id, api_scenario_module_id, 
-      description, module_path, tags, 
-      grouped, create_user, create_time, 
-      delete_time, delete_user, update_user, 
-      update_time)
+      description, tags, grouped, 
+      create_user, create_time, delete_time, 
+      delete_user, update_user, update_time
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, 
       #{passRate,jdbcType=BIGINT}, #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, 
       #{num,jdbcType=INTEGER}, #{customNum,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, 
       #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
       #{latest,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
-      #{grouped,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, 
-      #{updateTime,jdbcType=BIGINT})
+      #{description,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{grouped,jdbcType=BIT}, 
+      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{deleteTime,jdbcType=BIGINT}, 
+      #{deleteUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenario">
     insert into api_scenario
@@ -206,9 +205,6 @@
       </if>
       <if test="description != null">
         description,
-      </if>
-      <if test="modulePath != null">
-        module_path,
       </if>
       <if test="tags != null">
         tags,
@@ -292,9 +288,6 @@
       </if>
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="modulePath != null">
-        #{modulePath,jdbcType=VARCHAR},
       </if>
       <if test="tags != null">
         #{tags,jdbcType=VARCHAR},
@@ -388,9 +381,6 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
-      <if test="record.modulePath != null">
-        module_path = #{record.modulePath,jdbcType=VARCHAR},
-      </if>
       <if test="record.tags != null">
         tags = #{record.tags,jdbcType=VARCHAR},
       </if>
@@ -441,7 +431,6 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       api_scenario_module_id = #{record.apiScenarioModuleId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
-      module_path = #{record.modulePath,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=VARCHAR},
       grouped = #{record.grouped,jdbcType=BIT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -511,9 +500,6 @@
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
-      <if test="modulePath != null">
-        module_path = #{modulePath,jdbcType=VARCHAR},
-      </if>
       <if test="tags != null">
         tags = #{tags,jdbcType=VARCHAR},
       </if>
@@ -561,7 +547,6 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       api_scenario_module_id = #{apiScenarioModuleId,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
-      module_path = #{modulePath,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR},
       grouped = #{grouped,jdbcType=BIT},
       create_user = #{createUser,jdbcType=VARCHAR},
@@ -576,8 +561,8 @@
     insert into api_scenario
     (id, `name`, `level`, `status`, principal, step_total, pass_rate, last_report_status, 
       last_report_id, num, custom_num, deleted, pos, version_id, ref_id, latest, project_id, 
-      api_scenario_module_id, description, module_path, tags, grouped, create_user, create_time, 
-      delete_time, delete_user, update_user, update_time)
+      api_scenario_module_id, description, tags, grouped, create_user, create_time, delete_time, 
+      delete_user, update_user, update_time)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.level,jdbcType=VARCHAR}, 
@@ -586,10 +571,10 @@
         #{item.num,jdbcType=INTEGER}, #{item.customNum,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, 
         #{item.pos,jdbcType=BIGINT}, #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, 
         #{item.latest,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.apiScenarioModuleId,jdbcType=VARCHAR}, 
-        #{item.description,jdbcType=VARCHAR}, #{item.modulePath,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, 
-        #{item.grouped,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, 
-        #{item.updateTime,jdbcType=BIGINT})
+        #{item.description,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, #{item.grouped,jdbcType=BIT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.deleteTime,jdbcType=BIGINT}, 
+        #{item.deleteUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -658,9 +643,6 @@
         </if>
         <if test="'description'.toString() == column.value">
           #{item.description,jdbcType=VARCHAR}
-        </if>
-        <if test="'module_path'.toString() == column.value">
-          #{item.modulePath,jdbcType=VARCHAR}
         </if>
         <if test="'tags'.toString() == column.value">
           #{item.tags,jdbcType=VARCHAR}
