@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
 <generatorConfiguration>
     <!--配置数据库连接的位置-->
-    <properties url="file:///opt/metersphere/conf/metersphere-v3.properties"/>
+    <properties url="file:///opt/metersphere/conf/metersphere.properties"/>
     <!-- 设置mysql驱动路径 -->
     <!--<classPathEntry location="/Users/liuruibin/.m2/repository/mysql/mysql-connector-java/5.1.34/mysql-connector-java-5.1.34.jar"/>-->
     <!-- 此处指定生成针对MyBatis3的DAO -->
@@ -70,6 +70,9 @@
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
+        <table tableName="api_debug"/>
+        <table tableName="api_debug_blob"/>
+        <table tableName="api_debug_module"/>
         <table tableName="api_definition"/>
         <table tableName="api_definition_blob"/>
         <table tableName="api_definition_follower"/>

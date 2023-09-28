@@ -83,9 +83,6 @@ public class ApiScenario implements Serializable {
     @Schema(description = "描述信息")
     private String description;
 
-    @Schema(description = "模块全路径/用于导入模块创建")
-    private String modulePath;
-
     @Schema(description = "标签")
     private String tags;
 
@@ -133,7 +130,6 @@ public class ApiScenario implements Serializable {
         projectId("project_id", "projectId", "VARCHAR", false),
         apiScenarioModuleId("api_scenario_module_id", "apiScenarioModuleId", "VARCHAR", false),
         description("description", "description", "VARCHAR", false),
-        modulePath("module_path", "modulePath", "VARCHAR", false),
         tags("tags", "tags", "VARCHAR", false),
         grouped("grouped", "grouped", "BIT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
