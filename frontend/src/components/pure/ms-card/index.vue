@@ -5,6 +5,7 @@
         'ms-card',
         'relative',
         'h-full',
+        props.isFullscreen ? 'ms-card--no-radius' : '',
         props.autoHeight ? '' : 'min-h-[500px]',
         props.noContentPadding ? 'ms-card--noContentPadding' : 'p-[24px]',
       ]"
@@ -15,17 +16,8 @@
       </div>
       <a-divider v-if="!props.simple" class="mb-[16px]" />
       <div class="ms-card-container">
-        <a-scrollbar
-          class="pr-[5px]"
-          :style="{
-            overflow: 'auto',
-            width: props.otherWidth
-              ? `calc(100vw - ${menuWidth}px - ${props.otherWidth}px)`
-              : `calc(100vw - ${menuWidth}px - 58px)`,
-            height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight}px)`,
-          }"
-        >
-          <div :style="{ minWidth: `${props.minWidth || 1000}px` }">
+        <a-scrollbar class="pr-[5px]" :style="getComputedContentStyle">
+          <div class="relative h-full w-full" :style="{ minWidth: `${props.minWidth || 1000}px` }">
             <slot></slot>
           </div>
         </a-scrollbar>
@@ -72,10 +64,11 @@
         specialHeight: number; // 特殊高度，例如某些页面有面包屑
         hideBack: boolean; // 隐藏返回按钮
         autoHeight: boolean; // 内容区域高度是否自适应
-        otherWidth?: number; // 该宽度为卡片外部同级容器的宽度
-        minWidth?: number; // 卡片最小宽度
+        otherWidth: number; // 该宽度为卡片外部同级容器的宽度
+        minWidth: number; // 卡片最小宽度
         hasBreadcrumb: boolean; // 是否有面包屑，如果有面包屑，高度需要减去面包屑的高度
         noContentPadding: boolean; // 内容区域是否有padding
+        isFullscreen?: boolean; // 是否全屏
         handleBack: () => void; // 自定义返回按钮触发事件
       }>
     >(),
@@ -117,6 +110,23 @@
     return 246 + _specialHeight;
   });
 
+  const getComputedContentStyle = computed(() => {
+    if (props.isFullscreen) {
+      return {
+        overflow: 'auto',
+        width: 'calc(100vw - 58px)',
+        height: 'auto',
+      };
+    }
+    return {
+      overflow: 'auto',
+      width: props.otherWidth
+        ? `calc(100vw - ${menuWidth.value}px - ${props.otherWidth}px)`
+        : `calc(100vw - ${menuWidth.value}px - 58px)`,
+      height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight.value}px)`,
+    };
+  });
+
   function back() {
     if (typeof props.handleBack === 'function') {
       props.handleBack();
@@ -128,7 +138,7 @@
 
 <style lang="less" scoped>
   .ms-card {
-    @apply overflow-hidden bg-white;
+    @apply relative overflow-hidden bg-white;
 
     border-radius: var(--border-radius-large);
     box-shadow: 0 0 10px rgb(120 56 135 / 5%);
@@ -157,5 +167,8 @@
         }
       }
     }
+  }
+  .ms-card--no-radius {
+    border-radius: 0;
   }
 </style>

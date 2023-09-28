@@ -71,6 +71,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 项目管理-文件管理
+   */
   import { computed, ref } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';

@@ -35,7 +35,7 @@
           <a-input
             v-else
             v-model:model-value="form.field"
-            :max-length="props.fieldConfig?.maxLength"
+            :max-length="props.fieldConfig?.maxLength || 50"
             :placeholder="props.fieldConfig?.placeholder || t('project.fileManagement.namePlaceholder')"
             class="w-[245px]"
             @press-enter="beforeConfirm(undefined)"
@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-  import { onBeforeMount, ref, watch } from 'vue';
+  import { ref, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { Message } from '@arco-design/web-vue';
 

@@ -1,6 +1,6 @@
 export default {
   'system.log.operator': 'Operator',
-  'system.log.operatorPlaceholder': 'Please enter username/email to search',
+  'system.log.operatorPlaceholder': 'Enter username/email to search',
   'system.log.operateTime': 'Operation time',
   'system.log.operateRange': 'Operating range',
   'system.log.operateType': 'Operation type',

@@ -44,15 +44,20 @@
     </a-scrollbar>
     <template #footer>
       <slot name="footer">
-        <a-button :disabled="props.okLoading" @click="handleCancel">
-          {{ t(props.cancelText || 'ms.drawer.cancel') }}
-        </a-button>
-        <a-button v-if="showContinue" type="secondary" :loading="props.okLoading" @click="handleContinue">
-          {{ t(props.saveContinueText || 'ms.drawer.saveContinue') }}
-        </a-button>
-        <a-button type="primary" :loading="props.okLoading" @click="handleOk">
-          {{ t(props.okText || 'ms.drawer.ok') }}
-        </a-button>
+        <div class="flex items-center justify-between">
+          <slot name="footerLeft"></slot>
+          <div class="ml-auto flex gap-[12px]">
+            <a-button :disabled="props.okLoading" @click="handleCancel">
+              {{ t(props.cancelText || 'ms.drawer.cancel') }}
+            </a-button>
+            <a-button v-if="showContinue" type="secondary" :loading="props.okLoading" @click="handleContinue">
+              {{ t(props.saveContinueText || 'ms.drawer.saveContinue') }}
+            </a-button>
+            <a-button type="primary" :loading="props.okLoading" @click="handleOk">
+              {{ t(props.okText || 'ms.drawer.ok') }}
+            </a-button>
+          </div>
+        </div>
       </slot>
     </template>
   </a-drawer>

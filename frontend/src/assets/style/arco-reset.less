@@ -328,6 +328,16 @@
   .arco-checkbox-icon {
     border: 1px solid var(--color-text-input-border);
   }
+  &:hover {
+    .arco-checkbox-icon-hover::before {
+      background-color: rgb(var(--primary-9)) !important;
+    }
+  }
+  .arco-checkbox-icon-hover {
+    &:hover::before {
+      background-color: rgb(var(--primary-9)) !important;
+    }
+  }
 }
 .arco-checkbox-indeterminate .arco-checkbox-icon {
   border-color: rgba(var(--primary-7));
@@ -407,8 +417,12 @@
 .arco-dropdown,
 .arco-trigger-menu,
 .arco-select-dropdown {
+  padding: 6px;
   border: 0.5px solid var(--color-text-n8);
   box-shadow: 0 3px 14px 2px rgb(0 0 0 / 5%), 0 8px 10px 1px rgb(0 0 0 / 6%), 0 5px 5px -3px rgb(0 0 0 / 10%);
+  .arco-select-dropdown-header {
+    margin-bottom: 4px;
+  }
   .arco-dropdown-list,
   .arco-select-dropdown-list,
   .arco-trigger-menu-inner {
@@ -427,6 +441,18 @@
         background-color: rgb(var(--primary-1));
       }
     }
+    .arco-select-option {
+      margin: 0;
+      .arco-select-option-checkbox {
+        padding-top: 3px;
+        padding-bottom: 3px;
+        &:hover {
+          .arco-checkbox-icon-hover::before {
+            background-color: rgb(var(--primary-9)) !important;
+          }
+        }
+      }
+    }
     .ms-dropdown-divider {
       margin: 6px 0;
     }
@@ -441,6 +467,13 @@
       background-color: rgb(var(--primary-1));
     }
   }
+}
+.arco-select-dropdown-has-header {
+  padding-top: 6px !important;
+}
+.arco-select-dropdown-footer {
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 .arco-dropdown-option-content {
   @apply flex items-center;
@@ -741,4 +774,15 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+}
+
+/** Alter **/
+.arco-alert-title {
+  font-size: 14px;
+  font-weight: 400;
+}
+.arco-alert-icon {
+  @apply flex;
+
+  margin-top: 1px;
 }

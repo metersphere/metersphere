@@ -57,4 +57,7 @@ export default {
   'common.internal': '内部',
   'common.custom': '自定义',
   'common.preview': '预览',
+  'common.fullScreen': '全屏',
+  'common.offFullScreen': '退出全屏',
+  'common.allSelect': '全选',
 };

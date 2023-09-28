@@ -66,16 +66,6 @@
         }
       });
     }
-    if (arr && arr.length > 0) {
-      nextTick(() => {
-        if (msCardListRef.value) {
-          // 为了在列表数据滚动加载时，能够正确判断是否滚动到底部，因为此时没有触发滚动事件，而在加载前触发了滚动到底部的判断
-          const listContent = msCardListRef.value;
-          const { scrollTop, scrollHeight, clientHeight } = listContent;
-          isArrivedBottom.value = scrollHeight - clientHeight - scrollTop < props.shadowLimit;
-        }
-      });
-    }
   }
 
   watch(
@@ -219,7 +209,7 @@
     @apply overflow-hidden;
     .ms-container--shadow();
     .ms-card-list {
-      @apply grid overflow-auto;
+      @apply grid max-h-full overflow-auto;
 
       .ms-scroll-bar();
 

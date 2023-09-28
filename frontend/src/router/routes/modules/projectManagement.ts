@@ -90,6 +90,38 @@ const ProjectManagement: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
+    // 消息管理
+    {
+      path: 'messageManagement',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT,
+      component: () => import('@/views/project-management/messageManagement/index.vue'),
+      meta: {
+        locale: 'menu.projectManagement.messageManagement',
+        roles: ['*'],
+        isTopMenu: true,
+      },
+    },
+    {
+      path: 'messageManagementEdit',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT,
+      component: () => import('@/views/project-management/messageManagement/edit.vue'),
+      meta: {
+        locale: 'menu.projectManagement.messageManagementEdit',
+        roles: ['*'],
+        breadcrumbs: [
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT,
+            locale: 'menu.projectManagement.messageManagement',
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT,
+            locale: 'menu.projectManagement.messageManagementEdit',
+            editTag: 'id',
+            editLocale: 'menu.projectManagement.messageManagementEdit',
+          },
+        ],
+      },
+    },
     // 项目日志
     {
       path: 'log',
