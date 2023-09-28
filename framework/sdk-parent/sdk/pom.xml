@@ -372,6 +372,12 @@
             <groupId>com.apifan.common</groupId>
             <artifactId>common-random</artifactId>
             <version>${common-random.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.mifmif</groupId>
