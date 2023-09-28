@@ -280,7 +280,7 @@ public class NoticeMessageTaskService {
      * @return List<MessageTaskDTO>
      */
     public List<MessageTaskDTO> getMessageList(String projectId) throws IOException {
-        checkProjectExist(projectId);
+        //checkProjectExist(projectId);
         //获取返回数据结构
         StringBuilder jsonStr = new StringBuilder();
         InputStream inputStream = getClass().getResourceAsStream("/message_task.json");

@@ -1,6 +1,7 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.project.domain.ProjectRobot;
+import io.metersphere.project.dto.MessageTaskDTO;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -40,6 +41,9 @@ public class CreateRobotResourceTests extends BaseTest {
         serviceInvoker.invokeCreateServices("test");
         List<ProjectRobot> projectRobotAfters = getList();
         Assertions.assertEquals(2, projectRobotAfters.size());
+        List<MessageTaskDTO> messageList = getMessageList();
+        Assertions.assertTrue(messageList.size()>0);
+        System.out.println(messageList);
     }
 
     private List<ProjectRobot> getList() throws Exception {
@@ -52,5 +56,16 @@ public class CreateRobotResourceTests extends BaseTest {
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         return JSON.parseArray(JSON.toJSONString(sortHolder.getData()), ProjectRobot.class);
+    }
+
+    private List<MessageTaskDTO> getMessageList() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/task/get/test")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
     }
 }

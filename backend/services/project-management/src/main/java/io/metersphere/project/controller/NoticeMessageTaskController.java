@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-@Tag(name = "项目管理-项目与权限-消息管理-消息设置")
+@Tag(name = "项目管理-消息管理-消息设置")
 @RestController
 @RequestMapping("notice/")
 public class NoticeMessageTaskController {
@@ -33,7 +33,7 @@ public class NoticeMessageTaskController {
     private NoticeMessageTaskService noticeMessageTaskService;
 
     @PostMapping("message/task/save")
-    @Operation(summary = "项目管理-项目与权限-消息管理-消息设置-保存消息设置")
+    @Operation(summary = "项目管理-消息管理-消息设置-保存消息设置")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_MESSAGE_READ_ADD, PermissionConstants.PROJECT_MESSAGE_READ_UPDATE}, logical = Logical.OR)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.addLog(#messageTaskRequest)", msClass = MessageTaskLogService.class)
     public ResultHolder saveMessage(@Validated({Created.class, Updated.class}) @RequestBody MessageTaskRequest messageTaskRequest) {
@@ -41,7 +41,7 @@ public class NoticeMessageTaskController {
     }
 
     @GetMapping("message/task/get/{projectId}")
-    @Operation(summary = "项目管理-项目与权限-消息管理-消息设置-获取消息设置")
+    @Operation(summary = "项目管理-消息管理-消息设置-获取消息设置")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
     public List<MessageTaskDTO> getMessageList(@PathVariable String projectId) throws IOException {
         return noticeMessageTaskService.getMessageList(projectId);
