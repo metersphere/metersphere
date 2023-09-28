@@ -35,7 +35,11 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
+                "name": ""
+              },
+              {
+                "id": "FOLLOW_PEOPLE",
                 "name": ""
               }
             ],
@@ -57,7 +61,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -79,7 +83,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "OPERATOR",
                 "name": ""
               }
             ],
@@ -107,7 +111,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -164,7 +168,11 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
+                "name": ""
+              },
+              {
+                "id": "FOLLOW_PEOPLE",
                 "name": ""
               }
             ],
@@ -186,7 +194,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -208,7 +216,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -236,35 +244,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
-                "name": ""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "taskType":"BUG_TASK_AT",
-        "taskTypeName":"",
-        "messageTaskDetailDTOList":[
-          {
-            "event":"COMMENT",
-            "eventName":"",
-            "receivers":[
-              {
-                "id": "",
+                "id": "OPERATOR",
                 "name": ""
               }
             ],
@@ -321,7 +301,11 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
+                "name": ""
+              },
+              {
+                "id": "FOLLOW_PEOPLE",
                 "name": ""
               }
             ],
@@ -343,7 +327,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -365,35 +349,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
-                "name": ""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "taskType":"FUNCTIONAL_CASE_TASK_AT",
-        "taskTypeName":"",
-        "messageTaskDetailDTOList":[
-          {
-            "event":"COMMENT",
-            "eventName":"",
-            "receivers":[
-              {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -443,7 +399,11 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
+                "name": ""
+              },
+              {
+                "id": "FOLLOW_PEOPLE",
                 "name": ""
               }
             ],
@@ -465,7 +425,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -487,7 +447,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -509,7 +469,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -566,7 +526,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -588,7 +548,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -632,7 +592,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -654,7 +614,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -676,7 +636,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -698,7 +658,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -720,7 +680,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -770,7 +730,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -792,7 +752,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -814,7 +774,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -836,7 +796,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -858,7 +818,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -886,7 +846,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -943,7 +903,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -965,7 +925,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -987,7 +947,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -1009,7 +969,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -1035,7 +995,7 @@
                 "eventName":"",
                 "receivers":[
                   {
-                    "id": "",
+                    "id": "CREATE_USER",
                     "name": ""
                   }
                 ],
@@ -1094,7 +1054,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -1116,7 +1076,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
@@ -1138,7 +1098,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "OPERATOR",
                 "name": ""
               }
             ],
@@ -1166,7 +1126,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id": "",
+                "id": "CREATE_USER",
                 "name": ""
               }
             ],
