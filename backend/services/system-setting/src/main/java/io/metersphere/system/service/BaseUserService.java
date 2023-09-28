@@ -265,6 +265,7 @@ public class BaseUserService {
         if (StringUtils.equals("organization", sign)) {
             user.setLastOrganizationId(sourceId);
             sessionUser.setLastOrganizationId(sourceId);
+            user.setLastProjectId(StringUtils.EMPTY);
             List<Project> projects = getProjectListByWsAndUserId(sessionUser.getId(), sourceId);
             if (CollectionUtils.isNotEmpty(projects)) {
                 user.setLastProjectId(projects.get(0).getId());
@@ -276,8 +277,6 @@ public class BaseUserService {
                     if (CollectionUtils.isNotEmpty(allWsProject)) {
                         user.setLastProjectId(allWsProject.get(0).getId());
                     }
-                } else {
-                    user.setLastProjectId(StringUtils.EMPTY);
                 }
             }
         }
