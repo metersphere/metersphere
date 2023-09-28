@@ -144,13 +144,13 @@
         </slot>
       </template>
       <template #expand-icon="{ expanded }">
-        <icon-down-circle v-if="expanded" />
-        <icon-right-circle v-else />
+        <MsIcon v-if="!expanded" :size="8" type="icon-icon_right_outlined" class="text-[rgb(var(--primary-6))]" />
+        <MsIcon v-else :size="8" class="text-[var(--color-text-4)]" type="icon-icon_down_outlined" />
       </template>
     </a-table>
     <div
-      class="mt-[16px] flex h-[32px] w-[100%] min-w-[952px] flex-row flex-nowrap items-center justify-end px-0"
-      :class="{ 'justify-between': showBatchAction }"
+      class="mt-[16px] flex h-[32px] w-[100%] flex-row flex-nowrap items-center justify-end px-0"
+      :class="{ 'justify-between': showBatchAction, 'min-w-[952px]': attrs.selectable }"
     >
       <batch-action
         v-if="showBatchAction"
@@ -226,7 +226,11 @@
   const selectTotal = computed(() => {
     const { selectorStatus } = props;
     if (selectorStatus === SelectAllEnum.CURRENT) {
-      return (attrs.msPagination as MsPaginationI)?.pageSize || appStore.pageSize;
+      const { pageSize, total } = attrs.msPagination as MsPaginationI;
+      if (pageSize > total) {
+        return total;
+      }
+      return pageSize;
     }
     return (attrs.msPagination as MsPaginationI)?.total || appStore.pageSize;
   });
@@ -455,5 +459,8 @@
   }
   :deep(.arco-checkbox:hover .arco-checkbox-icon-hover::before) {
     background: none !important;
+  }
+  :deep(.arco-table .arco-table-expand-btn) {
+    border-color: transparent;
   }
 </style>

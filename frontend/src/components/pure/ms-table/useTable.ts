@@ -8,7 +8,6 @@ import type { TableData } from '@arco-design/web-vue';
 import type { TableQueryParams, CommonList } from '@/models/common';
 import { SelectAllEnum } from '@/enums/tableEnum';
 import type { MsTableProps, MsTableDataItem, MsTableColumn, MsTableErrorStatus, SetPaginationPrams } from './type';
-import { set } from 'nprogress';
 
 export interface Pagination {
   current: number;

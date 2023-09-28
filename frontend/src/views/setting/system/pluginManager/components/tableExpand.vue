@@ -7,12 +7,17 @@
     }"
   >
     <div class="ms-scroll">
-      <div v-for="(item, index) in record.pluginForms" :key="item.id" class="ms-self"
-        ><span class="circle text-xs leading-[16px]"> {{ index + 1 }} </span
-        ><span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="emit('MessageEvent', record, item)">{{
+      <div v-for="(item, index) in record.pluginForms" :key="item.id" class="ms-self">
+        <span class="circle text-xs leading-[16px]"> {{ index + 1 }} </span>
+        <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="emit('MessageEvent', record, item)">{{
           item.name
-        }}</span></div
-      >
+        }}</span>
+        <span
+          class="ml-[150px] cursor-pointer text-[rgb(var(--primary-5))]"
+          @click="emit('MessageEvent', record, item)"
+          >{{ item.name }}</span
+        >
+      </div>
     </div>
   </a-scrollbar>
 </template>
