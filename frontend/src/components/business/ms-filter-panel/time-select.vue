@@ -4,7 +4,6 @@
     v-model:model-value="timeValue"
     class="w-[100%]"
     show-time
-    allow-clear
     :time-picker-props="{ defaultValue: '00:00:00' }"
     format="YYYY-MM-DD HH:mm:ss"
     position="br"
@@ -15,6 +14,7 @@
     v-model:model-value="timeRangeValue"
     position="br"
     show-time
+    :allow-clear="false"
     class="w-[100%]"
     format="YYYY-MM-DD HH:mm"
     :time-picker-props="{
@@ -26,12 +26,12 @@
 
 <script setup lang="ts">
   import { CalendarValue } from '@arco-design/web-vue/es/date-picker/interface';
-  import { ref, watch } from 'vue';
+  import { ref, watch, watchEffect } from 'vue';
 
   type PickerType = 'between' | 'gt' | 'lt'; // 之间 | 大于 | 小于
 
   const props = defineProps<{
-    modelValue: [] | string; // 传入当前值
+    modelValue: string[] | string; // 传入当前值
     operationType: PickerType; // 查询运算符条件类型
   }>();
 
@@ -39,11 +39,18 @@
 
   const timeValue = ref<string>('');
 
-  const timeRangeValue = ref([]);
+  const timeRangeValue = ref<string[]>([]);
 
   const changeHandler = (value: Date | string | number | undefined | (CalendarValue | undefined)[] | undefined) => {
     emits('updateTime', value);
   };
+
+  watchEffect(() => {
+    if (props.operationType === 'between') {
+      timeRangeValue.value = props.modelValue as string[];
+    }
+    timeValue.value = props.modelValue as string;
+  });
 
   watch(
     () => props.modelValue,

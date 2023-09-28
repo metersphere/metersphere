@@ -2,9 +2,9 @@
   <div class="page-header h-[34px]">
     <div class="text-[var(--color-text-1)]"
       >{{ t('featureTest.featureCase.allCase') }}
-      <span class="text-[var(--color-text-4)]"> ({{ allCaseCount }}）</span></div
+      <span class="text-[var(--color-text-4)]"> ({{ allCaseCount }})</span></div
     >
-    <div>
+    <div class="flex w-[80%] items-center justify-end">
       <a-select class="w-[240px]" :placeholder="t('featureTest.featureCase.versionPlaceholder')">
         <a-option v-for="version of versionOptions" :key="version.id" :value="version.id">{{ version.name }}</a-option>
       </a-select>
@@ -28,7 +28,7 @@
       </MsTag>
       <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
         <a-radio value="list" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_view-list_outlined" /></a-radio>
-        <a-radio value="xmind" class="show-type-icon p-[2px]"><icon-mind-mapping /></a-radio>
+        <a-radio value="xmind" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_mindnote_outlined" /></a-radio>
       </a-radio-group>
     </div>
   </div>

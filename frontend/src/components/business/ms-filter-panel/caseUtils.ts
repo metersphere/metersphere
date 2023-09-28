@@ -1,4 +1,5 @@
 import { OPERATORS } from './operator';
+import type { SearchKeyType } from './type';
 
 // eslint-disable-next-line no-shadow
 export enum CaseKeyEnum {
@@ -17,7 +18,7 @@ export enum CaseKeyEnum {
 }
 
 // 名称
-export const NAME = {
+export const NAME: SearchKeyType = {
   key: CaseKeyEnum.NAME, // 对应字段key
   type: 'a-input', // Vue控件名称
   label: '显示名称', // 显示名称
@@ -28,7 +29,7 @@ export const NAME = {
 };
 
 // 标签
-export const TAGS = {
+export const TAGS: SearchKeyType = {
   key: CaseKeyEnum.TAGS,
   type: 'a-input',
   label: '标签',
@@ -39,7 +40,7 @@ export const TAGS = {
 };
 
 // 所属模块
-export const MODULE = {
+export const MODULE: SearchKeyType = {
   key: 'module',
   type: 'a-tree-select',
   label: '所属模块',
@@ -50,23 +51,27 @@ export const MODULE = {
 };
 
 // 创建时间
-export const CREATE_TIME = {
+export const CREATE_TIME: SearchKeyType = {
   key: CaseKeyEnum.CREATE_TIME,
   type: 'time-select', // 时间选择器
   label: '创建时间',
+  rules: [{ required: true, message: '请选择创建时间！' }],
   props: {},
   operator: {
+    value: '',
     options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.LT],
   },
 };
 
 // 更新时间
-export const UPDATE_TIME = {
+export const UPDATE_TIME: SearchKeyType = {
   key: CaseKeyEnum.UPDATE_TIME,
   type: 'time-select',
   label: '更新时间',
+  rules: [{ required: true, message: '请选择更新时间！' }],
   props: {},
   operator: {
+    value: '',
     options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.LT],
   },
 };
