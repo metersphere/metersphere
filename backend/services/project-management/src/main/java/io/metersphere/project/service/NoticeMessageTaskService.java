@@ -8,10 +8,7 @@ import io.metersphere.project.dto.MessageTaskTypeDTO;
 import io.metersphere.project.dto.ProjectRobotConfigDTO;
 import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.enums.result.ProjectResultCode;
-import io.metersphere.project.mapper.MessageTaskBlobMapper;
-import io.metersphere.project.mapper.MessageTaskMapper;
-import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.mapper.ProjectRobotMapper;
+import io.metersphere.project.mapper.*;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -63,6 +60,9 @@ public class NoticeMessageTaskService {
     private MessageTaskBlobMapper messageTaskBlobMapper;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ExtProjectUserRoleMapper extProjectUserRoleMapper;
+
 
 
     public static final String USER_IDS = "user_ids";
@@ -401,4 +401,7 @@ public class NoticeMessageTaskService {
         return projectRobotConfigDTO;
     }
 
+    public List<OptionDTO> getUserList(String projectId, String keyword) {
+       return  extProjectUserRoleMapper.getProjectUserSelectList(projectId, keyword);
+    }
 }
