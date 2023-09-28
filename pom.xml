@@ -50,7 +50,7 @@
         <xmindjbehaveplugin.version>0.8</xmindjbehaveplugin.version>
         <metersphere-plugin-core.version>2.0</metersphere-plugin-core.version>
         <plexus.version>3.0.24</plexus.version>
-        <common-random.version>1.0.14</common-random.version>
+        <common-random.version>1.0.21</common-random.version>
         <generex.version>1.0.2</generex.version>
         <json-lib.version>2.4</json-lib.version>
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
