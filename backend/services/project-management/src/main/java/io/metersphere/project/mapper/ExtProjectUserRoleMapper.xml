@@ -42,4 +42,19 @@
           and u.deleted = false
         order by u.create_time desc
     </select>
+
+    <select id="getProjectUserSelectList" resultType="io.metersphere.sdk.dto.OptionDTO">
+        select u.id,
+               u.name
+        from user_role_relation urr
+             join `user` u on urr.user_id = u.id
+        where urr.role_id = 'project_member'
+              and urr.source_id = #{projectId}
+        <if test="keyword != null and keyword != ''">
+            and name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        and u.deleted = false
+        order by u.update_time desc
+        limit 100
+    </select>
 </mapper>
