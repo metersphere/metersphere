@@ -7,8 +7,8 @@
   </div>
   <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
     <template #module="{ record }">
-      <MsIcon :type="getMenuIcon(record.module)" />
-      <span class="ml-[4px]">{{ record.module }}</span>
+      <MsIcon class="text-[var(--color-text-4)]" :type="getMenuIcon(record.module)" />
+      <span class="ml-[4px]">{{ t(`menu.${record.module}`) }}</span>
     </template>
     <template #moduleEnable="{ record }">
       <a-switch v-model="record.moduleEnable" @change="handleMenuStatusChange(record)" />
@@ -57,30 +57,38 @@
       width: 150,
     },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(postTabletList, {
-    showPagination: false,
-    columns,
-    selectable: false,
-    scroll: { x: '100%' },
-    noDisable: true,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
+    postTabletList,
+    {
+      showPagination: false,
+      columns,
+      selectable: false,
+      scroll: { x: '100%' },
+      noDisable: true,
+      rowKey: 'module',
+    },
+    (item) => {
+      item = { ...item, children: [], isLeaf: false };
+      return item;
+    }
+  );
 
   const getMenuIcon = (type: MenuEnum) => {
     switch (type) {
       case MenuEnum.workstation:
         return 'icon-icon_pc_filled';
       case MenuEnum.testPlan:
-        return 'icon-icon_test_plan_filled';
+        return 'icon-icon_test-tracking_filled';
       case MenuEnum.bugManagement:
         return 'icon-icon_defect';
       case MenuEnum.caseManagement:
-        return 'icon_functional_testing';
+        return 'icon-icon_functional_testing';
       case MenuEnum.apiTest:
         return 'icon-icon_api-test-filled';
       case MenuEnum.uiTest:
         return 'icon-icon_ui-test-filled';
       default:
-        return 'icon_performance-test-filled';
+        return 'icon-icon_performance-test-filled';
     }
   };
 

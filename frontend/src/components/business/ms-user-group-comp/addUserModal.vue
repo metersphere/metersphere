@@ -2,7 +2,7 @@
   <a-modal
     v-model:visible="currentVisible"
     class="ms-modal-form ms-modal-medium"
-    text-align="start"
+    title-align="start"
     :ok-text="t('system.userGroup.add')"
     unmount-on-close
     @cancel="handleCancel(false)"
