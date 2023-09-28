@@ -3,6 +3,7 @@ package io.metersphere.project.mapper;
 import io.metersphere.project.dto.ProjectUserRoleDTO;
 import io.metersphere.project.request.ProjectUserRoleMemberRequest;
 import io.metersphere.project.request.ProjectUserRoleRequest;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
 import org.apache.ibatis.annotations.Param;
@@ -46,4 +47,12 @@ public interface ExtProjectUserRoleMapper {
      * @return
      */
     List<User> getProjectUserList(@Param("sourceId") String sourceId);
+
+    /**
+     * 根据关键字获取下拉框用户数据
+     * @param projectId 项目ID
+     * @param keyword 远程搜索时的关键字 （name）
+     * @return List<User>
+     */
+    List<OptionDTO> getProjectUserSelectList(@Param("projectId") String projectId, @Param("keyword") String keyword);
 }

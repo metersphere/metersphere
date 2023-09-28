@@ -9,6 +9,7 @@ import io.metersphere.project.dto.MessageTaskDTO;
 import io.metersphere.project.mapper.MessageTaskBlobMapper;
 import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.request.MessageTaskRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -433,4 +434,51 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         Assertions.assertEquals(100200, resultHolder.getCode());
     }
 
+    @Test
+    @Order(16)
+    public void getUserSuccess() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/task/get/user/project-message-test")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .param("keyword", "project-message-user-1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<OptionDTO> userDtoList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
+        Assertions.assertTrue(userDtoList.size()>0);
+    }
+
+    @Test
+    @Order(17)
+    public void getUserSuccessAll() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/task/get/user/project-message-test")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<OptionDTO> userDtoList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
+        Assertions.assertTrue(userDtoList.size()>0);
+
+    }
+
+    @Test
+    @Order(18)
+    public void getUserSuccessEmpty() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/task/get/user/project-message-test-x")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<OptionDTO> userDtoList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
+        Assertions.assertEquals(0, userDtoList.size());
+
+    }
 }

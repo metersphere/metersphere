@@ -5,6 +5,7 @@ import io.metersphere.project.dto.MessageTaskDTO;
 import io.metersphere.project.service.MessageTaskLogService;
 import io.metersphere.project.service.NoticeMessageTaskService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.MessageTaskRequest;
 
@@ -14,6 +15,7 @@ import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.Logical;
@@ -45,6 +47,14 @@ public class NoticeMessageTaskController {
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
     public List<MessageTaskDTO> getMessageList(@PathVariable String projectId) throws IOException {
         return noticeMessageTaskService.getMessageList(projectId);
+    }
+
+    @GetMapping("message/task/get/user/{projectId}")
+    @Operation(summary = "项目管理-消息管理-消息设置-获取用户列表")
+    @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
+    public List<OptionDTO> getUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据用户名查询")
+    @RequestParam(value = "keyword", required = false) String keyword) {
+        return noticeMessageTaskService.getUserList(projectId, keyword);
     }
 
 }
