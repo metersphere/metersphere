@@ -55,4 +55,7 @@ export default {
   'common.internal': 'Internal',
   'common.custom': 'Custom',
   'common.preview': 'Preview',
+  'common.fullScreen': 'Full Screen',
+  'common.offFullScreen': 'Exit',
+  'common.allSelect': 'Select All',
 };

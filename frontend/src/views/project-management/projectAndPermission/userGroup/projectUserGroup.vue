@@ -26,9 +26,9 @@
     </template>
     <template #operation="{ record }">
       <div class="flex flex-row flex-nowrap">
-        <MsButton @click="showAuthDrawer(record)">{{ t('project.userGroup.viewAuth') }}</MsButton>
+        <MsButton class="!mr-0" @click="showAuthDrawer(record)">{{ t('project.userGroup.viewAuth') }}</MsButton>
         <a-divider v-if="!record.internal" direction="vertical" />
-        <MsButton v-if="!record.internal" status="danger" @click="handleDelete(record)">{{
+        <MsButton v-if="!record.internal" class="!mr-0" status="danger" @click="handleDelete(record)">{{
           t('common.delete')
         }}</MsButton>
       </div>
@@ -112,7 +112,7 @@
     updateOrAddProjectUserGroup,
   } from '@/api/modules/project-management/usergroup';
   import UserDrawer from './userDrawer.vue';
-  import MsButton from '@/components/pure/ms-button/not-mr.vue';
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import useModal from '@/hooks/useModal';
   import { Message, ValidatedError } from '@arco-design/web-vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';

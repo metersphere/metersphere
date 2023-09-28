@@ -2,7 +2,7 @@
   <MsCard simple auto-height>
     <div class="filter-box">
       <div class="filter-item">
-        <MsSearchSelect
+        <MsSelect
           v-model:model-value="operUser"
           mode="remote"
           placeholder="system.log.operatorPlaceholder"
@@ -21,6 +21,7 @@
           :option-label-render="
             (item) => `${item.label}<span class='text-[var(--color-text-2)]'>（${item.email}）</span>`
           "
+          allow-search
           allow-clear
         />
       </div>
@@ -142,7 +143,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { MENU_LEVEL } from '@/config/pathMap';
-  import MsSearchSelect from '@/components/business/ms-search-select/index';
+  import MsSelect from '@/components/business/ms-select/index';
   import useAppStore from '@/store/modules/app';
 
   import type { CascaderOption, SelectOptionData } from '@arco-design/web-vue';
@@ -439,6 +440,7 @@
       title: 'system.log.operateName',
       dataIndex: 'content',
       slotName: 'content',
+      showTooltip: true,
     },
     {
       title: 'system.log.time',
@@ -548,3 +550,4 @@
     }
   }
 </style>
+@/components/business/ms-select/index

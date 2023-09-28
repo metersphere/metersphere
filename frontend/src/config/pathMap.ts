@@ -225,6 +225,20 @@ export const pathMap: PathMapItem[] = [
         permission: [],
         level: MENU_LEVEL[2],
       },
+      {
+        key: 'PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT', // 项目管理-消息管理
+        locale: 'menu.projectManagement.messageManagement',
+        route: RouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT', // 项目管理-消息管理-编辑
+        locale: 'menu.projectManagement.messageManagementEdit',
+        route: RouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
     ],
   },
 ];

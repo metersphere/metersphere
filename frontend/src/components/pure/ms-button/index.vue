@@ -39,7 +39,7 @@
     }
 
     padding: 0 4px;
-    font-size: 1rem;
+    font-size: 14px;
     border-radius: var(--border-radius-mini);
     line-height: 22px;
   }

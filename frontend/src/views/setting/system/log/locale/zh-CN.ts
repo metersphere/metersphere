@@ -1,6 +1,6 @@
 export default {
   'system.log.operator': '操作人',
-  'system.log.operatorPlaceholder': '请输入用户名/邮箱搜索',
+  'system.log.operatorPlaceholder': '输入用户名/邮箱搜索',
   'system.log.operateTime': '操作时间',
   'system.log.operateRange': '操作范围',
   'system.log.operateType': '操作类型',

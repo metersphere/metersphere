@@ -18,6 +18,8 @@ export enum PerformanceTestRouteEnum {
 export enum ProjectManagementRouteEnum {
   PROJECT_MANAGEMENT = 'projectManagement',
   PROJECT_MANAGEMENT_FILE_MANAGEMENT = 'projectManagementFileManageMent',
+  PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT = 'projectManagementMessageManagement',
+  PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT = 'projectManagementMessageManagementEdit',
   PROJECT_MANAGEMENT_LOG = 'projectManagementLog',
   PROJECT_MANAGEMENT_PERMISSION = 'projectManagementPermission',
   PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO = 'projectManagementPermissionBasicInfo',

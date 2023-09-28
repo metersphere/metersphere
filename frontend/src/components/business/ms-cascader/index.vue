@@ -71,8 +71,8 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch, Ref, nextTick, onMounted, computed, onBeforeUnmount } from 'vue';
-  import { calculateMaxDepth } from '@/utils';
+  import { ref, watch, Ref } from 'vue';
+  import useSelect from '@/hooks/useSelect';
 
   import type { CascaderOption } from '@arco-design/web-vue';
   import type { VirtualListProps } from '@arco-design/web-vue/es/_components/virtual-list-v2/interface';
@@ -102,11 +102,15 @@
 
   const innerValue = ref<CascaderModelValue>([]);
   const innerLevel = ref(''); // 顶级选项，该级别为单选选项
-  const maxTagCount = ref(1); // 最大显示 tag 数量
   const cascader: Ref = ref(null);
-  const cascaderWidth = ref(0); // cascader 宽度
-  const cascaderDeep = ref(1); // 默认层级只有一层
-  const cascaderViewInner = ref<HTMLElement | null>(null); // 输入框内容容器 DOM
+
+  const { maxTagCount, getOptionComputedStyle, calculateMaxTag } = useSelect({
+    selectRef: cascader,
+    selectVal: innerValue,
+    isCascade: true,
+    options: props.options,
+    panelWidth: props.panelWidth,
+  });
 
   watch(
     () => props.modelValue,
@@ -155,27 +159,6 @@
     }
   );
 
-  watch(
-    () => props.options,
-    (arr) => {
-      cascaderDeep.value = calculateMaxDepth(arr);
-    },
-    {
-      immediate: true,
-      deep: true,
-    }
-  );
-
-  const getOptionComputedStyle = computed(() => {
-    // 减去 80px 是为了防止溢出，因为会出现单选框、右侧箭头
-    return {
-      width:
-        cascaderDeep.value <= 2
-          ? `${cascaderWidth.value / cascaderDeep.value - 80 - cascaderDeep.value * 4}px`
-          : `${props.panelWidth}px` || '150px',
-    };
-  });
-
   interface CascaderValue {
     level: keyof typeof props.levelTop;
     value: string;
@@ -203,42 +186,12 @@
         innerLevel.value = '';
       }
     }
-    nextTick(() => {
-      if (cascader.value && cascaderViewInner.value && Array.isArray(innerValue.value)) {
-        if (maxTagCount.value !== 0 && innerValue.value.length > maxTagCount.value) return; // 已经超过最大数量的展示，不需要再计算
-        let lastWidth = cascaderViewInner.value?.getBoundingClientRect().width || 0;
-        const tags = cascaderViewInner.value.querySelectorAll('.arco-tag');
-        let tagCount = 0;
-        for (let i = 0; i < tags.length; i++) {
-          const tagWidth = Number(getComputedStyle(tags[i]).width.replace('px', ''));
-          if (lastWidth < tagWidth + 65) {
-            // 65px  是“+N”的标签宽度+聚焦输入框的宽度
-            lastWidth = 0; // 当剩余宽度已经放不下刚添加的标签，则剩余宽度置为 0，避免后面再进行计算
-            break;
-          } else {
-            tagCount += 1;
-            lastWidth = lastWidth - tagWidth - 5;
-          }
-        }
-        maxTagCount.value = tagCount === 0 ? 1 : tagCount;
-      }
-    });
+    calculateMaxTag();
   }
 
   function clearValues() {
     innerLevel.value = '';
   }
-
-  onMounted(() => {
-    if (cascader.value) {
-      cascaderWidth.value = cascader.value.$el.nextElementSibling.getBoundingClientRect().width;
-      cascaderViewInner.value = cascader.value.$el.nextElementSibling.querySelector('.arco-select-view-inner');
-    }
-  });
-
-  onBeforeUnmount(() => {
-    cascaderViewInner.value = null; // 释放 DOM 引用
-  });
 </script>
 
 <style lang="less">
@@ -273,3 +226,4 @@
     }
   }
 </style>
+@/hooks/useSelect

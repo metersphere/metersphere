@@ -31,6 +31,13 @@ export default function useContainerShadow(options: ContainerShadowOptions) {
     }
   }
 
+  function calculateArrivedPosition(listContent: HTMLElement) {
+    const { scrollTop, scrollHeight, clientHeight } = listContent;
+    const scrollBottom = scrollHeight - clientHeight - scrollTop;
+    isArrivedTop.value = scrollTop < options.overHeight;
+    isArrivedBottom.value = scrollBottom < options.overHeight;
+  }
+
   /**
    * 监听列表内容区域滚动，以切换顶部底部阴影
    * @param event 滚动事件
@@ -38,16 +45,14 @@ export default function useContainerShadow(options: ContainerShadowOptions) {
   function listenScroll(event: Event) {
     if (event.target) {
       const listContent = event.target as HTMLElement;
-      const { scrollTop, scrollHeight, clientHeight } = listContent;
-      const scrollBottom = scrollHeight - clientHeight - scrollTop;
-      isArrivedTop.value = scrollTop < options.overHeight;
-      isArrivedBottom.value = scrollBottom < options.overHeight;
+      calculateArrivedPosition(listContent);
     }
   }
 
   function initScrollListener() {
     if (!isInitListener.value && containerRef.value) {
       containerRef.value.addEventListener('scroll', listenScroll);
+      calculateArrivedPosition(containerRef.value); // 初始化计算一次，因为初始化的时候内容可能超出可视区域了
       isInitListener.value = true;
     }
   }

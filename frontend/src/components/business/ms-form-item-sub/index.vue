@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-[4px] w-full text-[12px] text-[var(--color-text-4)]">
+  <div class="mt-[4px] flex w-full items-center text-[12px] text-[var(--color-text-4)]">
     {{ props.text }}
     <MsIcon
       v-if="props.showFillIcon"
@@ -7,6 +7,13 @@
       class="cursor-pointer text-[rgb(var(--primary-6))]"
       @click="fillHeapByDefault"
     ></MsIcon>
+    <MsIcon
+      v-else-if="props.icon"
+      :type="props.icon"
+      class="cursor-pointer text-[rgb(var(--primary-6))]"
+      @click="emit('iconClick')"
+    ></MsIcon>
+    <slot></slot>
   </div>
 </template>
 
@@ -17,12 +24,14 @@
     defineProps<{
       text: string;
       showFillIcon?: boolean;
+      icon?: string;
+      iconText?: string;
     }>(),
     {
       showFillIcon: true,
     }
   );
-  const emit = defineEmits(['fill']);
+  const emit = defineEmits(['fill', 'iconClick']);
 
   function fillHeapByDefault() {
     emit('fill');

@@ -2,7 +2,7 @@
   <div class="navbar">
     <div class="left-side">
       <a-space>
-        <div class="flex max-w-[145px] items-center overflow-hidden">
+        <div class="one-line-text flex max-w-[145px] items-center">
           <img :src="props.logo" class="mr-[4px] h-[32px] w-[32px]" />
           {{ props.name }}
         </div>

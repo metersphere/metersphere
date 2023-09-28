@@ -28,6 +28,8 @@ export default {
     'menu.projectManagement': '项目管理',
     'menu.projectManagement.log': '日志',
     'menu.projectManagement.fileManagement': '文件管理',
+    'menu.projectManagement.messageManagement': '消息管理',
+    'menu.projectManagement.messageManagementEdit': '更新模板',
     'menu.featureTest.featureCase': '功能用例',
     'menu.projectManagement.projectPermission': '项目与权限',
     'menu.settings': '系统设置',
