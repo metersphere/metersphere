@@ -7,7 +7,7 @@
   </div>
   <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
     <template #module="{ record }">
-      <MsIcon class="text-[var(--color-text-4)]" :type="getMenuIcon(record.module)" />
+      <MsIcon v-if="record.children" class="text-[var(--color-text-4)]" :type="getMenuIcon(record.module)" />
       <span class="ml-[4px]">{{ t(`menu.${record.module}`) }}</span>
     </template>
     <template #moduleEnable="{ record }">
@@ -30,7 +30,6 @@
   import { useAppStore } from '@/store';
   import { MenuTableListItem } from '@/models/projectManagement/menuManagement';
   import { MenuEnum } from '@/enums/commonEnum';
-
   import { Message } from '@arco-design/web-vue';
 
   const appStore = useAppStore();
@@ -42,21 +41,23 @@
       title: 'project.menu.name',
       dataIndex: 'module',
       slotName: 'module',
+      width: 221,
     },
     {
       title: 'project.menu.description',
       slotName: 'description',
       dataIndex: 'description',
       showDrag: true,
+      width: 515,
     },
     {
       title: 'common.operation',
       slotName: 'moduleEnable',
       dataIndex: 'moduleEnable',
-      fixed: 'right',
-      width: 150,
+      width: 58,
     },
   ];
+
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
     postTabletList,
     {
@@ -66,9 +67,17 @@
       scroll: { x: '100%' },
       noDisable: true,
       rowKey: 'module',
+      showExpand: true,
     },
     (item) => {
-      item = { ...item, children: [], isLeaf: false };
+      item = {
+        ...item,
+        children: [
+          {
+            ...item,
+          },
+        ],
+      };
       return item;
     }
   );

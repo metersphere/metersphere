@@ -5,7 +5,6 @@ export interface MenuTableListItem {
   moduleEnable: boolean;
   moduleDesc?: string;
   children?: MenuTableListItem[];
-  isLeaf?: boolean;
 }
 
 export interface MenuTableListParams {
