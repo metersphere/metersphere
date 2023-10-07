@@ -18,4 +18,9 @@ export default {
   'featureTest.featureCase.addSubModuleSuccess': 'Add submodule successfully',
   'featureTest.featureCase.renameSuccess': 'Rename successful',
   'featureTest.featureCase.nameNotNullTip': 'The name can not be null',
+  'featureTest.featureCase.deleteTipTitle': 'Do you want to delete: {name} use case?',
+  'featureTest.featureCase.deleteCaseTipContent':
+    'After the node is deleted, all resources under the node will be deleted. Exercise caution when performing this operation.',
+  'featureTest.featureCase.deleteConfirm': 'Confirm',
+  'featureTest.featureCase.deleteSuccess': 'Delete Successfully',
 };

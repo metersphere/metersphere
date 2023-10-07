@@ -18,4 +18,8 @@ export default {
   'featureTest.featureCase.addSubModuleSuccess': '添加子模块成功',
   'featureTest.featureCase.renameSuccess': '重命名成功',
   'featureTest.featureCase.nameNotNullTip': '名称不能为空',
+  'featureTest.featureCase.deleteTipTitle': '是否删除：{name} 用例？',
+  'featureTest.featureCase.deleteCaseTipContent': '删除后，此节点下的所有资源都会被删除，请谨慎操作。',
+  'featureTest.featureCase.deleteConfirm': '确认删除',
+  'featureTest.featureCase.deleteSuccess': '删除成功',
 };

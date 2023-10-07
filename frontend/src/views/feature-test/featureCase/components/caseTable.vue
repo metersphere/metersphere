@@ -18,7 +18,7 @@
         :type="isExpandFilter ? 'primary' : 'default'"
         :theme="isExpandFilter ? 'lightOutLine' : 'outline'"
         size="large"
-        class="-mt-[3px] cursor-pointer"
+        class="-mt-[3px] min-w-[64px] cursor-pointer"
       >
         <span :class="!isExpandFilter ? 'text-[var(--color-text-4)]' : ''" @click="isExpandFilterHandler"
           ><icon-filter class="mr-[4px]" :style="{ 'font-size': '16px' }" />{{
