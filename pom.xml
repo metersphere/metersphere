@@ -29,7 +29,7 @@
         <pagehelper.version>5.3.3</pagehelper.version>
         <metersphere-jmeter-functions.version>1.5</metersphere-jmeter-functions.version>
         <quartz-starter.version>1.0.7</quartz-starter.version>
-        <redisson-starter.version>3.23.3</redisson-starter.version>
+        <redisson-starter.version>3.23.5</redisson-starter.version>
         <guice.version>5.1.0</guice.version>
         <mybatis-starter.version>3.0.2</mybatis-starter.version>
         <reflections.version>0.10.2</reflections.version>
