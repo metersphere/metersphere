@@ -2,21 +2,18 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtFileContentMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.environment.service.BaseEnvironmentService;
-import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -27,20 +24,17 @@ import io.metersphere.request.DeleteReportRequest;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.RenameReportRequest;
 import io.metersphere.request.ReportRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -271,6 +265,14 @@ public class PerformanceReportService {
             return Collections.emptyList();
         }
         return JSON.parseArray(content, ErrorsTop5.class);
+    }
+
+    public SamplesRecord getErrorSamples(String id) {
+        String content = getContent(id, ReportKeys.ErrorSamples);
+        if (StringUtils.isEmpty(content)) {
+            return null;
+        }
+        return JSON.parseObject(content, SamplesRecord.class);
     }
 
     public TestOverview getTestOverview(String id) {

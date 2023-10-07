@@ -108,6 +108,10 @@ export function getPerformanceReportErrorsTop5(reportId) {
   return get('/performance/report/content/errors_top5/' + reportId);
 }
 
+export function getPerformanceReportErrorSamples(reportId) {
+  return get('/performance/report/content/errors_samples/' + reportId);
+}
+
 export function getSharePerformanceReportErrorsTop5(shareId, reportId) {
   return get('/share/performance/report/content/errors_top5/' + shareId + '/' + reportId);
 }

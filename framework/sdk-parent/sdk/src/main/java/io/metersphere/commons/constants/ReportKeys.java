@@ -17,6 +17,7 @@ public enum ReportKeys {
     ErrorsChart,
     Errors,
     ErrorsTop5,
+    ErrorSamples,
     RequestStatistics,
     Overview,
     TimeInfo,
