@@ -27,6 +27,10 @@ public class ResponseResult {
 
     private String console;
 
+    private String contentType;
+
+    private byte[] imageUrl;
+
     private final List<ResponseAssertionResult> assertions = new ArrayList<>();
 
 }
