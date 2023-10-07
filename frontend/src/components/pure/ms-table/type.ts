@@ -1,6 +1,6 @@
 import { ColumnEditTypeEnum, SelectAllEnum } from '@/enums/tableEnum';
 import { TableQueryParams } from '@/models/common';
-import { TableColumnData, TableData, TableDraggable, TableChangeExtra } from '@arco-design/web-vue';
+import { TableColumnData, TableData, TableDraggable, TableChangeExtra, TableExpandable } from '@arco-design/web-vue';
 
 export interface MsPaginationI {
   current: number;
@@ -74,6 +74,9 @@ export interface MsTableProps<T> {
   tableErrorStatus?: MsTableErrorStatus; // 表格的错误状态，默认为false
   debug?: boolean; // debug模式，开启后会打印表格所有state
   showFirstOperation?: boolean; // 是否展示第一行的操作
+  /** 展开行相关 */
+  showExpand?: boolean; // 是否显示展开行
+  expandedKeys?: string[]; // 显示的展开行、子树（受控模式）
 
   [key: string]: any;
 }

@@ -57,6 +57,9 @@ export default function useTableProps<T>(
     tableErrorStatus: false, // 表格的错误状态
     debug: false, // debug 模式
     showFirstOperation: false, // 展示第一行的操作
+    /** 展开行相关 */
+    showExpand: false, // 是否显示展开行
+    expandedKeys: [], // 显示的展开行、子树（受控模式）
     ...props,
   };
 
@@ -347,6 +350,18 @@ export default function useTableProps<T>(
       }
       propsRes.value.selectedKeys = selectedKeys;
       propsRes.value.excludeKeys = excludeKeys;
+    },
+    // 展开收起
+    expandChange: (key: string) => {
+      const { expandedKeys: oldExpandedKeys } = propsRes.value;
+      if (!oldExpandedKeys) {
+        return;
+      }
+      if (oldExpandedKeys.includes(key)) {
+        propsRes.value.expandedKeys = oldExpandedKeys.filter((item) => item !== key);
+      } else {
+        propsRes.value.expandedKeys = [...oldExpandedKeys, key];
+      }
     },
   });
 

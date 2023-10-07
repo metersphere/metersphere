@@ -5,6 +5,7 @@
       :row-class="getRowClass"
       :span-method="spanMethod"
       :columns="currentColumns"
+      :expanded-keys="props.expandedKeys"
       @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
     >
       <template #optional="{ rowIndex, record }">
@@ -27,6 +28,7 @@
             />
           </template>
         </a-table-column>
+        <a-table-column v-if="attrs.showExpand" :width="34"> </a-table-column>
         <a-table-column
           v-for="(item, idx) in currentColumns"
           :key="idx"
@@ -143,9 +145,21 @@
           </div>
         </slot>
       </template>
-      <template #expand-icon="{ expanded }">
-        <MsIcon v-if="!expanded" :size="8" type="icon-icon_right_outlined" class="text-[rgb(var(--primary-6))]" />
-        <MsIcon v-else :size="8" class="text-[var(--color-text-4)]" type="icon-icon_down_outlined" />
+      <template #expand-icon="{ expanded, record }">
+        <MsIcon
+          v-if="!expanded"
+          :size="8"
+          type="icon-icon_right_outlined"
+          class="text-[rgb(var(--primary-6))]"
+          @click="emit('expandChange', record[rowKey || 'id'])"
+        />
+        <MsIcon
+          v-else
+          :size="8"
+          class="text-[var(--color-text-4)]"
+          type="icon-icon_down_outlined"
+          @click="emit('expandChange', record[rowKey || 'id'])"
+        />
       </template>
     </a-table>
     <div
@@ -208,6 +222,7 @@
     noDisable?: boolean;
     showSetting?: boolean;
     columns: MsTableColumn;
+    expandedKeys?: string[];
     spanMethod?: (params: { record: TableData; rowIndex: number; columnIndex: number }) => void;
   }>();
   const emit = defineEmits<{
@@ -219,6 +234,7 @@
     (e: 'selectAllChange', value: SelectAllEnum): void;
     (e: 'sorterChange', value: { [key: string]: string }): void;
     (e: 'clearSelector'): void;
+    (e: 'expandChange', key: string): void;
   }>();
   const attrs = useAttrs();
 
@@ -461,6 +477,36 @@
     background: none !important;
   }
   :deep(.arco-table .arco-table-expand-btn) {
+    border-color: transparent;
+  }
+  :deep(.arco-table-tr-expand .arco-table-td) {
+    padding: 0;
+    background: none;
+  }
+  :deep(.arco-table-tr-expand .arco-table-cell) {
+    padding: 0 !important;
+  }
+  :deep(.collapsebtn) {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-text-n8) !important;
+    @apply bg-white;
+  }
+  :deep(.expand) {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(var(--primary-1));
+  }
+  :deep(.arco-table-expand-btn) {
+    width: 16px;
+    height: 16px;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-text-n8) !important;
+  }
+  :deep(.arco-table .arco-table-expand-btn:hover) {
     border-color: transparent;
   }
 </style>
