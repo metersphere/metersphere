@@ -1,28 +1,27 @@
 package io.metersphere.project.controller;
 
-import com.jayway.jsonpath.JsonPath;
 import io.metersphere.project.controller.param.ProjectApplicationDefinition;
 import io.metersphere.project.controller.param.ProjectApplicationRequestDefinition;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.sdk.constants.ProjectApplicationType;
-import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.request.PluginUpdateRequest;
+import io.metersphere.system.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.system.service.PluginService;
 import jakarta.annotation.Resource;
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,12 +29,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class ProjectApplicationControllerTests extends BaseTest {
@@ -462,57 +459,6 @@ public class ProjectApplicationControllerTests extends BaseTest {
      */
 
 
-    /**
-     * 全部
-     *
-     * @return
-     * @throws Exception
-     */
-    public static final String GET_ALL_URL = "/project/application/all";
-
-    @Test
-    @Order(33)
-    public void testGetAll() throws Exception {
-        this.loginTest();
-        this.requestGetTest();
-        this.requestGetWithOkAndReturn(GET_ALL_URL + "/" + PROJECT_ID);
-        this.adminlogin();
-        this.requestGetWithOkAndReturn(GET_ALL_URL + "/" + PROJECT_ID);
-
-    }
-
-    private void adminlogin() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
-                        .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
-        csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
-    }
-
-    private void requestGetTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(GET_ALL_URL + "/" + PROJECT_ID)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-
-    public void loginTest() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
-                        .content("{\"username\":\"wx-test\",\"password\":\"metersphere\"}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
-        csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
-    }
-
-
     public Plugin addPlugin() throws Exception {
         PluginUpdateRequest request = new PluginUpdateRequest();
         File jarFile = new File(
@@ -571,6 +517,9 @@ public class ProjectApplicationControllerTests extends BaseTest {
         ResultHolder updateResultHolder = JSON.parseObject(updateData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(updateResultHolder);
+
+        congifs.remove("CRON_EXPRESSION");
+        this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", congifs);
     }
 
     private Map<String, String> mockTeseData() {
@@ -602,6 +551,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(36)
     public void testGetModuleSetting() throws Exception {
+        this.requestGetWithOkAndReturn(GET_MODULE_SETTING_URL + "/100001100002");
         MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_MODULE_SETTING_URL + "/100001100001");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -620,8 +570,6 @@ public class ProjectApplicationControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(updateResultHolder);
     }
-
-
 
 
     public static final String UPDATE_CASE_RELATED_CONFIG_URL = "/project/application/update/case/related";
@@ -668,5 +616,44 @@ public class ProjectApplicationControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+    }
+
+
+    public static final String CHECK_PROJECT_KEY_URL = "/project/application/validate";
+
+    @Test
+    @Order(39)
+    public void testCheckProjectKey() throws Exception {
+        Map<String, String> configs = new HashMap<>();
+        configs.put("jiraKey", "Test");
+        configs.put("jiraIssueTypeId", "10086");
+        configs.put("jiraStoryTypeId", "10010");
+        assertErrorCode(this.requestPost(CHECK_PROJECT_KEY_URL + "/" + plugin.getId(), configs), NOT_FOUND);
+        JiraIntegrationConfig integrationConfig = new JiraIntegrationConfig();
+        Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
+        ServiceIntegrationUpdateRequest request = new ServiceIntegrationUpdateRequest();
+        request.setEnable(true);
+        request.setPluginId(plugin.getId());
+        request.setConfiguration(integrationConfigMap);
+        request.setOrganizationId("100001100001");
+        this.requestPostWithOkAndReturn("/service/integration/add", request);
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(CHECK_PROJECT_KEY_URL + "/" + plugin.getId(), configs);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    @Getter
+    @Setter
+    public class JiraIntegrationConfig {
+        private String account;
+        private String password;
+        private String token;
+        private String authType;
+        private String address;
+        private String version;
     }
 }

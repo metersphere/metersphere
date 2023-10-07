@@ -1,6 +1,7 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.project.dto.ModuleDTO;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectService;
@@ -8,7 +9,6 @@ import io.metersphere.sdk.constants.ModuleType;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -280,22 +279,17 @@ public class ProjectApplicationController {
     }
 
 
-    /**
-     * ==========全部==========
-     */
-
-    @GetMapping("/all/{projectId}")
-    @Operation(summary = "全部-获取配置")
-    public List<ProjectApplication> getAll(@PathVariable String projectId) {
-        SessionUser user = Objects.requireNonNull(SessionUtils.getUser());
-        return projectApplicationService.getAllConfigs(user, projectId);
+    @GetMapping("/module-setting/{projectId}")
+    @Operation(summary = "获取菜单列表")
+    public List<ModuleDTO> getModuleSetting(@PathVariable String projectId) {
+        return projectApplicationService.getModuleSetting(projectId);
     }
 
 
-    @GetMapping("/module-setting/{projectId}")
-    @Operation(summary = "获取菜单列表")
-    public Map<String, Boolean> getModuleSetting(@PathVariable String projectId) {
-        return projectApplicationService.getModuleSetting(projectId);
+    @PostMapping("/validate/{pluginId}")
+    @Operation(summary = "插件key校验")
+    public void validateProjectConfig(@PathVariable("pluginId") String pluginId, @RequestBody Map configs) {
+        projectApplicationService.validateProjectConfig(pluginId, configs);
     }
 
 }

@@ -1,18 +1,22 @@
 package io.metersphere.project.service;
 
 import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
+import io.metersphere.plugin.platform.api.Platform;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
+import io.metersphere.project.dto.ModuleDTO;
 import io.metersphere.project.job.CleanUpReportJob;
 import io.metersphere.project.job.IssueSyncJob;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.request.ProjectApplicationRequest;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.OperationLogConstants;
+import io.metersphere.sdk.constants.ProjectApplicationType;
+import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.SessionUser;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -21,6 +25,7 @@ import io.metersphere.system.mapper.ExtPluginMapper;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.sechedule.ScheduleService;
+import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.system.utils.SessionUtils;
@@ -33,6 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 
 @Service
 @Transactional
@@ -59,6 +66,9 @@ public class ProjectApplicationService {
 
     @Resource
     private ExtProjectMapper extProjectMapper;
+
+    @Resource
+    private PlatformPluginService platformPluginService;
 
     /**
      * 更新配置信息
@@ -191,73 +201,6 @@ public class ProjectApplicationService {
 
     private Plugin checkResourceExist(String id) {
         return ServiceUtils.checkResourceExist(pluginMapper.selectByPrimaryKey(id), "permission.system_plugin.name");
-    }
-
-
-    /**
-     * 获取所有配置信息
-     *
-     * @param user
-     * @return
-     */
-    public List<ProjectApplication> getAllConfigs(SessionUser user, String projectId) {
-        List<ProjectApplication> list = new ArrayList<>();
-        Boolean flag = checkAdmin(user);
-        ProjectApplicationExample example = new ProjectApplicationExample();
-        ProjectApplicationExample.Criteria criteria = example.createCriteria();
-        criteria.andProjectIdEqualTo(projectId);
-        if (flag) {
-            list = projectApplicationMapper.selectByExample(example);
-        }
-        List<String> types = checkPermission(user);
-        if (CollectionUtils.isNotEmpty(types)) {
-            criteria.andTypeIn(types);
-            list = projectApplicationMapper.selectByExample(example);
-        }
-        return list;
-    }
-
-    private List<String> checkPermission(SessionUser user) {
-        List<UserRolePermission> permissions = new ArrayList<>();
-        user.getUserRolePermissions().forEach(g -> {
-            permissions.addAll(g.getUserRolePermissions());
-        });
-        List<String> permissionIds = permissions.stream().map(UserRolePermission::getPermissionId).collect(Collectors.toList());
-
-        List<String> types = new ArrayList<>();
-        permissionIds.forEach(permissionId -> {
-            switch (permissionId) {
-                case PermissionConstants.PROJECT_APPLICATION_WORKSTATION_READ ->
-                        types.addAll(Arrays.asList(ProjectApplicationType.WORKSTATION.values()).stream().map(ProjectApplicationType.WORKSTATION::name).collect(Collectors.toList()));
-                case PermissionConstants.PROJECT_APPLICATION_TEST_PLAN_READ ->
-                        types.addAll(Arrays.asList(ProjectApplicationType.TEST_PLAN.values()).stream().map(ProjectApplicationType.TEST_PLAN::name).collect(Collectors.toList()));
-                case PermissionConstants.PROJECT_APPLICATION_ISSUE_READ ->
-                        types.addAll(Arrays.asList(ProjectApplicationType.ISSUE.values()).stream().map(ProjectApplicationType.ISSUE::name).collect(Collectors.toList()));
-                case PermissionConstants.PROJECT_APPLICATION_CASE_READ ->
-                        types.addAll(Arrays.asList(ProjectApplicationType.CASE.values()).stream().map(ProjectApplicationType.CASE::name).collect(Collectors.toList()));
-                case PermissionConstants.PROJECT_APPLICATION_API_READ ->
-                        types.addAll(Arrays.asList(ProjectApplicationType.API.values()).stream().map(ProjectApplicationType.API::name).collect(Collectors.toList()));
-                case PermissionConstants.PROJECT_APPLICATION_UI_READ ->
-                        types.addAll(Arrays.asList(ProjectApplicationType.UI.values()).stream().map(ProjectApplicationType.UI::name).collect(Collectors.toList()));
-                case PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_READ ->
-                        types.addAll(Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.values()).stream().map(ProjectApplicationType.PERFORMANCE_TEST::name).collect(Collectors.toList()));
-                default -> {
-                }
-            }
-        });
-        return types;
-    }
-
-    private Boolean checkAdmin(SessionUser user) {
-        long count = user.getUserRoles()
-                .stream()
-                .filter(g -> StringUtils.equalsIgnoreCase(g.getId(), InternalUserRole.ADMIN.getValue()))
-                .count();
-
-        if (count > 0) {
-            return true;
-        }
-        return false;
     }
 
 
@@ -449,6 +392,7 @@ public class ProjectApplicationService {
 
     /**
      * 关联需求配置 日志
+     *
      * @param projectId
      * @param configs
      * @return
@@ -469,16 +413,16 @@ public class ProjectApplicationService {
     }
 
 
-
     /**
      * 获取菜单列表
      *
      * @param projectId
      * @return
      */
-    public Map<String, Boolean> getModuleSetting(String projectId) {
+    public List<ModuleDTO> getModuleSetting(String projectId) {
         String moduleSetting = extProjectMapper.getModuleSetting(projectId);
         Map<String, Boolean> moudleMap = new HashMap<>();
+        List<ModuleDTO> moduleDTOList = new ArrayList<>();
         if (StringUtils.isNotEmpty(moduleSetting)) {
             ProjectApplicationExample example = new ProjectApplicationExample();
             JSON.parseArray(moduleSetting).forEach(module -> {
@@ -491,8 +435,9 @@ public class ProjectApplicationService {
                     moudleMap.put(String.valueOf(module), Boolean.TRUE);
                 }
             });
+            moduleDTOList = moudleMap.entrySet().stream().map(entry -> new ModuleDTO(entry.getKey(), entry.getValue())).collect(Collectors.toList());
         }
-        return moudleMap;
+        return moduleDTOList;
     }
 
 
@@ -534,4 +479,27 @@ public class ProjectApplicationService {
         }
         return collect;
     }
+
+
+    /**
+     * 校验插件key
+     *
+     * @param pluginId
+     * @param configs
+     */
+    public void validateProjectConfig(String pluginId, Map configs) {
+        Platform platform = this.getPlatform(pluginId);
+        platform.validateProjectConfig(JSON.toJSONString(configs));
+    }
+
+    private Platform getPlatform(String pluginId) {
+        ServiceIntegrationExample example = new ServiceIntegrationExample();
+        example.createCriteria().andPluginIdEqualTo(pluginId);
+        List<ServiceIntegration> serviceIntegrations = serviceIntegrationMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isEmpty(serviceIntegrations)) {
+            throw new MSException(NOT_FOUND);
+        }
+        return platformPluginService.getPlatform(pluginId, serviceIntegrations.get(0).getOrganizationId(), new String(serviceIntegrations.get(0).getConfiguration()));
+    }
+
 }
