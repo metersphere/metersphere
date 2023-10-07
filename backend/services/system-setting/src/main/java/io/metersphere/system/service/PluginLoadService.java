@@ -122,10 +122,9 @@ public class PluginLoadService {
     public List<String> getFrontendScripts(String pluginId) {
         MsPlugin msPluginInstance = (MsPlugin) msPluginManager.getPlugin(pluginId).getPlugin();
         String scriptDir = msPluginInstance.getScriptDir();
-        try {
-            List<String> scripts = new ArrayList<>(10);
-            String jarPath = msPluginManager.getPlugin(pluginId).getPluginPath().toString();
-            JarFile jarFile = new JarFile(jarPath);
+        List<String> scripts = new ArrayList<>(10);
+        String jarPath = msPluginManager.getPlugin(pluginId).getPluginPath().toString();
+        try (JarFile jarFile = new JarFile(jarPath)) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 JarEntry jarEntry = entries.nextElement();
@@ -133,9 +132,10 @@ public class PluginLoadService {
                 String innerPath = jarEntry.getName();
                 if (innerPath.startsWith(scriptDir) && !jarEntry.isDirectory()) {
                     //获取到文件流
-                    InputStream inputStream = msPluginManager.getPluginClassLoader(pluginId).getResourceAsStream(innerPath);
-                    if (inputStream != null) {
-                        scripts.add(IOUtil.toString(inputStream));
+                    try (InputStream inputStream = msPluginManager.getPluginClassLoader(pluginId).getResourceAsStream(innerPath)) {
+                        if (inputStream != null) {
+                            scripts.add(IOUtil.toString(inputStream));
+                        }
                     }
                 }
             }
