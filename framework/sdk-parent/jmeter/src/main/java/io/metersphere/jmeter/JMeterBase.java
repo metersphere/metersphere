@@ -19,16 +19,15 @@ import org.apache.jmeter.visualizers.backend.BackendListener;
 import org.apache.jorphan.collections.HashTree;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class JMeterBase {
     private final static String THREAD_SPLIT = " ";
     private final static String TRANSACTION = "Transaction=";
     private final static String SPLIT_EQ = "split==";
     private final static String SPLIT_AND = "split&&";
+
+    private static final List<String> imageList = Arrays.asList("image/png", "image/jpeg", "image/gif", "image/bmp", "image/webp", "image/svg+xml", "image/apng", "image/avif");
 
     public static HashTree getHashTree(Object scriptWrapper) throws Exception {
         Field field = scriptWrapper.getClass().getDeclaredField("testPlan");
@@ -105,6 +104,11 @@ public class JMeterBase {
                 && result.getResponseDataAsString().length() > size) {
             requestResult.setBody("");
         } else {
+            //判断返回的类型是否是图片
+            if (StringUtils.isNotEmpty(result.getContentType()) && imageList.contains(result.getContentType())) {
+                responseResult.setContentType(result.getContentType());
+                responseResult.setImageUrl(result.getResponseData());
+           }
             responseResult.setBody(result.getResponseDataAsString());
         }
         responseResult.setHeaders(result.getResponseHeaders());
