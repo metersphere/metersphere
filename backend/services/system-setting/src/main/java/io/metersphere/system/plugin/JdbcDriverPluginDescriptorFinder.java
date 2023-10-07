@@ -44,9 +44,10 @@ public class JdbcDriverPluginDescriptorFinder extends ManifestPluginDescriptorFi
             if (jarEntry == null) {
                 return false;
             }
-            InputStream inputStream = jar.getInputStream(jarEntry);
-            // 获取SPI中定义的类名
-            driverClass = IOUtils.toString(inputStream);
+            try (InputStream inputStream = jar.getInputStream(jarEntry)) {
+                // 获取SPI中定义的类名
+                driverClass = IOUtils.toString(inputStream);
+            }
             return true;
         } catch (IOException e) {
             throw new PluginRuntimeException(e, "Cannot read META-INF/services/java.sql.Driver from {}", jarPath);
