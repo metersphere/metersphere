@@ -34,10 +34,12 @@
                     <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
                   </MsButton>
                 </a-tooltip>
-                <ActionPopConfirm
-                  operation-type="add"
+                <MsPopConfirm
+                  :is-delete="false"
                   :title="t('featureTest.featureCase.addSubModule')"
                   :all-names="[]"
+                  :loading="confirmLoading"
+                  @confirm="confirmHandler"
                 >
                   <MsButton type="icon" class="!mr-0 p-[2px]">
                     <MsIcon
@@ -46,7 +48,7 @@
                       class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
                     />
                   </MsButton>
-                </ActionPopConfirm>
+                </MsPopConfirm>
               </div>
             </div>
             <a-divider class="my-[8px]" />
@@ -76,7 +78,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import FeatureCaseTree from './components/featureCaseTree.vue';
-  import ActionPopConfirm from './components/actionPopConfirm.vue';
+  import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
   import CaseTable from './components/caseTable.vue';
   import { useI18n } from '@/hooks/useI18n';
 
@@ -112,6 +114,18 @@
   function caseNodeSelect(keys: (string | number)[]) {
     [activeCase.value] = keys;
   }
+
+  const confirmLoading = ref(false);
+
+  const confirmHandler = () => {
+    try {
+      confirmLoading.value = true;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      confirmLoading.value = false;
+    }
+  };
 </script>
 
 <style scoped lang="less">

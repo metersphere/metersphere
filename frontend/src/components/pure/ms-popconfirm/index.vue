@@ -1,12 +1,12 @@
 <template>
   <a-popover
     v-bind="attrs"
+    v-model:popup-visible="currentVisible"
     :type="props.type"
-    :popup-visible="currentVisible"
     :class="props.isDelete ? 'w-[352px]' : ''"
     trigger="click"
     :popup-container="props.popupContainer || 'body'"
-    :position="props.isDelete ? 'bottom' : 'rb'"
+    :position="props.isDelete ? 'rb' : 'bottom'"
     @popup-visible-change="reset"
   >
     <template #content>

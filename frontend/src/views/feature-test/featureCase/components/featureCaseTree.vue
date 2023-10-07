@@ -8,6 +8,7 @@
     :expand-all="props.isExpandAll"
     :empty-text="t('featureTest.featureCase.caseEmptyContent')"
     draggable
+    :virtual-list-props="virtualListProps"
     block-node
     @select="caseNodeSelect"
     @more-action-select="handleCaseMoreSelect"
@@ -18,25 +19,25 @@
       <span class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count }})</span>
     </template>
     <template #extra="nodeData">
-      <ActionPopConfirm
-        operation-type="add"
+      <MsPopConfirm
+        :is-delete="false"
         :all-names="[]"
         :title="t('featureTest.featureCase.addSubModule')"
-        @close="resetFocusNodeKey"
+        @cancel="resetFocusNodeKey"
       >
         <MsButton type="icon" size="mini" class="ms-tree-node-extra__btn !mr-0" @click="setFocusKey(nodeData)">
           <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
         </MsButton>
-      </ActionPopConfirm>
-      <ActionPopConfirm
-        operation-type="rename"
+      </MsPopConfirm>
+      <MsPopConfirm
         :title="t('featureTest.featureCase.rename')"
-        :node-name="renameCaseName"
         :all-names="[]"
-        @close="resetFocusNodeKey"
+        :is-delete="false"
+        :field-config="{ field: renameCaseName }"
+        @cancel="resetFocusNodeKey"
       >
         <span :id="`renameSpan${nodeData.key}`" class="relative"></span>
-      </ActionPopConfirm>
+      </MsPopConfirm>
     </template>
   </MsTree>
   <div class="recycle w-[88%]">
@@ -50,15 +51,18 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
+  import { Message } from '@arco-design/web-vue';
+  import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
-  import ActionPopConfirm from './actionPopConfirm.vue';
 
   const { t } = useI18n();
+  const { openModal } = useModal();
 
   const focusNodeKey = ref<string | number>('');
 
@@ -82,6 +86,36 @@
           key: 'node2',
           count: 28,
         },
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
       ],
     },
     {
@@ -89,6 +123,36 @@
       key: 'node3',
       count: 180,
       children: [
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
+        {
+          title: 'Leaf',
+          key: 'node4',
+          count: 138,
+        },
+        {
+          title: 'Leaf',
+          key: 'node5',
+          count: 108,
+        },
         {
           title: 'Leaf',
           key: 'node4',
@@ -132,13 +196,34 @@
     emits('caseNodeSelect', selectedKeys);
   };
 
-  const deleteHandler = (node: MsTreeNodeData) => {};
+  // 删除节点
+  const deleteHandler = (node: MsTreeNodeData) => {
+    openModal({
+      type: 'error',
+      title: t('featureTest.featureCase.deleteTipTitle', { name: node.title }),
+      content: t('featureTest.featureCase.deleteCaseTipContent'),
+      okText: t('featureTest.featureCase.deleteConfirm'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          Message.success(t('featureTest.featureCase.deleteSuccess'));
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  };
 
   function resetFocusNodeKey() {
     focusNodeKey.value = '';
     renamePopVisible.value = false;
     renameCaseName.value = '';
   }
+
   // 用例树节点更多事件
   const handleCaseMoreSelect = (item: ActionsItem, node: MsTreeNodeData) => {
     switch (item.eventTag) {
@@ -167,6 +252,12 @@
   };
 
   const recycleCount = ref<number>(100);
+
+  const virtualListProps = computed(() => {
+    return {
+      height: 'calc(100vh - 376px)',
+    };
+  });
 
   watch(
     () => props.selectedKeys,
