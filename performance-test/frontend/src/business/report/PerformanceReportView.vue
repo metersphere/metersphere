@@ -102,9 +102,15 @@
             <el-tab-pane :label="$t('report.test_request_statistics')">
               <ms-report-request-statistics :report="report" ref="requestStatistics"/>
             </el-tab-pane>
-            <el-tab-pane :label="$t('report.test_error_log')">
+
+            <el-tab-pane v-if="haveErrorSamples" :label="$t('report.test_error_log')">
+              <samples-tabs :samples="errorSamples" ref="errorSamples"/>
+            </el-tab-pane>
+
+            <el-tab-pane v-else :label="$t('report.test_error_log')">
               <ms-report-error-log :report="report" ref="errorLog"/>
             </el-tab-pane>
+
             <el-tab-pane :label="$t('report.test_log_details')">
               <ms-report-log-details :report="report"/>
             </el-tab-pane>
@@ -157,6 +163,7 @@ import MonitorCard from "./components/MonitorCard";
 import MsTestConfiguration from "./components/TestConfiguration";
 import {generateShareInfoWithExpired, getShareRedirectUrl} from "@/api/share";
 import ProjectEnvironmentDialog from "./components/ProjectEnvironmentDialog";
+import SamplesTabs from "@/business/report/components/samples/SamplesTabs.vue";
 import {
   downloadZip,
   getProjectApplication,
@@ -167,6 +174,7 @@ import {
   stopTest
 } from "@/api/report";
 import {getTest, runTest} from "@/api/performance";
+import {getPerformanceReportErrorSamples} from "@/api/load-test";
 
 
 export default {
@@ -184,7 +192,8 @@ export default {
     MsMainContainer,
     MsReportTestDetails,
     MsTag,
-    ProjectEnvironmentDialog
+    ProjectEnvironmentDialog,
+    SamplesTabs
   },
   props: {},
   inject: [
@@ -229,6 +238,8 @@ export default {
       ],
       testDeleted: false,
       shareUrl: "",
+      haveErrorSamples: false,
+      errorSamples: {},
       application: {}
     };
   },
@@ -461,6 +472,17 @@ export default {
         }
       }
     },
+    checkSampleResults(reportId) {
+      getPerformanceReportErrorSamples(reportId)
+          .then(res => {
+            if (res.data) {
+              this.errorSamples = res.data;
+              this.haveErrorSamples = true;
+            } else {
+              this.haveErrorSamples = false;
+            }
+          });
+    },
     getReport(reportId) {
       this.loading = getReport(reportId)
         .then(res => {
@@ -523,6 +545,7 @@ export default {
       this.reportId = this.perReportId;
     }
     this.getReport(this.reportId);
+    this.checkSampleResults(this.reportId);
     this.$EventBus.$on('projectChange', this.handleProjectChange);
     this.getProjectApplication();
   },

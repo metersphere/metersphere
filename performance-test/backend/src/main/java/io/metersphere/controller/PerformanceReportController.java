@@ -10,22 +10,19 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.dto.LogDetailDTO;
-import io.metersphere.dto.ReportDTO;
+import io.metersphere.dto.*;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
-import io.metersphere.dto.*;
 import io.metersphere.request.DeleteReportRequest;
 import io.metersphere.request.RenameReportRequest;
 import io.metersphere.request.ReportRequest;
-import io.metersphere.dto.LoadTestExportJmx;
 import io.metersphere.service.PerformanceReportService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -84,6 +81,11 @@ public class PerformanceReportController {
     @GetMapping("/content/errors_top5/{reportId}")
     public List<ErrorsTop5> getReportErrorsTop5(@PathVariable String reportId) {
         return performanceReportService.getReportErrorsTOP5(reportId);
+    }
+
+    @GetMapping("/content/errors_samples/{reportId}")
+    public SamplesRecord getErrorSamples(@PathVariable String reportId) {
+        return performanceReportService.getErrorSamples(reportId);
     }
 
     @GetMapping("/content/testoverview/{reportId}")
