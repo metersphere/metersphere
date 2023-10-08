@@ -188,6 +188,8 @@ export default {
               this.loading = false;
               this.$emit('refresh');
             }
+          }).catch(() => {
+            this.loading = false;
           });
         } else {
           return false;

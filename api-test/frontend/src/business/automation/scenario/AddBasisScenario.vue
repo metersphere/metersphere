@@ -168,6 +168,8 @@ export default {
               this.$success(this.$t('commons.save_success'));
               this.visible = false;
               this.$emit('refresh');
+            }).finally(() => {
+              this.loading = false;
             });
           }
         } else {
