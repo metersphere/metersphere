@@ -6,6 +6,8 @@ import io.metersphere.project.domain.MessageTaskBlob;
 import io.metersphere.project.domain.MessageTaskExample;
 import io.metersphere.project.dto.MessageTaskDTO;
 
+import io.metersphere.project.dto.MessageTaskDetailDTO;
+import io.metersphere.project.dto.ProjectRobotConfigDTO;
 import io.metersphere.project.mapper.MessageTaskBlobMapper;
 import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.sdk.constants.SessionConstants;
@@ -16,8 +18,8 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.*;
-import org.junit.platform.commons.util.StringUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -265,9 +267,8 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<MessageTaskDTO> messageTaskDetailDTOList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
-       // String robotId = messageTaskDetailDTOList.get(0).getMessageTaskTypeDTOList().get(0).getMessageTaskDetailDTOList().get(0).getProjectRobotConfigList().get(0).getRobotId();
-       // Assertions.assertTrue(StringUtils.isNotBlank(robotId));
         System.out.println(messageTaskDetailDTOList);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(messageTaskDetailDTOList));
     }
 
     @Test
@@ -291,8 +292,10 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<MessageTaskDTO> messageTaskDetailDTOList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
-        String robotId = messageTaskDetailDTOList.get(0).getMessageTaskTypeDTOList().get(0).getMessageTaskDetailDTOList().get(0).getProjectRobotConfigList().get(0).getRobotId();
-        Assertions.assertTrue(StringUtils.isBlank(robotId));
+        MessageTaskDetailDTO messageTaskDetailDTO = messageTaskDetailDTOList.get(0).getMessageTaskTypeDTOList().get(0).getMessageTaskDetailDTOList().get(0);
+        Map<String, ProjectRobotConfigDTO> projectRobotConfigMap = messageTaskDetailDTO.getProjectRobotConfigMap();
+        System.out.println(projectRobotConfigMap);
+       // Assertions.assertTrue(StringUtils.isBlank(robotId));
 
     }
 
@@ -479,6 +482,5 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<OptionDTO> userDtoList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
         Assertions.assertEquals(0, userDtoList.size());
-
     }
 }
