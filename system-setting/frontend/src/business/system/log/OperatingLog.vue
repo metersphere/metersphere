@@ -245,6 +245,10 @@ export default {
       }
       let operModule = resource.operModule;
       let module = this.getLogModule(operModule);
+      if (module === "系统-用户" || module === "System user") {
+        this.toPage(uri);
+        return;
+      }
       if (module === "系统-系统参数设置" || module === "系统-系統參數設置" || module === "System parameter setting") {
         this.toPage(uri);
       } else {
