@@ -7,7 +7,9 @@ import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -26,5 +28,6 @@ public class MessageTaskDetailDTO implements Serializable {
     private List<OptionDTO> receivers;
 
     @Schema(description = "消息配置机器人设置")
-    private List<ProjectRobotConfigDTO> projectRobotConfigList;
+    private Map<String,ProjectRobotConfigDTO> projectRobotConfigMap;
+
 }

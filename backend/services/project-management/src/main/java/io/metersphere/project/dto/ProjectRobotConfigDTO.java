@@ -16,6 +16,9 @@ public class ProjectRobotConfigDTO implements Serializable {
     @Schema(description = "消息配置机器人id")
     public String robotId;
 
+    @Schema(description = "消息配置机器人名称")
+    public String robotName;
+
     @Schema(description = "所属平台（飞书:LARK，钉钉:DING_TALK，企业微信:WE_COM，自定义:CUSTOM, 站内信:IN_SITE, 邮件:MAIL）")
     private String platform;
 

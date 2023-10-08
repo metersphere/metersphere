@@ -80,7 +80,8 @@ public class NoticeMessageTaskService {
         Map<String, List<String>> stringListMap = checkUserExistProject(messageTaskRequest.getReceiverIds(), projectId);
         List<String> existUserIds = stringListMap.get(USER_IDS);
         //如果只选了用户，没有选机器人，默认机器人为站内信
-        String robotId = setDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
+        ProjectRobot projectRobot = setDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
+        String robotId = projectRobot.getId();
         messageTaskRequest.setRobotId(robotId);
         //检查设置的通知是否存在，如果存在则更新
         List<MessageTask> messageTasks = updateMessageTasks(messageTaskRequest, userId, mapper, blobMapper, existUserIds);
@@ -140,14 +141,15 @@ public class NoticeMessageTaskService {
      * @param robotId   机器人id
      * @return String
      */
-    private String setDefaultRobot(String projectId, String robotId) {
+    private ProjectRobot setDefaultRobot(String projectId, String robotId) {
         if (StringUtils.isBlank(robotId)) {
             ProjectRobotExample projectRobotExample = new ProjectRobotExample();
             projectRobotExample.createCriteria().andProjectIdEqualTo(projectId).andPlatformEqualTo(ProjectRobotPlatform.IN_SITE.toString());
             List<ProjectRobot> projectRobots = projectRobotMapper.selectByExample(projectRobotExample);
-            robotId = projectRobots.get(0).getId();
+            return projectRobots.get(0);
+        } else {
+            return projectRobotMapper.selectByPrimaryKey(robotId);
         }
-        return robotId;
     }
 
     /**
@@ -323,8 +325,7 @@ public class NoticeMessageTaskService {
         Map<String, String> eventMap = MessageTemplateUtils.getEventMap();
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateTitleMap();
-        String robotId = setDefaultRobot(projectId, null);
-
+        ProjectRobot projectRobot = setDefaultRobot(projectId, null);
         for (MessageTaskDTO messageTaskDTO : messageTaskDTOList) {
             messageTaskDTO.setProjectId(projectId);
             messageTaskDTO.setName(moduleMap.get(messageTaskDTO.getType()));
@@ -339,13 +340,12 @@ public class NoticeMessageTaskService {
                     messageTaskDetailDTO.setEventName(eventMap.get(messageTaskDetailDTO.getEvent()));
                     List<MessageTask> messageTaskList = messageEventMap.get(messageTaskDetailDTO.getEvent());
                     List<OptionDTO> receivers = new ArrayList<>();
-
-                    List<ProjectRobotConfigDTO> projectRobotConfigList = new ArrayList<>();
+                    Map<String,ProjectRobotConfigDTO> projectRobotConfigMap = new HashMap<>();
                     String defaultTemplate = defaultTemplateMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
                     if (CollectionUtils.isEmpty(messageTaskList)) {
                         String defaultSubject = defaultTemplateTitleMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
-                        ProjectRobotConfigDTO projectRobotConfigDTO = getDefaultProjectRobotConfigDTO(defaultTemplate, defaultSubject, robotId);
-                        projectRobotConfigList.add(projectRobotConfigDTO);
+                        ProjectRobotConfigDTO projectRobotConfigDTO = getDefaultProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot);
+                        projectRobotConfigMap.put(projectRobot.getId(),projectRobotConfigDTO);
                     } else {
                         for (MessageTask messageTask : messageTaskList) {
                             MessageTaskBlob messageTaskBlob = messageTaskBlobMap.get(messageTask.getId());
@@ -361,35 +361,42 @@ public class NoticeMessageTaskService {
                                 defaultSubject = defaultTemplateTitleMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
                             }
                             ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, platform, messageTask, messageTaskBlob);
-                            projectRobotConfigList.add(projectRobotConfigDTO);
+                            projectRobotConfigMap.put(messageTask.getProjectRobotId(),projectRobotConfigDTO);
                         }
                     }
                     List<OptionDTO> distinctReceivers = receivers.stream().distinct().toList();
                     messageTaskDetailDTO.setReceivers(distinctReceivers);
-                    messageTaskDetailDTO.setProjectRobotConfigList(projectRobotConfigList);
+                    messageTaskDetailDTO.setProjectRobotConfigMap(projectRobotConfigMap);
                 }
             }
         }
         return messageTaskDTOList;
     }
 
-    private static ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, String robotPlatForm, MessageTask messageTask, MessageTaskBlob messageTaskBlob) {
+    private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, String robotPlatForm, MessageTask messageTask, MessageTaskBlob messageTaskBlob) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
-        projectRobotConfigDTO.setRobotId(messageTask.getProjectRobotId());
-        projectRobotConfigDTO.setPlatform(robotPlatForm);
-        projectRobotConfigDTO.setEnable(messageTask.getEnable());
-        projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
-        projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
-        projectRobotConfigDTO.setSubject(messageTask.getSubject());
-        projectRobotConfigDTO.setDefaultSubject(defaultSubject);
-        projectRobotConfigDTO.setUseDefaultSubject(messageTask.getUseDefaultSubject());
-        projectRobotConfigDTO.setUseDefaultTemplate(messageTask.getUseDefaultTemplate());
-        return projectRobotConfigDTO;
+        ProjectRobot projectRobot = projectRobotMapper.selectByPrimaryKey(messageTask.getProjectRobotId());
+        if (projectRobot == null) {
+            return new ProjectRobotConfigDTO();
+        } else {
+            projectRobotConfigDTO.setRobotName(projectRobot.getName());
+            projectRobotConfigDTO.setRobotId(messageTask.getProjectRobotId());
+            projectRobotConfigDTO.setPlatform(robotPlatForm);
+            projectRobotConfigDTO.setEnable(messageTask.getEnable());
+            projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
+            projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
+            projectRobotConfigDTO.setSubject(messageTask.getSubject());
+            projectRobotConfigDTO.setDefaultSubject(defaultSubject);
+            projectRobotConfigDTO.setUseDefaultSubject(messageTask.getUseDefaultSubject());
+            projectRobotConfigDTO.setUseDefaultTemplate(messageTask.getUseDefaultTemplate());
+            return projectRobotConfigDTO;
+        }
     }
 
-    private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, String robotId) {
+    private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, ProjectRobot projectRobot) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
-        projectRobotConfigDTO.setRobotId(robotId);
+        projectRobotConfigDTO.setRobotId(projectRobot.getId());
+        projectRobotConfigDTO.setRobotName(projectRobot.getName());
         projectRobotConfigDTO.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
         projectRobotConfigDTO.setEnable(false);
         projectRobotConfigDTO.setTemplate("");
