@@ -147,6 +147,17 @@ export default {
         // 如果是空的工作空间, 模块只启用工作台, 系统设置
         return (key === 'workstation' && microApps && microApps[key]) || (key === 'setting' && microApps && microApps[key]);
       } else {
+        if (key === 'project' || key === 'setting') {
+          return this.modules[key] === 'ENABLE' && microApps && microApps[key];
+        }
+        let projectModules = JSON.parse(sessionStorage.getItem("project_modules"));
+        if (projectModules && projectModules.length > 0 ) {
+          return this.modules[key] === 'ENABLE' && microApps && microApps[key] && projectModules.indexOf(key) > -1;
+        }
+        let workModules = JSON.parse(sessionStorage.getItem("workspace_modules"));
+        if (workModules && workModules.length > 0 ) {
+          return this.modules[key] === 'ENABLE' && microApps && microApps[key] && workModules.indexOf(key) > -1;
+        }
         // 如果是有项目的工作空间, 模块按原有逻辑展示
         return this.modules[key] === 'ENABLE' && microApps && microApps[key];
       }

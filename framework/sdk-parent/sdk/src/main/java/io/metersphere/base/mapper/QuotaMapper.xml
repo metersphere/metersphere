@@ -16,6 +16,7 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="vum_total" jdbcType="DECIMAL" property="vumTotal" />
     <result column="vum_used" jdbcType="DECIMAL" property="vumUsed" />
+    <result column="module_setting" jdbcType="VARCHAR" property="moduleSetting" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -28,13 +29,13 @@
                   and ${criterion.condition}
                 </when>
                 <when test="criterion.singleValue">
-                  AND ${criterion.condition} #{criterion.value}
+                  and ${criterion.condition} #{criterion.value}
                 </when>
                 <when test="criterion.betweenValue">
-                  AND ${criterion.condition} #{criterion.value} AND #{criterion.secondValue}
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
                 <when test="criterion.listValue">
-                  AND ${criterion.condition}
+                  and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
@@ -57,13 +58,13 @@
                   and ${criterion.condition}
                 </when>
                 <when test="criterion.singleValue">
-                  AND ${criterion.condition} #{criterion.value}
+                  and ${criterion.condition} #{criterion.value}
                 </when>
                 <when test="criterion.betweenValue">
-                  AND ${criterion.condition} #{criterion.value} AND #{criterion.secondValue}
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
                 <when test="criterion.listValue">
-                  AND ${criterion.condition}
+                  and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
@@ -76,53 +77,55 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, api, performance, max_threads, duration, resource_pool, workspace_id, use_default, 
-    update_time, `member`, project, project_id, vum_total, vum_used
+    id, api, performance, max_threads, duration, resource_pool, workspace_id, use_default,
+    update_time, `member`, project, project_id, vum_total, vum_used, module_setting
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.QuotaExample" resultMap="BaseResultMap">
-    SELECT
+    select
     <if test="distinct">
-      DISTINCT
+      distinct
     </if>
     <include refid="Base_Column_List" />
-    FROM quota
+    from quota
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
     <if test="orderByClause != null">
-      ORDER BY ${orderByClause}
+      order by ${orderByClause}
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    SELECT
+    select
     <include refid="Base_Column_List" />
-    FROM quota
-    WHERE id = #{id,jdbcType=VARCHAR}
+    from quota
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    DELETE FROM quota
-    WHERE id = #{id,jdbcType=VARCHAR}
+    delete from quota
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.QuotaExample">
-    DELETE FROM quota
+    delete from quota
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.Quota">
-    INSERT INTO quota (id, api, performance,
-      max_threads, duration, resource_pool, 
-      workspace_id, use_default, update_time, 
-      `member`, project, project_id, 
-      vum_total, vum_used)
-    VALUES (#{id,jdbcType=VARCHAR}, #{api,jdbcType=INTEGER}, #{performance,jdbcType=INTEGER},
-      #{maxThreads,jdbcType=INTEGER}, #{duration,jdbcType=INTEGER}, #{resourcePool,jdbcType=VARCHAR}, 
-      #{workspaceId,jdbcType=VARCHAR}, #{useDefault,jdbcType=BIT}, #{updateTime,jdbcType=BIGINT}, 
-      #{member,jdbcType=INTEGER}, #{project,jdbcType=INTEGER}, #{projectId,jdbcType=VARCHAR}, 
-      #{vumTotal,jdbcType=DECIMAL}, #{vumUsed,jdbcType=DECIMAL})
+    insert into quota (id, api, performance,
+                       max_threads, duration, resource_pool,
+                       workspace_id, use_default, update_time,
+                       `member`, project, project_id,
+                       vum_total, vum_used, module_setting
+    )
+    values (#{id,jdbcType=VARCHAR}, #{api,jdbcType=INTEGER}, #{performance,jdbcType=INTEGER},
+            #{maxThreads,jdbcType=INTEGER}, #{duration,jdbcType=INTEGER}, #{resourcePool,jdbcType=VARCHAR},
+            #{workspaceId,jdbcType=VARCHAR}, #{useDefault,jdbcType=BIT}, #{updateTime,jdbcType=BIGINT},
+            #{member,jdbcType=INTEGER}, #{project,jdbcType=INTEGER}, #{projectId,jdbcType=VARCHAR},
+            #{vumTotal,jdbcType=DECIMAL}, #{vumUsed,jdbcType=DECIMAL}, #{moduleSetting,jdbcType=VARCHAR}
+           )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Quota">
-    INSERT INTO quota
+    insert into quota
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -165,6 +168,9 @@
       </if>
       <if test="vumUsed != null">
         vum_used,
+      </if>
+      <if test="moduleSetting != null">
+        module_setting,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -210,16 +216,19 @@
       <if test="vumUsed != null">
         #{vumUsed,jdbcType=DECIMAL},
       </if>
+      <if test="moduleSetting != null">
+        #{moduleSetting,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.QuotaExample" resultType="java.lang.Long">
-    SELECT COUNT(*) FROM quota
+    select count(*) from quota
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    UPDATE quota
+    update quota
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -263,33 +272,37 @@
       <if test="record.vumUsed != null">
         vum_used = #{record.vumUsed,jdbcType=DECIMAL},
       </if>
+      <if test="record.moduleSetting != null">
+        module_setting = #{record.moduleSetting,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    UPDATE quota
-    SET id = #{record.id,jdbcType=VARCHAR},
-      api = #{record.api,jdbcType=INTEGER},
-      performance = #{record.performance,jdbcType=INTEGER},
-      max_threads = #{record.maxThreads,jdbcType=INTEGER},
-      duration = #{record.duration,jdbcType=INTEGER},
-      resource_pool = #{record.resourcePool,jdbcType=VARCHAR},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
-      use_default = #{record.useDefault,jdbcType=BIT},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      `member` = #{record.member,jdbcType=INTEGER},
-      project = #{record.project,jdbcType=INTEGER},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
-      vum_total = #{record.vumTotal,jdbcType=DECIMAL},
-      vum_used = #{record.vumUsed,jdbcType=DECIMAL}
+    update quota
+    set id = #{record.id,jdbcType=VARCHAR},
+    api = #{record.api,jdbcType=INTEGER},
+    performance = #{record.performance,jdbcType=INTEGER},
+    max_threads = #{record.maxThreads,jdbcType=INTEGER},
+    duration = #{record.duration,jdbcType=INTEGER},
+    resource_pool = #{record.resourcePool,jdbcType=VARCHAR},
+    workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+    use_default = #{record.useDefault,jdbcType=BIT},
+    update_time = #{record.updateTime,jdbcType=BIGINT},
+    `member` = #{record.member,jdbcType=INTEGER},
+    project = #{record.project,jdbcType=INTEGER},
+    project_id = #{record.projectId,jdbcType=VARCHAR},
+    vum_total = #{record.vumTotal,jdbcType=DECIMAL},
+    vum_used = #{record.vumUsed,jdbcType=DECIMAL},
+    module_setting = #{record.moduleSetting,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.Quota">
-    UPDATE quota
+    update quota
     <set>
       <if test="api != null">
         api = #{api,jdbcType=INTEGER},
@@ -330,24 +343,28 @@
       <if test="vumUsed != null">
         vum_used = #{vumUsed,jdbcType=DECIMAL},
       </if>
+      <if test="moduleSetting != null">
+        module_setting = #{moduleSetting,jdbcType=VARCHAR},
+      </if>
     </set>
-    WHERE id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.Quota">
-    UPDATE quota
-    SET api = #{api,jdbcType=INTEGER},
-      performance = #{performance,jdbcType=INTEGER},
-      max_threads = #{maxThreads,jdbcType=INTEGER},
-      duration = #{duration,jdbcType=INTEGER},
-      resource_pool = #{resourcePool,jdbcType=VARCHAR},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR},
-      use_default = #{useDefault,jdbcType=BIT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      `member` = #{member,jdbcType=INTEGER},
-      project = #{project,jdbcType=INTEGER},
-      project_id = #{projectId,jdbcType=VARCHAR},
-      vum_total = #{vumTotal,jdbcType=DECIMAL},
-      vum_used = #{vumUsed,jdbcType=DECIMAL}
-    WHERE id = #{id,jdbcType=VARCHAR}
+    update quota
+    set api = #{api,jdbcType=INTEGER},
+        performance = #{performance,jdbcType=INTEGER},
+        max_threads = #{maxThreads,jdbcType=INTEGER},
+        duration = #{duration,jdbcType=INTEGER},
+        resource_pool = #{resourcePool,jdbcType=VARCHAR},
+        workspace_id = #{workspaceId,jdbcType=VARCHAR},
+        use_default = #{useDefault,jdbcType=BIT},
+        update_time = #{updateTime,jdbcType=BIGINT},
+        `member` = #{member,jdbcType=INTEGER},
+        project = #{project,jdbcType=INTEGER},
+        project_id = #{projectId,jdbcType=VARCHAR},
+        vum_total = #{vumTotal,jdbcType=DECIMAL},
+        vum_used = #{vumUsed,jdbcType=DECIMAL},
+        module_setting = #{moduleSetting,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

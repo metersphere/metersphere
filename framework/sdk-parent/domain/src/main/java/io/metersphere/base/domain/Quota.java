@@ -35,5 +35,7 @@ public class Quota implements Serializable {
 
     private BigDecimal vumUsed;
 
+    private String moduleSetting;
+
     private static final long serialVersionUID = 1L;
 }

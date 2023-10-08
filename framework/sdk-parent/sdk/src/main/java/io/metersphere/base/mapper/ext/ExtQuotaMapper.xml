@@ -12,7 +12,7 @@
     <select id="listWorkspaceQuota" resultMap="BaseResultMap">
         select w.name as workspace_name, w.id as workspace_id, q.id, q.api, q.performance,
         q.max_threads, q.duration, q.resource_pool, q.workspace_id, COALESCE(q.use_default,1) use_default, q.update_time,
-        q.member, q.project, q.project_id, q.vum_total, temp.vum_used, temp.project_used
+        q.member, q.project, q.project_id, q.vum_total, temp.vum_used, temp.project_used, q.module_setting
         from workspace as w
         left join quota as q on w.id = q.workspace_id
         inner join (select sum(vum_used) as vum_used, workspace.id, count(p.id) as project_used

@@ -1,8 +1,11 @@
-import {get, post} from "metersphere-frontend/src/plugins/request"
-
+import { get, post } from "metersphere-frontend/src/plugins/request";
 
 export function getWorkspaceValidResourcePool(workspaceId) {
   return get(`/testresourcepool/list/quota/ws/valid/${workspaceId}`);
+}
+
+export function getWorkspaceModules(type, id) {
+  return get(`/quota/list/modules/${type}/${id}`);
 }
 
 export function getProjectDefaultQuota(workspaceId) {
@@ -10,7 +13,7 @@ export function getProjectDefaultQuota(workspaceId) {
 }
 
 export function saveProjectDefaultQuota(quota) {
-  return post('/quota/save/default/project', quota);
+  return post("/quota/save/default/project", quota);
 }
 
 export function getAllValidResourcePool() {
@@ -44,4 +47,3 @@ export function deleteQuota(quota) {
 export function saveQuota(quota) {
   return post("/quota/save", quota);
 }
-

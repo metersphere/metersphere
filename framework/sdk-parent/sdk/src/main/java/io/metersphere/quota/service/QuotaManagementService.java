@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -50,6 +51,9 @@ public class QuotaManagementService {
     @Resource
     private ProjectMapper projectMapper;
 
+    private static final String WORKSPACE = "workspace";
+    private static final String PROJECT = "project";
+
     public Quota getDefaultQuota(QuotaConstants.DefaultType type) {
         Quota quota = quotaMapper.selectByPrimaryKey(type.name());
         if (quota == null) {
@@ -73,6 +77,15 @@ public class QuotaManagementService {
                     .filter(projects::contains)
                     .collect(Collectors.toList());
             quota.setResourcePool(String.join(",", intersection));
+
+        }
+        if (ObjectUtils.isNotEmpty(workspaceQuota) && ObjectUtils.isNotEmpty(quota) && StringUtils.isBlank(workspaceQuota.getModuleSetting())) {
+            List<String> workModules = Arrays.asList(workspaceQuota.getModuleSetting().split(","));
+            List<String> projectModules = StringUtils.isNotBlank(quota.getModuleSetting()) ? Arrays.asList(quota.getModuleSetting().split(",")) : new ArrayList<>();
+            List<String> moduleIntersection = workModules.stream()
+                    .filter(projectModules::contains)
+                    .collect(Collectors.toList());
+            quota.setModuleSetting(String.join(",", moduleIntersection));
         }
         if (quota == null) {
             quota = new Quota();
@@ -378,6 +391,7 @@ public class QuotaManagementService {
         quota.setMaxThreads(defaultQuota.getMaxThreads());
         quota.setDuration(defaultQuota.getDuration());
         quota.setResourcePool(defaultQuota.getResourcePool());
+        quota.setModuleSetting(defaultQuota.getModuleSetting());
         quota.setVumTotal(defaultQuota.getVumTotal());
     }
 
@@ -410,4 +424,19 @@ public class QuotaManagementService {
         }
         return null;
     }
+
+    public List<String> getQuotaWsModules(String type , String id) {
+        List<String> modules = new ArrayList<>();
+        Quota quota = new Quota();
+        if (StringUtils.equals(type, WORKSPACE)) {
+            quota = this.getWorkspaceQuota(id);
+        } else if (StringUtils.equals(type, PROJECT)) {
+            quota = this.getProjectQuota(id);
+        }
+        if (quota != null) {
+            modules.addAll(StringUtils.isNotBlank(quota.getModuleSetting()) ? Arrays.asList(quota.getModuleSetting().split(",")) : new ArrayList<>());
+        }
+        return modules.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
+    }
+
 }
