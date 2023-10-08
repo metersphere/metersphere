@@ -210,4 +210,15 @@ public class NoticeService {
         }
         return null;
     }
+
+    public MessageTask searchTemplateById(String id, String event) {
+        MessageTask messageTask = new MessageTask();
+        MessageTaskExample example = new MessageTaskExample();
+        example.createCriteria().andIdEqualTo(id).andEventEqualTo(event);
+        List<MessageTask> messageTasks = messageTaskMapper.selectByExampleWithBLOBs(example);
+        if(CollectionUtils.isNotEmpty(messageTasks)){
+            messageTask = messageTasks.get(0);
+        }
+        return messageTask;
+    }
 }
