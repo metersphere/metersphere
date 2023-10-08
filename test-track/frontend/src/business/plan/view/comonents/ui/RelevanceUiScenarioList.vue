@@ -94,6 +94,7 @@
         <el-radio label="newEnv">{{ $t("api_test.environment.choose_new_environment") }}</el-radio>
       </el-radio-group>
       <env-group-popover
+        v-loading="uiLoading"
         :env-map="projectEnvMap"
         :project-ids="projectIds"
         :show-env-group="false"
@@ -161,6 +162,7 @@ export default {
   data() {
     return {
       loading: false,
+      uiLoading: false,
       showConfigButtonWithOutPermission: false,
       condition: {
         components: TEST_PLAN_RELEVANCE_UI_SCENARIO_CONFIGS
@@ -302,6 +304,7 @@ export default {
 
     },
     initProjectIds() {
+      this.uiLoading = true;
       this.projectIds.clear();
       this.map = new Map();
       if (!this.selectAll) {
@@ -316,6 +319,7 @@ export default {
             newProjectIds.push(...this.map[key])
           }
           this.projectIds = new Set(newProjectIds)
+          this.uiLoading = false;
         });
       } else {
         testPlanUiScenarioRelevanceListIds(this.condition).then((res) => {
@@ -326,7 +330,8 @@ export default {
             for (let key of Object.keys(this.map)) {
               newProjectIds.push(...this.map[key])
             }
-            this.projectIds = new Set(newProjectIds)
+            this.projectIds = new Set(newProjectIds);
+            this.uiLoading = false;
           });
         });
       }
