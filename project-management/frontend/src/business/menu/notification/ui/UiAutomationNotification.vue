@@ -79,14 +79,6 @@ export default {
           value: 'operator',
         },
         {
-          label: 'id',
-          value: 'id',
-        },
-        {
-          label: this.$t('load_test.report.url'),
-          value: 'reportUrl',
-        },
-        {
           label: this.$t('project.id'),
           value: 'projectId',
         },
@@ -131,10 +123,6 @@ export default {
           value: 'stepTotal',
         },
         {
-          label: this.$t('ui.automation.scenario.schedule'),
-          value: 'schedule',
-        },
-        {
           label: this.$t('commons.create_time'),
           value: 'createTime',
         },
@@ -151,22 +139,6 @@ export default {
           value: 'lastResult',
         },
         {
-          label: this.$t('report.id'),
-          value: 'reportId',
-        },
-        {
-          label: this.$t('test_track.case.number'),
-          value: 'num',
-        },
-        {
-          label: this.$t('commons.original_state'),
-          value: 'originalState',
-        },
-        {
-          label: this.$t('commons.custom_num'),
-          value: 'customNum',
-        },
-        {
           label: this.$t('commons.create_user'),
           value: 'createUser',
         },
@@ -179,22 +151,8 @@ export default {
           value: 'deleteUserId',
         },
         {
-          label: this.$t('commons.execution_times'),
-          value: 'executeTimes',
-        },
-        {
-          label: this.$t('ui.automation.scenario.order'),
-          value: 'order',
-        },
-        {
-          label: this.$t('ui.automation.scenario.environment_type'),
-          value: 'environmentType',
-        }, {
           label: this.$t('ui.automation.scenario.environment_json'),
           value: 'environmentJson',
-        }, {
-          label: this.$t('ui.automation.scenario.environment_group_id'),
-          value: 'environmentGroupId',
         },
 
       ]
