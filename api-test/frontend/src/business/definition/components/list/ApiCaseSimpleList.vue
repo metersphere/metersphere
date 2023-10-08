@@ -628,6 +628,7 @@ export default {
     selectNodeIds() {
       this.selectAll = false;
       this.unSelection = [];
+      this.currentPage = 1;
       this.selectDataCounts = 0;
       this.initTable();
     },
