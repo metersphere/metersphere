@@ -13,11 +13,11 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.quota.dto.QuotaConstants;
 import io.metersphere.quota.dto.QuotaResult;
 import io.metersphere.quota.service.QuotaManagementService;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -85,4 +85,8 @@ public class QuotaController {
         quotaManagementService.deleteQuota(quota.getId());
     }
 
+    @GetMapping("/list/modules/{type}/{id}")
+    public List<String> getQuotaWsModules(@PathVariable String type ,@PathVariable String id) {
+        return quotaManagementService.getQuotaWsModules(type , id);
+    }
 }

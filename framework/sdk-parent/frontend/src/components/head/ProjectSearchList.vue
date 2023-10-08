@@ -29,10 +29,9 @@
 import {fullScreenLoading, stopFullScreenLoading} from "../../utils";
 import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId} from "../../utils/token";
 import {hasPermissions} from "../../utils/permission";
-import {getUserProjectList, switchProject} from "../../api/project";
+import {getProjectModules, getUserProjectList, switchProject} from "../../api/project";
 import {useUserStore} from "@/store";
 import {getDefaultSecondLevelMenu} from "../../router";
-import {PROJECT_ID, WORKSPACE_ID} from '../../utils/constants';
 
 export default {
   name: "SearchList",
@@ -90,6 +89,11 @@ export default {
               this.change(this.items[0].id);
             }
           }
+          getProjectModules("project", projectId)
+            .then(res => {
+              let modules = res.data;
+              sessionStorage.setItem('project_modules', JSON.stringify(modules));
+            });
           this.changeProjectName(projectId);
         });
     },
@@ -228,6 +232,11 @@ export default {
         })
         .catch(() => {
           stopFullScreenLoading(loading);
+        });
+      getProjectModules("project", projectId)
+        .then(res => {
+          let modules = res.data;
+          sessionStorage.setItem('project_modules', JSON.stringify(modules));
         });
     },
     changeProjectName(projectId) {

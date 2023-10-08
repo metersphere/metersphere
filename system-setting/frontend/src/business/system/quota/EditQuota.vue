@@ -63,6 +63,16 @@
       </el-row>
 
       <el-row>
+        <el-form-item :label="$t('quota.enable_module')" class="quota-resource-pool">
+          <el-select  v-model="form.moduleSetting" multiple filterable class="width-100">
+            <el-option v-for="item in modules" :key="item.id" :label="item.name" :value="item.id">
+              <span>{{ item.name }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-row>
+
+      <el-row>
         <el-form-item :label="$t('quota.resource_pool')" class="quota-resource-pool">
           <el-select v-model="form.resourcePool" multiple filterable class="width-100">
             <el-option v-for="item in resources" :key="item.id" :label="item.name" :value="item.id">
@@ -103,7 +113,8 @@ export default {
       default() {
         return QUOTA_TYPE.WORKSPACE;
       }
-    }
+    },
+    modules: Array,
   },
   data() {
     return {
@@ -116,7 +127,8 @@ export default {
         useDefault: this.quota.useDefault,
         member: this.quota.member,
         project: this.quota.project,
-        vumTotal: this.quota.vumTotal
+        vumTotal: this.quota.vumTotal,
+        moduleSetting: this.quota.moduleSetting ? this.quota.moduleSetting.split(",") : [],
       },
       visible: false,
       QUOTA_TYPE,
@@ -133,6 +145,7 @@ export default {
         this.form.member = 0;
         this.form.project = 0;
         this.form.vumTotal = 0;
+        this.form.moduleSetting = [];
       } else {
         this.form.api = this.defaultQuota.api;
         this.form.performance = this.defaultQuota.performance;
@@ -142,6 +155,7 @@ export default {
         this.form.member = this.defaultQuota.member;
         this.form.project = this.defaultQuota.project;
         this.form.vumTotal = this.defaultQuota.vumTotal;
+        this.form.moduleSetting = this.defaultQuota.moduleSetting ? this.defaultQuota.moduleSetting.split(",") : [];
       }
     },
     open() {
@@ -150,6 +164,7 @@ export default {
       this.form.maxThreads = this.quota.maxThreads;
       this.form.duration = this.quota.duration;
       this.form.resourcePool = this.quota.resourcePool ? this.quota.resourcePool.split(",") : [];
+      this.form.moduleSetting = this.quota.moduleSetting ? this.quota.moduleSetting.split(",") : [];
       this.form.useDefault = this.quota.useDefault;
       this.form.member = this.quota.member;
       this.form.project = this.quota.project;
@@ -176,6 +191,7 @@ export default {
       this.quota.project = this.form.project;
       this.quota.vumTotal = this.form.vumTotal;
       this.quota.resourcePool = this.form.resourcePool.join(",");
+      this.quota.moduleSetting = this.form.moduleSetting.join(",");
       this.$emit('confirm', this.quota);
     }
   },

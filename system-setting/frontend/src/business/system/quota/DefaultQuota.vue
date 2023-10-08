@@ -44,6 +44,13 @@
 
       <el-row :gutter="5" class="quota-row">
         <el-col :span="24">
+          {{ $t('quota.enable_module') }}:
+          <quota-value :value="moduleName"/>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="5" class="quota-row">
+        <el-col :span="24">
           {{ $t('quota.resource_pool') }}:
           <quota-value :value="resourcePoolNames"/>
         </el-col>
@@ -59,6 +66,7 @@
     <edit-quota :title="title"
                    :quota="quota"
                    :resources="resources"
+                   :modules="modules"
                    :is-default-quota="true"
                    :quota-type="quotaType"
                    @confirm="confirm"
@@ -79,6 +87,7 @@ export default {
     title: String,
     quota: Object,
     resources: Array,
+    modules: Array,
     quotaType: {
       type: String,
       default() {
@@ -102,6 +111,19 @@ export default {
         for (let resource of this.resources) {
           if (resource.id === id) {
             names.push(resource.name);
+          }
+        }
+      })
+      return names.join(",");
+    },
+    moduleName() {
+      if (!this.quota.moduleSetting) return "";
+      let ids = this.quota.moduleSetting.split(",");
+      let names = [];
+      ids.forEach(id => {
+        for (let module of this.modules) {
+          if (module.id === id) {
+            names.push(module.name);
           }
         }
       })

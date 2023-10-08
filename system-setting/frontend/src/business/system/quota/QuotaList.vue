@@ -113,6 +113,16 @@
         </ms-table-column>
 
         <ms-table-column
+          prop="moduleSetting"
+          :field="item"
+          :fields-width="fieldsWidth"
+          :label="$t('quota.enable_module')">
+          <template v-slot:default="scope">
+            <quota-value :value=" moduleName(scope.row)"/>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
           prop="vumTotal"
           :field="item"
           :fields-width="fieldsWidth"
@@ -145,7 +155,7 @@
       </span>
     </ms-table>
 
-    <edit-quota :title="title" :quota="quota" :resources="resources" :default-quota="defaultQuota"
+    <edit-quota :title="title" :quota="quota" :resources="resources" :default-quota="defaultQuota" :modules="modules"
                    @confirm="confirm" :quota-type="quotaType" ref="editQuota"/>
     <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
@@ -185,7 +195,8 @@ export default {
       default() {
         return QUOTA_TYPE.WORKSPACE;
       }
-    }
+    },
+    modules: Array,
   },
   computed: {
     // id => name
@@ -198,6 +209,21 @@ export default {
           for (let resource of this.resources) {
             if (resource.id === id) {
               names.push(resource.name);
+            }
+          }
+        });
+        return names.join(",");
+      };
+    },
+    moduleName() {
+      return row => {
+        if (!row.moduleSetting) return "";
+        let ids = row.moduleSetting.split(",");
+        let names = [];
+        ids.forEach(id => {
+          for (let module of this.modules) {
+            if (module.id === id) {
+              names.push(module.name);
             }
           }
         });
@@ -309,6 +335,7 @@ export default {
           quota.member = val.member;
           quota.project = val.project;
           quota.vumTotal = val.vumTotal;
+          quota.moduleSetting = val.moduleSetting;
         }
       });
     }
