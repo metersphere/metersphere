@@ -189,6 +189,8 @@ public interface NoticeConstants {
         String BUG_TASK_COMMENT = "BUG_TASK_COMMENT";//${OPERATOR}评论了你的缺陷:${title}
         @Schema(description = "message.bug_task_at_comment")
         String BUG_TASK_AT_COMMENT = "BUG_TASK_AT_COMMENT";//${OPERATOR}评论了缺陷:${title} 并@了你
+        @Schema(description = "message.bug_task_reply_comment")
+        String BUG_TASK_REPLY_COMMENT = "BUG_TASK_REPLY_COMMENT";//${OPERATOR}在缺陷${title} 回复了你的评论
         @Schema(description = "message.bug_sync_task_execute_completed")
         String BUG_SYNC_TASK_EXECUTE_COMPLETED = "BUG_SYNC_TASK_EXECUTE_COMPLETED";//${OPERATOR}同步了${total}条缺陷
         @Schema(description = "message.bug_schedule_task_execute_completed")
@@ -204,6 +206,8 @@ public interface NoticeConstants {
         String FUNCTIONAL_CASE_TASK_COMMENT = "FUNCTIONAL_CASE_TASK_COMMENT";//${OPERATOR}评论了你的功能用例:${name}
         @Schema(description = "message.functional_case_task_at_comment")
         String FUNCTIONAL_CASE_TASK_AT_COMMENT = "FUNCTIONAL_CASE_TASK_AT_COMMENT";//${OPERATOR}评论了功能用例:${name} 并@了你
+        @Schema(description = "message.functional_case_task_reply_comment")
+        String FUNCTIONAL_CASE_TASK_REPLY_COMMENT = "FUNCTIONAL_CASE_TASK_REPLY_COMMENT";//${OPERATOR}在用例${name} 回复了你的评论
 
         @Schema(description = "message.case_review_task_create")
         String CASE_REVIEW_TASK_CREATE = "CASE_REVIEW_TASK_CREATE"; // ${OPERATOR}创建了用例评审:${name}
