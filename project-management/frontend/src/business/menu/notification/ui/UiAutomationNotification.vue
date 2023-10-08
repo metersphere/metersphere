@@ -30,7 +30,7 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 import MsTipButton from "metersphere-frontend/src/components/MsTipButton";
 import NotificationTable from "metersphere-frontend/src/components/notification/NotificationTable";
-import {searchNoticeByType} from "../../../../api/notification";
+import {searchNoticeById, searchNoticeByType, searchTemplateById} from "../../../../api/notification";
 import MxNoticeTemplate from "metersphere-frontend/src/components/MxNoticeTemplate";
 
 const TASK_TYPE = 'UI_AUTOMATION_TASK';
@@ -187,28 +187,33 @@ export default {
     handleTemplate(index, row) {
       if (hasLicense()) {
         let robotTemplate = "";
-        switch (row.event) {
-          case 'CREATE':
-            robotTemplate = this.robotTitle;
-            break;
-          case 'UPDATE':
-            robotTemplate = this.robotTitle.replace('创建', '更新');
-            break;
-          case 'DELETE':
-            robotTemplate = this.robotTitle.replace('创建', '删除');
-            break;
-          case 'EXECUTE_SUCCESSFUL':
-            robotTemplate = this.robotTitle.replace('创建', '执行')
-              .replace('UI自动化', 'UI自动化成功');
-            break;
-          case 'EXECUTE_FAILED':
-            robotTemplate = this.robotTitle.replace('创建', '执行')
-              .replace('UI自动化', 'UI自动化失败');
-            break;
-          default:
-            break;
-        }
-        this.$refs.noticeTemplate.open(row, robotTemplate);
+        searchTemplateById(row.id, row.event).then(response => {
+          row.template = response.data.template
+          if (!response.data.template) {
+            switch (row.event) {
+              case 'CREATE':
+                robotTemplate = this.robotTitle;
+                break;
+              case 'UPDATE':
+                robotTemplate = this.robotTitle.replace('创建', '更新');
+                break;
+              case 'DELETE':
+                robotTemplate = this.robotTitle.replace('创建', '删除');
+                break;
+              case 'EXECUTE_SUCCESSFUL':
+                robotTemplate = this.robotTitle.replace('创建', '执行')
+                  .replace('UI自动化', 'UI自动化成功');
+                break;
+              case 'EXECUTE_FAILED':
+                robotTemplate = this.robotTitle.replace('创建', '执行')
+                  .replace('UI自动化', 'UI自动化失败');
+                break;
+              default:
+                break;
+            }
+          }
+          this.$refs.noticeTemplate.open(row, robotTemplate);
+        });
       }
     },
     handleReceivers(row) {

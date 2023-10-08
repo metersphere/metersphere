@@ -15,3 +15,7 @@ export function saveNoticeTask(task) {
 export function deleteNoticeTask(taskId) {
   return get(`/notice/delete/message/${taskId}`);
 }
+
+export function searchTemplateById(id, event) {
+  return get(`/notice/search/template/${id}/${event}`);
+}

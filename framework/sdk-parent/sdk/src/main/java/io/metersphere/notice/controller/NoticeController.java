@@ -1,5 +1,6 @@
 package io.metersphere.notice.controller;
 
+import io.metersphere.base.domain.MessageTask;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.SessionUtils;
@@ -47,6 +48,12 @@ public class NoticeController {
     @MsAuditLog(module = OperLogModule.WORKSPACE_MESSAGE_SETTINGS, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getDelLogDetails(#identification)", msClass = NoticeService.class)
     public int deleteMessage(@PathVariable String identification) {
         return noticeService.delMessage(identification);
+    }
+
+
+    @GetMapping("/search/template/{id}/{event}")
+    public MessageTask searchTemplate(@PathVariable("id") String id, @PathVariable("event") String event) {
+        return noticeService.searchTemplateById(id, event);
     }
 }
 
