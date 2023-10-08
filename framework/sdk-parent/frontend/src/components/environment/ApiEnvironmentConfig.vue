@@ -190,14 +190,15 @@ export default {
       this.$refs.environmentItems.itemSelected(this.environments.length - 1, newEnvironment);
     },
     environmentSelected(environment) {
-      this.$refs.environmentEdit.clearValidate();
+      if (this.$refs.environmentEdit) {
+        this.$refs.environmentEdit.clearValidate();
+      }
       this.getEnvironment(environment);
     },
     getEnvironments() {
       if (this.projectId) {
         this.result = getEnvironmentByProjectId(this.projectId).then(response => {
           this.environments = response.data;
-          this.currentEnvironment.id = null;
           if (this.environments.length > 0) {
             if (this.selectEnvironmentId) {
               const index = this.environments.findIndex(e => e.id === this.selectEnvironmentId);
@@ -228,6 +229,7 @@ export default {
     },
     save() {
       this.$refs.environmentEdit.save();
+      this.currentEnvironment = null;
     },
     close() {
       this.$emit('close');
@@ -235,6 +237,7 @@ export default {
         this.visible = false;
       }
       this.$refs.environmentEdit.clearValidate();
+      this.currentEnvironment = null;
       removeGoBackListener(this.close);
       this.isCopy = false;
     },
