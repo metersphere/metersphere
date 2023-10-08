@@ -2699,6 +2699,12 @@ public class TestCaseService {
             DetailColumn detailColumn = new DetailColumn("comment", "comment", String.join(StringUtils.LF, names), null);
             columns.add(detailColumn);
 
+            columns.stream().forEach(item -> {
+                if ("status".equals(item.getColumnName())) {
+                    item.setOriginalValue(bloBs.getStatus());
+                }
+            });
+
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }

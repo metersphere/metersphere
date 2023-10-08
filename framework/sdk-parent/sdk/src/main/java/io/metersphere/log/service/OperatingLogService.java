@@ -10,10 +10,8 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.constants.OperatorLevel;
-import io.metersphere.log.vo.DetailColumn;
-import io.metersphere.log.vo.OperatingLogDTO;
-import io.metersphere.log.vo.OperatingLogDetails;
-import io.metersphere.log.vo.OperatingLogRequest;
+import io.metersphere.log.vo.*;
+import io.metersphere.log.vo.track.TestCaseReference;
 import io.metersphere.service.ServiceUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -136,6 +134,10 @@ public class OperatingLogService {
                     List<DetailColumn> columns = logWithBLOB.getDetails().getColumns();
                     columns.stream().forEach(column -> {
                         if (StringUtils.isNotEmpty(column.getColumnTitle())) {
+                            if (StringUtils.equalsIgnoreCase(TestCaseReference.testCaseColumns.get(column.getColumnName()), column.getColumnTitle())) {
+                                column.setOriginalValue(Translator.get(column.getOriginalValue().toString()).replace("Not Support Key:", ""));
+                                column.setNewValue(Translator.get(column.getNewValue().toString()).replace("Not Support Key:", ""));
+                            }
                             String columnsTitle = Translator.get(column.getColumnTitle());
                             column.setColumnTitle(columnsTitle.replace("Not Support Key:", ""));
                         }
