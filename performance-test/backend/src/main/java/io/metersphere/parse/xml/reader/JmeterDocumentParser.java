@@ -29,6 +29,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     private final static String COLLECTION_PROP = "collectionProp";
     private final static String CONCURRENCY_THREAD_GROUP = "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup";
     private final static String VARIABLE_THROUGHPUT_TIMER = "kg.apc.jmeter.timers.VariableThroughputTimer";
+    private final static String RESULT_COLLECTOR = "ResultCollector";
     private final static String THREAD_GROUP = "ThreadGroup";
     private final static String POST_THREAD_GROUP = "PostThreadGroup";
     private final static String SETUP_THREAD_GROUP = "SetupThreadGroup";
@@ -106,6 +107,9 @@ public class JmeterDocumentParser implements EngineSourceParser {
                     processArgumentFiles(ele);
                 } else if (nodeNameEquals(ele, KEYSTORE_CONFIG)) {
                     processArgumentFiles(ele);
+                } else if (ele.getName().endsWith(RESULT_COLLECTOR)) {
+                    // 处理结果收集器，性能测试不需要这些
+                    processResultCollector(ele);
                 }
 
             }
@@ -185,6 +189,13 @@ public class JmeterDocumentParser implements EngineSourceParser {
             }
         }
     }
+
+    private void processResultCollector(Element element) {
+        Element hashTree = getNextSibling(element);
+        element.detach();
+        hashTree.detach();
+    }
+
 
     private void processArgumentFiles(Element element) {
         List<Element> childNodes = element.elements();
