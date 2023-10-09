@@ -147,12 +147,12 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
     }
 
 
-    public void deleteModule(String deleteId) {
+    public void deleteModule(String deleteId, String currentUser) {
         FileModule deleteModule = fileModuleMapper.selectByPrimaryKey(deleteId);
         if (deleteModule != null) {
             this.deleteModule(Collections.singletonList(deleteId));
             //记录日志
-            fileModuleLogService.saveDeleteLog(deleteModule, SessionUtils.getUserId());
+            fileModuleLogService.saveDeleteLog(deleteModule, currentUser);
         }
     }
     public void deleteModule(List<String> deleteIds) {
@@ -168,7 +168,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         }
     }
 
-    public void moveNode(NodeMoveRequest request) {
+    public void moveNode(NodeMoveRequest request, String currentUser) {
         FileModuleExample example = new FileModuleExample();
         example.createCriteria().andParentIdEqualTo(request.getParentId()).andIdEqualTo(request.getNodeId());
         if (fileModuleMapper.countByExample(example) == 0) {
@@ -181,7 +181,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         this.sort(request);
 
         //记录日志
-        fileModuleLogService.saveMoveLog(request, SessionUtils.getUserId());
+        fileModuleLogService.saveMoveLog(request, currentUser);
     }
 
     @Override

@@ -210,10 +210,10 @@ public class ProjectApplicationService {
      * @param projectId
      * @param configs
      */
-    public void syncIssueConfig(String projectId, Map<String, String> configs) {
+    public void syncIssueConfig(String projectId, Map<String, String> configs, String currentUser) {
         List<ProjectApplication> issueSyncConfigs = configs.entrySet().stream().map(config -> new ProjectApplication(projectId, ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_" + config.getKey().toUpperCase(), config.getValue())).collect(Collectors.toList());
         //处理同步缺陷定时任务配置
-        doSaveOrUpdateSchedule(issueSyncConfigs, projectId);
+        doSaveOrUpdateSchedule(issueSyncConfigs, projectId, currentUser);
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "%");
         if (projectApplicationMapper.countByExample(example) > 0) {
@@ -226,7 +226,7 @@ public class ProjectApplicationService {
         }
     }
 
-    private void doSaveOrUpdateSchedule(List<ProjectApplication> issueSyncConfigs, String projectId) {
+    private void doSaveOrUpdateSchedule(List<ProjectApplication> issueSyncConfigs, String projectId, String currentUser) {
         List<ProjectApplication> syncCron = issueSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_" + ProjectApplicationType.ISSUE_SYNC_CONFIG.CRON_EXPRESSION.name())).collect(Collectors.toList());
         List<ProjectApplication> syncEnable = issueSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_" + ProjectApplicationType.ISSUE_SYNC_CONFIG.ENABLE.name())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(syncCron)) {
@@ -249,7 +249,7 @@ public class ProjectApplicationService {
                 request.setKey(projectId);
                 request.setProjectId(projectId);
                 request.setEnable(enable);
-                request.setCreateUser(SessionUtils.getUserId());
+                request.setCreateUser(currentUser);
                 request.setType(ScheduleType.CRON.name());
                 // 每天凌晨2点执行清理任务
                 request.setValue(typeValue);
