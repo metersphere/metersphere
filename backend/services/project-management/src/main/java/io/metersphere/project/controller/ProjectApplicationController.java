@@ -267,7 +267,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateIssueSyncLog(#projectId, #configs)", msClass = ProjectApplicationService.class)
     public void syncIssueConfig(@PathVariable("projectId") String projectId, @RequestBody Map<String, String> configs) {
-        projectApplicationService.syncIssueConfig(projectId, configs);
+        projectApplicationService.syncIssueConfig(projectId, configs, SessionUtils.getUserId());
     }
 
 

@@ -54,7 +54,7 @@ public class FileModuleController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#deleteId)", msClass = FileModuleLogService.class)
     public void deleteNode(@PathVariable String deleteId) {
-        fileModuleService.deleteModule(deleteId);
+        fileModuleService.deleteModule(deleteId, SessionUtils.getUserId());
     }
 
     @PostMapping("/move")
@@ -66,6 +66,6 @@ public class FileModuleController {
          *  1.判断移动后的parentID，判断是否是移动到其余的目录下
          *  2.拖拽后的前后ID。 用于排序。
          */
-        fileModuleService.moveNode(request);
+        fileModuleService.moveNode(request, SessionUtils.getUserId());
     }
 }
