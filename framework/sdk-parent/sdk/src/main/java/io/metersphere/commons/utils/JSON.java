@@ -13,9 +13,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -111,5 +115,35 @@ public class JSON {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Map<String, Object> toMap(JSONObject json) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        Iterator<String> keys = json.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            Object value = json.get(key);
+            if (value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            } else if (value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            }
+            map.put(key, value);
+        }
+        return map;
+    }
+
+    public static Object toList(JSONArray array) {
+        Object[] list = new Object[array.length()];
+        for (int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+            if (value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            } else if (value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            }
+            list[i] = value;
+        }
+        return list;
     }
 }
