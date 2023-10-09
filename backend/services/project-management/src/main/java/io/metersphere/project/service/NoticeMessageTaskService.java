@@ -376,21 +376,17 @@ public class NoticeMessageTaskService {
     private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, String robotPlatForm, MessageTask messageTask, MessageTaskBlob messageTaskBlob) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
         ProjectRobot projectRobot = projectRobotMapper.selectByPrimaryKey(messageTask.getProjectRobotId());
-        if (projectRobot == null) {
-            return new ProjectRobotConfigDTO();
-        } else {
-            projectRobotConfigDTO.setRobotName(projectRobot.getName());
-            projectRobotConfigDTO.setRobotId(messageTask.getProjectRobotId());
-            projectRobotConfigDTO.setPlatform(robotPlatForm);
-            projectRobotConfigDTO.setEnable(messageTask.getEnable());
-            projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
-            projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
-            projectRobotConfigDTO.setSubject(messageTask.getSubject());
-            projectRobotConfigDTO.setDefaultSubject(defaultSubject);
-            projectRobotConfigDTO.setUseDefaultSubject(messageTask.getUseDefaultSubject());
-            projectRobotConfigDTO.setUseDefaultTemplate(messageTask.getUseDefaultTemplate());
-            return projectRobotConfigDTO;
-        }
+        projectRobotConfigDTO.setRobotName(projectRobot.getName());
+        projectRobotConfigDTO.setRobotId(messageTask.getProjectRobotId());
+        projectRobotConfigDTO.setPlatform(robotPlatForm);
+        projectRobotConfigDTO.setEnable(messageTask.getEnable());
+        projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
+        projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
+        projectRobotConfigDTO.setSubject(messageTask.getSubject());
+        projectRobotConfigDTO.setDefaultSubject(defaultSubject);
+        projectRobotConfigDTO.setUseDefaultSubject(messageTask.getUseDefaultSubject());
+        projectRobotConfigDTO.setUseDefaultTemplate(messageTask.getUseDefaultTemplate());
+        return projectRobotConfigDTO;
     }
 
     private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, ProjectRobot projectRobot) {
