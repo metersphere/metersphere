@@ -1,7 +1,7 @@
 package io.metersphere.plugin.platform.api;
 
 import io.metersphere.plugin.platform.dto.PlatformRequest;
-import io.metersphere.plugin.sdk.util.JSONUtils;
+import io.metersphere.plugin.sdk.util.PluginUtils;
 import io.metersphere.plugin.sdk.util.MSPluginException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,7 +16,7 @@ public abstract class AbstractPlatform implements Platform {
         if (StringUtils.isBlank(integrationConfig)) {
             throw new MSPluginException("服务集成配置为空");
         }
-        return JSONUtils.parseObject(integrationConfig, clazz);
+        return PluginUtils.parseObject(integrationConfig, clazz);
     }
 
     public String getPluginId() {

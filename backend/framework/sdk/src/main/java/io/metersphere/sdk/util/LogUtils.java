@@ -18,7 +18,7 @@ public class LogUtils {
     /**
      * 初始化日志
      */
-    public static Logger getLogger() {
+    private static Logger getLogger() {
         return LoggerFactory.getLogger(LogUtils.getLogClass());
     }
 

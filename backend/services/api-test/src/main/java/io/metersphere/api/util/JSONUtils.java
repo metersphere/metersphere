@@ -2,10 +2,11 @@ package io.metersphere.api.util;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.type.CollectionType;
@@ -18,8 +19,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class JSONUtils {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static StdSubtypeResolver resolver = new StdSubtypeResolver();
+    private static final ObjectMapper objectMapper = JsonMapper.builder()
+            .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+            .build();
+
+    private static final StdSubtypeResolver resolver = new StdSubtypeResolver();
 
     static {
         // 添加处理资源文件的类
@@ -33,7 +37,7 @@ public class JSONUtils {
         // 如果一个对象中没有任何的属性，那么在序列化的时候就会报错
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        namedTypes.forEach(namedType -> resolver.registerSubtypes(namedType));
+        namedTypes.forEach(resolver::registerSubtypes);
         objectMapper.setSubtypeResolver(resolver);
     }
 
@@ -65,18 +69,6 @@ public class JSONUtils {
         }
     }
 
-    public static <T> T parseObject(String content, TypeReference<T> valueType) {
-        try {
-            return objectMapper.readValue(content, valueType);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static List parseArray(String content) {
-        return parseArray(content, Object.class);
-    }
-
     public static <T> List<T> parseArray(String content, Class<T> valueType) {
         CollectionType javaType = objectMapper.getTypeFactory().constructCollectionType(List.class, valueType);
         try {
@@ -92,7 +84,7 @@ public class JSONUtils {
      * @param namedTypes
      */
     public static void setResolver(List<NamedType> namedTypes) {
-        namedTypes.forEach(namedType -> resolver.registerSubtypes(namedType));
+        namedTypes.forEach(resolver::registerSubtypes);
         objectMapper.setSubtypeResolver(resolver);
     }
 }

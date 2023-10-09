@@ -2,7 +2,7 @@ package io.metersphere.plugin.platform.api;
 
 import io.metersphere.plugin.platform.utils.EnvProxySelector;
 import io.metersphere.plugin.platform.utils.PluginCodingUtils;
-import io.metersphere.plugin.sdk.util.JSONUtils;
+import io.metersphere.plugin.sdk.util.PluginUtils;
 import io.metersphere.plugin.sdk.util.MSPluginException;
 import io.metersphere.plugin.sdk.util.PluginLogUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -87,11 +87,11 @@ public abstract class BaseClient {
     }
 
     protected Object getResultForList(Class clazz, ResponseEntity<String> response) {
-        return Arrays.asList(JSONUtils.parseArray(getResult(response), clazz).toArray());
+        return Arrays.asList(PluginUtils.parseArray(getResult(response), clazz).toArray());
     }
 
     protected Object getResultForObject(Class clazz, ResponseEntity<String> response) {
-        return JSONUtils.parseObject(getResult(response), clazz);
+        return PluginUtils.parseObject(getResult(response), clazz);
     }
 
     public void validateProxyUrl(String url, String... path) {
