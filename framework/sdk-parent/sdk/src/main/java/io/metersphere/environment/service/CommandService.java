@@ -161,9 +161,9 @@ public class CommandService {
         }
     }
 
-    public boolean checkKeyStore(String password, String path) {
+    public void checkKeyStore(String password, String path) {
         try {
-            String keytoolArgs[] = {"keytool", "-rfc", "-list", "-keystore", path, "-storepass", password};
+            String[] keytoolArgs = {"keytool", "-rfc", "-list", "-keystore", path, "-storepass", password};
             Process p = new ProcessBuilder(keytoolArgs).start();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 String line = null;
@@ -176,11 +176,9 @@ public class CommandService {
                     }
                 }
             }
-            return true;
         } catch (Exception e) {
             LogUtil.error(e);
             MSException.throwException(e.getMessage());
-            return false;
         }
     }
 }

@@ -36,7 +36,8 @@ public class FileUtil {
      */
     public static File multipartFileToFile(MultipartFile file) {
         if (file != null && file.getSize() > 0) {
-            try (InputStream ins = file.getInputStream();) {
+            try (InputStream ins = file.getInputStream()) {
+                FileUtils.validateFileName(file.getOriginalFilename());
                 File toFile = new File(file.getOriginalFilename());
                 inputStreamToFile(ins, toFile);
                 return toFile;
@@ -49,17 +50,18 @@ public class FileUtil {
 
     /**
      * File 转 MultipartFile
+     *
      * @param file
      * @return
      */
     public static MultipartFile fileToMultipartFile(File file) {
         DiskFileItem item = new DiskFileItem("file", MediaType.MULTIPART_FORM_DATA_VALUE, true,
-                file.getName(), (int)file.length(), file.getParentFile());
+                file.getName(), (int) file.length(), file.getParentFile());
         try {
             OutputStream os = item.getOutputStream();
             os.write(FileUtils.fileToByte(file));
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return new CommonsMultipartFile(item);
     }
