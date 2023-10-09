@@ -39,7 +39,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId" style="margin-left: 10px">
-              <el-select v-model="request.dataSourceId" size="small" @change="reload" :disabled="request.disabled">
+              <el-select v-model="request.dataSourceId" size="small" @change="reloadDataSource" :disabled="request.disabled">
                 <el-option
                   v-for="(item, index) in databaseConfigsOptions"
                   :key="index"
@@ -182,6 +182,14 @@ export default {
     },
   },
   methods: {
+    reloadDataSource(dataSourceId) {
+      this.databaseConfigsOptions.forEach((item) => {
+        if (item.id === dataSourceId) {
+          this.request.targetDataSourceName = item.name;
+        }
+      });
+      this.reload();
+    },
     remove(row) {
       let index = this.request.hashTree.indexOf(row);
       this.request.hashTree.splice(index, 1);
@@ -294,12 +302,13 @@ export default {
         this.environments.forEach((environment) => {
           parseEnvironment(environment);
           // 找到原始环境和数据源名称
-          if (environment.id === this.request.environmentId && environment.id !== envId) {
+          if (environment.id === this.request.environmentId) {
             hasEnvironment = true;
             if (environment.config && environment.config.databaseConfigs) {
               environment.config.databaseConfigs.forEach((item) => {
                 if (item.id === this.request.dataSourceId) {
                   targetDataSourceName = item.name;
+                  this.request.targetDataSourceName = item.name;
                 }
               });
             }
@@ -334,6 +343,9 @@ export default {
       }
     },
     initDataSource(envId, currentEnvironment, targetDataSourceName) {
+      if (!targetDataSourceName) {
+        targetDataSourceName = this.request.targetDataSourceName;
+      }
       this.databaseConfigsOptions = [];
       if (envId) {
         this.request.environmentId = envId;
