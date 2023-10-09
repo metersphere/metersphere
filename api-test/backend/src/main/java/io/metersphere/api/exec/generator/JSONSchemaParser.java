@@ -13,10 +13,7 @@ import org.json.JSONObject;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 public class JSONSchemaParser {
@@ -241,7 +238,7 @@ public class JSONSchemaParser {
             toJsonString(jsonArray, list);
             json = list.toString();
         } else {
-            json = JSON.toJSONString(root.toMap());
+            json = JSON.toJSONString(JSON.toMap(root));
         }
         if (MapUtils.isNotEmpty(processMap)) {
             for (String str : processMap.keySet()) {
@@ -254,7 +251,7 @@ public class JSONSchemaParser {
     public static void toJsonString(JSONArray jsonArray, List<String> list) {
         jsonArray.forEach(element -> {
             if (element instanceof JSONObject o) {
-                list.add(JSON.toJSONString(o.toMap()));
+                list.add(JSON.toJSONString(JSON.toMap(o)));
             } else if (element instanceof JSONArray o) {
                 List<String> aa = new LinkedList<>();
                 toJsonString(o, aa);

@@ -287,7 +287,7 @@ public class JSONSchemaBuilder {
             JSONSchemaParser.toJsonString(jsonArray, list);
             return list.toString();
         }
-        return JSON.toJSONString(root.toMap());
+        return JSON.toJSONString(JSON.toMap(root));
     }
 
     public static String generator(String jsonSchema) {
