@@ -235,8 +235,8 @@ public class FileUtils {
     }
 
     public static void moveFileToDir(String filePath, String targetPath) {
-       copyFileToDir(filePath, targetPath);
-       deleteFile(filePath);
+        copyFileToDir(filePath, targetPath);
+        deleteFile(filePath);
     }
 
     private static void copyFileToDir(File file, File targetDir) {
@@ -348,9 +348,12 @@ public class FileUtils {
     }
 
     public static void deleteFile(String path) {
-        File file = new File(path);
-        if (file.exists()) {
-            file.delete();
+        if (StringUtils.isNotBlank(path)) {
+            validateFileName(path);
+            File file = new File(path);
+            if (file.exists()) {
+                file.delete();
+            }
         }
     }
 
