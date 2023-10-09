@@ -143,11 +143,6 @@
             <artifactId>commons-codec</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>${commons-fileupload.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
             <version>${commons-compress.version}</version>
@@ -261,17 +256,6 @@
             <groupId>com.google.guava</groupId>
             <version>${guava.version}</version>
         </dependency>
-        <!--   排除jmeter中的 xstream 解决bug     -->
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>${xstream.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlbeans</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>${xmlbeans.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.commonmark</groupId>
@@ -279,11 +263,6 @@
             <version>${commonmark.version}</version>
         </dependency>
 
-        <!--xpath不加这个依赖会报错-->
-        <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-        </dependency>
         <dependency>
             <groupId>net.sourceforge.htmlcleaner</groupId>
             <artifactId>htmlcleaner</artifactId>
