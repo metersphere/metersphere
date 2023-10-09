@@ -22,6 +22,9 @@ public class ProjectRobotConfigDTO implements Serializable {
     @Schema(description = "所属平台（飞书:LARK，钉钉:DING_TALK，企业微信:WE_COM，自定义:CUSTOM, 站内信:IN_SITE, 邮件:MAIL）")
     private String platform;
 
+    @Schema(description = "钉钉机器人的种类: 自定义:CUSTOM, 企业内部:ENTERPRISE")
+    private String dingType;
+
     @Schema(description = "消息配置机器人是否开启")
     public Boolean enable;
 
