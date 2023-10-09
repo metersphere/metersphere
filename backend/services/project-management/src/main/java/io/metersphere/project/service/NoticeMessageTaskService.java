@@ -64,7 +64,6 @@ public class NoticeMessageTaskService {
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
 
 
-
     public static final String USER_IDS = "user_ids";
 
     public static final String NO_USER_NAMES = "no_user_names";
@@ -340,12 +339,12 @@ public class NoticeMessageTaskService {
                     messageTaskDetailDTO.setEventName(eventMap.get(messageTaskDetailDTO.getEvent()));
                     List<MessageTask> messageTaskList = messageEventMap.get(messageTaskDetailDTO.getEvent());
                     List<OptionDTO> receivers = new ArrayList<>();
-                    Map<String,ProjectRobotConfigDTO> projectRobotConfigMap = new HashMap<>();
+                    Map<String, ProjectRobotConfigDTO> projectRobotConfigMap = new HashMap<>();
                     String defaultTemplate = defaultTemplateMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
                     if (CollectionUtils.isEmpty(messageTaskList)) {
                         String defaultSubject = defaultTemplateTitleMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
                         ProjectRobotConfigDTO projectRobotConfigDTO = getDefaultProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot);
-                        projectRobotConfigMap.put(projectRobot.getId(),projectRobotConfigDTO);
+                        projectRobotConfigMap.put(projectRobot.getId(), projectRobotConfigDTO);
                     } else {
                         for (MessageTask messageTask : messageTaskList) {
                             MessageTaskBlob messageTaskBlob = messageTaskBlobMap.get(messageTask.getId());
@@ -360,8 +359,8 @@ public class NoticeMessageTaskService {
                             } else {
                                 defaultSubject = defaultTemplateTitleMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
                             }
-                            ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, platform, messageTask, messageTaskBlob);
-                            projectRobotConfigMap.put(messageTask.getProjectRobotId(),projectRobotConfigDTO);
+                            ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, robotMap, messageTask, messageTaskBlob);
+                            projectRobotConfigMap.put(messageTask.getProjectRobotId(), projectRobotConfigDTO);
                         }
                     }
                     List<OptionDTO> distinctReceivers = receivers.stream().distinct().toList();
@@ -373,12 +372,13 @@ public class NoticeMessageTaskService {
         return messageTaskDTOList;
     }
 
-    private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, String robotPlatForm, MessageTask messageTask, MessageTaskBlob messageTaskBlob) {
+    private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, Map<String, ProjectRobot> robotMap, MessageTask messageTask, MessageTaskBlob messageTaskBlob) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
-        ProjectRobot projectRobot = projectRobotMapper.selectByPrimaryKey(messageTask.getProjectRobotId());
+        ProjectRobot projectRobot = robotMap.get(messageTask.getProjectRobotId());
         projectRobotConfigDTO.setRobotName(projectRobot.getName());
         projectRobotConfigDTO.setRobotId(messageTask.getProjectRobotId());
-        projectRobotConfigDTO.setPlatform(robotPlatForm);
+        projectRobotConfigDTO.setPlatform(projectRobot.getPlatform());
+        projectRobotConfigDTO.setDingType(projectRobot.getType());
         projectRobotConfigDTO.setEnable(messageTask.getEnable());
         projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
         projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
@@ -394,6 +394,7 @@ public class NoticeMessageTaskService {
         projectRobotConfigDTO.setRobotId(projectRobot.getId());
         projectRobotConfigDTO.setRobotName(projectRobot.getName());
         projectRobotConfigDTO.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
+        projectRobotConfigDTO.setDingType(projectRobot.getType());
         projectRobotConfigDTO.setEnable(false);
         projectRobotConfigDTO.setTemplate("");
         projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
@@ -405,6 +406,6 @@ public class NoticeMessageTaskService {
     }
 
     public List<OptionDTO> getUserList(String projectId, String keyword) {
-       return  extProjectUserRoleMapper.getProjectUserSelectList(projectId, keyword);
+        return extProjectUserRoleMapper.getProjectUserSelectList(projectId, keyword);
     }
 }
