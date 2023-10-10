@@ -1,7 +1,7 @@
 package io.metersphere.system.service;
 
-import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
-import io.metersphere.plugin.platform.api.Platform;
+import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
+import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.BeanUtils;

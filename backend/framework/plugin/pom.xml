@@ -10,7 +10,6 @@
         <version>${revision}</version>
     </parent>
 
-    <groupId>io.metersphere</groupId>
     <artifactId>plugin</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
@@ -20,8 +19,8 @@
     </properties>
 
     <modules>
-        <module>metersphere-plugin-sdk</module>
-        <module>metersphere-api-plugin-sdk</module>
-        <module>metersphere-platform-plugin-sdk</module>
+        <module>plugin-sdk</module>
+        <module>plugin-api-sdk</module>
+        <module>plugin-platform-sdk</module>
     </modules>
 </project>

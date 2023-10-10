@@ -1,9 +1,9 @@
 package io.metersphere.system.service;
 
 
-import io.metersphere.plugin.api.api.AbstractApiProtocolPlugin;
-import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
-import io.metersphere.plugin.sdk.api.MsPlugin;
+import io.metersphere.plugin.api.spi.AbstractApiPlugin;
+import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
+import io.metersphere.plugin.sdk.spi.MsPlugin;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.dto.OptionDTO;
@@ -151,7 +151,7 @@ public class PluginService {
         PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(id);
         PluginDescriptor descriptor = pluginWrapper.getDescriptor();
         MsPlugin msPlugin = (MsPlugin) pluginWrapper.getPlugin();
-        if (msPlugin instanceof AbstractApiProtocolPlugin) {
+        if (msPlugin instanceof AbstractApiPlugin) {
             plugin.setScenario(PluginScenarioType.API_PROTOCOL.name());
         } else if (msPlugin instanceof AbstractPlatformPlugin) {
             plugin.setScenario(PluginScenarioType.PLATFORM.name());

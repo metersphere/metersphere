@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.plugin.platform.api.Platform;
+import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.plugin.platform.dto.PlatformRequest;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.system.domain.Plugin;
