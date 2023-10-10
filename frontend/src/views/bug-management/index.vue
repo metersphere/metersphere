@@ -12,10 +12,14 @@
       @select="onSelect"
       @ok="onOk"
     />
+    <MsRichText v-model="content" />
   </MsCard>
 </template>
 
 <script setup>
   import MsPagination from '@/components/pure/ms-pagination/index';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
+
+  const content = ref('');
 </script>
