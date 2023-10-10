@@ -64,6 +64,11 @@
               :label="item.name"
               :disabled="!item.api"
               :value="item.id">
+              <template v-slot>
+                <node-operation-label
+                    :nodeName="item.name"
+                    :node-operation-info="nodeInfo(item.id)"/>
+              </template>
             </el-option>
           </el-select>
         </div>
@@ -83,19 +88,20 @@
 </template>
 
 <script>
-import { apiScenarioEnvMap } from '@/api/scenario';
+import {apiScenarioEnvMap} from '@/api/scenario';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
-import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
-import { strMapToObj } from 'metersphere-frontend/src/utils';
-import { getOwnerProjects, getProjectConfig } from '@/api/project';
-import { getTestResourcePools } from '@/api/test-resource-pool';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import {ENV_TYPE} from 'metersphere-frontend/src/utils/constants';
+import {strMapToObj} from 'metersphere-frontend/src/utils';
+import {getOwnerProjects, getProjectConfig} from '@/api/project';
+import {getNodeOperationInfo, getTestResourcePools} from '@/api/test-resource-pool';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
 import EnvSelectPopover from '@/business/automation/scenario/EnvSelectPopover';
-import { getApiCaseEnvironments } from '@/api/api-test-case';
+import {getApiCaseEnvironments} from '@/api/api-test-case';
+import NodeOperationLabel from "metersphere-frontend/src/components/node/NodeOperationLabel";
 
 export default {
   name: 'ApiRunMode',
-  components: { MsDialogFooter, EnvSelectPopover },
+  components: {MsDialogFooter, EnvSelectPopover, NodeOperationLabel},
   data() {
     return {
       loading: false,
@@ -116,6 +122,7 @@ export default {
       projectList: [],
       projectIds: new Set(),
       caseIdEnvNameMap: {},
+      nodeOperationInfo: {},
     };
   },
   props: {
@@ -127,6 +134,26 @@ export default {
     },
   },
   methods: {
+    nodeInfo(nodeId) {
+      return this.nodeOperationInfo[nodeId];
+    },
+    selectNodeOperation() {
+      let nodeOperationInfoRequest = {nodeIds: []};
+      this.resourcePools.forEach(item => {
+        nodeOperationInfoRequest.nodeIds.push(item.id);
+      });
+
+      getNodeOperationInfo(nodeOperationInfoRequest)
+          .then(response => {
+            this.parseNodeOperationStatus(response.data);
+          });
+    },
+    parseNodeOperationStatus(nodeOperationData) {
+      this.nodeOperationInfo = {};
+      nodeOperationData.forEach(item => {
+        this.nodeOperationInfo[item.id] = item;
+      });
+    },
     open() {
       this.runModeVisible = true;
       this.getResourcePools();
@@ -173,6 +200,7 @@ export default {
     getResourcePools() {
       this.result = getTestResourcePools().then((response) => {
         this.resourcePools = response.data;
+        this.selectNodeOperation();
         this.getProjectApplication();
       });
     },

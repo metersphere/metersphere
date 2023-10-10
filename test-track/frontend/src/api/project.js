@@ -1,5 +1,4 @@
 import {get, post} from "metersphere-frontend/src/plugins/request"
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 
 export function getProject(id) {
@@ -36,6 +35,10 @@ export function versionEnableByProjectId(projectId) {
 export function getProjectConfig(projectId, type) {
   let url = '/project_application/get/config/' + projectId + type;
   return get(url);
+}
+
+export function getNodeOperationInfo(request) {
+  return post(`/prometheus/query/node-operation-info`, request)
 }
 
 export function apiTestReRun(condition) {

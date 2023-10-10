@@ -237,3 +237,7 @@ export function exportScenarioJmx(condition) {
 export function searchScenarioList(goPage, pageSize, condition) {
   return post(`/api/automation/list/${goPage}/${pageSize}`, condition)
 }
+
+export function getNodeOperationInfo(request) {
+  return post(`/prometheus/query/node-operation-info`, request)
+}
