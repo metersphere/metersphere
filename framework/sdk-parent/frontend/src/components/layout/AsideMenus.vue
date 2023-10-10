@@ -120,6 +120,9 @@ export default {
   mounted() {
     if (this.$route.matched.length > 0) {
       this.activeIndex = this.$route.matched[0].path;
+      if (!this.check(this.$route.matched[0].name.toLowerCase())) {
+        window.location.href = "/#/";
+      }
     }
     this.registerEvents();
   },

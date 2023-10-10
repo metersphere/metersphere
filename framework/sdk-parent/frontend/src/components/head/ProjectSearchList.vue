@@ -46,6 +46,13 @@ export default {
   inject: [
     'reload',
   ],
+  mounted() {
+    getProjectModules("project", getCurrentProjectID())
+      .then(res => {
+        let modules = res.data;
+        sessionStorage.setItem('project_modules', JSON.stringify(modules));
+      });
+  },
   data() {
     return {
       loading: false,
@@ -89,11 +96,6 @@ export default {
               this.change(this.items[0].id);
             }
           }
-          getProjectModules("project", projectId)
-            .then(res => {
-              let modules = res.data;
-              sessionStorage.setItem('project_modules', JSON.stringify(modules));
-            });
           this.changeProjectName(projectId);
         });
     },
@@ -232,11 +234,6 @@ export default {
         })
         .catch(() => {
           stopFullScreenLoading(loading);
-        });
-      getProjectModules("project", projectId)
-        .then(res => {
-          let modules = res.data;
-          sessionStorage.setItem('project_modules', JSON.stringify(modules));
         });
     },
     changeProjectName(projectId) {
