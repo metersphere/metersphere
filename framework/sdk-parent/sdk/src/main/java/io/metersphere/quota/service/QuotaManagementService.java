@@ -79,7 +79,7 @@ public class QuotaManagementService {
             quota.setResourcePool(String.join(",", intersection));
 
         }
-        if (ObjectUtils.isNotEmpty(workspaceQuota) && ObjectUtils.isNotEmpty(quota) && StringUtils.isBlank(workspaceQuota.getModuleSetting())) {
+        if (ObjectUtils.isNotEmpty(workspaceQuota) && ObjectUtils.isNotEmpty(quota) && StringUtils.isNotBlank(workspaceQuota.getModuleSetting())) {
             List<String> workModules = Arrays.asList(workspaceQuota.getModuleSetting().split(","));
             List<String> projectModules = StringUtils.isNotBlank(quota.getModuleSetting()) ? Arrays.asList(quota.getModuleSetting().split(",")) : new ArrayList<>();
             List<String> moduleIntersection = workModules.stream()
