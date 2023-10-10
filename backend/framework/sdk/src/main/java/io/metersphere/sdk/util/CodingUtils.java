@@ -13,7 +13,7 @@ import java.security.MessageDigest;
  *
  * @author kun.mo
  */
-public class CodingUtil {
+public class CodingUtils {
 
     private static final String UTF_8 = "UTF-8";
 

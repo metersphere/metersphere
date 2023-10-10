@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 
-public class FilePreviewUtil {
+public class FilePreviewUtils {
     private static final String BASE_FILE_FOLDER = File.separator + "opt" + File.separator + "metersphere" + File.separator + "data" + File.separator + "file" + File.separator + "preview" + File.separator;
 
     public static boolean isImage(String type) {

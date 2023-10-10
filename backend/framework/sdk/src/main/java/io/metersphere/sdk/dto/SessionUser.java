@@ -1,6 +1,6 @@
 package io.metersphere.sdk.dto;
 
-import io.metersphere.sdk.util.CodingUtil;
+import io.metersphere.sdk.util.CodingUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -29,7 +29,7 @@ public class SessionUser extends UserDTO implements Serializable {
         BeanUtils.copyProperties(user, sessionUser);
 
         List<String> infos = Arrays.asList(user.getId(), RandomStringUtils.randomAlphabetic(6), sessionId, StringUtils.EMPTY + System.currentTimeMillis());
-        sessionUser.csrfToken = CodingUtil.aesEncrypt(StringUtils.join(infos, "|"), secret, iv);
+        sessionUser.csrfToken = CodingUtils.aesEncrypt(StringUtils.join(infos, "|"), secret, iv);
         sessionUser.sessionId = sessionId;
         return sessionUser;
     }

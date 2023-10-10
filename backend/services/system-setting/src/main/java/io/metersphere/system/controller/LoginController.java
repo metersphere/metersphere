@@ -12,7 +12,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.BaseUserService;
 import io.metersphere.sdk.util.RsaKey;
-import io.metersphere.sdk.util.RsaUtil;
+import io.metersphere.sdk.util.RsaUtils;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.sdk.util.Translator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,7 +62,7 @@ public class LoginController {
     @GetMapping(value = "/get-key")
     @Operation(summary = "获取公钥")
     public ResultHolder getKey() throws Exception {
-        RsaKey rsaKey = RsaUtil.getRsaKey();
+        RsaKey rsaKey = RsaUtils.getRsaKey();
         return ResultHolder.success(rsaKey.getPublicKey());
     }
 

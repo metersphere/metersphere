@@ -121,7 +121,7 @@ public class UserService {
             user.setCreateTime(createTime);
             user.setUpdateUser(operator);
             user.setUpdateTime(createTime);
-            user.setPassword(CodingUtil.md5(user.getEmail()));
+            user.setPassword(CodingUtils.md5(user.getEmail()));
             user.setSource(source);
             user.setDeleted(false);
             userMapper.insertSelective(user);
@@ -334,9 +334,9 @@ public class UserService {
             User updateModel = new User();
             updateModel.setId(user.getId());
             if (StringUtils.equalsIgnoreCase("admin", user.getId())) {
-                updateModel.setPassword(CodingUtil.md5("metersphere"));
+                updateModel.setPassword(CodingUtils.md5("metersphere"));
             } else {
-                updateModel.setPassword(CodingUtil.md5(user.getEmail()));
+                updateModel.setPassword(CodingUtils.md5(user.getEmail()));
             }
             updateModel.setUpdateTime(updateTime);
             updateModel.setUpdateUser(operator);
@@ -460,7 +460,7 @@ public class UserService {
         User user = new User();
         user.setId(UUID.randomUUID().toString());
         user.setEmail(userInvite.getEmail());
-        user.setPassword(CodingUtil.md5(RsaUtil.privateDecrypt(request.getPassword(), RsaUtil.getRsaKey().getPrivateKey())));
+        user.setPassword(CodingUtils.md5(RsaUtils.privateDecrypt(request.getPassword(), RsaUtils.getRsaKey().getPrivateKey())));
         user.setName(request.getName());
         user.setPhone(request.getPhone());
         user.setCreateUser(userInvite.getInviteUser());

@@ -12,7 +12,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.mapper.BaseUserMapper;
-import io.metersphere.sdk.util.CodingUtil;
+import io.metersphere.sdk.util.CodingUtils;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
@@ -380,7 +380,7 @@ public class BaseUserService {
             throw new MSException(Translator.get("password_is_null"));
         }
         UserExample example = new UserExample();
-        example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));
+        example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtils.md5(password));
         return userMapper.countByExample(example) > 0;
     }
 
@@ -417,7 +417,7 @@ public class BaseUserService {
         if (StringUtils.equals("admin", request.getUsername())) {
             UserExample example = new UserExample();
             example.createCriteria().andIdEqualTo("admin")
-                    .andPasswordEqualTo(CodingUtil.md5("metersphere"));
+                    .andPasswordEqualTo(CodingUtils.md5("metersphere"));
             return userMapper.countByExample(example) > 0;
         }
 

@@ -3,7 +3,7 @@ package io.metersphere.sdk.constants;
 public enum UserRoleEnum {
     GLOBAL("global");
     
-    private String value;
+    private final String value;
 
     UserRoleEnum(String value) {
         this.value = value;

@@ -21,7 +21,7 @@ public enum CustomFieldType {
     RICH_TEXT(false),
     CASCADING_SELECT(false);
 
-    private Boolean hasOption;
+    private final Boolean hasOption;
 
     CustomFieldType(Boolean hasOption) {
         this.hasOption = hasOption;

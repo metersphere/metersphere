@@ -1,6 +1,6 @@
 package io.metersphere.system.security;
 
-import io.metersphere.sdk.util.CodingUtil;
+import io.metersphere.sdk.util.CodingUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.domain.UserKey;
 import io.metersphere.system.service.UserKeyService;
@@ -37,7 +37,7 @@ public class ApiKeyHandler {
         }
         String signatureDecrypt;
         try {
-            signatureDecrypt = CodingUtil.aesDecrypt(signature, userKey.getSecretKey(), accessKey);
+            signatureDecrypt = CodingUtils.aesDecrypt(signature, userKey.getSecretKey(), accessKey);
         } catch (Throwable t) {
             throw new RuntimeException("invalid signature");
         }
