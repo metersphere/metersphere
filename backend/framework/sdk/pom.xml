@@ -27,7 +27,7 @@
         <!-- 基础包 -->
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-api-plugin-sdk</artifactId>
+            <artifactId>metersphere-plugin-api-sdk</artifactId>
             <version>${revision}</version>
             <exclusions>
                 <exclusion>
@@ -38,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-platform-plugin-sdk</artifactId>
+            <artifactId>metersphere-plugin-platform-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>

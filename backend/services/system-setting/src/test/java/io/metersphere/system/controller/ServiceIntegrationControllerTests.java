@@ -1,6 +1,6 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
+import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.constants.OperationLogType;

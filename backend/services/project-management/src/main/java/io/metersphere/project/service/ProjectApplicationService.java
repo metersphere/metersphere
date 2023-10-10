@@ -1,7 +1,7 @@
 package io.metersphere.project.service;
 
-import io.metersphere.plugin.platform.api.AbstractPlatformPlugin;
-import io.metersphere.plugin.platform.api.Platform;
+import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
+import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.dto.ModuleDTO;
@@ -28,7 +28,6 @@ import io.metersphere.system.sechedule.ScheduleService;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.system.utils.ServiceUtils;
-import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;

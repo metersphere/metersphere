@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.plugin.sdk.api.MsPlugin;
+import io.metersphere.plugin.sdk.spi.MsPlugin;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.system.controller.handler.result.CommonResultCode;
 import io.metersphere.sdk.exception.MSException;
