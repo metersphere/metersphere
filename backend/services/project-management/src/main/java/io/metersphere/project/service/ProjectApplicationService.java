@@ -228,7 +228,7 @@ public class ProjectApplicationService {
 
     private void doSaveOrUpdateSchedule(List<ProjectApplication> issueSyncConfigs, String projectId, String currentUser) {
         List<ProjectApplication> syncCron = issueSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_" + ProjectApplicationType.ISSUE_SYNC_CONFIG.CRON_EXPRESSION.name())).collect(Collectors.toList());
-        List<ProjectApplication> syncEnable = issueSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_" + ProjectApplicationType.ISSUE_SYNC_CONFIG.ENABLE.name())).collect(Collectors.toList());
+        List<ProjectApplication> syncEnable = issueSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_" + ProjectApplicationType.ISSUE_SYNC_CONFIG.SYNC_ENABLE.name())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(syncCron)) {
             Boolean enable = Boolean.valueOf(syncEnable.get(0).getTypeValue());
             String typeValue = syncCron.get(0).getTypeValue();

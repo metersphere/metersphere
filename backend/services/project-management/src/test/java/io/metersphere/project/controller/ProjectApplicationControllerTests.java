@@ -529,7 +529,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
         configs.put("jiraIssueTypeId", "10086");
         configs.put("jiraStoryTypeId", "10010");
         configs.put("CRON_EXPRESSION", "0 0 0/1 * * ?");
-        configs.put("ENABLE", "true");
+        configs.put("SYNC_ENABLE", "true");
         configs.put("MECHANISM", "1");
         return configs;
     }
