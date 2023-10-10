@@ -30,7 +30,7 @@
           <MsUserSelector
             v-model:value="form.memberIds"
             placeholder="system.organization.organizationAdminPlaceholder"
-            :type="UserRequesetTypeEnum.SYSTEM_ORGANIZATION_ADMIN"
+            :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_ADMIN"
           />
         </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">
@@ -57,7 +57,7 @@
   import { createOrUpdateOrg } from '@/api/modules/setting/organizationAndProject';
   import { Message } from '@arco-design/web-vue';
   import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
-  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const props = defineProps<{

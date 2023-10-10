@@ -1,6 +1,6 @@
 import { ColumnEditTypeEnum, SelectAllEnum } from '@/enums/tableEnum';
 import { TableQueryParams } from '@/models/common';
-import { TableColumnData, TableData, TableDraggable, TableChangeExtra, TableExpandable } from '@arco-design/web-vue';
+import { TableColumnData, TableData, TableDraggable, TableChangeExtra } from '@arco-design/web-vue';
 
 export interface MsPaginationI {
   current: number;
@@ -77,7 +77,7 @@ export interface MsTableProps<T> {
   /** 展开行相关 */
   showExpand?: boolean; // 是否显示展开行
   expandedKeys?: string[]; // 显示的展开行、子树（受控模式）
-
+  emptyDataShowLine?: boolean; // 空数据是否显示 "-"
   [key: string]: any;
 }
 
@@ -107,7 +107,7 @@ export interface BatchActionConfig {
   moreAction?: BatchActionParams[];
 }
 
-export interface renamePopconfirmVisibleType {
+export interface renamePopConfirmVisibleType {
   [key: string]: boolean;
 }
 

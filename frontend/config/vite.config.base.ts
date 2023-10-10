@@ -7,6 +7,7 @@ import svgLoader from 'vite-svg-loader';
 // import configArcoResolverPlugin from './plugin/arcoResolver';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend';
+import AutoImport from 'unplugin-auto-import/vite';
 
 export default defineConfig({
   plugins: [
@@ -21,6 +22,19 @@ export default defineConfig({
       iconDirs: [resolve(process.cwd(), 'src/assets/svg'), resolve(process.cwd(), 'public/images')], // 与本地储存地址一致
       // 指定symbolId格式
       symbolId: 'icon-[name]',
+    }),
+    AutoImport({
+      include: [
+        /\.[tj]sx?$/, // .ts, .tsx, .js, .jsx
+        /\.vue$/,
+        /\.vue\?vue/, // .vue
+        /\.md$/, // .md
+      ],
+      imports: ['vue'],
+      dts: 'src/auto-import.d.ts',
+      eslintrc: {
+        enabled: true, // <-- this
+      },
     }),
   ],
   resolve: {

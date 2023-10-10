@@ -5,7 +5,7 @@
       :row-class="getRowClass"
       :span-method="spanMethod"
       :columns="currentColumns"
-      :expanded-keys="props.expandedKeys"
+      @expand="(rowKey, record) => emit('expand', record)"
       @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
     >
       <template #optional="{ rowIndex, record }">
@@ -81,7 +81,7 @@
               <template v-else-if="item.isTag">
                 <div class="one-line-text max-w-[456px]">
                   <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
-                    {{ record[item.dataIndex as string] || '-' }}
+                    {{ record[item.dataIndex as string] || (attrs.emptyDataShowLine ? '-' : '') }}
                   </slot>
                 </div>
               </template>
@@ -106,7 +106,7 @@
                 <a-tooltip v-else placement="top" :content="String(record[item.dataIndex as string])">
                   <div class="one-line-text max-w-[300px]">
                     <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
-                      {{ record[item.dataIndex as string] || '-' }}
+                      {{ record[item.dataIndex as string] || (attrs.emptyDataShowLine ? '-' : '') }}
                     </slot>
                   </div>
                 </a-tooltip>
@@ -130,7 +130,7 @@
               </template>
               <template v-else>
                 <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
-                  {{ record[item.dataIndex as string] || '-' }}
+                  {{ record[item.dataIndex as string] || (attrs.emptyDataShowLine ? '-' : '') }}
                 </slot>
               </template>
             </div>
@@ -145,21 +145,9 @@
           </div>
         </slot>
       </template>
-      <template #expand-icon="{ expanded, record }">
-        <MsIcon
-          v-if="!expanded"
-          :size="8"
-          type="icon-icon_right_outlined"
-          class="text-[rgb(var(--primary-6))]"
-          @click="emit('expandChange', record[rowKey || 'id'])"
-        />
-        <MsIcon
-          v-else
-          :size="8"
-          class="text-[var(--color-text-4)]"
-          type="icon-icon_down_outlined"
-          @click="emit('expandChange', record[rowKey || 'id'])"
-        />
+      <template #expand-icon="{ expanded }">
+        <MsIcon v-if="!expanded" :size="8" type="icon-icon_right_outlined" class="text-[var(--color-text-4)]" />
+        <MsIcon v-else :size="8" class="text-[rgb(var(--primary-6))]" type="icon-icon_down_outlined" />
       </template>
     </a-table>
     <div
@@ -208,7 +196,7 @@
   import type { TableData } from '@arco-design/web-vue';
   import MsCheckbox from '../ms-checkbox/MsCheckbox.vue';
 
-  const batchleft = ref('10px');
+  const batchLeft = ref('10px');
   const { t } = useI18n();
   const tableStore = useTableStore();
   const currentColumns = ref<MsTableColumn>([]);
@@ -233,8 +221,8 @@
     (e: 'rowSelectChange', key: string): void;
     (e: 'selectAllChange', value: SelectAllEnum): void;
     (e: 'sorterChange', value: { [key: string]: string }): void;
+    (e: 'expand', record: TableData): void;
     (e: 'clearSelector'): void;
-    (e: 'expandChange', key: string): void;
   }>();
   const attrs = useAttrs();
 
@@ -418,7 +406,7 @@
 
   onMounted(() => {
     initColumn();
-    batchleft.value = getBatchLeft();
+    batchLeft.value = getBatchLeft();
   });
 </script>
 

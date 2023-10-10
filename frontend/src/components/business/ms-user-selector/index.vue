@@ -25,7 +25,7 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
   import { ref, onMounted, computed } from 'vue';
-  import initOptionsFunc, { UserRequesetTypeEnum } from './utils';
+  import initOptionsFunc, { UserRequestTypeEnum } from './utils';
   import { debounce } from 'lodash-es';
 
   export interface MsUserSelectorOption {
@@ -46,7 +46,7 @@
       firstLabelKey?: string; // 首要的的字段key
       secondLabelKey?: string; // 次要的字段key
       loadOptionParams?: Record<string, any>; // 加载选项的参数
-      type?: UserRequesetTypeEnum; // 加载选项的类型
+      type?: UserRequestTypeEnum; // 加载选项的类型
     }>(),
     {
       disabled: false,
@@ -54,7 +54,7 @@
       valueKey: 'id',
       firstLabelKey: 'name',
       secondLabelKey: 'email',
-      type: UserRequesetTypeEnum.SYSTEM_USER_GROUP,
+      type: UserRequestTypeEnum.SYSTEM_USER_GROUP,
     }
   );
 

@@ -17,7 +17,7 @@
         >
           <MsUserSelector
             v-model:value="form.name"
-            :type="UserRequesetTypeEnum.SYSTEM_ORGANIZATION"
+            :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION"
             disabled-key="memberFlag"
             :load-option-params="{ sourceId: props.organizationId || props.projectId }"
           />
@@ -41,7 +41,7 @@
   import { addUserToOrgOrProject } from '@/api/modules/setting/organizationAndProject';
   import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const props = defineProps<{
