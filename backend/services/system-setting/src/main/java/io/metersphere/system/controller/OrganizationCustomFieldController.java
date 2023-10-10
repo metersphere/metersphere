@@ -39,7 +39,7 @@ public class OrganizationCustomFieldController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_READ)
     public List<CustomField> list(@Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
                                   @PathVariable String organizationId,
-                                  @Schema(description = "模板的使用场景（FUNCTIONAL,ISSUE,API,UI）", requiredMode = Schema.RequiredMode.REQUIRED)
+                                  @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI）", requiredMode = Schema.RequiredMode.REQUIRED)
                                   @PathVariable String scene) {
         return organizationCustomFieldService.list(organizationId, scene);
     }

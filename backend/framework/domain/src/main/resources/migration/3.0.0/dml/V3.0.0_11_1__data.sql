@@ -184,12 +184,12 @@ VALUES(
 
 -- 初始化组织缺陷模板
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part,enable_default,scene)
-VALUES (UUID_SHORT(), 'issue_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'ORGANIZATION', '100001', 0, 1, 'ISSUE');
+VALUES (UUID_SHORT(), 'bug_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'ORGANIZATION', '100001', 0, 1, 'BUG');
 
 -- 初始化项目缺陷模板
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, enable_default, scene, ref_id)
-VALUES (UUID_SHORT(), 'issue_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', '100001100001', 0, 1, 'ISSUE',
-        (SELECT id FROM (SELECT * FROM template) t where name = 'issue_default'));
+VALUES (UUID_SHORT(), 'bug_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', '100001100001', 0, 1, 'BUG',
+        (SELECT id FROM (SELECT * FROM template) t where name = 'bug_default'));
 
 -- 初始化组织接口模板
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part,enable_default,scene)

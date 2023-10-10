@@ -2,7 +2,7 @@ package io.metersphere.sdk.constants;
 
 public enum TemplateScene {
     FUNCTIONAL,
-    ISSUE,
+    BUG,
     API,
     UI,
     TEST_PLAN
