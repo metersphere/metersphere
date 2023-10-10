@@ -254,7 +254,9 @@ public class JSONUtil {
 
     public static ArrayNode parseArrayNode(String text) {
         try {
-            return (ArrayNode) objectMapper.readTree(text);
+            if (StringUtils.isNotBlank(text)) {
+                return (ArrayNode) objectMapper.readTree(text);
+            }
         } catch (Exception e) {
             LogUtil.error(e);
         }
