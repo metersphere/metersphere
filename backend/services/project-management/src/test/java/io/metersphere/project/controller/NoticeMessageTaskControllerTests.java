@@ -493,7 +493,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .param("taskType", NoticeConstants.TaskType.API_DEFINITION_TASK)
                         .param("event", NoticeConstants.Event.CREATE)
-                        .param("robotId", "test_message_robot1")
+                        .param("robotId", "test_message_robot2")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
