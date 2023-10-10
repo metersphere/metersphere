@@ -7,6 +7,7 @@ import io.metersphere.project.domain.MessageTaskExample;
 import io.metersphere.project.dto.MessageTaskDTO;
 
 import io.metersphere.project.dto.MessageTaskDetailDTO;
+import io.metersphere.project.dto.MessageTemplateConfigDTO;
 import io.metersphere.project.dto.ProjectRobotConfigDTO;
 import io.metersphere.project.mapper.MessageTaskBlobMapper;
 import io.metersphere.project.mapper.MessageTaskMapper;
@@ -482,5 +483,55 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<OptionDTO> userDtoList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
         Assertions.assertEquals(0, userDtoList.size());
+    }
+
+    @Test
+    @Order(19)
+    public void getTemplateDetailWithRobot() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/template/detail/project-message-test")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .param("taskType", NoticeConstants.TaskType.API_DEFINITION_TASK)
+                        .param("event", NoticeConstants.Event.CREATE)
+                        .param("robotId", "test_message_robot1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        MessageTemplateConfigDTO messageTemplateConfigDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), MessageTemplateConfigDTO.class);
+        Assertions.assertTrue(messageTemplateConfigDTO.getReceiverIds().size()>0);
+    }
+
+    @Test
+    @Order(20)
+    public void getTemplateDetailWithOutRobot() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/template/detail/project-message-test")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .param("taskType", NoticeConstants.TaskType.API_DEFINITION_TASK)
+                        .param("event", NoticeConstants.Event.CREATE)
+                        .param("robotId", "test_message_robot3")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        MessageTemplateConfigDTO messageTemplateConfigDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), MessageTemplateConfigDTO.class);
+        Assertions.assertTrue(messageTemplateConfigDTO.getReceiverIds().size()>0);
+    }
+
+    @Test
+    @Order(21)
+    public void getTemplateDetailNotExistRobot() throws Exception {
+         mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/template/detail/project-message-test")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .param("taskType", NoticeConstants.TaskType.API_DEFINITION_TASK)
+                        .param("event", NoticeConstants.Event.CREATE)
+                        .param("robotId", "test_message_robotX")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 }
