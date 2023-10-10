@@ -73,6 +73,11 @@
                 :label="item.name"
                 :value="item.id"
               >
+                <template v-slot>
+                  <node-operation-label
+                      :nodeName="item.name"
+                      :node-operation-info="nodeInfo(item.id)"/>
+                </template>
               </el-option>
             </el-select>
           </div>
@@ -155,25 +160,19 @@
 
 <script>
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import { strMapToObj } from "metersphere-frontend/src/utils";
+import {strMapToObj} from "metersphere-frontend/src/utils";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import { ENV_TYPE } from "metersphere-frontend/src/utils/constants";
-import {
-  getCurrentProjectID,
-  getOwnerProjects,
-} from "@/business/utils/sdk-utils";
-import { getQuotaValidResourcePools } from "@/api/remote/resource-pool";
+import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
+import {getCurrentProjectID, getOwnerProjects,} from "@/business/utils/sdk-utils";
+import {getQuotaValidResourcePools} from "@/api/remote/resource-pool";
 import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
-import { getApiCaseEnv } from "@/api/remote/plan/test-plan-api-case";
-import {
-  getApiScenarioEnv,
-  getPlanCaseEnv,
-  getPlanCaseProjectIds,
-} from "@/api/remote/plan/test-plan";
+import {getApiCaseEnv} from "@/api/remote/plan/test-plan-api-case";
+import {getApiScenarioEnv, getPlanCaseEnv, getPlanCaseProjectIds,} from "@/api/remote/plan/test-plan";
 import EnvGroupWithOption from "../env/EnvGroupWithOption";
 import EnvironmentGroup from "@/business/plan/env/EnvironmentGroupList";
 import EnvSelectPopover from "@/business/plan/env/EnvSelectPopover";
-import { getProjectConfig } from "@/api/project";
+import {getNodeOperationInfo, getProjectConfig} from "@/api/project";
+import NodeOperationLabel from "metersphere-frontend/src/components/node/NodeOperationLabel";
 
 export default {
   name: "MsTestPlanRunModeWithEnv",
@@ -184,6 +183,7 @@ export default {
     EnvGroupWithOption,
     EnvironmentGroup,
     EnvSelectPopover,
+    NodeOperationLabel,
   },
   computed: {
     ENV_TYPE() {
@@ -229,6 +229,7 @@ export default {
         },
       ],
       value: "confirmAndRun",
+      nodeOperationInfo: {},
       browsers: [
         {
           label: this.$t("chrome"),
@@ -263,6 +264,26 @@ export default {
     },
   },
   methods: {
+    nodeInfo(nodeId) {
+      return this.nodeOperationInfo[nodeId];
+    },
+    selectNodeOperation() {
+      let nodeOperationInfoRequest = {nodeIds: []};
+      this.resourcePools.forEach(item => {
+        nodeOperationInfoRequest.nodeIds.push(item.id);
+      });
+
+      getNodeOperationInfo(nodeOperationInfoRequest)
+          .then(response => {
+            this.parseNodeOperationStatus(response.data);
+          });
+    },
+    parseNodeOperationStatus(nodeOperationData) {
+      this.nodeOperationInfo = {};
+      nodeOperationData.forEach(item => {
+        this.nodeOperationInfo[item.id] = item;
+      });
+    },
     open(testType, runModeConfig) {
       this.defaultEnvMap = {};
       if (this.type === "plan") {
@@ -350,6 +371,7 @@ export default {
     getResourcePools() {
       getQuotaValidResourcePools().then((response) => {
         this.resourcePools = response.data;
+        this.selectNodeOperation();
         this.getProjectApplication();
       });
     },

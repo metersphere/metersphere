@@ -11,6 +11,11 @@
                   :label="item.name"
                   :disabled="!item.performance"
                   :value="item.id">
+                <template v-slot>
+                  <node-operation-label
+                    :nodeName="item.name"
+                    :node-operation-info="nodeInfo(item.id)"/>
+                </template>
               </el-option>
             </el-select>
           </el-form-item>
@@ -219,20 +224,60 @@
                           :value="index">
                       </el-option>
                     </el-select>
+                    <div style="margin-left: 5px;float: right">
+                      <el-tag size="mini" v-if="nodeTaskCount(resourceNodes[threadGroup.resourceNodeIndex])===0"
+                              style="color:#E5594B;background-color: #FFFFFF;border-color: #E5594B;margin-left: 5px;margin-right: 5px">
+                        {{ $t("commons.idle") }}
+                      </el-tag>
+                      <el-tag size="mini" v-else-if="nodeTaskCount(resourceNodes[threadGroup.resourceNodeIndex])>0"
+                              style="color:#89DB7E;background-color: #FFFFFF;border-color: #89DB7E;margin-left: 5px;margin-right: 5px">
+                        {{ $t("commons.running") }}
+                      </el-tag>
+
+                      <span v-if="nodeTaskCount(resourceNodes[threadGroup.resourceNodeIndex]) !== -1">
+                      {{
+                          " " + $t("commons.cpu_usage") + " " + nodeCpuUsage(resourceNodes[threadGroup.resourceNodeIndex])
+                        }}
+                      </span>
+
+                    </div>
                   </el-form-item>
                 </div>
                 <div v-else>
                   <el-table class="adjust-table" :data="threadGroup.resourceNodes" :max-height="200">
                     <el-table-column type="index" width="50"/>
                     <el-table-column prop="ip" label="IP"/>
+                    <el-table-column prop="runStatus" :label="$t('commons.running_status')">
+                      <template v-slot:default="{row}">
+                        <el-tag size="mini" v-if="nodeTaskCount(row)===0"
+                                style="color:#E5594B;background-color: #FFFFFF;border-color: #E5594B;margin-left: 5px;margin-right: 5px">
+                          {{ $t("commons.idle") }}
+                        </el-tag>
+                        <el-tag size="mini" v-else-if="nodeTaskCount(row)>0"
+                                style="color:#89DB7E;background-color: #FFFFFF;border-color: #89DB7E;margin-left: 5px;margin-right: 5px">
+                          {{ $t("commons.running") }}
+                        </el-tag>
+                      </template>
+                    </el-table-column>
                     <el-table-column prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"/>
-                    <el-table-column prop="ratio" :label="$t('test_track.home.percentage')">
+                    <el-table-column prop="ratio" :label="$t('test_track.home.percentage')" width="120px">
                       <template v-slot:default="{row}">
                         <el-input-number size="mini" v-model="row.ratio"
                                          v-if="rampUpTimeVisible"
                                          @change="customNodeChange(threadGroup)"
+                                         style="width: 100px"
                                          :min="0" :step=".1" controls-position="right"
                                          :max="1"></el-input-number>
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="cpuUsage" :label="$t('commons.cpu_usage')">
+                      <template v-slot:default="{row}">
+                        {{ nodeCpuUsage(row) }}
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="refresh" width="50px">
+                      <template v-slot:header>
+                        <el-button icon="el-icon-refresh" size="mini" @click="refreshNodeOperation" circle></el-button>
                       </template>
                     </el-table-column>
                   </el-table>
@@ -252,8 +297,9 @@
 
 <script>
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
+import NodeOperationLabel from "metersphere-frontend/src/components/node/NodeOperationLabel";
 import {findThreadGroup} from "../../../business/test/model/ThreadGroup";
-import {getJmxContent, getLoadConfig, getResourcePools} from "../../../api/performance";
+import {getJmxContent, getLoadConfig, getNodeOperationInfo, getResourcePools} from "../../../api/performance";
 
 const HANDLER = "handler";
 const THREAD_GROUP_TYPE = "tgType";
@@ -288,7 +334,7 @@ const hexToRgb = function (hex) {
 
 export default {
   name: "PerformancePressureConfig",
-  components: {MsChart},
+  components: {MsChart, NodeOperationLabel},
   props: {
     test: {
       type: Object
@@ -333,6 +379,7 @@ export default {
       autoStop: false,
       autoStopDelay: 30,
       rampUpTimeVisible: true,
+      nodeOperationInfo: {},
     };
   },
   computed: {
@@ -344,7 +391,7 @@ export default {
         {value: 'stoptest', label: this.$t('load_test.stoptest')},
         {value: 'stoptestnow', label: this.$t('load_test.stoptestnow')},
       ];
-    }
+    },
   },
   mounted() {
     if (this.testId) {
@@ -395,6 +442,36 @@ export default {
     }
   },
   methods: {
+    refreshNodeOperation() {
+      let nodeOperationInfoRequest = {nodeIds: []};
+      this.resourcePools.forEach(item => {
+        nodeOperationInfoRequest.nodeIds.push(item.id);
+      });
+
+      getNodeOperationInfo(nodeOperationInfoRequest)
+          .then(response => {
+            this.parseNodeOperationStatus(response.data);
+          });
+    },
+    nodeCpuUsage(row) {
+      let nodeInfo = this.nodeOperationInfo[this.resourcePool];
+      if (nodeInfo) {
+        return this.nodeOperationInfo[this.resourcePool].nodeOperationInfos[row.id].cpuUsage;
+      } else {
+        return "";
+      }
+    },
+    nodeTaskCount(row) {
+      let nodeInfo = this.nodeOperationInfo[this.resourcePool];
+      if (nodeInfo) {
+        return this.nodeOperationInfo[this.resourcePool].nodeOperationInfos[row.id].runningTask;
+      } else {
+        return -1;
+      }
+    },
+    nodeInfo(nodeId) {
+      return this.nodeOperationInfo[nodeId];
+    },
     getResourcePools() {
       getResourcePools(this.isShare)
           .then(response => {
@@ -408,8 +485,23 @@ export default {
               }
             }
 
+            let nodeOperationInfoRequest = {nodeIds: []};
+            this.resourcePools.forEach(item => {
+              nodeOperationInfoRequest.nodeIds.push(item.id);
+            });
+
+            getNodeOperationInfo(nodeOperationInfoRequest)
+              .then(response => {
+                this.parseNodeOperationStatus(response.data);
+              });
             this.resourcePoolChange();
           });
+    },
+    parseNodeOperationStatus(nodeOperationData) {
+      this.nodeOperationInfo = {};
+      nodeOperationData.forEach(item => {
+        this.nodeOperationInfo[item.id] = item;
+      });
     },
     getLoadConfig() {
       this.result.loading = true;

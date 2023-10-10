@@ -14,13 +14,13 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.request.resourcepool.QueryResourcePoolRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,18 +37,18 @@ public class BaseTestResourcePoolService {
     @Resource
     private TestResourceMapper testResourceMapper;
 
-    public List<TestResourcePoolDTO> listResourcePools(QueryResourcePoolRequest request) {
+
+    public List<TestResourcePoolDTO> listResourcePoolById(List<String> testResourcePoolId) {
         TestResourcePoolExample example = new TestResourcePoolExample();
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotBlank(request.getName())) {
-            criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
-        }
-        if (StringUtils.isNotBlank(request.getStatus())) {
-            criteria.andStatusEqualTo(request.getStatus());
-        }
+        criteria.andIdIn(testResourcePoolId).andTypeEqualTo("NODE");
         criteria.andStatusNotEqualTo(DELETE.name());
-        example.setOrderByClause("update_time desc");
+
         List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
+        return this.generateTestResourcePoolDTO(testResourcePools);
+    }
+
+    private List<TestResourcePoolDTO> generateTestResourcePoolDTO(List<TestResourcePool> testResourcePools) {
         List<TestResourcePoolDTO> testResourcePoolDTOS = new ArrayList<>();
         testResourcePools.forEach(pool -> {
             TestResourceExample example2 = new TestResourceExample();
@@ -65,6 +65,21 @@ public class BaseTestResourcePoolService {
             }
         });
         return testResourcePoolDTOS;
+    }
+
+    public List<TestResourcePoolDTO> listResourcePools(QueryResourcePoolRequest request) {
+        TestResourcePoolExample example = new TestResourcePoolExample();
+        TestResourcePoolExample.Criteria criteria = example.createCriteria();
+        if (StringUtils.isNotBlank(request.getName())) {
+            criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
+        if (StringUtils.isNotBlank(request.getStatus())) {
+            criteria.andStatusEqualTo(request.getStatus());
+        }
+        criteria.andStatusNotEqualTo(DELETE.name());
+        example.setOrderByClause("update_time desc");
+        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
+        return this.generateTestResourcePoolDTO(testResourcePools);
     }
 
 
