@@ -501,8 +501,8 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(34)
     public void testIssueConfig() throws Exception {
-        Map<String, String> congifs = mockTeseData();
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", congifs);
+        Map<String, String> configs = mockTestData();
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", configs);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -510,19 +510,19 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
 
         //更新
-        congifs.put("jiraKey", "222");
-        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", congifs);
+        configs.put("jiraKey", "222");
+        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", configs);
         // 获取返回值
         String updateData = updateResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder updateResultHolder = JSON.parseObject(updateData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(updateResultHolder);
 
-        congifs.remove("CRON_EXPRESSION");
-        this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", congifs);
+        configs.remove("CRON_EXPRESSION");
+        this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", configs);
     }
 
-    private Map<String, String> mockTeseData() {
+    private Map<String, String> mockTestData() {
         Map<String, String> configs = new HashMap<>();
         configs.put("platform", "jira");
         configs.put("jiraKey", "111");
@@ -578,8 +578,8 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(37)
     public void testCaseRelatedConfig() throws Exception {
-        Map<String, String> congifs = mockRelatedTeseData();
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/default-project-2", congifs);
+        Map<String, String> configs = mockRelatedTestData();
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/default-project-2", configs);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -587,8 +587,8 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
 
         //更新
-        congifs.put("jiraKey", "222");
-        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/default-project-2", congifs);
+        configs.put("jiraKey", "222");
+        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/default-project-2", configs);
         // 获取返回值
         String updateData = updateResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder updateResultHolder = JSON.parseObject(updateData, ResultHolder.class);
@@ -596,7 +596,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Assertions.assertNotNull(updateResultHolder);
     }
 
-    private Map<String, String> mockRelatedTeseData() {
+    private Map<String, String> mockRelatedTestData() {
         Map<String, String> configs = new HashMap<>();
         configs.put("platform", "jira");
         configs.put("jiraKey", "111");

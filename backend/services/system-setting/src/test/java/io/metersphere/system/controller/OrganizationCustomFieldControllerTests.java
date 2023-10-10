@@ -113,7 +113,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             Assertions.assertEquals(false, optionItem.getInternal());
             Assertions.assertEquals(customField.getId(), optionItem.getFieldId());
         }
-        asserRefCustomField(customField);
+        assertRefCustomField(customField);
 
         // @校验是否开启组织模板
         changeOrgTemplateEnable(false);
@@ -176,7 +176,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             Assertions.assertEquals(false, optionItem.getInternal());
             Assertions.assertEquals(customField.getId(), optionItem.getFieldId());
         }
-        asserRefCustomField(customField);
+        assertRefCustomField(customField);
 
         // @校验是否开启组织模板
         changeOrgTemplateEnable(false);
@@ -283,7 +283,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
     /**
      * 校验变更组织字段时，有没有同步变更项目字段
      */
-    private void asserRefCustomField(CustomField customField) {
+    private void assertRefCustomField(CustomField customField) {
         List<CustomField> refFields = organizationCustomFieldService.getByRefId(customField.getId());
         List<Project> orgProjects = getProjectByOrgId(customField.getScopeId());
         // 校验所有项目下是否都有同步变更
