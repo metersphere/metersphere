@@ -5,7 +5,7 @@
 
       <el-form :model="authConfig" :rules="rule" ref="authConfig" label-position="right">
         <el-form-item :label="$t('api_test.definition.request.verification_method')" prop="verification">
-          <el-select v-model="authConfig.verification" @change="change" :disabled="isReadOnly"
+          <el-select v-model="authConfig.verification" @change="change" :disabled="isReadOnly" clearable
                      :placeholder="$t('api_test.definition.request.verification_method')" filterable size="small">
             <el-option
               v-for="item in options"
@@ -101,7 +101,11 @@ export default {
         this.request.authManager = this.authConfig;
       } else {
         let authManager = {};
-        authManager.verification = "No Auth";
+        if (!this.authConfig.verification) {
+          authManager.verification = null;
+        } else {
+          authManager.verification = "No Auth";
+        }
         if (this.request.hashTree == undefined) {
           this.request.hashTree = [];
         }
