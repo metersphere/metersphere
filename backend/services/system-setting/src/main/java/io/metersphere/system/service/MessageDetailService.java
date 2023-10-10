@@ -127,7 +127,7 @@ public class MessageDetailService {
     }
 
     private String getSubject(String taskType, String event) {
-        Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateTitleMap();
+        Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
         return "MeterSphere " + defaultTemplateTitleMap.get(taskType + "_" + event);
     }
 

@@ -56,7 +56,7 @@ public class AfterReturningNoticeSendService {
     }
 
     private String getSubject(SendNotice sendNotice) {
-        Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateTitleMap();
+        Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
         return defaultTemplateTitleMap.get(sendNotice.taskType() + "_" + sendNotice.event());
     }
 

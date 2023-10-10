@@ -35,7 +35,8 @@ INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id
 
 
 INSERT INTO project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES ('test_message_robot1', 'project-message-test-1', '测试机器人1', 'IN_SITE', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null),
-                                                                                                                                                                              ('test_message_robot2', 'project-message-test-1', '测试机器人2', 'MAIL', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
+                                                                                                                                                                              ('test_message_robot2', 'project-message-test-1', '测试机器人2', 'MAIL', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null),
+                                                                                                                                                                              ('test_message_robot3', 'project-message-test-1', '测试机器人3', 'WE_COM', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
 
 
 

@@ -2,13 +2,13 @@ package io.metersphere.project.controller;
 
 
 import io.metersphere.project.dto.MessageTaskDTO;
+import io.metersphere.project.dto.MessageTemplateConfigDTO;
 import io.metersphere.project.service.MessageTaskLogService;
 import io.metersphere.project.service.NoticeMessageTaskService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.MessageTaskRequest;
-
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.SessionUtils;
@@ -55,6 +55,16 @@ public class NoticeMessageTaskController {
     public List<OptionDTO> getUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据用户名查询")
     @RequestParam(value = "keyword", required = false) String keyword) {
         return noticeMessageTaskService.getUserList(projectId, keyword);
+    }
+
+    @GetMapping("message/template/detail/{projectId}")
+    @Operation(summary = "项目管理-消息管理-消息设置-查看消息模版详情")
+    @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
+    public MessageTemplateConfigDTO getTemplateDetail(@PathVariable String projectId, @Schema(description = "消息配置功能类型")
+    @RequestParam(value = "taskType") String taskType, @Schema(description = "消息配置场景")
+    @RequestParam(value = "event") String event, @Schema(description = "消息配置机器人id")
+    @RequestParam(value = "robotId") String robotId) {
+        return noticeMessageTaskService.getTemplateDetail(projectId, taskType, event, robotId);
     }
 
 }

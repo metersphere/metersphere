@@ -2,28 +2,26 @@ package io.metersphere.project.service;
 
 
 import io.metersphere.project.domain.*;
-import io.metersphere.project.dto.MessageTaskDTO;
-import io.metersphere.project.dto.MessageTaskDetailDTO;
-import io.metersphere.project.dto.MessageTaskTypeDTO;
-import io.metersphere.project.dto.ProjectRobotConfigDTO;
+import io.metersphere.project.dto.*;
 import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.enums.result.ProjectResultCode;
 import io.metersphere.project.mapper.*;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.MessageTaskRequest;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.domain.UserExample;
-import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.notice.utils.MessageTemplateUtils;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.notice.utils.MessageTemplateUtils;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +29,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +36,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -323,7 +323,7 @@ public class NoticeMessageTaskService {
         Map<String, String> taskTypeMap = MessageTemplateUtils.getTaskTypeMap();
         Map<String, String> eventMap = MessageTemplateUtils.getEventMap();
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
-        Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateTitleMap();
+        Map<String, String> defaultTemplateSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
         ProjectRobot projectRobot = setDefaultRobot(projectId, null);
         for (MessageTaskDTO messageTaskDTO : messageTaskDTOList) {
             messageTaskDTO.setProjectId(projectId);
@@ -340,9 +340,9 @@ public class NoticeMessageTaskService {
                     List<MessageTask> messageTaskList = messageEventMap.get(messageTaskDetailDTO.getEvent());
                     List<OptionDTO> receivers = new ArrayList<>();
                     Map<String, ProjectRobotConfigDTO> projectRobotConfigMap = new HashMap<>();
-                    String defaultTemplate = defaultTemplateMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
+                    String defaultTemplate = defaultTemplateMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
                     if (CollectionUtils.isEmpty(messageTaskList)) {
-                        String defaultSubject = defaultTemplateTitleMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
+                        String defaultSubject = defaultTemplateSubjectMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
                         ProjectRobotConfigDTO projectRobotConfigDTO = getDefaultProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot);
                         projectRobotConfigMap.put(projectRobot.getId(), projectRobotConfigDTO);
                     } else {
@@ -355,11 +355,11 @@ public class NoticeMessageTaskService {
                             String platform = robotMap.get(messageTask.getProjectRobotId()).getPlatform();
                             String defaultSubject;
                             if (StringUtils.equalsIgnoreCase(platform, ProjectRobotPlatform.MAIL.toString())) {
-                                defaultSubject = "MeterSphere " + defaultTemplateTitleMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
+                                defaultSubject = "MeterSphere " + defaultTemplateSubjectMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
                             } else {
-                                defaultSubject = defaultTemplateTitleMap.get(messageTaskTypeDTO.taskType + "_" + messageTaskDetailDTO.getEvent());
+                                defaultSubject = defaultTemplateSubjectMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
                             }
-                            ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, robotMap, messageTask, messageTaskBlob);
+                            ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, robotMap.get(messageTask.getProjectRobotId()), messageTask, messageTaskBlob);
                             projectRobotConfigMap.put(messageTask.getProjectRobotId(), projectRobotConfigDTO);
                         }
                     }
@@ -372,11 +372,10 @@ public class NoticeMessageTaskService {
         return messageTaskDTOList;
     }
 
-    private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, Map<String, ProjectRobot> robotMap, MessageTask messageTask, MessageTaskBlob messageTaskBlob) {
+    private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, ProjectRobot projectRobot, MessageTask messageTask, MessageTaskBlob messageTaskBlob) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
-        ProjectRobot projectRobot = robotMap.get(messageTask.getProjectRobotId());
         projectRobotConfigDTO.setRobotName(projectRobot.getName());
-        projectRobotConfigDTO.setRobotId(messageTask.getProjectRobotId());
+        projectRobotConfigDTO.setRobotId(projectRobot.getId());
         projectRobotConfigDTO.setPlatform(projectRobot.getPlatform());
         projectRobotConfigDTO.setDingType(projectRobot.getType());
         projectRobotConfigDTO.setEnable(messageTask.getEnable());
@@ -407,5 +406,36 @@ public class NoticeMessageTaskService {
 
     public List<OptionDTO> getUserList(String projectId, String keyword) {
         return extProjectUserRoleMapper.getProjectUserSelectList(projectId, keyword);
+    }
+
+    public MessageTemplateConfigDTO getTemplateDetail(String projectId, String taskType, String event, String robotId) {
+        MessageTaskExample messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria().andProjectIdEqualTo(projectId).andTaskTypeEqualTo(taskType).andEventEqualTo(event);
+        List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
+        List<String> receiverIds = messageTasks.stream().map(MessageTask::getReceiver).distinct().toList();
+        Map<String, List<MessageTask>> messageRobotMap = messageTasks.stream().collect(Collectors.groupingBy(MessageTask::getProjectRobotId));
+        MessageTask messageTask;
+        if (CollectionUtils.isNotEmpty(messageRobotMap.get(robotId))) {
+            messageTask = messageRobotMap.get(robotId).get(0);
+        } else {
+            messageTask = messageTasks.get(0);
+            messageTask.setEnable(false);
+            messageTask.setUseDefaultTemplate(true);
+            messageTask.setUseDefaultSubject(true);
+        }
+        MessageTaskBlob messageTaskBlob = messageTaskBlobMapper.selectByPrimaryKey(messageTask.getId());
+        Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
+        Map<String, String> defaultTemplateSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
+        String defaultTemplate = defaultTemplateMap.get(messageTask.getTaskType() + "_" + messageTask.getEvent());
+        String defaultSubject = defaultTemplateSubjectMap.get(messageTask.getTaskType() + "_" + messageTask.getEvent());
+        ProjectRobot projectRobot = projectRobotMapper.selectByPrimaryKey(robotId);
+        if (projectRobot == null) {
+            throw new MSException(Translator.get("robot_is_null"));
+        }
+        ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot, messageTask, messageTaskBlob);
+        MessageTemplateConfigDTO messageTemplateConfigDTO = new MessageTemplateConfigDTO();
+        BeanUtils.copyBean(messageTemplateConfigDTO,projectRobotConfigDTO);
+        messageTemplateConfigDTO.setReceiverIds(receiverIds);
+        return messageTemplateConfigDTO;
     }
 }

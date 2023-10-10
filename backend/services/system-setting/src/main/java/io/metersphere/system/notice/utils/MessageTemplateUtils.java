@@ -77,11 +77,11 @@ public class MessageTemplateUtils {
      *
      * @return Map<String, String> defaultTemplateTitleMap
      */
-    public static Map<String, String> getDefaultTemplateTitleMap() {
-        Map<String, String> defaultTemplateTitleMap = new HashMap<>();
-        Field[] defaultTemplateTitleFields = FieldUtils.getAllFields(NoticeConstants.TemplateTitle.class);
-        MessageTemplateUtils.setFieldNameMap(defaultTemplateTitleFields, defaultTemplateTitleMap);
-        return defaultTemplateTitleMap;
+    public static Map<String, String> getDefaultTemplateSubjectMap() {
+        Map<String, String> defaultTemplateSubjectMap = new HashMap<>();
+        Field[] defaultTemplateSubjectFields = FieldUtils.getAllFields(NoticeConstants.TemplateSubject.class);
+        MessageTemplateUtils.setFieldNameMap(defaultTemplateSubjectFields, defaultTemplateSubjectMap);
+        return defaultTemplateSubjectMap;
     }
 
     /**
