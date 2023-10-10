@@ -18,7 +18,7 @@
           <MsUserSelector
             v-model:value="form.userIds"
             :load-option-params="{ projectId: lastProjectId }"
-            :type="UserRequesetTypeEnum.PROJECT_PERMISSION_MEMBER"
+            :type="UserRequestTypeEnum.PROJECT_PERMISSION_MEMBER"
             placeholder="project.member.selectMemberScope"
             disabled-key="memberFlag"
           />
@@ -51,7 +51,7 @@
     ActionProjectMember,
     AddProjectMember,
   } from '@/models/projectManagement/projectAndPermission';
-  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const userStore = useUserStore();

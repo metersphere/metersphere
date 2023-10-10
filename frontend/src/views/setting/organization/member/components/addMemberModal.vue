@@ -22,7 +22,7 @@
           <MsUserSelector
             v-model:value="form.projectIds"
             :load-option-params="{ organizationId: lastOrganizationId }"
-            :type="UserRequesetTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
+            :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
             placeholder="organization.member.selectProjectScope"
           />
         </a-form-item>
@@ -37,7 +37,7 @@
           <MsUserSelector
             v-model:value="form.memberIds"
             :load-option-params="{ organizationId: lastOrganizationId }"
-            :type="UserRequesetTypeEnum.SYSTEM_ORGANIZATION_MEMBER"
+            :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_MEMBER"
             placeholder="organization.member.selectMemberScope"
           />
         </a-form-item>
@@ -75,7 +75,7 @@
   import { useUserStore } from '@/store';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
   import type { MemberItem, LinkList } from '@/models/setting/member';
-  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const userStore = useUserStore();

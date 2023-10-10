@@ -17,7 +17,7 @@
         >
           <MsUserSelector
             v-model:value="form.name"
-            :type="UserRequesetTypeEnum.PROJECT_USER_GROUP"
+            :type="UserRequestTypeEnum.PROJECT_USER_GROUP"
             :load-option-params="{ projectId: props.projectId, userRoleId: props.userRoleId }"
             disabled-key="checkRoleFlag"
           />
@@ -41,7 +41,7 @@
   import { addUserToUserGroup } from '@/api/modules/project-management/usergroup';
   import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
 
   const { t } = useI18n();
   const props = defineProps<{

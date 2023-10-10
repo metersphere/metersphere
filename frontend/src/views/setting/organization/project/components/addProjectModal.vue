@@ -41,7 +41,7 @@
         <a-form-item field="userIds" :label="t('system.project.projectAdmin')">
           <MsUserSelector
             v-model:value="form.userIds"
-            :type="UserRequesetTypeEnum.ORGANIZATION_PROJECT_ADMIN"
+            :type="UserRequestTypeEnum.ORGANIZATION_PROJECT_ADMIN"
             placeholder="system.project.projectAdminPlaceholder"
             :load-option-params="{
               organizationId: currentOrgId,
@@ -101,7 +101,7 @@
   import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
   import useLicenseStore from '@/store/modules/setting/license';
   import { useAppStore } from '@/store';
-  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
   import MsSystemPool from '@/components/business/ms-system-pool/MsSystemPool.vue';
 
   const { t } = useI18n();

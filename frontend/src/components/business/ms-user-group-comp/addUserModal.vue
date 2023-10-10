@@ -37,7 +37,7 @@
   import { addOrgUserToUserGroup, addUserToUserGroup } from '@/api/modules/setting/usergroup';
   import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
   import { AuthScopeEnum } from '@/enums/commonEnum';
 
   const { t } = useI18n();
@@ -52,7 +52,7 @@
   const userSelectorProps = computed(() => {
     if (systemType === AuthScopeEnum.SYSTEM) {
       return {
-        type: UserRequesetTypeEnum.SYSTEM_USER_GROUP,
+        type: UserRequestTypeEnum.SYSTEM_USER_GROUP,
         loadOptionParams: {
           roleId: props.currentId,
         },
@@ -60,7 +60,7 @@
       };
     }
     return {
-      type: UserRequesetTypeEnum.ORGANIZATION_USER_GROUP,
+      type: UserRequestTypeEnum.ORGANIZATION_USER_GROUP,
       loadOptionParams: {
         roleId: props.currentId,
         organizationId: currentOrgId.value,

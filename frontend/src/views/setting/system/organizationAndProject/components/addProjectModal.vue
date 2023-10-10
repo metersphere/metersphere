@@ -46,7 +46,7 @@
         <a-form-item field="userIds" :label="t('system.project.projectAdmin')">
           <MsUserSelector
             v-model:value="form.userIds"
-            :type="UserRequesetTypeEnum.SYSTEM_PROJECT_ADMIN"
+            :type="UserRequestTypeEnum.SYSTEM_PROJECT_ADMIN"
             placeholder="system.project.projectAdminPlaceholder"
           />
         </a-form-item>
@@ -102,7 +102,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
   import useLicenseStore from '@/store/modules/setting/license';
-  import { UserRequesetTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
   import MsSystemPool from '@/components/business/ms-system-pool/MsSystemPool.vue';
 
   const { t } = useI18n();
