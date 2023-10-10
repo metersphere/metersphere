@@ -105,6 +105,7 @@ public class JMeterBase {
             requestResult.setBody("");
         } else {
             //判断返回的类型是否是图片
+            LoggerUtil.info("返回内容类型为【" + result.getContentType() + "】");
             if (StringUtils.isNotEmpty(result.getContentType()) && imageList.contains(result.getContentType())) {
                 responseResult.setContentType(result.getContentType());
                 responseResult.setImageUrl(result.getResponseData());
