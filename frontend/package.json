@@ -12,7 +12,7 @@
     "report": "cross-env REPORT=true npm run build",
     "preview": "npm run build && vite preview --host",
     "type:check": "vue-tsc --noEmit --skipLibCheck",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .eslintignore",
     "lint:styles": "stylelint 'src/**/*.{vue,html,css,scss,less}' --fix",
     "lint-staged": "npx lint-staged",
     "prepare": "cd .. && husky install frontend/.husky",
