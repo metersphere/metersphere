@@ -79,6 +79,12 @@ export default {
       sessionStorage.setItem("workspace_name", this.currentWorkspaceName);
     }
   },
+  mounted() {
+    getWorkspaceModules("workspace",getCurrentWorkspaceId())
+      .then(res => {
+        sessionStorage.setItem('workspace_modules', JSON.stringify(res.data));
+      });
+  },
   methods: {
     initMenuData() {
       getUserWorkspaceList()
@@ -90,10 +96,6 @@ export default {
             this.currentWorkspaceName = workspace[0].name;
             this.workspaceList = response.data.filter(r => r.id !== this.workspaceId);
             this.workspaceList.unshift(workspace[0]);
-            getWorkspaceModules("workspace",workspace[0].id)
-              .then(res => {
-                sessionStorage.setItem('workspace_modules', JSON.stringify(res.data));
-              });
           } else {
             // 工作空间不存在, 切换到查询的第一个
             this.currentWorkspaceName = response.data[0].name;
@@ -154,10 +156,6 @@ export default {
                 this.reloadTopMenus();
               })
               .catch(err => err);
-          });
-        getWorkspaceModules("workspace",response.data[0].id)
-          .then(res => {
-            sessionStorage.setItem('workspace_modules', JSON.stringify(res.data));
           });
       }
     },
