@@ -61,7 +61,7 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
             case FUNCTIONAL:
                 baseTemplateService.initFunctionalDefaultTemplate(projectId, TemplateScopeType.PROJECT);
                 break;
-            case ISSUE:
+            case BUG:
                 baseTemplateService.initIssueDefaultTemplate(projectId, TemplateScopeType.PROJECT);
                 break;
             case API:

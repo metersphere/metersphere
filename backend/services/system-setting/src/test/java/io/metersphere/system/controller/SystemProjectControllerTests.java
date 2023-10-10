@@ -362,15 +362,22 @@ public class SystemProjectControllerTests extends BaseTest {
     }
 
     private void changeOrgTemplateEnable(boolean enable) {
+        changeOrgTemplateEnable(enable, OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
+        changeOrgTemplateEnable(enable, OrganizationParameterConstants.ORGANIZATION_BUG_TEMPLATE_ENABLE_KEY);
+        changeOrgTemplateEnable(enable, OrganizationParameterConstants.ORGANIZATION_API_TEMPLATE_ENABLE_KEY);
+        changeOrgTemplateEnable(enable, OrganizationParameterConstants.ORGANIZATION_UI_TEMPLATE_ENABLE_KEY);
+        changeOrgTemplateEnable(enable, OrganizationParameterConstants.ORGANIZATION_TEST_PLAN_TEMPLATE_ENABLE_KEY);
+    }
+
+    private void changeOrgTemplateEnable(boolean enable, String organizationTemplateEnableKey) {
         if (enable) {
-            organizationParameterMapper.deleteByPrimaryKey(DEFAULT_ORGANIZATION_ID, OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
+            organizationParameterMapper.deleteByPrimaryKey(DEFAULT_ORGANIZATION_ID, organizationTemplateEnableKey);
         } else {
             OrganizationParameter organizationParameter = new OrganizationParameter();
             organizationParameter.setOrganizationId(DEFAULT_ORGANIZATION_ID);
-            organizationParameter.setParamKey(OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
+            organizationParameter.setParamKey(organizationTemplateEnableKey);
             organizationParameter.setParamValue(BooleanUtils.toStringTrueFalse(false));
-            if (organizationParameterMapper.selectByPrimaryKey(DEFAULT_ORGANIZATION_ID,
-                    OrganizationParameterConstants.ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY) == null) {
+            if (organizationParameterMapper.selectByPrimaryKey(DEFAULT_ORGANIZATION_ID, organizationTemplateEnableKey) == null) {
                 organizationParameterMapper.insert(organizationParameter);
             }
         }

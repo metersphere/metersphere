@@ -31,9 +31,10 @@ public class BaseOrganizationParameterService {
     public String getOrgTemplateEnableKeyByScene(String scene) {
         Map<String, String> sceneMap = new HashMap<>();
         sceneMap.put(TemplateScene.FUNCTIONAL.name(), ORGANIZATION_FUNCTIONAL_TEMPLATE_ENABLE_KEY);
-        sceneMap.put(TemplateScene.ISSUE.name(), ORGANIZATION_ISSUE_TEMPLATE_ENABLE_KEY);
+        sceneMap.put(TemplateScene.BUG.name(), ORGANIZATION_BUG_TEMPLATE_ENABLE_KEY);
         sceneMap.put(TemplateScene.API.name(), ORGANIZATION_API_TEMPLATE_ENABLE_KEY);
         sceneMap.put(TemplateScene.UI.name(), ORGANIZATION_UI_TEMPLATE_ENABLE_KEY);
+        sceneMap.put(TemplateScene.TEST_PLAN.name(), ORGANIZATION_TEST_PLAN_TEMPLATE_ENABLE_KEY);
         return sceneMap.get(scene);
     }
 
