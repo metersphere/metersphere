@@ -10,6 +10,7 @@
             :disabled="isReadOnly"
             :placeholder="$t('api_test.definition.request.verification_method')"
             filterable
+            clearable
             size="small">
             <el-option v-for="item in options" :key="item.name" :label="item.name" :value="item.name"> </el-option>
           </el-select>
@@ -120,7 +121,11 @@ export default {
         this.request.authManager = this.authConfig;
       } else {
         let authManager = createComponent('AuthManager');
-        authManager.verification = 'No Auth';
+        if (!this.authConfig.verification) {
+          authManager.verification = null;
+        } else {
+          authManager.verification = 'No Auth';
+        }
         if (!this.request.hashTree) {
           this.request.hashTree = [];
         }

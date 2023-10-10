@@ -368,7 +368,7 @@ export default {
       });
     },
     showAuthSubscript() {
-      return this.request.authManager && this.request.authManager.verification !== 'No Auth';
+      return this.request.authManager && this.request.authManager.verification !== 'No Auth' && this.request.authManager.verification;
     },
     showSubscript() {
       return (
