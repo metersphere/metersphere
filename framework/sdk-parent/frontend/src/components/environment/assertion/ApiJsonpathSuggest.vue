@@ -83,7 +83,7 @@ export default {
       this.data = {};
       try {
         let stringedJSON = objStr.replace(
-          /(?<=[:\[,])\s*(-?\d+(\.\d+)?)(?=\s*([,\]}]))/g,
+          /(?:[:\[,])\s*(-?\d+(\.\d+)?)(?=\s*([,\]}]))/g,
           '"$1"'
         );
         let param;
