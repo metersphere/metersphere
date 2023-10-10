@@ -1,7 +1,7 @@
 package io.metersphere.sdk.dto;
 
 import io.metersphere.sdk.util.RsaKey;
-import io.metersphere.sdk.util.RsaUtil;
+import io.metersphere.sdk.util.RsaUtils;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -21,8 +21,8 @@ public class LoginRequest {
 
     public String getUsername() {
         try {
-            RsaKey rsaKey = RsaUtil.getRsaKey();
-            return RsaUtil.privateDecrypt(username, rsaKey.getPrivateKey());
+            RsaKey rsaKey = RsaUtils.getRsaKey();
+            return RsaUtils.privateDecrypt(username, rsaKey.getPrivateKey());
         } catch (Exception e) {
             return username;
         }
@@ -30,8 +30,8 @@ public class LoginRequest {
 
     public String getPassword() {
         try {
-            RsaKey rsaKey = RsaUtil.getRsaKey();
-            return RsaUtil.privateDecrypt(password, rsaKey.getPrivateKey());
+            RsaKey rsaKey = RsaUtils.getRsaKey();
+            return RsaUtils.privateDecrypt(password, rsaKey.getPrivateKey());
         } catch (Exception e) {
             return password;
         }

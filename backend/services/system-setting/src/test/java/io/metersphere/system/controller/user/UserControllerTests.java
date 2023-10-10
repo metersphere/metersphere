@@ -670,7 +670,7 @@ public class UserControllerTests extends BaseTest {
             this.requestPostAndReturn(UserRequestUtils.URL_USER_RESET_PASSWORD, request);
             //检查数据库
             UserExample userExample = new UserExample();
-            userExample.createCriteria().andIdEqualTo("admin").andPasswordEqualTo(CodingUtil.md5("metersphere"));
+            userExample.createCriteria().andIdEqualTo("admin").andPasswordEqualTo(CodingUtils.md5("metersphere"));
             Assertions.assertEquals(1, userMapper.countByExample(userExample));
             this.checkLog("admin", OperationLogType.UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD);
         }
@@ -691,7 +691,7 @@ public class UserControllerTests extends BaseTest {
             List<User> userList = userToolService.selectByIdList(Collections.singletonList(userId));
             for (User checkUser : userList) {
                 UserExample userExample = new UserExample();
-                userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtil.md5(checkUser.getEmail()));
+                userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtils.md5(checkUser.getEmail()));
                 Assertions.assertEquals(1, userMapper.countByExample(userExample));
                 this.checkLog(checkUser.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD);
             }
@@ -715,7 +715,7 @@ public class UserControllerTests extends BaseTest {
             List<User> userList = userMapper.selectByExample(example);
             for (User checkUser : userList) {
                 UserExample userExample = new UserExample();
-                userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtil.md5(checkUser.getEmail()));
+                userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtils.md5(checkUser.getEmail()));
                 Assertions.assertEquals(1, userMapper.countByExample(userExample));
                 this.checkLog(checkUser.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD);
             }
@@ -1174,7 +1174,7 @@ public class UserControllerTests extends BaseTest {
         UserRegisterRequest request = new UserRegisterRequest();
         request.setInviteId(inviteId);
         request.setName("建国通过邮箱邀请");
-        request.setPassword(RsaUtil.publicEncrypt("Cao..12138", RsaUtil.getRsaKey().getPublicKey()));
+        request.setPassword(RsaUtils.publicEncrypt("Cao..12138", RsaUtils.getRsaKey().getPublicKey()));
         MvcResult mvcResult = userRequestUtils.responsePost(UserRequestUtils.URL_INVITE_REGISTER, request);
         String resultHolderStr = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(resultHolderStr, ResultHolder.class);

@@ -4,7 +4,7 @@ import io.metersphere.project.dto.FileInformationDTO;
 import io.metersphere.project.dto.FileTableResult;
 import io.metersphere.project.request.filemanagement.FileMetadataTableRequest;
 import io.metersphere.sdk.dto.BaseTreeNode;
-import io.metersphere.sdk.util.FilePreviewUtil;
+import io.metersphere.sdk.util.FilePreviewUtils;
 import io.metersphere.sdk.util.JSON;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Assertions;
@@ -103,7 +103,7 @@ public class FileManagementBaseUtils {
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getTableData().getList())).size() <= request.getPageSize());
         List<FileInformationDTO> fileInformationDTOList = JSON.parseArray(JSON.toJSONString(result.getTableData().getList()), FileInformationDTO.class);
         for (FileInformationDTO fileInformationDTO : fileInformationDTOList) {
-            if (FilePreviewUtil.isImage(fileInformationDTO.getFileType())) {
+            if (FilePreviewUtils.isImage(fileInformationDTO.getFileType())) {
                 //检查是否有预览文件
                 String previewPath = fileInformationDTO.getPreviewSrc();
                 File file = new File(previewPath);

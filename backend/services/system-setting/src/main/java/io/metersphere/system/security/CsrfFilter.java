@@ -3,7 +3,7 @@ package io.metersphere.system.security;
 
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.dto.SessionUser;
-import io.metersphere.sdk.util.CodingUtil;
+import io.metersphere.sdk.util.CodingUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.servlet.ServletRequest;
@@ -73,7 +73,7 @@ public class CsrfFilter extends AnonymousFilter {
         if (StringUtils.isBlank(csrfToken)) {
             throw new RuntimeException("csrf token is empty");
         }
-        csrfToken = CodingUtil.aesDecrypt(csrfToken, SessionUser.secret, SessionUser.iv);
+        csrfToken = CodingUtils.aesDecrypt(csrfToken, SessionUser.secret, SessionUser.iv);
 
         String[] signatureArray = StringUtils.split(StringUtils.trimToNull(csrfToken), "|");
         if (signatureArray.length != 4) {

@@ -59,8 +59,8 @@ public class FileMetadataService {
         List<FileMetadata> fileMetadataList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getKeyword(), request.getModuleIds(), request.getFileTypes(), false);
         fileMetadataList.forEach(fileMetadata -> {
             FileInformationDTO fileInformationDTO = new FileInformationDTO(fileMetadata);
-            if (FilePreviewUtil.isImage(fileMetadata.getType())) {
-                fileInformationDTO.setPreviewSrc(FilePreviewUtil.catchFileIfNotExists(fileMetadata.getPath() + "." + fileMetadata.getType(), this.getFile(fileMetadata)));
+            if (FilePreviewUtils.isImage(fileMetadata.getType())) {
+                fileInformationDTO.setPreviewSrc(FilePreviewUtils.catchFileIfNotExists(fileMetadata.getPath() + "." + fileMetadata.getType(), this.getFile(fileMetadata)));
             }
             returnList.add(fileInformationDTO);
         });

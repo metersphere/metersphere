@@ -12,7 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public class RsaUtil {
+public class RsaUtils {
 
     public static final String CHARSET = StandardCharsets.UTF_8.name();
     public static final String RSA_ALGORITHM = "RSA";
@@ -31,7 +31,7 @@ public class RsaUtil {
 
     public static void setRsaKey(RsaKey rsaKey) throws NoSuchAlgorithmException {
         // 放到缓存里
-        RsaUtil.rsaKey = rsaKey;
+        RsaUtils.rsaKey = rsaKey;
     }
 
     public static RsaKey createKeys() throws NoSuchAlgorithmException {

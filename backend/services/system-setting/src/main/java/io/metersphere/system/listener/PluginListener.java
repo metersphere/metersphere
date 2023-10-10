@@ -1,12 +1,11 @@
 package io.metersphere.system.listener;
 
 
-import io.metersphere.sdk.constants.KafkaPluginTopicType;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
-import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.dto.PluginNotifiedDTO;
+import io.metersphere.system.service.PluginLoadService;
 import jakarta.annotation.Resource;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -29,10 +28,10 @@ public class PluginListener {
         String pluginId = pluginNotifiedDTO.getPluginId();
         String fileName = pluginNotifiedDTO.getFileName();
         switch (operate) {
-            case KafkaPluginTopicType.ADD:
+            case KafkaTopicConstants.TYPE.ADD:
                 pluginLoadService.handlePluginAddNotified(pluginId, fileName);
                 break;
-            case KafkaPluginTopicType.DELETE:
+            case KafkaTopicConstants.TYPE.DELETE:
                 pluginLoadService.handlePluginDeleteNotified(pluginId, fileName);
                 break;
             default:
