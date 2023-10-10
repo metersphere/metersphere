@@ -108,7 +108,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
         Assertions.assertEquals(template.getCreateUser(), ADMIN.getValue());
         Assertions.assertEquals(template.getInternal(), false);
         Assertions.assertEquals(template.getScopeType(), TemplateScopeType.PROJECT.name());
-        asserTemplateCustomFields(request, template);
+        assertTemplateCustomFields(request, template);
 
         // @@重名校验异常
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), TEMPLATE_EXIST);
@@ -136,7 +136,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
         requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_ADD, DEFAULT_ADD, request);
     }
 
-    private void asserTemplateCustomFields(TemplateUpdateRequest request, Template template) {
+    private void assertTemplateCustomFields(TemplateUpdateRequest request, Template template) {
         List<TemplateCustomField> templateCustomFields = baseTemplateCustomFieldService.getByTemplateId(template.getId());
         Assertions.assertEquals(templateCustomFields.size(), request.getCustomFields().size());
         for (int i = 0; i < templateCustomFields.size(); i++) {
@@ -190,13 +190,13 @@ public class ProjectTemplateControllerTests extends BaseTest {
         Assertions.assertEquals(template.getScopeType(), TemplateScopeType.PROJECT.name());
         Assertions.assertEquals(template.getScene(), scene);
         Assertions.assertEquals(template.getEnableThirdPart(), request.getEnableThirdPart());
-        asserTemplateCustomFields(request, template);
+        assertTemplateCustomFields(request, template);
 
         // 带字段的更新
         TemplateCustomFieldRequest templateCustomFieldRequest = getTemplateCustomFieldRequest(scene);
         request.setCustomFields(List.of(templateCustomFieldRequest));
         this.requestPostWithOk(DEFAULT_UPDATE, request);
-        asserTemplateCustomFields(request, template);
+        assertTemplateCustomFields(request, template);
 
         // 不更新字段
         request.setCustomFields(null);

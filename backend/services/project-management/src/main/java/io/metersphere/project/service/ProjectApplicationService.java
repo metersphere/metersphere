@@ -420,7 +420,7 @@ public class ProjectApplicationService {
      */
     public List<ModuleDTO> getModuleSetting(String projectId) {
         String moduleSetting = extProjectMapper.getModuleSetting(projectId);
-        Map<String, Boolean> moudleMap = new HashMap<>();
+        Map<String, Boolean> moduleMap = new HashMap<>();
         List<ModuleDTO> moduleDTOList = new ArrayList<>();
         if (StringUtils.isNotEmpty(moduleSetting)) {
             ProjectApplicationExample example = new ProjectApplicationExample();
@@ -429,12 +429,12 @@ public class ProjectApplicationService {
                 example.createCriteria().andTypeEqualTo(String.valueOf(module)).andProjectIdEqualTo(projectId);
                 List<ProjectApplication> applications = projectApplicationMapper.selectByExample(example);
                 if (CollectionUtils.isNotEmpty(applications)) {
-                    moudleMap.put(String.valueOf(module), Boolean.valueOf(applications.get(0).getTypeValue()));
+                    moduleMap.put(String.valueOf(module), Boolean.valueOf(applications.get(0).getTypeValue()));
                 } else {
-                    moudleMap.put(String.valueOf(module), Boolean.TRUE);
+                    moduleMap.put(String.valueOf(module), Boolean.TRUE);
                 }
             });
-            moduleDTOList = moudleMap.entrySet().stream().map(entry -> new ModuleDTO(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+            moduleDTOList = moduleMap.entrySet().stream().map(entry -> new ModuleDTO(entry.getKey(), entry.getValue())).collect(Collectors.toList());
         }
         return moduleDTOList;
     }

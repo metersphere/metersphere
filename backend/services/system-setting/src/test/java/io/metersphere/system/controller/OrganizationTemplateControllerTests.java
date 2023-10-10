@@ -111,8 +111,8 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         Assertions.assertEquals(template.getCreateUser(), ADMIN.getValue());
         Assertions.assertEquals(template.getInternal(), false);
         Assertions.assertEquals(template.getScopeType(), TemplateScopeType.ORGANIZATION.name());
-        asserTemplateCustomFields(request, template);
-        asserRefTemplate(template);
+        assertTemplateCustomFields(request, template);
+        assertRefTemplate(template);
 
         // @@重名校验异常
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), TEMPLATE_EXIST);
@@ -146,7 +146,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
      *
      * @param template
      */
-    private void asserRefTemplate(Template template) {
+    private void assertRefTemplate(Template template) {
         List<Template> refTemplates = organizationTemplateService.getByRefId(template.getId());
         refTemplates.forEach(refTemplate -> {
             Assertions.assertEquals(refTemplate.getEnableThirdPart(), template.getEnableThirdPart());
@@ -180,7 +180,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         }
     }
 
-    private void asserTemplateCustomFields(TemplateUpdateRequest request, Template template) {
+    private void assertTemplateCustomFields(TemplateUpdateRequest request, Template template) {
         List<TemplateCustomField> templateCustomFields = baseTemplateCustomFieldService.getByTemplateId(template.getId());
         Assertions.assertEquals(templateCustomFields.size(), request.getCustomFields().size());
         for (int i = 0; i < templateCustomFields.size(); i++) {
@@ -234,14 +234,14 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         Assertions.assertEquals(template.getScopeType(), TemplateScopeType.ORGANIZATION.name());
         Assertions.assertEquals(template.getScene(), scene);
         Assertions.assertEquals(template.getEnableThirdPart(), request.getEnableThirdPart());
-        asserTemplateCustomFields(request, template);
-        asserRefTemplate(template);
+        assertTemplateCustomFields(request, template);
+        assertRefTemplate(template);
 
         // 带字段的更新
         TemplateCustomFieldRequest templateCustomFieldRequest = getTemplateCustomFieldRequest(scene);
         request.setCustomFields(List.of(templateCustomFieldRequest));
         this.requestPostWithOk(DEFAULT_UPDATE, request);
-        asserTemplateCustomFields(request, template);
+        assertTemplateCustomFields(request, template);
 
         // 不更新字段
         request.setCustomFields(null);
@@ -359,7 +359,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         this.requestGetWithOk(SET_DEFAULT, addTemplate.getId());
         Template template = templateMapper.selectByPrimaryKey(addTemplate.getId());
         assertSetDefaultTemplate(template);
-        asserRefSetDefaultTemplate(template);
+        assertRefSetDefaultTemplate(template);
 
         // @校验是否开启组织模板
         changeOrgTemplateEnable(false);
@@ -386,7 +386,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
      *
      * @param template
      */
-    private void asserRefSetDefaultTemplate(Template template) {
+    private void assertRefSetDefaultTemplate(Template template) {
         List<Template> refTemplates = organizationTemplateService.getByRefId(template.getId());
         refTemplates.forEach(this::assertSetDefaultTemplate);
     }

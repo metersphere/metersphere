@@ -204,7 +204,7 @@ public class RsaUtils {
         }
     }
 
-    private static byte[] rsaSplitCodec(Cipher cipher, int opmode, byte[] datas, int keySize) {
+    private static byte[] rsaSplitCodec(Cipher cipher, int opmode, byte[] data, int keySize) {
         int maxBlock;
         if (opmode == Cipher.DECRYPT_MODE) {
             maxBlock = keySize / 8;
@@ -217,11 +217,11 @@ public class RsaUtils {
         try (
                 ByteArrayOutputStream out = new ByteArrayOutputStream()
         ) {
-            while (datas.length > offSet) {
-                if (datas.length - offSet > maxBlock) {
-                    buff = cipher.doFinal(datas, offSet, maxBlock);
+            while (data.length > offSet) {
+                if (data.length - offSet > maxBlock) {
+                    buff = cipher.doFinal(data, offSet, maxBlock);
                 } else {
-                    buff = cipher.doFinal(datas, offSet, datas.length - offSet);
+                    buff = cipher.doFinal(data, offSet, data.length - offSet);
                 }
                 out.write(buff, 0, buff.length);
                 i++;
