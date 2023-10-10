@@ -1,67 +1,114 @@
 <template>
   <div class="text-container" v-if="responseResult">
     <el-tabs v-model="activeName" v-show="isActive" class="response-result">
-      <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-        <ms-sql-result-table v-if="isSqlType && activeName === 'body'" :body="responseResult.body"/>
+      <el-tab-pane
+        :label="$t('api_test.definition.request.response_body')"
+        name="body"
+        class="pane"
+      >
+        <ms-sql-result-table
+          v-if="isSqlType && activeName === 'body'"
+          :body="responseResult.body"
+        />
         <ms-code-edit
-            v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'"
-            :mode="mode"
-            :read-only="true"
-            :modes="modes"
-            :data.sync="responseResult.body"
-            height="250px"
-            ref="codeEdit"/>
+          v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'"
+          :mode="mode"
+          :read-only="true"
+          :modes="modes"
+          :data.sync="responseResult.body"
+          height="250px"
+          ref="codeEdit"
+        />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
+      <el-tab-pane
+        :label="$t('api_test.definition.request.response_header')"
+        name="headers"
+        class="pane"
+      >
         <ms-code-edit
-            :mode="'text'"
-            :read-only="true"
-            :data.sync="responseResult.headers"
-            ref="codeEdit"
-            v-if="activeName === 'headers'"/>
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="responseResult.headers"
+          ref="codeEdit"
+          v-if="activeName === 'headers'"
+        />
       </el-tab-pane>
 
-      <el-tab-pane v-if="responseResult.console" :label="$t('api_test.definition.request.console')" name="console"
-                   class="pane">
+      <el-tab-pane
+        v-if="responseResult.console"
+        :label="$t('api_test.definition.request.console')"
+        name="console"
+        class="pane"
+      >
         <ms-code-edit
-            :mode="'text'"
-            :read-only="true"
-            :data.sync="responseResult.console"
-            ref="codeEdit"
-            v-if="activeName === 'console'"/>
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="responseResult.console"
+          ref="codeEdit"
+          v-if="activeName === 'console'"
+        />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
-        <ms-assertion-results :assertions="responseResult.assertions" v-if="activeName === 'assertions'"/>
+      <el-tab-pane
+        :label="$t('api_report.assertions')"
+        name="assertions"
+        class="pane assertions"
+      >
+        <ms-assertion-results
+          :assertions="responseResult.assertions"
+          v-if="activeName === 'assertions'"
+        />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
+      <el-tab-pane
+        :label="$t('api_test.request.extract.label')"
+        name="label"
+        class="pane"
+      >
         <ms-code-edit
-            :mode="'text'"
-            :read-only="true"
-            :data.sync="responseResult.vars"
-            v-if="activeName === 'label'"
-            ref="codeEdit"/>
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="responseResult.vars"
+          v-if="activeName === 'label'"
+          ref="codeEdit"
+        />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
+      <el-tab-pane
+        :label="$t('api_report.request_body')"
+        name="request_body"
+        class="pane"
+      >
         <ms-code-edit
-            :mode="'text'"
-            :read-only="true"
-            :data.sync="reqMessages"
-            v-if="activeName === 'request_body'"
-            ref="codeEdit"/>
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="reqMessages"
+          v-if="activeName === 'request_body'"
+          ref="codeEdit"
+        />
       </el-tab-pane>
 
-      <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
+      <el-tab-pane
+        v-if="activeName == 'body'"
+        :disabled="true"
+        name="mode"
+        class="pane cookie"
+      >
         <template v-slot:label>
           <ms-dropdown
-              v-if="currentProtocol === 'SQL'"
-              :commands="sqlModes"
-              :default-command="mode"
-              @command="sqlModeChange"/>
-          <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown"/>
+            v-if="currentProtocol === 'SQL'"
+            :commands="sqlModes"
+            :default-command="mode"
+            @command="sqlModeChange"
+          />
+          <ms-dropdown
+            v-else
+            :commands="modes"
+            :default-command="mode"
+            @command="modeChange"
+            ref="modeDropdown"
+          />
         </template>
       </el-tab-pane>
     </el-tabs>
@@ -69,13 +116,13 @@
 </template>
 
 <script>
-import MsAssertionResults from './AssertionResults';
-import MsCodeEdit from './MsCodeEdit';
-import MsDropdown from './MsDropdown';
-import MsSqlResultTable from './SqlResultTable';
+import MsAssertionResults from "./AssertionResults";
+import MsCodeEdit from "./MsCodeEdit";
+import MsDropdown from "./MsDropdown";
+import MsSqlResultTable from "./SqlResultTable";
 
 export default {
-  name: 'MsResponseResult',
+  name: "MsResponseResult",
 
   components: {
     MsDropdown,
@@ -92,18 +139,18 @@ export default {
   data() {
     return {
       isActive: true,
-      activeName: 'body',
-      modes: ['text', 'json', 'xml', 'html'],
-      sqlModes: ['text', 'table'],
+      activeName: "body",
+      modes: ["text", "json", "xml", "html"],
+      sqlModes: ["text", "table"],
       bodyFormat: {
-        TEXT: 'text',
-        JSON: 'json',
-        XML: 'xml',
-        HTML: 'html',
+        TEXT: "text",
+        JSON: "json",
+        XML: "xml",
+        HTML: "html",
       },
-      mode: 'text',
+      mode: "text",
       isMsCodeEditShow: true,
-      reqMessages: '',
+      reqMessages: "",
     };
   },
   watch: {
@@ -115,12 +162,7 @@ export default {
       handler() {
         setTimeout(() => {
           // 展开动画大概是 300ms 左右，使视觉效果更流畅
-          this.$refs.codeEdit?.$el.querySelector('.ace_text-input')?.focus();
-          this.$refs.codeEdit?.$parent?.$parent?.$parent?.$parent?.$parent?.$el.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'center',
-          });
+          this.$refs.codeEdit?.$el.querySelector(".ace_text-input")?.focus();
         }, 300);
       },
       immediate: true,
@@ -135,10 +177,12 @@ export default {
     },
     setBodyType() {
       if (
-          this.response &&
-          this.response.responseResult &&
-          this.response.responseResult.headers &&
-          this.response.responseResult.headers.indexOf('Content-Type: application/json') > 0
+        this.response &&
+        this.response.responseResult &&
+        this.response.responseResult.headers &&
+        this.response.responseResult.headers.indexOf(
+          "Content-Type: application/json"
+        ) > 0
       ) {
         this.mode = this.bodyFormat.JSON;
         this.$nextTick(() => {
@@ -158,35 +202,43 @@ export default {
     setReqMessage() {
       if (this.response) {
         if (!this.response.url) {
-          this.response.url = '';
+          this.response.url = "";
         }
         if (!this.response.headers) {
-          this.response.headers = '';
+          this.response.headers = "";
         }
         if (!this.response.cookies) {
-          this.response.cookies = '';
+          this.response.cookies = "";
         }
         if (!this.response.body) {
-          this.response.body = '';
+          this.response.body = "";
         }
         if (!this.response.responseResult) {
           this.response.responseResult = {};
         }
         if (!this.response.responseResult.vars) {
-          this.response.responseResult.vars = '';
+          this.response.responseResult.vars = "";
         }
-        this.reqMessages = '';
+        this.reqMessages = "";
         if (this.response.url) {
-          this.reqMessages += this.$t('api_test.request.address') + ':\n' + this.response.url + '\n';
+          this.reqMessages +=
+            this.$t("api_test.request.address") +
+            ":\n" +
+            this.response.url +
+            "\n";
         }
         if (this.response.headers) {
-          this.reqMessages += this.$t('api_test.scenario.headers') + ':\n' + this.response.headers + '\n';
+          this.reqMessages +=
+            this.$t("api_test.scenario.headers") +
+            ":\n" +
+            this.response.headers +
+            "\n";
         }
 
         if (this.response.cookies) {
-          this.reqMessages += 'Cookie:' + this.response.cookies + '\n';
+          this.reqMessages += "Cookie:" + this.response.cookies + "\n";
         }
-        this.reqMessages += 'Body:' + '\n' + this.response.body;
+        this.reqMessages += "Body:" + "\n" + this.response.body;
         if (this.mode === this.bodyFormat.JSON) {
           this.msCodeReload();
         }
@@ -200,15 +252,17 @@ export default {
   computed: {
     isSqlType() {
       return (
-          this.currentProtocol === 'SQL' &&
-          this.response &&
-          this.response.responseResult &&
-          this.response.responseResult.responseCode === '200' &&
-          this.mode === 'table'
+        this.currentProtocol === "SQL" &&
+        this.response &&
+        this.response.responseResult &&
+        this.response.responseResult.responseCode === "200" &&
+        this.mode === "table"
       );
     },
     responseResult() {
-      return this.response && this.response.responseResult ? this.response.responseResult : {};
+      return this.response && this.response.responseResult
+        ? this.response.responseResult
+        : {};
     },
   },
 };

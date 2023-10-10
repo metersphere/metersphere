@@ -2,8 +2,9 @@
   <div class="text-container" v-if="responseResult">
     <el-tabs v-model="activeName" v-show="isActive">
       <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-        <ms-sql-result-table v-if="isSqlType && activeName === 'body' && !responseResult.contentType"
-                             :body="responseResult.body"/>
+        <ms-sql-result-table
+          v-if="isSqlType && activeName === 'body' && !responseResult.contentType"
+          :body="responseResult.body" />
         <ms-code-edit
           v-if="!isSqlType && isMsCodeEditShow && activeName === 'body' && !isPicture"
           :mode="mode"
@@ -11,13 +12,12 @@
           :modes="modes"
           :data.sync="responseResult.body"
           height="250px"
-          ref="codeEdit"/>
+          ref="codeEdit" />
         <el-row v-if="isPicture && activeName === 'body'">
           <el-col :span="24">
-            <el-image :src="srcUrl" fit="contain" style="width: 100%;height: 100%;"></el-image>
+            <el-image :src="srcUrl" fit="contain" style="width: 100%; height: 100%"></el-image>
           </el-col>
         </el-row>
-
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
@@ -26,7 +26,7 @@
           :read-only="true"
           :data.sync="responseResult.headers"
           ref="codeEdit"
-          v-if="activeName === 'headers'"/>
+          v-if="activeName === 'headers'" />
       </el-tab-pane>
 
       <el-tab-pane v-if="isTestPlan" :label="$t('api_test.definition.request.console')" name="console" class="pane">
@@ -36,7 +36,7 @@
           :data.sync="responseResult.console"
           ref="codeEdit"
           v-if="activeName === 'console'"
-          height="calc(100vh - 300px)"/>
+          height="calc(100vh - 300px)" />
       </el-tab-pane>
 
       <el-tab-pane v-if="!isTestPlan" :label="$t('api_test.definition.request.console')" name="console" class="pane">
@@ -45,11 +45,11 @@
           :read-only="true"
           :data.sync="responseResult.console"
           ref="codeEdit"
-          v-if="activeName === 'console'"/>
+          v-if="activeName === 'console'" />
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
-        <ms-assertion-results :assertions="responseResult.assertions" v-if="activeName === 'assertions'"/>
+        <ms-assertion-results :assertions="responseResult.assertions" v-if="activeName === 'assertions'" />
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
@@ -58,7 +58,7 @@
           :read-only="true"
           :data.sync="responseResult.vars"
           v-if="activeName === 'label'"
-          ref="codeEdit"/>
+          ref="codeEdit" />
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
@@ -67,7 +67,7 @@
           :read-only="true"
           :data.sync="reqMessages"
           v-if="activeName === 'request_body'"
-          ref="codeEdit"/>
+          ref="codeEdit" />
       </el-tab-pane>
 
       <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
@@ -76,8 +76,8 @@
             v-if="currentProtocol === 'SQL'"
             :commands="sqlModes"
             :default-command="mode"
-            @command="sqlModeChange"/>
-          <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown"/>
+            @command="sqlModeChange" />
+          <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown" />
         </template>
       </el-tab-pane>
     </el-tabs>
@@ -88,9 +88,9 @@
 import MsAssertionResults from './AssertionResults';
 import MsCodeEdit from '../MsCodeEdit';
 import MsDropdown from '../../../../business/commons/MsDropdown';
-import {BODY_FORMAT} from '../../model/ApiTestModel';
+import { BODY_FORMAT } from '../../model/ApiTestModel';
 import MsSqlResultTable from './SqlResultTable';
-import {downloadByURL} from "fit2cloud-ui/src/tools/utils";
+import { downloadByURL } from 'fit2cloud-ui/src/tools/utils';
 
 export default {
   name: 'MsResponseResult',
@@ -122,7 +122,16 @@ export default {
       mode: BODY_FORMAT.TEXT,
       isMsCodeEditShow: true,
       reqMessages: '',
-      contentType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml', 'image/apng', 'image/avif'],
+      contentType: [
+        'image/png',
+        'image/jpeg',
+        'image/gif',
+        'image/bmp',
+        'image/webp',
+        'image/svg+xml',
+        'image/apng',
+        'image/avif',
+      ],
       srcUrl: '',
     };
   },
@@ -137,11 +146,6 @@ export default {
         setTimeout(() => {
           // 展开动画大概是 300ms 左右，使视觉效果更流畅
           this.$refs.codeEdit?.$el.querySelector('.ace_text-input')?.focus();
-          this.$refs.codeEdit?.$parent?.$parent?.$parent?.$parent?.$parent?.$el.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'center',
-          });
         }, 300);
       },
       immediate: true,
@@ -156,7 +160,7 @@ export default {
     },
     showPicture() {
       if (this.responseResult.contentType && this.contentType.includes(this.responseResult.contentType)) {
-        this.modes.push('picture')
+        this.modes.push('picture');
         this.srcUrl = 'data:' + this.responseResult.contentType + ';base64,' + this.responseResult.imageUrl;
       }
     },
@@ -239,7 +243,11 @@ export default {
       return this.response && this.response.responseResult ? this.response.responseResult : {};
     },
     isPicture() {
-      return this.responseResult.contentType && this.contentType.includes(this.responseResult.contentType) && this.mode === 'picture';
+      return (
+        this.responseResult.contentType &&
+        this.contentType.includes(this.responseResult.contentType) &&
+        this.mode === 'picture'
+      );
     },
   },
 };
