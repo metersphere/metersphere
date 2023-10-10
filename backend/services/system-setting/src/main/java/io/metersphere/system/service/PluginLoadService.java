@@ -156,7 +156,7 @@ public class PluginLoadService {
             try {
                 loadPlugin(fileName);
                 msPluginManager.startPlugin(plugin.getId());
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LogUtils.error("初始化插件异常" + plugin.getFileName(), e);
             }
         });
