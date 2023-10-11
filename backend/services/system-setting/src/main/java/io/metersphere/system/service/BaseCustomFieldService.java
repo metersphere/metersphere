@@ -38,7 +38,7 @@ public class BaseCustomFieldService {
     @Resource
     protected CustomFieldMapper customFieldMapper;
     @Resource
-    protected BaseUserService baseUserService;
+    protected UserLoginService userLoginService;
     @Resource
     protected BaseCustomFieldOptionService baseCustomFieldOptionService;
     @Resource
@@ -48,7 +48,7 @@ public class BaseCustomFieldService {
         checkScene(scene);
         List<CustomField> customFields = getByScopeIdAndScene(scopeId, scene);
         List<String> userIds = customFields.stream().map(CustomField::getCreateUser).toList();
-        Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
+        Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
         customFields.forEach(item -> {
             item.setCreateUser(userNameMap.get(item.getCreateUser()));
             if (item.getInternal()) {

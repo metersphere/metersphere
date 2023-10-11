@@ -8,7 +8,7 @@ import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.BaseUserRoleRelationMapper;
-import io.metersphere.system.service.BaseUserService;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationQueryRequestDefinition;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationUpdateRequestDefinition;
@@ -57,7 +57,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
     @Resource
     private UserMapper userMapper;
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
     @Resource
     private BaseUserRoleRelationMapper baseUserRoleRelationMapper;
     @Resource
@@ -169,7 +169,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
 
     private void assertSelectOptionResult(MvcResult mvcResult, String keyword) throws Exception {
         List<UserExcludeOptionDTO> options = getResultDataArray(mvcResult, UserExcludeOptionDTO.class);
-        List<UserExcludeOptionDTO> excludeSelectOption = baseUserService.getExcludeSelectOptionWithLimit(keyword);
+        List<UserExcludeOptionDTO> excludeSelectOption = userLoginService.getExcludeSelectOptionWithLimit(keyword);
         Set<String> excludeUserIds = baseUserRoleRelationMapper.getUserIdByRoleId(ADMIN.getValue())
                 .stream()
                 .collect(Collectors.toSet());

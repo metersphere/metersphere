@@ -10,7 +10,7 @@ import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.service.BaseUserService;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.sdk.util.RsaKey;
 import io.metersphere.sdk.util.RsaUtils;
 import io.metersphere.system.utils.SessionUtils;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
 
 
     @GetMapping(value = "/is-login")
@@ -41,12 +41,12 @@ public class LoginController {
     public ResultHolder isLogin(HttpServletResponse response) throws Exception {
         SessionUser user = SessionUtils.getUser();
         if (user != null) {
-            UserDTO userDTO = baseUserService.getUserDTO(user.getId());
+            UserDTO userDTO = userLoginService.getUserDTO(user.getId());
             if (StringUtils.isBlank(userDTO.getLanguage())) {
                 userDTO.setLanguage(LocaleContextHolder.getLocale().toString());
             }
 
-            baseUserService.autoSwitch(userDTO);
+            userLoginService.autoSwitch(userDTO);
             SessionUser sessionUser = SessionUser.fromUser(userDTO, SessionUtils.getSessionId());
             SessionUtils.putUser(sessionUser);
             // 用户只有工作空间权限
@@ -76,9 +76,9 @@ public class LoginController {
             }
         }
         SecurityUtils.getSubject().getSession().setAttribute("authenticate", UserSource.LOCAL.name());
-        ResultHolder result = baseUserService.login(request);
+        ResultHolder result = userLoginService.login(request);
         // 检查管理员是否需要改密码
-        boolean changePassword = baseUserService.checkWhetherChangePasswordOrNot(request);
+        boolean changePassword = userLoginService.checkWhetherChangePasswordOrNot(request);
         result.setMessage(BooleanUtils.toStringTrueFalse(changePassword));
         return result;
     }
@@ -89,7 +89,7 @@ public class LoginController {
         if (SessionUtils.getUser() == null) {
             return ResultHolder.success("logout success");
         }
-        baseUserService.saveLog(SessionUtils.getUserId(), HttpMethodConstants.GET.name(), "/signout", "登出成功", OperationLogType.LOGOUT.name());
+        userLoginService.saveLog(SessionUtils.getUserId(), HttpMethodConstants.GET.name(), "/signout", "登出成功", OperationLogType.LOGOUT.name());
         SecurityUtils.getSubject().logout();
         return ResultHolder.success("logout success");
     }

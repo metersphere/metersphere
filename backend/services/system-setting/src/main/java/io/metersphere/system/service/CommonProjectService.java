@@ -10,8 +10,9 @@ import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.UserRoleType;
+import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.UserExtend;
-import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -31,7 +32,6 @@ import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,7 +63,7 @@ public class CommonProjectService {
     @Resource
     private UserRolePermissionMapper userRolePermissionMapper;
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
     private final ProjectServiceInvoker serviceInvoker;
     @Resource
     private OrganizationMapper organizationMapper;
@@ -80,20 +80,15 @@ public class CommonProjectService {
     }
 
     public ProjectDTO get(String id) {
-        Project project = projectMapper.selectByPrimaryKey(id);
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andIdEqualTo(id).andEnableEqualTo(true);
+        List<Project> project = projectMapper.selectByExample(example);
         ProjectDTO projectDTO = new ProjectDTO();
-        if (ObjectUtils.isNotEmpty(project)) {
-            BeanUtils.copyBean(projectDTO, project);
-            projectDTO.setOrganizationName(organizationMapper.selectByPrimaryKey(project.getOrganizationId()).getName());
-            if (StringUtils.isNotEmpty(project.getModuleSetting())) {
-                projectDTO.setModuleIds(JSON.parseArray(project.getModuleSetting(), String.class));
-            }
-            List<ProjectResourcePoolDTO> projectResourcePoolDTOList = extSystemProjectMapper.getProjectResourcePoolDTOList(List.of(project.getId()));
-            if (CollectionUtils.isNotEmpty(projectResourcePoolDTOList)) {
-                projectDTO.setResourcePoolList(projectResourcePoolDTOList);
-            } else {
-                projectDTO.setResourcePoolList(new ArrayList<>());
-            }
+        if (CollectionUtils.isNotEmpty(project)) {
+            BeanUtils.copyBean(projectDTO, project.get(0));
+            projectDTO.setOrganizationName(organizationMapper.selectByPrimaryKey(projectDTO.getOrganizationId()).getName());
+            List<ProjectDTO> projectDTOS = buildUserInfo(List.of(projectDTO));
+            projectDTO = projectDTOS.get(0);
         } else {
             return null;
         }
@@ -221,7 +216,7 @@ public class CommonProjectService {
         userIds.addAll(projectList.stream().map(ProjectDTO::getCreateUser).toList());
         userIds.addAll(projectList.stream().map(ProjectDTO::getUpdateUser).toList());
         userIds.addAll(projectList.stream().map(ProjectDTO::getDeleteUser).toList());
-        Map<String, String> userMap = baseUserService.getUserNameMap(userIds.stream().filter(StringUtils::isNotBlank).distinct().toList());
+        Map<String, String> userMap = userLoginService.getUserNameMap(userIds.stream().filter(StringUtils::isNotBlank).distinct().toList());
         // 获取项目id
         List<String> projectIds = projectList.stream().map(ProjectDTO::getId).toList();
         List<UserExtend> users = extSystemProjectMapper.getProjectAdminList(projectIds);
