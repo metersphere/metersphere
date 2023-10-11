@@ -16,7 +16,7 @@ import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
-import io.metersphere.system.service.BaseUserService;
+import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -53,7 +53,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
     @Resource
     private BaseCustomFieldService baseCustomFieldService;
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
     @Resource
     private OrganizationParameterMapper organizationParameterMapper;
     private static CustomField addCustomField;
@@ -206,7 +206,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         List<CustomField> resultList = getResultDataArray(mvcResult, CustomField.class);
         List<CustomField> customFields = baseCustomFieldService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, scene);
         List<String> userIds = customFields.stream().map(CustomField::getCreateUser).toList();
-        Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
+        Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
         for (int i = 0; i < resultList.size(); i++) {
             CustomField resultItem = resultList.get(i);
             CustomField customField = customFields.get(i);

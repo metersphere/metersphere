@@ -68,7 +68,7 @@ public class OrganizationService {
     @Resource
     private PluginOrganizationService pluginOrganizationService;
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
     @Resource
     private BaseTemplateService baseTemplateService;
     @Resource
@@ -825,7 +825,7 @@ public class OrganizationService {
         userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getCreateUser).toList());
         userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getUpdateUser).toList());
         userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getDeleteUser).toList());
-        Map<String, String> userMap = baseUserService.getUserNameMap(userIds.stream().distinct().toList());
+        Map<String, String> userMap = userLoginService.getUserNameMap(userIds.stream().distinct().toList());
         List<String> ids = organizationDTOS.stream().map(OrganizationDTO::getId).toList();
         List<OrganizationCountDTO> orgCountList = extOrganizationMapper.getCountByIds(ids);
         Map<String, OrganizationCountDTO> orgCountMap = orgCountList.stream().collect(Collectors.toMap(OrganizationCountDTO::getId, count -> count));

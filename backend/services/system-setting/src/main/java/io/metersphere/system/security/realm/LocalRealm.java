@@ -7,7 +7,7 @@ import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.service.BaseUserService;
+import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -33,7 +33,7 @@ public class LocalRealm extends AuthorizingRealm {
 
     private Logger logger = LoggerFactory.getLogger(LocalRealm.class);
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
 
     @Override
     public String getName() {
@@ -78,10 +78,10 @@ public class LocalRealm extends AuthorizingRealm {
     }
 
     private UserDTO getUserWithOutAuthenticate(String userId) {
-        UserDTO user = baseUserService.getUserDTO(userId);
+        UserDTO user = userLoginService.getUserDTO(userId);
         String msg;
         if (user == null) {
-            user = baseUserService.getUserDTOByEmail(userId);
+            user = userLoginService.getUserDTOByEmail(userId);
             if (user == null) {
                 msg = "The user does not exist: " + userId;
                 logger.warn(msg);
@@ -92,10 +92,10 @@ public class LocalRealm extends AuthorizingRealm {
     }
 
     private AuthenticationInfo loginLocalMode(String userId, String password) {
-        UserDTO user = baseUserService.getUserDTO(userId);
+        UserDTO user = userLoginService.getUserDTO(userId);
         String msg;
         if (user == null) {
-            user = baseUserService.getUserDTOByEmail(userId, UserSource.LOCAL.name());
+            user = userLoginService.getUserDTOByEmail(userId, UserSource.LOCAL.name());
             if (user == null) {
                 msg = "The user does not exist: " + userId;
                 logger.warn(msg);
@@ -104,7 +104,7 @@ public class LocalRealm extends AuthorizingRealm {
             userId = user.getId();
         }
         // 密码验证
-        if (!baseUserService.checkUserPassword(userId, password)) {
+        if (!userLoginService.checkUserPassword(userId, password)) {
             throw new IncorrectCredentialsException(Translator.get("password_is_incorrect"));
         }
         SessionUser sessionUser = SessionUser.fromUser(user, SessionUtils.getSessionId());
