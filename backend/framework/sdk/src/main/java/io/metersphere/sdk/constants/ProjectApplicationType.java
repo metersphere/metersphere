@@ -62,13 +62,13 @@ public class ProjectApplicationType {
 
 
     //缺陷管理
-    public enum ISSUE{
-        ISSUE_SYNC
+    public enum BUG{
+        BUG_SYNC
     }
 
 
     //缺陷管理-同步配置项
-    public enum ISSUE_SYNC_CONFIG{
+    public enum BUG_SYNC_CONFIG{
         CRON_EXPRESSION,
         SYNC_ENABLE,
         MECHANISM,

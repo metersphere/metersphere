@@ -16,6 +16,9 @@ import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.*;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.model.Header;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -30,6 +33,8 @@ import java.util.*;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -407,33 +412,33 @@ public class ProjectApplicationControllerTests extends BaseTest {
     /**
      * ==========缺陷管理 start==========
      */
-    public static final String ISSUE_UPDATE_URL = "/project/application/update/issue";
-    public static final String GET_ISSUE_URL = "/project/application/issue";
-    public static final String GET_ISSUE_PLATFORM_URL = "/project/application/issue/platform";
+    public static final String BUG_UPDATE_URL = "/project/application/update/bug";
+    public static final String GET_BUG_URL = "/project/application/bug";
+    public static final String GET_BUG_PLATFORM_URL = "/project/application/bug/platform";
 
-    public static final String GET_ISSUE_PLATFORM_INFO_URL = "/project/application/issue/platform/info";
+    public static final String GET_BUG_PLATFORM_INFO_URL = "/project/application/bug/platform/info";
 
     //工作台
     @Test
     @Order(29)
-    public void testIssue() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.ISSUE.ISSUE_SYNC.name()), "true");
-        this.requestPost(ISSUE_UPDATE_URL, request);
+    public void testBug() throws Exception {
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.BUG.BUG_SYNC.name()), "true");
+        this.requestPost(BUG_UPDATE_URL, request);
     }
 
     @Test
     @Order(30)
-    public void testGetIssue() throws Exception {
-        ProjectApplicationRequest request = this.getRequest("ISSUE");
-        this.requestPostWithOkAndReturn(GET_ISSUE_URL, request);
+    public void testGetBug() throws Exception {
+        ProjectApplicationRequest request = this.getRequest("BUG");
+        this.requestPostWithOkAndReturn(GET_BUG_URL, request);
     }
 
     //缺陷管理 - 获取平台下拉列表
     @Test
     @Order(31)
-    public void testGetIssuePlatform() throws Exception {
-        this.requestGetWithOkAndReturn(GET_ISSUE_PLATFORM_URL + "/100002");
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_ISSUE_PLATFORM_URL + "/100001");
+    public void testGetBugPlatform() throws Exception {
+        this.requestGetWithOkAndReturn(GET_BUG_PLATFORM_URL + "/100002");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_BUG_PLATFORM_URL + "/100001");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -445,8 +450,8 @@ public class ProjectApplicationControllerTests extends BaseTest {
     //缺陷管理 - 获取平台信息
     @Test
     @Order(32)
-    public void testGetIssuePlatformInfo() throws Exception {
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_ISSUE_PLATFORM_INFO_URL + "/" + plugin.getId());
+    public void testGetBugPlatformInfo() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_BUG_PLATFORM_INFO_URL + "/" + plugin.getId());
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -495,31 +500,28 @@ public class ProjectApplicationControllerTests extends BaseTest {
     }
 
 
-    public static final String UPDATE_ISSUE_CONFIG_URL = "/project/application/update/issue/sync";
-    public static final String GET_ISSUE_CONFIG_INFO_URL = "/project/application/issue/sync/info";
+    public static final String UPDATE_BUG_CONFIG_URL = "/project/application/update/bug/sync";
+    public static final String GET_BUG_CONFIG_INFO_URL = "/project/application/bug/sync/info";
 
     @Test
     @Order(34)
-    public void testIssueConfig() throws Exception {
-        Map<String, String> configs = mockTestData();
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", configs);
+    public void testBugConfig() throws Exception {
+        Map<String, String> congifs = mockTestData();
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_BUG_CONFIG_URL + "/default-project-2", congifs);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
-
-        //更新
-        configs.put("jiraKey", "222");
-        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", configs);
+        congifs.put("jiraKey", "222");
+        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_BUG_CONFIG_URL + "/default-project-2", congifs);
         // 获取返回值
         String updateData = updateResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder updateResultHolder = JSON.parseObject(updateData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(updateResultHolder);
-
-        configs.remove("CRON_EXPRESSION");
-        this.requestPostWithOkAndReturn(UPDATE_ISSUE_CONFIG_URL + "/default-project-2", configs);
+        congifs.remove("CRON_EXPRESSION");
+        this.requestPostWithOkAndReturn(UPDATE_BUG_CONFIG_URL + "/default-project-2", congifs);
     }
 
     private Map<String, String> mockTestData() {
@@ -536,8 +538,8 @@ public class ProjectApplicationControllerTests extends BaseTest {
 
     @Test
     @Order(35)
-    public void testIssueConfigInfo() throws Exception {
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_ISSUE_CONFIG_INFO_URL + "/default-project-2");
+    public void testBugConfigInfo() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_BUG_CONFIG_INFO_URL + "/default-project-2");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -562,7 +564,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
         //更新
         List<ProjectApplication> request = creatRequest(Arrays.asList("bugManagement"), "false");
         request.get(0).setProjectId("100001100001");
-        this.requestPost(ISSUE_UPDATE_URL, request);
+        this.requestPost(BUG_UPDATE_URL, request);
         MvcResult updateMvcResult = this.requestGetWithOkAndReturn(GET_MODULE_SETTING_URL + "/100001100001");
         // 获取返回值
         String updateReturnData = updateMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -620,7 +622,12 @@ public class ProjectApplicationControllerTests extends BaseTest {
 
 
     public static final String CHECK_PROJECT_KEY_URL = "/project/application/validate";
-
+    @Resource
+    private MockServerClient mockServerClient;
+    @Value("${embedded.mockserver.host}")
+    private String mockServerHost;
+    @Value("${embedded.mockserver.port}")
+    private int mockServerHostPort;
     @Test
     @Order(39)
     public void testCheckProjectKey() throws Exception {
@@ -630,6 +637,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
         configs.put("jiraStoryTypeId", "10010");
         assertErrorCode(this.requestPost(CHECK_PROJECT_KEY_URL + "/" + plugin.getId(), configs), NOT_FOUND);
         JiraIntegrationConfig integrationConfig = new JiraIntegrationConfig();
+        integrationConfig.setAddress(String.format("http://%s:%s", mockServerHost, mockServerHostPort));
         Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
         ServiceIntegrationUpdateRequest request = new ServiceIntegrationUpdateRequest();
         request.setEnable(true);
@@ -637,13 +645,25 @@ public class ProjectApplicationControllerTests extends BaseTest {
         request.setConfiguration(integrationConfigMap);
         request.setOrganizationId("100001100001");
         this.requestPostWithOkAndReturn("/service/integration/add", request);
-        // TODO 缺少有效数据
-        /*MvcResult mvcResult = this.requestPostWithOkAndReturn(CHECK_PROJECT_KEY_URL + "/" + plugin.getId(), configs);
+        mockServerClient
+                .when(
+                        request()
+                                .withMethod("GET")
+                                .withPath("/rest/api/2/project/Test"))
+                .respond(
+                        response()
+                                .withStatusCode(200)
+                                .withHeaders(
+                                        new Header("Content-Type", "application/json; charset=utf-8"),
+                                        new Header("Cache-Control", "public, max-age=86400"))
+                                .withBody("{\"id\":\"123456\",\"name\":\"test\"}")
+                );
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(CHECK_PROJECT_KEY_URL + "/" + plugin.getId(), configs);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
-        Assertions.assertNotNull(resultHolder);*/
+        Assertions.assertNotNull(resultHolder);
     }
 
     @Getter

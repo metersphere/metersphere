@@ -5,17 +5,17 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 
-public class IssueSyncJob extends BaseScheduleJob {
+public class BugSyncJob extends BaseScheduleJob {
     @Override
     protected void businessExecute(JobExecutionContext context) {
         //TODO 定时任务执行 同步issue
     }
 
     public static JobKey getJobKey(String projectId) {
-        return new JobKey(projectId, IssueSyncJob.class.getName());
+        return new JobKey(projectId, BugSyncJob.class.getName());
     }
 
     public static TriggerKey getTriggerKey(String projectId) {
-        return new TriggerKey(projectId, IssueSyncJob.class.getName());
+        return new TriggerKey(projectId, BugSyncJob.class.getName());
     }
 }
