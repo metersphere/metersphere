@@ -297,7 +297,7 @@
 
 <script>
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
-import NodeOperationLabel from "metersphere-frontend/src/components/node/NodeOperationLabel";
+import NodeOperationLabel from "metersphere-frontend/src/components/resource-pool/NodeOperationLabel";
 import {findThreadGroup} from "../../../business/test/model/ThreadGroup";
 import {getJmxContent, getLoadConfig, getNodeOperationInfo, getResourcePools} from "../../../api/performance";
 

@@ -172,7 +172,7 @@ import EnvGroupWithOption from "../env/EnvGroupWithOption";
 import EnvironmentGroup from "@/business/plan/env/EnvironmentGroupList";
 import EnvSelectPopover from "@/business/plan/env/EnvSelectPopover";
 import {getNodeOperationInfo, getProjectConfig} from "@/api/project";
-import NodeOperationLabel from "metersphere-frontend/src/components/node/NodeOperationLabel";
+import NodeOperationLabel from "metersphere-frontend/src/components/resource-pool/NodeOperationLabel";
 
 export default {
   name: "MsTestPlanRunModeWithEnv",
