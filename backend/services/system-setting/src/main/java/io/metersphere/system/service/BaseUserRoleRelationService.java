@@ -37,7 +37,7 @@ public class BaseUserRoleRelationService {
     @Resource
     protected UserRoleMapper userRoleMapper;
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
 
     /**
      * 校验用户是否已在当前用户组
@@ -124,7 +124,7 @@ public class BaseUserRoleRelationService {
      */
     public List<UserExcludeOptionDTO> getExcludeSelectOptionWithLimit(String roleId, String keyword) {
         // 查询所有用户选项
-        List<UserExcludeOptionDTO> selectOptions = baseUserService.getExcludeSelectOptionWithLimit(keyword);
+        List<UserExcludeOptionDTO> selectOptions = userLoginService.getExcludeSelectOptionWithLimit(keyword);
         // 查询已经关联的用户ID
         Set<String> excludeUserIds = baseUserRoleRelationMapper.getUserIdByRoleId(roleId)
                 .stream()

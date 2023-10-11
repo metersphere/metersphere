@@ -25,7 +25,7 @@ import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
-import io.metersphere.system.service.BaseUserService;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.system.utils.SessionUtils;
@@ -48,7 +48,7 @@ public class ProjectService {
     @Resource
     private ExtProjectMapper extProjectMapper;
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
     @Resource
     private OrganizationMapper organizationMapper;
     @Resource
@@ -88,8 +88,8 @@ public class ProjectService {
         User user = new User();
         user.setId(request.getUserId());
         user.setLastProjectId(request.getProjectId());
-        baseUserService.updateUser(user);
-        UserDTO userDTO = baseUserService.getUserDTO(user.getId());
+        userLoginService.updateUser(user);
+        UserDTO userDTO = userLoginService.getUserDTO(user.getId());
         SessionUser sessionUser = SessionUser.fromUser(userDTO, SessionUtils.getSessionId());
         SessionUtils.putUser(sessionUser);
         return sessionUser;

@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.system.mapper.BaseProjectMapper">
     <select id="selectOne" resultType="io.metersphere.project.domain.Project">
         SELECT *
-        FROM project
+        FROM project WHERE enabled = 1
         LIMIT 1
     </select>
 

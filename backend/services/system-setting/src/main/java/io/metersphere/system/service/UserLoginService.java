@@ -3,23 +3,21 @@ package io.metersphere.system.service;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.*;
-import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.OperationLogConstants;
+import io.metersphere.sdk.constants.UserRoleType;
+import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CodingUtils;
+import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.mapper.BaseProjectMapper;
-import io.metersphere.system.mapper.BaseUserMapper;
-import io.metersphere.sdk.util.CodingUtils;
+import io.metersphere.system.mapper.*;
 import io.metersphere.system.utils.SessionUtils;
-import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.*;
-import io.metersphere.system.mapper.UserMapper;
-import io.metersphere.system.mapper.UserRoleMapper;
-import io.metersphere.system.mapper.UserRolePermissionMapper;
-import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -38,7 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class BaseUserService {
+public class UserLoginService {
     @Resource
     private BaseUserMapper baseUserMapper;
     @Resource
@@ -52,10 +50,9 @@ public class BaseUserService {
     @Resource
     private ProjectMapper projectMapper;
     @Resource
-    private BaseProjectMapper baseProjectMapper;
+    private OrganizationMapper organizationMapper;
     @Resource
     private OperationLogService operationLogService;
-
 
     public UserDTO getUserDTO(String userId) {
         UserDTO userDTO = baseUserMapper.selectById(userId);
@@ -125,6 +122,10 @@ public class BaseUserService {
     }
 
     public void autoSwitch(UserDTO user) {
+        // 判断是否是系统管理员
+        if (isSystemAdmin(user)) {
+            return;
+        }
         // 用户有 last_project_id 权限
         if (hasLastProjectPermission(user)) {
             return;
@@ -153,26 +154,21 @@ public class BaseUserService {
                     .toList();
             List<UserRoleRelation> organizations = userRoleRelations.stream().filter(ug -> organizationIds.contains(ug.getRoleId()))
                     .toList();
-            if (organizations.size() > 0) {
-                String wsId = organizations.get(0).getSourceId();
-                switchUserResource("organization", wsId, user);
-            } else {
-                List<String> superRoleIds = user.getUserRoles()
-                        .stream()
-                        .map(UserRole::getId)
-                        .filter(id -> StringUtils.equals(id, InternalUserRole.ADMIN.getValue()))
-                        .collect(Collectors.toList());
-                if (CollectionUtils.isNotEmpty(superRoleIds)) {
-                    Project p = baseProjectMapper.selectOne();
-                    if (p != null) {
-                        switchSuperUserResource(p.getId(), p.getOrganizationId(), user);
-                    }
-                } else {
-                    // 用户登录之后没有项目和工作空间的权限就把值清空
-                    user.setLastOrganizationId(StringUtils.EMPTY);
-                    user.setLastProjectId(StringUtils.EMPTY);
-                    updateUser(user);
+            if (CollectionUtils.isNotEmpty(organizations)) {
+                //获取所有的组织
+                List<String> orgIds = organizations.stream().map(UserRoleRelation::getSourceId).collect(Collectors.toList());
+                OrganizationExample organizationExample = new OrganizationExample();
+                organizationExample.createCriteria().andIdIn(orgIds).andEnableEqualTo(true);
+                List<Organization> organizationsList = organizationMapper.selectByExample(organizationExample);
+                if (CollectionUtils.isNotEmpty(organizationsList)) {
+                    String wsId = organizationsList.get(0).getId();
+                    switchUserResource(wsId, user);
                 }
+            } else {
+                // 用户登录之后没有项目和组织的权限就把值清空
+                user.setLastOrganizationId(StringUtils.EMPTY);
+                user.setLastProjectId(StringUtils.EMPTY);
+                updateUser(user);
             }
         } else {
             UserRoleRelation userRoleRelation = project.stream().filter(p -> StringUtils.isNotBlank(p.getSourceId()))
@@ -193,35 +189,104 @@ public class BaseUserService {
                     .filter(ug -> StringUtils.equals(user.getLastProjectId(), ug.getSourceId()))
                     .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(userRoleRelations)) {
-                Project project = projectMapper.selectByPrimaryKey(user.getLastProjectId());
-                if (StringUtils.equals(project.getOrganizationId(), user.getLastOrganizationId())) {
+                ProjectExample example = new ProjectExample();
+                example.createCriteria().andIdEqualTo(user.getLastProjectId()).andEnableEqualTo(true);
+                List<Project> projects = projectMapper.selectByExample(example);
+                if (CollectionUtils.isNotEmpty(projects)) {
+                    Project project = projects.get(0);
+                    if (StringUtils.equals(project.getOrganizationId(), user.getLastOrganizationId())) {
+                        return true;
+                    }
+                    // last_project_id 和 last_organization_id 对应不上了
+                    user.setLastOrganizationId(project.getOrganizationId());
+                    updateUser(user);
                     return true;
                 }
-                // last_project_id 和 last_organization_id 对应不上了
-                user.setLastOrganizationId(project.getOrganizationId());
-                updateUser(user);
-                return true;
-            } else {
-                return baseUserMapper.isSuperUser(user.getId());
             }
+        }
+        return false;
+    }
+
+    private boolean isSystemAdmin(UserDTO user) {
+        if (baseUserMapper.isSuperUser(user.getId())) {
+            // 如果是系统管理员，判断是否有项目权限
+            if (StringUtils.isNotBlank(user.getLastProjectId())) {
+                ProjectExample example = new ProjectExample();
+                example.createCriteria().andIdEqualTo(user.getLastProjectId()).andEnableEqualTo(true);
+                List<Project> projects = projectMapper.selectByExample(example);
+                if (CollectionUtils.isNotEmpty(projects)) {
+                    Project project = projects.get(0);
+                    if (StringUtils.equals(project.getOrganizationId(), user.getLastOrganizationId())) {
+                        return true;
+                    }
+                    // last_project_id 和 last_organization_id 对应不上了
+                    user.setLastOrganizationId(project.getOrganizationId());
+                    updateUser(user);
+                    return true;
+                }
+            }
+            // 项目没有权限  则取当前组织下的第一个项目
+            if (StringUtils.isNotBlank(user.getLastOrganizationId())) {
+                OrganizationExample organizationExample = new OrganizationExample();
+                organizationExample.createCriteria().andIdEqualTo(user.getLastOrganizationId()).andEnableEqualTo(true);
+                List<Organization> organizations = organizationMapper.selectByExample(organizationExample);
+                if (CollectionUtils.isNotEmpty(organizations)) {
+                    Organization organization = organizations.get(0);
+                    ProjectExample projectExample = new ProjectExample();
+                    projectExample.createCriteria().andOrganizationIdEqualTo(organization.getId()).andEnableEqualTo(true);
+                    List<Project> projectList = projectMapper.selectByExample(projectExample);
+                    if (CollectionUtils.isNotEmpty(projectList)) {
+                        Project project = projectList.get(0);
+                        user.setLastProjectId(project.getId());
+                        updateUser(user);
+                        return true;
+                    }
+                }
+            }
+            //项目和组织都没有权限
+            OrganizationExample organizationExample = new OrganizationExample();
+            organizationExample.createCriteria().andEnableEqualTo(true);
+            List<Organization> organizations = organizationMapper.selectByExample(organizationExample);
+            if (CollectionUtils.isNotEmpty(organizations)) {
+                Organization organization = organizations.get(0);
+                ProjectExample projectExample = new ProjectExample();
+                projectExample.createCriteria().andOrganizationIdEqualTo(organization.getId()).andEnableEqualTo(true);
+                List<Project> projectList = projectMapper.selectByExample(projectExample);
+                if (CollectionUtils.isNotEmpty(projectList)) {
+                    Project project = projectList.get(0);
+                    user.setLastProjectId(project.getId());
+                    user.setLastOrganizationId(organization.getId());
+                    updateUser(user);
+                    return true;
+                }
+            }
+
         }
         return false;
     }
 
     private boolean hasLastOrganizationPermission(UserDTO user) {
         if (StringUtils.isNotBlank(user.getLastOrganizationId())) {
+            OrganizationExample organizationExample = new OrganizationExample();
+            organizationExample.createCriteria().andIdEqualTo(user.getLastOrganizationId()).andEnableEqualTo(true);
+            List<Organization> organizations = organizationMapper.selectByExample(organizationExample);
+            if (CollectionUtils.isEmpty(organizations)) {
+                return false;
+            }
             List<UserRoleRelation> userRoleRelations = user.getUserRoleRelations().stream()
                     .filter(ug -> StringUtils.equals(user.getLastOrganizationId(), ug.getSourceId()))
                     .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(userRoleRelations)) {
                 ProjectExample example = new ProjectExample();
-                example.createCriteria().andOrganizationIdEqualTo(user.getLastOrganizationId());
+                example.createCriteria().andOrganizationIdEqualTo(user.getLastOrganizationId()).andEnableEqualTo(true);
                 List<Project> projects = projectMapper.selectByExample(example);
-                // 工作空间下没有项目
+                // 组织下没有项目
                 if (CollectionUtils.isEmpty(projects)) {
+                    user.setLastProjectId(StringUtils.EMPTY);
+                    updateUser(user);
                     return true;
                 }
-                // 工作空间下有项目，选中有权限的项目
+                // 组织下有项目，选中有权限的项目
                 List<String> projectIds = projects.stream()
                         .map(Project::getId)
                         .toList();
@@ -238,63 +303,41 @@ public class BaseUserService {
                         .toList();
 
                 List<String> intersection = projectIds.stream().filter(projectIdsWithPermission::contains).collect(Collectors.toList());
-                // 当前工作空间下的所有项目都没有权限
+                // 当前组织下的所有项目都没有权限
                 if (CollectionUtils.isEmpty(intersection)) {
+                    user.setLastProjectId(StringUtils.EMPTY);
+                    updateUser(user);
                     return true;
                 }
-                Project project = projects.stream().filter(p -> StringUtils.equals(intersection.get(0), p.getId())).findFirst().get();
-                String wsId = project.getOrganizationId();
-                user.setId(user.getId());
-                user.setLastProjectId(project.getId());
-                user.setLastOrganizationId(wsId);
-                updateUser(user);
-                return true;
-            } else {
-                return baseUserMapper.isSuperUser(user.getId());
+                Optional<Project> first = projects.stream().filter(p -> StringUtils.equals(intersection.get(0), p.getId())).findFirst();
+                if (first.isPresent()) {
+                    Project project = first.get();
+                    String wsId = project.getOrganizationId();
+                    user.setId(user.getId());
+                    user.setLastProjectId(project.getId());
+                    user.setLastOrganizationId(wsId);
+                    updateUser(user);
+                    return true;
+                }
             }
         }
         return false;
     }
 
 
-    public void switchUserResource(String sign, String sourceId, UserDTO sessionUser) {
+    public void switchUserResource(String sourceId, UserDTO sessionUser) {
         // 获取最新UserDTO
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
-        boolean isSuper = baseUserMapper.isSuperUser(sessionUser.getId());
-        if (StringUtils.equals("organization", sign)) {
-            user.setLastOrganizationId(sourceId);
-            sessionUser.setLastOrganizationId(sourceId);
-            user.setLastProjectId(StringUtils.EMPTY);
-            List<Project> projects = getProjectListByWsAndUserId(sessionUser.getId(), sourceId);
-            if (CollectionUtils.isNotEmpty(projects)) {
-                user.setLastProjectId(projects.get(0).getId());
-            } else {
-                if (isSuper) {
-                    ProjectExample example = new ProjectExample();
-                    example.createCriteria().andOrganizationIdEqualTo(sourceId);
-                    List<Project> allWsProject = projectMapper.selectByExample(example);
-                    if (CollectionUtils.isNotEmpty(allWsProject)) {
-                        user.setLastProjectId(allWsProject.get(0).getId());
-                    }
-                }
-            }
+        user.setLastOrganizationId(sourceId);
+        sessionUser.setLastOrganizationId(sourceId);
+        user.setLastProjectId(StringUtils.EMPTY);
+        List<Project> projects = getProjectListByWsAndUserId(sessionUser.getId(), sourceId);
+        if (CollectionUtils.isNotEmpty(projects)) {
+            user.setLastProjectId(projects.get(0).getId());
         }
         BeanUtils.copyProperties(user, newUser);
-        // 切换工作空间或组织之后更新 session 里的 user
-        SessionUtils.putUser(SessionUser.fromUser(user, SessionUtils.getSessionId()));
-        userMapper.updateByPrimaryKeySelective(newUser);
-    }
-
-    private void switchSuperUserResource(String projectId, String organizationId, UserDTO sessionUser) {
-        // 获取最新UserDTO
-        UserDTO user = getUserDTO(sessionUser.getId());
-        User newUser = new User();
-        user.setLastOrganizationId(organizationId);
-        sessionUser.setLastOrganizationId(organizationId);
-        user.setLastProjectId(projectId);
-        BeanUtils.copyProperties(user, newUser);
-        // 切换工作空间或组织之后更新 session 里的 user
+        // 切换组织或组织之后更新 session 里的 user
         SessionUtils.putUser(SessionUser.fromUser(user, SessionUtils.getSessionId()));
         userMapper.updateByPrimaryKeySelective(newUser);
     }
@@ -336,7 +379,7 @@ public class BaseUserService {
 
     private List<Project> getProjectListByWsAndUserId(String userId, String organizationId) {
         ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andOrganizationIdEqualTo(organizationId);
+        projectExample.createCriteria().andOrganizationIdEqualTo(organizationId).andEnableEqualTo(true);
         List<Project> projects = projectMapper.selectByExample(projectExample);
 
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
