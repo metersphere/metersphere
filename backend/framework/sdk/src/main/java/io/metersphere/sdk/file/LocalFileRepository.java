@@ -29,8 +29,8 @@ public class LocalFileRepository implements FileRepository {
     private void createFileDir(FileRequest request) {
         String dir = getFileDir(request);
         File fileDir = new File(dir);
-        if (!fileDir.exists()) {
-            fileDir.mkdirs();
+        if (!fileDir.exists() && !fileDir.mkdirs()) {
+            throw new RuntimeException("Failed to create directory: " + dir);
         }
     }
 
@@ -40,8 +40,6 @@ public class LocalFileRepository implements FileRepository {
         try (OutputStream ops = new FileOutputStream(file)) {
             ops.write(bytes);
             return file.getPath();
-        } catch (Exception e) {
-            throw e;
         }
     }
 
@@ -50,8 +48,8 @@ public class LocalFileRepository implements FileRepository {
         String path = StringUtils.join(getFilePath(request));
         File file = new File(path);
         FileUtil.deleteContents(file);
-        if (file.exists()) {
-            file.delete();
+        if (file.exists() && !file.delete()) {
+            throw new RuntimeException("Failed to delete file: " + path);
         }
     }
 
@@ -74,6 +72,7 @@ public class LocalFileRepository implements FileRepository {
 
     @Override
     public void downloadFile(FileRequest request, String localPath) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

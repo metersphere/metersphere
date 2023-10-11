@@ -3,7 +3,7 @@ package io.metersphere.sdk.util;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SubListUtil {
+public class SubListUtils {
 
     /**
      *  将较长的数组截断成较短的数组进行批处理
