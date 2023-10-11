@@ -4,7 +4,8 @@ INSERT INTO organization(id, num, name, description, create_time, update_time, c
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES
                                                                                                                           ('project-message-test', null, 'organization-message-test', '默认项目', '系统默认创建的项目', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
                                                                                                                           ('project-message-test-1', null, 'organization-message-test-1', '默认项目1', '系统默认创建的项目1', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
-                                                                                                                          ('project-message-test-2', null, 'organization-message-test-2', '默认项目2', '系统默认创建的项目1', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
+                                                                                                                          ('project-message-test-2', null, 'organization-message-test-2', '默认项目2', '系统默认创建的项目2', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
+                                                                                                                          ('project-message-test-3', null, 'organization-message-test-3', '默认项目3', '系统默认创建的项目3', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
 
 
 INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source, last_project_id, create_user, update_user, deleted) VALUES
@@ -36,7 +37,10 @@ INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id
 
 INSERT INTO project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES ('test_message_robot1', 'project-message-test-1', '测试机器人1', 'IN_SITE', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null),
                                                                                                                                                                               ('test_message_robot2', 'project-message-test-1', '测试机器人2', 'MAIL', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null),
-                                                                                                                                                                              ('test_message_robot3', 'project-message-test-1', '测试机器人3', 'WE_COM', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
+                                                                                                                                                                              ('test_message_robot3', 'project-message-test-1', '测试机器人3', 'WE_COM', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null),
+                                                                                                                                                                              ('test_message_robot4', 'project-message-test-3', '测试机器人1', 'IN_SITE', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null),
+                                                                                                                                                                              ('test_message_robot5', 'project-message-test', '测试机器人6', 'IN_SITE', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
+
 
 
 

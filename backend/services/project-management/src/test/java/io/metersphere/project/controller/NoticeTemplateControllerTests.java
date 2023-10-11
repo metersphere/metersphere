@@ -1,5 +1,7 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.dto.MessageTemplateFieldDTO;
+import io.metersphere.project.dto.MessageTemplateResultDTO;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.util.JSON;
@@ -42,7 +44,12 @@ public class NoticeTemplateControllerTests extends BaseTest {
         typeList.add(NoticeConstants.TaskType.BUG_TASK);
         typeList.add(NoticeConstants.TaskType.UI_SCENARIO_TASK);
         typeList.add(NoticeConstants.TaskType.LOAD_TEST_TASK);
-        typeList.add(NoticeConstants.TaskType.JENKINS_TASK);
+        typeList.add(NoticeConstants.TaskType.JENKINS_UI_TASK);
+        typeList.add(NoticeConstants.TaskType.JENKINS_API_SCENARIO_TASK);
+        typeList.add(NoticeConstants.TaskType.JENKINS_API_CASE_TASK);
+        typeList.add(NoticeConstants.TaskType.JENKINS_LOAD_CASE_TASK);
+        typeList.add(NoticeConstants.TaskType.JENKINS_TEST_PLAN_TASK);
+        typeList.add(NoticeConstants.TaskType.BUG_TASK_AT);
         for (String s : typeList) {
             MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/template/get/fields/project-template-test-1")
                             .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -52,8 +59,9 @@ public class NoticeTemplateControllerTests extends BaseTest {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
             String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
             ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-            List<OptionDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
-            if (s.equals(NoticeConstants.TaskType.JENKINS_TASK)) {
+            MessageTemplateResultDTO messageTemplateResultDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), MessageTemplateResultDTO.class);
+            List<MessageTemplateFieldDTO> projectList = messageTemplateResultDTO.getFieldList();
+            if (s.equals(NoticeConstants.TaskType.BUG_TASK_AT)) {
                 Assertions.assertTrue(CollectionUtils.isEmpty(projectList));
             } else {
                 Assertions.assertTrue(CollectionUtils.isNotEmpty(projectList));
@@ -82,7 +90,8 @@ public class NoticeTemplateControllerTests extends BaseTest {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
             String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
             ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-            List<OptionDTO> projectList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
+            MessageTemplateResultDTO messageTemplateResultDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), MessageTemplateResultDTO.class);
+            List<MessageTemplateFieldDTO> projectList = messageTemplateResultDTO.getFieldList();
             if (s.equals(NoticeConstants.TaskType.API_DEFINITION_TASK)) {
                 List<String> collect = projectList.stream().map(OptionDTO::getId).toList();
                 Assertions.assertFalse(collect.contains("grade"));

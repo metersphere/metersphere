@@ -1,10 +1,16 @@
 package io.metersphere.system.notice.sender;
 
 
-import io.metersphere.api.domain.*;
+import io.metersphere.api.domain.ApiDefinitionFollower;
+import io.metersphere.api.domain.ApiDefinitionFollowerExample;
+import io.metersphere.api.domain.ApiScenarioFollower;
+import io.metersphere.api.domain.ApiScenarioFollowerExample;
 import io.metersphere.api.mapper.ApiDefinitionFollowerMapper;
 import io.metersphere.api.mapper.ApiScenarioFollowerMapper;
-import io.metersphere.functional.domain.*;
+import io.metersphere.functional.domain.CaseReviewFollower;
+import io.metersphere.functional.domain.CaseReviewFollowerExample;
+import io.metersphere.functional.domain.FunctionalCaseFollower;
+import io.metersphere.functional.domain.FunctionalCaseFollowerExample;
 import io.metersphere.functional.mapper.CaseReviewFollowerMapper;
 import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
 import io.metersphere.load.domain.LoadTestFollower;
@@ -13,11 +19,6 @@ import io.metersphere.load.mapper.LoadTestFollowerMapper;
 import io.metersphere.plan.domain.TestPlanFollower;
 import io.metersphere.plan.domain.TestPlanFollowerExample;
 import io.metersphere.plan.mapper.TestPlanFollowerMapper;
-import io.metersphere.system.notice.MessageDetail;
-import io.metersphere.system.notice.NoticeModel;
-import io.metersphere.system.notice.Receiver;
-import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.notice.constants.NotificationConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.CustomField;
@@ -25,12 +26,16 @@ import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.notice.MessageDetail;
+import io.metersphere.system.notice.NoticeModel;
+import io.metersphere.system.notice.Receiver;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.notice.constants.NotificationConstants;
+import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.text.StringSubstitutor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,13 +68,13 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         noticeModel.setReceivers(getRealUserIds(messageDetail, noticeModel, messageDetail.getEvent()));
         // 如果配置了模版就直接使用模版
         if (StringUtils.isNotBlank(messageDetail.getTemplate())) {
-            return getContent(messageDetail.getTemplate(), noticeModel.getParamMap());
+            return MessageTemplateUtils.getContent(messageDetail.getTemplate(), noticeModel.getParamMap());
         }
         String context = StringUtils.EMPTY;
         if (StringUtils.isBlank(context)) {
             context = noticeModel.getContext();
         }
-        return getContent(context, noticeModel.getParamMap());
+        return MessageTemplateUtils.getContent(context, noticeModel.getParamMap());
     }
 
     private void handleCustomFields(NoticeModel noticeModel) {
@@ -103,34 +108,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             LogUtils.error(e);
         }
     }
-
-    protected String getContent(String template, Map<String, Object> context) {
-        // 处理 null
-        context.forEach((k, v) -> {
-            if (v == null) {
-                context.put(k, StringUtils.EMPTY);
-            }
-        });
-        // 处理时间格式的数据
-        handleTime(context);
-        StringSubstitutor sub = new StringSubstitutor(context);
-        return sub.replace(template);
-    }
-
-    private void handleTime(Map<String, Object> context) {
-        context.forEach((k, v) -> {
-            if (StringUtils.endsWithIgnoreCase(k, "Time")) {
-                try {
-                    String value = v.toString();
-                    long time = Long.parseLong(value);
-                    v = DateFormatUtils.format(time, "yyyy-MM-dd HH:mm:ss");
-                    context.put(k, v);
-                } catch (Exception ignore) {
-                }
-            }
-        });
-    }
-
 
     private List<Receiver> getRealUserIds(MessageDetail messageDetail, NoticeModel noticeModel, String event) {
         List<Receiver> toUsers = new ArrayList<>();

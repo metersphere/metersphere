@@ -98,7 +98,7 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
             List<MessageTaskTypeDTO> messageTaskTypeDTOList = messageTaskDTO.getMessageTaskTypeDTOList();
             for (MessageTaskTypeDTO messageTaskTypeDTO : messageTaskTypeDTOList) {
                 String taskType = messageTaskTypeDTO.getTaskType();
-                if (taskType.contains(NoticeConstants.Mode.SCHEDULE) || taskType.contains("AT") || taskType.contains("JENKINS")) {
+                if (taskType.contains(NoticeConstants.Mode.SCHEDULE) || taskType.contains("AT")) {
                     continue;
                 }
                 List<MessageTaskDetailDTO> messageTaskDetailDTOList = messageTaskTypeDTO.getMessageTaskDetailDTOList();

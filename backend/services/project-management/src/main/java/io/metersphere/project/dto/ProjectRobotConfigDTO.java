@@ -46,4 +46,10 @@ public class ProjectRobotConfigDTO implements Serializable {
     @Schema(description = "机器人是否使用默认标题")
     public Boolean useDefaultSubject;
 
+    @Schema(description = "机器人预览标题")
+    public String previewSubject;
+
+    @Schema(description = "机器人预览模版")
+    public String previewTemplate;
+
 }
