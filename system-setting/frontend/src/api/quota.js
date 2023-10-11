@@ -47,3 +47,7 @@ export function deleteQuota(quota) {
 export function saveQuota(quota) {
   return post("/quota/save", quota);
 }
+
+export function getProjectModules(type, id) {
+  return get(`/quota/list/modules/${type}/${id}`);
+}
