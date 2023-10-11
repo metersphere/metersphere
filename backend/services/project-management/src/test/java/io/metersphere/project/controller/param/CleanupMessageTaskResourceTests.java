@@ -43,6 +43,12 @@ public class CleanupMessageTaskResourceTests extends BaseTest {
 
     @Test
     @Order(2)
+    public void testCleanupResourceNoMessage() throws Exception {
+        resourceService.cleanReportResources("test1");
+    }
+
+    @Test
+    @Order(3)
     public void testCleanupReportResource() throws Exception {
         resourceService.cleanReportResources("test");
     }

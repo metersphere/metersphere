@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,9 +44,10 @@ public class CreateRobotResourceTests extends BaseTest {
 
     @Test
     @Order(1)
-    public void testCleanupResource() throws Exception {
+    public void testCreateResource() throws Exception {
+        String id = UUID.randomUUID().toString();
         Project project = new Project();
-        project.setId("test_message");
+        project.setId(id);
         project.setOrganizationId("organization-message-test");
         project.setName("默认项目");
         project.setDescription("系统默认创建的项目");
@@ -54,16 +56,16 @@ public class CreateRobotResourceTests extends BaseTest {
         project.setCreateTime(System.currentTimeMillis());
         project.setUpdateTime(System.currentTimeMillis());
         projectMapper.insertSelective(project);
-        serviceInvoker.invokeCreateServices("test_message");
-        List<ProjectRobot> projectRobotAfters = getList();
+        serviceInvoker.invokeCreateServices(id);
+        List<ProjectRobot> projectRobotAfters = getList(id);
         Assertions.assertEquals(2, projectRobotAfters.size());
-        List<MessageTaskDTO> messageList = getMessageList();
+        List<MessageTaskDTO> messageList = getMessageList(id);
         Assertions.assertTrue(messageList.size() > 0);
         System.out.println(messageList);
     }
 
-    private List<ProjectRobot> getList() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_LIST + "test_message")
+    private List<ProjectRobot> getList(String id) throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_LIST + id)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -74,8 +76,8 @@ public class CreateRobotResourceTests extends BaseTest {
         return JSON.parseArray(JSON.toJSONString(sortHolder.getData()), ProjectRobot.class);
     }
 
-    private List<MessageTaskDTO> getMessageList() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/task/get/test_message")
+    private List<MessageTaskDTO> getMessageList(String id) throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/task/get/"+id)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk())
