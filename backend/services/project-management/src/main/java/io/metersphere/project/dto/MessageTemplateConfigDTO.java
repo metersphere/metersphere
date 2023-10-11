@@ -10,6 +10,12 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class MessageTemplateConfigDTO extends ProjectRobotConfigDTO{
 
+    @Schema(description = "消息配置功能名称")
+    public String taskTypeName ;
+
+    @Schema(description = "消息配置场景名称")
+    public String eventName;
+
     @Schema(description = "消息配置接收人")
     private List<String> receiverIds;
 

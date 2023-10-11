@@ -79,7 +79,7 @@ public class NoticeMessageTaskService {
         Map<String, List<String>> stringListMap = checkUserExistProject(messageTaskRequest.getReceiverIds(), projectId);
         List<String> existUserIds = stringListMap.get(USER_IDS);
         //如果只选了用户，没有选机器人，默认机器人为站内信
-        ProjectRobot projectRobot = setDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
+        ProjectRobot projectRobot = getDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
         String robotId = projectRobot.getId();
         messageTaskRequest.setRobotId(robotId);
         //检查设置的通知是否存在，如果存在则更新
@@ -140,7 +140,7 @@ public class NoticeMessageTaskService {
      * @param robotId   机器人id
      * @return String
      */
-    private ProjectRobot setDefaultRobot(String projectId, String robotId) {
+    private ProjectRobot getDefaultRobot(String projectId, String robotId) {
         if (StringUtils.isBlank(robotId)) {
             ProjectRobotExample projectRobotExample = new ProjectRobotExample();
             projectRobotExample.createCriteria().andProjectIdEqualTo(projectId).andPlatformEqualTo(ProjectRobotPlatform.IN_SITE.toString());
@@ -324,7 +324,7 @@ public class NoticeMessageTaskService {
         Map<String, String> eventMap = MessageTemplateUtils.getEventMap();
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         Map<String, String> defaultTemplateSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
-        ProjectRobot projectRobot = setDefaultRobot(projectId, null);
+        ProjectRobot projectRobot = getDefaultRobot(projectId, null);
         for (MessageTaskDTO messageTaskDTO : messageTaskDTOList) {
             messageTaskDTO.setProjectId(projectId);
             messageTaskDTO.setName(moduleMap.get(messageTaskDTO.getType()));
@@ -435,7 +435,12 @@ public class NoticeMessageTaskService {
         ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot, messageTask, messageTaskBlob);
         MessageTemplateConfigDTO messageTemplateConfigDTO = new MessageTemplateConfigDTO();
         BeanUtils.copyBean(messageTemplateConfigDTO,projectRobotConfigDTO);
+        Map<String, String> taskTypeMap = MessageTemplateUtils.getTaskTypeMap();
+        Map<String, String> eventMap = MessageTemplateUtils.getEventMap();
+        messageTemplateConfigDTO.setTaskTypeName(taskTypeMap.get(messageTask.getTaskType()));
+        messageTemplateConfigDTO.setEventName(eventMap.get(messageTask.getEvent()));
         messageTemplateConfigDTO.setReceiverIds(receiverIds);
         return messageTemplateConfigDTO;
     }
+
 }

@@ -1,19 +1,32 @@
 package io.metersphere.project.controller;
 
-import io.metersphere.project.domain.ProjectRobot;
-import io.metersphere.project.domain.ProjectRobotExample;
+import io.metersphere.project.domain.*;
+import io.metersphere.project.dto.MessageTaskDTO;
+import io.metersphere.project.dto.MessageTaskDetailDTO;
+import io.metersphere.project.dto.MessageTaskTypeDTO;
 import io.metersphere.project.dto.ProjectRobotDTO;
 import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.enums.ProjectRobotType;
+import io.metersphere.project.mapper.MessageTaskBlobMapper;
+import io.metersphere.project.mapper.MessageTaskMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.*;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -21,7 +34,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -47,6 +60,12 @@ public class ProjectRobotControllerTests extends BaseTest {
 
     @Resource
     private ProjectRobotMapper projectRobotMapper;
+
+    @Resource
+    private ProjectMapper projectMapper;
+
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
 
     @Test
@@ -84,16 +103,26 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(3)
     void addRobotSuccessDingCustom() throws Exception {
-        setDingCustom("钉钉自定义机器人");
-        checkName("test_project", "钉钉自定义机器人");
-
+        setDingCustom("test_project3","钉钉自定义机器人4");
+        checkName("test_project3", "钉钉自定义机器人4");
     }
 
-    private void setDingCustom(String name) throws Exception {
+    private void setInSiteCustom(String projectId,String name) throws Exception {
+        ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
+        projectRobotDTO.setName(name);
+        projectRobotDTO.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
+        projectRobotDTO.setProjectId(projectId);
+        projectRobotDTO.setEnable(true);
+        projectRobotDTO.setWebhook("NONE");
+        getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
+    }
+
+    private void setDingCustom(String projectId,String name) throws Exception {
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName(name);
         projectRobotDTO.setPlatform(ProjectRobotPlatform.DING_TALK.toString());
-        projectRobotDTO.setProjectId("test_project");
+        projectRobotDTO.setProjectId(projectId);
+        projectRobotDTO.setEnable(true);
         projectRobotDTO.setType(ProjectRobotType.CUSTOM.toString());
         projectRobotDTO.setWebhook("https://oapi.dingtalk.com/robot/send?access_token=fd963136a4d7eebaaa68de261223089148e62d7519fbaf426626fe3157725b8a");
         getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
@@ -165,7 +194,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(9)
     void updateRobotSuccessDingCus() throws Exception {
-        setDingCustom("用于更新钉钉自定义机器人");
+        setDingCustom("test_project","用于更新钉钉自定义机器人");
         ProjectRobot projectRobot = getRobot("test_project", "用于更新钉钉自定义机器人");
         checkUpdate(projectRobot, "更新钉钉自定义机器人", status().isOk());
     }
@@ -199,7 +228,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(13)
     void updateRobotFileNoDingType() throws Exception {
-        setDingCustom("测试更新没有Type失败");
+        setDingCustom("test_project","测试更新没有Type失败");
         ProjectRobot projectRobot = getRobot("test_project", "测试更新没有Type失败");
         projectRobot.setType(null);
         checkUpdate(projectRobot, "测试更新没有Type失败", status().is5xxServerError());
@@ -324,6 +353,30 @@ public class ProjectRobotControllerTests extends BaseTest {
 
     }
 
+    @Test
+    @Order(21)
+    void deleteRobotWithMessage() throws Exception {
+        Project project = new Project();
+        project.setId("test_project1");
+        project.setOrganizationId("organization-message-test");
+        project.setName("默认项目");
+        project.setDescription("系统默认创建的项目");
+        project.setCreateUser("admin");
+        project.setUpdateUser("admin");
+        project.setCreateTime(System.currentTimeMillis());
+        project.setUpdateTime(System.currentTimeMillis());
+        projectMapper.insertSelective(project);
+        setInSiteCustom("test_project1","站内信1");
+        setDingCustom("test_project1","钉钉自定义机器人3");
+        ProjectRobot robot = getRobot("test_project1", "钉钉自定义机器人3");
+        setMessageTask("test_project1",robot.getId());
+
+        mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_DELETE + "/" + robot.getId())
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
 
     private static ProjectRobot getResult(MvcResult mvcResult) throws UnsupportedEncodingException {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -348,18 +401,20 @@ public class ProjectRobotControllerTests extends BaseTest {
         projectRobotDTO.setName(name);
         projectRobotDTO.setPlatform(ProjectRobotPlatform.CUSTOM.toString());
         projectRobotDTO.setProjectId("test_project");
+        projectRobotDTO.setEnable(true);
         projectRobotDTO.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
         getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
     }
 
-    private void getPostResult(ProjectRobotDTO projectRobotDTO, String url, ResultMatcher resultMatcher) throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post(url)
+    private ProjectRobot getPostResult(ProjectRobotDTO projectRobotDTO, String url, ResultMatcher resultMatcher) throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(url)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(projectRobotDTO))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(resultMatcher)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        return getResult(mvcResult);
     }
 
     private List<ProjectRobot> getList(String projectId) throws Exception {
@@ -381,5 +436,82 @@ public class ProjectRobotControllerTests extends BaseTest {
         return projectRobots.get(0);
     }
 
+    public void setMessageTask(String projectId, String defaultRobotId) throws Exception {
+        StringBuilder jsonStr = new StringBuilder();
+        InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                jsonStr.append(line);
+            }
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        MessageTaskMapper mapper = sqlSession.getMapper(MessageTaskMapper.class);
+        MessageTaskBlobMapper blobMapper = sqlSession.getMapper(MessageTaskBlobMapper.class);
+
+        List<MessageTaskDTO> messageTaskDTOList = JSON.parseArray(jsonStr.toString(), MessageTaskDTO.class);
+        for (MessageTaskDTO messageTaskDTO : messageTaskDTOList) {
+            List<MessageTaskTypeDTO> messageTaskTypeDTOList = messageTaskDTO.getMessageTaskTypeDTOList();
+            for (MessageTaskTypeDTO messageTaskTypeDTO : messageTaskTypeDTOList) {
+                String taskType = messageTaskTypeDTO.getTaskType();
+                if (taskType.contains(NoticeConstants.Mode.SCHEDULE) || taskType.contains("AT") || taskType.contains("JENKINS")) {
+                    continue;
+                }
+                List<MessageTaskDetailDTO> messageTaskDetailDTOList = messageTaskTypeDTO.getMessageTaskDetailDTOList();
+                for (MessageTaskDetailDTO messageTaskDetailDTO : messageTaskDetailDTOList) {
+                    String event = messageTaskDetailDTO.getEvent();
+                    List<OptionDTO> receivers = messageTaskDetailDTO.getReceivers();
+                    if (StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.CREATE) || StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.CASE_CREATE) || CollectionUtils.isEmpty(receivers)) {
+                        continue;
+                    }
+                    for (OptionDTO receiver : receivers) {
+                        String id = UUID.randomUUID().toString();
+                        MessageTask messageTask = new MessageTask();
+                        messageTask.setId(id);
+                        messageTask.setEvent(event);
+                        messageTask.setTaskType(taskType);
+                        messageTask.setReceiver(receiver.getId());
+                        messageTask.setProjectId(projectId);
+                        messageTask.setProjectRobotId(defaultRobotId);
+                        messageTask.setEnable(true);
+                        messageTask.setTestId("NONE");
+                        messageTask.setCreateUser("admin");
+                        messageTask.setCreateTime(System.currentTimeMillis());
+                        messageTask.setUpdateUser("admin");
+                        messageTask.setUpdateTime(System.currentTimeMillis());
+                        messageTask.setSubject("");
+                        messageTask.setUseDefaultSubject(true);
+                        messageTask.setUseDefaultTemplate(true);
+                        MessageTaskBlob messageTaskBlob = new MessageTaskBlob();
+                        messageTaskBlob.setId(id);
+                        messageTaskBlob.setTemplate("");
+                        mapper.insert(messageTask);
+                        blobMapper.insert(messageTaskBlob);
+                    }
+                }
+            }
+        }
+
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        List<MessageTaskDTO> testProject1 = getMessageList(projectId);
+        Assertions.assertTrue(testProject1.size()>0);
+        System.out.println(testProject1);
+    }
+
+    private List<MessageTaskDTO> getMessageList(String projectId) throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/task/get/"+projectId)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
+    }
 }
