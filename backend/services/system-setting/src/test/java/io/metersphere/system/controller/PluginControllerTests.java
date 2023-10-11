@@ -5,7 +5,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.service.BaseUserService;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.service.JdbcDriverPluginService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.param.PluginUpdateRequestDefinition;
@@ -48,7 +48,7 @@ public class PluginControllerTests extends BaseTest {
     @Resource
     private PluginMapper pluginMapper;
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
     @Resource
     private PluginOrganizationMapper pluginOrganizationMapper;
     @Resource
@@ -261,7 +261,7 @@ public class PluginControllerTests extends BaseTest {
         example.createCriteria().andPluginIdNotIn(pluginIds);
         List<Plugin> dbPlugins = pluginMapper.selectByExample(example);
         List<String> userIds = dbPlugins.stream().map(Plugin::getCreateUser).toList();
-        Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
+        Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
         Map<String, Plugin> dbPluginMap = dbPlugins.stream().collect(Collectors.toMap(Plugin::getId, i -> i));
 
         for (PluginDTO pluginDTO : pluginList) {

@@ -52,7 +52,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     @Resource
     private BaseTemplateService baseTemplateService;
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
     @Resource
     private BaseCustomFieldService baseCustomFieldService;
     @Resource
@@ -281,7 +281,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         List<Template> resultList = getResultDataArray(mvcResult, Template.class);
         List<Template> Templates = baseTemplateService.getTemplates(DEFAULT_ORGANIZATION_ID, scene);
         List<String> userIds = Templates.stream().map(Template::getCreateUser).toList();
-        Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
+        Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
         for (int i = 0; i < resultList.size(); i++) {
             Template resultItem = resultList.get(i);
             Template template = Templates.get(i);

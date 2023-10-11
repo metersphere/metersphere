@@ -18,7 +18,7 @@ import io.metersphere.system.mapper.TemplateMapper;
 import io.metersphere.system.service.BaseCustomFieldService;
 import io.metersphere.system.service.BaseTemplateCustomFieldService;
 import io.metersphere.system.service.BaseTemplateService;
-import io.metersphere.system.service.BaseUserService;
+import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -53,7 +53,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
     @Resource
     private BaseTemplateService baseTemplateService;
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
     @Resource
     private BaseCustomFieldService baseCustomFieldService;
     @Resource
@@ -236,7 +236,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
         List<Template> resultList = getResultDataArray(mvcResult, Template.class);
         List<Template> templates = baseTemplateService.getTemplates(DEFAULT_PROJECT_ID, scene);
         List<String> userIds = templates.stream().map(Template::getCreateUser).toList();
-        Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
+        Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
         for (int i = 0; i < resultList.size(); i++) {
             Template resultItem = resultList.get(i);
             Template template = templates.get(i);

@@ -41,7 +41,7 @@ public class BaseTemplateService {
     @Resource
     protected BaseTemplateCustomFieldService baseTemplateCustomFieldService;
     @Resource
-    protected BaseUserService baseUserService;
+    protected UserLoginService userLoginService;
     @Resource
     protected BaseCustomFieldService baseCustomFieldService;
 
@@ -49,7 +49,7 @@ public class BaseTemplateService {
         checkScene(scene);
         List<Template> templates = getTemplates(scopeId, scene);
         List<String> userIds = templates.stream().map(Template::getCreateUser).toList();
-        Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
+        Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
         templates.forEach(item -> {
             item.setCreateUser(userNameMap.get(item.getCreateUser()));
             if (item.getInternal()) {

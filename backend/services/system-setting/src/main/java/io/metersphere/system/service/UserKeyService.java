@@ -23,7 +23,7 @@ public class UserKeyService {
     private UserKeyMapper userKeyMapper;
 
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
 
     public List<UserKey> getUserKeysInfo(String userId) {
         UserKeyExample userKeysExample = new UserKeyExample();
@@ -33,7 +33,7 @@ public class UserKeyService {
     }
 
     public UserKey generateUserKey(String userId) {
-        if (baseUserService.getUserDTO(userId) == null) {
+        if (userLoginService.getUserDTO(userId) == null) {
             throw new MSException(Translator.get("user_not_exist") + userId);
         }
         UserKeyExample userKeysExample = new UserKeyExample();

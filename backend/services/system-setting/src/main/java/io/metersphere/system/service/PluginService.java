@@ -62,7 +62,7 @@ public class PluginService {
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
     @Resource
-    private BaseUserService baseUserService;
+    private UserLoginService userLoginService;
 
     public List<PluginDTO> list() {
         List<PluginDTO> plugins = extPluginMapper.getPlugins();
@@ -72,7 +72,7 @@ public class PluginService {
 
         // 获取用户ID和名称的映射
         List<String> userIds = plugins.stream().map(PluginDTO::getCreateUser).toList();
-        Map<String, String> userNameMap = baseUserService.getUserNameMap(userIds);
+        Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
 
         plugins.forEach(plugin -> {
             List<OptionDTO> pluginForms = scripteMap.get(plugin.getId());
