@@ -54,6 +54,7 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
         projectRobot.setCreateTime(System.currentTimeMillis());
         projectRobot.setUpdateUser("admin");
         projectRobot.setUpdateTime(System.currentTimeMillis());
+        projectRobot.setEnable(true);
         list.add(projectRobot);
         ProjectRobot projectRobotMail = new ProjectRobot();
         projectRobotMail.setId(UUID.randomUUID().toString());
@@ -62,6 +63,7 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
         projectRobotMail.setPlatform(ProjectRobotPlatform.MAIL.toString());
         projectRobotMail.setWebhook("NONE");
         projectRobotMail.setCreateUser("admin");
+        projectRobot.setEnable(true);
         projectRobotMail.setCreateTime(System.currentTimeMillis());
         projectRobotMail.setUpdateUser("admin");
         projectRobotMail.setUpdateTime(System.currentTimeMillis());

@@ -1,24 +1,26 @@
 package io.metersphere.project.service;
 
-import io.metersphere.project.domain.MessageTaskExample;
-import io.metersphere.project.domain.ProjectRobot;
-import io.metersphere.project.domain.ProjectRobotExample;
+import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ProjectRobotDTO;
 import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.enums.ProjectRobotType;
+import io.metersphere.project.mapper.MessageTaskBlobMapper;
 import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import io.metersphere.system.uid.UUID;
 
 @Service
 @Transactional
@@ -30,9 +32,15 @@ public class ProjectRobotService {
     @Resource
     private MessageTaskMapper messageTaskMapper;
 
+    @Resource
+    private MessageTaskBlobMapper messageTaskBlobMapper;
+
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
+
     public void add(ProjectRobot projectRobot) {
         projectRobot.setId(UUID.randomUUID().toString());
-        projectRobot.setEnable(true);
+        projectRobot.setEnable(projectRobot.getEnable());
         checkDingTalk(projectRobot);
         robotMapper.insert(projectRobot);
     }
@@ -71,6 +79,11 @@ public class ProjectRobotService {
         checkRobotExist(id);
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectRobotIdEqualTo(id);
+        List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
+        List<String> ids = messageTasks.stream().map(MessageTask::getId).toList();
+        MessageTaskBlobExample messageTaskBlobExample = new MessageTaskBlobExample();
+        messageTaskBlobExample.createCriteria().andIdIn(ids);
+        messageTaskBlobMapper.deleteByExample(messageTaskBlobExample);
         messageTaskMapper.deleteByExample(messageTaskExample);
         robotMapper.deleteByPrimaryKey(id);
     }
@@ -86,6 +99,17 @@ public class ProjectRobotService {
         projectRobot.setCreateTime(null);
         projectRobot.setUpdateUser(updateUser);
         projectRobot.setUpdateTime(updateTime);
+        MessageTaskExample messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria().andProjectRobotIdEqualTo(id);
+        List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        MessageTaskMapper mapper = sqlSession.getMapper(MessageTaskMapper.class);
+        for (MessageTask messageTask : messageTasks) {
+            messageTask.setEnable(projectRobot.getEnable());
+            mapper.updateByPrimaryKeySelective(messageTask);
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         robotMapper.updateByPrimaryKeySelective(projectRobot);
     }
 
