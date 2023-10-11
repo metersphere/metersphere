@@ -97,7 +97,7 @@ import {getNodeOperationInfo, getTestResourcePools} from '@/api/test-resource-po
 import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
 import EnvSelectPopover from '@/business/automation/scenario/EnvSelectPopover';
 import {getApiCaseEnvironments} from '@/api/api-test-case';
-import NodeOperationLabel from "metersphere-frontend/src/components/node/NodeOperationLabel";
+import NodeOperationLabel from "metersphere-frontend/src/components/resource-pool/NodeOperationLabel";
 
 export default {
   name: 'ApiRunMode',
