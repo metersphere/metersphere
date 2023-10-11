@@ -303,7 +303,7 @@ public class BaseTemplateService {
      * @param scopeId
      * @param scopeType
      */
-    public void initIssueDefaultTemplate(String scopeId, TemplateScopeType scopeType) {
+    public void initBugDefaultTemplate(String scopeId, TemplateScopeType scopeType) {
         this.initDefaultTemplate(scopeId, "bug_default", scopeType, TemplateScene.BUG);
     }
     public void initApiDefaultTemplate(String scopeId, TemplateScopeType scopeType) {
