@@ -14,8 +14,9 @@ const TRACK_HEADER = {
     {id: 'executor', key: '7', label: 'test_track.plan_view.executor'},
     {id: 'maintainerName', key: 'c', label: 'test_track.plan.plan_principal'},
     {id: 'status', key: '8', label: 'test_track.plan_view.execute_result'},
-    {id: 'updateTime', key: '9', label: 'commons.update_time'},
-    {id: 'createTime', key: 'a', label: 'commons.create_time'},
+    {id: 'reviewStatus', key: '9', label: 'test_track.review_view.execute_result'},
+    {id: 'updateTime', key: 'a', label: 'commons.update_time'},
+    {id: 'createTime', key: 'e', label: 'commons.create_time'},
   ],
   //测试计划
   TEST_PLAN_LIST: [

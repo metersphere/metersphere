@@ -198,7 +198,7 @@
                 <span class="el-dropdown-link">
                   <status-table-item :value="scope.row.status"/>
                 </span>
-                <el-dropdown-menu slot="dropdown" chang>
+                <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item :disabled="!hasEditPermission"
                                     :command="{id: scope.row.id, caseId: scope.row.caseId, status: 'Pass'}">
                     {{ $t('test_track.plan_view.pass') }}
@@ -218,6 +218,20 @@
                 </el-dropdown-menu>
               </el-dropdown>
             </span>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
+            prop="reviewStatus"
+            :field="item"
+            :filters="reviewStatusFilters"
+            min-width="140px"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.case.status')">
+          <template v-slot:default="scope">
+              <span class="el-dropdown-link">
+                <review-status :value="scope.row.reviewStatus"/>
+              </span>
           </template>
         </ms-table-column>
 
@@ -341,10 +355,12 @@ import {
   testPlanTestCaseEdit
 } from "@/api/remote/plan/test-plan-test-case";
 import {getOriginIssuesByCaseId} from "@/api/issue";
+import ReviewStatus from "@/business/case/components/ReviewStatus.vue";
 
 export default {
   name: "FunctionalTestCaseList",
   components: {
+    ReviewStatus,
     TestPlanCaseIssueItem,
     MsTableColumn,
     MsTable,
@@ -404,6 +420,13 @@ export default {
         {text: this.$t('test_track.plan_view.skip'), value: 'Skip'}
       ],
       userFilters: [],
+      reviewStatusFilters: [
+        {text: this.$t('test_track.review.prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.review.again'), value: 'Again'},
+        {text: this.$t('test_track.review.pass'), value: 'Pass'},
+        {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
+        {text: this.$t('test_track.review.underway'), value: 'Underway'}
+      ],
       showMore: false,
       typeArr: [
         {id: 'status', name: this.$t('test_track.plan_view.execute_result')},
