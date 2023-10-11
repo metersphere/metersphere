@@ -307,7 +307,6 @@ export default {
     checkReportStatus(status) {
       switch (status) {
         case 'Error':
-          // this.$warning(this.$t('report.generation_error'));
           this.active = '4';
           break;
         case 'Starting':
@@ -368,6 +367,7 @@ export default {
         this.$error(e.data);
         return;
       }
+      this.checkSampleResults(this.report.id);
       this.$set(this.report, "status", 'Running');
       this.status = 'Running';
       this.initReportTimeInfo();

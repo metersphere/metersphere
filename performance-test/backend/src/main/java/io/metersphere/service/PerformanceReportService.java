@@ -272,6 +272,7 @@ public class PerformanceReportService {
         if (StringUtils.isEmpty(content)) {
             return null;
         }
+
         return JSON.parseObject(content, SamplesRecord.class);
     }
 

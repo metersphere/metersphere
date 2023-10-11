@@ -17,7 +17,7 @@
           min-width="180">
       </el-table-column>
       <el-table-column
-          prop="errors"
+          prop="error"
           label="Errors"
           min-width="180">
       </el-table-column>
@@ -137,7 +137,6 @@ export default {
     },
     openRecord(row) {
       let drawerSamples = this.errorSamples.samples[row.name][row.code];
-      console.info(drawerSamples);
       this.$refs.sampleDrawer.openRecord(drawerSamples);
     },
   },
