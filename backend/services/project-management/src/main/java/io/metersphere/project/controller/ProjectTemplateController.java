@@ -39,7 +39,7 @@ public class ProjectTemplateController {
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ)
     public List<Template> list(@Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
                                @PathVariable String projectId,
-                               @Schema(description = "模板的使用场景（FUNCTIONAL,ISSUE,API,UI）", requiredMode = Schema.RequiredMode.REQUIRED)
+                               @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI）", requiredMode = Schema.RequiredMode.REQUIRED)
                                @PathVariable String scene) {
         return projectTemplateservice.list(projectId, scene);
     }

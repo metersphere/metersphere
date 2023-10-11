@@ -10,7 +10,7 @@ public class ModuleDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "模块", allowableValues = {"WORKSTATION", "TEST_PLAN", "UI", "PERFORMANCE_TEST", "API", "CASE", "ISSUE"})
+    @Schema(description = "模块", allowableValues = {"WORKSTATION", "TEST_PLAN", "UI", "PERFORMANCE_TEST", "API", "CASE", "BUG"})
     private String module;
 
     @Schema(description = "是否启用", allowableValues = {"true", "false"})

@@ -32,8 +32,6 @@ public class OrganizationTemplateService extends BaseTemplateService {
     @Resource
     private BaseProjectMapper baseProjectMapper;
     @Resource
-    private BaseCustomFieldService baseCustomFieldService;
-    @Resource
     protected ExtOrganizationTemplateMapper extOrganizationTemplateMapper;
     @Resource
     protected BaseOrganizationParameterService baseOrganizationParameterService;
