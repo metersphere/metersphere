@@ -169,6 +169,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_READ)
     public List<ProjectApplication> getCase(@Validated @RequestBody ProjectApplicationRequest request) {
         List<String> types = Arrays.asList(ProjectApplicationType.CASE.values()).stream().map(ProjectApplicationType.CASE::name).collect(Collectors.toList());
+        types.add(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
         return projectApplicationService.get(request, types);
     }
 
@@ -199,7 +200,7 @@ public class ProjectApplicationController {
 
     @GetMapping("/case/related/info/{projectId}")
     @Operation(summary = "用例管理-获取关联需求信息")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_READ)
     public Map<String, String> getRelatedConfigInfo(@PathVariable("projectId") String projectId) {
         return projectApplicationService.getRelatedConfigInfo(projectId);
     }
@@ -230,52 +231,52 @@ public class ProjectApplicationController {
      * ==========缺陷管理==========
      */
 
-    @PostMapping("/update/issue")
+    @PostMapping("/update/bug")
     @Operation(summary = "缺陷管理-配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#applications)", msClass = ProjectApplicationService.class)
-    public void updateIssue(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
+    public void updateBug(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
         projectApplicationService.update(applications, SessionUtils.getUserId());
     }
 
-    @PostMapping("/issue")
+    @PostMapping("/bug")
     @Operation(summary = "缺陷管理-获取配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_READ)
-    public List<ProjectApplication> getIssue(@Validated @RequestBody ProjectApplicationRequest request) {
-        List<String> types = Arrays.asList(ProjectApplicationType.WORKSTATION.values()).stream().map(ProjectApplicationType.WORKSTATION::name).collect(Collectors.toList());
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_READ)
+    public List<ProjectApplication> getBug(@Validated @RequestBody ProjectApplicationRequest request) {
+        List<String> types = Arrays.asList(ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
         return projectApplicationService.get(request, types);
     }
 
-    @GetMapping("/issue/platform/{organizationId}")
+    @GetMapping("/bug/platform/{organizationId}")
     @Operation(summary = "缺陷管理-获取平台下拉框列表")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_READ)
-    public List<OptionDTO> getIssuePlatformOptions(@PathVariable String organizationId) {
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_READ)
+    public List<OptionDTO> getBugPlatformOptions(@PathVariable String organizationId) {
         return projectApplicationService.getPlatformOptions(organizationId);
     }
 
 
-    @GetMapping("/issue/platform/info/{pluginId}")
+    @GetMapping("/bug/platform/info/{pluginId}")
     @Operation(summary = "缺陷管理-选择平台获取平台信息")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_READ)
-    public Object getIssuePlatformInfo(@PathVariable String pluginId) {
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_READ)
+    public Object getBugPlatformInfo(@PathVariable String pluginId) {
         return projectApplicationService.getPluginScript(pluginId);
     }
 
 
-    @PostMapping("/update/issue/sync/{projectId}")
+    @PostMapping("/update/bug/sync/{projectId}")
     @Operation(summary = "缺陷管理-同步缺陷配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateIssueSyncLog(#projectId, #configs)", msClass = ProjectApplicationService.class)
-    public void syncIssueConfig(@PathVariable("projectId") String projectId, @RequestBody Map<String, String> configs) {
-        projectApplicationService.syncIssueConfig(projectId, configs, SessionUtils.getUserId());
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateBugSyncLog(#projectId, #configs)", msClass = ProjectApplicationService.class)
+    public void syncBugConfig(@PathVariable("projectId") String projectId, @RequestBody Map<String, String> configs) {
+        projectApplicationService.syncBugConfig(projectId, configs, SessionUtils.getUserId());
     }
 
 
-    @GetMapping("/issue/sync/info/{projectId}")
+    @GetMapping("/bug/sync/info/{projectId}")
     @Operation(summary = "缺陷管理-获取同步缺陷信息")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_ISSUE_READ)
-    public Map<String, String> getIssueConfigInfo(@PathVariable("projectId") String projectId) {
-        return projectApplicationService.getIssueConfigInfo(projectId);
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_READ)
+    public Map<String, String> getBugConfigInfo(@PathVariable("projectId") String projectId) {
+        return projectApplicationService.getBugConfigInfo(projectId);
     }
 
 

@@ -6,11 +6,12 @@ import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.dto.ModuleDTO;
 import io.metersphere.project.job.CleanUpReportJob;
-import io.metersphere.project.job.IssueSyncJob;
+import io.metersphere.project.job.BugSyncJob;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.request.ProjectApplicationRequest;
+import io.metersphere.project.utils.ModuleSortUtils;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ScheduleType;
@@ -209,41 +210,41 @@ public class ProjectApplicationService {
      * @param projectId
      * @param configs
      */
-    public void syncIssueConfig(String projectId, Map<String, String> configs, String currentUser) {
-        List<ProjectApplication> issueSyncConfigs = configs.entrySet().stream().map(config -> new ProjectApplication(projectId, ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_" + config.getKey().toUpperCase(), config.getValue())).collect(Collectors.toList());
+    public void syncBugConfig(String projectId, Map<String, String> configs, String currentUser) {
+        List<ProjectApplication> bugSyncConfigs = configs.entrySet().stream().map(config -> new ProjectApplication(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + config.getKey().toUpperCase(), config.getValue())).collect(Collectors.toList());
         //处理同步缺陷定时任务配置
-        doSaveOrUpdateSchedule(issueSyncConfigs, projectId, currentUser);
+        doSaveOrUpdateSchedule(bugSyncConfigs, projectId, currentUser);
         ProjectApplicationExample example = new ProjectApplicationExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "%");
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "%");
         if (projectApplicationMapper.countByExample(example) > 0) {
             example.clear();
-            example.createCriteria().andTypeLike(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "%");
+            example.createCriteria().andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "%");
             projectApplicationMapper.deleteByExample(example);
-            projectApplicationMapper.batchInsert(issueSyncConfigs);
+            projectApplicationMapper.batchInsert(bugSyncConfigs);
         } else {
-            projectApplicationMapper.batchInsert(issueSyncConfigs);
+            projectApplicationMapper.batchInsert(bugSyncConfigs);
         }
     }
 
-    private void doSaveOrUpdateSchedule(List<ProjectApplication> issueSyncConfigs, String projectId, String currentUser) {
-        List<ProjectApplication> syncCron = issueSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_" + ProjectApplicationType.ISSUE_SYNC_CONFIG.CRON_EXPRESSION.name())).collect(Collectors.toList());
-        List<ProjectApplication> syncEnable = issueSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_" + ProjectApplicationType.ISSUE_SYNC_CONFIG.SYNC_ENABLE.name())).collect(Collectors.toList());
+    private void doSaveOrUpdateSchedule(List<ProjectApplication> bugSyncConfigs, String projectId, String currentUser) {
+        List<ProjectApplication> syncCron = bugSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.CRON_EXPRESSION.name())).collect(Collectors.toList());
+        List<ProjectApplication> syncEnable = bugSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(syncCron)) {
             Boolean enable = Boolean.valueOf(syncEnable.get(0).getTypeValue());
             String typeValue = syncCron.get(0).getTypeValue();
-            Schedule schedule = scheduleService.getScheduleByResource(projectId, IssueSyncJob.class.getName());
+            Schedule schedule = scheduleService.getScheduleByResource(projectId, BugSyncJob.class.getName());
             Optional<Schedule> optional = Optional.ofNullable(schedule);
             optional.ifPresentOrElse(s -> {
                 s.setEnable(enable);
                 s.setValue(typeValue);
                 scheduleService.editSchedule(s);
                 scheduleService.addOrUpdateCronJob(s,
-                        IssueSyncJob.getJobKey(projectId),
-                        IssueSyncJob.getTriggerKey(projectId),
-                        IssueSyncJob.class);
+                        BugSyncJob.getJobKey(projectId),
+                        BugSyncJob.getTriggerKey(projectId),
+                        BugSyncJob.class);
             }, () -> {
                 Schedule request = new Schedule();
-                request.setName("Issue Sync Job");
+                request.setName("Bug Sync Job");
                 request.setResourceId(projectId);
                 request.setKey(projectId);
                 request.setProjectId(projectId);
@@ -252,12 +253,12 @@ public class ProjectApplicationService {
                 request.setType(ScheduleType.CRON.name());
                 // 每天凌晨2点执行清理任务
                 request.setValue(typeValue);
-                request.setJob(IssueSyncJob.class.getName());
+                request.setJob(BugSyncJob.class.getName());
                 scheduleService.addSchedule(request);
                 scheduleService.addOrUpdateCronJob(request,
-                        IssueSyncJob.getJobKey(projectId),
-                        IssueSyncJob.getTriggerKey(projectId),
-                        IssueSyncJob.class);
+                        BugSyncJob.getJobKey(projectId),
+                        BugSyncJob.getTriggerKey(projectId),
+                        BugSyncJob.class);
             });
         }
     }
@@ -269,14 +270,14 @@ public class ProjectApplicationService {
      * @param projectId
      * @return
      */
-    public Map<String, String> getIssueConfigInfo(String projectId) {
+    public Map<String, String> getBugConfigInfo(String projectId) {
         ProjectApplicationExample example = new ProjectApplicationExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_%");
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "_%");
         List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
         Map<String, String> collect = new HashMap<>();
         if (CollectionUtils.isNotEmpty(list)) {
             list.stream().forEach(config -> {
-                collect.put(config.getType().replace(ProjectApplicationType.ISSUE.ISSUE_SYNC.name() + "_", "").toLowerCase(), config.getTypeValue());
+                collect.put(config.getType().replace(ProjectApplicationType.BUG.BUG_SYNC.name() + "_", "").toLowerCase(), config.getTypeValue());
             });
         }
         return collect;
@@ -373,8 +374,8 @@ public class ProjectApplicationService {
      * @param configs
      * @return
      */
-    public LogDTO updateIssueSyncLog(String projectId, Map<String, String> configs) {
-        Map<String, String> originConfig = getIssueConfigInfo(projectId);
+    public LogDTO updateBugSyncLog(String projectId, Map<String, String> configs) {
+        Map<String, String> originConfig = getBugConfigInfo(projectId);
         LogDTO dto = new LogDTO(
                 projectId,
                 "",
@@ -435,6 +436,10 @@ public class ProjectApplicationService {
                 }
             });
             moduleDTOList = moduleMap.entrySet().stream().map(entry -> new ModuleDTO(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+            Map<String, Integer> module = ModuleSortUtils.getHashMap();
+            if (CollectionUtils.isNotEmpty(moduleDTOList)) {
+                moduleDTOList.sort((o1, o2) -> module.getOrDefault(o1.getModule(), Integer.MAX_VALUE) - module.getOrDefault(o2.getModule(), Integer.MAX_VALUE));
+            }
         }
         return moduleDTOList;
     }
