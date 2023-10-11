@@ -1,9 +1,20 @@
 package io.metersphere.system.notice.utils;
 
+import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.bug.domain.Bug;
+import io.metersphere.functional.domain.CaseReview;
+import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.load.domain.LoadTest;
+import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.ui.domain.UiScenario;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.text.StringSubstitutor;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -86,6 +97,7 @@ public class MessageTemplateUtils {
 
     /**
      * 获取接收人的特殊值
+     *
      * @return List<String> defaultRelatedUsers
      */
     public static List<String> getDefaultRelatedUser() {
@@ -99,6 +111,7 @@ public class MessageTemplateUtils {
 
     /**
      * 获取接收人的特殊值
+     *
      * @return List<String> defaultRelatedUsers
      */
     public static Map<String, String> getDefaultRelatedUserMap() {
@@ -108,4 +121,85 @@ public class MessageTemplateUtils {
         return defaultRelatedUserMap;
     }
 
+    public static Field[] getDomainTemplateFields(String taskType) {
+        Field[] allFields;
+        switch (taskType) {
+            case NoticeConstants.TaskType.API_DEFINITION_TASK -> {
+                allFields = FieldUtils.getAllFields(ApiDefinition.class);
+
+            }
+            case NoticeConstants.TaskType.API_SCENARIO_TASK, NoticeConstants.TaskType.API_SCHEDULE_TASK -> {
+                allFields = FieldUtils.getAllFields(ApiScenario.class);
+
+            }
+            case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
+                allFields = FieldUtils.getAllFields(TestPlan.class);
+
+            }
+            case NoticeConstants.TaskType.CASE_REVIEW_TASK -> {
+                allFields = FieldUtils.getAllFields(CaseReview.class);
+            }
+            case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> {
+                allFields = FieldUtils.getAllFields(FunctionalCase.class);
+            }
+            case NoticeConstants.TaskType.BUG_TASK -> {
+                allFields = FieldUtils.getAllFields(Bug.class);
+            }
+            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
+                allFields = FieldUtils.getAllFields(UiScenario.class);
+            }
+            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
+                allFields = FieldUtils.getAllFields(LoadTest.class);
+            }
+            default -> allFields = new Field[0];
+        }
+
+        return allFields;
+    }
+
+    public static String getContent(String template, Map<String, Object> context) {
+        // 处理 null
+        context.forEach((k, v) -> {
+            if (v == null) {
+                context.put(k, StringUtils.EMPTY);
+            }
+        });
+        // 处理时间格式的数据
+        handleTime(context);
+        StringSubstitutor sub = new StringSubstitutor(context);
+        return sub.replace(template);
+    }
+
+    public static void handleTime(Map<String, Object> context) {
+        context.forEach((k, v) -> {
+            if (StringUtils.endsWithIgnoreCase(k, "Time")) {
+                try {
+                    String value = v.toString();
+                    long time = Long.parseLong(value);
+                    v = DateFormatUtils.format(time, "yyyy-MM-dd HH:mm:ss");
+                    context.put(k, v);
+                } catch (Exception ignore) {
+                }
+            }
+        });
+    }
+
+    public static String getTranslateTemplate(String taskType, String template) {
+        Field[] domainTemplateFields = getDomainTemplateFields(taskType);
+        Map<String, Object> map = new HashMap<>();
+        if (StringUtils.isNotBlank(template) && template.contains("${OPERATOR}")) {
+            template = template.replace("${OPERATOR}", "<操作人>");
+        }
+        for (Field allField : domainTemplateFields) {
+            Schema annotation = allField.getAnnotation(Schema.class);
+            if (annotation != null) {
+                String description = annotation.description();
+                if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
+                    description = "{{" + description + "}}";
+                }
+                map.put(allField.getName(), description);
+            }
+        }
+        return getContent(template, map);
+    }
 }

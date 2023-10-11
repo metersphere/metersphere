@@ -5,7 +5,6 @@ import io.metersphere.project.domain.MessageTask;
 import io.metersphere.project.domain.MessageTaskBlob;
 import io.metersphere.project.domain.MessageTaskExample;
 import io.metersphere.project.dto.MessageTaskDTO;
-
 import io.metersphere.project.dto.MessageTaskDetailDTO;
 import io.metersphere.project.dto.MessageTemplateConfigDTO;
 import io.metersphere.project.dto.ProjectRobotConfigDTO;
@@ -30,13 +29,15 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class NoticeMessageTaskControllerTests extends BaseTest {
@@ -215,7 +216,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskRequest.setUseDefaultTemplate(false);
         messageTaskRequest.setSubject("测试新加数据模版标题生效");
         messageTaskRequest.setUseDefaultSubject(false);
-        MvcResult mvcResult =mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(messageTaskRequest))
@@ -270,6 +271,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         List<MessageTaskDTO> messageTaskDetailDTOList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
         System.out.println(messageTaskDetailDTOList);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(messageTaskDetailDTOList));
+        System.out.println(messageTaskDetailDTOList);
     }
 
     @Test
@@ -296,7 +298,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         MessageTaskDetailDTO messageTaskDetailDTO = messageTaskDetailDTOList.get(0).getMessageTaskTypeDTOList().get(0).getMessageTaskDetailDTOList().get(0);
         Map<String, ProjectRobotConfigDTO> projectRobotConfigMap = messageTaskDetailDTO.getProjectRobotConfigMap();
         System.out.println(projectRobotConfigMap);
-       // Assertions.assertTrue(StringUtils.isBlank(robotId));
+        // Assertions.assertTrue(StringUtils.isBlank(robotId));
 
     }
 
@@ -341,7 +343,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskRequest.setReceiverIds(userIds);
         messageTaskRequest.setRobotId("test_message_robot2");
         messageTaskRequest.setEnable(true);
-       // messageTaskRequest.setDefaultTemplate("发送消息测试");
+        // messageTaskRequest.setDefaultTemplate("发送消息测试");
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -451,7 +453,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<OptionDTO> userDtoList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
-        Assertions.assertTrue(userDtoList.size()>0);
+        Assertions.assertTrue(userDtoList.size() > 0);
     }
 
     @Test
@@ -466,7 +468,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<OptionDTO> userDtoList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
-        Assertions.assertTrue(userDtoList.size()>0);
+        Assertions.assertTrue(userDtoList.size() > 0);
 
     }
 
@@ -500,7 +502,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         MessageTemplateConfigDTO messageTemplateConfigDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), MessageTemplateConfigDTO.class);
-        Assertions.assertTrue(messageTemplateConfigDTO.getReceiverIds().size()>0);
+        Assertions.assertTrue(messageTemplateConfigDTO.getReceiverIds().size() > 0);
     }
 
     @Test
@@ -518,13 +520,13 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         MessageTemplateConfigDTO messageTemplateConfigDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), MessageTemplateConfigDTO.class);
-        Assertions.assertTrue(messageTemplateConfigDTO.getReceiverIds().size()>0);
+        Assertions.assertTrue(messageTemplateConfigDTO.getReceiverIds().size() > 0);
     }
 
     @Test
     @Order(21)
     public void getTemplateDetailNotExistRobot() throws Exception {
-         mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/template/detail/project-message-test")
+        mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/template/detail/project-message-test")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .param("taskType", NoticeConstants.TaskType.API_DEFINITION_TASK)
