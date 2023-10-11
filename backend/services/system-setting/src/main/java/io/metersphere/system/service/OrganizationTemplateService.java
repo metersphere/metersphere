@@ -5,7 +5,7 @@ import io.metersphere.sdk.dto.TemplateDTO;
 import io.metersphere.sdk.dto.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.SubListUtil;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.OrganizationParameter;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.domain.TemplateExample;
@@ -179,7 +179,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
         // 删除项目模板和字段的关联关系
         List<String> projectTemplateIds = extOrganizationTemplateMapper.getTemplateIdByRefId(orgTemplateId);
         // 分批删除
-        SubListUtil.dealForSubList(projectTemplateIds, 100, baseTemplateCustomFieldService::deleteByTemplateIds);
+        SubListUtils.dealForSubList(projectTemplateIds, 100, baseTemplateCustomFieldService::deleteByTemplateIds);
     }
 
     private void checkOrganizationTemplateEnable(String orgId, String scene) {

@@ -5,7 +5,7 @@ import io.metersphere.sdk.dto.CustomFieldDTO;
 import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.SubListUtil;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.CustomFieldOption;
@@ -143,7 +143,7 @@ public class OrganizationCustomFieldService extends BaseCustomFieldService {
         // 删除字段选项
         List<String> projectCustomFieldIds = extOrganizationCustomFieldMapper.getCustomFieldByRefId(orgCustomFieldId);
         // 分批删除
-        SubListUtil.dealForSubList(projectCustomFieldIds, 100, baseCustomFieldOptionService::deleteByFieldIds);
+        SubListUtils.dealForSubList(projectCustomFieldIds, 100, baseCustomFieldOptionService::deleteByFieldIds);
     }
 
     private void checkOrganizationTemplateEnable(String orgId, String scene) {
