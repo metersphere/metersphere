@@ -170,6 +170,7 @@ public class NoticeMessageTaskService {
         messageTaskExample.createCriteria().andReceiverIn(existUserIds).andProjectIdEqualTo(messageTaskRequest.getProjectId())
                 .andProjectRobotIdEqualTo(messageTaskRequest.getRobotId()).andTaskTypeEqualTo(messageTaskRequest.getTaskType()).andEventEqualTo(messageTaskRequest.getEvent());
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
+        List<String> messageTaskIds = messageTasks.stream().map(MessageTask::getId).toList();
         if (CollectionUtils.isEmpty(messageTasks)) {
             return new ArrayList<>();
         }
@@ -184,7 +185,6 @@ public class NoticeMessageTaskService {
             }
             mapper.updateByPrimaryKeySelective(messageTask);
         }
-        List<String> messageTaskIds = messageTasks.stream().map(MessageTask::getId).toList();
         MessageTaskBlobExample messageTaskBlobExample = new MessageTaskBlobExample();
         messageTaskBlobExample.createCriteria().andIdIn(messageTaskIds);
         List<MessageTaskBlob> messageTaskBlobs = messageTaskBlobMapper.selectByExample(messageTaskBlobExample);
@@ -302,7 +302,7 @@ public class NoticeMessageTaskService {
         List<String> messageTaskIds = messageTasks.stream().map(MessageTask::getId).toList();
         MessageTaskBlobExample messageTaskBlobExample = new MessageTaskBlobExample();
         messageTaskBlobExample.createCriteria().andIdIn(messageTaskIds);
-        List<MessageTaskBlob> messageTaskBlobs = messageTaskBlobMapper.selectByExample(messageTaskBlobExample);
+        List<MessageTaskBlob> messageTaskBlobs = messageTaskBlobMapper.selectByExampleWithBLOBs(messageTaskBlobExample);
         List<String> robotIds = messageTasks.stream().map(MessageTask::getProjectRobotId).toList();
         ProjectRobotExample projectRobotExample = new ProjectRobotExample();
         projectRobotExample.createCriteria().andIdIn(robotIds);
@@ -343,7 +343,7 @@ public class NoticeMessageTaskService {
                     String defaultTemplate = defaultTemplateMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
                     if (CollectionUtils.isEmpty(messageTaskList)) {
                         String defaultSubject = defaultTemplateSubjectMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
-                        ProjectRobotConfigDTO projectRobotConfigDTO = getDefaultProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot);
+                        ProjectRobotConfigDTO projectRobotConfigDTO = getDefaultProjectRobotConfigDTO(messageTaskTypeDTO.getTaskType(), defaultTemplate, defaultSubject, projectRobot);
                         projectRobotConfigMap.put(projectRobot.getId(), projectRobotConfigDTO);
                     } else {
                         for (MessageTask messageTask : messageTaskList) {
@@ -379,33 +379,57 @@ public class NoticeMessageTaskService {
         projectRobotConfigDTO.setPlatform(projectRobot.getPlatform());
         projectRobotConfigDTO.setDingType(projectRobot.getType());
         projectRobotConfigDTO.setEnable(messageTask.getEnable());
-        projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
+        if (messageTask.getUseDefaultSubject()) {
+            projectRobotConfigDTO.setSubject(defaultSubject);
+        } else {
+            projectRobotConfigDTO.setSubject(messageTask.getSubject());
+        }
+        if (messageTask.getUseDefaultTemplate()) {
+            projectRobotConfigDTO.setTemplate(defaultTemplate);
+        } else {
+            projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
+        }
+        String translateTemplate = MessageTemplateUtils.getTranslateTemplate(messageTask.getTaskType(), projectRobotConfigDTO.getTemplate());
+        String translateSubject = MessageTemplateUtils.getTranslateTemplate(messageTask.getTaskType(), projectRobotConfigDTO.getSubject());
+        projectRobotConfigDTO.setPreviewTemplate(translateTemplate);
+        projectRobotConfigDTO.setPreviewSubject(translateSubject);
         projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
-        projectRobotConfigDTO.setSubject(messageTask.getSubject());
         projectRobotConfigDTO.setDefaultSubject(defaultSubject);
         projectRobotConfigDTO.setUseDefaultSubject(messageTask.getUseDefaultSubject());
         projectRobotConfigDTO.setUseDefaultTemplate(messageTask.getUseDefaultTemplate());
         return projectRobotConfigDTO;
     }
 
-    private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, ProjectRobot projectRobot) {
+    private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String taskType, String defaultTemplate, String defaultSubject, ProjectRobot projectRobot) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
         projectRobotConfigDTO.setRobotId(projectRobot.getId());
         projectRobotConfigDTO.setRobotName(projectRobot.getName());
         projectRobotConfigDTO.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
         projectRobotConfigDTO.setDingType(projectRobot.getType());
         projectRobotConfigDTO.setEnable(false);
-        projectRobotConfigDTO.setTemplate("");
+        projectRobotConfigDTO.setTemplate(defaultTemplate);
         projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
-        projectRobotConfigDTO.setSubject("");
+        projectRobotConfigDTO.setSubject(defaultSubject);
         projectRobotConfigDTO.setDefaultSubject(defaultSubject);
         projectRobotConfigDTO.setUseDefaultSubject(true);
         projectRobotConfigDTO.setUseDefaultTemplate(true);
+        String translateTemplate = MessageTemplateUtils.getTranslateTemplate(taskType, defaultTemplate);
+        String translateSubject = MessageTemplateUtils.getTranslateTemplate(taskType, defaultSubject);
+        projectRobotConfigDTO.setPreviewTemplate(translateTemplate);
+        projectRobotConfigDTO.setPreviewSubject(translateSubject);
         return projectRobotConfigDTO;
     }
 
     public List<OptionDTO> getUserList(String projectId, String keyword) {
-        return extProjectUserRoleMapper.getProjectUserSelectList(projectId, keyword);
+        List<OptionDTO> projectUserSelectList = extProjectUserRoleMapper.getProjectUserSelectList(projectId, keyword);
+        Map<String, String> defaultRelatedUserMap = MessageTemplateUtils.getDefaultRelatedUserMap();
+        defaultRelatedUserMap.forEach((k, v) -> {
+            OptionDTO optionDTO = new OptionDTO();
+            optionDTO.setId(k);
+            optionDTO.setName(v);
+            projectUserSelectList.add(optionDTO);
+        });
+        return projectUserSelectList;
     }
 
     public MessageTemplateConfigDTO getTemplateDetail(String projectId, String taskType, String event, String robotId) {
@@ -434,7 +458,7 @@ public class NoticeMessageTaskService {
         }
         ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot, messageTask, messageTaskBlob);
         MessageTemplateConfigDTO messageTemplateConfigDTO = new MessageTemplateConfigDTO();
-        BeanUtils.copyBean(messageTemplateConfigDTO,projectRobotConfigDTO);
+        BeanUtils.copyBean(messageTemplateConfigDTO, projectRobotConfigDTO);
         Map<String, String> taskTypeMap = MessageTemplateUtils.getTaskTypeMap();
         Map<String, String> eventMap = MessageTemplateUtils.getEventMap();
         messageTemplateConfigDTO.setTaskTypeName(taskTypeMap.get(messageTask.getTaskType()));

@@ -88,7 +88,7 @@ public class NoticeSendService {
                 messageDetails = messageDetailService.searchMessageByTestId(noticeModel.getTestId());
             } else {
                 String projectId = (String) noticeModel.getParamMap().get("projectId");
-                messageDetails = messageDetailService.searchMessageByTypeAndProjectId(NoticeConstants.TaskType.JENKINS_TASK, projectId);
+                messageDetails = messageDetailService.searchMessageByTypeAndProjectId(triggerMode, projectId);
             }
 
             // 异步发送通知

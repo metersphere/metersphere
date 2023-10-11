@@ -447,5 +447,56 @@ Insert into message_task(id, event, receiver, project_robot_id, task_type, test_
 VALUES (@load_report_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'LOAD_REPORT_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.load_report_task_delete');
 INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.load_report_task_delete');
 
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_UI_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_ui_task_execute_successful');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_ui_task_execute');
+
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_UI_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_ui_task_execute_failed');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_ui_task_execute');
+
+
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_API_SCENARIO_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_api_scenario_task_execute_successful');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_api_scenario_task_execute');
+
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_API_SCENARIO_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_api_scenario_task_execute_failed');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_api_scenario_task_execute');
+
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_API_CASE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_api_case_task_execute_successful');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_api_case_task_execute');
+
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_API_CASE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_api_case_task_execute_failed');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_api_case_task_execute');
+
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_LOAD_CASE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_load_case_task_execute_successful');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_load_case_task_execute');
+
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_LOAD_CASE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_load_case_task_execute_failed');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_load_case_task_execute');
+
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_TEST_PLAN_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_test_plan_task_execute_successful');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_test_plan_task_execute');
+
+SET @load_report_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@load_report_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_TEST_PLAN_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_test_plan_task_execute_failed');
+INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_test_plan_task_execute');
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

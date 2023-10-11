@@ -58,8 +58,17 @@ public interface NoticeConstants {
         String LOAD_SCHEDULE_TASK = "LOAD_SCHEDULE_TASK";
 
         //jenkins任务
-        @Schema(description = "message.jenkins_task")
-        String JENKINS_TASK = "JENKINS_TASK";
+        @Schema(description = "message.jenkins_ui_task")
+        String JENKINS_UI_TASK = "JENKINS_UI_TASK";
+        @Schema(description = "message.jenkins_api_scenario_task")
+        String JENKINS_API_SCENARIO_TASK = "JENKINS_API_SCENARIO_TASK";
+        @Schema(description = "message.jenkins_api_case_task")
+        String JENKINS_API_CASE_TASK = "JENKINS_API_CASE_TASK";
+        @Schema(description = "message.jenkins_load_case_task")
+        String JENKINS_LOAD_CASE_TASK = "JENKINS_LOAD_CASE_TASK";
+        @Schema(description = "message.jenkins_test_plan_task")
+        String JENKINS_TEST_PLAN_TASK = "JENKINS_TEST_PLAN_TASK";
+
     }
 
     interface Mode {
@@ -158,11 +167,21 @@ public interface NoticeConstants {
 
     interface RelatedUser {
         @Schema(description = "message.create_user")
+        //TODO:// 和实体类创建人应该保持一致，还需再改
         String CREATE_USER = "CREATE_USER";//创建人
         @Schema(description = "message.follow_people")
         String FOLLOW_PEOPLE = "FOLLOW_PEOPLE";//关注人
         @Schema(description = "message.operator")
         String OPERATOR = "OPERATOR"; //操作人
+    }
+
+    interface FieldSource {
+        @Schema(description = "message.custom_field")
+        String CUSTOM_FIELD = "CUSTOM_FIELD";//自定义字段
+        @Schema(description = "message.case_field")
+        String CASE_FIELD = "CASE_FIELD";//用例字段
+        @Schema(description = "message.report_field")
+        String REPORT_FIELD = "REPORT_FIELD"; //报告字段
     }
 
     interface TemplateText {
@@ -284,10 +303,27 @@ public interface NoticeConstants {
         @Schema(description = "message.load_report_task_delete")
         String LOAD_REPORT_TASK_DELETE = "LOAD_REPORT_TASK_DELETE";//${OPERATOR}删除了性能报告:${name}
 
-        @Schema(description = "message.jenkins_task_execute_successful")
-        String JENKINS_TASK_EXECUTE_SUCCESSFUL = "JENKINS_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了场景用例:${name}
-        @Schema(description = "message.jenkins_task_execute_failed")
-        String JENKINS_TASK_EXECUTE_FAILED = "JENKINS_TASK_EXECUTE_FAILED";//Jenkins执行了测试计划:${name}
+        @Schema(description = "message.jenkins_api_scenario_task_execute")
+        String JENKINS_API_SCENARIO_TASK_EXECUTE_SUCCESSFUL = "JENKINS_API_SCENARIO_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了接口场景:${name}
+        @Schema(description = "message.jenkins_api_scenario_task_execute")
+        String JENKINS_API_SCENARIO_TASK_EXECUTE_FAILED = "JENKINS_API_SCENARIO_TASK_EXECUTE_FAILED";//Jenkins执行了接口场景:${name}
+        @Schema(description = "message.jenkins_api_case_task_execute")
+        String JENKINS_API_CASE_TASK_EXECUTE_SUCCESSFUL = "JENKINS_API_CASE_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了接口用例:${name}
+        @Schema(description = "message.jenkins_api_case_task_execute")
+        String JENKINS_API_CASE_TASK_EXECUTE_FAILED = "JENKINS_API_CASE_TASK_EXECUTE_FAILED";//Jenkins执行了接口用例:${name}
+        @Schema(description = "message.jenkins_load_case_task_execute")
+        String JENKINS_LOAD_CASE_TASK_EXECUTE_SUCCESSFUL = "JENKINS_LOAD_CASE_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了性能用例:${name}
+        @Schema(description = "message.jenkins_load_case_task_execute")
+        String JENKINS_LOAD_CASE_TASK_EXECUTE_FAILED = "JENKINS_LOAD_CASE_TASK_EXECUTE_FAILED";//Jenkins执行了性能用例:${name}
+        @Schema(description = "message.jenkins_test_plan_task_execute")
+        String JENKINS_TEST_PLAN_TASK_EXECUTE_SUCCESSFUL = "JENKINS_TEST_PLAN_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了测试计划:${name}
+        @Schema(description = "message.jenkins_test_plan_task_execute")
+        String JENKINS_TEST_PLAN_TASK_EXECUTE_FAILED = "JENKINS_TEST_PLAN_TASK_EXECUTE_FAILED";//Jenkins执行了测试计划:${name}
+        @Schema(description = "message.jenkins_ui_task_execute")
+        String JENKINS_UI_TASK_EXECUTE_SUCCESSFUL = "JENKINS_UI_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了UI用例:${name}
+        @Schema(description = "message.jenkins_ui_task_execute")
+        String JENKINS_UI_TASK_EXECUTE_FAILED = "JENKINS_UI_TASK_EXECUTE_FAILED";//Jenkins执行了UI用例:${name}
+
     }
 
     interface TemplateSubject {
@@ -409,6 +445,27 @@ public interface NoticeConstants {
         String JENKINS_TASK_EXECUTE_SUCCESSFUL = "JENKINS_TASK_EXECUTE_SUCCESSFUL";
         @Schema(description = "message.title.jenkins_task_execute_failed")//Jenkins任务执行失败通知
         String JENKINS_TASK_EXECUTE_FAILED = "JENKINS_TASK_EXECUTE_FAILED";
+
+        @Schema(description = "message.title.jenkins_api_scenario_task_execute_successful")
+        String JENKINS_API_SCENARIO_TASK_EXECUTE_SUCCESSFUL = "JENKINS_API_SCENARIO_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行接口场景成功通知
+        @Schema(description = "message.title.jenkins_api_scenario_task_execute_failed")
+        String JENKINS_API_SCENARIO_TASK_EXECUTE_FAILED = "JENKINS_API_SCENARIO_TASK_EXECUTE_FAILED";//Jenkins执行接口场景失败通知
+        @Schema(description = "message.title.jenkins_api_case_task_execute_successful")
+        String JENKINS_API_CASE_TASK_EXECUTE_SUCCESSFUL = "JENKINS_API_CASE_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行接口用例成功通知
+        @Schema(description = "message.title.jenkins_api_case_task_execute_failed")
+        String JENKINS_API_CASE_TASK_EXECUTE_FAILED = "JENKINS_API_CASE_TASK_EXECUTE_FAILED";//Jenkins执行接口用例失败通知
+        @Schema(description = "message.title.jenkins_load_case_task_execute_successful")
+        String JENKINS_LOAD_CASE_TASK_EXECUTE_SUCCESSFUL = "JENKINS_LOAD_CASE_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行性能用例成功通知
+        @Schema(description = "message.title.jenkins_load_case_task_execute_failed")
+        String JENKINS_LOAD_CASE_TASK_EXECUTE_FAILED = "JENKINS_LOAD_CASE_TASK_EXECUTE_FAILED";//Jenkins执行性能用例失败通知
+        @Schema(description = "message.title.jenkins_test_plan_task_execute_successful")
+        String JENKINS_TEST_PLAN_TASK_EXECUTE_SUCCESSFUL = "JENKINS_TEST_PLAN_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行测试计划成功通知
+        @Schema(description = "message.title.jenkins_test_plan_task_execute_failed")
+        String JENKINS_TEST_PLAN_TASK_EXECUTE_FAILED = "JENKINS_TEST_PLAN_TASK_EXECUTE_FAILED";//Jenkins执行测试计划失败通知
+        @Schema(description = "message.title.jenkins_ui_task_execute_successful")
+        String JENKINS_UI_TASK_EXECUTE_SUCCESSFUL = "JENKINS_UI_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行UI用例成功通知
+        @Schema(description = "message.title.jenkins_ui_task_execute_failed")
+        String JENKINS_UI_TASK_EXECUTE_FAILED = "JENKINS_UI_TASK_EXECUTE_FAILED";//Jenkins执行UI用例失败通知
     }
 
     interface SensitiveField {
