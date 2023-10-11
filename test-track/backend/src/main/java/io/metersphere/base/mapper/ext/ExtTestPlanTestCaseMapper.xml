@@ -113,6 +113,12 @@
                 <property name="object" value="${condition}.executor"/>
             </include>
         </if>
+        <if test="${condition}.reviewStatus != null">
+            and test_case.review_status
+            <include refid="condition">
+                <property name="object" value="${condition}.reviewStatus"/>
+            </include>
+        </if>
         <if test='${condition}.tags != null and ${objectKey}.value.size() > 0 and ${objectKey}.operator == "not like"'>
             and ( test_case.tags is null or
             <foreach collection="${objectKey}.value" item="tag" separator="and" open="(" close=")">
@@ -272,6 +278,10 @@
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
+                        </when>
+                        <when test="key=='review_status'">
+                            and test_case.review_status in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='version_id'">
                             and test_case.version_id in
