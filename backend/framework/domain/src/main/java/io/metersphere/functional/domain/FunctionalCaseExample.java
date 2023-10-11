@@ -654,73 +654,73 @@ public class FunctionalCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andStepModelIsNull() {
-            addCriterion("step_model is null");
+        public Criteria andCaseModelIsNull() {
+            addCriterion("case_model is null");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelIsNotNull() {
-            addCriterion("step_model is not null");
+        public Criteria andCaseModelIsNotNull() {
+            addCriterion("case_model is not null");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelEqualTo(String value) {
-            addCriterion("step_model =", value, "stepModel");
+        public Criteria andCaseModelEqualTo(String value) {
+            addCriterion("case_model =", value, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelNotEqualTo(String value) {
-            addCriterion("step_model <>", value, "stepModel");
+        public Criteria andCaseModelNotEqualTo(String value) {
+            addCriterion("case_model <>", value, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelGreaterThan(String value) {
-            addCriterion("step_model >", value, "stepModel");
+        public Criteria andCaseModelGreaterThan(String value) {
+            addCriterion("case_model >", value, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelGreaterThanOrEqualTo(String value) {
-            addCriterion("step_model >=", value, "stepModel");
+        public Criteria andCaseModelGreaterThanOrEqualTo(String value) {
+            addCriterion("case_model >=", value, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelLessThan(String value) {
-            addCriterion("step_model <", value, "stepModel");
+        public Criteria andCaseModelLessThan(String value) {
+            addCriterion("case_model <", value, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelLessThanOrEqualTo(String value) {
-            addCriterion("step_model <=", value, "stepModel");
+        public Criteria andCaseModelLessThanOrEqualTo(String value) {
+            addCriterion("case_model <=", value, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelLike(String value) {
-            addCriterion("step_model like", value, "stepModel");
+        public Criteria andCaseModelLike(String value) {
+            addCriterion("case_model like", value, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelNotLike(String value) {
-            addCriterion("step_model not like", value, "stepModel");
+        public Criteria andCaseModelNotLike(String value) {
+            addCriterion("case_model not like", value, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelIn(List<String> values) {
-            addCriterion("step_model in", values, "stepModel");
+        public Criteria andCaseModelIn(List<String> values) {
+            addCriterion("case_model in", values, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelNotIn(List<String> values) {
-            addCriterion("step_model not in", values, "stepModel");
+        public Criteria andCaseModelNotIn(List<String> values) {
+            addCriterion("case_model not in", values, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelBetween(String value1, String value2) {
-            addCriterion("step_model between", value1, value2, "stepModel");
+        public Criteria andCaseModelBetween(String value1, String value2) {
+            addCriterion("case_model between", value1, value2, "caseModel");
             return (Criteria) this;
         }
 
-        public Criteria andStepModelNotBetween(String value1, String value2) {
-            addCriterion("step_model not between", value1, value2, "stepModel");
+        public Criteria andCaseModelNotBetween(String value1, String value2) {
+            addCriterion("case_model not between", value1, value2, "caseModel");
             return (Criteria) this;
         }
 
@@ -1241,6 +1241,76 @@ public class FunctionalCaseExample {
 
         public Criteria andCreateUserNotBetween(String value1, String value2) {
             addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNull() {
+            addCriterion("update_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNotNull() {
+            addCriterion("update_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserEqualTo(String value) {
+            addCriterion("update_user =", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotEqualTo(String value) {
+            addCriterion("update_user <>", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThan(String value) {
+            addCriterion("update_user >", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("update_user >=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThan(String value) {
+            addCriterion("update_user <", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThanOrEqualTo(String value) {
+            addCriterion("update_user <=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLike(String value) {
+            addCriterion("update_user like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotLike(String value) {
+            addCriterion("update_user not like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIn(List<String> values) {
+            addCriterion("update_user in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotIn(List<String> values) {
+            addCriterion("update_user not in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserBetween(String value1, String value2) {
+            addCriterion("update_user between", value1, value2, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotBetween(String value1, String value2) {
+            addCriterion("update_user not between", value1, value2, "updateUser");
             return (Criteria) this;
         }
 

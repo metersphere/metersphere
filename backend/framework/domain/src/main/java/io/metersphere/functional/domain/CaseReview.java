@@ -1,8 +1,10 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +22,9 @@ public class CaseReview implements Serializable {
     @Size(min = 1, max = 200, message = "{case_review.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description =  "评审状态：未开始/进行中/已完成/已结束/已归档")
+    @Schema(description =  "评审状态：未开始/进行中/已完成/已结束/已归档", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{case_review.status.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 64, message = "{case_review.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
     @Schema(description =  "创建时间")
@@ -30,7 +34,8 @@ public class CaseReview implements Serializable {
     private Long updateTime;
 
     @Schema(description =  "评审结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{case_review.end_time.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{case_review.end_time.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 19, message = "{case_review.end_time.length_range}", groups = {Created.class, Updated.class})
     private Long endTime;
 
     @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -44,7 +49,9 @@ public class CaseReview implements Serializable {
     @Schema(description =  "创建人")
     private String createUser;
 
-    @Schema(description =  "评审规则：单人通过/全部通过")
+    @Schema(description =  "评审规则：单人通过/全部通过", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{case_review.review_pass_rule.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 64, message = "{case_review.review_pass_rule.length_range}", groups = {Created.class, Updated.class})
     private String reviewPassRule;
 
     @Schema(description =  "描述")

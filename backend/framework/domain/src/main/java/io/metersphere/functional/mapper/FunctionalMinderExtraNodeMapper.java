@@ -33,4 +33,8 @@ public interface FunctionalMinderExtraNodeMapper {
     int updateByPrimaryKeyWithBLOBs(FunctionalMinderExtraNode record);
 
     int updateByPrimaryKey(FunctionalMinderExtraNode record);
+
+    int batchInsert(@Param("list") List<FunctionalMinderExtraNode> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalMinderExtraNode> list, @Param("selective") FunctionalMinderExtraNode.Column ... selective);
 }

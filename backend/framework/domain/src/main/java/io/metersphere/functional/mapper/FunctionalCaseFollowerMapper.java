@@ -21,4 +21,8 @@ public interface FunctionalCaseFollowerMapper {
     int updateByExampleSelective(@Param("record") FunctionalCaseFollower record, @Param("example") FunctionalCaseFollowerExample example);
 
     int updateByExample(@Param("record") FunctionalCaseFollower record, @Param("example") FunctionalCaseFollowerExample example);
+
+    int batchInsert(@Param("list") List<FunctionalCaseFollower> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalCaseFollower> list, @Param("selective") FunctionalCaseFollower.Column ... selective);
 }

@@ -1,9 +1,13 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import lombok.Data;
 
 @Data
@@ -38,12 +42,93 @@ public class CaseReviewFunctionalCase implements Serializable {
     private String createUser;
 
     @Schema(description =  "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{case_review_functional_case.pos.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{case_review_functional_case.pos.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 19, message = "{case_review_functional_case.pos.length_range}", groups = {Created.class, Updated.class})
     private Long pos;
 
     @Schema(description =  "关联的用例是否放入回收站", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{case_review_functional_case.deleted.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{case_review_functional_case.deleted.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 1, message = "{case_review_functional_case.deleted.length_range}", groups = {Created.class, Updated.class})
     private Boolean deleted;
 
     private static final long serialVersionUID = 1L;
+
+    public enum Column {
+        id("id", "id", "VARCHAR", false),
+        reviewId("review_id", "reviewId", "VARCHAR", false),
+        caseId("case_id", "caseId", "VARCHAR", false),
+        status("status", "status", "VARCHAR", true),
+        createTime("create_time", "createTime", "BIGINT", false),
+        updateTime("update_time", "updateTime", "BIGINT", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false),
+        deleted("deleted", "deleted", "BIT", false);
+
+        private static final String BEGINNING_DELIMITER = "`";
+
+        private static final String ENDING_DELIMITER = "`";
+
+        private final String column;
+
+        private final boolean isColumnNameDelimited;
+
+        private final String javaProperty;
+
+        private final String jdbcType;
+
+        public String value() {
+            return this.column;
+        }
+
+        public String getValue() {
+            return this.column;
+        }
+
+        public String getJavaProperty() {
+            return this.javaProperty;
+        }
+
+        public String getJdbcType() {
+            return this.jdbcType;
+        }
+
+        Column(String column, String javaProperty, String jdbcType, boolean isColumnNameDelimited) {
+            this.column = column;
+            this.javaProperty = javaProperty;
+            this.jdbcType = jdbcType;
+            this.isColumnNameDelimited = isColumnNameDelimited;
+        }
+
+        public String desc() {
+            return this.getEscapedColumnName() + " DESC";
+        }
+
+        public String asc() {
+            return this.getEscapedColumnName() + " ASC";
+        }
+
+        public static Column[] excludes(Column ... excludes) {
+            ArrayList<Column> columns = new ArrayList<>(Arrays.asList(Column.values()));
+            if (excludes != null && excludes.length > 0) {
+                columns.removeAll(new ArrayList<>(Arrays.asList(excludes)));
+            }
+            return columns.toArray(new Column[]{});
+        }
+
+        public static Column[] all() {
+            return Column.values();
+        }
+
+        public String getEscapedColumnName() {
+            if (this.isColumnNameDelimited) {
+                return new StringBuilder().append(BEGINNING_DELIMITER).append(this.column).append(ENDING_DELIMITER).toString();
+            } else {
+                return this.column;
+            }
+        }
+
+        public String getAliasedEscapedColumnName() {
+            return this.getEscapedColumnName();
+        }
+    }
 }

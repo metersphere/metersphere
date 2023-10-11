@@ -142,4 +142,32 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into case_review_user
+    (review_id, user_id)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.reviewId,jdbcType=VARCHAR}, #{item.userId,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into case_review_user (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'review_id'.toString() == column.value">
+          #{item.reviewId,jdbcType=VARCHAR}
+        </if>
+        <if test="'user_id'.toString() == column.value">
+          #{item.userId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

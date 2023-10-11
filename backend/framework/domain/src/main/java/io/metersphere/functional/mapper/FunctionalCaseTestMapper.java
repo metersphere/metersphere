@@ -27,4 +27,8 @@ public interface FunctionalCaseTestMapper {
     int updateByPrimaryKeySelective(FunctionalCaseTest record);
 
     int updateByPrimaryKey(FunctionalCaseTest record);
+
+    int batchInsert(@Param("list") List<FunctionalCaseTest> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalCaseTest> list, @Param("selective") FunctionalCaseTest.Column ... selective);
 }

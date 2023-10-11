@@ -10,7 +10,7 @@ public interface FunctionalCaseAttachmentMapper {
 
     int deleteByExample(FunctionalCaseAttachmentExample example);
 
-    int deleteByPrimaryKey(@Param("functionalCaseId") String functionalCaseId, @Param("fileId") String fileId);
+    int deleteByPrimaryKey(@Param("caseId") String caseId, @Param("fileId") String fileId);
 
     int insert(FunctionalCaseAttachment record);
 
@@ -21,4 +21,8 @@ public interface FunctionalCaseAttachmentMapper {
     int updateByExampleSelective(@Param("record") FunctionalCaseAttachment record, @Param("example") FunctionalCaseAttachmentExample example);
 
     int updateByExample(@Param("record") FunctionalCaseAttachment record, @Param("example") FunctionalCaseAttachmentExample example);
+
+    int batchInsert(@Param("list") List<FunctionalCaseAttachment> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalCaseAttachment> list, @Param("selective") FunctionalCaseAttachment.Column ... selective);
 }

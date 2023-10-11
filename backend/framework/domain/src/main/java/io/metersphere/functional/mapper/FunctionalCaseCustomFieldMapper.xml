@@ -231,4 +231,39 @@
     where case_id = #{caseId,jdbcType=VARCHAR}
       and field_id = #{fieldId,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into functional_case_custom_field
+    (case_id, field_id, `value`, text_value)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.caseId,jdbcType=VARCHAR}, #{item.fieldId,jdbcType=VARCHAR}, #{item.value,jdbcType=VARCHAR}, 
+        #{item.textValue,jdbcType=LONGVARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into functional_case_custom_field (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'case_id'.toString() == column.value">
+          #{item.caseId,jdbcType=VARCHAR}
+        </if>
+        <if test="'field_id'.toString() == column.value">
+          #{item.fieldId,jdbcType=VARCHAR}
+        </if>
+        <if test="'value'.toString() == column.value">
+          #{item.value,jdbcType=VARCHAR}
+        </if>
+        <if test="'text_value'.toString() == column.value">
+          #{item.textValue,jdbcType=LONGVARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

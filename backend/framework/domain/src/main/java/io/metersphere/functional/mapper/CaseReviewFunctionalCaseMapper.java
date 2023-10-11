@@ -27,4 +27,8 @@ public interface CaseReviewFunctionalCaseMapper {
     int updateByPrimaryKeySelective(CaseReviewFunctionalCase record);
 
     int updateByPrimaryKey(CaseReviewFunctionalCase record);
+
+    int batchInsert(@Param("list") List<CaseReviewFunctionalCase> list);
+
+    int batchInsertSelective(@Param("list") List<CaseReviewFunctionalCase> list, @Param("selective") CaseReviewFunctionalCase.Column ... selective);
 }

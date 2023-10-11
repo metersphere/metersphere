@@ -27,4 +27,8 @@ public interface FunctionalCaseRelationshipEdgeMapper {
     int updateByPrimaryKeySelective(FunctionalCaseRelationshipEdge record);
 
     int updateByPrimaryKey(FunctionalCaseRelationshipEdge record);
+
+    int batchInsert(@Param("list") List<FunctionalCaseRelationshipEdge> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalCaseRelationshipEdge> list, @Param("selective") FunctionalCaseRelationshipEdge.Column ... selective);
 }
