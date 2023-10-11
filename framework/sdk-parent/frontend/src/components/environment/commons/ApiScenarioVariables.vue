@@ -113,6 +113,7 @@
               size="mini"
               v-if="scope.row.type !== 'CSV'"
               :placeholder="valueText(scope.row)"
+              @change="changeVariableVal(scope.row)"
               :disabled="scope.row.type === 'COUNTER' || scope.row.type === 'RANDOM'"/>
             <csv-file-upload :parameter="scope.row" v-if="scope.row.type === 'CSV'"/>
           </template>
@@ -322,6 +323,13 @@ export default {
       if (!data.scope || data.scope == 'ui') {
         data.type = 'STRING';
       }
+    },
+    changeVariableVal(data) {
+      this.items.forEach(item => {
+        if (item.name === data.name) {
+          item.value = data.value;
+        }
+      })
     },
     valueText(data) {
       switch (data.type) {
@@ -594,6 +602,7 @@ export default {
         }
       });
       this.allData = this.items;
+      this.sortParameters();
       this.queryPage();
     }
   },
