@@ -171,9 +171,9 @@ import QuotaValue from "./QuotaValue";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import {getCustomTableHeader, getCustomTableWidth} from "metersphere-frontend/src/utils/tableUtils";
-import {getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
+import {getCurrentWorkspaceId, getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import EditQuota from "./EditQuota";
-import {deleteQuota, getQuotaPages, saveQuota} from "../../../api/quota";
+import {deleteQuota, getQuotaPages, saveQuota, getProjectModules} from "../../../api/quota";
 import {QUOTA_TABLE_HEADER_KEY, QUOTA_TYPE} from "../../../common/constants";
 
 export default {
@@ -316,6 +316,19 @@ export default {
       saveQuota(quota).then(() => {
         this.$success(this.$t("commons.save_success"));
         this.refresh();
+        if (this.quotaType === QUOTA_TYPE.WORKSPACE) {
+          getProjectModules("workspace", getCurrentWorkspaceId())
+            .then(res => {
+              let modules = res.data;
+              sessionStorage.setItem('workspace_modules', JSON.stringify(modules));
+            });
+        } else {
+          getProjectModules("project", getCurrentProjectID())
+            .then(res => {
+              let modules = res.data;
+              sessionStorage.setItem('project_modules', JSON.stringify(modules));
+            });
+        }
       }).catch(() => {
         this.refresh();
       });
