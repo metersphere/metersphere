@@ -14,4 +14,5 @@
 
 ```bash
 ./mvnw clean package
+mvn clean package -DskipTests -DskipAntRunForJenkins -pl "!framework/sdk-parent/frontend,!api-test/frontend,!performance-test/frontend,!project-management/frontend,!report-stat/frontend,!system-setting/frontend,!test-track/frontend,!workstation/frontend"
 ```
