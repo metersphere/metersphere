@@ -27,4 +27,8 @@ public interface FunctionalCaseModuleMapper {
     int updateByPrimaryKeySelective(FunctionalCaseModule record);
 
     int updateByPrimaryKey(FunctionalCaseModule record);
+
+    int batchInsert(@Param("list") List<FunctionalCaseModule> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalCaseModule> list, @Param("selective") FunctionalCaseModule.Column ... selective);
 }

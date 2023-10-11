@@ -31,4 +31,8 @@ public interface FunctionalCaseBlobMapper {
     int updateByPrimaryKeySelective(FunctionalCaseBlob record);
 
     int updateByPrimaryKeyWithBLOBs(FunctionalCaseBlob record);
+
+    int batchInsert(@Param("list") List<FunctionalCaseBlob> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalCaseBlob> list, @Param("selective") FunctionalCaseBlob.Column ... selective);
 }

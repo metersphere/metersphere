@@ -240,4 +240,49 @@
       create_time = #{createTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into functional_case_relationship_edge
+    (id, source_id, target_id, graph_id, create_user, update_time, create_time)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.sourceId,jdbcType=VARCHAR}, #{item.targetId,jdbcType=VARCHAR}, 
+        #{item.graphId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.createTime,jdbcType=BIGINT})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into functional_case_relationship_edge (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'source_id'.toString() == column.value">
+          #{item.sourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'target_id'.toString() == column.value">
+          #{item.targetId,jdbcType=VARCHAR}
+        </if>
+        <if test="'graph_id'.toString() == column.value">
+          #{item.graphId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

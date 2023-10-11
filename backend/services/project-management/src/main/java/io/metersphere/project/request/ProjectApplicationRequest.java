@@ -21,6 +21,6 @@ public class ProjectApplicationRequest implements Serializable {
     @NotBlank(message = "{project_application.project_id.not_blank}")
     private String projectId;
 
-    @Schema(description = "配置类型列表", allowableValues = {"WORKSTATION", "TEST_PLAN", "UI", "PERFORMANCE_TEST", "API", "CASE", "BUG"}, requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "配置类型列表", allowableValues = {"workstation", "testPlan", "bugManagement", "caseManagement", "apiTest", "uiTest", "loadTest"}, requiredMode = Schema.RequiredMode.REQUIRED)
     private String type;
 }

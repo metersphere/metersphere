@@ -33,4 +33,8 @@ public interface FunctionalCaseCommentMapper {
     int updateByPrimaryKeyWithBLOBs(FunctionalCaseComment record);
 
     int updateByPrimaryKey(FunctionalCaseComment record);
+
+    int batchInsert(@Param("list") List<FunctionalCaseComment> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalCaseComment> list, @Param("selective") FunctionalCaseComment.Column ... selective);
 }

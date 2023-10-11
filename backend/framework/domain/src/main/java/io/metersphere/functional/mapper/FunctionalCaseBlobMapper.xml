@@ -6,7 +6,7 @@
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.functional.domain.FunctionalCaseBlob">
     <result column="steps" jdbcType="LONGVARCHAR" property="steps" />
-    <result column="step_description" jdbcType="LONGVARCHAR" property="stepDescription" />
+    <result column="text_description" jdbcType="LONGVARCHAR" property="textDescription" />
     <result column="expected_result" jdbcType="LONGVARCHAR" property="expectedResult" />
     <result column="prerequisite" jdbcType="LONGVARCHAR" property="prerequisite" />
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -73,7 +73,7 @@
     id
   </sql>
   <sql id="Blob_Column_List">
-    steps, step_description, expected_result, prerequisite, description
+    steps, text_description, expected_result, prerequisite, description
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.functional.domain.FunctionalCaseBlobExample" resultMap="ResultMapWithBLOBs">
     select
@@ -124,10 +124,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseBlob">
-    insert into functional_case_blob (id, steps, step_description, 
+    insert into functional_case_blob (id, steps, text_description, 
       expected_result, prerequisite, description
       )
-    values (#{id,jdbcType=VARCHAR}, #{steps,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{steps,jdbcType=LONGVARCHAR}, #{textDescription,jdbcType=LONGVARCHAR}, 
       #{expectedResult,jdbcType=LONGVARCHAR}, #{prerequisite,jdbcType=LONGVARCHAR}, #{description,jdbcType=LONGVARCHAR}
       )
   </insert>
@@ -140,8 +140,8 @@
       <if test="steps != null">
         steps,
       </if>
-      <if test="stepDescription != null">
-        step_description,
+      <if test="textDescription != null">
+        text_description,
       </if>
       <if test="expectedResult != null">
         expected_result,
@@ -160,8 +160,8 @@
       <if test="steps != null">
         #{steps,jdbcType=LONGVARCHAR},
       </if>
-      <if test="stepDescription != null">
-        #{stepDescription,jdbcType=LONGVARCHAR},
+      <if test="textDescription != null">
+        #{textDescription,jdbcType=LONGVARCHAR},
       </if>
       <if test="expectedResult != null">
         #{expectedResult,jdbcType=LONGVARCHAR},
@@ -189,8 +189,8 @@
       <if test="record.steps != null">
         steps = #{record.steps,jdbcType=LONGVARCHAR},
       </if>
-      <if test="record.stepDescription != null">
-        step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
+      <if test="record.textDescription != null">
+        text_description = #{record.textDescription,jdbcType=LONGVARCHAR},
       </if>
       <if test="record.expectedResult != null">
         expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
@@ -210,7 +210,7 @@
     update functional_case_blob
     set id = #{record.id,jdbcType=VARCHAR},
       steps = #{record.steps,jdbcType=LONGVARCHAR},
-      step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
+      text_description = #{record.textDescription,jdbcType=LONGVARCHAR},
       expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
       prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
@@ -231,8 +231,8 @@
       <if test="steps != null">
         steps = #{steps,jdbcType=LONGVARCHAR},
       </if>
-      <if test="stepDescription != null">
-        step_description = #{stepDescription,jdbcType=LONGVARCHAR},
+      <if test="textDescription != null">
+        text_description = #{textDescription,jdbcType=LONGVARCHAR},
       </if>
       <if test="expectedResult != null">
         expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
@@ -249,10 +249,52 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.functional.domain.FunctionalCaseBlob">
     update functional_case_blob
     set steps = #{steps,jdbcType=LONGVARCHAR},
-      step_description = #{stepDescription,jdbcType=LONGVARCHAR},
+      text_description = #{textDescription,jdbcType=LONGVARCHAR},
       expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
       prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into functional_case_blob
+    (id, steps, text_description, expected_result, prerequisite, description)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.steps,jdbcType=LONGVARCHAR}, #{item.textDescription,jdbcType=LONGVARCHAR}, 
+        #{item.expectedResult,jdbcType=LONGVARCHAR}, #{item.prerequisite,jdbcType=LONGVARCHAR}, 
+        #{item.description,jdbcType=LONGVARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into functional_case_blob (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'steps'.toString() == column.value">
+          #{item.steps,jdbcType=LONGVARCHAR}
+        </if>
+        <if test="'text_description'.toString() == column.value">
+          #{item.textDescription,jdbcType=LONGVARCHAR}
+        </if>
+        <if test="'expected_result'.toString() == column.value">
+          #{item.expectedResult,jdbcType=LONGVARCHAR}
+        </if>
+        <if test="'prerequisite'.toString() == column.value">
+          #{item.prerequisite,jdbcType=LONGVARCHAR}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=LONGVARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

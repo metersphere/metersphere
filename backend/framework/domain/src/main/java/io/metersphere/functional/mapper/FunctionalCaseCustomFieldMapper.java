@@ -33,4 +33,8 @@ public interface FunctionalCaseCustomFieldMapper {
     int updateByPrimaryKeyWithBLOBs(FunctionalCaseCustomField record);
 
     int updateByPrimaryKey(FunctionalCaseCustomField record);
+
+    int batchInsert(@Param("list") List<FunctionalCaseCustomField> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalCaseCustomField> list, @Param("selective") FunctionalCaseCustomField.Column ... selective);
 }

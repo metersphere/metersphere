@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.functional.mapper.FunctionalCaseTestMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCaseTest">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="functional_case_id" jdbcType="VARCHAR" property="functionalCaseId" />
+    <result column="case_id" jdbcType="VARCHAR" property="caseId" />
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="test_type" jdbcType="VARCHAR" property="testType" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, functional_case_id, test_id, test_type, create_time, update_time
+    id, case_id, test_id, test_type, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseTestExample" resultMap="BaseResultMap">
     select
@@ -101,10 +101,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseTest">
-    insert into functional_case_test (id, functional_case_id, test_id, 
+    insert into functional_case_test (id, case_id, test_id, 
       test_type, create_time, update_time
       )
-    values (#{id,jdbcType=VARCHAR}, #{functionalCaseId,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, 
       #{testType,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}
       )
   </insert>
@@ -114,8 +114,8 @@
       <if test="id != null">
         id,
       </if>
-      <if test="functionalCaseId != null">
-        functional_case_id,
+      <if test="caseId != null">
+        case_id,
       </if>
       <if test="testId != null">
         test_id,
@@ -134,8 +134,8 @@
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="functionalCaseId != null">
-        #{functionalCaseId,jdbcType=VARCHAR},
+      <if test="caseId != null">
+        #{caseId,jdbcType=VARCHAR},
       </if>
       <if test="testId != null">
         #{testId,jdbcType=VARCHAR},
@@ -163,8 +163,8 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.functionalCaseId != null">
-        functional_case_id = #{record.functionalCaseId,jdbcType=VARCHAR},
+      <if test="record.caseId != null">
+        case_id = #{record.caseId,jdbcType=VARCHAR},
       </if>
       <if test="record.testId != null">
         test_id = #{record.testId,jdbcType=VARCHAR},
@@ -186,7 +186,7 @@
   <update id="updateByExample" parameterType="map">
     update functional_case_test
     set id = #{record.id,jdbcType=VARCHAR},
-      functional_case_id = #{record.functionalCaseId,jdbcType=VARCHAR},
+      case_id = #{record.caseId,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
       test_type = #{record.testType,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -198,8 +198,8 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.functional.domain.FunctionalCaseTest">
     update functional_case_test
     <set>
-      <if test="functionalCaseId != null">
-        functional_case_id = #{functionalCaseId,jdbcType=VARCHAR},
+      <if test="caseId != null">
+        case_id = #{caseId,jdbcType=VARCHAR},
       </if>
       <if test="testId != null">
         test_id = #{testId,jdbcType=VARCHAR},
@@ -218,11 +218,53 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.FunctionalCaseTest">
     update functional_case_test
-    set functional_case_id = #{functionalCaseId,jdbcType=VARCHAR},
+    set case_id = #{caseId,jdbcType=VARCHAR},
       test_id = #{testId,jdbcType=VARCHAR},
       test_type = #{testType,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into functional_case_test
+    (id, case_id, test_id, test_type, create_time, update_time)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.testId,jdbcType=VARCHAR}, 
+        #{item.testType,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into functional_case_test (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'case_id'.toString() == column.value">
+          #{item.caseId,jdbcType=VARCHAR}
+        </if>
+        <if test="'test_id'.toString() == column.value">
+          #{item.testId,jdbcType=VARCHAR}
+        </if>
+        <if test="'test_type'.toString() == column.value">
+          #{item.testType,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

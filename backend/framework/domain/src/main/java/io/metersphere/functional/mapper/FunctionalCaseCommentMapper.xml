@@ -10,6 +10,8 @@
     <result column="belong_id" jdbcType="VARCHAR" property="belongId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="reply_user" jdbcType="VARCHAR" property="replyUser" />
+    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.functional.domain.FunctionalCaseComment">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -73,7 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, case_id, create_user, `status`, `type`, belong_id, create_time, update_time
+    id, case_id, create_user, `status`, `type`, belong_id, create_time, update_time, 
+    reply_user, parent_id
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -129,12 +132,12 @@
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseComment">
     insert into functional_case_comment (id, case_id, create_user, 
       `status`, `type`, belong_id, 
-      create_time, update_time, description
-      )
+      create_time, update_time, reply_user, 
+      parent_id, description)
     values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{belongId,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}
-      )
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{replyUser,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseComment">
     insert into functional_case_comment
@@ -162,6 +165,12 @@
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="replyUser != null">
+        reply_user,
+      </if>
+      <if test="parentId != null">
+        parent_id,
       </if>
       <if test="description != null">
         description,
@@ -191,6 +200,12 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="replyUser != null">
+        #{replyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -230,6 +245,12 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.replyUser != null">
+        reply_user = #{record.replyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.parentId != null">
+        parent_id = #{record.parentId,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -248,6 +269,8 @@
       belong_id = #{record.belongId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      reply_user = #{record.replyUser,jdbcType=VARCHAR},
+      parent_id = #{record.parentId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -262,7 +285,9 @@
       `type` = #{record.type,jdbcType=VARCHAR},
       belong_id = #{record.belongId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      reply_user = #{record.replyUser,jdbcType=VARCHAR},
+      parent_id = #{record.parentId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -291,6 +316,12 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="replyUser != null">
+        reply_user = #{replyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -306,6 +337,8 @@
       belong_id = #{belongId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      reply_user = #{replyUser,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -317,7 +350,68 @@
       `type` = #{type,jdbcType=VARCHAR},
       belong_id = #{belongId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      reply_user = #{replyUser,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into functional_case_comment
+    (id, case_id, create_user, `status`, `type`, belong_id, create_time, update_time, 
+      reply_user, parent_id, description)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.status,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.belongId,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.replyUser,jdbcType=VARCHAR}, 
+        #{item.parentId,jdbcType=VARCHAR}, #{item.description,jdbcType=LONGVARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into functional_case_comment (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'case_id'.toString() == column.value">
+          #{item.caseId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+        <if test="'belong_id'.toString() == column.value">
+          #{item.belongId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'reply_user'.toString() == column.value">
+          #{item.replyUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'parent_id'.toString() == column.value">
+          #{item.parentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=LONGVARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

@@ -104,73 +104,73 @@ public class FunctionalCaseAttachmentExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andFunctionalCaseIdIsNull() {
-            addCriterion("functional_case_id is null");
+        public Criteria andCaseIdIsNull() {
+            addCriterion("case_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdIsNotNull() {
-            addCriterion("functional_case_id is not null");
+        public Criteria andCaseIdIsNotNull() {
+            addCriterion("case_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdEqualTo(String value) {
-            addCriterion("functional_case_id =", value, "functionalCaseId");
+        public Criteria andCaseIdEqualTo(String value) {
+            addCriterion("case_id =", value, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdNotEqualTo(String value) {
-            addCriterion("functional_case_id <>", value, "functionalCaseId");
+        public Criteria andCaseIdNotEqualTo(String value) {
+            addCriterion("case_id <>", value, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdGreaterThan(String value) {
-            addCriterion("functional_case_id >", value, "functionalCaseId");
+        public Criteria andCaseIdGreaterThan(String value) {
+            addCriterion("case_id >", value, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdGreaterThanOrEqualTo(String value) {
-            addCriterion("functional_case_id >=", value, "functionalCaseId");
+        public Criteria andCaseIdGreaterThanOrEqualTo(String value) {
+            addCriterion("case_id >=", value, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdLessThan(String value) {
-            addCriterion("functional_case_id <", value, "functionalCaseId");
+        public Criteria andCaseIdLessThan(String value) {
+            addCriterion("case_id <", value, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdLessThanOrEqualTo(String value) {
-            addCriterion("functional_case_id <=", value, "functionalCaseId");
+        public Criteria andCaseIdLessThanOrEqualTo(String value) {
+            addCriterion("case_id <=", value, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdLike(String value) {
-            addCriterion("functional_case_id like", value, "functionalCaseId");
+        public Criteria andCaseIdLike(String value) {
+            addCriterion("case_id like", value, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdNotLike(String value) {
-            addCriterion("functional_case_id not like", value, "functionalCaseId");
+        public Criteria andCaseIdNotLike(String value) {
+            addCriterion("case_id not like", value, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdIn(List<String> values) {
-            addCriterion("functional_case_id in", values, "functionalCaseId");
+        public Criteria andCaseIdIn(List<String> values) {
+            addCriterion("case_id in", values, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdNotIn(List<String> values) {
-            addCriterion("functional_case_id not in", values, "functionalCaseId");
+        public Criteria andCaseIdNotIn(List<String> values) {
+            addCriterion("case_id not in", values, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdBetween(String value1, String value2) {
-            addCriterion("functional_case_id between", value1, value2, "functionalCaseId");
+        public Criteria andCaseIdBetween(String value1, String value2) {
+            addCriterion("case_id between", value1, value2, "caseId");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionalCaseIdNotBetween(String value1, String value2) {
-            addCriterion("functional_case_id not between", value1, value2, "functionalCaseId");
+        public Criteria andCaseIdNotBetween(String value1, String value2) {
+            addCriterion("case_id not between", value1, value2, "caseId");
             return (Criteria) this;
         }
 

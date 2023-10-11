@@ -21,4 +21,8 @@ public interface CaseReviewUserMapper {
     int updateByExampleSelective(@Param("record") CaseReviewUser record, @Param("example") CaseReviewUserExample example);
 
     int updateByExample(@Param("record") CaseReviewUser record, @Param("example") CaseReviewUserExample example);
+
+    int batchInsert(@Param("list") List<CaseReviewUser> list);
+
+    int batchInsertSelective(@Param("list") List<CaseReviewUser> list, @Param("selective") CaseReviewUser.Column ... selective);
 }
