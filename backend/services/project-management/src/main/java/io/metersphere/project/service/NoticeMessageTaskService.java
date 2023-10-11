@@ -435,7 +435,12 @@ public class NoticeMessageTaskService {
         ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot, messageTask, messageTaskBlob);
         MessageTemplateConfigDTO messageTemplateConfigDTO = new MessageTemplateConfigDTO();
         BeanUtils.copyBean(messageTemplateConfigDTO,projectRobotConfigDTO);
+        Map<String, String> taskTypeMap = MessageTemplateUtils.getTaskTypeMap();
+        Map<String, String> eventMap = MessageTemplateUtils.getEventMap();
+        messageTemplateConfigDTO.setTaskTypeName(taskTypeMap.get(messageTask.getTaskType()));
+        messageTemplateConfigDTO.setEventName(eventMap.get(messageTask.getEvent()));
         messageTemplateConfigDTO.setReceiverIds(receiverIds);
         return messageTemplateConfigDTO;
     }
+
 }
