@@ -41,7 +41,7 @@ const ProjectManagement: AppRouteRecordRaw = {
         {
           path: 'menuManagement',
           name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
-          component: () => import('@/views/project-management/projectAndPermission/menuManagement/index.vue'),
+          component: () => import('@/views/project-management/projectAndPermission/menuManagement/menuManagement.vue'),
           meta: {
             locale: 'project.permission.menuManagement',
             roles: ['*'],

@@ -5,3 +5,4 @@
 
 **/*.svg
 **/*.sh
+src/auto-imports.js

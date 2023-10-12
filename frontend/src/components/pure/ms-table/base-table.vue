@@ -408,6 +408,9 @@
     initColumn();
     batchLeft.value = getBatchLeft();
   });
+  defineExpose({
+    initColumn,
+  });
 </script>
 
 <style lang="less" scoped>
