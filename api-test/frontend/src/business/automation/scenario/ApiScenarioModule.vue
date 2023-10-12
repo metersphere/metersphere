@@ -150,7 +150,9 @@ export default {
     };
   },
   mounted() {
-    this.list();
+    if(!this.$route.params) {
+      this.list()
+    }
   },
   watch: {
     'condition.filterText'() {

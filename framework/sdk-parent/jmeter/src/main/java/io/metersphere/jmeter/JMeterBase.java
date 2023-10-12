@@ -27,7 +27,7 @@ public class JMeterBase {
     private final static String SPLIT_EQ = "split==";
     private final static String SPLIT_AND = "split&&";
 
-    private static final List<String> imageList = Arrays.asList("image/png", "image/jpeg", "image/gif", "image/bmp", "image/webp", "image/svg+xml", "image/apng", "image/avif");
+    private static final List<String> imageList = Arrays.asList("image/png", "image/jpeg", "image/gif", "image/bmp", "image/webp", "image/svg+xml", "image/apng", "image/avif", "application/octet-stream");
 
     public static HashTree getHashTree(Object scriptWrapper) throws Exception {
         Field field = scriptWrapper.getClass().getDeclaredField("testPlan");

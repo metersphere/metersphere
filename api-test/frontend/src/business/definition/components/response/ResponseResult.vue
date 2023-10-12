@@ -131,6 +131,7 @@ export default {
         'image/svg+xml',
         'image/apng',
         'image/avif',
+        "application/octet-stream"
       ],
       srcUrl: '',
     };
