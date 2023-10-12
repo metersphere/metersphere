@@ -32,11 +32,11 @@
       </div>
       <div v-if="record.type === 'TEST_PLAN_CLEAN_REPORT'">
         <!-- 测试计划 报告保留时间范围 -->
-        <a-input v-model="record.typeValue" />
+        <MsTimeSelectorVue v-model="record.typeValue" />
       </div>
       <div v-if="record.type === 'TEST_PLAN_SHARE_REPORT'">
         <!-- 测试计划 报告链接有效期 -->
-        <a-input v-model="record.typeValue" />
+        <MsTimeSelectorVue v-model="record.typeValue" />
       </div>
       <div v-if="record.type === 'ISSUE_SYNC'">
         <!-- 缺陷同步 -->
@@ -47,28 +47,28 @@
         <!-- 用例 公共用例库 -->
         {{ t('project.menu.row3') }}
       </div>
-      <div v-if="record.type === 'CASE_RE_REVIEW'" class="flex flex-row">
+      <div v-if="record.type === 'CASE_ENABLE'" class="flex flex-row">
         <!-- 用例 关联需求 -->
         <div>{{ t('project.menu.row4') }}</div>
         <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.rr') }}</div>
       </div>
-      <div v-if="record.type === 'CASE_RELATED'">
+      <div v-if="record.type === 'CASE_RE_REVIEW'">
         <!-- 用例 重新提审 -->
         {{ t('project.menu.row5') }}
       </div>
       <div v-if="record.type === 'API_URL_REPEATABLE'">
-        <!-- 接口  -->
+        <!-- 接口测试 接口定义URL可重复  -->
         {{ t('project.menu.row6') }}
       </div>
       <div v-if="record.type === 'API_CLEAN_REPORT'">
-        <a-input v-model="record.typeValue" />
+        <MsTimeSelectorVue v-model="record.typeValue" />
       </div>
       <div v-if="record.type === 'API_SHARE_REPORT'">
-        <!-- 报告链接有效期 -->
-        <a-input v-model="record.typeValue" />
+        <!--接口测试 报告链接有效期 -->
+        <MsTimeSelectorVue v-model="record.typeValue" />
       </div>
       <div v-if="record.type === 'API_RESOURCE_POOL'" class="flex flex-row items-center">
-        <!-- 执行资源池 -->
+        <!--接口测试 执行资源池 -->
         <a-select v-model="record.typeValue" />
         <a-tooltip :content="t('project.menu.manageTip')" position="bl">
           <div>
@@ -77,7 +77,7 @@
         </a-tooltip>
       </div>
       <div v-if="record.type === 'API_SCRIPT_REVIEWER'" class="flex flex-row items-center">
-        <!-- 脚本审核 -->
+        <!--接口测试 脚本审核 -->
         <a-select v-model="record.typeValue" />
         <a-tooltip :content="t('project.menu.manageTip')" position="bl">
           <div>
@@ -86,8 +86,8 @@
         </a-tooltip>
       </div>
       <div v-if="record.type === 'API_ERROR_REPORT_RULE'" class="flex w-[100%] flex-row items-center">
-        <!-- 误报规则 -->
-        <a-select v-model="record.typeValue" class="w-[290px]" />
+        <!--接口测试 误报规则 -->
+        <a-select v-model="record.typeValue" class="w-[120px]" />
         <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.far') }}</div>
         <a-tooltip :content="t('project.menu.manageTip')" position="bl">
           <div>
@@ -98,15 +98,15 @@
       <div v-if="record.type === 'API_SYNC_CASE'">{{ t('project.menu.row7') }} </div>
       <div v-if="record.type === 'UI_CLEAN_REPORT'">
         <!--UI 报告保留时间范围 -->
-        <a-input v-model="record.typeValue" />
+        <MsTimeSelectorVue v-model="record.typeValue" />
       </div>
       <div v-if="record.type === 'UI_SHARE_REPORT'">
         <!--UI 报告链接有效期 -->
-        <a-input v-model="record.typeValue" />
+        <MsTimeSelectorVue v-model="record.typeValue" />
       </div>
       <div v-if="record.type === 'UI_RESOURCE_POOL'" class="flex flex-row items-center">
         <!--UI 执行资源池 -->
-        <a-select v-model="record.typeValue" />
+        <a-select v-model="record.typeValue" class="w-[120px]" />
         <a-tooltip :content="t('project.menu.manageTip')" position="bl">
           <div>
             <MsIcon class="ml-[4px] text-[var(--color-text-4)]" type="icon-icon-maybe_outlined" />
@@ -115,15 +115,15 @@
       </div>
       <div v-if="record.type === 'PERFORMANCE_TEST_CLEAN_REPORT'">
         <!--性能测试 报告保留时间范围 -->
-        <a-input v-model="record.typeValue" />
+        <MsTimeSelectorVue v-model="record.typeValue" />
       </div>
       <div v-if="record.type === 'PERFORMANCE_TEST_SHARE_REPORT'">
         <!--UI 报告链接有效期 -->
-        <a-input v-model="record.typeValue" />
+        <MsTimeSelectorVue v-model="record.typeValue" />
       </div>
       <div v-if="record.type === 'PERFORMANCE_TEST_SCRIPT_REVIEWER'" class="flex flex-row items-center">
         <!--UI 脚本审核 -->
-        <a-select v-model="record.typeValue" />
+        <a-select v-model="record.typeValue" class="w-[120px]" />
         <a-tooltip :content="t('project.menu.manageTip')" position="bl">
           <div>
             <MsIcon class="ml-[4px] text-[var(--color-text-4)]" type="icon-icon-maybe_outlined" />
@@ -134,14 +134,13 @@
   </MsBaseTable>
   <MsDrawer
     v-model:visible="defectDrawerVisible"
-    title="缺陷同步"
-    :width="600"
+    :title="t('project.menu.ISSUE_SYNC')"
     :destroy-on-close="true"
     :closable="true"
     :mask-closable="false"
-    :footer="null"
     :get-container="false"
     :body-style="{ padding: '0px' }"
+    :width="400"
   >
     <DefectSync />
   </MsDrawer>
@@ -161,6 +160,9 @@
   import { MenuTableListItem } from '@/models/projectManagement/menuManagement';
   import { MenuEnum } from '@/enums/commonEnum';
   import { Message, TableData } from '@arco-design/web-vue';
+  import MsTimeSelectorVue from '@/components/pure/ms-time-selector/MsTimeSelector.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import DefectSync from './components/defectSync.vue';
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);

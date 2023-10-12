@@ -23,9 +23,8 @@ export default {
   'project.menu.API_SYNC_CASE': '变更同步CASE',
 
   'project.menu.CASE_PUBLIC': '公共用例库',
-  'project.menu.CASE_RE_REVIEW': '关联需求',
-  'project.menu.CASE_RELATED': '重新提审',
-  'project.menu.CASE_ENABLE': '接口测试待更新同步规则',
+  'project.menu.CASE_RE_REVIEW': '重新提审',
+  'project.menu.CASE_ENABLE': '关联需求',
   'project.menu.ISSUE_SYNC': '同步缺陷',
   'project.menu.CRON_EXPRESSION': '同步频率',
   'project.menu.SYNC_ENABLE': '状态',

@@ -115,6 +115,7 @@
     ],
     onUpdate: () => {
       content.value = `${editor.value?.getHTML()}`;
+      console.log(content.value);
     },
   });
 

@@ -30,7 +30,7 @@ export function postUpdateMenu(data: MenuTableListParams) {
       suffix = 'test-plan';
       break;
     case MenuEnum.bugManagement:
-      suffix = 'issue';
+      suffix = 'bug';
       break;
     case MenuEnum.caseManagement:
       suffix = 'case';
@@ -58,7 +58,7 @@ export function getConfigByMenuItem(data: MenuTableListParams) {
       suffix = 'test-plan';
       break;
     case MenuEnum.bugManagement:
-      suffix = 'issue';
+      suffix = 'bug';
       break;
     case MenuEnum.caseManagement:
       suffix = 'case';
