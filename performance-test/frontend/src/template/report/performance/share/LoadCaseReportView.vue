@@ -121,10 +121,17 @@
                                             :plan-report-template="planReportTemplate"
                                             :share-id="shareId" ref="requestStatistics"/>
             </el-tab-pane>
-            <el-tab-pane :label="$t('report.test_error_log')">
+
+            <el-tab-pane v-if="haveErrorSamples" :label="$t('report.test_error_log')">
+              <samples-tabs :samples="errorSamples" ref="errorSamples"/>
+            </el-tab-pane>
+
+            <el-tab-pane v-else :label="$t('report.test_error_log')">
               <ms-report-error-log :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
                                    :share-id="shareId" ref="errorLog"/>
             </el-tab-pane>
+
+
             <el-tab-pane :label="$t('report.test_log_details')">
               <ms-report-log-details :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
                                      :share-id="shareId"/>
@@ -178,14 +185,22 @@ import MonitorCard from "../../../../business/report/components/MonitorCard";
 import MsReportTestDetails from '../../../../business/report/components/TestDetails';
 import ProjectEnvironmentDialog from "../../../../business/report/components/ProjectEnvironmentDialog";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import {getPerformanceReport, getPerformanceReportTime, getSharePerformanceReport, getSharePerformanceReportTime} from "../../../../api/load-test";
+import {
+  getPerformanceReport,
+  getPerformanceReportErrorSamples,
+  getPerformanceReportTime,
+  getSharePerformanceReport, getSharePerformanceReportErrorSamples,
+  getSharePerformanceReportTime
+} from "../../../../api/load-test";
 import MsTestConfiguration from "../../../../business/report/components/TestConfiguration";
 import {getTestProInfo, stopTest} from "../../../../api/report";
+import SamplesTabs from "@/business/report/components/samples/SamplesTabs.vue";
 
 
 export default {
   name: "LoadCaseReportView",
   components: {
+    SamplesTabs,
     MsTestConfiguration,
     MonitorCard,
     MsPerformanceReportExport,
@@ -221,8 +236,10 @@ export default {
       websocket: null,
       dialogFormVisible: false,
       reportExportVisible: false,
+      haveErrorSamples: false,
       testPlan: {testResourcePoolId: null},
       show: true,
+      errorSamples: {},
       test: {testResourcePoolId: null},
     };
   },
@@ -482,12 +499,24 @@ export default {
           .then(({data}) => {
             this.handleInit(data);
           });
+        this.checkSampleResults(this.reportId);
       } else {
         this.loading = getPerformanceReport(this.reportId)
           .then(({data}) => {
             this.handleInit(data);
           });
       }
+    },
+    checkSampleResults(reportId) {
+      getSharePerformanceReportErrorSamples(this.shareId,reportId)
+          .then(res => {
+            if (res.data) {
+              this.errorSamples = res.data;
+              this.haveErrorSamples = true;
+            } else {
+              this.haveErrorSamples = false;
+            }
+          });
     },
     handleInit(data) {
       if (data) {

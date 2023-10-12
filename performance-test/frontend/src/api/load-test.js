@@ -112,6 +112,9 @@ export function getPerformanceReportErrorSamples(reportId) {
   return get('/performance/report/content/errors_samples/' + reportId);
 }
 
+export function getSharePerformanceReportErrorSamples(shareId, reportId) {
+  return get('/share/performance/report/content/errors_samples/'  + shareId + '/' + reportId);
+}
 export function getSharePerformanceReportErrorsTop5(shareId, reportId) {
   return get('/share/performance/report/content/errors_top5/' + shareId + '/' + reportId);
 }

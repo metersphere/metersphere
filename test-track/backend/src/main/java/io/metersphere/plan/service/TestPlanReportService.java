@@ -359,7 +359,10 @@ public class TestPlanReportService {
             returnDTO.setUiScenarioIdMap(uiScenarioIdMap);
         }
 
-        if (runInfoDTO != null && testPlanReport == null) {
+        if (testPlanReport == null) {
+            if(runInfoDTO == null){
+                runInfoDTO = new TestPlanReportRunInfoDTO();
+            }
             if (!saveRequest.isApiCaseIsExecuting() && !saveRequest.isScenarioIsExecuting()) {
                 //如果没有接口用例以及场景运行，执行配置中所选的资源池配置置空，避免报告显示资源池时给用户造成困扰;
                 runModeConfigDTO.setResourcePoolId(null);

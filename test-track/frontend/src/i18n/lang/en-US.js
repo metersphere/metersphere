@@ -63,6 +63,9 @@ const message = {
     }
   },
   plan: {
+    error_samples: 'Error samples',
+    all_samples: 'All samples',
+    response_3_samples: 'The first three pieces of data',
     batch_delete_tip: "Do you want to continue deleting the test plan?",
     relevance_case_success: "Relevance success"
   },

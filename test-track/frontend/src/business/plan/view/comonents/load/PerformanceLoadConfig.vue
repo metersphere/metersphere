@@ -11,6 +11,11 @@
                 :label="item.name"
                 :disabled="!item.performance"
                 :value="item.id">
+                <template v-slot>
+                  <node-operation-label
+                    :nodeName="item.name"
+                    :node-operation-info="nodeInfo(item.id)"/>
+                </template>
               </el-option>
             </el-select>
           </el-form-item>
@@ -253,6 +258,8 @@ import {getQuotaValidResourcePools} from "@/api/remote/resource-pool";
 import {testPlanLoadCaseGetLoadConfig} from "@/api/remote/plan/test-plan-load-case";
 import {loadTestGetJmxContent} from "@/api/remote/load/performance";
 import {findThreadGroup} from "@/business/plan/view/comonents/load/ThreadGroup";
+import NodeOperationLabel from "metersphere-frontend/src/components/resource-pool/NodeOperationLabel";
+import {getNodeOperationInfo} from "@/api/project";
 
 const HANDLER = "handler";
 const THREAD_GROUP_TYPE = "tgType";
@@ -287,7 +294,7 @@ const hexToRgb = function (hex) {
 
 export default {
   name: "PerformanceLoadConfig",
-  components: {MsChart},
+  components: {MsChart,NodeOperationLabel},
   props: {
     test: {
       type: Object
@@ -323,6 +330,7 @@ export default {
       autoStopDelay: 30,
       isReadOnly: false,
       rampUpTimeVisible: true,
+      nodeOperationInfo: {},
     };
   },
   computed: {
@@ -356,6 +364,20 @@ export default {
     },
   },
   methods: {
+    refreshNodeOperation() {
+      let nodeOperationInfoRequest = {nodeIds: []};
+      this.resourcePools.forEach(item => {
+        nodeOperationInfoRequest.nodeIds.push(item.id);
+      });
+
+      getNodeOperationInfo(nodeOperationInfoRequest)
+        .then(response => {
+          this.parseNodeOperationStatus(response.data);
+        });
+    },
+    nodeInfo(nodeId) {
+      return this.nodeOperationInfo[nodeId];
+    },
     getResourcePools() {
       this.loading = true;
       getQuotaValidResourcePools()
@@ -366,8 +388,24 @@ export default {
           if (response.data.filter(p => p.id === this.resourcePool).length === 0) {
             this.resourcePool = null;
           }
+          let nodeOperationInfoRequest = {nodeIds: []};
+          this.resourcePools.forEach(item => {
+            nodeOperationInfoRequest.nodeIds.push(item.id);
+          });
+
+          getNodeOperationInfo(nodeOperationInfoRequest)
+            .then(response => {
+              this.parseNodeOperationStatus(response.data);
+            });
+
           this.resourcePoolChange();
         });
+    },
+    parseNodeOperationStatus(nodeOperationData) {
+      this.nodeOperationInfo = {};
+      nodeOperationData.forEach(item => {
+        this.nodeOperationInfo[item.id] = item;
+      });
     },
     getLoadConfig() {
       testPlanLoadCaseGetLoadConfig(this.loadCaseId)

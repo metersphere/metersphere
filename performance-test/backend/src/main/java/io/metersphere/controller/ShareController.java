@@ -132,6 +132,13 @@ public class ShareController {
         return performanceReportService.getReportErrorsTOP5(reportId);
     }
 
+    @GetMapping("/performance/report/content/errors_samples/{shareId}/{reportId}")
+    public SamplesRecord getErrorSamples(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
+        return performanceReportService.getErrorSamples(reportId);
+    }
+
+
     @GetMapping("/performance/report/log/resource/{shareId}/{reportId}")
     public List<LogDetailDTO> getResourceIds(@PathVariable String shareId, @PathVariable String reportId) {
         shareInfoService.validateExpired(shareId);

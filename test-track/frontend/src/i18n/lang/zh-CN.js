@@ -63,6 +63,9 @@ const message = {
     },
   },
   plan: {
+    error_samples: '错误请求',
+    all_samples: '所有请求',
+    response_3_samples: '默认抽样前3个请求的响应数据',
     batch_delete_tip: "批量删除测试计划，是否继续?",
     relevance_case_success: "已添加至测试计划"
   },
