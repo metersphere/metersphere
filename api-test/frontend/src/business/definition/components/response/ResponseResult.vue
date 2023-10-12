@@ -130,8 +130,7 @@ export default {
         'image/webp',
         'image/svg+xml',
         'image/apng',
-        'image/avif',
-        "application/octet-stream"
+        'image/avif'
       ],
       srcUrl: '',
     };
