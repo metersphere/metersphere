@@ -1,6 +1,7 @@
 package io.metersphere.dto;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,10 @@ public class ResourcePoolOperationInfo {
     Map<String, NodeOperationInfo> nodeOperationInfos = new HashMap<>();
 
     public void addNodeOperationInfo(String taskResourceId, String ip, String port, String cpuUsage, int runningTask) {
+        if(StringUtils.isBlank(cpuUsage)) {
+            //节点下如果获取不到cpu使用率，判断为没有查询到该节点的数据。
+            return;
+        }
         NodeOperationInfo nodeOperationInfo = new NodeOperationInfo();
         nodeOperationInfo.setIp(ip);
         nodeOperationInfo.setPort(port);

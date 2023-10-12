@@ -46,6 +46,7 @@ public class TestPlanLoadCaseDTO extends TestPlanLoadCaseWithBLOBs {
         private List<LogDetailDTO> reportLogResource;
         private List<Monitor> reportResource;
         private List<MetricData> metricData;
+        private SamplesRecord errorSamples;
         private List<TestResourcePoolDTO> resourcePools;
     }
 }

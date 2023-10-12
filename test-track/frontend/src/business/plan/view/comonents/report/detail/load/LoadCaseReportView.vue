@@ -64,7 +64,11 @@
                                             :plan-report-template="planReportTemplate"
                                             :share-id="shareId" ref="requestStatistics"/>
             </el-tab-pane>
-            <el-tab-pane :label="$t('report.test_error_log')">
+            <el-tab-pane v-if="haveErrorSamples" :label="$t('report.test_error_log')">
+              <samples-tabs :samples="errorSamples" ref="errorSamples"/>
+            </el-tab-pane>
+
+            <el-tab-pane v-else :label="$t('report.test_error_log')">
               <ms-report-error-log :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
                                    :share-id="shareId" ref="errorLog"/>
             </el-tab-pane>
@@ -83,9 +87,7 @@
             </el-tab-pane>
           </el-tabs>
         </div>
-
       </el-card>
-
       <project-environment-dialog ref="projectEnvDialog"></project-environment-dialog>
     </el-main>
   </ms-container>
@@ -104,9 +106,9 @@ import MsReportTestDetails from './TestDetails';
 import ProjectEnvironmentDialog from "./ProjectEnvironmentDialog";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import MsTestConfiguration from "./TestConfiguration";
+import SamplesTabs from "./samples/SamplesTabs";
 
-
-export default {
+export default   {
   name: "LoadCaseReportView",
   components: {
     MsTestConfiguration,
@@ -120,6 +122,7 @@ export default {
     MsMainContainer,
     ProjectEnvironmentDialog,
     MsTag,
+    SamplesTabs,
   },
   data() {
     return {
@@ -145,6 +148,8 @@ export default {
       testPlan: {testResourcePoolId: null},
       show: true,
       test: {testResourcePoolId: null},
+      haveErrorSamples: false,
+      errorSamples: {},
     };
   },
   props: {
@@ -161,6 +166,16 @@ export default {
   watch: {
     reportId() {
       this.init();
+    }
+  },
+  created(){
+    if (this.planReportTemplate) {
+      if (this.planReportTemplate.errorSamples) {
+        this.errorSamples = this.planReportTemplate.errorSamples;
+        this.haveErrorSamples = true;
+      } else {
+        this.haveErrorSamples = false;
+      }
     }
   },
   computed: {
@@ -253,13 +268,21 @@ export default {
       });
     },
     init() {
+      alert(1);
       this.clearData();
       if (this.planReportTemplate) {
         this.handleInit(this.planReportTemplate);
       }
     },
+
     handleInit(data) {
       if (data) {
+        if (data.errorSamples) {
+          this.errorSamples = data.errorSamples;
+          this.haveErrorSamples = true;
+        } else {
+          this.haveErrorSamples = false;
+        }
         this.allProjectEnvMap = data.projectEnvMap;
         this.isProjectEnvShowMore(data.projectEnvMap);
         this.status = data.status;

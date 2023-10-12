@@ -605,7 +605,8 @@ public class TestPlanLoadCaseService {
                             response.setReportErrors(reportErrors);
                             List<ErrorsTop5> reportErrorsTop5 = performanceReportService.getReportErrorsTOP5(reportId);
                             response.setReportErrorsTop5(reportErrorsTop5);
-
+                            SamplesRecord samplesRecord = performanceReportService.getErrorSamples(reportId);
+                            response.setErrorSamples(samplesRecord);
                             // 日志详情
                             List<LogDetailDTO> reportLogResource = performanceReportService.getReportLogResource(reportId);
                             if (org.apache.commons.collections.CollectionUtils.isNotEmpty(reportLogResource)) {

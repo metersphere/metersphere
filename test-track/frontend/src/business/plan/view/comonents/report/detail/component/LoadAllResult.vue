@@ -93,7 +93,6 @@ export default {
   },
   methods: {
     getReport(row) {
-
       if (this.isTemplate) {
         if (row.response) {
           this.showResponse = true;

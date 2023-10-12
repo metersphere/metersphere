@@ -63,6 +63,9 @@ const message = {
     }
   },
   plan: {
+    error_samples: '錯誤請求',
+    all_samples: '所有請求',
+    response_3_samples: '默認抽樣前3個請求的響應數據',
     batch_delete_tip: "批量刪除測試計劃，是否繼續？",
     relevance_case_success: "已添加至測試計劃"
   },

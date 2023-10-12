@@ -84,7 +84,7 @@ public class PrometheusService {
             }
 
             String cpuUsage = null;
-            int runningTask = 0;
+            int runningTask = -1;
 
             for (TestResource testResource : testResourcePoolDTO.getResources()) {
                 String config = testResource.getConfiguration();
@@ -97,7 +97,9 @@ public class PrometheusService {
                         String cpuUsageQL = this.generatePromQL(new String[]{"system_cpu_usage"}, nodeId);
                         LogUtil.debug(host + "/api/v1/query?query=" + cpuUsageQL);
                         String cpuUsageDouble = this.runPromQL(headers, host, cpuUsageQL);
-                        cpuUsage = decimalFormat.format(Double.parseDouble(cpuUsageDouble) * 100) + "%";
+                        if(StringUtils.isNotBlank(cpuUsageDouble)){
+                            cpuUsage = decimalFormat.format(Double.parseDouble(cpuUsageDouble) * 100) + "%";
+                        }
                     }
 
                     // 查询任务数
