@@ -56,10 +56,9 @@
         <codehaus-groovy.version>3.0.11</codehaus-groovy.version>
         <jython.version>2.7.0</jython.version>
         <docker-java.version>3.2.14</docker-java.version>
-        <selenium-htmlunit.version>4.10.0</selenium-htmlunit.version>
-        <selenium.version>4.10.0</selenium.version>
-        <jmeter-plugins-webdriver.version>4.10.0</jmeter-plugins-webdriver.version>
-        <opentelemetry.version>1.26.0</opentelemetry.version>
+        <selenium.version>4.14.0</selenium.version>
+        <jmeter-plugins-webdriver.version>4.14.0</jmeter-plugins-webdriver.version>
+        <opentelemetry.version>1.28.0</opentelemetry.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <hessian-lite.version>3.2.13</hessian-lite.version>
         <avro.version>1.11.1</avro.version>
@@ -271,6 +270,16 @@
             <url>https://repository.fit2cloud.com/content/repositories/fit2cloud-public</url>
         </repository>
     </distributionManagement>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>fit2cloud-public</id>
+            <url>https://repository.fit2cloud.com/repository/public/</url>
+        </repository>
+    </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>central</id>
