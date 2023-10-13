@@ -122,8 +122,14 @@ public class ProjectRobotService {
         ProjectRobotExample.Criteria criteria = projectExample.createCriteria();
         criteria.andProjectIdEqualTo(projectId);
         projectExample.setOrderByClause("create_time desc");
-
-        return robotMapper.selectByExample(projectExample);
+        List<ProjectRobot> projectRobots = robotMapper.selectByExample(projectExample);
+        for (ProjectRobot projectRobot : projectRobots) {
+            if ((StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), ProjectRobotPlatform.IN_SITE.toString()) || StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), ProjectRobotPlatform.MAIL.toString())) && StringUtils.isNotBlank(projectRobot.getDescription())) {
+                projectRobot.setDescription(Translator.get(projectRobot.getDescription()));
+                projectRobot.setName(Translator.get(projectRobot.getName()));
+            }
+        }
+        return projectRobots;
     }
 
     public ProjectRobotDTO getDetail(String robotId) {
