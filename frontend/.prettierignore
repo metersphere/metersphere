@@ -5,4 +5,4 @@
 
 **/*.svg
 **/*.sh
-src/auto-imports.js
+src/auto-import.d.ts

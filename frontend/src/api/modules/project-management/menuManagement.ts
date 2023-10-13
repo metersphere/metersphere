@@ -4,6 +4,7 @@ import type {
   MenuTableListItem,
   MenuTableListParams,
   MenuTableConfigItem,
+  PoolOption,
 } from '@/models/projectManagement/menuManagement';
 import { MenuEnum } from '@/enums/commonEnum';
 
@@ -18,6 +19,30 @@ export async function postTabletList(params: TableQueryParams): Promise<CommonLi
     current: 1,
   };
   return Promise.resolve(result);
+}
+
+// 获取资源池
+export async function getPoolOptions(projectId: string, type: MenuEnum) {
+  let suffix = '';
+  if (type === MenuEnum.apiTest) {
+    suffix = 'api';
+  }
+  if (type === MenuEnum.uiTest) {
+    suffix = 'ui';
+  }
+  return MSR.get<PoolOption[]>({ url: `/project/application/${suffix}/resource/pool/${projectId}` });
+}
+
+// 获取审核人
+export async function getAuditorOptions(projectId: string, type: MenuEnum) {
+  let suffix = '';
+  if (type === MenuEnum.loadTest) {
+    suffix = 'performance-test';
+  }
+  if (type === MenuEnum.apiTest) {
+    suffix = 'api';
+  }
+  return MSR.get<PoolOption[]>({ url: `/project/application/${suffix}/user/${projectId}` });
 }
 
 export function postUpdateMenu(data: MenuTableListParams) {
@@ -73,5 +98,5 @@ export function getConfigByMenuItem(data: MenuTableListParams) {
       suffix = 'performance-test';
       break;
   }
-  return MSR.post<MenuTableConfigItem[]>({ url: `${Url.getConfigByMenuTypeUrl}${suffix}`, data });
+  return MSR.post<MenuTableConfigItem>({ url: `${Url.getConfigByMenuTypeUrl}${suffix}`, data });
 }

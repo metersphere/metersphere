@@ -21,14 +21,17 @@
 
   const { t } = useI18n();
 
-  const props = defineProps<{ modelValue: string }>();
+  const props = defineProps<{ modelValue?: string; defaultValue?: string }>();
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
     (e: 'change', value: string): void;
   }>();
 
-  function parseValue(v: string) {
+  function parseValue(v?: string) {
     // 使用正则表达式匹配输入字符串，提取类型和值
+    if (!v) {
+      return { type: 'H', value: undefined, max: Number.MAX_VALUE };
+    }
     const match = v.match(/^(\d+)([MYHD])$/);
     if (match) {
       const value = parseInt(match[1], 10); // 提取值并将其转换为整数
@@ -51,7 +54,7 @@
     // 如果输入字符串不匹配格式，可以抛出错误或返回一个默认值
     return { type: 'H', value: undefined, max: Number.MAX_VALUE };
   }
-  const current = reactive(parseValue(props.modelValue));
+  const current = reactive(parseValue(props.modelValue || props.defaultValue));
 
   const handleBlur = () => {
     const result = current.value ? `${current.value}${current.type}` : '';

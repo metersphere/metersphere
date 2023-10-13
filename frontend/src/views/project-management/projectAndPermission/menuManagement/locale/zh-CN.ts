@@ -4,6 +4,8 @@ export default {
     '可根据使用场景配置各功能开关关闭后，将隐藏功能入口，成员无法访问该功能和数据；已产生的数据不够此规则影响；再次开启时，即恢复至关闭前状态',
   'project.menu.name': '菜单名称',
   'project.menu.description': '描述',
+  'project.menu.pleaseConfig': '请配置',
+  'project.menu.count': '条',
 
   'project.menu.WORKSTATION_SYNC_RULE': '接口测试待更新同步规则',
   'project.menu.TEST_PLAN_CLEAN_REPORT': '报告保留时间范围',
@@ -24,8 +26,8 @@ export default {
 
   'project.menu.CASE_PUBLIC': '公共用例库',
   'project.menu.CASE_RE_REVIEW': '重新提审',
-  'project.menu.CASE_ENABLE': '关联需求',
-  'project.menu.ISSUE_SYNC': '同步缺陷',
+  'project.menu.CASE_RELATED': '关联需求',
+  'project.menu.BUG_SYNC': '同步缺陷',
   'project.menu.CRON_EXPRESSION': '同步频率',
   'project.menu.SYNC_ENABLE': '状态',
   'project.menu.MECHANISM': '接口测试待更新同步规则',

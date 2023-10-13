@@ -1,9 +1,7 @@
 import { MenuEnum } from '@/enums/commonEnum';
 
 export interface MenuTableConfigItem {
-  projectId: string;
-  type: string;
-  typeValue: string;
+  [key: string]: any;
 }
 export interface MenuTableListItem {
   module: string;
@@ -16,4 +14,8 @@ export interface MenuTableListParams {
   projectId: string;
   type?: MenuEnum;
   typeValue?: boolean;
+}
+export interface PoolOption {
+  id: string;
+  name: string;
 }

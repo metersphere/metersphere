@@ -210,7 +210,6 @@
     noDisable?: boolean;
     showSetting?: boolean;
     columns: MsTableColumn;
-    expandedKeys?: string[];
     spanMethod?: (params: { record: TableData; rowIndex: number; columnIndex: number }) => void;
   }>();
   const emit = defineEmits<{
@@ -221,7 +220,7 @@
     (e: 'rowSelectChange', key: string): void;
     (e: 'selectAllChange', value: SelectAllEnum): void;
     (e: 'sorterChange', value: { [key: string]: string }): void;
-    (e: 'expand', record: TableData): void;
+    (e: 'expand', record: TableData): void | Promise<any>;
     (e: 'clearSelector'): void;
   }>();
   const attrs = useAttrs();
