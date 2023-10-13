@@ -11,7 +11,6 @@ import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @Tag(name = "项目管理-消息设置-模版设置")
 @RestController
