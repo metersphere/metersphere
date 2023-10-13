@@ -6,7 +6,7 @@
         <el-row type="flex" justify="space-between">
           <el-col :span="14">
             <span class="ms-env-span" style="line-height: 30px;">{{ $t('api_test.environment.socket') }}</span>
-            <el-input v-model="condition.socket" style="width: 85%"
+            <el-input v-model="condition.socket" style="width: 85%" :disabled="httpConfig.isMock"
                       :placeholder="$t('api_test.request.url_description')" clearable size="small">
               <template slot="prepend">
                 <el-select v-model="condition.protocol" class="request-protocol-select" size="small">

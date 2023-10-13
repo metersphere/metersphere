@@ -2059,7 +2059,7 @@ const message = {
       post_export_tip: "Export the test collection by Postman",
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
       jmeter_export_tip: "Generating JMX file through JMeter",
-      jmeter_tip: "JMX files supporting JMeter 5.2-5.4",
+      jmeter_tip: "JMX files supporting JMeter 5.2-5.5",
       suffixFormatErr: "The file format does not meet the requirements",
       swagger_url_import: "Import using URL",
       add_request_params: "Add request Parameters",
