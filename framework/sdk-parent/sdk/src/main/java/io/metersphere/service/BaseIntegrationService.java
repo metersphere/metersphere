@@ -5,20 +5,18 @@ import io.metersphere.base.domain.ServiceIntegrationExample;
 import io.metersphere.base.mapper.ServiceIntegrationMapper;
 import io.metersphere.base.mapper.ext.BaseProjectMapper;
 import io.metersphere.commons.constants.MicroServiceName;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.request.IntegrationRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -76,8 +74,10 @@ public class BaseIntegrationService {
                 .andWorkspaceIdEqualTo(workspaceId)
                 .andPlatformEqualTo(platform);
         serviceIntegrationMapper.deleteByExample(example);
-        // 删除项目关联的id/key
-        baseProjectMapper.removeIssuePlatform(platform, workspaceId);
+        // 删除项目关联的id/key(目前只有jira/tapd/zentao/azure才有项目对接的key)
+        if (StringUtils.equalsAny(platform, "Jira", "Tapd", "Zentao", "AzureDevops")) {
+            baseProjectMapper.removeIssuePlatform(platform, workspaceId);
+        }
     }
 
     public List<ServiceIntegration> getAll(String workspaceId) {
