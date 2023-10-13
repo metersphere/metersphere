@@ -186,15 +186,11 @@
             </if>
             <if test="platform == 'Tapd'">
                 tapd_id = NULL
-
             </if>
             <if test="platform == 'Zentao'">
-
                 zentao_id = NULL
-
             </if>
             <if test="platform == 'AzureDevops'">
-
                 azure_devops_id = NULL
             </if>
         </set>
@@ -202,6 +198,7 @@
                 FROM project
                 WHERE workspace_id = #{workspaceId}) AS a)
     </update>
+
     <update id="updateUseDefaultCaseTemplateProject">
         update project set case_template_id = #{templateId}
         where (case_template_id = #{originId} or case_template_id is null or case_template_id = '')
