@@ -10,7 +10,7 @@ const message = {
     },
     max_current_threads_tips: '超出此节点{0}最大并发数',
     sync_scenario_no_permission_tips: '没有创建接口的权限无法执行同步',
-    basic_config_file_limit_tip: '注：资源文件数最大限制为10个',
+    basic_config_file_limit_tip: '注：资源文件数最大限制为50个',
     edit_performance_test_tips: '没有编辑性能测试的权限，请勾选后再操作',
     error_samples: '错误请求',
     all_samples: '所有请求',
