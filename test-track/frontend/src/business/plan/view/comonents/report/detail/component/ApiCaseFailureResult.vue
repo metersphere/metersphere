@@ -18,6 +18,15 @@
               :data="apiCases"
           >
             <ms-table-column :width="100" :label="$t('commons.id')" prop="num">
+              <template v-slot:default="scope">
+                <span v-if="isTemplate || isShare">
+                  {{ scope.row.num }}
+                </span>
+                <el-link v-else
+                         type="primary" @click="redirectApiCaseEditPage(scope.row)">
+                  {{ scope.row.num }}
+                </el-link>
+              </template>
             </ms-table-column>
 
             <ms-table-column :label="$t('commons.name')" prop="name">
@@ -147,6 +156,9 @@ export default {
     this.getScenarioApiCase();
   },
   methods: {
+    redirectApiCaseEditPage(row) {
+      window.open("/#/api/definition?caseId=" + row.caseId);
+    },
     getScenarioApiCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isErrorReport) {
