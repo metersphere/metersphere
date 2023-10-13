@@ -88,6 +88,17 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiDefinitionService {
+    public static final String HEADERS = "headers";
+    public static final String ARGUMENTS = "arguments";
+    public static final String BODY = "body";
+    public static final String TYPE = "type";
+    public static final String HTTP = "HTTPSamplerProxy";
+    public static final String CLAZZ = "className";
+    public static final String FORMAT = "format";
+    public static final String RAW = "raw";
+    public static final String JSONSCHEMA = "jsonSchema";
+    private static final String COPY = "Copy";
+    private static final String SCHEDULE = "schedule";
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
@@ -163,7 +174,6 @@ public class ApiDefinitionService {
     private JMeterService jMeterService;
     @Resource
     private BaseTestResourcePoolService baseTestResourcePoolService;
-
     @Resource
     private ApiDefinitionImportUtilService apiDefinitionImportUtilService;
     @Resource
@@ -172,21 +182,6 @@ public class ApiDefinitionService {
     private BaseEnvGroupProjectService environmentGroupProjectService;
     @Resource
     private ApiCaseResultService apiCaseResultService;
-
-
-    private static final String COPY = "Copy";
-
-    public static final String HEADERS = "headers";
-    public static final String ARGUMENTS = "arguments";
-    public static final String BODY = "body";
-    private static final String SCHEDULE = "schedule";
-    public static final String TYPE = "type";
-    public static final String HTTP = "HTTPSamplerProxy";
-    public static final String CLAZZ = "className";
-    public static final String FORMAT = "format";
-    public static final String RAW = "raw";
-    public static final String JSONSCHEMA = "jsonSchema";
-
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
@@ -1777,6 +1772,10 @@ public class ApiDefinitionService {
             List<ApiDefinition> apiDefinitionList = extApiDefinitionMapper.selectBaseInfoByProjectIDAndVersion(projectId, versionId);
             return apiDefinitionList.stream().collect(Collectors.groupingBy(ApiDefinition::getProtocol));
         }
+    }
+
+    public List<ApiDefinition> selectApiDefinitionBaseInfo(String projectId, String versionId) {
+        return extApiDefinitionMapper.selectBaseInfoByProjectIDAndVersion(projectId, versionId);
     }
 
     public List<ApiDefinition> selectBaseInfoByProjectIdAndHasCase(String projectId, String versionId) {
