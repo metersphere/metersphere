@@ -166,15 +166,16 @@ public class ApiHomeController {
     public ApiDataCountDTO caseCovered(@PathVariable String projectId, @PathVariable String versionId) throws Exception {
         versionId = this.initializationVersionId(versionId);
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
-        long allCount = apiTestCaseService.countByProjectID(projectId, versionId);
+        long allCaseCount = apiTestCaseService.countByProjectID(projectId, versionId);
+        long allApiCount = apiDefinitionService.selectApiDefinitionBaseInfo(projectId, versionId).size();
         //两个大数据量下耗时比较长的查询同时进行
         CountDownLatch countDownLatch = new CountDownLatch(2);
         try {
             //未覆盖 已覆盖： 统计当前接口下是否含有案例
             List<ApiDataCountResult> countResultByApiCoverageList = apiDefinitionService.countApiCoverageByProjectID(projectId, versionId);
             apiCountResult.countApiCoverage(countResultByApiCoverageList);
-            if (allCount != 0) {
-                float coveredRateNumber = (float) apiCountResult.getCoveredCount() * 100 / allCount;
+            if (allApiCount != 0) {
+                float coveredRateNumber = (float) apiCountResult.getCoveredCount() * 100 / allApiCount;
                 DecimalFormat df = new DecimalFormat("0.0");
                 apiCountResult.setApiCoveredRate(df.format(coveredRateNumber) + "%");
             }
@@ -183,15 +184,15 @@ public class ApiHomeController {
         }
         try {
             //计算用例的通过率和执行率
-            List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(allCount, projectId, versionId);
+            List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(allCaseCount, projectId, versionId);
             apiCountResult.countApiCaseRunResult(apiCaseExecResultList);
-            if (apiCountResult.getExecutedCount() > 0) {
+            if (apiCountResult.getExecutedCount() > 0 && allCaseCount > 0) {
                 //通过率
-                float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / allCount;
+                float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / allCaseCount;
                 DecimalFormat coveredRateFormat = new DecimalFormat("0.0");
                 apiCountResult.setPassRate(coveredRateFormat.format(coveredRateNumber) + "%");
-
-                float executedRateNumber = (float) apiCountResult.getExecutedData() * 100 / allCount;
+                //执行率
+                float executedRateNumber = (float) apiCountResult.getExecutedData() * 100 / allCaseCount;
                 DecimalFormat executedRateFormat = new DecimalFormat("0.0");
                 apiCountResult.setExecutedRate(executedRateFormat.format(executedRateNumber) + "%");
             } else {
