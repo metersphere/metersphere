@@ -78,41 +78,43 @@ public class PrometheusService {
             ResourcePoolOperationInfo nodeOperationInfo = new ResourcePoolOperationInfo();
             nodeOperationInfo.setId(testResourcePoolDTO.getId());
 
-            boolean queryCpuUsage = true;
-            if (testResourcePoolDTO.getResources().size() > 1) {
-                queryCpuUsage = false;
-            }
-
-            String cpuUsage = null;
+            //如果没有在prometheus查到数据则runningTask为-1。
             int runningTask = -1;
 
             for (TestResource testResource : testResourcePoolDTO.getResources()) {
                 String config = testResource.getConfiguration();
-                if (StringUtils.isNotBlank(config)) {
-                    Map<String, Object> configMap = JSON.parseObject(config, Map.class);
-                    String ip = String.valueOf(configMap.get("ip"));
-                    String port = String.valueOf(configMap.get("port"));
-                    String nodeId = ip + ":" + port;
-                    if (queryCpuUsage) {
+                try {
+                    //防止出现没有更新的node-controller引起报错，从而影响整个系统
+                    if (StringUtils.isNotBlank(config)) {
+                        String cpuUsage = null;
+                        Map<String, Object> configMap = JSON.parseObject(config, Map.class);
+                        String ip = String.valueOf(configMap.get("ip"));
+                        String port = String.valueOf(configMap.get("port"));
+                        String nodeId = ip + ":" + port;
                         String cpuUsageQL = this.generatePromQL(new String[]{"system_cpu_usage"}, nodeId);
                         LogUtil.debug(host + "/api/v1/query?query=" + cpuUsageQL);
                         String cpuUsageDouble = this.runPromQL(headers, host, cpuUsageQL);
-                        if(StringUtils.isNotBlank(cpuUsageDouble)){
+                        if (StringUtils.isNotBlank(cpuUsageDouble)) {
                             cpuUsage = decimalFormat.format(Double.parseDouble(cpuUsageDouble) * 100) + "%";
                         }
-                    }
 
-                    // 查询任务数
-                    List<String> taskSeriesNames = new ArrayList<>() {{
-                        this.add("running_tasks_load_count");
-                        this.add("running_tasks_api_count");
-                    }};
-                    String taskCountQL = this.generatePromQL(taskSeriesNames.toArray(new String[0]), nodeId);
-                    String result = this.runPromQL(headers, host, taskCountQL);
-                    if (StringUtils.isNotBlank(result)) {
-                        runningTask += Integer.parseInt(result);
+                        // 查询任务数
+                        List<String> taskSeriesNames = new ArrayList<>() {{
+                            this.add("running_tasks_load_count");
+                            this.add("running_tasks_api_count");
+                        }};
+                        String taskCountQL = this.generatePromQL(taskSeriesNames.toArray(new String[0]), nodeId);
+                        String result = this.runPromQL(headers, host, taskCountQL);
+                        if (StringUtils.isNotBlank(result)) {
+                            if (runningTask == -1) {
+                                runningTask = 0;
+                            }
+                            runningTask += Integer.parseInt(result);
+                        }
+                        nodeOperationInfo.addNodeOperationInfo(String.valueOf(configMap.get("id")), ip, port, cpuUsage, runningTask);
                     }
-                    nodeOperationInfo.addNodeOperationInfo(String.valueOf(configMap.get("id")), ip, port, cpuUsage, runningTask);
+                } catch (Exception e) {
+                    LogUtil.error("查找node监控报错:" + testResourcePoolDTO.getName(), e);
                 }
             }
             if (MapUtils.isNotEmpty(nodeOperationInfo.getNodeOperationInfos())) {
