@@ -37,6 +37,12 @@ public class CsrfFilter extends AnonymousFilter {
         if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request))) {
             return true;
         }
+        // 校验 referer
+        validateReferer(httpServletRequest);
+
+        // 校验 origin
+        validateOrigin(httpServletRequest);
+
         // websocket 不需要csrf
         String websocketKey = httpServletRequest.getHeader("Sec-WebSocket-Key");
         if (StringUtils.isNotBlank(websocketKey)) {
@@ -47,9 +53,25 @@ public class CsrfFilter extends AnonymousFilter {
         String csrfToken = httpServletRequest.getHeader(TOKEN_NAME);
         // 校验 token
         validateToken(csrfToken);
-        // 校验 referer
-        validateReferer(httpServletRequest);
+
         return true;
+    }
+
+    private void validateOrigin(HttpServletRequest httpServletRequest) {
+        Environment env = CommonBeanFactory.getBean(Environment.class);
+        String domains = env.getProperty("origin.urls");
+        if (StringUtils.isBlank(domains)) {
+            // 没有配置不校验
+            return;
+        }
+
+        String[] split = StringUtils.split(domains, ",");
+        String origin = httpServletRequest.getHeader(HttpHeaders.ORIGIN);
+        if (split != null) {
+            if (!ArrayUtils.contains(split, origin)) {
+                throw new RuntimeException("csrf origin error");
+            }
+        }
     }
 
     private void validateReferer(HttpServletRequest request) {
@@ -64,7 +86,7 @@ public class CsrfFilter extends AnonymousFilter {
         String referer = request.getHeader(HttpHeaders.REFERER);
         if (split != null) {
             if (!ArrayUtils.contains(split, referer)) {
-                throw new RuntimeException("csrf error");
+                throw new RuntimeException("csrf referer error");
             }
         }
     }
