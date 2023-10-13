@@ -61,7 +61,6 @@ public class CreateRobotResourceTests extends BaseTest {
         Assertions.assertEquals(2, projectRobotAfters.size());
         List<MessageTaskDTO> messageList = getMessageList(id);
         Assertions.assertTrue(messageList.size() > 0);
-        System.out.println(messageList);
     }
 
     private List<ProjectRobot> getList(String id) throws Exception {
