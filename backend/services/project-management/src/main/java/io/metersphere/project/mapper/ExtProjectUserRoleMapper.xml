@@ -34,7 +34,8 @@
     </select>
 
     <select id="getProjectUserList" resultType="io.metersphere.system.domain.User">
-        SELECT u.id,
+        SELECT distinct
+               u.id,
                u.NAME
         FROM `user` u
                  LEFT JOIN user_role_relation urr ON u.id = urr.user_id
