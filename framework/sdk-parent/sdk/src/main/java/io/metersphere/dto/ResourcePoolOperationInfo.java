@@ -8,15 +8,17 @@ import java.util.Map;
 
 @Data
 public class ResourcePoolOperationInfo {
+    Map<String, NodeOperationInfo> nodeOperationInfos = new HashMap<>();
     private String id;
     private String cpuUsage;
     private int runningTask = 0;
-    Map<String, NodeOperationInfo> nodeOperationInfos = new HashMap<>();
 
     public void addNodeOperationInfo(String taskResourceId, String ip, String port, String cpuUsage, int runningTask) {
-        if(StringUtils.isBlank(cpuUsage)) {
-            //节点下如果获取不到cpu使用率，判断为没有查询到该节点的数据。
+        if (StringUtils.isBlank(cpuUsage) && runningTask < 0) {
+            //节点下如果获取不到cpu使用率，且没有查到runningTask数据，判断为没有查询到该节点的数据。
             return;
+        } else if (StringUtils.isBlank(cpuUsage)) {
+            cpuUsage = "NONE";
         }
         NodeOperationInfo nodeOperationInfo = new NodeOperationInfo();
         nodeOperationInfo.setIp(ip);
@@ -30,7 +32,7 @@ public class ResourcePoolOperationInfo {
 
         if (nodeOperationInfos.size() > 1) {
             //多节点的情况下暂不处理CPU使用率
-            this.cpuUsage = null;
+            this.cpuUsage = "NONE";
         }
     }
 }
