@@ -85,9 +85,9 @@ public class ProjectUserRoleService extends BaseUserRoleService {
     @Override
     public UserRole update(UserRole userRole) {
         UserRole oldRole = get(userRole.getId());
-        // 非像项目用户组不允许修改, 内置用户组不允许修改
+        // 非项目用户组, 全局用户组不允许修改
         checkProjectUserRole(oldRole);
-        checkInternalUserRole(oldRole);
+        checkGlobalUserRole(oldRole);
         userRole.setType(UserRoleType.PROJECT.name());
         checkNewRoleExist(userRole);
         return super.update(userRole);
@@ -147,7 +147,7 @@ public class ProjectUserRoleService extends BaseUserRoleService {
     public void updatePermissionSetting(PermissionSettingUpdateRequest request) {
         UserRole userRole = get(request.getUserRoleId());
         checkProjectUserRole(userRole);
-        checkInternalUserRole(userRole);
+        checkGlobalUserRole(userRole);
         super.updatePermissionSetting(request);
     }
 

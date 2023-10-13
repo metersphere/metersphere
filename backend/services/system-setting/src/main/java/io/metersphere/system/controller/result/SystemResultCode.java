@@ -26,7 +26,8 @@ public enum SystemResultCode implements IResultCode {
     ORGANIZATION_TEMPLATE_PERMISSION(101009, "organization_template_permission_error"),
     PLUGIN_SCRIPT_EXIST(101010, "plugin.script.exist"),
     PLUGIN_SCRIPT_FORMAT(101011, "plugin.script.format"),
-    NO_PROJECT_USER_ROLE_PERMISSION(101012, "project_user_role_permission_error");
+    NO_PROJECT_USER_ROLE_PERMISSION(101012, "project_user_role_permission_error"),
+    NO_GLOBAL_USER_ROLE_PERMISSION(101013, "no_global_user_role_permission_error");
 
     private final int code;
     private final String message;

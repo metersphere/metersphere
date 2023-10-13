@@ -60,9 +60,9 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     @Override
     public UserRole update(UserRole userRole) {
         UserRole oldRole = get(userRole.getId());
-        // 非组织用户组不允许修改, 内置用户组不允许修改
+        // 非组织用户组不允许修改, 全局用户组不允许修改
         checkOrgUserRole(oldRole);
-        checkInternalUserRole(oldRole);
+        checkGlobalUserRole(oldRole);
         userRole.setType(UserRoleType.ORGANIZATION.name());
         checkNewRoleExist(userRole);
         return super.update(userRole);
@@ -122,7 +122,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     public void updatePermissionSetting(PermissionSettingUpdateRequest request) {
         UserRole userRole = get(request.getUserRoleId());
         checkOrgUserRole(userRole);
-        checkInternalUserRole(userRole);
+        checkGlobalUserRole(userRole);
         super.updatePermissionSetting(request);
     }
 

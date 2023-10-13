@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
+import static io.metersphere.system.controller.result.SystemResultCode.NO_GLOBAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.NO_PROJECT_USER_ROLE_PERMISSION;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -153,10 +154,10 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         request = new ProjectUserRoleEditRequest();
         request.setId(InternalUserRole.ADMIN.getValue());
         this.requestPost(PROJECT_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(NO_PROJECT_USER_ROLE_PERMISSION.getCode()));
-        // 非内置用户组异常
+        // 非全局用户组异常
         request = new ProjectUserRoleEditRequest();
         request.setId(InternalUserRole.PROJECT_ADMIN.getValue());
-        this.requestPost(PROJECT_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+        this.requestPost(PROJECT_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(NO_GLOBAL_USER_ROLE_PERMISSION.getCode()));
         // 用户组名称已存在
         request = new ProjectUserRoleEditRequest();
         request.setId("default-pro-role-id-2");
@@ -268,10 +269,10 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         request.setUserRoleId(InternalUserRole.ADMIN.getValue());
         this.requestPost(PROJECT_USER_ROLE_PERMISSION_UPDATE, request)
                 .andExpect(jsonPath("$.code").value(NO_PROJECT_USER_ROLE_PERMISSION.getCode()));
-        // 内置用户组异常
+        // 全局用户组异常
         request.setUserRoleId(InternalUserRole.PROJECT_ADMIN.getValue());
         this.requestPost(PROJECT_USER_ROLE_PERMISSION_UPDATE, request)
-                .andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+                .andExpect(jsonPath("$.code").value(NO_GLOBAL_USER_ROLE_PERMISSION.getCode()));
     }
 
     @Test

@@ -1,20 +1,20 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
-import io.metersphere.system.service.BaseUserRolePermissionService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
+import io.metersphere.system.service.BaseUserRolePermissionService;
 import io.metersphere.system.service.OrganizationService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
+import static io.metersphere.system.controller.result.SystemResultCode.NO_GLOBAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.NO_ORG_USER_ROLE_PERMISSION;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -125,7 +126,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         // 非内置用户组异常
         request = new OrganizationUserRoleEditRequest();
         request.setId(InternalUserRole.ORG_ADMIN.getValue());
-        this.requestPost(ORGANIZATION_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+        this.requestPost(ORGANIZATION_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(NO_GLOBAL_USER_ROLE_PERMISSION.getCode()));
         // 用户组名称已存在
         request = new OrganizationUserRoleEditRequest();
         request.setId("default-org-role-id-2");
@@ -233,7 +234,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         // 内置用户组异常
         request.setUserRoleId(InternalUserRole.ORG_ADMIN.getValue());
         this.requestPost(ORGANIZATION_USER_ROLE_PERMISSION_UPDATE, request)
-                .andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+                .andExpect(jsonPath("$.code").value(NO_GLOBAL_USER_ROLE_PERMISSION.getCode()));
     }
 
     @Test
