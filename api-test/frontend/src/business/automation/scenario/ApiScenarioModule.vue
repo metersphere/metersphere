@@ -150,7 +150,7 @@ export default {
     };
   },
   mounted() {
-    if(!this.$route.params) {
+    if(this.$route.params && !this.$route.params.versionId) {
       this.list()
     }
   },
