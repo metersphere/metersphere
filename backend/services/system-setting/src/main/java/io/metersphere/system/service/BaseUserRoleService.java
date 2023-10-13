@@ -5,10 +5,8 @@ import io.metersphere.sdk.dto.Permission;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.PermissionCache;
-import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
@@ -16,6 +14,8 @@ import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
+import io.metersphere.system.uid.UUID;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
+import static io.metersphere.system.controller.result.SystemResultCode.NO_GLOBAL_USER_ROLE_PERMISSION;
 
 /**
  * @author jianxing
@@ -180,6 +181,15 @@ public class BaseUserRoleService {
     public void checkInternalUserRole(UserRole userRole) {
         if (BooleanUtils.isTrue(userRole.getInternal())) {
             throw new MSException(INTERNAL_USER_ROLE_PERMISSION);
+        }
+    }
+
+    /**
+     * 校验是否是全局用户组，是全局抛异常
+     */
+    public void checkGlobalUserRole(UserRole userRole) {
+        if (StringUtils.equals(userRole.getScopeId(), UserRoleEnum.GLOBAL.toString())) {
+            throw new MSException(NO_GLOBAL_USER_ROLE_PERMISSION);
         }
     }
 
