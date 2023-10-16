@@ -640,11 +640,12 @@
         group by tcn.id;
     </select>
     <select id="getExecResultMapByPlanId" resultType="io.metersphere.dto.CountMapDTO">
-        select status as `key`, count(*) as `value`
-        from test_plan_test_case
-        where plan_id = #{planId}
-          and is_del = 0
-        group by status
+        select tptc.status as `key`, count(tptc.id) as `value`
+        from test_plan_test_case tptc
+                 inner join test_case tc on tc.id = tptc.case_id
+        where tptc.plan_id = #{planId}
+          and tptc.is_del = 0
+        group by tptc.status
     </select>
     <select id="selectCaseId" resultType="java.lang.String">
         select case_id
