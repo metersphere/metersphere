@@ -23,11 +23,6 @@ if (window.location.pathname.startsWith('/' + packageJSON.name)) {
 }
 
 let urlParams = getUrlParams(window.location.href);
-// OIDC 返回三方登录地址的话保存到本地，下次可以直接跳转
-let oidcLoginUrl = urlParams['oidcLoginUrl']
-if (oidcLoginUrl) {
-  localStorage.setItem('oidcLoginUrl', oidcLoginUrl);
-}
 
 const instance = axios.create({
   baseURL, // url = base url + request url
