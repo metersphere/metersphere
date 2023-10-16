@@ -97,7 +97,11 @@ public class MsExtract extends MsTestElement {
             extractor.setMatchNumber(-1);
         }
         // $1$提取 JSON 响应中的第一个匹配项 $0$用于提取整个 JSON 响应
-        extractor.setTemplate("$0$");
+        if (StringUtils.isNotEmpty(extractRegex.getTemplate())) {
+            extractor.setTemplate(extractRegex.getTemplate());
+        } else {
+            extractor.setTemplate("$1$");
+        }
         extract.add(extractor.getRefName());
 
         return extractor;
