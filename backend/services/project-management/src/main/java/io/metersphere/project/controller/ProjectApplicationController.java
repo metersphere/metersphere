@@ -53,7 +53,7 @@ public class ProjectApplicationController {
     @PostMapping("/test-plan")
     @Operation(summary = "测试计划-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_TEST_PLAN_READ)
-    public List<ProjectApplication> getTestPlan(@Validated @RequestBody ProjectApplicationRequest request) {
+    public Map<String, Object> getTestPlan(@Validated @RequestBody ProjectApplicationRequest request) {
         List<String> types = Arrays.asList(ProjectApplicationType.TEST_PLAN.values()).stream().map(ProjectApplicationType.TEST_PLAN::name).collect(Collectors.toList());
         return projectApplicationService.get(request, types);
     }
@@ -74,7 +74,7 @@ public class ProjectApplicationController {
     @PostMapping("/ui")
     @Operation(summary = "UI测试-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_READ)
-    public List<ProjectApplication> getUI(@Validated @RequestBody ProjectApplicationRequest request) {
+    public Map<String, Object> getUI(@Validated @RequestBody ProjectApplicationRequest request) {
         List<String> types = Arrays.asList(ProjectApplicationType.UI.values()).stream().map(ProjectApplicationType.UI::name).collect(Collectors.toList());
         return projectApplicationService.get(request, types);
     }
@@ -102,7 +102,7 @@ public class ProjectApplicationController {
     @PostMapping("/performance-test")
     @Operation(summary = "性能测试-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_READ)
-    public List<ProjectApplication> getPerformanceTest(@Validated @RequestBody ProjectApplicationRequest request) {
+    public Map<String, Object> getPerformanceTest(@Validated @RequestBody ProjectApplicationRequest request) {
         List<String> types = Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.values()).stream().map(ProjectApplicationType.PERFORMANCE_TEST::name).collect(Collectors.toList());
         return projectApplicationService.get(request, types);
     }
@@ -130,9 +130,12 @@ public class ProjectApplicationController {
     @PostMapping("/api")
     @Operation(summary = "接口测试-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_READ)
-    public List<ProjectApplication> getApi(@Validated @RequestBody ProjectApplicationRequest request) {
+    public Map<String, Object> getApi(@Validated @RequestBody ProjectApplicationRequest request) {
         List<String> types = Arrays.asList(ProjectApplicationType.API.values()).stream().map(ProjectApplicationType.API::name).collect(Collectors.toList());
-        return projectApplicationService.get(request, types);
+        Map<String, Object> configMap = projectApplicationService.get(request, types);
+        int errorNum = projectApplicationService.getFakeErrorList(request.getProjectId());
+        configMap.put("FAKE_ERROR_NUM", errorNum);
+        return configMap;
     }
 
     @GetMapping("/api/user/{projectId}")
@@ -167,9 +170,9 @@ public class ProjectApplicationController {
     @PostMapping("/case")
     @Operation(summary = "用例管理-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_READ)
-    public List<ProjectApplication> getCase(@Validated @RequestBody ProjectApplicationRequest request) {
+    public Map<String, Object> getCase(@Validated @RequestBody ProjectApplicationRequest request) {
         List<String> types = Arrays.asList(ProjectApplicationType.CASE.values()).stream().map(ProjectApplicationType.CASE::name).collect(Collectors.toList());
-        types.add(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
+        types.add(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
         return projectApplicationService.get(request, types);
     }
 
@@ -221,7 +224,7 @@ public class ProjectApplicationController {
     @PostMapping("/workstation")
     @Operation(summary = "工作台-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_WORKSTATION_READ)
-    public List<ProjectApplication> getWorkstation(@Validated @RequestBody ProjectApplicationRequest request) {
+    public Map<String, Object> getWorkstation(@Validated @RequestBody ProjectApplicationRequest request) {
         List<String> types = Arrays.asList(ProjectApplicationType.WORKSTATION.values()).stream().map(ProjectApplicationType.WORKSTATION::name).collect(Collectors.toList());
         return projectApplicationService.get(request, types);
     }
@@ -242,8 +245,8 @@ public class ProjectApplicationController {
     @PostMapping("/bug")
     @Operation(summary = "缺陷管理-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_READ)
-    public List<ProjectApplication> getBug(@Validated @RequestBody ProjectApplicationRequest request) {
-        List<String> types = Arrays.asList(ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
+    public Map<String, Object> getBug(@Validated @RequestBody ProjectApplicationRequest request) {
+        List<String> types = Arrays.asList(ProjectApplicationType.BUG.BUG_SYNC.name() + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
         return projectApplicationService.get(request, types);
     }
 

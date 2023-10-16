@@ -23,7 +23,7 @@ public class ProjectApplicationType {
     public enum UI{
         UI_CLEAN_REPORT,
         UI_SHARE_REPORT,
-        UI_RESOURCE_POOL,
+        UI_RESOURCE_POOL_ID,
     }
 
 
@@ -32,7 +32,8 @@ public class ProjectApplicationType {
     public enum PERFORMANCE_TEST{
        PERFORMANCE_TEST_CLEAN_REPORT,
        PERFORMANCE_TEST_SHARE_REPORT,
-       PERFORMANCE_TEST_SCRIPT_REVIEWER
+       PERFORMANCE_TEST_SCRIPT_REVIEWER_ENABLE,
+       PERFORMANCE_TEST_SCRIPT_REVIEWER_ID,
     }
 
 
@@ -41,8 +42,9 @@ public class ProjectApplicationType {
         API_URL_REPEATABLE,
         API_CLEAN_REPORT,
         API_SHARE_REPORT,
-        API_RESOURCE_POOL,
-        API_SCRIPT_REVIEWER,
+        API_RESOURCE_POOL_ID,
+        API_SCRIPT_REVIEWER_ENABLE,
+        API_SCRIPT_REVIEWER_ID,
         API_ERROR_REPORT_RULE,
         API_SYNC_CASE
     }
