@@ -136,7 +136,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void testUiResourcePool() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.UI.UI_RESOURCE_POOL.name()), "local");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.UI.UI_RESOURCE_POOL_ID.name()), "local");
         this.requestPost(UI_UPDATE_URL, request);
     }
 
@@ -201,7 +201,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(9)
     public void testPerformanceReviewer() throws Exception {
         //新增
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_SCRIPT_REVIEWER.name()), "admin");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_SCRIPT_REVIEWER_ENABLE.name()), "admin");
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
     }
 
@@ -264,7 +264,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(15)
     public void testApiResourcePool() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_RESOURCE_POOL.name()), "local");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name()), "local");
         this.requestPost(API_UPDATE_URL, request);
     }
 
@@ -272,7 +272,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(16)
     public void testApiReviewer() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_SCRIPT_REVIEWER.name()), "admin");
+        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_SCRIPT_REVIEWER_ENABLE.name()), "admin");
         this.requestPost(API_UPDATE_URL, request);
     }
 

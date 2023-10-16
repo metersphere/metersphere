@@ -2,6 +2,7 @@ package io.metersphere.project.service;
 
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
+import io.metersphere.project.domain.FakeErrorExample;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.dto.ModuleDTO;
@@ -9,6 +10,7 @@ import io.metersphere.project.job.CleanUpReportJob;
 import io.metersphere.project.job.BugSyncJob;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
+import io.metersphere.project.mapper.FakeErrorMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.utils.ModuleSortUtils;
@@ -69,6 +71,9 @@ public class ProjectApplicationService {
 
     @Resource
     private PlatformPluginService platformPluginService;
+
+    @Resource
+    private FakeErrorMapper fakeErrorMapper;
 
     /**
      * 更新配置信息
@@ -153,14 +158,16 @@ public class ProjectApplicationService {
      * @param request
      * @return
      */
-    public List<ProjectApplication> get(ProjectApplicationRequest request, List<String> types) {
+    public Map<String, Object> get(ProjectApplicationRequest request, List<String> types) {
+        Map<String, Object> configMap = new HashMap<>();
         ProjectApplicationExample projectApplicationExample = new ProjectApplicationExample();
         projectApplicationExample.createCriteria().andProjectIdEqualTo(request.getProjectId()).andTypeIn(types);
         List<ProjectApplication> applicationList = projectApplicationMapper.selectByExample(projectApplicationExample);
         if (CollectionUtils.isNotEmpty(applicationList)) {
-            return applicationList;
+            configMap = applicationList.stream().collect(Collectors.toMap(ProjectApplication::getType, ProjectApplication::getTypeValue));
+            return configMap;
         }
-        return new ArrayList<ProjectApplication>();
+        return configMap;
     }
 
 
@@ -506,4 +513,10 @@ public class ProjectApplicationService {
         return platformPluginService.getPlatform(pluginId, serviceIntegrations.get(0).getOrganizationId(), new String(serviceIntegrations.get(0).getConfiguration()));
     }
 
+    public int getFakeErrorList(String projectId) {
+        FakeErrorExample example = new FakeErrorExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        long l = fakeErrorMapper.countByExample(example);
+        return (int) l;
+    }
 }
