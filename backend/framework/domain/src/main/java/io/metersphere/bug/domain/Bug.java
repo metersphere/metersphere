@@ -41,6 +41,12 @@ public class Bug implements Serializable {
     @Schema(description = "更新时间")
     private Long updateTime;
 
+    @Schema(description = "删除人")
+    private String deleteUser;
+
+    @Schema(description = "删除时间")
+    private Long deleteTime;
+
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{bug.project_id.length_range}", groups = {Created.class, Updated.class})
