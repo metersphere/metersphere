@@ -63,11 +63,11 @@ public class ProjectApplicationControllerTests extends BaseTest {
     public void testTestPlanClean() throws Exception {
         this.testGetTestPlan();
         //新增
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name()), TIME_TYPE_VALUE);
+        ProjectApplication request = creatRequest(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), TIME_TYPE_VALUE);
 
         this.requestPost(TEST_PLAN_UPDATE_URL, request);
         //更新
-        request.get(0).setTypeValue("4M");
+        request.setTypeValue("4M");
         this.requestPost(TEST_PLAN_UPDATE_URL, request);
         // @@异常参数校验
         updatedGroupParamValidateTest(ProjectApplicationDefinition.class, TEST_PLAN_UPDATE_URL);
@@ -79,10 +79,10 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(2)
     public void testTestPlanShare() throws Exception {
         //新增
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.TEST_PLAN.TEST_PLAN_SHARE_REPORT.name()), TIME_TYPE_VALUE);
+        ProjectApplication request = creatRequest(ProjectApplicationType.TEST_PLAN.TEST_PLAN_SHARE_REPORT.name(), TIME_TYPE_VALUE);
         this.requestPost(TEST_PLAN_UPDATE_URL, request);
         //更新
-        request.get(0).setTypeValue("5M");
+        request.setTypeValue("5M");
         this.requestPost(TEST_PLAN_UPDATE_URL, request);
     }
 
@@ -113,7 +113,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(4)
     public void testUiClean() throws Exception {
         //新增
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.UI.UI_CLEAN_REPORT.name()), TIME_TYPE_VALUE);
+        ProjectApplication request = creatRequest(ProjectApplicationType.UI.UI_CLEAN_REPORT.name(), TIME_TYPE_VALUE);
         this.requestPost(UI_UPDATE_URL, request);
         // @@异常参数校验
         updatedGroupParamValidateTest(ProjectApplicationDefinition.class, UI_UPDATE_URL);
@@ -125,10 +125,10 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(5)
     public void testUiShare() throws Exception {
         //新增
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.UI.UI_SHARE_REPORT.name()), TIME_TYPE_VALUE);
+        ProjectApplication request = creatRequest(ProjectApplicationType.UI.UI_SHARE_REPORT.name(), TIME_TYPE_VALUE);
         this.requestPost(UI_UPDATE_URL, request);
         //更新
-        request.get(0).setTypeValue("5M");
+        request.setTypeValue("5M");
         this.requestPost(UI_UPDATE_URL, request);
     }
 
@@ -136,7 +136,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void testUiResourcePool() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.UI.UI_RESOURCE_POOL_ID.name()), "local");
+        ProjectApplication request = creatRequest(ProjectApplicationType.UI.UI_RESOURCE_POOL_ID.name(), "local");
         this.requestPost(UI_UPDATE_URL, request);
     }
 
@@ -174,10 +174,10 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(7)
     public void testPerformanceClean() throws Exception {
         //新增
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_CLEAN_REPORT.name()), TIME_TYPE_VALUE);
+        ProjectApplication request = creatRequest(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_CLEAN_REPORT.name(), TIME_TYPE_VALUE);
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
         //更新
-        request.get(0).setTypeValue("4M");
+        request.setTypeValue("4M");
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
         // @@异常参数校验
         updatedGroupParamValidateTest(ProjectApplicationDefinition.class, PERFORMANCE_UPDATE_URL);
@@ -189,10 +189,10 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(8)
     public void testPerformanceShare() throws Exception {
         //新增
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_SHARE_REPORT.name()), TIME_TYPE_VALUE);
+        ProjectApplication request = creatRequest(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_SHARE_REPORT.name(), TIME_TYPE_VALUE);
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
         //更新
-        request.get(0).setTypeValue("5M");
+        request.setTypeValue("5M");
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
     }
 
@@ -201,7 +201,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(9)
     public void testPerformanceReviewer() throws Exception {
         //新增
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_SCRIPT_REVIEWER_ENABLE.name()), "admin");
+        ProjectApplication request = creatRequest(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_SCRIPT_REVIEWER_ENABLE.name(), "admin");
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
     }
 
@@ -239,7 +239,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(12)
     public void testUrlRepeatable() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_URL_REPEATABLE.name()), "true");
+        ProjectApplication request = creatRequest(ProjectApplicationType.API.API_URL_REPEATABLE.name(), "true");
         this.requestPost(API_UPDATE_URL, request);
 
     }
@@ -248,7 +248,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(13)
     public void testApiClean() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_CLEAN_REPORT.name()), TIME_TYPE_VALUE);
+        ProjectApplication request = creatRequest(ProjectApplicationType.API.API_CLEAN_REPORT.name(), TIME_TYPE_VALUE);
         this.requestPost(API_UPDATE_URL, request);
     }
 
@@ -256,7 +256,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(14)
     public void testApiShare() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_SHARE_REPORT.name()), TIME_TYPE_VALUE);
+        ProjectApplication request = creatRequest(ProjectApplicationType.API.API_SHARE_REPORT.name(), TIME_TYPE_VALUE);
         this.requestPost(API_UPDATE_URL, request);
     }
 
@@ -264,7 +264,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(15)
     public void testApiResourcePool() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name()), "local");
+        ProjectApplication request = creatRequest(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name(), "local");
         this.requestPost(API_UPDATE_URL, request);
     }
 
@@ -272,7 +272,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(16)
     public void testApiReviewer() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_SCRIPT_REVIEWER_ENABLE.name()), "admin");
+        ProjectApplication request = creatRequest(ProjectApplicationType.API.API_SCRIPT_REVIEWER_ENABLE.name(), "admin");
         this.requestPost(API_UPDATE_URL, request);
     }
 
@@ -280,7 +280,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(17)
     public void testApiErrorReportRule() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_ERROR_REPORT_RULE.name()), "true");
+        ProjectApplication request = creatRequest(ProjectApplicationType.API.API_ERROR_REPORT_RULE.name(), "true");
         this.requestPost(API_UPDATE_URL, request);
     }
 
@@ -288,7 +288,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(18)
     public void testApiSyncCase() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.API.API_SYNC_CASE.name()), "true");
+        ProjectApplication request = creatRequest(ProjectApplicationType.API.API_SYNC_CASE.name(), "true");
         this.requestPost(API_UPDATE_URL, request);
     }
 
@@ -332,7 +332,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(22)
     public void testCasePublic() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.CASE.CASE_PUBLIC.name()), "true");
+        ProjectApplication request = creatRequest(ProjectApplicationType.CASE.CASE_PUBLIC.name(), "true");
         this.requestPost(CASE_UPDATE_URL, request);
     }
 
@@ -340,7 +340,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(23)
     public void testReview() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.CASE.CASE_RE_REVIEW.name()), "true");
+        ProjectApplication request = creatRequest(ProjectApplicationType.CASE.CASE_RE_REVIEW.name(), "true");
         this.requestPost(CASE_UPDATE_URL, request);
     }
 
@@ -394,7 +394,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(27)
     public void testWorkstation() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.WORKSTATION.WORKSTATION_SYNC_RULE.name()), "true");
+        ProjectApplication request = creatRequest(ProjectApplicationType.WORKSTATION.WORKSTATION_SYNC_RULE.name(), "true");
         this.requestPost(WORKSTATION_UPDATE_URL, request);
     }
 
@@ -422,7 +422,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(29)
     public void testBug() throws Exception {
-        List<ProjectApplication> request = creatRequest(Arrays.asList(ProjectApplicationType.BUG.BUG_SYNC.name()), "true");
+        ProjectApplication request = creatRequest(ProjectApplicationType.BUG.BUG_SYNC.name(), "true");
         this.requestPost(BUG_UPDATE_URL, request);
     }
 
@@ -487,16 +487,13 @@ public class ProjectApplicationControllerTests extends BaseTest {
         return request;
     }
 
-    private List<ProjectApplication> creatRequest(List<String> type, String typeValue) {
-        List<ProjectApplication> list = new ArrayList<>();
-        type.forEach(t -> {
-            ProjectApplication projectApplication = new ProjectApplication();
-            projectApplication.setProjectId(PROJECT_ID);
-            projectApplication.setType(t);
-            projectApplication.setTypeValue(typeValue);
-            list.add(projectApplication);
-        });
-        return list;
+    private ProjectApplication creatRequest(String type, String typeValue) {
+        ProjectApplication projectApplication = new ProjectApplication();
+        projectApplication.setProjectId(PROJECT_ID);
+        projectApplication.setType(type);
+        projectApplication.setTypeValue(typeValue);
+        return projectApplication;
+
     }
 
 
@@ -562,8 +559,8 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
 
         //更新
-        List<ProjectApplication> request = creatRequest(Arrays.asList("bugManagement"), "false");
-        request.get(0).setProjectId("100001100001");
+        ProjectApplication request = creatRequest("bugManagement", "false");
+        request.setProjectId("100001100001");
         this.requestPost(BUG_UPDATE_URL, request);
         MvcResult updateMvcResult = this.requestGetWithOkAndReturn(GET_MODULE_SETTING_URL + "/100001100001");
         // 获取返回值
@@ -628,6 +625,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     private String mockServerHost;
     @Value("${embedded.mockserver.port}")
     private int mockServerHostPort;
+
     @Test
     @Order(39)
     public void testCheckProjectKey() throws Exception {

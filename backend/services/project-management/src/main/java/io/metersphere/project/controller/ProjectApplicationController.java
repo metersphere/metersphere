@@ -46,8 +46,8 @@ public class ProjectApplicationController {
     @Operation(summary = "测试计划-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_TEST_PLAN_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateTestPlanLog(#applications)", msClass = ProjectApplicationService.class)
-    public void updateTestPlan(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications, SessionUtils.getUserId());
+    public void updateTestPlan(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        projectApplicationService.update(application, SessionUtils.getUserId());
     }
 
     @PostMapping("/test-plan")
@@ -67,8 +67,8 @@ public class ProjectApplicationController {
     @Operation(summary = "UI测试-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateUiLog(#applications)", msClass = ProjectApplicationService.class)
-    public void updateUI(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications, SessionUtils.getUserId());
+    public void updateUI(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        projectApplicationService.update(application, SessionUtils.getUserId());
     }
 
     @PostMapping("/ui")
@@ -95,8 +95,8 @@ public class ProjectApplicationController {
     @Operation(summary = "性能测试-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePerformanceLog(#applications)", msClass = ProjectApplicationService.class)
-    public void updatePerformanceTest(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications, SessionUtils.getUserId());
+    public void updatePerformanceTest(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        projectApplicationService.update(application, SessionUtils.getUserId());
     }
 
     @PostMapping("/performance-test")
@@ -123,8 +123,8 @@ public class ProjectApplicationController {
     @Operation(summary = "接口测试-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateApiLog(#applications)", msClass = ProjectApplicationService.class)
-    public void updateApi(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications, SessionUtils.getUserId());
+    public void updateApi(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        projectApplicationService.update(application, SessionUtils.getUserId());
     }
 
     @PostMapping("/api")
@@ -162,8 +162,8 @@ public class ProjectApplicationController {
     @Operation(summary = "用例管理-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateCaseLog(#applications)", msClass = ProjectApplicationService.class)
-    public void updateCase(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications, SessionUtils.getUserId());
+    public void updateCase(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        projectApplicationService.update(application, SessionUtils.getUserId());
     }
 
 
@@ -217,8 +217,8 @@ public class ProjectApplicationController {
     @Operation(summary = "工作台-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_WORKSTATION_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#applications)", msClass = ProjectApplicationService.class)
-    public void updateWorkstation(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications, SessionUtils.getUserId());
+    public void updateWorkstation(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        projectApplicationService.update(application, SessionUtils.getUserId());
     }
 
     @PostMapping("/workstation")
@@ -238,8 +238,8 @@ public class ProjectApplicationController {
     @Operation(summary = "缺陷管理-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#applications)", msClass = ProjectApplicationService.class)
-    public void updateBug(@Validated({Updated.class}) @RequestBody List<ProjectApplication> applications) {
-        projectApplicationService.update(applications, SessionUtils.getUserId());
+    public void updateBug(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        projectApplicationService.update(application, SessionUtils.getUserId());
     }
 
     @PostMapping("/bug")

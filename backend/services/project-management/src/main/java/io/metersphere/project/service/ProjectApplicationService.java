@@ -78,16 +78,13 @@ public class ProjectApplicationService {
     /**
      * 更新配置信息
      *
-     * @param applications
+     * @param application
      * @return
      */
-    public void update(List<ProjectApplication> applications, String currentUser) {
-        applications.forEach(application -> {
-            //定时任务配置，检查是否存在定时任务配置，存在则更新，不存在则新增
-            this.doBeforeUpdate(application, currentUser);
-            //配置信息入库
-            this.createOrUpdateConfig(application);
-        });
+    public void update(ProjectApplication application, String currentUser) {
+        this.doBeforeUpdate(application, currentUser);
+        //配置信息入库
+        this.createOrUpdateConfig(application);
     }
 
     private void createOrUpdateConfig(ProjectApplication application) {
@@ -106,7 +103,6 @@ public class ProjectApplicationService {
 
     private void doBeforeUpdate(ProjectApplication application, String currentUser) {
         String type = application.getType();
-        //TODO 自定义id配置 &其他配置
         if (StringUtils.equals(type, ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.UI.UI_CLEAN_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_CLEAN_REPORT.name())
