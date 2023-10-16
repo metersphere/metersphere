@@ -4,11 +4,10 @@
       v-model="current.value"
       class="w-[120px]"
       :min="0"
-      :max="current.max"
       hide-button
       size="small"
-      @blur="handleBlur"
-      @press-enter="handleBlur"
+      @press-enter="handleEnter(false)"
+      @blur="handleEnter(true)"
     >
       <template #suffix>
         <a-select v-model="current.type" size="small" class="max-w-[64px]" :options="option"> </a-select>
@@ -28,39 +27,41 @@
     (e: 'change', value: string): void;
   }>();
 
+  // 是否是enter触发
+  const isEnter = ref<boolean>(false);
+
   function parseValue(v?: string) {
     // 使用正则表达式匹配输入字符串，提取类型和值
     if (!v) {
-      return { type: 'H', value: undefined, max: Number.MAX_VALUE };
+      return { type: 'H', value: undefined };
     }
     const match = v.match(/^(\d+)([MYHD])$/);
     if (match) {
       const value = parseInt(match[1], 10); // 提取值并将其转换为整数
       const type = match[2]; // 提取类型
-      let max = 0;
-      // 根据类型设置最大值
-      switch (type) {
-        case 'H':
-          max = 24;
-          break;
-        case 'M':
-          max = 12;
-          break;
-        default:
-          max = Number.MAX_VALUE;
-      }
-
-      return { type, value, max };
+      return { type, value };
     }
     // 如果输入字符串不匹配格式，可以抛出错误或返回一个默认值
-    return { type: 'H', value: undefined, max: Number.MAX_VALUE };
+    return { type: 'H', value: undefined };
   }
   const current = reactive(parseValue(props.modelValue || props.defaultValue));
 
-  const handleBlur = () => {
-    const result = current.value ? `${current.value}${current.type}` : '';
-    emit('update:modelValue', current.value ? `${current.value}${current.type}` : '');
-    emit('change', result);
+  const handleEnter = (isBlur: boolean) => {
+    if (isBlur) {
+      if (!isEnter.value) {
+        // 不是由Enter触发的blur
+        const { type, value } = parseValue(props.modelValue || props.defaultValue);
+        current.value = value;
+        current.type = type;
+      }
+      isEnter.value = false;
+    } else {
+      // 触发的是Enter
+      const result = current.value ? `${current.value}${current.type}` : '';
+      emit('update:modelValue', current.value ? `${current.value}${current.type}` : '');
+      emit('change', result);
+      isEnter.value = true;
+    }
   };
   const option = computed(() => [
     {

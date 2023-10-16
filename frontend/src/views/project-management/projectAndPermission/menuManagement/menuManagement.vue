@@ -17,7 +17,178 @@
         <span class="ml-[4px]">{{ t(`project.menu.${record.type}`) }}</span>
       </div>
     </template>
-    <template #moduleEnable="{ record }">
+    <template #description="{ record }">
+      <div v-if="record.type === 'WORKSTATION_SYNC_RULE'">
+        <!-- 工作台 接口测试待更新同步规则 -->
+        {{ t('project.menu.row1') }}
+      </div>
+      <div v-if="record.type === 'TEST_PLAN_CLEAN_REPORT'">
+        <!-- 测试计划 报告保留时间范围 -->
+        <MsTimeSelectorVue
+          v-model="allValueMap['TEST_PLAN_CLEAN_REPORT']"
+          @change="(v: string) => handleMenuStatusChange('TEST_PLAN_CLEAN_REPORT',v,MenuEnum.testPlan)"
+        />
+      </div>
+      <div v-if="record.type === 'TEST_PLAN_SHARE_REPORT'">
+        <!-- 测试计划 报告链接有效期 -->
+        <MsTimeSelectorVue
+          v-model="allValueMap['TEST_PLAN_SHARE_REPORT']"
+          @change="(v: string) => handleMenuStatusChange('TEST_PLAN_SHARE_REPORT',v,MenuEnum.testPlan)"
+        />
+      </div>
+      <template v-if="record.type === 'BUG_SYNC'">
+        <!-- 同步缺陷 -->
+        <span>{{ t('project.menu.row2') }}</span>
+        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.sd') }}</div>
+      </template>
+      <div v-if="record.type === 'CASE_PUBLIC'">
+        <!-- 用例 公共用例库 -->
+        {{ t('project.menu.row3') }}
+      </div>
+      <div v-if="record.type === 'CASE_RELATED'" class="flex flex-row">
+        <!-- 用例 关联需求 -->
+        <div>{{ t('project.menu.row4') }}</div>
+        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.rr') }}</div>
+      </div>
+      <div v-if="record.type === 'CASE_RE_REVIEW'">
+        <!-- 用例 重新提审 -->
+        {{ t('project.menu.row5') }}
+      </div>
+      <div v-if="record.type === 'API_URL_REPEATABLE'">
+        <!-- 接口测试 接口定义URL可重复  -->
+        {{ t('project.menu.row6') }}
+      </div>
+      <div v-if="record.type === 'API_CLEAN_REPORT'">
+        <MsTimeSelectorVue
+          v-model="allValueMap['API_CLEAN_REPORT']"
+          @change="(v: string) => handleMenuStatusChange('API_CLEAN_REPORT',v,MenuEnum.apiTest)"
+        />
+      </div>
+      <div v-if="record.type === 'API_SHARE_REPORT'">
+        <!--接口测试 报告链接有效期 -->
+        <MsTimeSelectorVue
+          v-model="allValueMap['API_SHARE_REPORT']"
+          @change="(v: string) => handleMenuStatusChange('API_SHARE_REPORT',v,MenuEnum.apiTest)"
+        />
+      </div>
+      <div v-if="record.type === 'API_RESOURCE_POOL'" class="flex flex-row items-center">
+        <!--接口测试 执行资源池 -->
+        <a-select
+          v-model="allValueMap['API_RESOURCE_POOL_ID']"
+          :field-names="{ label: 'name', value: 'id' }"
+          :options="apiPoolOption"
+          class="w-[120px]"
+          @change="(v: SelectValue) => handleMenuStatusChange('API_RESOURCE_POOL_ID',v as string,MenuEnum.apiTest)"
+        />
+        <a-tooltip
+          :content="t('project.menu.API_RESOURCE_POOL_TIP', { name: allValueMap['API_RESOURCE_POOL'] })"
+          position="right"
+        >
+          <div>
+            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+          </div>
+        </a-tooltip>
+      </div>
+      <div v-if="record.type === 'API_SCRIPT_REVIEWER'" class="flex flex-row items-center">
+        <!--接口测试 脚本审核 -->
+        <a-select
+          v-model="allValueMap['API_SCRIPT_REVIEWER_ID']"
+          :field-names="{ label: 'name', value: 'id' }"
+          :options="apiAuditorOption"
+          class="w-[120px]"
+          @change="(v: SelectValue) => handleMenuStatusChange('API_SCRIPT_REVIEWER_ID',v as string,MenuEnum.apiTest)"
+        />
+        <a-tooltip :content="t('project.menu.API_SCRIPT_REVIEWER_TIP')" position="right">
+          <div>
+            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+          </div>
+        </a-tooltip>
+      </div>
+      <div v-if="record.type === 'API_ERROR_REPORT_RULE'" class="flex w-[100%] flex-row items-center">
+        <!--接口测试 误报规则 -->
+        <div class="error-report">
+          <a-input
+            v-model="allValueMap['FAKE_ERROR_NUM']"
+            class="w-[120px]"
+            disabled
+            :placeholder="t('project.menu.pleaseConfig')"
+          >
+            <template #append>
+              <div>{{ t('project.menu.count') }}</div>
+            </template>
+          </a-input>
+        </div>
+        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.far') }}</div>
+        <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
+          <div>
+            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+          </div>
+        </a-tooltip>
+      </div>
+      <div v-if="record.type === 'API_SYNC_CASE'">{{ t('project.menu.row7') }} </div>
+      <div v-if="record.type === 'UI_CLEAN_REPORT'">
+        <!--UI 报告保留时间范围 -->
+        <MsTimeSelectorVue
+          v-model="allValueMap['UI_CLEAN_REPORT']"
+          @change="(v: string) => handleMenuStatusChange('UI_CLEAN_REPORT',v,MenuEnum.uiTest)"
+        />
+      </div>
+      <div v-if="record.type === 'UI_SHARE_REPORT'">
+        <!--UI 报告链接有效期 -->
+        <MsTimeSelectorVue
+          v-model="allValueMap['UI_SHARE_REPORT']"
+          @change="(v: string) => handleMenuStatusChange('UI_SHARE_REPORT',v,MenuEnum.uiTest)"
+        />
+      </div>
+      <div v-if="record.type === 'UI_RESOURCE_POOL'" class="flex flex-row items-center">
+        <!--UI 执行资源池 -->
+        <a-select
+          v-model="allValueMap['UI_RESOURCE_POOL_ID']"
+          :field-names="{ label: 'name', value: 'id' }"
+          :options="uiPoolOption"
+          class="w-[120px]"
+          @change="(v: SelectValue) => handleMenuStatusChange('UI_RESOURCE_POOL_ID',v as string,MenuEnum.uiTest)"
+        />
+        <a-tooltip
+          :content="t('project.menu.UI_RESOURCE_POOL_TIP', { name: allValueMap['UI_RESOURCE_POOL_ID'] })"
+          position="right"
+        >
+          <div>
+            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+          </div>
+        </a-tooltip>
+      </div>
+      <div v-if="record.type === 'PERFORMANCE_TEST_CLEAN_REPORT'">
+        <!--性能测试 报告保留时间范围 -->
+        <MsTimeSelectorVue
+          v-model="allValueMap['PERFORMANCE_TEST_CLEAN_REPORT']"
+          @change="(v: string) => handleMenuStatusChange('PERFORMANCE_TEST_CLEAN_REPORT',v,MenuEnum.loadTest)"
+        />
+      </div>
+      <div v-if="record.type === 'PERFORMANCE_TEST_SHARE_REPORT'">
+        <!--性能测试 报告链接有效期 -->
+        <MsTimeSelectorVue
+          v-model="allValueMap['PERFORMANCE_TEST_SHARE_REPORT']"
+          @change="(v: string) => handleMenuStatusChange('PERFORMANCE_TEST_SHARE_REPORT',v,MenuEnum.loadTest)"
+        />
+      </div>
+      <div v-if="record.type === 'PERFORMANCE_TEST_SCRIPT_REVIEWER'" class="flex flex-row items-center">
+        <!--性能测试 脚本审核 -->
+        <a-select
+          v-model="allValueMap['PERFORMANCE_TEST_SCRIPT_REVIEWER_ID']"
+          :field-names="{ label: 'name', value: 'id' }"
+          :options="performanceAuditorOption"
+          class="w-[120px]"
+          @change="(v: SelectValue) => handleMenuStatusChange('PERFORMANCE_TEST_SCRIPT_REVIEWER_ID',v as string,MenuEnum.loadTest)"
+        />
+        <a-tooltip :content="t('project.menu.PERFORMANCE_TEST_SCRIPT_REVIEWER_TIP')" position="right">
+          <div>
+            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+          </div>
+        </a-tooltip>
+      </div>
+    </template>
+    <template #operation="{ record }">
       <!-- 父级菜单是否展示 -->
       <a-switch
         v-if="record.children"
@@ -124,183 +295,12 @@
       <!-- 性能测试 脚本审核 Switch-->
       <a-switch
         v-if="record.type === 'PERFORMANCE_TEST_SCRIPT_REVIEWER'"
-        v-model="allValueMap['PERFORMANCE_TEST_SCRIPT_REVIEWER']"
+        v-model="allValueMap['PERFORMANCE_TEST_SCRIPT_REVIEWER_ENABLE']"
         checked-value="true"
         unchecked-value="false"
         size="small"
-        @change="(v: boolean | string| number) => handleMenuStatusChange(record.type,v as boolean,MenuEnum.loadTest)"
+        @change="(v: boolean | string| number) => handleMenuStatusChange('PERFORMANCE_TEST_SCRIPT_REVIEWER_ENABLE',v as boolean,MenuEnum.loadTest)"
       />
-    </template>
-    <template #description="{ record }">
-      <div v-if="record.type === 'WORKSTATION_SYNC_RULE'">
-        <!-- 工作台 接口测试待更新同步规则 -->
-        {{ t('project.menu.row1') }}
-      </div>
-      <div v-if="record.type === 'TEST_PLAN_CLEAN_REPORT'">
-        <!-- 测试计划 报告保留时间范围 -->
-        <MsTimeSelectorVue
-          v-model="allValueMap['TEST_PLAN_CLEAN_REPORT']"
-          @change="(v: string) => handleMenuStatusChange('TEST_PLAN_CLEAN_REPORT',v,MenuEnum.testPlan)"
-        />
-      </div>
-      <div v-if="record.type === 'TEST_PLAN_SHARE_REPORT'">
-        <!-- 测试计划 报告链接有效期 -->
-        <MsTimeSelectorVue
-          v-model="allValueMap['TEST_PLAN_SHARE_REPORT']"
-          @change="(v: string) => handleMenuStatusChange('TEST_PLAN_SHARE_REPORT',v,MenuEnum.testPlan)"
-        />
-      </div>
-      <template v-if="record.type === 'BUG_SYNC'">
-        <!-- 同步缺陷 -->
-        <span>{{ t('project.menu.row2') }}</span>
-        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.sd') }}</div>
-      </template>
-      <div v-if="record.type === 'CASE_PUBLIC'">
-        <!-- 用例 公共用例库 -->
-        {{ t('project.menu.row3') }}
-      </div>
-      <div v-if="record.type === 'CASE_RELATED'" class="flex flex-row">
-        <!-- 用例 关联需求 -->
-        <div>{{ t('project.menu.row4') }}</div>
-        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.rr') }}</div>
-      </div>
-      <div v-if="record.type === 'CASE_RE_REVIEW'">
-        <!-- 用例 重新提审 -->
-        {{ t('project.menu.row5') }}
-      </div>
-      <div v-if="record.type === 'API_URL_REPEATABLE'">
-        <!-- 接口测试 接口定义URL可重复  -->
-        {{ t('project.menu.row6') }}
-      </div>
-      <div v-if="record.type === 'API_CLEAN_REPORT'">
-        <MsTimeSelectorVue
-          v-model="allValueMap['API_CLEAN_REPORT']"
-          @change="(v: string) => handleMenuStatusChange('API_CLEAN_REPORT',v,MenuEnum.apiTest)"
-        />
-      </div>
-      <div v-if="record.type === 'API_SHARE_REPORT'">
-        <!--接口测试 报告链接有效期 -->
-        <MsTimeSelectorVue
-          v-model="allValueMap['API_SHARE_REPORT']"
-          @change="(v: string) => handleMenuStatusChange('API_SHARE_REPORT',v,MenuEnum.apiTest)"
-        />
-      </div>
-      <div v-if="record.type === 'API_RESOURCE_POOL'" class="flex flex-row items-center">
-        <!--接口测试 执行资源池 -->
-        <a-select
-          v-model="allValueMap['API_RESOURCE_POOL']"
-          :field-names="{ label: 'name', value: 'id' }"
-          :options="apiPoolOption"
-          class="w-[120px]"
-          @change="(v: SelectValue) => handleMenuStatusChange('API_RESOURCE_POOL',v as string,MenuEnum.apiTest)"
-        />
-        <a-tooltip
-          :content="t('project.menu.API_RESOURCE_POOL_TIP', { name: allValueMap['API_RESOURCE_POOL'] })"
-          position="right"
-        >
-          <div>
-            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
-          </div>
-        </a-tooltip>
-      </div>
-      <div v-if="record.type === 'API_SCRIPT_REVIEWER'" class="flex flex-row items-center">
-        <!--接口测试 脚本审核 -->
-        <a-select
-          v-model="allValueMap['API_SCRIPT_REVIEWER']"
-          :field-names="{ label: 'name', value: 'id' }"
-          :options="apiAuditorOption"
-          class="w-[120px]"
-          @change="(v: SelectValue) => handleMenuStatusChange('API_SCRIPT_REVIEWER',v as string,MenuEnum.apiTest)"
-        />
-        <a-tooltip :content="t('project.menu.API_SCRIPT_REVIEWER_TIP')" position="right">
-          <div>
-            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
-          </div>
-        </a-tooltip>
-      </div>
-      <div v-if="record.type === 'API_ERROR_REPORT_RULE'" class="flex w-[100%] flex-row items-center">
-        <!--接口测试 误报规则 -->
-        <div class="error-report">
-          <a-input
-            v-model="allValueMap['API_ERROR_REPORT_RULE']"
-            class="w-[120px]"
-            disabled
-            :placeholder="t('project.menu.pleaseConfig')"
-          >
-            <template #append>
-              <div>{{ t('project.menu.count') }}</div>
-            </template>
-          </a-input>
-        </div>
-        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.far') }}</div>
-        <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
-          <div>
-            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
-          </div>
-        </a-tooltip>
-      </div>
-      <div v-if="record.type === 'API_SYNC_CASE'">{{ t('project.menu.row7') }} </div>
-      <div v-if="record.type === 'UI_CLEAN_REPORT'">
-        <!--UI 报告保留时间范围 -->
-        <MsTimeSelectorVue
-          v-model="allValueMap['UI_CLEAN_REPORT']"
-          @change="(v: string) => handleMenuStatusChange('UI_CLEAN_REPORT',v,MenuEnum.uiTest)"
-        />
-      </div>
-      <div v-if="record.type === 'UI_SHARE_REPORT'">
-        <!--UI 报告链接有效期 -->
-        <MsTimeSelectorVue
-          v-model="allValueMap['UI_SHARE_REPORT']"
-          @change="(v: string) => handleMenuStatusChange('UI_SHARE_REPORT',v,MenuEnum.uiTest)"
-        />
-      </div>
-      <div v-if="record.type === 'UI_RESOURCE_POOL'" class="flex flex-row items-center">
-        <!--UI 执行资源池 -->
-        <a-select
-          v-model="allValueMap['UI_RESOURCE_POOL_ID']"
-          :field-names="{ label: 'name', value: 'id' }"
-          :options="uiPoolOption"
-          class="w-[120px]"
-          @change="(v: SelectValue) => handleMenuStatusChange('UI_RESOURCE_POOL_ID',v as string,MenuEnum.uiTest)"
-        />
-        <a-tooltip
-          :content="t('project.menu.UI_RESOURCE_POOL_TIP', { name: allValueMap['UI_RESOURCE_POOL_ID'] })"
-          position="right"
-        >
-          <div>
-            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
-          </div>
-        </a-tooltip>
-      </div>
-      <div v-if="record.type === 'PERFORMANCE_TEST_CLEAN_REPORT'">
-        <!--性能测试 报告保留时间范围 -->
-        <MsTimeSelectorVue
-          v-model="allValueMap['PERFORMANCE_TEST_CLEAN_REPORT']"
-          @change="(v: string) => handleMenuStatusChange('PERFORMANCE_TEST_CLEAN_REPORT',v,MenuEnum.loadTest)"
-        />
-      </div>
-      <div v-if="record.type === 'PERFORMANCE_TEST_SHARE_REPORT'">
-        <!--性能测试 报告链接有效期 -->
-        <MsTimeSelectorVue
-          v-model="allValueMap['PERFORMANCE_TEST_SHARE_REPORT']"
-          @change="(v: string) => handleMenuStatusChange('PERFORMANCE_TEST_SHARE_REPORT',v,MenuEnum.loadTest)"
-        />
-      </div>
-      <div v-if="record.type === 'PERFORMANCE_TEST_SCRIPT_REVIEWER'" class="flex flex-row items-center">
-        <!--性能测试 脚本审核 -->
-        <a-select
-          v-model="allValueMap['PERFORMANCE_TEST_SCRIPT_REVIEWER__ID']"
-          :field-names="{ label: 'name', value: 'id' }"
-          :options="performanceAuditorOption"
-          class="w-[120px]"
-          @change="(v: SelectValue) => handleMenuStatusChange('PERFORMANCE_TEST_SCRIPT_REVIEWER__ID',v as string,MenuEnum.loadTest)"
-        />
-        <a-tooltip :content="t('project.menu.PERFORMANCE_TEST_SCRIPT_REVIEWER_TIP')" position="right">
-          <div>
-            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
-          </div>
-        </a-tooltip>
-      </div>
     </template>
   </MsBaseTable>
   <MsDrawer
@@ -391,7 +391,7 @@
     },
     {
       title: 'common.operation',
-      slotName: 'moduleEnable',
+      slotName: 'operation',
       dataIndex: 'moduleEnable',
       width: 58,
     },
@@ -518,6 +518,19 @@
     }
   );
 
+  const getMenuConfig = async (type: string) => {
+    try {
+      const resultObj = await getConfigByMenuItem({
+        projectId: currentProjectId.value,
+        type,
+      });
+      allValueMap.value = { ...allValueMap.value, ...resultObj };
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
+  };
+
   const expandChange = async (record: TableData) => {
     try {
       if (expandedKeys.value.includes(record.module)) {
@@ -526,11 +539,7 @@
         return;
       }
       expandedKeys.value = [...expandedKeys.value, record.module];
-      const resultObj = await getConfigByMenuItem({
-        projectId: currentProjectId.value,
-        type: record.module as MenuEnum,
-      });
-      allValueMap.value = { ...allValueMap.value, ...resultObj };
+      getMenuConfig(record.module);
       if (record.module === MenuEnum.apiTest && !apiPoolOption.value.length) {
         apiPoolOption.value = await getPoolOptions(currentProjectId.value, record.module);
       }
@@ -578,6 +587,7 @@
         suffix
       );
       Message.success(t('common.operationSuccess'));
+      getMenuConfig(suffix);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);
