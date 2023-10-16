@@ -5,6 +5,8 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="bug_id" jdbcType="VARCHAR" property="bugId" />
     <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="rollback_source_id" jdbcType="VARCHAR" property="rollbackSourceId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
   </resultMap>
@@ -70,7 +72,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, bug_id, num, create_user, create_time
+    id, bug_id, num, `type`, rollback_source_id, create_user, create_time
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -125,11 +127,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.bug.domain.BugHistory">
     insert into bug_history (id, bug_id, num, 
-      create_user, create_time, content
-      )
+      `type`, rollback_source_id, create_user, 
+      create_time, content)
     values (#{id,jdbcType=VARCHAR}, #{bugId,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
-      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY}
-      )
+      #{type,jdbcType=VARCHAR}, #{rollbackSourceId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugHistory">
     insert into bug_history
@@ -142,6 +144,12 @@
       </if>
       <if test="num != null">
         num,
+      </if>
+      <if test="type != null">
+        `type`,
+      </if>
+      <if test="rollbackSourceId != null">
+        rollback_source_id,
       </if>
       <if test="createUser != null">
         create_user,
@@ -162,6 +170,12 @@
       </if>
       <if test="num != null">
         #{num,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="rollbackSourceId != null">
+        #{rollbackSourceId,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -192,6 +206,12 @@
       <if test="record.num != null">
         num = #{record.num,jdbcType=INTEGER},
       </if>
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rollbackSourceId != null">
+        rollback_source_id = #{record.rollbackSourceId,jdbcType=VARCHAR},
+      </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
@@ -211,6 +231,8 @@
     set id = #{record.id,jdbcType=VARCHAR},
       bug_id = #{record.bugId,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      rollback_source_id = #{record.rollbackSourceId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       content = #{record.content,jdbcType=LONGVARBINARY}
@@ -223,6 +245,8 @@
     set id = #{record.id,jdbcType=VARCHAR},
       bug_id = #{record.bugId,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      rollback_source_id = #{record.rollbackSourceId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT}
     <if test="_parameter != null">
@@ -237,6 +261,12 @@
       </if>
       <if test="num != null">
         num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="rollbackSourceId != null">
+        rollback_source_id = #{rollbackSourceId,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
@@ -254,6 +284,8 @@
     update bug_history
     set bug_id = #{bugId,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
+      `type` = #{type,jdbcType=VARCHAR},
+      rollback_source_id = #{rollbackSourceId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       content = #{content,jdbcType=LONGVARBINARY}
@@ -263,18 +295,20 @@
     update bug_history
     set bug_id = #{bugId,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
+      `type` = #{type,jdbcType=VARCHAR},
+      rollback_source_id = #{rollbackSourceId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into bug_history
-    (id, bug_id, num, create_user, create_time, content)
+    (id, bug_id, num, `type`, rollback_source_id, create_user, create_time, content)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.bugId,jdbcType=VARCHAR}, #{item.num,jdbcType=INTEGER}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARBINARY}
-        )
+        #{item.type,jdbcType=VARCHAR}, #{item.rollbackSourceId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARBINARY})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -295,6 +329,12 @@
         </if>
         <if test="'num'.toString() == column.value">
           #{item.num,jdbcType=INTEGER}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+        <if test="'rollback_source_id'.toString() == column.value">
+          #{item.rollbackSourceId,jdbcType=VARCHAR}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}

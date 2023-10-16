@@ -2,21 +2,22 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
-import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
-import io.metersphere.system.dto.sdk.TemplateDTO;
-import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.system.resolver.field.AbstractCustomFieldResolver;
-import io.metersphere.system.resolver.field.CustomFieldResolverFactory;
-import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.domain.TemplateCustomField;
 import io.metersphere.system.domain.TemplateExample;
+import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
+import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.system.mapper.TemplateMapper;
+import io.metersphere.system.resolver.field.AbstractCustomFieldResolver;
+import io.metersphere.system.resolver.field.CustomFieldResolverFactory;
+import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import io.metersphere.system.uid.IDGenerator;
 import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
@@ -94,7 +94,7 @@ public class BaseTemplateService {
         return templateMapper.selectByPrimaryKey(id);
     }
 
-    protected TemplateDTO getTemplateDTO(Template template) {
+    public TemplateDTO getTemplateDTO(Template template) {
         List<TemplateCustomField> templateCustomFields = baseTemplateCustomFieldService.getByTemplateId(template.getId());
 
         // 查找字段名称

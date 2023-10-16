@@ -223,7 +223,7 @@ public class ProjectTemplateService extends BaseTemplateService {
      * @param projectId
      * @return
      */
-    private Template getPluginBugTemplate(String projectId) {
+    public Template getPluginBugTemplate(String projectId) {
         ServiceIntegration serviceIntegration = getServiceIntegration(projectId);
         if (serviceIntegration == null) {
             return null;
@@ -240,6 +240,7 @@ public class ProjectTemplateService extends BaseTemplateService {
         PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(pluginId);
         Template template = new Template();
         template.setId(pluginWrapper.getPluginId());
+        template.setName(((MsPlugin) pluginWrapper.getPlugin()).getName() + Translator.get("default_template"));
         template.setCreateUser(InternalUser.ADMIN.getValue());
         template.setScene(TemplateScene.BUG.name());
         template.setEnableThirdPart(true);
@@ -257,7 +258,7 @@ public class ProjectTemplateService extends BaseTemplateService {
      * @param projectId
      * @return
      */
-    private ServiceIntegration getServiceIntegration(String projectId) {
+    public ServiceIntegration getServiceIntegration(String projectId) {
         // 判断项目是否开启集成缺陷
         ProjectApplication syncEnableConfig = projectApplicationService.getByType(projectId, ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
         boolean isSyncEnable = syncEnableConfig != null && Boolean.parseBoolean(syncEnableConfig.getTypeValue());

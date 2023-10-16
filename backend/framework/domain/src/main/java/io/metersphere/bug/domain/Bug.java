@@ -27,10 +27,13 @@ public class Bug implements Serializable {
     @Size(min = 1, max = 300, message = "{bug.title.length_range}", groups = {Created.class, Updated.class})
     private String title;
 
-    @Schema(description = "指派人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug.assign_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{bug.assign_user.length_range}", groups = {Created.class, Updated.class})
-    private String assignUser;
+    @Schema(description = "处理人集合;预留字段, 后续工作台统计可能需要")
+    private String handleUsers;
+
+    @Schema(description = "处理人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug.handle_user.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{bug.handle_user.length_range}", groups = {Created.class, Updated.class})
+    private String handleUser;
 
     @Schema(description = "创建人")
     private String createUser;
@@ -55,7 +58,9 @@ public class Bug implements Serializable {
     @Size(min = 1, max = 50, message = "{bug.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description = "模板ID")
+    @Schema(description = "模板ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug.template_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{bug.template_id.length_range}", groups = {Created.class, Updated.class})
     private String templateId;
 
     @Schema(description = "缺陷平台", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -84,7 +89,8 @@ public class Bug implements Serializable {
         id("id", "id", "VARCHAR", false),
         num("num", "num", "INTEGER", false),
         title("title", "title", "VARCHAR", false),
-        assignUser("assign_user", "assignUser", "VARCHAR", false),
+        handleUsers("handle_users", "handleUsers", "VARCHAR", false),
+        handleUser("handle_user", "handleUser", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.bug.mapper.ExtBugAttachmentMapper">
+    <insert id="batchInsert" parameterType="io.metersphere.bug.domain.BugAttachment">
+        insert into bug_attachment values
+        <foreach collection="list" item="attachment" separator=",">
+            (#{attachment.id}, #{attachment.bugId}, #{attachment.fileId}, #{attachment.fileName},
+             #{attachment.size}, #{attachment.local}, #{attachment.createUser}, #{attachment.createTime})
+        </foreach>
+    </insert>
+</mapper>
