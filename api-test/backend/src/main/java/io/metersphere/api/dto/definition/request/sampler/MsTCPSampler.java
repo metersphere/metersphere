@@ -263,7 +263,12 @@ public class MsTCPSampler extends MsTestElement {
             tcpSampler.setClassname(this.getClassname());
         }
         if (StringUtils.equals("TCPClientImpl", this.getClassname())) {
-            tcpSampler.setClassname(MsTCPClientImpl.class.getCanonicalName());
+            if (config.isOperating()) {
+                //导出时className不转换MsTCPClientImpl。 这个类在性能测试时tps会变得很低
+                tcpSampler.setClassname(TCPSampler.class.getName());
+            } else {
+                tcpSampler.setClassname(MsTCPClientImpl.class.getCanonicalName());
+            }
         }
         tcpSampler.setCharset(this.getConnectEncoding());
         tcpSampler.setServer(this.getServer());
