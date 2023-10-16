@@ -31,7 +31,15 @@
           size="small"
           show-word-limit
           :placeholder="expression"
-          @click.native="savePreParams(common.variable)" />
+          @click.native="savePreParams(common.variable)"
+          style="width: 70%" />
+
+        <el-autocomplete
+          style="width: 25%; margin-left: 10px"
+          size="small"
+          placeholder="Template $i$ where i is capturing group number,stats at 1"
+          v-model="common.template"
+          :fetch-suggestions="querySearch" />
       </el-col>
       <el-col class="multiple_checkbox" v-if="edit">
         <el-checkbox v-model="common.multipleMatching" :disabled="isReadOnly">
@@ -104,10 +112,21 @@ export default {
         { label: 'Response Code', value: 'code' },
         { label: 'Response Message', value: 'message' },
       ],
+      restaurants: [
+        { value: '$0$', id: '$0$' },
+        { value: '$1$', id: '$1$' },
+      ],
     };
   },
-
+  created() {
+    if (!this.common.template) {
+      this.$set(this.common, 'template', '$1$');
+    }
+  },
   methods: {
+    querySearch(queryString, cb) {
+      cb(this.restaurants);
+    },
     add() {
       this.common.type = this.extractType;
       this.list.push(new ExtractCommon(this.extractType, this.common));
