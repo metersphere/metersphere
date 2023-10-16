@@ -45,32 +45,32 @@ export async function getAuditorOptions(projectId: string, type: MenuEnum) {
   return MSR.get<PoolOption[]>({ url: `/project/application/${suffix}/user/${projectId}` });
 }
 
-export function postUpdateMenu(data: MenuTableListParams) {
-  let suffix = '';
-  switch (data.type) {
+export function postUpdateMenu(data: MenuTableListParams, suffix: string) {
+  let suffixUrl = '';
+  switch (suffix) {
     case MenuEnum.workstation:
-      suffix = 'workstation';
+      suffixUrl = 'workstation';
       break;
     case MenuEnum.testPlan:
-      suffix = 'test-plan';
+      suffixUrl = 'test-plan';
       break;
     case MenuEnum.bugManagement:
-      suffix = 'bug';
+      suffixUrl = 'bug';
       break;
     case MenuEnum.caseManagement:
-      suffix = 'case';
+      suffixUrl = 'case';
       break;
     case MenuEnum.apiTest:
-      suffix = 'api';
+      suffixUrl = 'api';
       break;
     case MenuEnum.uiTest:
-      suffix = 'uiTest';
+      suffixUrl = 'ui';
       break;
     default:
-      suffix = 'performance-test';
+      suffixUrl = 'performance-test';
       break;
   }
-  return MSR.post<MenuTableListItem>({ url: `${Url.updateConfigByMenuTypeUrl}${suffix}`, data });
+  return MSR.post<MenuTableListItem>({ url: `${Url.updateConfigByMenuTypeUrl}${suffixUrl}`, data });
 }
 
 export function getConfigByMenuItem(data: MenuTableListParams) {
