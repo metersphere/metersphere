@@ -742,8 +742,4 @@ export default {
   font-size: 15px;
   color: #de9d1c;
 }
-
-:deep(.el-tabs__nav-wrap) {
-  width: calc(100% - 50px);
-}
 </style>
