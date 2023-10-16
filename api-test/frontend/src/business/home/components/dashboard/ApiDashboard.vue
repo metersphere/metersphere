@@ -377,7 +377,6 @@ export default {
         this.apiData.rpcCount = apiResponse.rpcCount;
         this.apiData.sqlCount = apiResponse.sqlCount;
         this.apiData.createdInWeek = apiResponse.createdInWeek;
-        this.apiData.apiCoveredRate = apiResponse.apiCoveredRate;
         this.apiData.completedRate = apiResponse.completedRate;
         this.apiData.runningCount = apiResponse.runningCount;
         this.apiData.notStartedCount = apiResponse.notStartedCount;
