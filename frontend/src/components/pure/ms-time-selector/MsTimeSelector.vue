@@ -8,6 +8,7 @@
       hide-button
       size="small"
       @blur="handleBlur"
+      @press-enter="handleBlur"
     >
       <template #suffix>
         <a-select v-model="current.type" size="small" class="max-w-[64px]" :options="option"> </a-select>
