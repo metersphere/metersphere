@@ -517,4 +517,8 @@ fieldset {
 .is-text {
   margin-right: 5px;
 }
+
+:deep(.el-tabs__nav-wrap) {
+  width: calc(100% - 50px);
+}
 </style>

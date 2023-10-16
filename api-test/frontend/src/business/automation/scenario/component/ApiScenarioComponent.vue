@@ -213,19 +213,20 @@ export default {
       // 合并自身依赖场景变量
       if (runScenario && runScenario.variableEnable && runScenario.variables) {
         if (variables) {
-          // 同名合并
-          runScenario.variables.forEach((data) => {
-            variables.forEach((item) => {
-              if (data.type === item.type && data.name === item.name) {
-                Object.assign(data, item);
-              }
-            });
-          });
+          runScenario.variables = [...runScenario.variables, ...variables].reduce((acc, cur) => {
+            const index = acc.findIndex(item => item.name === cur.name && item.type === cur.type);
+            if (index !== -1) {
+              acc[index] = cur;
+            } else {
+              acc.push(cur);
+            }
+            return acc;
+          }, []);
         }
       } else {
         runScenario.variables = variables;
       }
-
+      runScenario.id = this.currentScenario.id;
       runScenario.hashTree = [this.scenario];
       runScenario.stepScenario = true;
       this.$emit('runScenario', runScenario);
