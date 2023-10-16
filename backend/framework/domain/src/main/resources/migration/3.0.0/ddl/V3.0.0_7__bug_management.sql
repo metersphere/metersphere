@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS bug(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `num` INT NOT NULL   COMMENT '业务ID' ,
     `title` VARCHAR(300) NOT NULL   COMMENT '缺陷标题' ,
+    `handle_users` VARCHAR(1000)    COMMENT '处理人集合; 预留字段, 后续工作台统计可能需要' ,
     `assign_user` VARCHAR(50) NOT NULL   COMMENT '指派人' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
@@ -29,6 +30,7 @@ CREATE INDEX idx_title ON bug(title);
 CREATE INDEX idx_assign_user ON bug(assign_user);
 CREATE INDEX idx_create_user ON bug(create_user);
 CREATE INDEX idx_create_time ON bug(create_time);
+CREATE INDEX idx_update_user ON bug(update_user);
 CREATE INDEX idx_update_time ON bug(update_time);
 CREATE INDEX idx_project_id ON bug(project_id);
 CREATE INDEX idx_platform ON bug(platform);
@@ -52,6 +54,19 @@ CREATE TABLE IF NOT EXISTS bug_follower(
 
 CREATE INDEX idx_follow_id ON bug_follower(user_id);
 
+DROP TABLE IF EXISTS bug_attachment;
+CREATE TABLE IF NOT EXISTS bug_attachment(
+    `id` VARCHAR(255) NOT NULL   COMMENT 'ID' ,
+    `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
+    `file_id` VARCHAR(50) NOT NULL   COMMENT '文件ID' ,
+    `file_name` VARCHAR(255) NOT NULL   COMMENT '文件名称' ,
+    `size` BIGINT NOT NULL   COMMENT '文件大小' ,
+    `local` BIT(1) NOT NULL   COMMENT '是否本地' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    PRIMARY KEY (id)
+)  COMMENT = '缺陷附件';
+
 DROP TABLE IF EXISTS bug_comment;
 CREATE TABLE IF NOT EXISTS bug_comment(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
@@ -59,7 +74,7 @@ CREATE TABLE IF NOT EXISTS bug_comment(
     `reply_user` VARCHAR(50)    COMMENT '回复人' ,
     `notifier` VARCHAR(1000)    COMMENT '通知人' ,
     `parent_id` VARCHAR(50)    COMMENT '父评论ID' ,
-    `description` TEXT NOT NULL   COMMENT '内容' ,
+    `content` TEXT NOT NULL   COMMENT '内容' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '评论人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
@@ -70,19 +85,6 @@ CREATE TABLE IF NOT EXISTS bug_comment(
 
 CREATE INDEX idx_bug_id ON bug_comment(bug_id);
 CREATE INDEX idx_parent_id ON bug_comment(parent_id);
-
-DROP TABLE IF EXISTS bug_attachment;
-CREATE TABLE IF NOT EXISTS bug_attachment(
-    `id` VARCHAR(255) NOT NULL   COMMENT 'ID' ,
-    `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
-    `file_id` VARCHAR(50) NOT NULL   COMMENT '文件ID' ,
-    `file_name` VARCHAR(255) NOT NULL   COMMENT '文件名称' ,
-    `size` BIGINT NOT NULL   COMMENT '文件大小' ,
-    `association` BIT(1) NOT NULL   COMMENT '是否关联' ,
-    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-    PRIMARY KEY (id)
-)  COMMENT = '缺陷附件';
 
 DROP TABLE IF EXISTS bug_custom_field;
 CREATE TABLE IF NOT EXISTS bug_custom_field(
@@ -95,7 +97,7 @@ CREATE TABLE IF NOT EXISTS bug_custom_field(
 DROP TABLE IF EXISTS bug_relation_case;
 CREATE TABLE IF NOT EXISTS bug_relation_case(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
-    `case_id` VARCHAR(50) NOT NULL   COMMENT '关联功能用例ID' ,
+    `case_id` VARCHAR(50)    COMMENT '关联功能用例ID' ,
     `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
     `case_type` VARCHAR(64) NOT NULL  DEFAULT 'functional' COMMENT '关联的用例类型;functional/api/ui/performance' ,
     `test_plan_id` VARCHAR(50)    COMMENT '关联测试计划ID' ,
@@ -117,6 +119,8 @@ CREATE TABLE IF NOT EXISTS bug_history(
     `id` VARCHAR(50) NOT NULL   COMMENT '变更记录ID' ,
     `bug_id` VARCHAR(50) NOT NULL   COMMENT '所属缺陷ID' ,
     `num` INT NOT NULL   COMMENT '变更记录批次号' ,
+    `type` VARCHAR(64)    COMMENT '变更类型;IMPORT/EDIT/' ,
+    `rollback_source_id` VARCHAR(50)    COMMENT '回退来源' ,
     `content` BLOB NOT NULL   COMMENT '修改内容' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '操作人' ,
     `create_time` BIGINT NOT NULL   COMMENT '操作时间' ,

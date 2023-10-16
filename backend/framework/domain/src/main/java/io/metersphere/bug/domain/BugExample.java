@@ -304,6 +304,76 @@ public class BugExample {
             return (Criteria) this;
         }
 
+        public Criteria andHandleUsersIsNull() {
+            addCriterion("handle_users is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersIsNotNull() {
+            addCriterion("handle_users is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersEqualTo(String value) {
+            addCriterion("handle_users =", value, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersNotEqualTo(String value) {
+            addCriterion("handle_users <>", value, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersGreaterThan(String value) {
+            addCriterion("handle_users >", value, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersGreaterThanOrEqualTo(String value) {
+            addCriterion("handle_users >=", value, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersLessThan(String value) {
+            addCriterion("handle_users <", value, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersLessThanOrEqualTo(String value) {
+            addCriterion("handle_users <=", value, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersLike(String value) {
+            addCriterion("handle_users like", value, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersNotLike(String value) {
+            addCriterion("handle_users not like", value, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersIn(List<String> values) {
+            addCriterion("handle_users in", values, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersNotIn(List<String> values) {
+            addCriterion("handle_users not in", values, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersBetween(String value1, String value2) {
+            addCriterion("handle_users between", value1, value2, "handleUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleUsersNotBetween(String value1, String value2) {
+            addCriterion("handle_users not between", value1, value2, "handleUsers");
+            return (Criteria) this;
+        }
+
         public Criteria andAssignUserIsNull() {
             addCriterion("assign_user is null");
             return (Criteria) this;

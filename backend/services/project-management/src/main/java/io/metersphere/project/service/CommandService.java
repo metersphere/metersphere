@@ -24,7 +24,7 @@ public class CommandService {
 
     public static String createFile(MultipartFile bodyFile) {
         MsFileUtils.validateFileName(bodyFile.getOriginalFilename());
-        String dir = MsFileUtils.DATE_ROOT_DIR + "/body/environment/tmp";
+        String dir = MsFileUtils.DATA_ROOT_DIR + "/body/environment/tmp";
         File fileDir = new File(dir);
         if (!fileDir.exists()) {
             fileDir.mkdirs();

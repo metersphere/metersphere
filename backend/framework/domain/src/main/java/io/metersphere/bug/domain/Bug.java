@@ -27,6 +27,9 @@ public class Bug implements Serializable {
     @Size(min = 1, max = 300, message = "{bug.title.length_range}", groups = {Created.class, Updated.class})
     private String title;
 
+    @Schema(description = "处理人集合;预留字段, 后续工作台统计可能需要")
+    private String handleUsers;
+
     @Schema(description = "指派人", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.assign_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{bug.assign_user.length_range}", groups = {Created.class, Updated.class})
@@ -84,6 +87,7 @@ public class Bug implements Serializable {
         id("id", "id", "VARCHAR", false),
         num("num", "num", "INTEGER", false),
         title("title", "title", "VARCHAR", false),
+        handleUsers("handle_users", "handleUsers", "VARCHAR", false),
         assignUser("assign_user", "assignUser", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),

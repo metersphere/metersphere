@@ -7,7 +7,7 @@
     <result column="file_id" jdbcType="VARCHAR" property="fileId" />
     <result column="file_name" jdbcType="VARCHAR" property="fileName" />
     <result column="size" jdbcType="BIGINT" property="size" />
-    <result column="association" jdbcType="BIT" property="association" />
+    <result column="local" jdbcType="BIT" property="local" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
   </resultMap>
@@ -70,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, bug_id, file_id, file_name, `size`, association, create_user, create_time
+    id, bug_id, file_id, file_name, `size`, `local`, create_user, create_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugAttachmentExample" resultMap="BaseResultMap">
     select
@@ -104,11 +104,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.bug.domain.BugAttachment">
     insert into bug_attachment (id, bug_id, file_id, 
-      file_name, `size`, association, 
-      create_user, create_time)
+      file_name, `size`, `local`, create_user, 
+      create_time)
     values (#{id,jdbcType=VARCHAR}, #{bugId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
-      #{fileName,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{association,jdbcType=BIT}, 
-      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT})
+      #{fileName,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{local,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugAttachment">
     insert into bug_attachment
@@ -128,8 +128,8 @@
       <if test="size != null">
         `size`,
       </if>
-      <if test="association != null">
-        association,
+      <if test="local != null">
+        `local`,
       </if>
       <if test="createUser != null">
         create_user,
@@ -154,8 +154,8 @@
       <if test="size != null">
         #{size,jdbcType=BIGINT},
       </if>
-      <if test="association != null">
-        #{association,jdbcType=BIT},
+      <if test="local != null">
+        #{local,jdbcType=BIT},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -189,8 +189,8 @@
       <if test="record.size != null">
         `size` = #{record.size,jdbcType=BIGINT},
       </if>
-      <if test="record.association != null">
-        association = #{record.association,jdbcType=BIT},
+      <if test="record.local != null">
+        `local` = #{record.local,jdbcType=BIT},
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -210,7 +210,7 @@
       file_id = #{record.fileId,jdbcType=VARCHAR},
       file_name = #{record.fileName,jdbcType=VARCHAR},
       `size` = #{record.size,jdbcType=BIGINT},
-      association = #{record.association,jdbcType=BIT},
+      `local` = #{record.local,jdbcType=BIT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT}
     <if test="_parameter != null">
@@ -232,8 +232,8 @@
       <if test="size != null">
         `size` = #{size,jdbcType=BIGINT},
       </if>
-      <if test="association != null">
-        association = #{association,jdbcType=BIT},
+      <if test="local != null">
+        `local` = #{local,jdbcType=BIT},
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
@@ -250,18 +250,18 @@
       file_id = #{fileId,jdbcType=VARCHAR},
       file_name = #{fileName,jdbcType=VARCHAR},
       `size` = #{size,jdbcType=BIGINT},
-      association = #{association,jdbcType=BIT},
+      `local` = #{local,jdbcType=BIT},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into bug_attachment
-    (id, bug_id, file_id, file_name, `size`, association, create_user, create_time)
+    (id, bug_id, file_id, file_name, `size`, `local`, create_user, create_time)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.bugId,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, 
-        #{item.fileName,jdbcType=VARCHAR}, #{item.size,jdbcType=BIGINT}, #{item.association,jdbcType=BIT}, 
+        #{item.fileName,jdbcType=VARCHAR}, #{item.size,jdbcType=BIGINT}, #{item.local,jdbcType=BIT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT})
     </foreach>
   </insert>
@@ -290,8 +290,8 @@
         <if test="'size'.toString() == column.value">
           #{item.size,jdbcType=BIGINT}
         </if>
-        <if test="'association'.toString() == column.value">
-          #{item.association,jdbcType=BIT}
+        <if test="'local'.toString() == column.value">
+          #{item.local,jdbcType=BIT}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}

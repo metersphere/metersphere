@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.bug.mapper.ExtBugMapper">
+    <select id="list" resultType="io.metersphere.bug.dto.BugDTO">
+        select b.id, b.num, b.title, b.assign_user, b.create_user, b.create_time, b.update_time, b.delete_time, b.delete_user,
+               b.project_id, b.template_id, b.platform, b.status, bc.description from bug b join bug_content bc on b.id = bc.bug_id
+        <include refid="queryWhereCondition"/>
+    </select>
+
+    <select id="getMaxNum" resultType="java.lang.Long">
+        select max(num) from bug where project_id = #{projectId}
+    </select>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.useTrash">
+                b.trash = 1
+            </if>
+            <if test="!request.useTrash">
+                b.trash = 0
+            </if>
+            <if test="request.keyword != null">
+                and (
+                b.title like concat('%', #{request.keyword},'%')
+                or b.num like concat('%', #{request.keyword},'%')
+                )
+            </if>
+            <include refid="filter"/>
+            <include refid="combine">
+                <property name="condition" value="request.combine"/>
+            </include>
+        </where>
+    </sql>
+
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key == 'assignUser'">
+                            and b.create_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key == 'createUser'">
+                            and b.create_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key == 'platform'">
+                            and b.platform in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key == 'status'">
+                            and b.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key.startsWith('custom_single')">
+                            and b.id in (
+                            select bug_id from bug_custom_field where concat('custom_single_', field_id) = #{key}
+                            and trim(both '"' from `value`) in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            )
+                        </when>
+                        <when test="key.startsWith('custom_multiple')">
+                            and b.id in (
+                            select resource_id from bug_custom_field where concat('custom_multiple_', field_id) = #{key}
+                            and
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterMultipleWrapper"/>
+                            )
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="combine">
+        <if test="request.combine != null">
+            <if test='${condition}.assignUser != null'>
+                and b.assign_user
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.assignUser"/>
+                </include>
+            </if>
+            <if test='${condition}.createUser != null'>
+                and b.create_user
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.createUser"/>
+                </include>
+            </if>
+            <if test='${condition}.platform != null'>
+                and b.platform
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.platform"/>
+                </include>
+            </if>
+            <if test='${condition}.status != null'>
+                and b.status
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.platform"/>
+                </include>
+            </if>
+            <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
+                <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
+                    <if test='custom.operator == "not like" or custom.operator == "not in"'>
+                        and b.id not in (
+                    </if>
+                    <if test='custom.operator != "not like" and custom.operator != "not in"'>
+                        and b.id in (
+                    </if>
+                    select bug_id from bug_custom_field where field_id = #{custom.id}
+                    <choose>
+                        <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
+                            and ${custom.value}
+                        </when>
+                        <when test="custom.type == 'date' or custom.type == 'datetime'">
+                            and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </when>
+                        <when test="custom.type == 'richText' or custom.type == 'textarea'">
+                            and `value`
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </when>
+                        <otherwise>
+                            and trim(both '"' from `value`)
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </otherwise>
+                    </choose>
+                    )
+                </foreach>
+            </if>
+        </if>
+    </sql>
+</mapper>
+

@@ -5,6 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="bug_id" jdbcType="VARCHAR" property="bugId" />
     <result column="reply_user" jdbcType="VARCHAR" property="replyUser" />
+    <result column="notifier" jdbcType="VARCHAR" property="notifier" />
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -12,7 +13,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.bug.domain.BugComment">
-    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,10 +74,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, bug_id, reply_user, parent_id, create_user, create_time, update_user, update_time
+    id, bug_id, reply_user, notifier, parent_id, create_user, create_time, update_user, 
+    update_time
   </sql>
   <sql id="Blob_Column_List">
-    description
+    content
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.bug.domain.BugCommentExample" resultMap="ResultMapWithBLOBs">
     select
@@ -128,13 +130,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.bug.domain.BugComment">
     insert into bug_comment (id, bug_id, reply_user, 
-      parent_id, create_user, create_time, 
-      update_user, update_time, description
-      )
+      notifier, parent_id, create_user, 
+      create_time, update_user, update_time, 
+      content)
     values (#{id,jdbcType=VARCHAR}, #{bugId,jdbcType=VARCHAR}, #{replyUser,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}
-      )
+      #{notifier,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
+      #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugComment">
     insert into bug_comment
@@ -147,6 +149,9 @@
       </if>
       <if test="replyUser != null">
         reply_user,
+      </if>
+      <if test="notifier != null">
+        notifier,
       </if>
       <if test="parentId != null">
         parent_id,
@@ -163,8 +168,8 @@
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="description != null">
-        description,
+      <if test="content != null">
+        content,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -176,6 +181,9 @@
       </if>
       <if test="replyUser != null">
         #{replyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="notifier != null">
+        #{notifier,jdbcType=VARCHAR},
       </if>
       <if test="parentId != null">
         #{parentId,jdbcType=VARCHAR},
@@ -192,8 +200,8 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="description != null">
-        #{description,jdbcType=LONGVARCHAR},
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -215,6 +223,9 @@
       <if test="record.replyUser != null">
         reply_user = #{record.replyUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.notifier != null">
+        notifier = #{record.notifier,jdbcType=VARCHAR},
+      </if>
       <if test="record.parentId != null">
         parent_id = #{record.parentId,jdbcType=VARCHAR},
       </if>
@@ -230,8 +241,8 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=LONGVARCHAR},
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -243,12 +254,13 @@
     set id = #{record.id,jdbcType=VARCHAR},
       bug_id = #{record.bugId,jdbcType=VARCHAR},
       reply_user = #{record.replyUser,jdbcType=VARCHAR},
+      notifier = #{record.notifier,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      description = #{record.description,jdbcType=LONGVARCHAR}
+      content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -258,6 +270,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       bug_id = #{record.bugId,jdbcType=VARCHAR},
       reply_user = #{record.replyUser,jdbcType=VARCHAR},
+      notifier = #{record.notifier,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -276,6 +289,9 @@
       <if test="replyUser != null">
         reply_user = #{replyUser,jdbcType=VARCHAR},
       </if>
+      <if test="notifier != null">
+        notifier = #{notifier,jdbcType=VARCHAR},
+      </if>
       <if test="parentId != null">
         parent_id = #{parentId,jdbcType=VARCHAR},
       </if>
@@ -291,8 +307,8 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="description != null">
-        description = #{description,jdbcType=LONGVARCHAR},
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -301,18 +317,20 @@
     update bug_comment
     set bug_id = #{bugId,jdbcType=VARCHAR},
       reply_user = #{replyUser,jdbcType=VARCHAR},
+      notifier = #{notifier,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_user = #{updateUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
-      description = #{description,jdbcType=LONGVARCHAR}
+      content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.bug.domain.BugComment">
     update bug_comment
     set bug_id = #{bugId,jdbcType=VARCHAR},
       reply_user = #{replyUser,jdbcType=VARCHAR},
+      notifier = #{notifier,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
@@ -322,14 +340,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into bug_comment
-    (id, bug_id, reply_user, parent_id, create_user, create_time, update_user, update_time, 
-      description)
+    (id, bug_id, reply_user, notifier, parent_id, create_user, create_time, update_user, 
+      update_time, content)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.bugId,jdbcType=VARCHAR}, #{item.replyUser,jdbcType=VARCHAR}, 
-        #{item.parentId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, #{item.description,jdbcType=LONGVARCHAR}
-        )
+        #{item.notifier,jdbcType=VARCHAR}, #{item.parentId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.content,jdbcType=LONGVARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -351,6 +369,9 @@
         <if test="'reply_user'.toString() == column.value">
           #{item.replyUser,jdbcType=VARCHAR}
         </if>
+        <if test="'notifier'.toString() == column.value">
+          #{item.notifier,jdbcType=VARCHAR}
+        </if>
         <if test="'parent_id'.toString() == column.value">
           #{item.parentId,jdbcType=VARCHAR}
         </if>
@@ -366,8 +387,8 @@
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
         </if>
-        <if test="'description'.toString() == column.value">
-          #{item.description,jdbcType=LONGVARCHAR}
+        <if test="'content'.toString() == column.value">
+          #{item.content,jdbcType=LONGVARCHAR}
         </if>
       </foreach>
       )
