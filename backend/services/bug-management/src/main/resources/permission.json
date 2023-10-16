@@ -1,0 +1,27 @@
+[
+  {
+    "id": "BUG",
+    "name": "permission.bug.name",
+    "type": "BUG",
+    "children": [
+      {
+        "id": "BUG",
+        "name": "permission.bug.name",
+        "permissions": [
+          {
+            "id": "BUG:READ"
+          },
+          {
+            "id": "BUG:READ+ADD"
+          },
+          {
+            "id": "BUG:READ+UPDATE"
+          },
+          {
+            "id": "BUG:READ+DELETE"
+          }
+        ]
+      }
+    ]
+  }
+]

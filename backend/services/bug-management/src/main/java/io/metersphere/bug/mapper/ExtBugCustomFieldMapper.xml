@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.bug.mapper.ExtBugCustomFieldMapper">
+    <select id="getBugCustomFields" resultType="io.metersphere.bug.dto.BugCustomFieldDTO">
+        select cf.*, bcf.value, bcf.bug_id from bug_custom_field bcf join custom_field cf on bcf.field_id = cf.id
+        where cf.scene = 'BUG' and cf.scope_type = 'PROJECT' and scope_id = #{projectId}
+        and bug_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="batchInsert" parameterType="io.metersphere.bug.domain.BugCustomField">
+        insert into bug_custom_field (bug_id, field_id, value) values
+        <foreach collection="list" item="field" separator=",">
+            (#{field.bugId}, #{field.fieldId}, #{field.value})
+        </foreach>
+    </insert>
+</mapper>

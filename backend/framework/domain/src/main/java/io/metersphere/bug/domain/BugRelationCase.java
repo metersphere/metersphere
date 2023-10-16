@@ -18,9 +18,7 @@ public class BugRelationCase implements Serializable {
     @Size(min = 1, max = 50, message = "{bug_relation_case.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description = "关联功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug_relation_case.case_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{bug_relation_case.case_id.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "关联功能用例ID")
     private String caseId;
 
     @Schema(description = "缺陷ID", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -444,63 +444,63 @@ public class BugAttachmentExample {
             return (Criteria) this;
         }
 
-        public Criteria andAssociationIsNull() {
-            addCriterion("association is null");
+        public Criteria andLocalIsNull() {
+            addCriterion("`local` is null");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationIsNotNull() {
-            addCriterion("association is not null");
+        public Criteria andLocalIsNotNull() {
+            addCriterion("`local` is not null");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationEqualTo(Boolean value) {
-            addCriterion("association =", value, "association");
+        public Criteria andLocalEqualTo(Boolean value) {
+            addCriterion("`local` =", value, "local");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationNotEqualTo(Boolean value) {
-            addCriterion("association <>", value, "association");
+        public Criteria andLocalNotEqualTo(Boolean value) {
+            addCriterion("`local` <>", value, "local");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationGreaterThan(Boolean value) {
-            addCriterion("association >", value, "association");
+        public Criteria andLocalGreaterThan(Boolean value) {
+            addCriterion("`local` >", value, "local");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("association >=", value, "association");
+        public Criteria andLocalGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("`local` >=", value, "local");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationLessThan(Boolean value) {
-            addCriterion("association <", value, "association");
+        public Criteria andLocalLessThan(Boolean value) {
+            addCriterion("`local` <", value, "local");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationLessThanOrEqualTo(Boolean value) {
-            addCriterion("association <=", value, "association");
+        public Criteria andLocalLessThanOrEqualTo(Boolean value) {
+            addCriterion("`local` <=", value, "local");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationIn(List<Boolean> values) {
-            addCriterion("association in", values, "association");
+        public Criteria andLocalIn(List<Boolean> values) {
+            addCriterion("`local` in", values, "local");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationNotIn(List<Boolean> values) {
-            addCriterion("association not in", values, "association");
+        public Criteria andLocalNotIn(List<Boolean> values) {
+            addCriterion("`local` not in", values, "local");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationBetween(Boolean value1, Boolean value2) {
-            addCriterion("association between", value1, value2, "association");
+        public Criteria andLocalBetween(Boolean value1, Boolean value2) {
+            addCriterion("`local` between", value1, value2, "local");
             return (Criteria) this;
         }
 
-        public Criteria andAssociationNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("association not between", value1, value2, "association");
+        public Criteria andLocalNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("`local` not between", value1, value2, "local");
             return (Criteria) this;
         }
 

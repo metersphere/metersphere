@@ -47,4 +47,10 @@
             #{value}
         </foreach>
     </sql>
+
+    <sql id="filterMultipleWrapper">
+        <foreach collection="values" item="value" separator="or" open="(" close=")">
+            JSON_CONTAINS(value, #{value})
+        </foreach>
+    </sql>
 </mapper>

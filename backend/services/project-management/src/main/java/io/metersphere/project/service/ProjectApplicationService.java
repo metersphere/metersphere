@@ -18,13 +18,13 @@ import io.metersphere.project.utils.ModuleSortUtils;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ScheduleType;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.sechedule.ScheduleService;
@@ -568,4 +568,14 @@ public class ProjectApplicationService {
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
         return CollectionUtils.isEmpty(projectApplications) ? null : projectApplications.get(0);
     }
+
+//    /**
+//     * 获取项目所属平台
+//     * @param projectId 项目ID
+//     * @return 项目所属平台
+//     */
+//    public String getPlatformName(String projectId) {
+//        // TODO 需调用项目平台配置接口, 获取项目所属平台名称
+//        return null;
+//    }
 }

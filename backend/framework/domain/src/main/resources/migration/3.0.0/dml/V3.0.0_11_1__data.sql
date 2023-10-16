@@ -120,6 +120,10 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_APPLICATION_WORKSTATION:UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_LOG:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_LOG:UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ+DELETE');
 
 -- 项目成员权限
 

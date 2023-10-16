@@ -94,6 +94,6 @@ public class LocalFileRepository implements FileRepository {
 
     private String getFileDir(FileRequest request) {
         MsFileUtils.validateFileName(request.getProjectId(), request.getFileName());
-        return StringUtils.join(MsFileUtils.DATE_ROOT_DIR, "/", request.getProjectId());
+        return StringUtils.join(MsFileUtils.DATA_ROOT_DIR, "/", request.getProjectId());
     }
 }

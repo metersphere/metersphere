@@ -5,7 +5,8 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="num" jdbcType="INTEGER" property="num" />
     <result column="title" jdbcType="VARCHAR" property="title" />
-    <result column="assign_user" jdbcType="VARCHAR" property="assignUser" />
+    <result column="handle_users" jdbcType="VARCHAR" property="handleUsers" />
+    <result column="handle_user" jdbcType="VARCHAR" property="handleUser" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
@@ -79,9 +80,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, title, assign_user, create_user, create_time, update_user, update_time, 
-    delete_user, delete_time, project_id, template_id, platform, `status`, tag, platform_bug_id, 
-    trash
+    id, num, title, handle_users, handle_user, create_user, create_time, update_user, 
+    update_time, delete_user, delete_time, project_id, template_id, platform, `status`, 
+    tag, platform_bug_id, trash
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugExample" resultMap="BaseResultMap">
     select
@@ -115,17 +116,19 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.bug.domain.Bug">
     insert into bug (id, num, title, 
-      assign_user, create_user, create_time, 
-      update_user, update_time, delete_user, 
-      delete_time, project_id, template_id, 
-      platform, `status`, tag, 
-      platform_bug_id, trash)
+      handle_users, handle_user, create_user, 
+      create_time, update_user, update_time, 
+      delete_user, delete_time, project_id, 
+      template_id, platform, `status`, 
+      tag, platform_bug_id, trash
+      )
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, 
-      #{assignUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
-      #{deleteTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR}, 
-      #{platform,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{tag,jdbcType=VARCHAR}, 
-      #{platformBugId,jdbcType=VARCHAR}, #{trash,jdbcType=BIT})
+      #{handleUsers,jdbcType=VARCHAR}, #{handleUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
+      #{deleteUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
+      #{templateId,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{tag,jdbcType=VARCHAR}, #{platformBugId,jdbcType=VARCHAR}, #{trash,jdbcType=BIT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.bug.domain.Bug">
     insert into bug
@@ -139,8 +142,11 @@
       <if test="title != null">
         title,
       </if>
-      <if test="assignUser != null">
-        assign_user,
+      <if test="handleUsers != null">
+        handle_users,
+      </if>
+      <if test="handleUser != null">
+        handle_user,
       </if>
       <if test="createUser != null">
         create_user,
@@ -192,8 +198,11 @@
       <if test="title != null">
         #{title,jdbcType=VARCHAR},
       </if>
-      <if test="assignUser != null">
-        #{assignUser,jdbcType=VARCHAR},
+      <if test="handleUsers != null">
+        #{handleUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="handleUser != null">
+        #{handleUser,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -254,8 +263,11 @@
       <if test="record.title != null">
         title = #{record.title,jdbcType=VARCHAR},
       </if>
-      <if test="record.assignUser != null">
-        assign_user = #{record.assignUser,jdbcType=VARCHAR},
+      <if test="record.handleUsers != null">
+        handle_users = #{record.handleUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="record.handleUser != null">
+        handle_user = #{record.handleUser,jdbcType=VARCHAR},
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -306,7 +318,8 @@
     set id = #{record.id,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
       title = #{record.title,jdbcType=VARCHAR},
-      assign_user = #{record.assignUser,jdbcType=VARCHAR},
+      handle_users = #{record.handleUsers,jdbcType=VARCHAR},
+      handle_user = #{record.handleUser,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
@@ -333,8 +346,11 @@
       <if test="title != null">
         title = #{title,jdbcType=VARCHAR},
       </if>
-      <if test="assignUser != null">
-        assign_user = #{assignUser,jdbcType=VARCHAR},
+      <if test="handleUsers != null">
+        handle_users = #{handleUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="handleUser != null">
+        handle_user = #{handleUser,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
@@ -382,7 +398,8 @@
     update bug
     set num = #{num,jdbcType=INTEGER},
       title = #{title,jdbcType=VARCHAR},
-      assign_user = #{assignUser,jdbcType=VARCHAR},
+      handle_users = #{handleUsers,jdbcType=VARCHAR},
+      handle_user = #{handleUser,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_user = #{updateUser,jdbcType=VARCHAR},
@@ -400,17 +417,18 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into bug
-    (id, num, title, assign_user, create_user, create_time, update_user, update_time, 
-      delete_user, delete_time, project_id, template_id, platform, `status`, tag, platform_bug_id, 
-      trash)
+    (id, num, title, handle_users, handle_user, create_user, create_time, update_user, 
+      update_time, delete_user, delete_time, project_id, template_id, platform, `status`, 
+      tag, platform_bug_id, trash)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=INTEGER}, #{item.title,jdbcType=VARCHAR}, 
-        #{item.assignUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, 
-        #{item.deleteTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, #{item.templateId,jdbcType=VARCHAR}, 
-        #{item.platform,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.tag,jdbcType=VARCHAR}, 
-        #{item.platformBugId,jdbcType=VARCHAR}, #{item.trash,jdbcType=BIT})
+        #{item.handleUsers,jdbcType=VARCHAR}, #{item.handleUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.deleteUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.templateId,jdbcType=VARCHAR}, #{item.platform,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, 
+        #{item.tag,jdbcType=VARCHAR}, #{item.platformBugId,jdbcType=VARCHAR}, #{item.trash,jdbcType=BIT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -432,8 +450,11 @@
         <if test="'title'.toString() == column.value">
           #{item.title,jdbcType=VARCHAR}
         </if>
-        <if test="'assign_user'.toString() == column.value">
-          #{item.assignUser,jdbcType=VARCHAR}
+        <if test="'handle_users'.toString() == column.value">
+          #{item.handleUsers,jdbcType=VARCHAR}
+        </if>
+        <if test="'handle_user'.toString() == column.value">
+          #{item.handleUser,jdbcType=VARCHAR}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}

@@ -45,9 +45,9 @@ public class BugComment implements Serializable {
     private Long updateTime;
 
     @Schema(description = "内容", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug_comment.description.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 65535, message = "{bug_comment.description.length_range}", groups = {Created.class, Updated.class})
-    private String description;
+    @NotBlank(message = "{bug_comment.content.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 65535, message = "{bug_comment.content.length_range}", groups = {Created.class, Updated.class})
+    private String content;
 
     private static final long serialVersionUID = 1L;
 
@@ -61,7 +61,7 @@ public class BugComment implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        description("description", "description", "LONGVARCHAR", false);
+        content("content", "content", "LONGVARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
