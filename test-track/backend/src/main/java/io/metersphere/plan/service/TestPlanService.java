@@ -165,6 +165,35 @@ public class TestPlanService {
     @Resource
     private BaseTestResourcePoolService baseTestResourcePoolService;
 
+    private static void buildCaseIdList
+            (List<TestCaseTest> list, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds, List<String> uiScenarioIds) {
+        for (TestCaseTest l : list) {
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.performance.name())) {
+                performanceIds.add(l.getTestId());
+            }
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.testcase.name())) {
+                apiCaseIds.add(l.getTestId());
+            }
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
+                scenarioIds.add(l.getTestId());
+            }
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.uiAutomation.name())) {
+                uiScenarioIds.add(l.getTestId());
+            }
+        }
+    }
+
+    //获取下次执行时间（getFireTimeAfter，也可以下下次...）
+    private static long getNextTriggerTime(String cron) {
+        if (!CronExpression.isValidExpression(cron)) {
+            return 0;
+        }
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
+        Date time0 = trigger.getStartTime();
+        Date time1 = trigger.getFireTimeAfter(time0);
+        return time1 == null ? 0 : time1.getTime();
+    }
+
     public TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
@@ -428,6 +457,10 @@ public class TestPlanService {
 
     public List<TestPlanDTOWithMetric> calcTestPlanRateByIdList(List<String> testPlanIdList) {
         List<TestPlanDTOWithMetric> returnList = new ArrayList<>();
+        DecimalFormat rateFormat = new DecimalFormat("#0.00");
+        rateFormat.setMinimumFractionDigits(2);
+        rateFormat.setMaximumFractionDigits(2);
+
         for (String testPlanId : testPlanIdList) {
             TestPlanDTOWithMetric returnMetric = new TestPlanDTOWithMetric();
             returnMetric.setId(testPlanId);
@@ -448,7 +481,7 @@ public class TestPlanService {
                     }
                 }
             }
-            returnMetric.setTotal(returnMetric.getTotal() + functionalExecTotal);
+            returnMetric.setTotal(functionalExecTotal);
 
             Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
             if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
@@ -462,8 +495,26 @@ public class TestPlanService {
                 calcExecResultStatus(testPlanId, returnMetric, planTestPlanUiScenarioCaseService::getExecResultByPlanId);
             }
 
-            returnMetric.setPassRate(MathUtils.getPercentWithDecimal(returnMetric.getTested() == 0 ? 0 : returnMetric.getPassed() * 1.0 / returnMetric.getTotal()));
-            returnMetric.setTestRate(MathUtils.getPercentWithDecimal(returnMetric.getTotal() == 0 ? 0 : returnMetric.getTested() * 1.0 / returnMetric.getTotal()));
+            if (returnMetric.getTotal() > 0) {
+                int passCount = returnMetric.getPassed();
+                double passRate = Double.parseDouble(rateFormat.format((double) passCount * 100 / (double) returnMetric.getTotal()));
+                if (passRate == 100 && passCount < returnMetric.getTotal()) {
+                    returnMetric.setPassRate(0.9999);
+                } else {
+                    returnMetric.setPassRate(passRate);
+                }
+
+                int testCount = returnMetric.getTested();
+                double testRate = Double.parseDouble(rateFormat.format((double) testCount * 100 / (double) returnMetric.getTotal()));
+                if (testRate == 100 && testCount < returnMetric.getTotal()) {
+                    returnMetric.setTestRate(0.9999);
+                } else {
+                    returnMetric.setTestRate(testRate);
+                }
+            } else {
+                returnMetric.setPassRate(0.00);
+                returnMetric.setTestRate(0.00);
+            }
             returnList.add(returnMetric);
         }
         return returnList;
@@ -738,7 +789,6 @@ public class TestPlanService {
         }
     }
 
-
     public void caseTestRelevance(PlanCaseRelevanceRequest request, List<String> testCaseIds) {
         //同步添加关联的接口和测试用例
         if (!request.getChecked()) {
@@ -778,24 +828,6 @@ public class TestPlanService {
         }
         if (serviceIdSet.contains(MicroServiceName.UI_TEST) && CollectionUtils.isNotEmpty(uiScenarioIds)) {
             planTestPlanUiScenarioCaseService.relevanceByTestIds(uiScenarioIds, request.getPlanId());
-        }
-    }
-
-    private static void buildCaseIdList
-            (List<TestCaseTest> list, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds, List<String> uiScenarioIds) {
-        for (TestCaseTest l : list) {
-            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.performance.name())) {
-                performanceIds.add(l.getTestId());
-            }
-            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.testcase.name())) {
-                apiCaseIds.add(l.getTestId());
-            }
-            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
-                scenarioIds.add(l.getTestId());
-            }
-            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.uiAutomation.name())) {
-                uiScenarioIds.add(l.getTestId());
-            }
         }
     }
 
@@ -1235,7 +1267,6 @@ public class TestPlanService {
         return replaceSharReport(microServices);
     }
 
-
     /**
      * 获取微服务信息，替换前端变量
      * 实现跨服务访问报告
@@ -1602,7 +1633,6 @@ public class TestPlanService {
         }
         return reportStruct;
     }
-
 
     public TestPlanReportDataStruct buildPlanReport(String planId, boolean saveResponse) {
         TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
@@ -2070,17 +2100,6 @@ public class TestPlanService {
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
         return testPlans.stream().filter(testPlan -> testPlan.getScheduleId() != null).count();
 
-    }
-
-    //获取下次执行时间（getFireTimeAfter，也可以下下次...）
-    private static long getNextTriggerTime(String cron) {
-        if (!CronExpression.isValidExpression(cron)) {
-            return 0;
-        }
-        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
-        Date time0 = trigger.getStartTime();
-        Date time1 = trigger.getFireTimeAfter(time0);
-        return time1 == null ? 0 : time1.getTime();
     }
 
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN_SCHEDULE, type = OperLogConstants.UPDATE, title = "#request.name",
