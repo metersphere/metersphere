@@ -2,15 +2,16 @@ package io.metersphere.bug.mapper;
 
 import io.metersphere.bug.domain.BugAttachment;
 import io.metersphere.bug.domain.BugAttachmentExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface BugAttachmentMapper {
     long countByExample(BugAttachmentExample example);
 
     int deleteByExample(BugAttachmentExample example);
 
-    int deleteByPrimaryKey(@Param("bugId") String bugId, @Param("fileId") String fileId);
+    int deleteByPrimaryKey(String id);
 
     int insert(BugAttachment record);
 
@@ -18,7 +19,17 @@ public interface BugAttachmentMapper {
 
     List<BugAttachment> selectByExample(BugAttachmentExample example);
 
+    BugAttachment selectByPrimaryKey(String id);
+
     int updateByExampleSelective(@Param("record") BugAttachment record, @Param("example") BugAttachmentExample example);
 
     int updateByExample(@Param("record") BugAttachment record, @Param("example") BugAttachmentExample example);
+
+    int updateByPrimaryKeySelective(BugAttachment record);
+
+    int updateByPrimaryKey(BugAttachment record);
+
+    int batchInsert(@Param("list") List<BugAttachment> list);
+
+    int batchInsertSelective(@Param("list") List<BugAttachment> list, @Param("selective") BugAttachment.Column ... selective);
 }

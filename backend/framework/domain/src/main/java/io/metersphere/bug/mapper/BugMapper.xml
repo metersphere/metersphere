@@ -5,14 +5,16 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="num" jdbcType="INTEGER" property="num" />
     <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="assign_user" jdbcType="VARCHAR" property="assignUser" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="platform" jdbcType="VARCHAR" property="platform" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
-    <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
-    <result column="platform_status" jdbcType="VARCHAR" property="platformStatus" />
-    <result column="platform_id" jdbcType="VARCHAR" property="platformId" />
+    <result column="template_id" jdbcType="VARCHAR" property="templateId" />
+    <result column="platform" jdbcType="VARCHAR" property="platform" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="platform_bug_id" jdbcType="VARCHAR" property="platformBugId" />
+    <result column="trash" jdbcType="BIT" property="trash" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,8 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, title, create_time, update_time, platform, project_id, create_user, source_id, 
-    platform_status, platform_id
+    id, num, title, assign_user, create_user, create_time, update_time, project_id, template_id, 
+    platform, `status`, platform_bug_id, trash
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugExample" resultMap="BaseResultMap">
     select
@@ -108,13 +110,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.bug.domain.Bug">
     insert into bug (id, num, title, 
-      create_time, update_time, platform, 
-      project_id, create_user, source_id, 
-      platform_status, platform_id)
+      assign_user, create_user, create_time, 
+      update_time, project_id, template_id, 
+      platform, `status`, platform_bug_id, 
+      trash)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{platform,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, 
-      #{platformStatus,jdbcType=VARCHAR}, #{platformId,jdbcType=VARCHAR})
+      #{assignUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR}, 
+      #{platform,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{platformBugId,jdbcType=VARCHAR}, 
+      #{trash,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.bug.domain.Bug">
     insert into bug
@@ -128,29 +132,35 @@
       <if test="title != null">
         title,
       </if>
+      <if test="assignUser != null">
+        assign_user,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="platform != null">
-        platform,
-      </if>
       <if test="projectId != null">
         project_id,
       </if>
-      <if test="createUser != null">
-        create_user,
+      <if test="templateId != null">
+        template_id,
       </if>
-      <if test="sourceId != null">
-        source_id,
+      <if test="platform != null">
+        platform,
       </if>
-      <if test="platformStatus != null">
-        platform_status,
+      <if test="status != null">
+        `status`,
       </if>
-      <if test="platformId != null">
-        platform_id,
+      <if test="platformBugId != null">
+        platform_bug_id,
+      </if>
+      <if test="trash != null">
+        trash,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -163,29 +173,35 @@
       <if test="title != null">
         #{title,jdbcType=VARCHAR},
       </if>
+      <if test="assignUser != null">
+        #{assignUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="platform != null">
-        #{platform,jdbcType=VARCHAR},
-      </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="createUser != null">
-        #{createUser,jdbcType=VARCHAR},
+      <if test="templateId != null">
+        #{templateId,jdbcType=VARCHAR},
       </if>
-      <if test="sourceId != null">
-        #{sourceId,jdbcType=VARCHAR},
+      <if test="platform != null">
+        #{platform,jdbcType=VARCHAR},
       </if>
-      <if test="platformStatus != null">
-        #{platformStatus,jdbcType=VARCHAR},
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
       </if>
-      <if test="platformId != null">
-        #{platformId,jdbcType=VARCHAR},
+      <if test="platformBugId != null">
+        #{platformBugId,jdbcType=VARCHAR},
+      </if>
+      <if test="trash != null">
+        #{trash,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -207,29 +223,35 @@
       <if test="record.title != null">
         title = #{record.title,jdbcType=VARCHAR},
       </if>
+      <if test="record.assignUser != null">
+        assign_user = #{record.assignUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.platform != null">
-        platform = #{record.platform,jdbcType=VARCHAR},
-      </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
-      <if test="record.createUser != null">
-        create_user = #{record.createUser,jdbcType=VARCHAR},
+      <if test="record.templateId != null">
+        template_id = #{record.templateId,jdbcType=VARCHAR},
       </if>
-      <if test="record.sourceId != null">
-        source_id = #{record.sourceId,jdbcType=VARCHAR},
+      <if test="record.platform != null">
+        platform = #{record.platform,jdbcType=VARCHAR},
       </if>
-      <if test="record.platformStatus != null">
-        platform_status = #{record.platformStatus,jdbcType=VARCHAR},
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
       </if>
-      <if test="record.platformId != null">
-        platform_id = #{record.platformId,jdbcType=VARCHAR},
+      <if test="record.platformBugId != null">
+        platform_bug_id = #{record.platformBugId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.trash != null">
+        trash = #{record.trash,jdbcType=BIT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -241,14 +263,16 @@
     set id = #{record.id,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
       title = #{record.title,jdbcType=VARCHAR},
+      assign_user = #{record.assignUser,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      platform = #{record.platform,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      create_user = #{record.createUser,jdbcType=VARCHAR},
-      source_id = #{record.sourceId,jdbcType=VARCHAR},
-      platform_status = #{record.platformStatus,jdbcType=VARCHAR},
-      platform_id = #{record.platformId,jdbcType=VARCHAR}
+      template_id = #{record.templateId,jdbcType=VARCHAR},
+      platform = #{record.platform,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      platform_bug_id = #{record.platformBugId,jdbcType=VARCHAR},
+      trash = #{record.trash,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -262,29 +286,35 @@
       <if test="title != null">
         title = #{title,jdbcType=VARCHAR},
       </if>
+      <if test="assignUser != null">
+        assign_user = #{assignUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="platform != null">
-        platform = #{platform,jdbcType=VARCHAR},
-      </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="createUser != null">
-        create_user = #{createUser,jdbcType=VARCHAR},
+      <if test="templateId != null">
+        template_id = #{templateId,jdbcType=VARCHAR},
       </if>
-      <if test="sourceId != null">
-        source_id = #{sourceId,jdbcType=VARCHAR},
+      <if test="platform != null">
+        platform = #{platform,jdbcType=VARCHAR},
       </if>
-      <if test="platformStatus != null">
-        platform_status = #{platformStatus,jdbcType=VARCHAR},
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
       </if>
-      <if test="platformId != null">
-        platform_id = #{platformId,jdbcType=VARCHAR},
+      <if test="platformBugId != null">
+        platform_bug_id = #{platformBugId,jdbcType=VARCHAR},
+      </if>
+      <if test="trash != null">
+        trash = #{trash,jdbcType=BIT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -293,26 +323,29 @@
     update bug
     set num = #{num,jdbcType=INTEGER},
       title = #{title,jdbcType=VARCHAR},
+      assign_user = #{assignUser,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      platform = #{platform,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      source_id = #{sourceId,jdbcType=VARCHAR},
-      platform_status = #{platformStatus,jdbcType=VARCHAR},
-      platform_id = #{platformId,jdbcType=VARCHAR}
+      template_id = #{templateId,jdbcType=VARCHAR},
+      platform = #{platform,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      platform_bug_id = #{platformBugId,jdbcType=VARCHAR},
+      trash = #{trash,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into bug
-    (id, num, title, create_time, update_time, platform, project_id, create_user, source_id, 
-      platform_status, platform_id)
+    (id, num, title, assign_user, create_user, create_time, update_time, project_id, 
+      template_id, platform, `status`, platform_bug_id, trash)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=INTEGER}, #{item.title,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.platform,jdbcType=VARCHAR}, 
-        #{item.projectId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.sourceId,jdbcType=VARCHAR}, 
-        #{item.platformStatus,jdbcType=VARCHAR}, #{item.platformId,jdbcType=VARCHAR})
+        #{item.assignUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, #{item.templateId,jdbcType=VARCHAR}, 
+        #{item.platform,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.platformBugId,jdbcType=VARCHAR}, 
+        #{item.trash,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -334,29 +367,35 @@
         <if test="'title'.toString() == column.value">
           #{item.title,jdbcType=VARCHAR}
         </if>
+        <if test="'assign_user'.toString() == column.value">
+          #{item.assignUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
         </if>
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
         </if>
-        <if test="'platform'.toString() == column.value">
-          #{item.platform,jdbcType=VARCHAR}
-        </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
         </if>
-        <if test="'create_user'.toString() == column.value">
-          #{item.createUser,jdbcType=VARCHAR}
+        <if test="'template_id'.toString() == column.value">
+          #{item.templateId,jdbcType=VARCHAR}
         </if>
-        <if test="'source_id'.toString() == column.value">
-          #{item.sourceId,jdbcType=VARCHAR}
+        <if test="'platform'.toString() == column.value">
+          #{item.platform,jdbcType=VARCHAR}
         </if>
-        <if test="'platform_status'.toString() == column.value">
-          #{item.platformStatus,jdbcType=VARCHAR}
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
         </if>
-        <if test="'platform_id'.toString() == column.value">
-          #{item.platformId,jdbcType=VARCHAR}
+        <if test="'platform_bug_id'.toString() == column.value">
+          #{item.platformBugId,jdbcType=VARCHAR}
+        </if>
+        <if test="'trash'.toString() == column.value">
+          #{item.trash,jdbcType=BIT}
         </if>
       </foreach>
       )

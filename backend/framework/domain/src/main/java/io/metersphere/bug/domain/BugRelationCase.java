@@ -12,22 +12,54 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @Data
-public class BugFollower implements Serializable {
+public class BugRelationCase implements Serializable {
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug_relation_case.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{bug_relation_case.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
+
+    @Schema(description = "关联功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug_relation_case.case_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{bug_relation_case.case_id.length_range}", groups = {Created.class, Updated.class})
+    private String caseId;
+
     @Schema(description = "缺陷ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug_follower.bug_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{bug_follower.bug_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{bug_relation_case.bug_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{bug_relation_case.bug_id.length_range}", groups = {Created.class, Updated.class})
     private String bugId;
 
-    @Schema(description = "关注人ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug_follower.user_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{bug_follower.user_id.length_range}", groups = {Created.class, Updated.class})
-    private String userId;
+    @Schema(description = "关联的用例类型;functional/api/ui/performance", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug_relation_case.case_type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 64, message = "{bug_relation_case.case_type.length_range}", groups = {Created.class, Updated.class})
+    private String caseType;
+
+    @Schema(description = "关联测试计划ID")
+    private String testPlanId;
+
+    @Schema(description = "关联测试计划用例ID")
+    private String testPlanCaseId;
+
+    @Schema(description = "创建人")
+    private String createUser;
+
+    @Schema(description = "创建时间")
+    private Long createTime;
+
+    @Schema(description = "更新时间")
+    private Long updateTime;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
+        id("id", "id", "VARCHAR", false),
+        caseId("case_id", "caseId", "VARCHAR", false),
         bugId("bug_id", "bugId", "VARCHAR", false),
-        userId("user_id", "userId", "VARCHAR", false);
+        caseType("case_type", "caseType", "VARCHAR", false),
+        testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
+        testPlanCaseId("test_plan_case_id", "testPlanCaseId", "VARCHAR", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
+        createTime("create_time", "createTime", "BIGINT", false),
+        updateTime("update_time", "updateTime", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

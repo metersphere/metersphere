@@ -71,12 +71,15 @@
 
         <!--要生成的数据库表 -->
         <table tableName="bug" />
-        <table tableName="bug_blob" />
-        <table tableName="bug_functional_case" />
-        <table tableName="bug_attachment" />
-        <table tableName="bug_comment" />
+        <table tableName="bug_content" />
         <table tableName="bug_follower" />
+        <table tableName="bug_comment" />
+        <table tableName="bug_attachment" />
         <table tableName="bug_custom_field" />
+        <table tableName="bug_relation_case" />
+        <table tableName="bug_history" />
+
+
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">

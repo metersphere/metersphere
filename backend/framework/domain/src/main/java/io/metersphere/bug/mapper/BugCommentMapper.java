@@ -2,8 +2,9 @@ package io.metersphere.bug.mapper;
 
 import io.metersphere.bug.domain.BugComment;
 import io.metersphere.bug.domain.BugCommentExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface BugCommentMapper {
     long countByExample(BugCommentExample example);
@@ -33,4 +34,8 @@ public interface BugCommentMapper {
     int updateByPrimaryKeyWithBLOBs(BugComment record);
 
     int updateByPrimaryKey(BugComment record);
+
+    int batchInsert(@Param("list") List<BugComment> list);
+
+    int batchInsertSelective(@Param("list") List<BugComment> list, @Param("selective") BugComment.Column ... selective);
 }
