@@ -1,55 +1,70 @@
 package io.metersphere.bug.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class Bug implements Serializable {
-    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{bug.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "业务ID")
+    @Schema(description = "业务ID")
     private Integer num;
 
-    @Schema(description =  "缺陷标题", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "缺陷标题", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.title.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 300, message = "{bug.title.length_range}", groups = {Created.class, Updated.class})
     private String title;
 
-    @Schema(description =  "创建时间")
+    @Schema(description = "指派人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug.assign_user.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{bug.assign_user.length_range}", groups = {Created.class, Updated.class})
+    private String assignUser;
+
+    @Schema(description = "创建人")
+    private String createUser;
+
+    @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "更新时间")
+    @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description =  "缺陷平台", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug.platform.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{bug.platform.length_range}", groups = {Created.class, Updated.class})
-    private String platform;
-
-    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{bug.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description =  "创建人")
-    private String createUser;
+    @Schema(description = "模板ID")
+    private String templateId;
 
-    @Schema(description =  "缺陷来源，记录创建该缺陷的测试计划的ID")
-    private String sourceId;
+    @Schema(description = "缺陷平台", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug.platform.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{bug.platform.length_range}", groups = {Created.class, Updated.class})
+    private String platform;
 
-    @Schema(description =  "第三方平台状态")
-    private String platformStatus;
+    @Schema(description = "平台状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug.status.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{bug.status.length_range}", groups = {Created.class, Updated.class})
+    private String status;
 
-    @Schema(description =  "第三方平台缺陷ID")
-    private String platformId;
+    @Schema(description = "第三方平台缺陷ID")
+    private String platformBugId;
+
+    @Schema(description = "是否回收站", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{bug.trash.not_blank}", groups = {Created.class})
+    private Boolean trash;
 
     private static final long serialVersionUID = 1L;
 
@@ -57,14 +72,16 @@ public class Bug implements Serializable {
         id("id", "id", "VARCHAR", false),
         num("num", "num", "INTEGER", false),
         title("title", "title", "VARCHAR", false),
+        assignUser("assign_user", "assignUser", "VARCHAR", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        platform("platform", "platform", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
-        createUser("create_user", "createUser", "VARCHAR", false),
-        sourceId("source_id", "sourceId", "VARCHAR", false),
-        platformStatus("platform_status", "platformStatus", "VARCHAR", false),
-        platformId("platform_id", "platformId", "VARCHAR", false);
+        templateId("template_id", "templateId", "VARCHAR", false),
+        platform("platform", "platform", "VARCHAR", false),
+        status("status", "status", "VARCHAR", true),
+        platformBugId("platform_bug_id", "platformBugId", "VARCHAR", false),
+        trash("trash", "trash", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

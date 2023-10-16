@@ -2,8 +2,9 @@ package io.metersphere.bug.mapper;
 
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface BugMapper {
     long countByExample(BugExample example);

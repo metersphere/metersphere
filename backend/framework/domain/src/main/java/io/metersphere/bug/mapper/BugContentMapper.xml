@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.bug.mapper.BugBlobMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.bug.domain.BugBlob">
-    <id column="id" jdbcType="VARCHAR" property="id" />
+<mapper namespace="io.metersphere.bug.mapper.BugContentMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.bug.domain.BugContent">
+    <id column="bug_id" jdbcType="VARCHAR" property="bugId" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.bug.domain.BugBlob">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.bug.domain.BugContent">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -66,12 +66,12 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id
+    bug_id
   </sql>
   <sql id="Blob_Column_List">
     description
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.bug.domain.BugBlobExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.bug.domain.BugContentExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
@@ -79,7 +79,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from bug_blob
+    from bug_content
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -87,13 +87,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugBlobExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugContentExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from bug_blob
+    from bug_content
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -106,53 +106,53 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from bug_blob
-    where id = #{id,jdbcType=VARCHAR}
+    from bug_content
+    where bug_id = #{bugId,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from bug_blob
-    where id = #{id,jdbcType=VARCHAR}
+    delete from bug_content
+    where bug_id = #{bugId,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.bug.domain.BugBlobExample">
-    delete from bug_blob
+  <delete id="deleteByExample" parameterType="io.metersphere.bug.domain.BugContentExample">
+    delete from bug_content
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.bug.domain.BugBlob">
-    insert into bug_blob (id, description)
-    values (#{id,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
+  <insert id="insert" parameterType="io.metersphere.bug.domain.BugContent">
+    insert into bug_content (bug_id, description)
+    values (#{bugId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugBlob">
-    insert into bug_blob
+  <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugContent">
+    insert into bug_content
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
+      <if test="bugId != null">
+        bug_id,
       </if>
       <if test="description != null">
         description,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=VARCHAR},
+      <if test="bugId != null">
+        #{bugId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.bug.domain.BugBlobExample" resultType="java.lang.Long">
-    select count(*) from bug_blob
+  <select id="countByExample" parameterType="io.metersphere.bug.domain.BugContentExample" resultType="java.lang.Long">
+    select count(*) from bug_content
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update bug_blob
+    update bug_content
     <set>
-      <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
+      <if test="record.bugId != null">
+        bug_id = #{record.bugId,jdbcType=VARCHAR},
       </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
@@ -163,32 +163,60 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    update bug_blob
-    set id = #{record.id,jdbcType=VARCHAR},
+    update bug_content
+    set bug_id = #{record.bugId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update bug_blob
-    set id = #{record.id,jdbcType=VARCHAR}
+    update bug_content
+    set bug_id = #{record.bugId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.bug.domain.BugBlob">
-    update bug_blob
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.bug.domain.BugContent">
+    update bug_content
     <set>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
+    where bug_id = #{bugId,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.bug.domain.BugBlob">
-    update bug_blob
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.bug.domain.BugContent">
+    update bug_content
     set description = #{description,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+    where bug_id = #{bugId,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into bug_content
+    (bug_id, description)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.bugId,jdbcType=VARCHAR}, #{item.description,jdbcType=LONGVARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into bug_content (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'bug_id'.toString() == column.value">
+          #{item.bugId,jdbcType=VARCHAR}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=LONGVARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

@@ -4,6 +4,7 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -12,22 +13,39 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @Data
-public class BugFollower implements Serializable {
-    @Schema(description = "缺陷ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug_follower.bug_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{bug_follower.bug_id.length_range}", groups = {Created.class, Updated.class})
+public class BugHistory implements Serializable {
+    @Schema(description = "变更记录ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug_history.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{bug_history.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
+
+    @Schema(description = "所属缺陷ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug_history.bug_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{bug_history.bug_id.length_range}", groups = {Created.class, Updated.class})
     private String bugId;
 
-    @Schema(description = "关注人ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug_follower.user_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{bug_follower.user_id.length_range}", groups = {Created.class, Updated.class})
-    private String userId;
+    @Schema(description = "变更记录批次号")
+    private Integer num;
+
+    @Schema(description = "操作人")
+    private String createUser;
+
+    @Schema(description = "操作时间")
+    private Long createTime;
+
+    @Schema(description = "修改内容", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{bug_history.content.not_blank}", groups = {Created.class})
+    private byte[] content;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
+        id("id", "id", "VARCHAR", false),
         bugId("bug_id", "bugId", "VARCHAR", false),
-        userId("user_id", "userId", "VARCHAR", false);
+        num("num", "num", "INTEGER", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
+        createTime("create_time", "createTime", "BIGINT", false),
+        content("content", "content", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

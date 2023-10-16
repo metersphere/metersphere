@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.bug.mapper.BugCommentMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.bug.domain.BugComment">
+<mapper namespace="io.metersphere.bug.mapper.BugHistoryMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.bug.domain.BugHistory">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="bug_id" jdbcType="VARCHAR" property="bugId" />
-    <result column="reply_user" jdbcType="VARCHAR" property="replyUser" />
-    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
+    <result column="num" jdbcType="INTEGER" property="num" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
-    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
-    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.bug.domain.BugComment">
-    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.bug.domain.BugHistory">
+    <result column="content" jdbcType="LONGVARBINARY" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,12 +70,12 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, bug_id, reply_user, parent_id, create_user, create_time, update_user, update_time
+    id, bug_id, num, create_user, create_time
   </sql>
   <sql id="Blob_Column_List">
-    description
+    content
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.bug.domain.BugCommentExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.bug.domain.BugHistoryExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
@@ -86,7 +83,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from bug_comment
+    from bug_history
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -94,13 +91,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugCommentExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugHistoryExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from bug_comment
+    from bug_history
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -113,31 +110,29 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from bug_comment
+    from bug_history
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from bug_comment
+    delete from bug_history
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.bug.domain.BugCommentExample">
-    delete from bug_comment
+  <delete id="deleteByExample" parameterType="io.metersphere.bug.domain.BugHistoryExample">
+    delete from bug_history
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.bug.domain.BugComment">
-    insert into bug_comment (id, bug_id, reply_user, 
-      parent_id, create_user, create_time, 
-      update_user, update_time, description
+  <insert id="insert" parameterType="io.metersphere.bug.domain.BugHistory">
+    insert into bug_history (id, bug_id, num, 
+      create_user, create_time, content
       )
-    values (#{id,jdbcType=VARCHAR}, #{bugId,jdbcType=VARCHAR}, #{replyUser,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}
+    values (#{id,jdbcType=VARCHAR}, #{bugId,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
+      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY}
       )
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugComment">
-    insert into bug_comment
+  <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugHistory">
+    insert into bug_history
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -145,11 +140,8 @@
       <if test="bugId != null">
         bug_id,
       </if>
-      <if test="replyUser != null">
-        reply_user,
-      </if>
-      <if test="parentId != null">
-        parent_id,
+      <if test="num != null">
+        num,
       </if>
       <if test="createUser != null">
         create_user,
@@ -157,14 +149,8 @@
       <if test="createTime != null">
         create_time,
       </if>
-      <if test="updateUser != null">
-        update_user,
-      </if>
-      <if test="updateTime != null">
-        update_time,
-      </if>
-      <if test="description != null">
-        description,
+      <if test="content != null">
+        content,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -174,11 +160,8 @@
       <if test="bugId != null">
         #{bugId,jdbcType=VARCHAR},
       </if>
-      <if test="replyUser != null">
-        #{replyUser,jdbcType=VARCHAR},
-      </if>
-      <if test="parentId != null">
-        #{parentId,jdbcType=VARCHAR},
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -186,25 +169,19 @@
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
-      <if test="updateUser != null">
-        #{updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="updateTime != null">
-        #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=LONGVARCHAR},
+      <if test="content != null">
+        #{content,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.bug.domain.BugCommentExample" resultType="java.lang.Long">
-    select count(*) from bug_comment
+  <select id="countByExample" parameterType="io.metersphere.bug.domain.BugHistoryExample" resultType="java.lang.Long">
+    select count(*) from bug_history
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update bug_comment
+    update bug_history
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -212,11 +189,8 @@
       <if test="record.bugId != null">
         bug_id = #{record.bugId,jdbcType=VARCHAR},
       </if>
-      <if test="record.replyUser != null">
-        reply_user = #{record.replyUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.parentId != null">
-        parent_id = #{record.parentId,jdbcType=VARCHAR},
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -224,14 +198,8 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
-      <if test="record.updateUser != null">
-        update_user = #{record.updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=LONGVARCHAR},
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARBINARY},
       </if>
     </set>
     <if test="_parameter != null">
@@ -239,45 +207,36 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    update bug_comment
+    update bug_history
     set id = #{record.id,jdbcType=VARCHAR},
       bug_id = #{record.bugId,jdbcType=VARCHAR},
-      reply_user = #{record.replyUser,jdbcType=VARCHAR},
-      parent_id = #{record.parentId,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_user = #{record.updateUser,jdbcType=VARCHAR},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      description = #{record.description,jdbcType=LONGVARCHAR}
+      content = #{record.content,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update bug_comment
+    update bug_history
     set id = #{record.id,jdbcType=VARCHAR},
       bug_id = #{record.bugId,jdbcType=VARCHAR},
-      reply_user = #{record.replyUser,jdbcType=VARCHAR},
-      parent_id = #{record.parentId,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_user = #{record.updateUser,jdbcType=VARCHAR},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      create_time = #{record.createTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.bug.domain.BugComment">
-    update bug_comment
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.bug.domain.BugHistory">
+    update bug_history
     <set>
       <if test="bugId != null">
         bug_id = #{bugId,jdbcType=VARCHAR},
       </if>
-      <if test="replyUser != null">
-        reply_user = #{replyUser,jdbcType=VARCHAR},
-      </if>
-      <if test="parentId != null">
-        parent_id = #{parentId,jdbcType=VARCHAR},
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
@@ -285,55 +244,41 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
-      <if test="updateUser != null">
-        update_user = #{updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=LONGVARCHAR},
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARBINARY},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.bug.domain.BugComment">
-    update bug_comment
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.bug.domain.BugHistory">
+    update bug_history
     set bug_id = #{bugId,jdbcType=VARCHAR},
-      reply_user = #{replyUser,jdbcType=VARCHAR},
-      parent_id = #{parentId,jdbcType=VARCHAR},
+      num = #{num,jdbcType=INTEGER},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_user = #{updateUser,jdbcType=VARCHAR},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      description = #{description,jdbcType=LONGVARCHAR}
+      content = #{content,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.bug.domain.BugComment">
-    update bug_comment
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.bug.domain.BugHistory">
+    update bug_history
     set bug_id = #{bugId,jdbcType=VARCHAR},
-      reply_user = #{replyUser,jdbcType=VARCHAR},
-      parent_id = #{parentId,jdbcType=VARCHAR},
+      num = #{num,jdbcType=INTEGER},
       create_user = #{createUser,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_user = #{updateUser,jdbcType=VARCHAR},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      create_time = #{createTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into bug_comment
-    (id, bug_id, reply_user, parent_id, create_user, create_time, update_user, update_time, 
-      description)
+    insert into bug_history
+    (id, bug_id, num, create_user, create_time, content)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.bugId,jdbcType=VARCHAR}, #{item.replyUser,jdbcType=VARCHAR}, 
-        #{item.parentId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, #{item.description,jdbcType=LONGVARCHAR}
+      (#{item.id,jdbcType=VARCHAR}, #{item.bugId,jdbcType=VARCHAR}, #{item.num,jdbcType=INTEGER}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARBINARY}
         )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into bug_comment (
+    insert into bug_history (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>
@@ -348,11 +293,8 @@
         <if test="'bug_id'.toString() == column.value">
           #{item.bugId,jdbcType=VARCHAR}
         </if>
-        <if test="'reply_user'.toString() == column.value">
-          #{item.replyUser,jdbcType=VARCHAR}
-        </if>
-        <if test="'parent_id'.toString() == column.value">
-          #{item.parentId,jdbcType=VARCHAR}
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=INTEGER}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
@@ -360,14 +302,8 @@
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
         </if>
-        <if test="'update_user'.toString() == column.value">
-          #{item.updateUser,jdbcType=VARCHAR}
-        </if>
-        <if test="'update_time'.toString() == column.value">
-          #{item.updateTime,jdbcType=BIGINT}
-        </if>
-        <if test="'description'.toString() == column.value">
-          #{item.description,jdbcType=LONGVARCHAR}
+        <if test="'content'.toString() == column.value">
+          #{item.content,jdbcType=LONGVARBINARY}
         </if>
       </foreach>
       )

@@ -304,6 +304,146 @@ public class BugExample {
             return (Criteria) this;
         }
 
+        public Criteria andAssignUserIsNull() {
+            addCriterion("assign_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserIsNotNull() {
+            addCriterion("assign_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserEqualTo(String value) {
+            addCriterion("assign_user =", value, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserNotEqualTo(String value) {
+            addCriterion("assign_user <>", value, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserGreaterThan(String value) {
+            addCriterion("assign_user >", value, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserGreaterThanOrEqualTo(String value) {
+            addCriterion("assign_user >=", value, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserLessThan(String value) {
+            addCriterion("assign_user <", value, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserLessThanOrEqualTo(String value) {
+            addCriterion("assign_user <=", value, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserLike(String value) {
+            addCriterion("assign_user like", value, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserNotLike(String value) {
+            addCriterion("assign_user not like", value, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserIn(List<String> values) {
+            addCriterion("assign_user in", values, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserNotIn(List<String> values) {
+            addCriterion("assign_user not in", values, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserBetween(String value1, String value2) {
+            addCriterion("assign_user between", value1, value2, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssignUserNotBetween(String value1, String value2) {
+            addCriterion("assign_user not between", value1, value2, "assignUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIsNull() {
+            addCriterion("create_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIsNotNull() {
+            addCriterion("create_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserEqualTo(String value) {
+            addCriterion("create_user =", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotEqualTo(String value) {
+            addCriterion("create_user <>", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThan(String value) {
+            addCriterion("create_user >", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("create_user >=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThan(String value) {
+            addCriterion("create_user <", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThanOrEqualTo(String value) {
+            addCriterion("create_user <=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLike(String value) {
+            addCriterion("create_user like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotLike(String value) {
+            addCriterion("create_user not like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIn(List<String> values) {
+            addCriterion("create_user in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotIn(List<String> values) {
+            addCriterion("create_user not in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserBetween(String value1, String value2) {
+            addCriterion("create_user between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotBetween(String value1, String value2) {
+            addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
         public Criteria andCreateTimeIsNull() {
             addCriterion("create_time is null");
             return (Criteria) this;
@@ -424,76 +564,6 @@ public class BugExample {
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIsNull() {
-            addCriterion("platform is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformIsNotNull() {
-            addCriterion("platform is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformEqualTo(String value) {
-            addCriterion("platform =", value, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformNotEqualTo(String value) {
-            addCriterion("platform <>", value, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformGreaterThan(String value) {
-            addCriterion("platform >", value, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformGreaterThanOrEqualTo(String value) {
-            addCriterion("platform >=", value, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformLessThan(String value) {
-            addCriterion("platform <", value, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformLessThanOrEqualTo(String value) {
-            addCriterion("platform <=", value, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformLike(String value) {
-            addCriterion("platform like", value, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformNotLike(String value) {
-            addCriterion("platform not like", value, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformIn(List<String> values) {
-            addCriterion("platform in", values, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformNotIn(List<String> values) {
-            addCriterion("platform not in", values, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformBetween(String value1, String value2) {
-            addCriterion("platform between", value1, value2, "platform");
-            return (Criteria) this;
-        }
-
-        public Criteria andPlatformNotBetween(String value1, String value2) {
-            addCriterion("platform not between", value1, value2, "platform");
-            return (Criteria) this;
-        }
-
         public Criteria andProjectIdIsNull() {
             addCriterion("project_id is null");
             return (Criteria) this;
@@ -564,283 +634,343 @@ public class BugExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserIsNull() {
-            addCriterion("create_user is null");
+        public Criteria andTemplateIdIsNull() {
+            addCriterion("template_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserIsNotNull() {
-            addCriterion("create_user is not null");
+        public Criteria andTemplateIdIsNotNull() {
+            addCriterion("template_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserEqualTo(String value) {
-            addCriterion("create_user =", value, "createUser");
+        public Criteria andTemplateIdEqualTo(String value) {
+            addCriterion("template_id =", value, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserNotEqualTo(String value) {
-            addCriterion("create_user <>", value, "createUser");
+        public Criteria andTemplateIdNotEqualTo(String value) {
+            addCriterion("template_id <>", value, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserGreaterThan(String value) {
-            addCriterion("create_user >", value, "createUser");
+        public Criteria andTemplateIdGreaterThan(String value) {
+            addCriterion("template_id >", value, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserGreaterThanOrEqualTo(String value) {
-            addCriterion("create_user >=", value, "createUser");
+        public Criteria andTemplateIdGreaterThanOrEqualTo(String value) {
+            addCriterion("template_id >=", value, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserLessThan(String value) {
-            addCriterion("create_user <", value, "createUser");
+        public Criteria andTemplateIdLessThan(String value) {
+            addCriterion("template_id <", value, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserLessThanOrEqualTo(String value) {
-            addCriterion("create_user <=", value, "createUser");
+        public Criteria andTemplateIdLessThanOrEqualTo(String value) {
+            addCriterion("template_id <=", value, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserLike(String value) {
-            addCriterion("create_user like", value, "createUser");
+        public Criteria andTemplateIdLike(String value) {
+            addCriterion("template_id like", value, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserNotLike(String value) {
-            addCriterion("create_user not like", value, "createUser");
+        public Criteria andTemplateIdNotLike(String value) {
+            addCriterion("template_id not like", value, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserIn(List<String> values) {
-            addCriterion("create_user in", values, "createUser");
+        public Criteria andTemplateIdIn(List<String> values) {
+            addCriterion("template_id in", values, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserNotIn(List<String> values) {
-            addCriterion("create_user not in", values, "createUser");
+        public Criteria andTemplateIdNotIn(List<String> values) {
+            addCriterion("template_id not in", values, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserBetween(String value1, String value2) {
-            addCriterion("create_user between", value1, value2, "createUser");
+        public Criteria andTemplateIdBetween(String value1, String value2) {
+            addCriterion("template_id between", value1, value2, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUserNotBetween(String value1, String value2) {
-            addCriterion("create_user not between", value1, value2, "createUser");
+        public Criteria andTemplateIdNotBetween(String value1, String value2) {
+            addCriterion("template_id not between", value1, value2, "templateId");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdIsNull() {
-            addCriterion("source_id is null");
+        public Criteria andPlatformIsNull() {
+            addCriterion("platform is null");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdIsNotNull() {
-            addCriterion("source_id is not null");
+        public Criteria andPlatformIsNotNull() {
+            addCriterion("platform is not null");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdEqualTo(String value) {
-            addCriterion("source_id =", value, "sourceId");
+        public Criteria andPlatformEqualTo(String value) {
+            addCriterion("platform =", value, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdNotEqualTo(String value) {
-            addCriterion("source_id <>", value, "sourceId");
+        public Criteria andPlatformNotEqualTo(String value) {
+            addCriterion("platform <>", value, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdGreaterThan(String value) {
-            addCriterion("source_id >", value, "sourceId");
+        public Criteria andPlatformGreaterThan(String value) {
+            addCriterion("platform >", value, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdGreaterThanOrEqualTo(String value) {
-            addCriterion("source_id >=", value, "sourceId");
+        public Criteria andPlatformGreaterThanOrEqualTo(String value) {
+            addCriterion("platform >=", value, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdLessThan(String value) {
-            addCriterion("source_id <", value, "sourceId");
+        public Criteria andPlatformLessThan(String value) {
+            addCriterion("platform <", value, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdLessThanOrEqualTo(String value) {
-            addCriterion("source_id <=", value, "sourceId");
+        public Criteria andPlatformLessThanOrEqualTo(String value) {
+            addCriterion("platform <=", value, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdLike(String value) {
-            addCriterion("source_id like", value, "sourceId");
+        public Criteria andPlatformLike(String value) {
+            addCriterion("platform like", value, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdNotLike(String value) {
-            addCriterion("source_id not like", value, "sourceId");
+        public Criteria andPlatformNotLike(String value) {
+            addCriterion("platform not like", value, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdIn(List<String> values) {
-            addCriterion("source_id in", values, "sourceId");
+        public Criteria andPlatformIn(List<String> values) {
+            addCriterion("platform in", values, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdNotIn(List<String> values) {
-            addCriterion("source_id not in", values, "sourceId");
+        public Criteria andPlatformNotIn(List<String> values) {
+            addCriterion("platform not in", values, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdBetween(String value1, String value2) {
-            addCriterion("source_id between", value1, value2, "sourceId");
+        public Criteria andPlatformBetween(String value1, String value2) {
+            addCriterion("platform between", value1, value2, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andSourceIdNotBetween(String value1, String value2) {
-            addCriterion("source_id not between", value1, value2, "sourceId");
+        public Criteria andPlatformNotBetween(String value1, String value2) {
+            addCriterion("platform not between", value1, value2, "platform");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusIsNull() {
-            addCriterion("platform_status is null");
+        public Criteria andStatusIsNull() {
+            addCriterion("`status` is null");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusIsNotNull() {
-            addCriterion("platform_status is not null");
+        public Criteria andStatusIsNotNull() {
+            addCriterion("`status` is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusEqualTo(String value) {
-            addCriterion("platform_status =", value, "platformStatus");
+        public Criteria andStatusEqualTo(String value) {
+            addCriterion("`status` =", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusNotEqualTo(String value) {
-            addCriterion("platform_status <>", value, "platformStatus");
+        public Criteria andStatusNotEqualTo(String value) {
+            addCriterion("`status` <>", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusGreaterThan(String value) {
-            addCriterion("platform_status >", value, "platformStatus");
+        public Criteria andStatusGreaterThan(String value) {
+            addCriterion("`status` >", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusGreaterThanOrEqualTo(String value) {
-            addCriterion("platform_status >=", value, "platformStatus");
+        public Criteria andStatusGreaterThanOrEqualTo(String value) {
+            addCriterion("`status` >=", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusLessThan(String value) {
-            addCriterion("platform_status <", value, "platformStatus");
+        public Criteria andStatusLessThan(String value) {
+            addCriterion("`status` <", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusLessThanOrEqualTo(String value) {
-            addCriterion("platform_status <=", value, "platformStatus");
+        public Criteria andStatusLessThanOrEqualTo(String value) {
+            addCriterion("`status` <=", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusLike(String value) {
-            addCriterion("platform_status like", value, "platformStatus");
+        public Criteria andStatusLike(String value) {
+            addCriterion("`status` like", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusNotLike(String value) {
-            addCriterion("platform_status not like", value, "platformStatus");
+        public Criteria andStatusNotLike(String value) {
+            addCriterion("`status` not like", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusIn(List<String> values) {
-            addCriterion("platform_status in", values, "platformStatus");
+        public Criteria andStatusIn(List<String> values) {
+            addCriterion("`status` in", values, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusNotIn(List<String> values) {
-            addCriterion("platform_status not in", values, "platformStatus");
+        public Criteria andStatusNotIn(List<String> values) {
+            addCriterion("`status` not in", values, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusBetween(String value1, String value2) {
-            addCriterion("platform_status between", value1, value2, "platformStatus");
+        public Criteria andStatusBetween(String value1, String value2) {
+            addCriterion("`status` between", value1, value2, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformStatusNotBetween(String value1, String value2) {
-            addCriterion("platform_status not between", value1, value2, "platformStatus");
+        public Criteria andStatusNotBetween(String value1, String value2) {
+            addCriterion("`status` not between", value1, value2, "status");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdIsNull() {
-            addCriterion("platform_id is null");
+        public Criteria andPlatformBugIdIsNull() {
+            addCriterion("platform_bug_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdIsNotNull() {
-            addCriterion("platform_id is not null");
+        public Criteria andPlatformBugIdIsNotNull() {
+            addCriterion("platform_bug_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdEqualTo(String value) {
-            addCriterion("platform_id =", value, "platformId");
+        public Criteria andPlatformBugIdEqualTo(String value) {
+            addCriterion("platform_bug_id =", value, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdNotEqualTo(String value) {
-            addCriterion("platform_id <>", value, "platformId");
+        public Criteria andPlatformBugIdNotEqualTo(String value) {
+            addCriterion("platform_bug_id <>", value, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdGreaterThan(String value) {
-            addCriterion("platform_id >", value, "platformId");
+        public Criteria andPlatformBugIdGreaterThan(String value) {
+            addCriterion("platform_bug_id >", value, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdGreaterThanOrEqualTo(String value) {
-            addCriterion("platform_id >=", value, "platformId");
+        public Criteria andPlatformBugIdGreaterThanOrEqualTo(String value) {
+            addCriterion("platform_bug_id >=", value, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdLessThan(String value) {
-            addCriterion("platform_id <", value, "platformId");
+        public Criteria andPlatformBugIdLessThan(String value) {
+            addCriterion("platform_bug_id <", value, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdLessThanOrEqualTo(String value) {
-            addCriterion("platform_id <=", value, "platformId");
+        public Criteria andPlatformBugIdLessThanOrEqualTo(String value) {
+            addCriterion("platform_bug_id <=", value, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdLike(String value) {
-            addCriterion("platform_id like", value, "platformId");
+        public Criteria andPlatformBugIdLike(String value) {
+            addCriterion("platform_bug_id like", value, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdNotLike(String value) {
-            addCriterion("platform_id not like", value, "platformId");
+        public Criteria andPlatformBugIdNotLike(String value) {
+            addCriterion("platform_bug_id not like", value, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdIn(List<String> values) {
-            addCriterion("platform_id in", values, "platformId");
+        public Criteria andPlatformBugIdIn(List<String> values) {
+            addCriterion("platform_bug_id in", values, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdNotIn(List<String> values) {
-            addCriterion("platform_id not in", values, "platformId");
+        public Criteria andPlatformBugIdNotIn(List<String> values) {
+            addCriterion("platform_bug_id not in", values, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdBetween(String value1, String value2) {
-            addCriterion("platform_id between", value1, value2, "platformId");
+        public Criteria andPlatformBugIdBetween(String value1, String value2) {
+            addCriterion("platform_bug_id between", value1, value2, "platformBugId");
             return (Criteria) this;
         }
 
-        public Criteria andPlatformIdNotBetween(String value1, String value2) {
-            addCriterion("platform_id not between", value1, value2, "platformId");
+        public Criteria andPlatformBugIdNotBetween(String value1, String value2) {
+            addCriterion("platform_bug_id not between", value1, value2, "platformBugId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashIsNull() {
+            addCriterion("trash is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashIsNotNull() {
+            addCriterion("trash is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashEqualTo(Boolean value) {
+            addCriterion("trash =", value, "trash");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashNotEqualTo(Boolean value) {
+            addCriterion("trash <>", value, "trash");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashGreaterThan(Boolean value) {
+            addCriterion("trash >", value, "trash");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("trash >=", value, "trash");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashLessThan(Boolean value) {
+            addCriterion("trash <", value, "trash");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashLessThanOrEqualTo(Boolean value) {
+            addCriterion("trash <=", value, "trash");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashIn(List<Boolean> values) {
+            addCriterion("trash in", values, "trash");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashNotIn(List<Boolean> values) {
+            addCriterion("trash not in", values, "trash");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashBetween(Boolean value1, Boolean value2) {
+            addCriterion("trash between", value1, value2, "trash");
+            return (Criteria) this;
+        }
+
+        public Criteria andTrashNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("trash not between", value1, value2, "trash");
             return (Criteria) this;
         }
     }
