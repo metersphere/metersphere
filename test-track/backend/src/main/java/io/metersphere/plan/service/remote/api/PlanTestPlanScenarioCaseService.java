@@ -1,6 +1,8 @@
 package io.metersphere.plan.service.remote.api;
 
+import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.TestPlanReport;
+import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -19,6 +21,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,6 +38,8 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
 
     @Resource
     PlanApiScenarioReportService planApiScenarioReportService;
+    @Resource
+    ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
 
     public void calculatePlanReport(String planId, TestPlanReportDataStruct report) {
         if (DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
@@ -211,5 +217,13 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
     public Object relevanceList(ApiScenarioRequest request, int pageNum, int pageSize) {
         request.setAllowedRepeatCase(testPlanService.isAllowedRepeatCase(request.getPlanId()));
         return microService.postForData(serviceName, BASE_UEL + String.format("/relevance/list/%s/%s", pageNum, pageSize), request);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<ApiScenarioReport> selectReportStatusByReportIds(List<String> reportIds) {
+        if (CollectionUtils.isEmpty(reportIds)) {
+            return new ArrayList<>();
+        }
+        return extTestPlanScenarioCaseMapper.selectReportStatusByReportIds(reportIds);
     }
 }
