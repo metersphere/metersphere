@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanReportService {
 
+    private final String GROUP = "GROUP";
     @Resource
     TestPlanReportMapper testPlanReportMapper;
     @Resource
@@ -132,8 +133,6 @@ public class TestPlanReportService {
     private ApiExecutionQueueDetailMapper apiExecutionQueueDetailMapper;
     @Resource
     private ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
-
-    private final String GROUP = "GROUP";
 
     //这个方法是消息通知时获取报告内容的。
     public List<TestPlanReport> getReports(List<String> reportIdList) {
@@ -360,7 +359,7 @@ public class TestPlanReportService {
         }
 
         if (testPlanReport == null) {
-            if(runInfoDTO == null){
+            if (runInfoDTO == null) {
                 runInfoDTO = new TestPlanReportRunInfoDTO();
             }
             if (!saveRequest.isApiCaseIsExecuting() && !saveRequest.isScenarioIsExecuting()) {
@@ -1476,8 +1475,57 @@ public class TestPlanReportService {
                 returnMap = apiDefinitionExecResultList.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getId, ApiDefinitionExecResult::getStatus, (k1, k2) -> k1));
             }
         }
+        this.checkApiCaseAndScenarioRunningResult(returnMap, true);
         return returnMap;
     }
+
+    //检查是否有未完成的报告。 （由于微服务架构，可能在api服务的事务没有提交，会出现这样的情况）
+    private void checkApiCaseAndScenarioRunningResult(Map<String, String> checkMap, boolean isApiCase) {
+        if (MapUtils.isEmpty(checkMap)) {
+            return;
+        }
+        String checkStatus = "running";
+        Map<String, String> runningReportMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : checkMap.entrySet()) {
+            if (StringUtils.equalsAnyIgnoreCase(entry.getValue(), checkStatus)) {
+                runningReportMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        //等待sleepSeconds时间api服务的事务来提交。 重复foreachTimes次
+        int foreachTimes = 2;
+        int sleepSeconds = 3000;
+
+        try {
+            for (int i = 0; i < foreachTimes; i++) {
+                //延迟3s进行计算（等待事务提交）
+                Thread.sleep(sleepSeconds);
+                if (isApiCase) {
+                    List<ApiDefinitionExecResult> apiDefinitionExecResultList = planTestPlanApiCaseService.selectReportStatusByReportIds(new ArrayList<>(runningReportMap.keySet()));
+                    runningReportMap = new HashMap<>();
+                    for (ApiDefinitionExecResult result : apiDefinitionExecResultList) {
+                        if (StringUtils.equalsIgnoreCase(result.getStatus(), checkStatus)) {
+                            runningReportMap.put(result.getId(), result.getStatus());
+                        } else {
+                            checkMap.put(result.getId(), result.getStatus());
+                        }
+                    }
+                } else {
+                    List<ApiScenarioReport> scenarioReportList = planTestPlanScenarioCaseService.selectReportStatusByReportIds(new ArrayList<>(runningReportMap.keySet()));
+                    runningReportMap = new HashMap<>();
+                    for (ApiScenarioReport result : scenarioReportList) {
+                        if (StringUtils.equalsIgnoreCase(result.getStatus(), checkStatus)) {
+                            runningReportMap.put(result.getId(), result.getStatus());
+                        } else {
+                            checkMap.put(result.getId(), result.getStatus());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error("用例报告重新查询报错", e);
+        }
+    }
+
 
     private Map<String, String> selectScenarioRunResultByIds(List<String> scenarioReportIdList) {
         Map<String, String> returnMap = new HashMap<>();
@@ -1487,6 +1535,7 @@ public class TestPlanReportService {
                 returnMap = apiDefinitionExecResultList.stream().collect(Collectors.toMap(ApiScenarioReport::getId, ApiScenarioReport::getStatus, (k1, k2) -> k1));
             }
         }
+        this.checkApiCaseAndScenarioRunningResult(returnMap, false);
         return returnMap;
     }
 
