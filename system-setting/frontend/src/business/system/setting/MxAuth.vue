@@ -182,13 +182,13 @@
               <el-form-item prop="configuration.loginUrl">
                 <template v-slot:label>
                   Login Endpoint
-                  <el-tooltip content="Login URL: https://cloud2.metersphere.com, 输入后将自动转到第三方登录页面"
+                  <el-tooltip content="Login URL: https://cloud.metersphere.com, 输入后将自动转到第三方登录页面"
                               effect="light"
                               trigger="hover">
                     <i class="el-icon-info"></i>
                   </el-tooltip>
                 </template>
-                <el-input v-model="form.configuration.loginUrl" show-word-limit maxlength="200"/>
+                <el-input v-model="form.configuration.loginUrl" show-word-limit maxlength="1000"/>
               </el-form-item>
             </el-col>
           </el-row>
