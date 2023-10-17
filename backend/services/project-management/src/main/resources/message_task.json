@@ -79,7 +79,29 @@
             ]
           },
           {
-            "event":"EXECUTE_COMPLETED",
+            "event":"EXECUTE_SUCCESSFUL",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
+            "event":"EXECUTE_FAILED",
             "eventName":"",
             "receivers":[
               {
@@ -345,6 +367,94 @@
             ]
           },
           {
+            "event":"REVIEW_PASSED",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
+            "event":"REVIEW_FAIL",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
+            "event":"EXECUTE_PASSED",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
+            "event":"EXECUTE_FAIL",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
             "event":"COMMENT",
             "eventName":"",
             "receivers":[
@@ -422,28 +532,6 @@
           },
           {
             "event":"DELETE",
-            "eventName":"",
-            "receivers":[
-              {
-                "id": "CREATE_USER",
-                "name": ""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          },
-          {
-            "event":"EXECUTE_REVIEW",
             "eventName":"",
             "receivers":[
               {
@@ -1153,7 +1241,7 @@
     "name":"",
     "messageTaskTypeDTOList":[
       {
-        "taskType":"JENKINS_UI_TASK",
+        "taskType":"JENKINS_TASK",
         "taskTypeName":"",
         "messageTaskDetailDTOList":[
           {
@@ -1201,13 +1289,20 @@
             ]
           }
         ]
-      },
+      }
+    ]
+  },
+  {
+    "projectId":"",
+    "type":"SCHEDULE_TASK_MANAGEMENT",
+    "name":"",
+    "messageTaskTypeDTOList":[
       {
-        "taskType":"JENKINS_API_SCENARIO_TASK",
+        "taskType":"SCHEDULE_TASK",
         "taskTypeName":"",
         "messageTaskDetailDTOList":[
           {
-            "event":"EXECUTE_SUCCESSFUL",
+            "event":"OPEN",
             "eventName":"",
             "receivers":[
               {
@@ -1229,157 +1324,7 @@
             ]
           },
           {
-            "event":"EXECUTE_FAILED",
-            "eventName":"",
-            "receivers":[
-              {
-                "id":"",
-                "name":""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "taskType":"JENKINS_API_CASE_TASK",
-        "taskTypeName":"",
-        "messageTaskDetailDTOList":[
-          {
-            "event":"EXECUTE_SUCCESSFUL",
-            "eventName":"",
-            "receivers":[
-              {
-                "id":"",
-                "name":""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          },
-          {
-            "event":"EXECUTE_FAILED",
-            "eventName":"",
-            "receivers":[
-              {
-                "id":"",
-                "name":""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "taskType":"JENKINS_LOAD_CASE_TASK",
-        "taskTypeName":"",
-        "messageTaskDetailDTOList":[
-          {
-            "event":"EXECUTE_SUCCESSFUL",
-            "eventName":"",
-            "receivers":[
-              {
-                "id":"",
-                "name":""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          },
-          {
-            "event":"EXECUTE_FAILED",
-            "eventName":"",
-            "receivers":[
-              {
-                "id":"",
-                "name":""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "taskType":"JENKINS_UI_TASK",
-        "taskTypeName":"",
-        "messageTaskDetailDTOList":[
-          {
-            "event":"EXECUTE_SUCCESSFUL",
-            "eventName":"",
-            "receivers":[
-              {
-                "id":"",
-                "name":""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          },
-          {
-            "event":"EXECUTE_FAILED",
+            "event":"CLOSE",
             "eventName":"",
             "receivers":[
               {

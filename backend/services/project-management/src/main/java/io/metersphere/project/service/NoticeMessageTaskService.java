@@ -72,16 +72,18 @@ public class NoticeMessageTaskService {
     public ResultHolder saveMessageTask(MessageTaskRequest messageTaskRequest, String userId) {
         String projectId = messageTaskRequest.getProjectId();
         checkProjectExist(projectId);
+        //如果只选了用户，没有选机器人，默认机器人为站内信
+        ProjectRobot projectRobot = getDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
+        String robotId = projectRobot.getId();
+        messageTaskRequest.setRobotId(robotId);
+        //删除用户数据不在当前传送用户内的数据
+        deleteUserData(messageTaskRequest, projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         MessageTaskMapper mapper = sqlSession.getMapper(MessageTaskMapper.class);
         MessageTaskBlobMapper blobMapper = sqlSession.getMapper(MessageTaskBlobMapper.class);
         //检查用户是否存在
         Map<String, List<String>> stringListMap = checkUserExistProject(messageTaskRequest.getReceiverIds(), projectId);
         List<String> existUserIds = stringListMap.get(USER_IDS);
-        //如果只选了用户，没有选机器人，默认机器人为站内信
-        ProjectRobot projectRobot = getDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
-        String robotId = projectRobot.getId();
-        messageTaskRequest.setRobotId(robotId);
         //检查设置的通知是否存在，如果存在则更新
         List<MessageTask> messageTasks = updateMessageTasks(messageTaskRequest, userId, mapper, blobMapper, existUserIds);
         //保存消息任务
@@ -94,6 +96,20 @@ public class NoticeMessageTaskService {
             return ResultHolder.successCodeErrorInfo(ProjectResultCode.SAVE_MESSAGE_TASK_USER_NO_EXIST.getCode(), message);
         }
         return ResultHolder.success("OK");
+    }
+
+    private void deleteUserData(MessageTaskRequest messageTaskRequest, String projectId) {
+        MessageTaskExample messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria().andReceiverNotIn(messageTaskRequest.getReceiverIds())
+                .andProjectIdEqualTo(projectId).andProjectRobotIdEqualTo(messageTaskRequest.getRobotId()).andTaskTypeEqualTo(messageTaskRequest.getTaskType()).andEventEqualTo(messageTaskRequest.getEvent());
+        List<MessageTask> delData = messageTaskMapper.selectByExample(messageTaskExample);
+        List<String> delIds = delData.stream().map(MessageTask::getId).toList();
+        if (CollectionUtils.isNotEmpty(delIds)) {
+            MessageTaskBlobExample messageTaskBlobExample = new MessageTaskBlobExample();
+            messageTaskBlobExample.createCriteria().andIdIn(delIds);
+            messageTaskBlobMapper.deleteByExample(messageTaskBlobExample);
+            messageTaskMapper.deleteByExample(messageTaskExample);
+        }
     }
 
     private void checkProjectExist(String projectId) {

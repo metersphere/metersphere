@@ -8,26 +8,19 @@ public interface NoticeConstants {
         //测试计划模块的任务
         @Schema(description = "message.test_plan_task")
         String TEST_PLAN_TASK = "TEST_PLAN_TASK";
-        @Schema(description = "message.schedule_task")
-        String TEST_PLAN_SCHEDULE_TASK = "TEST_PLAN_SCHEDULE_TASK";
         @Schema(description = "message.report_task")
         String TEST_PLAN_REPORT_TASK = "TEST_PLAN_REPORT_TASK";
 
         //缺陷管理模块的任务
         @Schema(description = "message.bug_task")
         String BUG_TASK = "BUG_TASK";
-        @Schema(description = "message.bug_task")
-        String BUG_TASK_AT = "BUG_TASK_AT";
         @Schema(description = "message.bug_sync_task")
         String BUG_SYNC_TASK = "BUG_SYNC_TASK";
-        @Schema(description = "message.schedule_task")
-        String BUG_SCHEDULE_TASK = "BUG_SCHEDULE_TASK";
+
 
         //用例管理模块的任务
         @Schema(description = "message.functional_case_task")
         String FUNCTIONAL_CASE_TASK = "FUNCTIONAL_CASE_TASK";
-        @Schema(description = "message.functional_case_task")
-        String FUNCTIONAL_CASE_TASK_AT = "FUNCTIONAL_CASE_TASK_AT";
         @Schema(description = "message.case_review_task")
         String CASE_REVIEW_TASK = "CASE_REVIEW_TASK";
 
@@ -36,8 +29,6 @@ public interface NoticeConstants {
         String API_DEFINITION_TASK = "API_DEFINITION_TASK";
         @Schema(description = "message.api_scenario_task")
         String API_SCENARIO_TASK = "API_SCENARIO_TASK";
-        @Schema(description = "message.schedule_task")
-        String API_SCHEDULE_TASK = "API_SCHEDULE_TASK";
         @Schema(description = "message.report_task")
         String API_REPORT_TASK = "API_REPORT_TASK";
 
@@ -46,30 +37,41 @@ public interface NoticeConstants {
         String UI_SCENARIO_TASK = "UI_SCENARIO_TASK";
         @Schema(description = "message.report_task")
         String UI_REPORT_TASK = "UI_REPORT_TASK";
-        @Schema(description = "message.schedule_task")
-        String UI_SCHEDULE_TASK = "UI_SCHEDULE_TASK";
 
         //性能测试模块的任务
         @Schema(description = "message.load_test_task")
         String LOAD_TEST_TASK = "LOAD_TEST_TASK";
         @Schema(description = "message.report_task")
         String LOAD_REPORT_TASK = "LOAD_REPORT_TASK";
-        @Schema(description = "message.schedule_task")
-        String LOAD_SCHEDULE_TASK = "LOAD_SCHEDULE_TASK";
 
         //jenkins任务
-        @Schema(description = "message.jenkins_ui_task")
-        String JENKINS_UI_TASK = "JENKINS_UI_TASK";
-        @Schema(description = "message.jenkins_api_scenario_task")
-        String JENKINS_API_SCENARIO_TASK = "JENKINS_API_SCENARIO_TASK";
-        @Schema(description = "message.jenkins_api_case_task")
-        String JENKINS_API_CASE_TASK = "JENKINS_API_CASE_TASK";
-        @Schema(description = "message.jenkins_load_case_task")
-        String JENKINS_LOAD_CASE_TASK = "JENKINS_LOAD_CASE_TASK";
-        @Schema(description = "message.jenkins_test_plan_task")
-        String JENKINS_TEST_PLAN_TASK = "JENKINS_TEST_PLAN_TASK";
+        @Schema(description = "message.jenkins_task")
+        String JENKINS_TASK = "JENKINS_TASK";
+
+        //定时任务
+        @Schema(description = "message.schedule_task")
+        String SCHEDULE_TASK = "SCHEDULE_TASK";
 
     }
+
+    interface TriggerMode {
+        //定时任务
+        @Schema(description = "message.schedule_task")
+        String SCHEDULE_TASK = "SCHEDULE_TASK";
+        //批量执行
+        @Schema(description = "message.batch_execution")
+        String BATCH_EXECUTION = "BATCH_EXECUTION";
+        //手动执行
+        @Schema(description = "message.manual_execution")
+        String MANUAL_EXECUTION = "MANUAL_EXECUTION";
+        //测试计划
+        @Schema(description = "message.test_plan_task")
+        String TEST_PLAN_TASK = "TEST_PLAN_TASK";
+        //jenkins任务
+        @Schema(description = "message.jenkins_task")
+        String JENKINS_TASK = "JENKINS_TASK";
+    }
+
 
     interface Mode {
         String SCHEDULE = "SCHEDULE";
@@ -97,6 +99,8 @@ public interface NoticeConstants {
         @Schema(description = "message.jenkins_task_management")
         String JENKINS_TASK_MANAGEMENT = "JENKINS_TASK_MANAGEMENT";
 
+        @Schema(description = "message.schedule_task_management")
+        String SCHEDULE_TASK_MANAGEMENT = "SCHEDULE_TASK_MANAGEMENT";
     }
 
     interface Type {
@@ -119,14 +123,41 @@ public interface NoticeConstants {
         @Schema(description = "message.delete")
         String DELETE = "DELETE";
 
+        @Schema(description = "message.execute_successful")
+        String EXECUTE_SUCCESSFUL = "EXECUTE_SUCCESSFUL";
+
+        @Schema(description = "message.execute_failed")
+        String EXECUTE_FAILED = "EXECUTE_FAILED";
+
         @Schema(description = "message.execute_completed")
         String EXECUTE_COMPLETED = "EXECUTE_COMPLETED";
 
         @Schema(description = "message.comment")
         String COMMENT = "COMMENT";
 
-        @Schema(description = "message.execute_review")
-        String EXECUTE_REVIEW = "EXECUTE_REVIEW";
+        @Schema(description = "message.at")
+        String AT = "AT";
+
+        @Schema(description = "message.replay")
+        String REPLAY = "REPLAY";
+
+        @Schema(description = "message.review_passed")
+        String REVIEW_PASSED = "REVIEW_PASSED";
+
+        @Schema(description = "message.review_fail")
+        String REVIEW_FAIL = "REVIEW_FAIL";
+
+        @Schema(description = "message.review_at")
+        String REVIEW_AT = "REVIEW_AT";
+
+        @Schema(description = "message.execute_passed")
+        String EXECUTE_PASSED = "EXECUTE_PASSED";
+
+        @Schema(description = "message.execute_fail")
+        String EXECUTE_FAIL = "EXECUTE_FAIL";
+
+        @Schema(description = "message.execute_at")
+        String EXECUTE_AT = "EXECUTE_AT";
 
         @Schema(description = "message.review_completed")
         String REVIEW_COMPLETED = "REVIEW_COMPLETED";
@@ -158,11 +189,11 @@ public interface NoticeConstants {
         @Schema(description = "message.scenario_execute_failed")
         String SCENARIO_EXECUTE_FAILED = "SCENARIO_EXECUTE_FAILED";
 
-        @Schema(description = "message.execute_successful")
-        String EXECUTE_SUCCESSFUL = "EXECUTE_SUCCESSFUL";
+        @Schema(description = "message.open")
+        String OPEN = "OPEN";
 
-        @Schema(description = "message.execute_failed")
-        String EXECUTE_FAILED = "EXECUTE_FAILED";
+        @Schema(description = "message.close")
+        String CLOSE = "CLOSE";
     }
 
     interface RelatedUser {
@@ -184,6 +215,7 @@ public interface NoticeConstants {
         String REPORT_FIELD = "REPORT_FIELD"; //报告字段
     }
 
+
     interface TemplateText {
         @Schema(description = "message.test_plan_task_create")
         String TEST_PLAN_TASK_CREATE = "TEST_PLAN_TASK_CREATE"; // ${OPERATOR}创建了测试计划:${name}
@@ -191,10 +223,10 @@ public interface NoticeConstants {
         String TEST_PLAN_TASK_UPDATE = "TEST_PLAN_TASK_UPDATE";// ${OPERATOR}更新了测试计划:${name}
         @Schema(description = "message.test_plan_task_delete")
         String TEST_PLAN_TASK_DELETE = "TEST_PLAN_TASK_DELETE";//${OPERATOR}删除了测试计划:${name}
-        @Schema(description = "message.test_plan_task_execute_completed")
-        String TEST_PLAN_TASK_EXECUTE_COMPLETED = "TEST_PLAN_TASK_EXECUTE_COMPLETED";//${OPERATOR}执行完成了测试计划:${name}
-        @Schema(description = "message.schedule_execute_completed_test_plan")
-        String TEST_PLAN_SCHEDULE_TASK_EXECUTE_COMPLETED = "TEST_PLAN_SCHEDULE_TASK_EXECUTE_COMPLETED";//${OPERATOR}通过定时任务执行了测试计划:${name}
+        @Schema(description = "message.test_plan_task_execute")
+        String TEST_PLAN_TASK_EXECUTE_SUCCESSFUL = "TEST_PLAN_TASK_EXECUTE_SUCCESSFUL";//${OPERATOR}执行了测试计划:${name}
+        @Schema(description = "message.test_plan_task_execute")
+        String TEST_PLAN_TASK_EXECUTE_FAILED = "TEST_PLAN_TASK_EXECUTE_FAILED";//${OPERATOR}通过定时任务执行了测试计划:${name}
         @Schema(description = "message.test_plan_report_task_delete")
         String TEST_PLAN_REPORT_TASK_DELETE = "TEST_PLAN_REPORT_TASK_DELETE";//${OPERATOR}删除了测试计划报告:${name}
 
@@ -207,13 +239,11 @@ public interface NoticeConstants {
         @Schema(description = "message.bug_task_comment")
         String BUG_TASK_COMMENT = "BUG_TASK_COMMENT";//${OPERATOR}评论了你的缺陷:${title}
         @Schema(description = "message.bug_task_at_comment")
-        String BUG_TASK_AT_COMMENT = "BUG_TASK_AT_COMMENT";//${OPERATOR}评论了缺陷:${title} 并@了你
+        String BUG_TASK_AT = "BUG_TASK_AT";//${OPERATOR}评论了缺陷:${title} 并@了你
         @Schema(description = "message.bug_task_reply_comment")
-        String BUG_TASK_REPLY_COMMENT = "BUG_TASK_REPLY_COMMENT";//${OPERATOR}在缺陷${title} 回复了你的评论
+        String BUG_TASK_REPLY = "BUG_TASK_REPLY";//${OPERATOR}在缺陷${title} 回复了你的评论
         @Schema(description = "message.bug_sync_task_execute_completed")
         String BUG_SYNC_TASK_EXECUTE_COMPLETED = "BUG_SYNC_TASK_EXECUTE_COMPLETED";//${OPERATOR}同步了${total}条缺陷
-        @Schema(description = "message.bug_schedule_task_execute_completed")
-        String BUG_SCHEDULE_TASK_EXECUTE_COMPLETED = "BUG_SCHEDULE_TASK_EXECUTE_COMPLETED";//${OPERATOR}通过定时任务同步了${total}条缺陷
 
         @Schema(description = "message.functional_case_task_create")
         String FUNCTIONAL_CASE_TASK_CREATE = "FUNCTIONAL_CASE_TASK_CREATE"; // ${OPERATOR}创建了功能用例:${name}
@@ -223,10 +253,22 @@ public interface NoticeConstants {
         String FUNCTIONAL_CASE_TASK_DELETE = "FUNCTIONAL_CASE_TASK_DELETE";//${OPERATOR}删除了功能用例:${name}
         @Schema(description = "message.functional_case_task_comment")
         String FUNCTIONAL_CASE_TASK_COMMENT = "FUNCTIONAL_CASE_TASK_COMMENT";//${OPERATOR}评论了你的功能用例:${name}
+        @Schema(description = "message.functional_case_task_review")
+        String FUNCTIONAL_CASE_TASK_REVIEW_PASSED = "FUNCTIONAL_CASE_TASK_REVIEW_PASSED";//${OPERATOR}评审了${reviewName}${name}
+        @Schema(description = "message.functional_case_task_review")
+        String FUNCTIONAL_CASE_TASK_REVIEW_FAIL = "FUNCTIONAL_CASE_TASK_REVIEW_FAIL";//${OPERATOR}评审了${reviewName}${name}
+        @Schema(description = "message.functional_case_task_review_at")
+        String FUNCTIONAL_CASE_TASK_REVIEW_AT = "FUNCTIONAL_CASE_TASK_REVIEW_AT";//${OPERATOR}在${reviewName}${name} @了你
+        @Schema(description = "message.functional_case_task_plan")
+        String FUNCTIONAL_CASE_TASK_EXECUTE_PASSED = "FUNCTIONAL_CASE_TASK_EXECUTE_PASSED";//${OPERATOR}评审了${testPlanName}${name}
+        @Schema(description = "message.functional_case_task_plan")
+        String FUNCTIONAL_CASE_TASK_EXECUTE_FAIL = "FUNCTIONAL_CASE_TASK_EXECUTE_FAIL";//${OPERATOR}评审了${testPlanName}${name}
+        @Schema(description = "message.functional_case_task_plan_at")
+        String FUNCTIONAL_CASE_TASK_EXECUTE_AT = "FUNCTIONAL_CASE_TASK_EXECUTE_AT";//${OPERATOR}在${testPlanName}${name}@了你
         @Schema(description = "message.functional_case_task_at_comment")
-        String FUNCTIONAL_CASE_TASK_AT_COMMENT = "FUNCTIONAL_CASE_TASK_AT_COMMENT";//${OPERATOR}评论了功能用例:${name} 并@了你
+        String FUNCTIONAL_CASE_TASK_AT = "FUNCTIONAL_CASE_TASK_AT";//${OPERATOR}评论了功能用例:${name} 并@了你
         @Schema(description = "message.functional_case_task_reply_comment")
-        String FUNCTIONAL_CASE_TASK_REPLY_COMMENT = "FUNCTIONAL_CASE_TASK_REPLY_COMMENT";//${OPERATOR}在用例${name} 回复了你的评论
+        String FUNCTIONAL_CASE_TASK_REPLY = "FUNCTIONAL_CASE_TASK_REPLY";//${OPERATOR}在用例${name} 回复了你的评论
 
         @Schema(description = "message.case_review_task_create")
         String CASE_REVIEW_TASK_CREATE = "CASE_REVIEW_TASK_CREATE"; // ${OPERATOR}创建了用例评审:${name}
@@ -234,10 +276,9 @@ public interface NoticeConstants {
         String CASE_REVIEW_TASK_UPDATE = "CASE_REVIEW_TASK_UPDATE";//${OPERATOR}更新了用例评审:${name}
         @Schema(description = "message.case_review_task_delete")
         String CASE_REVIEW_TASK_DELETE = "CASE_REVIEW_TASK_DELETE";//${OPERATOR}删除了用例评审:${name}
-        @Schema(description = "message.case_review_task_execute_review")
-        String CASE_REVIEW_TASK_EXECUTE_REVIEW = "CASE_REVIEW_TASK_EXECUTE_REVIEW";//${OPERATOR}评审了功能用例:${name}
         @Schema(description = "message.case_review_task_review_completed")
         String CASE_REVIEW_TASK_REVIEW_COMPLETED = "CASE_REVIEW_TASK_REVIEW_COMPLETED";//${OPERATOR}完成了用例评审:${name}
+
 
         @Schema(description = "message.api_definition_task_create")
         String API_DEFINITION_TASK_CREATE = "API_DEFINITION_TASK_CREATE";//${OPERATOR}创建了接口文档:${name}
@@ -270,8 +311,6 @@ public interface NoticeConstants {
         String API_SCENARIO_TASK_SCENARIO_EXECUTE_FAKE_ERROR = "API_SCENARIO_TASK_SCENARIO_EXECUTE_FAKE_ERROR";//${OPERATOR}执行了接口场景:${name}
         @Schema(description = "message.api_scenario_task_scenario_execute")
         String API_SCENARIO_TASK_SCENARIO_EXECUTE_FAILED = "API_SCENARIO_TASK_SCENARIO_EXECUTE_FAILED";//${OPERATOR}执行了接口场景:${name}
-        @Schema(description = "message.api_schedule_task_execute_completed")
-        String API_SCHEDULE_TASK_EXECUTE_COMPLETED = "API_SCHEDULE_TASK_EXECUTE_COMPLETED";//${OPERATOR}通过定时任务执行了接口场景:${name}
         @Schema(description = "message.api_report_task_delete")
         String API_REPORT_TASK_DELETE = "API_REPORT_TASK_DELETE";//${OPERATOR}删除了接口报告:${name}
 
@@ -285,8 +324,6 @@ public interface NoticeConstants {
         String UI_SCENARIO_TASK_EXECUTE_SUCCESSFUL = "UI_SCENARIO_TASK_EXECUTE_SUCCESSFUL";//${OPERATOR}执行了UI用例:${name}
         @Schema(description = "message.ui_scenario_task_execute")
         String UI_SCENARIO_TASK_EXECUTE_FAILED = "UI_SCENARIO_TASK_EXECUTE_FAILED";//${OPERATOR}执行了UI用例:${name}
-        @Schema(description = "message.ui_schedule_task_execute_completed")
-        String UI_SCHEDULE_TASK_EXECUTE_COMPLETED = "UI_SCHEDULE_TASK_EXECUTE_COMPLETED";//${OPERATOR}通过定时任务执行了UI用例:${name}
         @Schema(description = "message.ui_report_task_delete")
         String UI_REPORT_TASK_DELETE = "UI_REPORT_TASK_DELETE";//${OPERATOR}删除了UI报告:${name}
 
@@ -298,31 +335,18 @@ public interface NoticeConstants {
         String LOAD_TEST_TASK_DELETE = "LOAD_TEST_TASK_DELETE";//${OPERATOR}删除了性能用例:${name}
         @Schema(description = "message.load_test_task_execute_completed")
         String LOAD_TEST_TASK_EXECUTE_COMPLETED = "LOAD_TEST_TASK_EXECUTE_COMPLETED";//${OPERATOR}执行了性能用例:${name}
-        @Schema(description = "message.load_schedule_task_execute_completed")
-        String LOAD_SCHEDULE_TASK_EXECUTE_COMPLETED = "LOAD_SCHEDULE_TASK_EXECUTE_COMPLETED";//${OPERATOR}通过定时任务执行了性能用例:${name}
         @Schema(description = "message.load_report_task_delete")
         String LOAD_REPORT_TASK_DELETE = "LOAD_REPORT_TASK_DELETE";//${OPERATOR}删除了性能报告:${name}
 
-        @Schema(description = "message.jenkins_api_scenario_task_execute")
-        String JENKINS_API_SCENARIO_TASK_EXECUTE_SUCCESSFUL = "JENKINS_API_SCENARIO_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了接口场景:${name}
-        @Schema(description = "message.jenkins_api_scenario_task_execute")
-        String JENKINS_API_SCENARIO_TASK_EXECUTE_FAILED = "JENKINS_API_SCENARIO_TASK_EXECUTE_FAILED";//Jenkins执行了接口场景:${name}
-        @Schema(description = "message.jenkins_api_case_task_execute")
-        String JENKINS_API_CASE_TASK_EXECUTE_SUCCESSFUL = "JENKINS_API_CASE_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了接口用例:${name}
-        @Schema(description = "message.jenkins_api_case_task_execute")
-        String JENKINS_API_CASE_TASK_EXECUTE_FAILED = "JENKINS_API_CASE_TASK_EXECUTE_FAILED";//Jenkins执行了接口用例:${name}
-        @Schema(description = "message.jenkins_load_case_task_execute")
-        String JENKINS_LOAD_CASE_TASK_EXECUTE_SUCCESSFUL = "JENKINS_LOAD_CASE_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了性能用例:${name}
-        @Schema(description = "message.jenkins_load_case_task_execute")
-        String JENKINS_LOAD_CASE_TASK_EXECUTE_FAILED = "JENKINS_LOAD_CASE_TASK_EXECUTE_FAILED";//Jenkins执行了性能用例:${name}
-        @Schema(description = "message.jenkins_test_plan_task_execute")
-        String JENKINS_TEST_PLAN_TASK_EXECUTE_SUCCESSFUL = "JENKINS_TEST_PLAN_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了测试计划:${name}
-        @Schema(description = "message.jenkins_test_plan_task_execute")
-        String JENKINS_TEST_PLAN_TASK_EXECUTE_FAILED = "JENKINS_TEST_PLAN_TASK_EXECUTE_FAILED";//Jenkins执行了测试计划:${name}
-        @Schema(description = "message.jenkins_ui_task_execute")
-        String JENKINS_UI_TASK_EXECUTE_SUCCESSFUL = "JENKINS_UI_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了UI用例:${name}
-        @Schema(description = "message.jenkins_ui_task_execute")
-        String JENKINS_UI_TASK_EXECUTE_FAILED = "JENKINS_UI_TASK_EXECUTE_FAILED";//Jenkins执行了UI用例:${name}
+        @Schema(description = "message.jenkins_task_execute")
+        String JENKINS_TASK_EXECUTE_SUCCESSFUL = "JENKINS_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了接口场景:${name}
+        @Schema(description = "message.jenkins_task_execute")
+        String JENKINS_TASK_EXECUTE_FAILED = "JENKINS_TASK_EXECUTE_FAILED";//Jenkins执行了接口场景:${name}
+
+        @Schema(description = "message.schedule_task_open")
+        String SCHEDULE_TASK_OPEN = "SCHEDULE_TASK_OPEN";//Jenkins执行了接口场景:${name}
+        @Schema(description = "message.schedule_task_close")
+        String SCHEDULE_TASK_CLOSE = "SCHEDULE_TASK_CLOSE";//Jenkins执行了接口场景:${name}
 
     }
 
@@ -333,10 +357,10 @@ public interface NoticeConstants {
         String TEST_PLAN_TASK_UPDATE = "TEST_PLAN_TASK_UPDATE";// 测试计划更新通知
         @Schema(description = "message.title.test_plan_task_delete")
         String TEST_PLAN_TASK_DELETE = "TEST_PLAN_TASK_DELETE";//测试计划删除通知
-        @Schema(description = "message.title.test_plan_task_execute_completed")//测试计划执行完成通知
-        String TEST_PLAN_TASK_EXECUTE_COMPLETED = "TEST_PLAN_TASK_EXECUTE_COMPLETED";
-        @Schema(description = "message.title.test_plan_task_execute_completed")//测试计划执行完成通知
-        String TEST_PLAN_SCHEDULE_TASK_EXECUTE_COMPLETED = "TEST_PLAN_SCHEDULE_TASK_EXECUTE_COMPLETED";
+        @Schema(description = "message.title.test_plan_task_execute_success")//测试计划执行成功通知
+        String TEST_PLAN_TASK_EXECUTE_SUCCESSFUL = "TEST_PLAN_TASK_EXECUTE_SUCCESSFUL";
+        @Schema(description = "message.title.test_plan_task_execute_failed")//测试计划执行失败通知
+        String TEST_PLAN_TASK_EXECUTE_FAILED = "TEST_PLAN_TASK_EXECUTE_FAILED";
         @Schema(description = "message.title.test_plan_report_task_delete")//测试计划报告删除通知
         String TEST_PLAN_REPORT_TASK_DELETE = "TEST_PLAN_REPORT_TASK_DELETE";
 
@@ -349,11 +373,12 @@ public interface NoticeConstants {
         @Schema(description = "message.title.bug_task_comment")//缺陷评论通知
         String BUG_TASK_COMMENT = "BUG_TASK_COMMENT";
         @Schema(description = "message.title.bug_task_comment")//缺陷评论通知
-        String BUG_TASK_AT_COMMENT = "BUG_TASK_AT_COMMENT";
+        String BUG_TASK_AT = "BUG_TASK_AT";
+        @Schema(description = "message.title.bug_task_comment")//缺陷评论通知
+        String BUG_TASK_REPLY = "BUG_TASK_REPLY";
         @Schema(description = "message.title.bug_sync_task_execute_completed")//同步缺陷执行完成通知
         String BUG_SYNC_TASK_EXECUTE_COMPLETED = "BUG_SYNC_TASK_EXECUTE_COMPLETED";
-        @Schema(description = "message.title.bug_sync_task_execute_completed")//同步缺陷执行完成通知
-        String BUG_SCHEDULE_TASK_EXECUTE_COMPLETED = "BUG_SCHEDULE_TASK_EXECUTE_COMPLETED";
+
 
         @Schema(description = "message.title.functional_case_task_create")//功能用例创建通知
         String FUNCTIONAL_CASE_TASK_CREATE = "FUNCTIONAL_CASE_TASK_CREATE";
@@ -363,8 +388,23 @@ public interface NoticeConstants {
         String FUNCTIONAL_CASE_TASK_DELETE = "FUNCTIONAL_CASE_TASK_DELETE";
         @Schema(description = "message.title.functional_case_task_comment")//功能用例评论通知
         String FUNCTIONAL_CASE_TASK_COMMENT = "FUNCTIONAL_CASE_TASK_COMMENT";
-        @Schema(description = "message.title.functional_case_task_comment")//功能用例评论通知
-        String FUNCTIONAL_CASE_TASK_AT_COMMENT = "FUNCTIONAL_CASE_TASK_AT_COMMENT";
+        @Schema(description = "message.title.functional_case_task_comment")
+        String FUNCTIONAL_CASE_TASK_AT = "FUNCTIONAL_CASE_TASK_AT";//功能用例评论通知
+        @Schema(description = "message.title.functional_case_task_comment")
+        String FUNCTIONAL_CASE_TASK_REPLY = "FUNCTIONAL_CASE_TASK_REPLY";//功能用例评论通知
+        @Schema(description = "message.title.functional_case_task_review_passed")
+        String FUNCTIONAL_CASE_TASK_REVIEW_PASSED = "FUNCTIONAL_CASE_TASK_REVIEW_PASSED";//用例评审通过通知
+        @Schema(description = "message.title.functional_case_task_review_fail")
+        String FUNCTIONAL_CASE_TASK_REVIEW_FAIL = "FUNCTIONAL_CASE_TASK_REVIEW_FAIL";//用例评审不通过通知
+        @Schema(description = "message.title.functional_case_task_review_at")
+        String FUNCTIONAL_CASE_TASK_REVIEW_AT = "FUNCTIONAL_CASE_TASK_REVIEW_AT";//用例评审通知
+        @Schema(description = "message.title.functional_case_task_execute_passed")
+        String FUNCTIONAL_CASE_TASK_EXECUTE_PASSED = "FUNCTIONAL_CASE_TASK_EXECUTE_PASSED";//用例执行通过通知
+        @Schema(description = "message.title.functional_case_task_execute_fail")
+        String FUNCTIONAL_CASE_TASK_EXECUTE_FAIL = "FUNCTIONAL_CASE_TASK_EXECUTE_FAIL";//用例执行不通过通知
+        @Schema(description = "message.title.functional_case_task_execute_at")
+        String FUNCTIONAL_CASE_TASK_EXECUTE_AT = "FUNCTIONAL_CASE_TASK_EXECUTE_AT";//用例执行通知
+
 
         @Schema(description = "message.title.case_review_task_create")//用例评审创建通知
         String CASE_REVIEW_TASK_CREATE = "CASE_REVIEW_TASK_CREATE";
@@ -372,10 +412,9 @@ public interface NoticeConstants {
         String CASE_REVIEW_TASK_UPDATE = "CASE_REVIEW_TASK_UPDATE";
         @Schema(description = "message.title.case_review_task_delete")//用例评审删除通知
         String CASE_REVIEW_TASK_DELETE = "CASE_REVIEW_TASK_DELETE";
-        @Schema(description = "message.title.case_review_task_execute_review")//用例评审执行通知
-        String CASE_REVIEW_TASK_EXECUTE_REVIEW = "CASE_REVIEW_TASK_EXECUTE_REVIEW";
         @Schema(description = "message.title.case_review_task_review_completed")//用例评审评审完成通知
         String CASE_REVIEW_TASK_REVIEW_COMPLETED = "CASE_REVIEW_TASK_REVIEW_COMPLETED";
+
 
         @Schema(description = "message.title.api_definition_task_create")//接口文档创建通知
         String API_DEFINITION_TASK_CREATE = "API_DEFINITION_TASK_CREATE";
@@ -408,8 +447,6 @@ public interface NoticeConstants {
         String API_SCENARIO_TASK_SCENARIO_EXECUTE_FAKE_ERROR = "API_SCENARIO_TASK_SCENARIO_EXECUTE_FAKE_ERROR";
         @Schema(description = "message.title.api_scenario_task_scenario_execute_failed")//接口场景执行失败通知
         String API_SCENARIO_TASK_SCENARIO_EXECUTE_FAILED = "API_SCENARIO_TASK_SCENARIO_EXECUTE_FAILED";
-        @Schema(description = "message.title.api_schedule_task_execute_completed")//接口场景执行完成通知
-        String API_SCHEDULE_TASK_EXECUTE_COMPLETED = "API_SCHEDULE_TASK_EXECUTE_COMPLETED";
         @Schema(description = "message.title.api_report_task_delete")//接口报告删除通知
         String API_REPORT_TASK_DELETE = "API_REPORT_TASK_DELETE";
 
@@ -423,8 +460,6 @@ public interface NoticeConstants {
         String UI_SCENARIO_TASK_EXECUTE_SUCCESSFUL = "UI_SCENARIO_TASK_EXECUTE_SUCCESSFUL";
         @Schema(description = "message.title.ui_scenario_task_execute_failed")//UI用例执行失败通知
         String UI_SCENARIO_TASK_EXECUTE_FAILED = "UI_SCENARIO_TASK_EXECUTE_FAILED";
-        @Schema(description = "message.title.ui_schedule_task_execute_completed")//UI执行完成通知
-        String UI_SCHEDULE_TASK_EXECUTE_COMPLETED = "UI_SCHEDULE_TASK_EXECUTE_COMPLETED";
         @Schema(description = "message.title.ui_report_task_delete")//UI报告删除通知
         String UI_REPORT_TASK_DELETE = "UI_REPORT_TASK_DELETE";
 
@@ -436,8 +471,6 @@ public interface NoticeConstants {
         String LOAD_TEST_TASK_DELETE = "LOAD_TEST_TASK_DELETE";
         @Schema(description = "message.title.load_test_task_execute_completed")//性能用例执行完成通知
         String LOAD_TEST_TASK_EXECUTE_COMPLETED = "LOAD_TEST_TASK_EXECUTE_COMPLETED";
-        @Schema(description = "message.title.load_test_task_execute_completed")//性能用例执行完成通知
-        String LOAD_SCHEDULE_TASK_EXECUTE_COMPLETED = "LOAD_SCHEDULE_TASK_EXECUTE_COMPLETED";
         @Schema(description = "message.title.load_report_task_delete")//性能报告删除通知
         String LOAD_REPORT_TASK_DELETE = "LOAD_REPORT_TASK_DELETE";
 
@@ -446,26 +479,11 @@ public interface NoticeConstants {
         @Schema(description = "message.title.jenkins_task_execute_failed")//Jenkins任务执行失败通知
         String JENKINS_TASK_EXECUTE_FAILED = "JENKINS_TASK_EXECUTE_FAILED";
 
-        @Schema(description = "message.title.jenkins_api_scenario_task_execute_successful")
-        String JENKINS_API_SCENARIO_TASK_EXECUTE_SUCCESSFUL = "JENKINS_API_SCENARIO_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行接口场景成功通知
-        @Schema(description = "message.title.jenkins_api_scenario_task_execute_failed")
-        String JENKINS_API_SCENARIO_TASK_EXECUTE_FAILED = "JENKINS_API_SCENARIO_TASK_EXECUTE_FAILED";//Jenkins执行接口场景失败通知
-        @Schema(description = "message.title.jenkins_api_case_task_execute_successful")
-        String JENKINS_API_CASE_TASK_EXECUTE_SUCCESSFUL = "JENKINS_API_CASE_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行接口用例成功通知
-        @Schema(description = "message.title.jenkins_api_case_task_execute_failed")
-        String JENKINS_API_CASE_TASK_EXECUTE_FAILED = "JENKINS_API_CASE_TASK_EXECUTE_FAILED";//Jenkins执行接口用例失败通知
-        @Schema(description = "message.title.jenkins_load_case_task_execute_successful")
-        String JENKINS_LOAD_CASE_TASK_EXECUTE_SUCCESSFUL = "JENKINS_LOAD_CASE_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行性能用例成功通知
-        @Schema(description = "message.title.jenkins_load_case_task_execute_failed")
-        String JENKINS_LOAD_CASE_TASK_EXECUTE_FAILED = "JENKINS_LOAD_CASE_TASK_EXECUTE_FAILED";//Jenkins执行性能用例失败通知
-        @Schema(description = "message.title.jenkins_test_plan_task_execute_successful")
-        String JENKINS_TEST_PLAN_TASK_EXECUTE_SUCCESSFUL = "JENKINS_TEST_PLAN_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行测试计划成功通知
-        @Schema(description = "message.title.jenkins_test_plan_task_execute_failed")
-        String JENKINS_TEST_PLAN_TASK_EXECUTE_FAILED = "JENKINS_TEST_PLAN_TASK_EXECUTE_FAILED";//Jenkins执行测试计划失败通知
-        @Schema(description = "message.title.jenkins_ui_task_execute_successful")
-        String JENKINS_UI_TASK_EXECUTE_SUCCESSFUL = "JENKINS_UI_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行UI用例成功通知
-        @Schema(description = "message.title.jenkins_ui_task_execute_failed")
-        String JENKINS_UI_TASK_EXECUTE_FAILED = "JENKINS_UI_TASK_EXECUTE_FAILED";//Jenkins执行UI用例失败通知
+        @Schema(description = "message.title.schedule_task_open")//定时任务开启通知
+        String SCHEDULE_TASK_OPEN = "SCHEDULE_TASK_OPEN";
+        @Schema(description = "message.title.schedule_task_close")//定时任务关闭通知
+        String SCHEDULE_TASK_CLOSE = "SCHEDULE_TASK_CLOSE";
+
     }
 
     interface SensitiveField {

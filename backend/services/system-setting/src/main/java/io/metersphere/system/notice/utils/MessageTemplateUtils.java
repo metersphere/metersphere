@@ -8,6 +8,7 @@ import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.ui.domain.UiScenario;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -135,15 +136,15 @@ public class MessageTemplateUtils {
     public static Field[] getDomainTemplateFields(String taskType) {
         Field[] allFields;
         switch (taskType) {
-            case NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.TaskType.JENKINS_API_CASE_TASK -> {
+            case NoticeConstants.TaskType.API_DEFINITION_TASK -> {
                 allFields = FieldUtils.getAllFields(ApiDefinition.class);
 
             }
-            case NoticeConstants.TaskType.API_SCENARIO_TASK, NoticeConstants.TaskType.API_SCHEDULE_TASK, NoticeConstants.TaskType.JENKINS_API_SCENARIO_TASK -> {
+            case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
                 allFields = FieldUtils.getAllFields(ApiScenario.class);
 
             }
-            case NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.TaskType.JENKINS_TEST_PLAN_TASK -> {
+            case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
                 allFields = FieldUtils.getAllFields(TestPlan.class);
 
             }
@@ -156,11 +157,14 @@ public class MessageTemplateUtils {
             case NoticeConstants.TaskType.BUG_TASK -> {
                 allFields = FieldUtils.getAllFields(Bug.class);
             }
-            case NoticeConstants.TaskType.UI_SCENARIO_TASK, NoticeConstants.TaskType.JENKINS_UI_TASK -> {
+            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
                 allFields = FieldUtils.getAllFields(UiScenario.class);
             }
-            case NoticeConstants.TaskType.LOAD_TEST_TASK, NoticeConstants.TaskType.JENKINS_LOAD_CASE_TASK -> {
+            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
                 allFields = FieldUtils.getAllFields(LoadTest.class);
+            }
+            case NoticeConstants.TaskType.SCHEDULE_TASK -> {
+                allFields = FieldUtils.getAllFields(Schedule.class);
             }
             default -> allFields = new Field[0];
         }
@@ -196,24 +200,31 @@ public class MessageTemplateUtils {
     }
 
     public static String getTranslateTemplate(String taskType, String template) {
-        Field[] domainTemplateFields = getDomainTemplateFields(taskType);
-        Map<String, Object> map = new HashMap<>();
-        if (StringUtils.isNotBlank(template) && template.contains("${OPERATOR}")) {
-            template = template.replace("${OPERATOR}", "<"+Translator.get("message.operator")+">");
-        }
-        if (StringUtils.isNotBlank(template) && template.contains("${total}")) {
-            template = template.replace("${total}", "<n>");
-        }
-        for (Field allField : domainTemplateFields) {
-            Schema annotation = allField.getAnnotation(Schema.class);
-            if (annotation != null) {
-                String description = annotation.description();
-                if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
-                    description = "{{" + description + "}}";
-                }
-                map.put(allField.getName(), description);
+        if (StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.JENKINS_TASK)) {
+            if (StringUtils.isNotBlank(template) && template.contains("${name}")) {
+                template = template.replace("${name}", "<"+Translator.get("message.jenkins_name")+">");
             }
+            return template;
+        } else {
+            Field[] domainTemplateFields = getDomainTemplateFields(taskType);
+            Map<String, Object> map = new HashMap<>();
+            if (StringUtils.isNotBlank(template) && template.contains("${OPERATOR}")) {
+                template = template.replace("${OPERATOR}", "<"+Translator.get("message.operator")+">");
+            }
+            if (StringUtils.isNotBlank(template) && template.contains("${total}")) {
+                template = template.replace("${total}", "<n>");
+            }
+            for (Field allField : domainTemplateFields) {
+                Schema annotation = allField.getAnnotation(Schema.class);
+                if (annotation != null) {
+                    String description = annotation.description();
+                    if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
+                        description = "{{" + description + "}}";
+                    }
+                    map.put(allField.getName(), description);
+                }
+            }
+            return getContent(template, map);
         }
-        return getContent(template, map);
     }
 }

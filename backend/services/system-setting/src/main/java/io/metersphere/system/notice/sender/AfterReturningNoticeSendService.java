@@ -5,6 +5,7 @@ import io.metersphere.sdk.dto.BaseSystemConfigDTO;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.NoticeModel;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import io.metersphere.system.service.NoticeSendService;
 import io.metersphere.system.service.SystemParameterService;
@@ -32,9 +33,11 @@ public class AfterReturningNoticeSendService {
         for (Map resource : resources) {
             Map paramMap = new HashMap<>();
             paramMap.put("url", baseSystemConfigDTO.getUrl());
-            paramMap.put("operator", sessionUser.getName());
+            paramMap.put(NoticeConstants.RelatedUser.OPERATOR, sessionUser.getName());
             paramMap.putAll(resource);
             paramMap.putIfAbsent("projectId", currentProjectId);
+            //TODO: 加来源处理
+
             // 占位符
             handleDefaultValues(paramMap);
 

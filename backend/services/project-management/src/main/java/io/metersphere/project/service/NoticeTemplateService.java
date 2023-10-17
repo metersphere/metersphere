@@ -1,13 +1,12 @@
 package io.metersphere.project.service;
 
-import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiScenario;
-import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.functional.domain.CaseReview;
-import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.project.dto.ApiDefinitionCaseDTO;
+import io.metersphere.project.dto.FunctionalCaseMessageDTO;
 import io.metersphere.project.dto.MessageTemplateFieldDTO;
 import io.metersphere.project.dto.MessageTemplateResultDTO;
 import io.metersphere.sdk.constants.TemplateScene;
@@ -15,6 +14,7 @@ import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
+import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
@@ -42,20 +42,18 @@ public class NoticeTemplateService {
     public List<MessageTemplateFieldDTO> getDomainTemplateFields(String projectId, String taskType) {
         List<MessageTemplateFieldDTO> messageTemplateFieldDTOList = new ArrayList<>();
         switch (taskType) {
-            case NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.TaskType.JENKINS_API_CASE_TASK -> {
-                Field[] allFields = FieldUtils.getAllFields(ApiDefinition.class);
+            case NoticeConstants.TaskType.API_DEFINITION_TASK -> {
+                Field[] allFields = FieldUtils.getAllFields(ApiDefinitionCaseDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields);
-                Field[] allCaseFields = FieldUtils.getAllFields(ApiTestCase.class);
-                addOptionDto(messageTemplateFieldDTOList, allCaseFields);
                 addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.API.toString());
                 //TODO：获取报告
             }
-            case NoticeConstants.TaskType.API_SCENARIO_TASK, NoticeConstants.TaskType.API_SCHEDULE_TASK, NoticeConstants.TaskType.JENKINS_API_SCENARIO_TASK -> {
+            case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(ApiScenario.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields);
                 //TODO：获取报告
             }
-            case NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.TaskType.JENKINS_TEST_PLAN_TASK -> {
+            case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(TestPlan.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields);
                 addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.TEST_PLAN.toString());
@@ -67,7 +65,7 @@ public class NoticeTemplateService {
                 //TODO：获取报告
             }
             case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> {
-                Field[] allFields = FieldUtils.getAllFields(FunctionalCase.class);
+                Field[] allFields = FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields);
                 addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.FUNCTIONAL.toString());
                 //TODO：获取报告
@@ -78,15 +76,28 @@ public class NoticeTemplateService {
                 addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.BUG.toString());
                 //TODO：获取报告
             }
-            case NoticeConstants.TaskType.UI_SCENARIO_TASK, NoticeConstants.TaskType.JENKINS_UI_TASK -> {
+            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(UiScenario.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields);
                 addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.UI.toString());
                 //TODO：获取报告
             }
-            case NoticeConstants.TaskType.LOAD_TEST_TASK, NoticeConstants.TaskType.JENKINS_LOAD_CASE_TASK -> {
+            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(LoadTest.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields);
+                //TODO：获取报告
+            }
+            case NoticeConstants.TaskType.SCHEDULE_TASK -> {
+                Field[] allFields = FieldUtils.getAllFields(Schedule.class);
+                addOptionDto(messageTemplateFieldDTOList, allFields);
+                //TODO：获取报告
+            }
+            case NoticeConstants.TaskType.JENKINS_TASK -> {
+                MessageTemplateFieldDTO messageTemplateFieldOperator = new MessageTemplateFieldDTO();
+                messageTemplateFieldOperator.setId("JENKINS_NAME");
+                messageTemplateFieldOperator.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
+                messageTemplateFieldOperator.setName(Translator.get("message.jenkins_name"));
+                messageTemplateFieldDTOList.add(messageTemplateFieldOperator);
                 //TODO：获取报告
             }
             default -> messageTemplateFieldDTOList = new ArrayList<>();
@@ -151,6 +162,11 @@ public class NoticeTemplateService {
         messageTemplateFieldFollow.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
         messageTemplateFieldFollow.setName(Translator.get("message.follow_people"));
         messageTemplateFieldDTOS.add(messageTemplateFieldFollow);
+        MessageTemplateFieldDTO messageTemplateFieldTriggerMode = new MessageTemplateFieldDTO();
+        messageTemplateFieldTriggerMode.setId("TRIGGER_MODE");
+        messageTemplateFieldOperator.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
+        messageTemplateFieldOperator.setName(Translator.get("message.trigger_mode"));
+        messageTemplateFieldDTOS.add(messageTemplateFieldOperator);
     }
 
     public MessageTemplateResultDTO getTemplateFields(String projectId, String taskType) {
