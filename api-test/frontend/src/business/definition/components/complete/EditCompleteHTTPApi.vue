@@ -1207,8 +1207,11 @@ export default {
 .ms-opt-btn {
   position: fixed;
   right: 10px !important;
-  z-index: 1;
+  z-index: 9999;
   top: 85px;
+  float: right;
+  margin-right: 20px;
+  margin-top: 5px
 }
 
 /*.base-info .el-form-item :deep(.el-form-item__content) {*/
