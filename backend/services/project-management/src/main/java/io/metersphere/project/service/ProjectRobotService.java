@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -105,11 +106,26 @@ public class ProjectRobotService {
         criteria.andProjectIdEqualTo(projectId);
         projectExample.setOrderByClause("create_time desc");
         List<ProjectRobot> projectRobots = robotMapper.selectByExample(projectExample);
-        for (ProjectRobot projectRobot : projectRobots) {
+        Integer inSiteIndex = 0;
+        Integer mailIndex = 0;
+        for (int i = 0; i < projectRobots.size(); i++) {
+            ProjectRobot projectRobot = projectRobots.get(i);
+            if (StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), ProjectRobotPlatform.IN_SITE.toString())) {
+                inSiteIndex = i;
+            }
+            if (StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), ProjectRobotPlatform.MAIL.toString())) {
+                mailIndex = i;
+            }
             if ((StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), ProjectRobotPlatform.IN_SITE.toString()) || StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), ProjectRobotPlatform.MAIL.toString())) && StringUtils.isNotBlank(projectRobot.getDescription())) {
                 projectRobot.setDescription(Translator.get(projectRobot.getDescription()));
                 projectRobot.setName(Translator.get(projectRobot.getName()));
             }
+        }
+        if (projectRobots.size()>0 && inSiteIndex != 0) {
+            Collections.swap(projectRobots, inSiteIndex, 0);
+        }
+        if (projectRobots.size()>1 && mailIndex != 1) {
+            Collections.swap(projectRobots, mailIndex, 1);
         }
         return projectRobots;
     }
