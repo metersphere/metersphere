@@ -43,6 +43,8 @@ public class MessageTemplateUtilsTests {
                 if (StringUtils.isNotBlank(template)) {
                     String translateTemplate = MessageTemplateUtils.getTranslateTemplate(type, template);
                     Assertions.assertTrue(StringUtils.isNotBlank(translateTemplate));
+                    String translateSubject= MessageTemplateUtils.getTranslateSubject(type, template);
+                    Assertions.assertTrue(StringUtils.isNotBlank(translateSubject));
                 }
             });
 

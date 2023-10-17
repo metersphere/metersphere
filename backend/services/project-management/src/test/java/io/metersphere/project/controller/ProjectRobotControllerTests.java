@@ -13,6 +13,7 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.dto.request.MessageTaskRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -30,12 +31,15 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -186,7 +190,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(8)
     void updateRobotSuccessCusTom() throws Exception {
-        setCustomRobot("用于更新自定义机器人");
+        setCustomRobot("用于更新自定义机器人","test_project");
         ProjectRobot projectRobot = getRobot("test_project", "用于更新自定义机器人");
         checkUpdate(projectRobot, "更新自定义机器人", status().isOk());
     }
@@ -210,7 +214,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(11)
     void updateRobotFileIdNotExist() throws Exception {
-        setCustomRobot("测试没有ID失败");
+        setCustomRobot("测试没有ID失败","test_project");
         ProjectRobot projectRobot = getRobot("test_project", "测试没有ID失败");
         projectRobot.setId("noId");
         checkUpdate(projectRobot, "测试没有ID失败", status().is5xxServerError());
@@ -219,7 +223,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(12)
     void updateRobotFileIdNoId() throws Exception {
-        setCustomRobot("测试ID空失败");
+        setCustomRobot("测试ID空失败","test_project");
         ProjectRobot projectRobot = getRobot("test_project", "测试ID空失败");
         projectRobot.setId(null);
         checkUpdate(projectRobot, "测试ID空失败", status().isBadRequest());
@@ -255,7 +259,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(16)
     void deleteRobotSuccess() throws Exception {
-        setCustomRobot("测试删除");
+        setCustomRobot("测试删除","test_project");
         ProjectRobot projectRobot = getRobot("test_project", "测试删除");
         String projectRobotId = projectRobot.getId();
         mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_DELETE + "/" + projectRobotId)
@@ -292,9 +296,9 @@ public class ProjectRobotControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(16)
+    @Order(19)
     void getDetailSuccess() throws Exception {
-        setCustomRobot("测试获取详情");
+        setCustomRobot("测试获取详情","test_project");
         ProjectRobot projectRobot = getRobot("test_project", "测试获取详情");
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_DETAIL + "/" + projectRobot.getId())
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -307,43 +311,78 @@ public class ProjectRobotControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(17)
+    @Order(20)
     void getListSuccessNoKeyword() throws Exception {
         List<ProjectRobot> projectRobots = getList("test_project");
         Assertions.assertTrue(projectRobots.size() > 0);
     }
 
     @Test
-    @Order(18)
+    @Order(21)
+    @Sql(scripts = {"/dml/init_project_robot_message.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     void setEnableSuccess() throws Exception {
-        setCustomRobot("测试Enable");
-        ProjectRobot projectRobot = getRobot("test_project","测试Enable");
+        setCustomRobot("测试Enable","project-robot-message-test-1");
+        ProjectRobot projectRobot = getRobot("project-robot-message-test-1","测试Enable");
         String projectRobotId = projectRobot.getId();
+        MessageTaskRequest messageTaskRequest = new MessageTaskRequest();
+        messageTaskRequest.setProjectId("project-robot-message-test-1");
+        messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
+        messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
+        List<String> userIds = new ArrayList<>();
+        userIds.add("project-robot-message-user-3");
+        userIds.add("project-robot-message-user-4");
+        userIds.add("project-robot-message-user-del");
+        messageTaskRequest.setReceiverIds(userIds);
+        messageTaskRequest.setRobotId(projectRobotId);
+        messageTaskRequest.setEnable(true);
+        mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(messageTaskRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_ENABLE + "/" + projectRobotId)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-        ProjectRobot projectRobotEnable = getRobot("test_project","测试Enable");
+        ProjectRobot projectRobotEnable = getRobot("project-robot-message-test-1","测试Enable");
         Assertions.assertFalse(projectRobotEnable.getEnable());
+        MvcResult mvcResult1 = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/task/get/project-robot-message-test-1")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult1.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<MessageTaskDTO> messageTaskDetailDTOList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
+        for (MessageTaskDTO messageTaskDTO : messageTaskDetailDTOList) {
+            for (MessageTaskTypeDTO messageTaskTypeDTO : messageTaskDTO.getMessageTaskTypeDTOList()) {
+                if (StringUtils.equalsIgnoreCase(messageTaskTypeDTO.getTaskType(),NoticeConstants.TaskType.API_DEFINITION_TASK)) {
+                    Boolean testRobotMessageRobot1 = messageTaskTypeDTO.getMessageTaskDetailDTOList().get(0).getProjectRobotConfigMap().get(projectRobotId).getEnable();
+                    Assertions.assertTrue(testRobotMessageRobot1);
+                }
+            }
+        }
     }
 
     @Test
-    @Order(19)
+    @Order(22)
     void setEnableFalseSuccess() throws Exception {
-        ProjectRobot projectRobot = getRobot("test_project","测试Enable");
+        ProjectRobot projectRobot = getRobot("project-robot-message-test-1","测试Enable");
         String projectRobotId = projectRobot.getId();
         mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_ENABLE + "/" + projectRobotId)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-        ProjectRobot projectRobotEnable = getRobot("test_project","测试Enable");
+        ProjectRobot projectRobotEnable = getRobot("project-robot-message-test-1","测试Enable");
         Assertions.assertTrue(projectRobotEnable.getEnable());
     }
 
     @Test
-    @Order(20)
+    @Order(23)
     void setEnableFail() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_ENABLE + "/no_id")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -354,7 +393,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(21)
+    @Order(24)
     void deleteRobotWithMessage() throws Exception {
         Project project = new Project();
         project.setId("test_project1");
@@ -396,11 +435,11 @@ public class ProjectRobotControllerTests extends BaseTest {
         }
     }
 
-    private void setCustomRobot(String name) throws Exception {
+    private void setCustomRobot(String name, String projectId) throws Exception {
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName(name);
         projectRobotDTO.setPlatform(ProjectRobotPlatform.CUSTOM.toString());
-        projectRobotDTO.setProjectId("test_project");
+        projectRobotDTO.setProjectId(projectId);
         projectRobotDTO.setEnable(true);
         projectRobotDTO.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
         getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());

@@ -14,10 +14,6 @@ import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,9 +31,6 @@ public class ProjectRobotService {
 
     @Resource
     private MessageTaskBlobMapper messageTaskBlobMapper;
-
-    @Resource
-    private SqlSessionFactory sqlSessionFactory;
 
     public void add(ProjectRobot projectRobot) {
         projectRobot.setId(UUID.randomUUID().toString());
@@ -102,17 +95,6 @@ public class ProjectRobotService {
         projectRobot.setCreateTime(null);
         projectRobot.setUpdateUser(updateUser);
         projectRobot.setUpdateTime(updateTime);
-        MessageTaskExample messageTaskExample = new MessageTaskExample();
-        messageTaskExample.createCriteria().andProjectRobotIdEqualTo(id);
-        List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        MessageTaskMapper mapper = sqlSession.getMapper(MessageTaskMapper.class);
-        for (MessageTask messageTask : messageTasks) {
-            messageTask.setEnable(projectRobot.getEnable());
-            mapper.updateByPrimaryKeySelective(messageTask);
-        }
-        sqlSession.flushStatements();
-        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         robotMapper.updateByPrimaryKeySelective(projectRobot);
     }
 
