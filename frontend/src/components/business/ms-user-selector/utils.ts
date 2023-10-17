@@ -1,3 +1,6 @@
+import { getProjectMemberOptions } from '@/api/modules/project-management/projectMember';
+import { getProjectUserGroupOptions } from '@/api/modules/project-management/usergroup';
+import { getProjectList, getUser } from '@/api/modules/setting/member';
 import {
   getAdminByOrganizationOrProject,
   getAdminByProjectByOrg,
@@ -5,9 +8,6 @@ import {
   getUserByProjectByOrg,
 } from '@/api/modules/setting/organizationAndProject';
 import { getOrgUserGroupOption, getSystemUserGroupOption } from '@/api/modules/setting/usergroup';
-import { getUser, getProjectList } from '@/api/modules/setting/member';
-import { getProjectMemberOptions } from '@/api/modules/project-management/projectMember';
-import { getProjectUserGroupOptions } from '@/api/modules/project-management/usergroup';
 
 // eslint-disable-next-line no-shadow
 export enum UserRequestTypeEnum {

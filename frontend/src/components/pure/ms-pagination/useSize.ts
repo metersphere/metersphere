@@ -1,4 +1,5 @@
 import { computed, inject, Ref } from 'vue';
+
 import { Size } from './types';
 import { configProviderInjectionKey } from './utils';
 

@@ -1,6 +1,6 @@
-import { DEFAULT_LAYOUT } from '../base';
 import { FeatureTestRouteEnum } from '@/enums/routeEnum';
 
+import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const FeatureTest: AppRouteRecordRaw = {

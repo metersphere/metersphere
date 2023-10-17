@@ -133,19 +133,21 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
-  import { debounce } from 'lodash-es';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+  import { debounce } from 'lodash-es';
+
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsList from '@/components/pure/ms-list/index.vue';
+  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
+  import popConfirm from './popConfirm.vue';
+
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { validateGitUrl } from '@/utils/validate';
-  import MsList from '@/components/pure/ms-list/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
-  import popConfirm from './popConfirm.vue';
-  import { GitPlatformEnum } from '@/enums/commonEnum';
 
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import { GitPlatformEnum } from '@/enums/commonEnum';
 
   const props = defineProps<{
     activeFolder: string | number;

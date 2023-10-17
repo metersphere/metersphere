@@ -57,26 +57,28 @@
    * @description 系统设置-资源池
    */
   import { onMounted, Ref, ref } from 'vue';
-  import { useRouter, useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import { getPoolList, delPoolInfo, togglePoolStatus, getPoolInfo } from '@/api/modules/setting/resourcePool';
-  import useModal from '@/hooks/useModal';
-  import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import useTable from '@/components/pure/ms-table/useTable';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import MsCard from '@/components/pure/ms-card/index.vue';
+  import type { Description } from '@/components/pure/ms-description/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
-  import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import { delPoolInfo, getPoolInfo, getPoolList, togglePoolStatus } from '@/api/modules/setting/resourcePool';
+  import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
 
-  import type { Description } from '@/components/pure/ms-description/index.vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { ResourcePoolDetail } from '@/models/setting/resourcePool';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
   const router = useRouter();

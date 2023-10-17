@@ -7,9 +7,10 @@
 </template>
 
 <script lang="ts" setup>
-  import type { CSSProperties } from 'vue';
   import { computed } from 'vue';
+
   import { getPrefixCls } from './utils';
+  import type { CSSProperties } from 'vue';
 
   defineOptions({
     name: 'Pager',

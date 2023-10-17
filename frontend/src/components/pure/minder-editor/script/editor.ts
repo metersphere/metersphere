@@ -1,21 +1,21 @@
 import '@7polo/kity/dist/kity';
 import 'hotbox-minder/hotbox';
 import '@7polo/kityminder-core';
+import clipboard from './runtime/clipboard';
+import clipboardMimetype from './runtime/clipboard-mimetype';
 import container from './runtime/container';
+import drag from './runtime/drag';
+import exportsRuntime from './runtime/exports';
 import fsm from './runtime/fsm';
-import minder from './runtime/minder';
-import receiver from './runtime/receiver';
+import history from './runtime/history';
 import hotbox from './runtime/hotbox';
 import input from './runtime/input';
-import clipboardMimetype from './runtime/clipboard-mimetype';
-import clipboard from './runtime/clipboard';
-import drag from './runtime/drag';
-import node from './runtime/node';
-import history from './runtime/history';
 import jumping from './runtime/jumping';
+import minder from './runtime/minder';
+import node from './runtime/node';
 import priority from './runtime/priority';
 import progress from './runtime/progress';
-import exportsRuntime from './runtime/exports';
+import receiver from './runtime/receiver';
 import tag from './runtime/tag';
 
 type EditMenuProps = {

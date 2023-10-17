@@ -1,13 +1,13 @@
-import { resolve } from 'path';
-import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import svgLoader from 'vite-svg-loader';
+import { resolve } from 'path';
+import AutoImport from 'unplugin-auto-import/vite';
+import { defineConfig } from 'vite';
 // import configArcoStyleImportPlugin from './plugin/arcoStyleImport';
 // import configArcoResolverPlugin from './plugin/arcoResolver';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend';
-import AutoImport from 'unplugin-auto-import/vite';
+import svgLoader from 'vite-svg-loader';
 
 export default defineConfig({
   plugins: [

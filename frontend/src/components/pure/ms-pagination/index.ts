@@ -1,7 +1,7 @@
-import type { App } from 'vue';
-import type { ArcoOptions } from './types';
-import { setGlobalConfig, getComponentPrefix } from './utils';
 import _Pagination from './pagination';
+import type { ArcoOptions } from './types';
+import { getComponentPrefix, setGlobalConfig } from './utils';
+import type { App } from 'vue';
 
 const MsPagination = Object.assign(_Pagination, {
   install: (app: App, options?: ArcoOptions) => {

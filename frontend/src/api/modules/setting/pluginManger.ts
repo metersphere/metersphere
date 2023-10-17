@@ -1,12 +1,13 @@
 import MSR from '@/api/http/index';
 import {
-  GetPluginListUrl,
-  UploadPluginUrl,
-  UpdatePluginUrl,
   DeletePluginUrl,
+  GetPluginListUrl,
   GetScriptUrl,
+  UpdatePluginUrl,
+  UploadPluginUrl,
 } from '@/api/requrls/setting/plugin';
-import type { PluginList, PluginItem, AddReqData, UpdatePluginModel, UploadFile } from '@/models/setting/plugin';
+
+import type { AddReqData, PluginItem, PluginList, UpdatePluginModel, UploadFile } from '@/models/setting/plugin';
 
 export function getPluginList() {
   return MSR.get<PluginList>({ url: GetPluginListUrl });

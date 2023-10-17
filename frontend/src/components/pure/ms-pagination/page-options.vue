@@ -13,9 +13,11 @@
 
 <script lang="ts" setup>
   import { computed } from 'vue';
+
   import { useI18n } from '@/hooks/useI18n';
-  import { getPrefixCls } from './utils';
+
   import { Size } from './types';
+  import { getPrefixCls } from './utils';
   import { SelectProps } from '@arco-design/web-vue/es/select/interface';
 
   defineOptions({ name: 'PageOptions' });

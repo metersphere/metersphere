@@ -1,4 +1,4 @@
-import { UploadStatus, UploadAcceptEnum } from '@/enums/uploadEnum';
+import { UploadAcceptEnum, UploadStatus } from '@/enums/uploadEnum';
 
 import type { MsFileItem } from './types';
 

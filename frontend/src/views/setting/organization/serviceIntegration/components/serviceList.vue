@@ -102,16 +102,20 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onBeforeMount } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import { onBeforeMount, ref } from 'vue';
+
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import { getServiceList, getValidate, resetService, addOrUpdate } from '@/api/modules/setting/serviceIntegration';
   import ConfigModal from './conifgModal.vue';
-  import { useUserStore } from '@/store';
+
+  import { addOrUpdate, getServiceList, getValidate, resetService } from '@/api/modules/setting/serviceIntegration';
+  import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import Message from '@arco-design/web-vue/es/message';
+  import { useUserStore } from '@/store';
   import { characterLimit } from '@/utils';
-  import type { ServiceList, ServiceItem } from '@/models/setting/serviceIntegration';
+
+  import type { ServiceItem, ServiceList } from '@/models/setting/serviceIntegration';
+
+  import Message from '@arco-design/web-vue/es/message';
 
   const { t } = useI18n();
   const { openModal } = useModal();

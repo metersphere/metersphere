@@ -25,8 +25,10 @@
 
 <script lang="ts" name="insertBox" setup>
   import { nextTick, onMounted, ref } from 'vue';
-  import { isDisableNode } from '../../script/tool/utils';
+
   import { useI18n } from '@/hooks/useI18n';
+
+  import { isDisableNode } from '../../script/tool/utils';
 
   const { t } = useI18n();
 

@@ -1,4 +1,4 @@
-import { Ref, computed, onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, Ref, ref } from 'vue';
 
 export interface ContainerShadowOptions {
   /**

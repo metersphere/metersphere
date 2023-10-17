@@ -60,15 +60,18 @@
   /**
    * @description 系统设置-系统-用户组
    */
-  import { ref, computed, watchEffect, nextTick, provide, onMounted } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import { computed, nextTick, onMounted, provide, ref, watchEffect } from 'vue';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
   import UserGroupLeft from '@/components/business/ms-user-group-comp/msUserGroupLeft.vue';
   import UserTable from '@/components/business/ms-user-group-comp/userTable.vue';
-  import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import { AuthScopeEnum } from '@/enums/commonEnum';
+
   import { CurrentUserGroupItem } from '@/models/setting/usergroup';
+  import { AuthScopeEnum } from '@/enums/commonEnum';
 
   const currentTable = ref('auth');
   provide('systemType', AuthScopeEnum.SYSTEM);

@@ -59,33 +59,36 @@
   /**
    * @description 系统设置-组织-项目
    */
-  import { useI18n } from '@/hooks/useI18n';
-  import useTable from '@/components/pure/ms-table/useTable';
+  import { computed, onMounted, reactive, ref } from 'vue';
+  import { Message, TableData } from '@arco-design/web-vue';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { useTableStore, useAppStore } from '@/store';
-  import { ref, reactive, onMounted, computed } from 'vue';
+  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsUserAdminDiv from '@/components/pure/ms-user-admin-div/index.vue';
+  import AddProjectModal from './components/addProjectModal.vue';
+  import AddUserModal from './components/addUserModal.vue';
+  import UserDrawer from './components/userDrawer.vue';
+
   import {
-    postProjectTableByOrg,
+    createOrUpdateProjectByOrg,
     deleteProjectByOrg,
     enableOrDisableProjectByOrg,
+    postProjectTableByOrg,
     revokeDeleteProjectByOrg,
-    createOrUpdateProjectByOrg,
   } from '@/api/modules/setting/organizationAndProject';
-  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import { Message, TableData } from '@arco-design/web-vue';
-  import UserDrawer from './components/userDrawer.vue';
-  import AddUserModal from './components/addUserModal.vue';
+  import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { CreateOrUpdateSystemProjectParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
-  import AddProjectModal from './components/addProjectModal.vue';
-  import MsCard from '@/components/pure/ms-card/index.vue';
+  import { useAppStore, useTableStore } from '@/store';
+
   import { UserItem } from '@/models/setting/log';
-  import MsUserAdminDiv from '@/components/pure/ms-user-admin-div/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import { CreateOrUpdateSystemProjectParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
+  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
   const tableStore = useTableStore();

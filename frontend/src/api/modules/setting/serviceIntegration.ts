@@ -1,15 +1,16 @@
 import MSR from '@/api/http/index';
 import {
-  GetServiceListUrl,
   AddServiceUrl,
-  UpdateServiceUrl,
-  ResetServiceUrl,
-  GetValidateServiceUrl,
-  PostValidateServiceUrl,
   ConfigServiceScriptUrl,
   getLogoUrl,
+  GetServiceListUrl,
+  GetValidateServiceUrl,
+  PostValidateServiceUrl,
+  ResetServiceUrl,
+  UpdateServiceUrl,
 } from '@/api/requrls/setting/serviceIntegration';
-import type { ServiceList, AddOrUpdateServiceModel } from '@/models/setting/serviceIntegration';
+
+import type { AddOrUpdateServiceModel, ServiceList } from '@/models/setting/serviceIntegration';
 // 获取集成列表
 export function getServiceList(organizationId: string) {
   return MSR.get<ServiceList>({ url: GetServiceListUrl, params: organizationId });

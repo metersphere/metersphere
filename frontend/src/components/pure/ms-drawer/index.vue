@@ -64,10 +64,11 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch, defineAsyncComponent, computed } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
   import type { Description } from '@/components/pure/ms-description/index.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   // 懒加载描述组件
   const MsDescription = defineAsyncComponent(() => import('@/components/pure/ms-description/index.vue'));

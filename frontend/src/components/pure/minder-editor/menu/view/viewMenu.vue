@@ -8,10 +8,11 @@
 </template>
 
 <script lang="ts" name="viewMenu" setup>
-  import mold from './mold.vue';
   import arrange from './arrange.vue';
-  import styleOperation from './styleOperation.vue';
   import fontOperation from './fontOperation.vue';
+  import mold from './mold.vue';
+  import styleOperation from './styleOperation.vue';
+
   import { moleProps, viewMenuProps } from '../../props';
 
   const props = defineProps({ ...moleProps, ...viewMenuProps });

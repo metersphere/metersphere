@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia';
-import { login as userLogin, logout as userLogout, isLogin as userIsLogin } from '@/api/modules/user';
-import { getHashParameters } from '@/utils';
-import { setToken, clearToken } from '@/utils/auth';
-import { removeRouteListener } from '@/utils/route-listener';
-import useAppStore from '../app';
-import useLicenseStore from '../setting/license';
+
+import { isLogin as userIsLogin, login as userLogin, logout as userLogout } from '@/api/modules/user';
 import { useI18n } from '@/hooks/useI18n';
+import { getHashParameters } from '@/utils';
+import { clearToken, setToken } from '@/utils/auth';
+import { removeRouteListener } from '@/utils/route-listener';
 
 import type { LoginData } from '@/models/user';
+
+import useAppStore from '../app';
+import useLicenseStore from '../setting/license';
 import type { UserState } from './types';
 
 const useUserStore = defineStore('user', {

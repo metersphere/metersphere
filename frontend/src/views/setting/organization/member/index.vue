@@ -109,30 +109,33 @@
    * @description 系统管理-组织-成员
    */
   import { onBeforeMount, ref } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import { Message } from '@arco-design/web-vue';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import AddMemberModal from './components/addMemberModal.vue';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
+  import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
+  import AddMemberModal from './components/addMemberModal.vue';
+
   import {
-    getMemberList,
-    deleteMemberReq,
     addOrUpdate,
     batchAddProject,
     batchAddUserGroup,
-    getProjectList,
+    deleteMemberReq,
     getGlobalUserGroup,
+    getMemberList,
+    getProjectList,
   } from '@/api/modules/setting/member';
-  import { TableKeyEnum } from '@/enums/tableEnum';
-  import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
+  import { useI18n } from '@/hooks/useI18n';
   import { useTableStore, useUserStore } from '@/store';
-  import type { MsTableColumn, BatchActionParams, BatchActionQueryParams } from '@/components/pure/ms-table/type';
-  import type { MemberItem, AddorUpdateMemberModel, LinkList, BatchAddProjectModel } from '@/models/setting/member';
   import { characterLimit } from '@/utils';
-  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
+
+  import type { AddorUpdateMemberModel, BatchAddProjectModel, LinkList, MemberItem } from '@/models/setting/member';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const tableStore = useTableStore();
   const { t } = useI18n();

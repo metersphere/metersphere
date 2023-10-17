@@ -1,4 +1,5 @@
 import { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
+
 import { useUserStore } from '@/store';
 
 /**

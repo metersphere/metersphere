@@ -1,14 +1,14 @@
 import MSR from '@/api/http/index';
 import * as Url from '@/api/requrls/project-management/menuManagement';
+
+import { CommonList, TableQueryParams } from '@/models/common';
 import type {
+  MenuTableConfigItem,
   MenuTableListItem,
   MenuTableListParams,
-  MenuTableConfigItem,
   PoolOption,
 } from '@/models/projectManagement/menuManagement';
 import { MenuEnum } from '@/enums/commonEnum';
-
-import { TableQueryParams, CommonList } from '@/models/common';
 
 export async function postTabletList(params: TableQueryParams): Promise<CommonList<MenuTableListItem>> {
   const list = await MSR.get<MenuTableListItem[]>({ url: `${Url.getMenuListUrl}${params.projectId}` });

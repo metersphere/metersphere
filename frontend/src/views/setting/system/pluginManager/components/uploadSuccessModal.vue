@@ -37,9 +37,10 @@
 
 <script setup lang="ts">
   import { ref, watch, watchEffect } from 'vue';
-  import useVisit from '@/hooks/useVisit';
-  import { useI18n } from '@/hooks/useI18n';
   import { useRouter } from 'vue-router';
+
+  import { useI18n } from '@/hooks/useI18n';
+  import useVisit from '@/hooks/useVisit';
 
   const router = useRouter();
   const visitedKey = 'doNotShowAgain';

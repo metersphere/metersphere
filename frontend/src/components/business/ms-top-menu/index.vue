@@ -14,13 +14,14 @@
 
 <script setup lang="ts">
   import { Ref, ref, watch } from 'vue';
-  import { useRouter, RouteRecordRaw, RouteRecordName } from 'vue-router';
+  import { RouteRecordName, RouteRecordRaw, useRouter } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
-  import { useAppStore } from '@/store';
-  import { listenerRouteChange } from '@/utils/route-listener';
+
+  import { useI18n } from '@/hooks/useI18n';
   import usePermission from '@/hooks/usePermission';
   import appClientMenus from '@/router/app-menus';
-  import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
+  import { listenerRouteChange } from '@/utils/route-listener';
 
   const copyRouters = cloneDeep(appClientMenus) as RouteRecordRaw[];
   const permission = usePermission();

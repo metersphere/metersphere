@@ -52,19 +52,22 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive, computed } from 'vue';
+  import { computed, reactive, ref } from 'vue';
   import { useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
-  import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
-  import { useI18n } from '@/hooks/useI18n';
   import { useStorage } from '@vueuse/core';
-  import { useUserStore, useAppStore } from '@/store';
-  import useLoading from '@/hooks/useLoading';
-  import { setLoginExpires } from '@/utils/auth';
+  import { Message } from '@arco-design/web-vue';
+
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
+  import { useI18n } from '@/hooks/useI18n';
+  import useLoading from '@/hooks/useLoading';
+  import { useAppStore, useUserStore } from '@/store';
+  import { encrypted } from '@/utils';
+  import { setLoginExpires } from '@/utils/auth';
+
   import type { LoginData } from '@/models/user';
   import { WorkbenchRouteEnum } from '@/enums/routeEnum';
-  import { encrypted } from '@/utils';
+
+  import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
 
   const router = useRouter();
   const { t } = useI18n();

@@ -19,11 +19,8 @@
 </template>
 
 <script setup>
-  import MsPagination from '@/components/pure/ms-pagination/index';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsTimeSelector from '@/components/pure/ms-time-selector/MsTimeSelector.vue';
 
-  const content = ref('');
   const timeValue = ref('3M');
 </script>

@@ -68,14 +68,17 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect, watch } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import { ref, watch, watchEffect } from 'vue';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
-  import { addOrUpdate } from '@/api/modules/setting/member';
-  import { useUserStore } from '@/store';
+
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import type { MemberItem, LinkList } from '@/models/setting/member';
   import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+
+  import { addOrUpdate } from '@/api/modules/setting/member';
+  import { useI18n } from '@/hooks/useI18n';
+  import { useUserStore } from '@/store';
+
+  import type { LinkList, MemberItem } from '@/models/setting/member';
 
   const { t } = useI18n();
   const userStore = useUserStore();

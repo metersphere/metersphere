@@ -3,18 +3,19 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, nextTick } from 'vue';
-  import VCharts from 'vue-echarts';
-  import { use } from 'echarts/core';
-  import { CanvasRenderer } from 'echarts/renderers';
+  import { nextTick, ref } from 'vue';
+
   import { BarChart, LineChart, PieChart, RadarChart } from 'echarts/charts';
   import {
-    GridComponent,
-    TooltipComponent,
-    LegendComponent,
     DataZoomComponent,
     GraphicComponent,
+    GridComponent,
+    LegendComponent,
+    TooltipComponent,
   } from 'echarts/components';
+  import { use } from 'echarts/core';
+  import { CanvasRenderer } from 'echarts/renderers';
+  import VCharts from 'vue-echarts';
 
   use([
     CanvasRenderer,

@@ -20,11 +20,13 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive, toRefs, computed } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import { queryMessageList, setMessageStatus, MessageRecord, MessageListType } from '@/api/modules/message';
-  import useLoading from '@/hooks/useLoading';
+  import { computed, reactive, ref, toRefs } from 'vue';
+
   import List from './list.vue';
+
+  import { MessageListType, MessageRecord, queryMessageList, setMessageStatus } from '@/api/modules/message';
+  import { useI18n } from '@/hooks/useI18n';
+  import useLoading from '@/hooks/useLoading';
 
   interface TabItem {
     key: string;

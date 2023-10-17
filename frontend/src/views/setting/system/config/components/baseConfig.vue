@@ -198,17 +198,20 @@
 <script setup lang="ts">
   import { onBeforeMount, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import { desensitize } from '@/utils';
+
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
+
+  import { getBaseInfo, getEmailInfo, saveBaseInfo, saveEmailInfo, testEmail } from '@/api/modules/setting/config';
+  import { useI18n } from '@/hooks/useI18n';
+  import { desensitize } from '@/utils';
   import { validateEmail } from '@/utils/validate';
-  import { testEmail, saveBaseInfo, saveEmailInfo, getBaseInfo, getEmailInfo } from '@/api/modules/setting/config';
 
   import type { EmailConfig, TestEmailParams } from '@/models/setting/config';
+
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();

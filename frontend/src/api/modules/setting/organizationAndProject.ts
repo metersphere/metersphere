@@ -1,7 +1,7 @@
 import MSR from '@/api/http/index';
 import * as orgUrl from '@/api/requrls/setting/organizationAndProject';
+
 import { CommonList, TableQueryParams } from '@/models/common';
-import { AddUserToOrgOrProjectParams } from '@/models/setting/systemOrg';
 import {
   CreateOrUpdateOrgProjectParams,
   CreateOrUpdateSystemOrgParams,
@@ -9,6 +9,7 @@ import {
   OrgProjectTableItem,
   SystemGetUserByOrgOrProjectIdParams,
 } from '@/models/setting/system/orgAndProject';
+import { AddUserToOrgOrProjectParams } from '@/models/setting/systemOrg';
 
 // 组织与项目-公共
 // 系统-组织及项目，获取管理员下拉选项

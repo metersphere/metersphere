@@ -258,26 +258,29 @@
 </template>
 
 <script setup lang="ts">
+  import { computed, inject, ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
+
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import { useI18n } from '@/hooks/useI18n';
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import { UserGroupItem, PopVisible, PopVisibleItem, CurrentUserGroupItem } from '@/models/setting/usergroup';
+  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import AddUserModal from './addUserModal.vue';
+  import CreateUserGroupPopup from './createOrUpdateUserGroup.vue';
+
   import {
-    getUserGroupList,
+    deleteOrgUserGroup,
     deleteUserGroup,
     getOrgUserGroupList,
     getProjectUserGroupList,
-    deleteOrgUserGroup,
+    getUserGroupList,
   } from '@/api/modules/setting/usergroup';
-  import { computed, ref, inject } from 'vue';
-  import CreateUserGroupPopup from './createOrUpdateUserGroup.vue';
-  import AddUserModal from './addUserModal.vue';
-  import { Message } from '@arco-design/web-vue';
+  import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { characterLimit } from '@/utils';
-  import { AuthScopeEnum } from '@/enums/commonEnum';
   import { useAppStore } from '@/store';
+  import { characterLimit } from '@/utils';
+
+  import { CurrentUserGroupItem, PopVisible, PopVisibleItem, UserGroupItem } from '@/models/setting/usergroup';
+  import { AuthScopeEnum } from '@/enums/commonEnum';
 
   const { t } = useI18n();
 

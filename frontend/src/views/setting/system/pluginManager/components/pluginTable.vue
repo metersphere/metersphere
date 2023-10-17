@@ -160,25 +160,28 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onBeforeMount, reactive, h } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import { h, onBeforeMount, reactive, ref } from 'vue';
+  import { Message, SelectOptionData, TableData } from '@arco-design/web-vue';
+  import dayjs from 'dayjs';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import { getPluginList, deletePluginReq, updatePlugin, getScriptDetail } from '@/api/modules/setting/pluginManger';
-  import { getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import UploadModel from './uploadModel.vue';
-  import UpdatePluginModal from './updatePluginModal.vue';
-  import UploadSuccessModal from './uploadSuccessModal.vue';
-  import scriptDetailDrawer from './scriptDetailDrawer.vue';
-  import useModal from '@/hooks/useModal';
-  import { Message, TableData, SelectOptionData } from '@arco-design/web-vue';
-  import useVisit from '@/hooks/useVisit';
-  import type { PluginForms, PluginList, PluginItem, DrawerConfig, UpdatePluginModel } from '@/models/setting/plugin';
-  import dayjs from 'dayjs';
-  import TableExpand from './tableExpand.vue';
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
+  import scriptDetailDrawer from './scriptDetailDrawer.vue';
+  import TableExpand from './tableExpand.vue';
+  import UpdatePluginModal from './updatePluginModal.vue';
+  import UploadModel from './uploadModel.vue';
+  import UploadSuccessModal from './uploadSuccessModal.vue';
+
+  import { getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
+  import { deletePluginReq, getPluginList, getScriptDetail, updatePlugin } from '@/api/modules/setting/pluginManger';
+  import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
+  import useVisit from '@/hooks/useVisit';
   import { characterLimit } from '@/utils';
+
+  import type { DrawerConfig, PluginForms, PluginItem, PluginList, UpdatePluginModel } from '@/models/setting/plugin';
 
   const { t } = useI18n();
   const visitedKey = 'doNotShowAgain';

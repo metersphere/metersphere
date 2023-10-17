@@ -1,6 +1,7 @@
-import type { Router, LocationQueryRaw } from 'vue-router';
-import NProgress from 'nprogress'; // progress bar
 import { clearToken, hasToken, isLoginExpires } from '@/utils/auth';
+
+import NProgress from 'nprogress'; // progress bar
+import type { LocationQueryRaw, Router } from 'vue-router';
 
 export default function setupUserLoginInfoGuard(router: Router) {
   router.beforeEach((to, from, next) => {

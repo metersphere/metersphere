@@ -37,14 +37,18 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect, watch } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
-  import { configScript, addOrUpdate, postValidate } from '@/api/modules/setting/serviceIntegration';
+  import { ref, watch, watchEffect } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import type { ServiceItem, AddOrUpdateServiceModel } from '@/models/setting/serviceIntegration';
+
+  import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
+
+  import { addOrUpdate, configScript, postValidate } from '@/api/modules/setting/serviceIntegration';
+  import { useI18n } from '@/hooks/useI18n';
   import useLoading from '@/hooks/useLoading';
   import { useUserStore } from '@/store';
+
+  import type { AddOrUpdateServiceModel, ServiceItem } from '@/models/setting/serviceIntegration';
+
   import { FormRule } from '@form-create/arco-design';
 
   const { t } = useI18n();

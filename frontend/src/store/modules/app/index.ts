@@ -1,18 +1,21 @@
 import { defineStore } from 'pinia';
 import { Notification } from '@arco-design/web-vue';
-import defaultSettings from '@/config/settings.json';
-import { getMenuList } from '@/api/modules/user';
-import { getSystemVersion } from '@/api/modules/system';
-import { useI18n } from '@/hooks/useI18n';
 import { cloneDeep } from 'lodash-es';
+
+import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
+
 import { getPageConfig } from '@/api/modules/setting/config';
+import { getSystemVersion } from '@/api/modules/system';
+import { getMenuList } from '@/api/modules/user';
+import defaultSettings from '@/config/settings.json';
+import { useI18n } from '@/hooks/useI18n';
 import { watchStyle, watchTheme } from '@/utils/theme';
 
+import type { PageConfig, PageConfigKeys, Style, Theme } from '@/models/setting/config';
+
+import type { AppState } from './types';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
-import type { AppState } from './types';
-import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
-import type { PageConfig, PageConfigKeys, Style, Theme } from '@/models/setting/config';
 
 const defaultThemeConfig = {
   style: 'default' as Style,

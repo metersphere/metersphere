@@ -49,14 +49,17 @@
   /**
    * @description 项目管理-项目与权限-基本信息
    */
-  import { ref, onBeforeMount, inject } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import UpdateProjectModal from './components/updateProjectModal.vue';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import { useAppStore } from '@/store';
-  import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
-  import type { ProjectBasicInfoModel } from '@/models/projectManagement/basicInfo';
+  import { inject, onBeforeMount, ref } from 'vue';
   import dayjs from 'dayjs';
+
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import UpdateProjectModal from './components/updateProjectModal.vue';
+
+  import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
+  import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
+
+  import type { ProjectBasicInfoModel } from '@/models/projectManagement/basicInfo';
 
   const { t } = useI18n();
   const appStore = useAppStore();

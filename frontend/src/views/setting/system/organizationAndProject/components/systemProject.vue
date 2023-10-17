@@ -46,32 +46,35 @@
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
-  import useTable from '@/components/pure/ms-table/useTable';
+  import { reactive, ref } from 'vue';
+  import { Message, TableData } from '@arco-design/web-vue';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { useTableStore } from '@/store';
-  import { ref, reactive } from 'vue';
+  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsUserAdminDiv from '@/components/pure/ms-user-admin-div/index.vue';
+  import AddProjectModal from './addProjectModal.vue';
+  import AddUserModal from './addUserModal.vue';
+  import UserDrawer from './userDrawer.vue';
+
   import {
-    postProjectTable,
+    createOrUpdateProject,
     deleteProject,
     enableOrDisableProject,
+    postProjectTable,
     revokeDeleteProject,
-    createOrUpdateProject,
   } from '@/api/modules/setting/organizationAndProject';
-  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import { Message, TableData } from '@arco-design/web-vue';
-  import UserDrawer from './userDrawer.vue';
-  import AddUserModal from './addUserModal.vue';
+  import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { CreateOrUpdateSystemProjectParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
-  import AddProjectModal from './addProjectModal.vue';
+  import { useTableStore } from '@/store';
+
   import { UserItem } from '@/models/setting/log';
-  import MsUserAdminDiv from '@/components/pure/ms-user-admin-div/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import { CreateOrUpdateSystemProjectParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
+  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   export interface SystemOrganizationProps {
     keyword: string;

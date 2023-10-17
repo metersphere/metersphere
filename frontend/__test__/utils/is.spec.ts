@@ -1,19 +1,21 @@
-import { describe, expect, test } from 'vitest';
+import logo from '@/assets/svg/logo.svg';
+
 import {
   isArray,
-  isObject,
+  isBlob,
   isEmptyObject,
   isExist,
+  isFile,
   isFunction,
   isNull,
-  isUndefined,
   isNumber,
-  isString,
+  isObject,
   isRegExp,
-  isFile,
-  isBlob,
+  isString,
+  isUndefined,
 } from '@/utils/is';
-import logo from '@/assets/svg/logo.svg';
+
+import { describe, expect, test } from 'vitest';
 
 describe('Is tool', () => {
   test('isArray', () => {

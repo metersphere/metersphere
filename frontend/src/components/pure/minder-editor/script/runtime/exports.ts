@@ -1,9 +1,9 @@
+import mm from '../protocol/freemind';
+import json from '../protocol/json';
+import md from '../protocol/markdown';
+import plain from '../protocol/plain';
 import png from '../protocol/png';
 import svg from '../protocol/svg';
-import json from '../protocol/json';
-import plain from '../protocol/plain';
-import md from '../protocol/markdown';
-import mm from '../protocol/freemind';
 import useLocaleNotVue from '../tool/useLocaleNotVue';
 
 const tran = useLocaleNotVue;

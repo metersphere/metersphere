@@ -1,19 +1,21 @@
-import { MSAxios } from './Axios';
-import checkStatus from './checkStatus';
 import { Message, Modal } from '@arco-design/web-vue';
-import { RequestEnum, ContentTypeEnum } from '@/enums/httpEnum';
-import { isString } from '@/utils/is';
-import { getToken } from '@/utils/auth';
-import { setObjToUrlParams, deepMerge } from '@/utils';
+
 import { useI18n } from '@/hooks/useI18n';
 import useLocale from '@/locale/useLocale';
-import { joinTimestamp } from './helper';
 import useAppStore from '@/store/modules/app';
+import { deepMerge, setObjToUrlParams } from '@/utils';
+import { getToken } from '@/utils/auth';
+import { isString } from '@/utils/is';
 
-import type { AxiosResponse } from 'axios';
+import { ContentTypeEnum, RequestEnum } from '@/enums/httpEnum';
+
+import { MSAxios } from './Axios';
 import type { AxiosTransform, CreateAxiosOptions } from './axiosTransform';
-import type { Recordable } from '#/global';
+import checkStatus from './checkStatus';
+import { joinTimestamp } from './helper';
 import type { RequestOptions, Result } from '#/axios';
+import type { Recordable } from '#/global';
+import type { AxiosResponse } from 'axios';
 
 /**
  * @description: 数据处理，方便区分多种处理方式

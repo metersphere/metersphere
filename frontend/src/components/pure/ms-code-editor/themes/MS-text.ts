@@ -1,5 +1,5 @@
-import { rgbToHex } from '@/utils';
 import { primaryVars } from '@/hooks/useThemeVars';
+import { rgbToHex } from '@/utils';
 
 export default {
   base: 'vs',

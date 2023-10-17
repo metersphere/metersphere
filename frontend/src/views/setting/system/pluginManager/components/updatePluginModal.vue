@@ -54,11 +54,13 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect, watch } from 'vue';
-  import { FormInstance, Message, ValidatedError, SelectOptionData } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import type { UpdatePluginModel, PluginItem } from '@/models/setting/plugin';
+  import { ref, watch, watchEffect } from 'vue';
+  import { FormInstance, Message, SelectOptionData, ValidatedError } from '@arco-design/web-vue';
+
   import { updatePlugin } from '@/api/modules/setting/pluginManger';
+  import { useI18n } from '@/hooks/useI18n';
+
+  import type { PluginItem, UpdatePluginModel } from '@/models/setting/plugin';
 
   const { t } = useI18n();
   const props = defineProps<{

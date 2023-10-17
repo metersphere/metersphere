@@ -24,6 +24,7 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
+
   import { useI18n } from '@/hooks/useI18n';
 
   const props = withDefaults(

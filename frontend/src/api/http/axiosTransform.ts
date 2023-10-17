@@ -1,8 +1,8 @@
 /**
  * Data processing class, can be configured according to the project
  */
-import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { RequestOptions, Result } from '#/axios';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 export abstract class AxiosTransform {
   /**

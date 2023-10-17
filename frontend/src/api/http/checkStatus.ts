@@ -1,7 +1,9 @@
 import { Message, Modal } from '@arco-design/web-vue';
+
 import { useI18n } from '@/hooks/useI18n';
-import type { ErrorMessageMode } from '#/axios';
 import useUser from '@/hooks/useUser';
+
+import type { ErrorMessageMode } from '#/axios';
 
 export default function checkStatus(status: number, msg: string, errorMessageMode: ErrorMessageMode = 'message'): void {
   const { t } = useI18n();

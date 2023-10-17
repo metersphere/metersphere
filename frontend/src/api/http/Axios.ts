@@ -1,12 +1,14 @@
-import axios from 'axios';
-import { AxiosCanceler } from './axiosCancel';
-import { isFunction } from '@/utils/is';
 import { cloneDeep } from 'lodash-es';
+import axios from 'axios';
+
+import { isFunction } from '@/utils/is';
+
 import { ContentTypeEnum } from '@/enums/httpEnum';
 
-import type { AxiosRequestConfig, AxiosInstance, AxiosResponse, AxiosError } from 'axios';
-import type { RequestOptions, Result, UploadFileParams } from '#/axios';
+import { AxiosCanceler } from './axiosCancel';
 import type { CreateAxiosOptions } from './axiosTransform';
+import type { RequestOptions, Result, UploadFileParams } from '#/axios';
+import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 export * from './axiosTransform';
 

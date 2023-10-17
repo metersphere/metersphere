@@ -1,6 +1,7 @@
 import { CSSProperties } from 'vue';
-import { Size } from './types';
 import { SelectProps } from '@arco-design/web-vue';
+
+import { Size } from './types';
 
 export const PAGE_ITEM_TYPES = ['page', 'more', 'previous', 'next'] as const;
 

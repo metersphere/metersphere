@@ -1,16 +1,17 @@
 import MSR from '@/api/http/index';
 import {
-  GetProjectMemberListUrl,
   AddMemberToProjectUrl,
-  EditProjectMemberUrl,
   BatchAddUserGroup,
   BatchRemoveMemberUrl,
-  RemoveProjectMemberUrl,
-  ProjectUserGroupUrl,
+  EditProjectMemberUrl,
+  GetProjectMemberListUrl,
   ProjectMemberOptions,
+  ProjectUserGroupUrl,
+  RemoveProjectMemberUrl,
 } from '@/api/requrls/project-management/projectMember';
-import type { ProjectMemberItem, ActionProjectMember } from '@/models/projectManagement/projectAndPermission';
-import type { TableQueryParams, CommonList } from '@/models/common';
+
+import type { CommonList, TableQueryParams } from '@/models/common';
+import type { ActionProjectMember, ProjectMemberItem } from '@/models/projectManagement/projectAndPermission';
 
 // 获取项目成员列表
 export function getProjectMemberList(data: TableQueryParams) {

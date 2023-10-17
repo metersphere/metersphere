@@ -13,8 +13,9 @@
 
 <script lang="ts" name="TagBox" setup>
   import { nextTick, onMounted, reactive, ref } from 'vue';
-  import { isDisableNode, isTagEnable } from '../../script/tool/utils';
+
   import { tagProps } from '../../props';
+  import { isDisableNode, isTagEnable } from '../../script/tool/utils';
 
   const props = defineProps(tagProps);
 

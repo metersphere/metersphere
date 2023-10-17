@@ -3,8 +3,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect, watch } from 'vue';
+  import { ref, watch, watchEffect } from 'vue';
+
   import PassWord from './formcreate-password.vue';
+
   import formCreate, { FormRule } from '@form-create/arco-design';
 
   formCreate.component('PassWord', PassWord);

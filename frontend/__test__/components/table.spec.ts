@@ -1,10 +1,13 @@
-import { mount } from '@vue/test-utils';
-import { describe, expect, test } from 'vitest';
-import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
 import { nextTick } from 'vue';
+
+import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
 import { MsTableColumn } from '@/components/pure/ms-table/type';
 import useTable from '@/components/pure/ms-table/useTable';
+
 import { getTableList } from '@/api/modules/api-test/index';
+
+import { mount } from '@vue/test-utils';
+import { describe, expect, test } from 'vitest';
 
 const columns: MsTableColumn = [
   {

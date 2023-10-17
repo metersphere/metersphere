@@ -1,6 +1,6 @@
-import { DEFAULT_LAYOUT } from '../base';
 import { UITestRouteEnum } from '@/enums/routeEnum';
 
+import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const UiTest: AppRouteRecordRaw = {

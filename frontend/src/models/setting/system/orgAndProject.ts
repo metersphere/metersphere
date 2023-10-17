@@ -1,4 +1,5 @@
 import { TableQueryParams } from '@/models/common';
+
 import { UserItem } from '../log';
 
 export interface CreateOrUpdateSystemOrgParams {

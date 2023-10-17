@@ -16,12 +16,14 @@
 
 <script lang="ts">
   import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-  import { editorProps, CustomTheme } from './types';
-  import './userWorker';
-  import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
   import { useFullscreen } from '@vueuse/core';
-  import MsCodeEditorTheme from './themes';
+
   import { useI18n } from '@/hooks/useI18n';
+
+  import './userWorker';
+  import MsCodeEditorTheme from './themes';
+  import { CustomTheme, editorProps } from './types';
+  import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
   export default defineComponent({
     name: 'MonacoEditor',

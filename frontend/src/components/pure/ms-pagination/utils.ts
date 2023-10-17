@@ -1,6 +1,7 @@
-import type { App } from 'vue';
 import { getCurrentInstance, inject, InjectionKey } from 'vue';
+
 import type { ArcoOptions, ConfigProvider } from './types';
+import type { App } from 'vue';
 
 const COMPONENT_PREFIX = 'A';
 const CLASS_PREFIX = 'ms';

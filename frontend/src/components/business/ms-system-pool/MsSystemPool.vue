@@ -3,7 +3,8 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect, computed } from 'vue';
+  import { computed, ref, watchEffect } from 'vue';
+
   import { getPoolOptionsByOrgOrSystem } from '@/api/modules/setting/organizationAndProject';
 
   const options = ref([]);

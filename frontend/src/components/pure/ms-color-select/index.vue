@@ -4,8 +4,9 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import { ColorPicker } from 'vue3-colorpicker';
+
   import 'vue3-colorpicker/style.css';
+  import { ColorPicker } from 'vue3-colorpicker';
 
   const props = defineProps<{
     pureColor: string;

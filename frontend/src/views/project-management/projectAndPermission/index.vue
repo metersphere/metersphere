@@ -32,11 +32,14 @@
   /**
    * @description 项目管理-项目与权限
    */
-  import { ref, onBeforeMount, provide } from 'vue';
-  import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
-  import { useI18n } from '@/hooks/useI18n';
+  import { onBeforeMount, provide, ref } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import { useRouter, useRoute } from 'vue-router';
+
+  import { useI18n } from '@/hooks/useI18n';
+
+  import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   const { t } = useI18n();
 

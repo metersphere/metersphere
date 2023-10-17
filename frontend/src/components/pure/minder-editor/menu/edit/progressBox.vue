@@ -17,8 +17,10 @@
 
 <script lang="ts" name="progressBox" setup>
   import { computed, nextTick, onMounted, reactive, ref } from 'vue';
-  import { isDisableNode } from '../../script/tool/utils';
+
   import { useI18n } from '@/hooks/useI18n';
+
+  import { isDisableNode } from '../../script/tool/utils';
 
   const { t } = useI18n();
 

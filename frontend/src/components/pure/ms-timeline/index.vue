@@ -34,8 +34,10 @@
 </template>
 
 <script setup lang="ts">
-  import { nextTick, ref, Ref, watch, onBeforeUnmount } from 'vue';
+  import { nextTick, onBeforeUnmount, Ref, ref, watch } from 'vue';
+
   import MsList from '@/components/pure/ms-list/index.vue';
+
   import { useI18n } from '@/hooks/useI18n';
 
   import type { MsTimeLineListItem } from './types';

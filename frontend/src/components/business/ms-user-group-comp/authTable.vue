@@ -50,22 +50,24 @@
 </template>
 
 <script setup lang="ts">
-  import { useI18n } from '@/hooks/useI18n';
-  import { RenderFunction, VNodeChild, ref, watchEffect, computed, inject } from 'vue';
+  import { computed, inject, ref, RenderFunction, VNodeChild, watchEffect } from 'vue';
   import { Message, type TableColumnData, type TableData } from '@arco-design/web-vue';
+
+  import { getAuthByUserGroup, saveProjectUGSetting } from '@/api/modules/project-management/usergroup';
   import {
     getGlobalUSetting,
     getOrgUSetting,
     saveGlobalUSetting,
     saveOrgUSetting,
   } from '@/api/modules/setting/usergroup';
-  import { getAuthByUserGroup, saveProjectUGSetting } from '@/api/modules/project-management/usergroup';
+  import { useI18n } from '@/hooks/useI18n';
+
   import {
-    UserGroupAuthSetting,
-    AuthTableItem,
     type AuthScopeType,
-    SavePermissions,
+    AuthTableItem,
     CurrentUserGroupItem,
+    SavePermissions,
+    UserGroupAuthSetting,
   } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';
 

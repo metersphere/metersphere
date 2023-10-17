@@ -251,34 +251,37 @@
   import { useRoute } from 'vue-router';
   import { Message, ValidatedError } from '@arco-design/web-vue';
   import { debounce } from 'lodash-es';
-  import { useI18n } from '@/hooks/useI18n';
-  import useTableStore from '@/store/modules/ms-table';
-  import { TableKeyEnum } from '@/enums/tableEnum';
-  import { UploadStatus } from '@/enums/uploadEnum';
-  import { RouteEnum } from '@/enums/routeEnum';
-  import useAsyncTaskStore from '@/store/modules/app/asyncTask';
-  import useModal from '@/hooks/useModal';
-  import { characterLimit, downloadUrlFile } from '@/utils';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import { getFileList } from '@/api/modules/project-management/fileManagement';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsUpload from '@/components/pure/ms-upload/index.vue';
-  import MsFileList from '@/components/pure/ms-upload/fileList.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import type { BatchActionParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
+  import MsFileList from '@/components/pure/ms-upload/fileList.vue';
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
+  import type { MsFileItem, UploadType } from '@/components/pure/ms-upload/types';
+  import MsCardList from '@/components/business/ms-card-list/index.vue';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import MsThumbnailCard from '@/components/business/ms-thumbnail-card/index.vue';
-  import MsCardList from '@/components/business/ms-card-list/index.vue';
   import fileDetailDrawerVue from './fileDetailDrawer.vue';
   import folderTree from './folderTree.vue';
 
+  import { getFileList } from '@/api/modules/project-management/fileManagement';
+  import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
+  import useAsyncTaskStore from '@/store/modules/app/asyncTask';
+  import useTableStore from '@/store/modules/ms-table';
+  import { characterLimit, downloadUrlFile } from '@/utils';
+
+  import { RouteEnum } from '@/enums/routeEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
+  import { UploadStatus } from '@/enums/uploadEnum';
+
   import type { FormInstance } from '@arco-design/web-vue';
-  import type { BatchActionParams, MsTableColumn } from '@/components/pure/ms-table/type';
-  import type { MsFileItem, UploadType } from '@/components/pure/ms-upload/types';
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
   const props = defineProps<{
     activeFolder: string | number;

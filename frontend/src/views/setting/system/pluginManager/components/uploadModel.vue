@@ -107,12 +107,15 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect, computed, watch } from 'vue';
-  import MsUpload from '@/components/pure/ms-upload/index.vue';
-  import type { FormInstance, ValidatedError, SelectOptionData, FileItem } from '@arco-design/web-vue';
-  import { addPlugin } from '@/api/modules/setting/pluginManger';
+  import { computed, ref, watch, watchEffect } from 'vue';
   import { Message } from '@arco-design/web-vue';
+
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
+
+  import { addPlugin } from '@/api/modules/setting/pluginManger';
   import { useI18n } from '@/hooks/useI18n';
+
+  import type { FileItem, FormInstance, SelectOptionData, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
 

@@ -1,32 +1,30 @@
 <template>
   <a-config-provider :locale="locale">
     <router-view />
-    <template #empty>
-      <MsEmpty />
-    </template>
     <!-- <global-setting /> -->
   </a-config-provider>
 </template>
 
 <script lang="ts" setup>
   import { computed, onBeforeMount, onMounted } from 'vue';
-  import { useRouter, useRoute } from 'vue-router';
-  import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
-  import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
+  import { useRoute, useRouter } from 'vue-router';
+  import { useEventListener, useWindowSize } from '@vueuse/core';
+
+  import { saveBaseUrl } from '@/api/modules/setting/config';
+  import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
   // import GlobalSetting from '@/components/pure/global-setting/index.vue';
   import useLocale from '@/locale/useLocale';
+  import { WHITE_LIST } from '@/router/constants';
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
-  import { saveBaseUrl } from '@/api/modules/setting/config';
-  import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
-  import { watchStyle, watchTheme, setFavicon } from '@/utils/theme';
-  import { WorkbenchRouteEnum } from './enums/routeEnum';
+  import { setFavicon, watchStyle, watchTheme } from '@/utils/theme';
+
   import { getPublicKeyRequest } from './api/modules/user';
-  import MsEmpty from '@/components/pure/ms-empty/index.vue';
-  import { useEventListener, useWindowSize } from '@vueuse/core';
-  import { WHITE_LIST } from '@/router/constants';
+  import { WorkbenchRouteEnum } from './enums/routeEnum';
+  import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
+  import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
 
   const appStore = useAppStore();
   const userStore = useUserStore();

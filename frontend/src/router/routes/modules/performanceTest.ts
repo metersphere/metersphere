@@ -1,6 +1,6 @@
-import { DEFAULT_LAYOUT } from '../base';
 import { PerformanceTestRouteEnum } from '@/enums/routeEnum';
 
+import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const PerformanceTest: AppRouteRecordRaw = {

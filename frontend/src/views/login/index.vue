@@ -14,8 +14,8 @@
 </template>
 
 <script lang="ts" setup>
-  import loginForm from './components/login-form.vue';
   import banner from './components/banner.vue';
+  import loginForm from './components/login-form.vue';
 
   const props = defineProps<{
     isPreview?: boolean;

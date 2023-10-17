@@ -49,10 +49,11 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
   import { Message } from '@arco-design/web-vue';
 
-  import type { FormInstance, FieldRule } from '@arco-design/web-vue';
+  import { useI18n } from '@/hooks/useI18n';
+
+  import type { FieldRule, FormInstance } from '@arco-design/web-vue';
 
   interface FieldConfig {
     field?: string;

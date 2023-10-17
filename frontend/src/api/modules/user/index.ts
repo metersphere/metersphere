@@ -1,7 +1,9 @@
 import MSR from '@/api/http/index';
-import { LoginUrl, LogoutUrl, GetMenuListUrl, isLoginUrl, getPublicKeyUrl } from '@/api/requrls/user';
-import type { RouteRecordNormalized } from 'vue-router';
+import { GetMenuListUrl, getPublicKeyUrl, isLoginUrl, LoginUrl, LogoutUrl } from '@/api/requrls/user';
+
 import type { LoginData, LoginRes } from '@/models/user';
+
+import type { RouteRecordNormalized } from 'vue-router';
 
 export function login(data: LoginData) {
   return MSR.post<LoginRes>({ url: LoginUrl, data });

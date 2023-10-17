@@ -40,15 +40,16 @@
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import useModal from '@/hooks/useModal';
-  import { useI18n } from '@/hooks/useI18n';
-  import MsTree from '@/components/business/ms-tree/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTree from '@/components/business/ms-tree/index.vue';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import popConfirm from './popConfirm.vue';
 
-  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
 
   const props = defineProps<{
     isExpandAll: boolean;

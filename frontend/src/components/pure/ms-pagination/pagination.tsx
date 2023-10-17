@@ -1,16 +1,19 @@
-import type { PropType, CSSProperties } from 'vue';
 import { computed, defineComponent, reactive, ref, toRefs, watch } from 'vue';
-import { getPrefixCls, isNumber } from './utils';
-import { Size } from './types';
+
 import Pager from './page-item.vue';
-import StepPager from './page-item-step.vue';
 import EllipsisPager from './page-item-ellipsis.vue';
+import StepPager from './page-item-step.vue';
 import PageJumper from './page-jumper.vue';
 import PageOptions from './page-options.vue';
+
 import { useI18n } from '@/hooks/useI18n';
+
 import type { PageItemType } from './interface';
-import { SelectProps } from '@arco-design/web-vue/es/select/interface';
+import { Size } from './types';
 import useSize from './useSize';
+import { getPrefixCls, isNumber } from './utils';
+import { SelectProps } from '@arco-design/web-vue/es/select/interface';
+import type { CSSProperties, PropType } from 'vue';
 
 export type Data = Record<string, any>;
 

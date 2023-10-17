@@ -1,4 +1,5 @@
 import { Slots } from 'vue';
+
 import { ArcoLang } from '@arco-design/web-vue/es/locale/interface';
 
 export interface ArcoOptions {

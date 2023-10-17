@@ -1,5 +1,7 @@
 import MSR from '@/api/http';
+
 import { RequestEnum } from '@/enums/httpEnum';
+
 import MockAdapter from 'axios-mock-adapter';
 
 const MOCK = new MockAdapter(MSR.axiosInstance, { onNoMatch: 'throwException' });

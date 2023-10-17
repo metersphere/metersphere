@@ -75,16 +75,17 @@
    * @description 项目管理-文件管理
    */
   import { computed, ref } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import type { SelectedValue } from '@/components/pure/ms-table-more-action/types';
   import FolderTree from './components/folderTree.vue';
-  import StorageList from './components/storageList.vue';
   import popConfirm from './components/popConfirm.vue';
   import rightBox from './components/rightBox.vue';
+  import StorageList from './components/storageList.vue';
 
-  import type { SelectedValue } from '@/components/pure/ms-table-more-action/types';
+  import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
 

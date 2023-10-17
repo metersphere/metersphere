@@ -1,16 +1,19 @@
 <script lang="tsx">
-  import { defineComponent, ref, h, compile, computed } from 'vue';
-  import { useRoute, useRouter, RouteRecordRaw } from 'vue-router';
+  import { compile, computed, defineComponent, h, ref } from 'vue';
+  import { RouteRecordRaw, useRoute, useRouter } from 'vue-router';
+
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+
   import { useI18n } from '@/hooks/useI18n';
   import useUser from '@/hooks/useUser';
-  import type { RouteMeta } from 'vue-router';
-  import { useAppStore, useUserStore } from '@/store';
-  import { listenerRouteChange } from '@/utils/route-listener';
-  import { openWindow, regexUrl } from '@/utils';
-  import useMenuTree from './use-menu-tree';
-  import { PERSONAL_ROUTE } from '@/router/routes/base';
   import { BOTTOM_MENU_LIST } from '@/router/constants';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import { PERSONAL_ROUTE } from '@/router/routes/base';
+  import { useAppStore, useUserStore } from '@/store';
+  import { openWindow, regexUrl } from '@/utils';
+  import { listenerRouteChange } from '@/utils/route-listener';
+
+  import useMenuTree from './use-menu-tree';
+  import type { RouteMeta } from 'vue-router';
 
   export default defineComponent({
     emit: ['collapse'],

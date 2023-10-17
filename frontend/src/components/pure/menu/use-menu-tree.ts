@@ -1,8 +1,9 @@
 import { computed } from 'vue';
-import { RouteRecordRaw, RouteRecordNormalized } from 'vue-router';
+import { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
+import { cloneDeep } from 'lodash-es';
+
 import usePermission from '@/hooks/usePermission';
 import appClientMenus from '@/router/app-menus';
-import { cloneDeep } from 'lodash-es';
 
 /**
  * 获取菜单树

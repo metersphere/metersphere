@@ -48,9 +48,11 @@
 
 <script lang="ts" name="navigator" setup>
   import { computed, nextTick, onMounted, reactive, ref } from 'vue';
-  import type { Ref } from 'vue';
-  import { getLocalStorage, setLocalStorage } from '../script/store';
+
   import { useI18n } from '@/hooks/useI18n';
+
+  import { getLocalStorage, setLocalStorage } from '../script/store';
+  import type { Ref } from 'vue';
 
   const { t } = useI18n();
 
