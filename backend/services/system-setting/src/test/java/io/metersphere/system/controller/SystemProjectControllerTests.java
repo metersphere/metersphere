@@ -11,11 +11,13 @@ import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.StatusFlowSettingDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.job.CleanProjectJob;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -25,8 +27,7 @@ import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
-import io.metersphere.system.service.BaseCustomFieldService;
-import io.metersphere.system.service.BaseTemplateService;
+import io.metersphere.system.service.*;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -43,9 +44,8 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -89,6 +89,14 @@ public class SystemProjectControllerTests extends BaseTest {
     private BaseTemplateService baseTemplateService;
     @Resource
     private BaseCustomFieldService baseCustomFieldService;
+    @Resource
+    private BaseStatusItemService baseStatusItemService;
+    @Resource
+    private BaseStatusDefinitionService baseStatusDefinitionService;
+    @Resource
+    private BaseStatusFlowService baseStatusFlowService;
+    @Resource
+    private BaseStatusFlowSettingService baseStatusFlowSettingService;
     @Resource
     private OrganizationParameterMapper organizationParameterMapper;
     @Resource
@@ -214,6 +222,7 @@ public class SystemProjectControllerTests extends BaseTest {
         Assertions.assertNull(currentProject.getModuleSetting());
         // 项目模板未启用时，校验是否创建了项目模板
         assertionsRefTemplateCreate(projectId);
+        assertionsRefStatusFlowSetting(projectId);
 
         //userId为空的时候
         project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"userIdIsNull", "description", true, new ArrayList<>());
@@ -242,6 +251,7 @@ public class SystemProjectControllerTests extends BaseTest {
         Assertions.assertNull(currentProject.getModuleSetting());
         // 项目模板开启时，校验是否初始化了项目模板
         assertionsInitTemplate(projectId);
+        assertionsInitStatusFlowSetting(projectId);
 
         //设置了模块模版
         List<String> moduleIds = new ArrayList<>();
@@ -339,6 +349,54 @@ public class SystemProjectControllerTests extends BaseTest {
         });
     }
 
+    public void assertionsRefStatusFlowSetting(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+
+        // 校验是否初始化了项目状态项
+        List<StatusItem> orgStatusItems = baseStatusItemService.getByScopeId(project.getOrganizationId());
+        List<StatusItem> projectStatusItems = baseStatusItemService.getByScopeId(projectId);
+        Assertions.assertEquals(orgStatusItems.size(), projectStatusItems.size());
+        orgStatusItems.forEach(orgStatusItem -> {
+            StatusItem projectStatusItem = projectStatusItems.stream()
+                    .filter(statusItem -> StringUtils.equals(statusItem.getRefId(), orgStatusItem.getId()))
+                    .findFirst()
+                    .get();
+
+            StatusItem copyStatusItem = BeanUtils.copyBean(new StatusItem(), orgStatusItem);
+            copyStatusItem.setId(projectStatusItem.getId());
+            copyStatusItem.setScopeId(projectId);
+            copyStatusItem.setScopeType(TemplateScopeType.PROJECT.name());
+            copyStatusItem.setRefId(orgStatusItem.getId());
+            Assertions.assertEquals(copyStatusItem, projectStatusItem);
+        });
+
+        Map<String, String> refMap = projectStatusItems.stream()
+                .collect(Collectors.toMap(StatusItem::getId, StatusItem::getRefId));
+        List<String> orgStatusItemIds = orgStatusItems.stream().map(StatusItem::getId).toList();
+        List<String> projectStatusItemIds = projectStatusItems.stream().map(StatusItem::getId).toList();
+
+        // 校验是否初始化了项目状态定义
+        List<StatusDefinition> orgStatusDefinitions = baseStatusDefinitionService.getStatusDefinitions(orgStatusItemIds);
+        List<StatusDefinition> projectStatusDefinitions = baseStatusDefinitionService.getStatusDefinitions(projectStatusItemIds);
+        projectStatusDefinitions.forEach(item -> item.setStatusId(refMap.get(item.getStatusId())));
+        orgStatusDefinitions.sort(Comparator.comparing(StatusDefinition::getStatusId));
+        projectStatusDefinitions.sort(Comparator.comparing(StatusDefinition::getStatusId));
+        Assertions.assertEquals(orgStatusDefinitions, projectStatusDefinitions);
+
+        // 校验是否初始化了项目状态流转
+        List<StatusFlow> orgStatusFlows = baseStatusFlowService.getStatusFlows(orgStatusItemIds);
+        List<StatusFlow> projectStatusFlows = baseStatusFlowService.getStatusFlows(projectStatusItemIds);
+        orgStatusFlows.forEach(item -> item.setId(null));
+        projectStatusFlows.forEach(item -> {
+            item.setId(null);
+            item.setFromId(refMap.get(item.getFromId()));
+            item.setToId(refMap.get(item.getToId()));
+        });
+        orgStatusFlows.sort(Comparator.comparing(a -> (a.getFromId() + a.getToId())));
+        projectStatusFlows.sort(Comparator.comparing(a -> (a.getFromId() + a.getToId())));
+        Assertions.assertEquals(orgStatusFlows, projectStatusFlows);
+    }
+
     public void assertionsInitTemplate(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         // 校验是否初始化了项目字段
@@ -358,6 +416,47 @@ public class SystemProjectControllerTests extends BaseTest {
                     .filter(field -> StringUtils.equals(field.getScene(), scene.name()))
                     .findFirst().get();
             Assertions.assertNotNull(template);
+        }
+    }
+
+    public void assertionsInitStatusFlowSetting(String projectId) {
+        StatusFlowSettingDTO statusFlowSetting = baseStatusFlowSettingService.getStatusFlowSetting(projectId, TemplateScene.BUG.name());
+        List<StatusItem> statusItems = statusFlowSetting.getStatusItems();
+        List<StatusDefinition> statusDefinitions = statusFlowSetting.getStatusDefinitions();
+        List<StatusFlow> statusFlows = statusFlowSetting.getStatusFlows();
+        List<String> statusDefinitionTypes = statusFlowSetting.getStatusDefinitionTypes();
+        Map<String, String> nameIdMap = baseStatusItemService.getByScopeIdAndScene(projectId, TemplateScene.BUG.name()).stream()
+                .collect(Collectors.toMap(StatusItem::getId, StatusItem::getName));
+
+        // 校验状态定义是否正确
+        Assertions.assertEquals(statusDefinitionTypes, Arrays.stream(BugStatusDefinitionType.values()).map(Enum::name).toList());
+
+        // 校验默认的状态定义是否初始化正确
+        Assertions.assertEquals(statusItems.size(), DefaultBugStatusItem.values().length);
+        for (DefaultBugStatusItem defaultBugStatusItem : DefaultBugStatusItem.values()) {
+            StatusItem statusItem = statusItems.stream()
+                    .filter(item -> item.getName().equals(Translator.get("status_item." + defaultBugStatusItem.getName())))
+                    .findFirst()
+                    .get();
+
+            // 校验默认的状态定义是否初始化正确
+            List<String> defaultDefinitionTypes = defaultBugStatusItem.getDefinitionTypes()
+                    .stream()
+                    .map(BugStatusDefinitionType::name)
+                    .toList();
+            List<String> definitionTypes = statusDefinitions.stream()
+                    .filter(item -> item.getStatusId().equals(statusItem.getId()))
+                    .map(StatusDefinition::getDefinitionId)
+                    .toList();
+            Assertions.assertEquals(defaultDefinitionTypes, definitionTypes);
+
+            // 校验默认的状态流是否初始化正确
+            List<String> defaultFlowTargets = defaultBugStatusItem.getStatusFlowTargets();
+            List<String> flowTargets = statusFlows.stream()
+                    .filter(item -> item.getFromId().equals(statusItem.getId()))
+                    .map(item -> nameIdMap.get(item.getToId()))
+                    .toList();
+            Assertions.assertEquals(defaultFlowTargets, flowTargets);
         }
     }
 
@@ -893,5 +992,6 @@ public class SystemProjectControllerTests extends BaseTest {
         cleanProjectJob.cleanupProject();
         Assertions.assertTrue(CollectionUtils.isEmpty(baseCustomFieldService.getByScopeId(id)));
         Assertions.assertTrue(CollectionUtils.isEmpty(baseTemplateService.getByScopeId(id)));
+        Assertions.assertTrue(CollectionUtils.isEmpty(baseStatusItemService.getByScopeId(id)));
     }
 }

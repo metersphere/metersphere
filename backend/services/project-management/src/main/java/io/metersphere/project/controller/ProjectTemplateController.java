@@ -28,7 +28,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/project/template")
-@Tag(name = "系统设置-组织-模版")
+@Tag(name = "项目管理-模版")
 public class ProjectTemplateController {
 
     @Resource
@@ -39,7 +39,7 @@ public class ProjectTemplateController {
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ)
     public List<Template> list(@Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
                                @PathVariable String projectId,
-                               @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI）", requiredMode = Schema.RequiredMode.REQUIRED)
+                               @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI,TEST_PLAN）", requiredMode = Schema.RequiredMode.REQUIRED)
                                @PathVariable String scene) {
         return projectTemplateservice.list(projectId, scene);
     }

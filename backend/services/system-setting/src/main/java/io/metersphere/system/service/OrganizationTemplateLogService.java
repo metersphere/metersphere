@@ -44,9 +44,9 @@ public class OrganizationTemplateLogService {
                     null,
                     template.getId(),
                     null,
-                    String.join(Translator.get("set_default_template"), ":", OperationLogType.UPDATE.name()),
+                    OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
-                    template.getName());
+                    String.join(Translator.get("set_default_template"), ":", template.getName()));
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
         return dto;

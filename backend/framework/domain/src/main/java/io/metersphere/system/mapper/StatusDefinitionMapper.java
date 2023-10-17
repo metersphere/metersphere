@@ -10,7 +10,7 @@ public interface StatusDefinitionMapper {
 
     int deleteByExample(StatusDefinitionExample example);
 
-    int deleteByPrimaryKey(String id);
+    int deleteByPrimaryKey(@Param("statusId") String statusId, @Param("definitionId") String definitionId);
 
     int insert(StatusDefinition record);
 
@@ -18,15 +18,9 @@ public interface StatusDefinitionMapper {
 
     List<StatusDefinition> selectByExample(StatusDefinitionExample example);
 
-    StatusDefinition selectByPrimaryKey(String id);
-
     int updateByExampleSelective(@Param("record") StatusDefinition record, @Param("example") StatusDefinitionExample example);
 
     int updateByExample(@Param("record") StatusDefinition record, @Param("example") StatusDefinitionExample example);
-
-    int updateByPrimaryKeySelective(StatusDefinition record);
-
-    int updateByPrimaryKey(StatusDefinition record);
 
     int batchInsert(@Param("list") List<StatusDefinition> list);
 

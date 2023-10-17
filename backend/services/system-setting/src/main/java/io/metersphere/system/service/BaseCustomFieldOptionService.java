@@ -79,7 +79,9 @@ public class BaseCustomFieldOptionService {
             customFieldOption.setFieldId(fieldId);
             return customFieldOption;
         }).toList();
-        customFieldOptionMapper.batchInsert(customFieldOptions);
+        if (CollectionUtils.isNotEmpty(customFieldOptions)) {
+            customFieldOptionMapper.batchInsert(customFieldOptions);
+        }
     }
 
     public List<CustomFieldOption> getByFieldIds(List<String> fieldIds) {

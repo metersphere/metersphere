@@ -17,7 +17,7 @@ import java.util.List;
 public class CustomFieldUpdateRequest {
     @Schema(title = "自定义字段ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{custom_field.id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{custom_field.id.length_range}", groups = {Updated.class})
     private String id;
 
     @Schema(title = "自定义字段名称", requiredMode = Schema.RequiredMode.REQUIRED)

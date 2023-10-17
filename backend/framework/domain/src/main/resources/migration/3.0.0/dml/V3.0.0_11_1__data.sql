@@ -57,10 +57,6 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_PROJECT_MEMBER:ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_PROJECT_MEMBER:DELETE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_LOG:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_CUSTOM_FIELD:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_CUSTOM_FIELD:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_CUSTOM_FIELD:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_CUSTOM_FIELD:READ+DELETE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_TEMPLATE:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_TEMPLATE:READ+ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_TEMPLATE:READ+UPDATE');
@@ -217,6 +213,115 @@ VALUES (UUID_SHORT(), 'test_plan_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, enable_default, scene, ref_id)
 VALUES (UUID_SHORT(), 'test_plan_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', '100001100001', 0, 1, 'TEST_PLAN',
         (SELECT id FROM (SELECT * FROM template) t where name = 'test_plan_default'));
+
+-- 初始化组织缺陷状态项
+-- 新建
+INSERT INTO status_item
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
+VALUES(UUID_SHORT(), 'bug_new', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001');
+-- 处理中
+INSERT INTO status_item
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
+VALUES(UUID_SHORT(), 'bug_in_process', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001');
+-- 已关闭
+INSERT INTO status_item
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
+VALUES(UUID_SHORT(), 'bug_closed', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001');
+-- 已解决
+INSERT INTO status_item
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
+VALUES(UUID_SHORT(), 'bug_resolved', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001');
+-- 已拒绝
+INSERT INTO status_item
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
+VALUES(UUID_SHORT(), 'bug_rejected', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001');
+
+-- 初始化组织缺陷状态定义
+INSERT INTO status_definition(status_id, definition_id)
+VALUES((SELECT id FROM status_item where name = 'bug_new'), 'START');
+INSERT INTO status_definition(status_id, definition_id)
+VALUES((SELECT id FROM status_item where name = 'bug_closed'), 'END');
+INSERT INTO status_definition(status_id, definition_id)
+VALUES((SELECT id FROM status_item where name = 'bug_rejected'), 'END');
+
+-- 初始化组织缺陷状态流
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_new'), (SELECT id FROM status_item where name = 'bug_in_process'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_new'), (SELECT id FROM status_item where name = 'bug_rejected'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_in_process'), (SELECT id FROM status_item where name = 'bug_rejected'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_in_process'), (SELECT id FROM status_item where name = 'bug_resolved'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_in_process'), (SELECT id FROM status_item where name = 'bug_closed'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_closed'), (SELECT id FROM status_item where name = 'bug_in_process'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_resolved'), (SELECT id FROM status_item where name = 'bug_in_process'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_resolved'), (SELECT id FROM status_item where name = 'bug_closed'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_rejected'), (SELECT id FROM status_item where name = 'bug_in_process'));
+
+-- 初始化项目缺陷状态项
+-- 新建
+INSERT INTO status_item
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
+VALUES(UUID_SHORT(), 'bug_new', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_new'), '100001100001');
+-- 处理中
+INSERT INTO status_item
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
+VALUES(UUID_SHORT(), 'bug_in_process', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_in_process'), '100001100001');
+-- 已解决
+INSERT INTO status_item
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
+VALUES(UUID_SHORT(), 'bug_resolved', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_resolved'), '100001100001');
+-- 已关闭
+INSERT INTO status_item
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
+VALUES(UUID_SHORT(), 'bug_closed', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_closed'), '100001100001');
+-- 已拒绝
+INSERT INTO status_item
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
+VALUES(UUID_SHORT(), 'bug_rejected', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_rejected'), '100001100001');
+
+-- 初始化项目缺陷状态定义
+INSERT INTO status_definition(status_id, definition_id)
+VALUES((SELECT id FROM status_item where name = 'bug_new' and scope_id = '100001100001'), 'START');
+INSERT INTO status_definition(status_id, definition_id)
+VALUES((SELECT id FROM status_item where name = 'bug_closed' and scope_id = '100001100001'), 'END');
+INSERT INTO status_definition(status_id, definition_id)
+VALUES((SELECT id FROM status_item where name = 'bug_rejected' and scope_id = '100001100001'), 'END');
+
+-- 初始化项目缺陷状态流
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_new' and scope_id = '100001100001'),
+       (SELECT id FROM status_item where name = 'bug_in_process' and scope_id = '100001100001'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_new' and scope_id = '100001100001'),
+       (SELECT id FROM status_item where name = 'bug_rejected' and scope_id = '100001100001'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_in_process' and scope_id = '100001100001'),
+       (SELECT id FROM status_item where name = 'bug_rejected' and scope_id = '100001100001'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_in_process' and scope_id = '100001100001'),
+       (SELECT id FROM status_item where name = 'bug_resolved' and scope_id = '100001100001'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_in_process' and scope_id = '100001100001'),
+       (SELECT id FROM status_item where name = 'bug_closed' and scope_id = '100001100001'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_closed' and scope_id = '100001100001'),
+       (SELECT id FROM status_item where name = 'bug_in_process' and scope_id = '100001100001'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_resolved' and scope_id = '100001100001'),
+       (SELECT id FROM status_item where name = 'bug_in_process' and scope_id = '100001100001'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_resolved' and scope_id = '100001100001'),
+       (SELECT id FROM status_item where name = 'bug_closed' and scope_id = '100001100001'));
+INSERT INTO status_flow(id, from_id, to_id)
+VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_rejected' and scope_id = '100001100001'),
+       (SELECT id FROM status_item where name = 'bug_in_process' and scope_id = '100001100001'));
 
 -- 初始化内置消息机器人
 SET @robot_in_site_id = UUID_SHORT();

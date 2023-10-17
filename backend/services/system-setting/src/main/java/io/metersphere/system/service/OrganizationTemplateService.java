@@ -180,7 +180,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
         SubListUtils.dealForSubList(projectTemplateIds, 100, baseTemplateCustomFieldService::deleteByTemplateIds);
     }
 
-    private void checkOrganizationTemplateEnable(String orgId, String scene) {
+    public void checkOrganizationTemplateEnable(String orgId, String scene) {
         if (!isOrganizationTemplateEnable(orgId, scene)) {
             throw new MSException(ORGANIZATION_TEMPLATE_PERMISSION);
         }

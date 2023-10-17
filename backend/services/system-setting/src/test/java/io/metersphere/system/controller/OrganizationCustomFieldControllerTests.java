@@ -138,7 +138,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         // @@异常参数校验
         createdGroupParamValidateTest(CustomFieldUpdateRequestDefinition.class, DEFAULT_ADD);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_ADD, DEFAULT_ADD, request);
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_ADD, DEFAULT_ADD, request);
     }
 
     @Test
@@ -197,7 +197,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         // @@异常参数校验
         updatedGroupParamValidateTest(CustomFieldUpdateRequestDefinition.class, DEFAULT_UPDATE);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_UPDATE, DEFAULT_UPDATE, request);
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, DEFAULT_UPDATE, request);
     }
 
     @Test
@@ -231,7 +231,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         assertErrorCode(this.requestGet(LIST, DEFAULT_ORGANIZATION_ID, "111"), TEMPLATE_SCENE_ILLEGAL);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_READ, LIST, DEFAULT_ORGANIZATION_ID, scene);
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, LIST, DEFAULT_ORGANIZATION_ID, scene);
     }
 
     @Test
@@ -248,7 +248,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         Assertions.assertEquals(options, baseCustomFieldOptionService.getByFieldId(customField.getId()));
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_READ, DEFAULT_GET, customFieldDTO.getId());
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, DEFAULT_GET, customFieldDTO.getId());
     }
 
     @Test
@@ -277,7 +277,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         // @@校验日志
         checkLog(addCustomField.getId(), OperationLogType.DELETE);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_CUSTOM_FIELD_DELETE, DEFAULT_DELETE, addCustomField.getId());
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_DELETE, DEFAULT_DELETE, addCustomField.getId());
     }
 
     /**
