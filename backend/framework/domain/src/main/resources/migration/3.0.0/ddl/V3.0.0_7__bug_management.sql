@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS bug(
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
     `template_id` VARCHAR(50)    COMMENT '模板ID' ,
     `platform` VARCHAR(50) NOT NULL   COMMENT '缺陷平台' ,
-    `status` VARCHAR(50) NOT NULL  DEFAULT '' COMMENT '平台状态' ,
+    `status` VARCHAR(50) NOT NULL  DEFAULT '' COMMENT '状态' ,
+    `tag` VARCHAR(1000)    COMMENT '标签' ,
     `platform_bug_id` VARCHAR(50)    COMMENT '第三方平台缺陷ID' ,
     `trash` BIT(1) NOT NULL   COMMENT '是否回收站' ,
     PRIMARY KEY (id)
@@ -55,6 +56,7 @@ CREATE TABLE IF NOT EXISTS bug_comment(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
     `reply_user` VARCHAR(50)    COMMENT '回复人' ,
+    `notifier` VARCHAR(1000)    COMMENT '通知人' ,
     `parent_id` VARCHAR(50)    COMMENT '父评论ID' ,
     `description` TEXT NOT NULL   COMMENT '内容' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '评论人' ,
