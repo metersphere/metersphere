@@ -22,11 +22,6 @@ public class FunctionalCase implements Serializable {
     @Size(min = 1, max = 10, message = "{functional_case.num.length_range}", groups = {Created.class, Updated.class})
     private Integer num;
 
-    @Schema(description =  "自定义业务ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case.custom_num.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{functional_case.custom_num.length_range}", groups = {Created.class, Updated.class})
-    private String customNum;
-
     @Schema(description =  "模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.module_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{functional_case.module_id.length_range}", groups = {Created.class, Updated.class})
@@ -36,6 +31,11 @@ public class FunctionalCase implements Serializable {
     @NotBlank(message = "{functional_case.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{functional_case.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
+
+    @Schema(description =  "模板ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case.template_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{functional_case.template_id.length_range}", groups = {Created.class, Updated.class})
+    private String templateId;
 
     @Schema(description =  "名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.name.not_blank}", groups = {Created.class})
@@ -51,9 +51,9 @@ public class FunctionalCase implements Serializable {
     private String tags;
 
     @Schema(description =  "编辑模式：步骤模式/文本模式", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case.case_model.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{functional_case.case_model.length_range}", groups = {Created.class, Updated.class})
-    private String caseModel;
+    @NotBlank(message = "{functional_case.case_edit_type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{functional_case.case_edit_type.length_range}", groups = {Created.class, Updated.class})
+    private String caseEditType;
 
     @Schema(description =  "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.pos.not_blank}", groups = {Created.class})
@@ -113,13 +113,13 @@ public class FunctionalCase implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         num("num", "num", "INTEGER", false),
-        customNum("custom_num", "customNum", "VARCHAR", false),
         moduleId("module_id", "moduleId", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
+        templateId("template_id", "templateId", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
         reviewStatus("review_status", "reviewStatus", "VARCHAR", false),
         tags("tags", "tags", "VARCHAR", false),
-        caseModel("case_model", "caseModel", "VARCHAR", false),
+        caseEditType("case_edit_type", "caseEditType", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),
         versionId("version_id", "versionId", "VARCHAR", false),
         refId("ref_id", "refId", "VARCHAR", false),

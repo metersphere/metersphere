@@ -4,6 +4,7 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,54 +12,39 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class FunctionalCaseAttachment implements Serializable {
-    @Schema(description =  "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_attachment.case_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{functional_case_attachment.case_id.length_range}", groups = {Created.class, Updated.class})
-    private String caseId;
-
-    @Schema(description =  "文件的ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_attachment.file_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{functional_case_attachment.file_id.length_range}", groups = {Created.class, Updated.class})
-    private String fileId;
-
-    @Schema(description =  "id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_attachment.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{functional_case_attachment.id.length_range}", groups = {Created.class, Updated.class})
+public class FunctionalCaseHistory implements Serializable {
+    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_history.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{functional_case_history.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "文件名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_attachment.file_name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{functional_case_attachment.file_name.length_range}", groups = {Created.class, Updated.class})
-    private String fileName;
+    @Schema(description =  "用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_history.case_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{functional_case_history.case_id.length_range}", groups = {Created.class, Updated.class})
+    private String caseId;
 
-    @Schema(description =  "文件大小", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_attachment.size.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{functional_case_attachment.size.length_range}", groups = {Created.class, Updated.class})
-    private Long size;
+    @Schema(description =  "变更记录批次号", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer num;
 
-    @Schema(description =  "是否本地", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_attachment.local.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{functional_case_attachment.local.length_range}", groups = {Created.class, Updated.class})
-    private Boolean local;
-
-    @Schema(description =  "创建人")
+    @Schema(description =  "操作人")
     private String createUser;
 
-    @Schema(description =  "创建时间")
+    @Schema(description =  "操作时间")
     private Long createTime;
+
+    @Schema(description =  "修改内容", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{functional_case_history.content.not_blank}", groups = {Created.class})
+    private byte[] content;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
-        caseId("case_id", "caseId", "VARCHAR", false),
-        fileId("file_id", "fileId", "VARCHAR", false),
         id("id", "id", "VARCHAR", false),
-        fileName("file_name", "fileName", "VARCHAR", false),
-        size("size", "size", "BIGINT", true),
-        local("local", "local", "BIT", true),
+        caseId("case_id", "caseId", "VARCHAR", false),
+        num("num", "num", "INTEGER", false),
         createUser("create_user", "createUser", "VARCHAR", false),
-        createTime("create_time", "createTime", "BIGINT", false);
+        createTime("create_time", "createTime", "BIGINT", false),
+        content("content", "content", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

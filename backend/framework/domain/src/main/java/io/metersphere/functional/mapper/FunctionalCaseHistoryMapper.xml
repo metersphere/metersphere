@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCaseAttachment">
-    <id column="case_id" jdbcType="VARCHAR" property="caseId" />
-    <id column="file_id" jdbcType="VARCHAR" property="fileId" />
-    <result column="id" jdbcType="VARCHAR" property="id" />
-    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
-    <result column="size" jdbcType="BIGINT" property="size" />
-    <result column="local" jdbcType="BIT" property="local" />
+<mapper namespace="io.metersphere.functional.mapper.FunctionalCaseHistoryMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCaseHistory">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="case_id" jdbcType="VARCHAR" property="caseId" />
+    <result column="num" jdbcType="INTEGER" property="num" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.functional.domain.FunctionalCaseHistory">
+    <result column="content" jdbcType="LONGVARBINARY" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,15 +70,20 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    case_id, file_id, id, file_name, `size`, `local`, create_user, create_time
+    id, case_id, num, create_user, create_time
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachmentExample" resultMap="BaseResultMap">
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.functional.domain.FunctionalCaseHistoryExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from functional_case_attachment
+    ,
+    <include refid="Blob_Column_List" />
+    from functional_case_history
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -86,52 +91,57 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseHistoryExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from functional_case_history
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
-    from functional_case_attachment
-    where case_id = #{caseId,jdbcType=VARCHAR}
-      and file_id = #{fileId,jdbcType=VARCHAR}
+    ,
+    <include refid="Blob_Column_List" />
+    from functional_case_history
+    where id = #{id,jdbcType=VARCHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="map">
-    delete from functional_case_attachment
-    where case_id = #{caseId,jdbcType=VARCHAR}
-      and file_id = #{fileId,jdbcType=VARCHAR}
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from functional_case_history
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachmentExample">
-    delete from functional_case_attachment
+  <delete id="deleteByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseHistoryExample">
+    delete from functional_case_history
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachment">
-    insert into functional_case_attachment (case_id, file_id, id, 
-      file_name, `size`, `local`, create_user, 
-      create_time)
-    values (#{caseId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{id,jdbcType=VARCHAR}, 
-      #{fileName,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{local,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT})
+  <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseHistory">
+    insert into functional_case_history (id, case_id, num, 
+      create_user, create_time, content
+      )
+    values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
+      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachment">
-    insert into functional_case_attachment
+  <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseHistory">
+    insert into functional_case_history
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="caseId != null">
-        case_id,
-      </if>
-      <if test="fileId != null">
-        file_id,
-      </if>
       <if test="id != null">
         id,
       </if>
-      <if test="fileName != null">
-        file_name,
+      <if test="caseId != null">
+        case_id,
       </if>
-      <if test="size != null">
-        `size`,
-      </if>
-      <if test="local != null">
-        `local`,
+      <if test="num != null">
+        num,
       </if>
       <if test="createUser != null">
         create_user,
@@ -139,25 +149,19 @@
       <if test="createTime != null">
         create_time,
       </if>
+      <if test="content != null">
+        content,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="caseId != null">
-        #{caseId,jdbcType=VARCHAR},
-      </if>
-      <if test="fileId != null">
-        #{fileId,jdbcType=VARCHAR},
-      </if>
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="fileName != null">
-        #{fileName,jdbcType=VARCHAR},
+      <if test="caseId != null">
+        #{caseId,jdbcType=VARCHAR},
       </if>
-      <if test="size != null">
-        #{size,jdbcType=BIGINT},
-      </if>
-      <if test="local != null">
-        #{local,jdbcType=BIT},
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -165,34 +169,28 @@
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARBINARY},
+      </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachmentExample" resultType="java.lang.Long">
-    select count(*) from functional_case_attachment
+  <select id="countByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseHistoryExample" resultType="java.lang.Long">
+    select count(*) from functional_case_history
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update functional_case_attachment
+    update functional_case_history
     <set>
-      <if test="record.caseId != null">
-        case_id = #{record.caseId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.fileId != null">
-        file_id = #{record.fileId,jdbcType=VARCHAR},
-      </if>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.fileName != null">
-        file_name = #{record.fileName,jdbcType=VARCHAR},
+      <if test="record.caseId != null">
+        case_id = #{record.caseId,jdbcType=VARCHAR},
       </if>
-      <if test="record.size != null">
-        `size` = #{record.size,jdbcType=BIGINT},
-      </if>
-      <if test="record.local != null">
-        `local` = #{record.local,jdbcType=BIT},
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -200,39 +198,45 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARBINARY},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update functional_case_history
+    set id = #{record.id,jdbcType=VARCHAR},
+      case_id = #{record.caseId,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      content = #{record.content,jdbcType=LONGVARBINARY}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
   <update id="updateByExample" parameterType="map">
-    update functional_case_attachment
-    set case_id = #{record.caseId,jdbcType=VARCHAR},
-      file_id = #{record.fileId,jdbcType=VARCHAR},
-      id = #{record.id,jdbcType=VARCHAR},
-      file_name = #{record.fileName,jdbcType=VARCHAR},
-      `size` = #{record.size,jdbcType=BIGINT},
-      `local` = #{record.local,jdbcType=BIT},
+    update functional_case_history
+    set id = #{record.id,jdbcType=VARCHAR},
+      case_id = #{record.caseId,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachment">
-    update functional_case_attachment
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.functional.domain.FunctionalCaseHistory">
+    update functional_case_history
     <set>
-      <if test="id != null">
-        id = #{id,jdbcType=VARCHAR},
+      <if test="caseId != null">
+        case_id = #{caseId,jdbcType=VARCHAR},
       </if>
-      <if test="fileName != null">
-        file_name = #{fileName,jdbcType=VARCHAR},
-      </if>
-      <if test="size != null">
-        `size` = #{size,jdbcType=BIGINT},
-      </if>
-      <if test="local != null">
-        `local` = #{local,jdbcType=BIT},
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
@@ -240,33 +244,41 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARBINARY},
+      </if>
     </set>
-    where case_id = #{caseId,jdbcType=VARCHAR}
-      and file_id = #{fileId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachment">
-    update functional_case_attachment
-    set id = #{id,jdbcType=VARCHAR},
-      file_name = #{fileName,jdbcType=VARCHAR},
-      `size` = #{size,jdbcType=BIGINT},
-      `local` = #{local,jdbcType=BIT},
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.functional.domain.FunctionalCaseHistory">
+    update functional_case_history
+    set case_id = #{caseId,jdbcType=VARCHAR},
+      num = #{num,jdbcType=INTEGER},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      content = #{content,jdbcType=LONGVARBINARY}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.FunctionalCaseHistory">
+    update functional_case_history
+    set case_id = #{caseId,jdbcType=VARCHAR},
+      num = #{num,jdbcType=INTEGER},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT}
-    where case_id = #{caseId,jdbcType=VARCHAR}
-      and file_id = #{fileId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into functional_case_attachment
-    (case_id, file_id, id, file_name, `size`, `local`, create_user, create_time)
+    insert into functional_case_history
+    (id, case_id, num, create_user, create_time, content)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.caseId,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, #{item.id,jdbcType=VARCHAR}, 
-        #{item.fileName,jdbcType=VARCHAR}, #{item.size,jdbcType=BIGINT}, #{item.local,jdbcType=BIT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT})
+      (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.num,jdbcType=INTEGER}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARBINARY}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into functional_case_attachment (
+    insert into functional_case_history (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>
@@ -275,29 +287,23 @@
     <foreach collection="list" item="item" separator=",">
       (
       <foreach collection="selective" item="column" separator=",">
-        <if test="'case_id'.toString() == column.value">
-          #{item.caseId,jdbcType=VARCHAR}
-        </if>
-        <if test="'file_id'.toString() == column.value">
-          #{item.fileId,jdbcType=VARCHAR}
-        </if>
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
         </if>
-        <if test="'file_name'.toString() == column.value">
-          #{item.fileName,jdbcType=VARCHAR}
+        <if test="'case_id'.toString() == column.value">
+          #{item.caseId,jdbcType=VARCHAR}
         </if>
-        <if test="'size'.toString() == column.value">
-          #{item.size,jdbcType=BIGINT}
-        </if>
-        <if test="'local'.toString() == column.value">
-          #{item.local,jdbcType=BIT}
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=INTEGER}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'content'.toString() == column.value">
+          #{item.content,jdbcType=LONGVARBINARY}
         </if>
       </foreach>
       )

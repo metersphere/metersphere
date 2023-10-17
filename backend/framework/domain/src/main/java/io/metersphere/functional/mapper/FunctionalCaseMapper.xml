@@ -4,13 +4,13 @@
   <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCase">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="num" jdbcType="INTEGER" property="num" />
-    <result column="custom_num" jdbcType="VARCHAR" property="customNum" />
     <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="template_id" jdbcType="VARCHAR" property="templateId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="review_status" jdbcType="VARCHAR" property="reviewStatus" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
-    <result column="case_model" jdbcType="VARCHAR" property="caseModel" />
+    <result column="case_edit_type" jdbcType="VARCHAR" property="caseEditType" />
     <result column="pos" jdbcType="BIGINT" property="pos" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
@@ -84,7 +84,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, custom_num, module_id, project_id, `name`, review_status, tags, case_model, 
+    id, num, module_id, project_id, template_id, `name`, review_status, tags, case_edit_type, 
     pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, 
     update_user, delete_user, create_time, update_time, delete_time
   </sql>
@@ -119,17 +119,17 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCase">
-    insert into functional_case (id, num, custom_num, 
-      module_id, project_id, `name`, 
-      review_status, tags, case_model, 
+    insert into functional_case (id, num, module_id, 
+      project_id, template_id, `name`, 
+      review_status, tags, case_edit_type, 
       pos, version_id, ref_id, 
       last_execute_result, deleted, public_case, 
       latest, create_user, update_user, 
       delete_user, create_time, update_time, 
       delete_time)
-    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{customNum,jdbcType=VARCHAR}, 
-      #{moduleId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{caseModel,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{moduleId,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{caseEditType,jdbcType=VARCHAR}, 
       #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
       #{lastExecuteResult,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{publicCase,jdbcType=BIT}, 
       #{latest,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, 
@@ -145,14 +145,14 @@
       <if test="num != null">
         num,
       </if>
-      <if test="customNum != null">
-        custom_num,
-      </if>
       <if test="moduleId != null">
         module_id,
       </if>
       <if test="projectId != null">
         project_id,
+      </if>
+      <if test="templateId != null">
+        template_id,
       </if>
       <if test="name != null">
         `name`,
@@ -163,8 +163,8 @@
       <if test="tags != null">
         tags,
       </if>
-      <if test="caseModel != null">
-        case_model,
+      <if test="caseEditType != null">
+        case_edit_type,
       </if>
       <if test="pos != null">
         pos,
@@ -213,14 +213,14 @@
       <if test="num != null">
         #{num,jdbcType=INTEGER},
       </if>
-      <if test="customNum != null">
-        #{customNum,jdbcType=VARCHAR},
-      </if>
       <if test="moduleId != null">
         #{moduleId,jdbcType=VARCHAR},
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="templateId != null">
+        #{templateId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -231,8 +231,8 @@
       <if test="tags != null">
         #{tags,jdbcType=VARCHAR},
       </if>
-      <if test="caseModel != null">
-        #{caseModel,jdbcType=VARCHAR},
+      <if test="caseEditType != null">
+        #{caseEditType,jdbcType=VARCHAR},
       </if>
       <if test="pos != null">
         #{pos,jdbcType=BIGINT},
@@ -290,14 +290,14 @@
       <if test="record.num != null">
         num = #{record.num,jdbcType=INTEGER},
       </if>
-      <if test="record.customNum != null">
-        custom_num = #{record.customNum,jdbcType=VARCHAR},
-      </if>
       <if test="record.moduleId != null">
         module_id = #{record.moduleId,jdbcType=VARCHAR},
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.templateId != null">
+        template_id = #{record.templateId,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
@@ -308,8 +308,8 @@
       <if test="record.tags != null">
         tags = #{record.tags,jdbcType=VARCHAR},
       </if>
-      <if test="record.caseModel != null">
-        case_model = #{record.caseModel,jdbcType=VARCHAR},
+      <if test="record.caseEditType != null">
+        case_edit_type = #{record.caseEditType,jdbcType=VARCHAR},
       </if>
       <if test="record.pos != null">
         pos = #{record.pos,jdbcType=BIGINT},
@@ -359,13 +359,13 @@
     update functional_case
     set id = #{record.id,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
-      custom_num = #{record.customNum,jdbcType=VARCHAR},
       module_id = #{record.moduleId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
+      template_id = #{record.templateId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       review_status = #{record.reviewStatus,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=VARCHAR},
-      case_model = #{record.caseModel,jdbcType=VARCHAR},
+      case_edit_type = #{record.caseEditType,jdbcType=VARCHAR},
       pos = #{record.pos,jdbcType=BIGINT},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       ref_id = #{record.refId,jdbcType=VARCHAR},
@@ -389,14 +389,14 @@
       <if test="num != null">
         num = #{num,jdbcType=INTEGER},
       </if>
-      <if test="customNum != null">
-        custom_num = #{customNum,jdbcType=VARCHAR},
-      </if>
       <if test="moduleId != null">
         module_id = #{moduleId,jdbcType=VARCHAR},
       </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="templateId != null">
+        template_id = #{templateId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
@@ -407,8 +407,8 @@
       <if test="tags != null">
         tags = #{tags,jdbcType=VARCHAR},
       </if>
-      <if test="caseModel != null">
-        case_model = #{caseModel,jdbcType=VARCHAR},
+      <if test="caseEditType != null">
+        case_edit_type = #{caseEditType,jdbcType=VARCHAR},
       </if>
       <if test="pos != null">
         pos = #{pos,jdbcType=BIGINT},
@@ -455,13 +455,13 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.FunctionalCase">
     update functional_case
     set num = #{num,jdbcType=INTEGER},
-      custom_num = #{customNum,jdbcType=VARCHAR},
       module_id = #{moduleId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
+      template_id = #{templateId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       review_status = #{reviewStatus,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR},
-      case_model = #{caseModel,jdbcType=VARCHAR},
+      case_edit_type = #{caseEditType,jdbcType=VARCHAR},
       pos = #{pos,jdbcType=BIGINT},
       version_id = #{versionId,jdbcType=VARCHAR},
       ref_id = #{refId,jdbcType=VARCHAR},
@@ -479,14 +479,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into functional_case
-    (id, num, custom_num, module_id, project_id, `name`, review_status, tags, case_model, 
+    (id, num, module_id, project_id, template_id, `name`, review_status, tags, case_edit_type, 
       pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, 
       update_user, delete_user, create_time, update_time, delete_time)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=INTEGER}, #{item.customNum,jdbcType=VARCHAR}, 
-        #{item.moduleId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
-        #{item.reviewStatus,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, #{item.caseModel,jdbcType=VARCHAR}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=INTEGER}, #{item.moduleId,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.templateId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.reviewStatus,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, #{item.caseEditType,jdbcType=VARCHAR}, 
         #{item.pos,jdbcType=BIGINT}, #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, 
         #{item.lastExecuteResult,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, #{item.publicCase,jdbcType=BIT}, 
         #{item.latest,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, 
@@ -510,14 +510,14 @@
         <if test="'num'.toString() == column.value">
           #{item.num,jdbcType=INTEGER}
         </if>
-        <if test="'custom_num'.toString() == column.value">
-          #{item.customNum,jdbcType=VARCHAR}
-        </if>
         <if test="'module_id'.toString() == column.value">
           #{item.moduleId,jdbcType=VARCHAR}
         </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'template_id'.toString() == column.value">
+          #{item.templateId,jdbcType=VARCHAR}
         </if>
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}
@@ -528,8 +528,8 @@
         <if test="'tags'.toString() == column.value">
           #{item.tags,jdbcType=VARCHAR}
         </if>
-        <if test="'case_model'.toString() == column.value">
-          #{item.caseModel,jdbcType=VARCHAR}
+        <if test="'case_edit_type'.toString() == column.value">
+          #{item.caseEditType,jdbcType=VARCHAR}
         </if>
         <if test="'pos'.toString() == column.value">
           #{item.pos,jdbcType=BIGINT}

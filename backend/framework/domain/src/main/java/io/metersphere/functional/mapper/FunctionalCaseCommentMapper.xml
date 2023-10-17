@@ -7,14 +7,15 @@
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="type" jdbcType="VARCHAR" property="type" />
-    <result column="belong_id" jdbcType="VARCHAR" property="belongId" />
+    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="notifier" jdbcType="VARCHAR" property="notifier" />
+    <result column="reply_user" jdbcType="VARCHAR" property="replyUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="reply_user" jdbcType="VARCHAR" property="replyUser" />
-    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.functional.domain.FunctionalCaseComment">
-    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -75,11 +76,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, case_id, create_user, `status`, `type`, belong_id, create_time, update_time, 
-    reply_user, parent_id
+    id, case_id, create_user, `status`, `type`, parent_id, resource_id, notifier, reply_user, 
+    create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
-    description
+    content
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.functional.domain.FunctionalCaseCommentExample" resultMap="ResultMapWithBLOBs">
     select
@@ -131,13 +132,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseComment">
     insert into functional_case_comment (id, case_id, create_user, 
-      `status`, `type`, belong_id, 
-      create_time, update_time, reply_user, 
-      parent_id, description)
+      `status`, `type`, parent_id, 
+      resource_id, notifier, reply_user, 
+      create_time, update_time, content
+      )
     values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{belongId,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{replyUser,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
+      #{status,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, 
+      #{resourceId,jdbcType=VARCHAR}, #{notifier,jdbcType=VARCHAR}, #{replyUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseComment">
     insert into functional_case_comment
@@ -157,8 +160,17 @@
       <if test="type != null">
         `type`,
       </if>
-      <if test="belongId != null">
-        belong_id,
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="notifier != null">
+        notifier,
+      </if>
+      <if test="replyUser != null">
+        reply_user,
       </if>
       <if test="createTime != null">
         create_time,
@@ -166,14 +178,8 @@
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="replyUser != null">
-        reply_user,
-      </if>
-      <if test="parentId != null">
-        parent_id,
-      </if>
-      <if test="description != null">
-        description,
+      <if test="content != null">
+        content,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -192,8 +198,17 @@
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
       </if>
-      <if test="belongId != null">
-        #{belongId,jdbcType=VARCHAR},
+      <if test="parentId != null">
+        #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="notifier != null">
+        #{notifier,jdbcType=VARCHAR},
+      </if>
+      <if test="replyUser != null">
+        #{replyUser,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -201,14 +216,8 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="replyUser != null">
-        #{replyUser,jdbcType=VARCHAR},
-      </if>
-      <if test="parentId != null">
-        #{parentId,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=LONGVARCHAR},
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -236,8 +245,17 @@
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
       </if>
-      <if test="record.belongId != null">
-        belong_id = #{record.belongId,jdbcType=VARCHAR},
+      <if test="record.parentId != null">
+        parent_id = #{record.parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.notifier != null">
+        notifier = #{record.notifier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.replyUser != null">
+        reply_user = #{record.replyUser,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -245,14 +263,8 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.replyUser != null">
-        reply_user = #{record.replyUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.parentId != null">
-        parent_id = #{record.parentId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=LONGVARCHAR},
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -266,12 +278,13 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
-      belong_id = #{record.belongId,jdbcType=VARCHAR},
+      parent_id = #{record.parentId,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      notifier = #{record.notifier,jdbcType=VARCHAR},
+      reply_user = #{record.replyUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      reply_user = #{record.replyUser,jdbcType=VARCHAR},
-      parent_id = #{record.parentId,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=LONGVARCHAR}
+      content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -283,11 +296,12 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
-      belong_id = #{record.belongId,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
+      parent_id = #{record.parentId,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      notifier = #{record.notifier,jdbcType=VARCHAR},
       reply_user = #{record.replyUser,jdbcType=VARCHAR},
-      parent_id = #{record.parentId,jdbcType=VARCHAR}
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -307,8 +321,17 @@
       <if test="type != null">
         `type` = #{type,jdbcType=VARCHAR},
       </if>
-      <if test="belongId != null">
-        belong_id = #{belongId,jdbcType=VARCHAR},
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="notifier != null">
+        notifier = #{notifier,jdbcType=VARCHAR},
+      </if>
+      <if test="replyUser != null">
+        reply_user = #{replyUser,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -316,14 +339,8 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="replyUser != null">
-        reply_user = #{replyUser,jdbcType=VARCHAR},
-      </if>
-      <if test="parentId != null">
-        parent_id = #{parentId,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=LONGVARCHAR},
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -334,12 +351,13 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
-      belong_id = #{belongId,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      notifier = #{notifier,jdbcType=VARCHAR},
+      reply_user = #{replyUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      reply_user = #{replyUser,jdbcType=VARCHAR},
-      parent_id = #{parentId,jdbcType=VARCHAR},
-      description = #{description,jdbcType=LONGVARCHAR}
+      content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.FunctionalCaseComment">
@@ -348,23 +366,25 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
-      belong_id = #{belongId,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      notifier = #{notifier,jdbcType=VARCHAR},
       reply_user = #{replyUser,jdbcType=VARCHAR},
-      parent_id = #{parentId,jdbcType=VARCHAR}
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into functional_case_comment
-    (id, case_id, create_user, `status`, `type`, belong_id, create_time, update_time, 
-      reply_user, parent_id, description)
+    (id, case_id, create_user, `status`, `type`, parent_id, resource_id, notifier, reply_user, 
+      create_time, update_time, content)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.status,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.belongId,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.replyUser,jdbcType=VARCHAR}, 
-        #{item.parentId,jdbcType=VARCHAR}, #{item.description,jdbcType=LONGVARCHAR})
+        #{item.status,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.parentId,jdbcType=VARCHAR}, 
+        #{item.resourceId,jdbcType=VARCHAR}, #{item.notifier,jdbcType=VARCHAR}, #{item.replyUser,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -392,8 +412,17 @@
         <if test="'type'.toString() == column.value">
           #{item.type,jdbcType=VARCHAR}
         </if>
-        <if test="'belong_id'.toString() == column.value">
-          #{item.belongId,jdbcType=VARCHAR}
+        <if test="'parent_id'.toString() == column.value">
+          #{item.parentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_id'.toString() == column.value">
+          #{item.resourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'notifier'.toString() == column.value">
+          #{item.notifier,jdbcType=VARCHAR}
+        </if>
+        <if test="'reply_user'.toString() == column.value">
+          #{item.replyUser,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
@@ -401,14 +430,8 @@
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
         </if>
-        <if test="'reply_user'.toString() == column.value">
-          #{item.replyUser,jdbcType=VARCHAR}
-        </if>
-        <if test="'parent_id'.toString() == column.value">
-          #{item.parentId,jdbcType=VARCHAR}
-        </if>
-        <if test="'description'.toString() == column.value">
-          #{item.description,jdbcType=LONGVARCHAR}
+        <if test="'content'.toString() == column.value">
+          #{item.content,jdbcType=LONGVARCHAR}
         </if>
       </foreach>
       )

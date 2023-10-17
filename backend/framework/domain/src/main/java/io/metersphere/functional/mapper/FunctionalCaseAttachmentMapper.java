@@ -18,9 +18,15 @@ public interface FunctionalCaseAttachmentMapper {
 
     List<FunctionalCaseAttachment> selectByExample(FunctionalCaseAttachmentExample example);
 
+    FunctionalCaseAttachment selectByPrimaryKey(@Param("caseId") String caseId, @Param("fileId") String fileId);
+
     int updateByExampleSelective(@Param("record") FunctionalCaseAttachment record, @Param("example") FunctionalCaseAttachmentExample example);
 
     int updateByExample(@Param("record") FunctionalCaseAttachment record, @Param("example") FunctionalCaseAttachmentExample example);
+
+    int updateByPrimaryKeySelective(FunctionalCaseAttachment record);
+
+    int updateByPrimaryKey(FunctionalCaseAttachment record);
 
     int batchInsert(@Param("list") List<FunctionalCaseAttachment> list);
 
