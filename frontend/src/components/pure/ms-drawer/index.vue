@@ -53,7 +53,7 @@
             <a-button v-if="showContinue" type="secondary" :loading="props.okLoading" @click="handleContinue">
               {{ t(props.saveContinueText || 'ms.drawer.saveContinue') }}
             </a-button>
-            <a-button type="primary" :loading="props.okLoading" @click="handleOk">
+            <a-button type="primary" :disabled="okDisabled" :loading="props.okLoading" @click="handleOk">
               {{ t(props.okText || 'ms.drawer.ok') }}
             </a-button>
           </div>
@@ -83,6 +83,7 @@
     mask?: boolean; // 是否显示遮罩
     showSkeleton?: boolean; // 是否显示骨架屏
     okLoading?: boolean;
+    okDisabled?: boolean;
     okText?: string;
     cancelText?: string;
     saveContinueText?: string;

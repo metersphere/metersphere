@@ -10,7 +10,14 @@
       @blur="handleEnter(true)"
     >
       <template #suffix>
-        <a-select v-model="current.type" size="small" class="max-w-[64px]" :options="option"> </a-select>
+        <a-select
+          v-model="current.type"
+          size="small"
+          class="max-w-[64px]"
+          :options="option"
+          :trigger-props="{ autoFitPopupMinWidth: true }"
+          @change="handleEnter(false)"
+        />
       </template>
     </a-input-number>
   </div>
@@ -50,9 +57,8 @@
     if (isBlur) {
       if (!isEnter.value) {
         // 不是由Enter触发的blur
-        const { type, value } = parseValue(props.modelValue || props.defaultValue);
+        const { value } = parseValue(props.modelValue || props.defaultValue);
         current.value = value;
-        current.type = type;
       }
       isEnter.value = false;
     } else {

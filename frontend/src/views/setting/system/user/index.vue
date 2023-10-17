@@ -286,8 +286,8 @@
     },
     (record) => ({
       ...record,
-      organizationList: record.organizationList.filter((e) => e),
-      userRoleList: record.userRoleList.filter((e) => e),
+      organizationList: record.organizationList.filter((e: any) => e),
+      userRoleList: record.userRoleList.filter((e: any) => e),
     })
   );
 
