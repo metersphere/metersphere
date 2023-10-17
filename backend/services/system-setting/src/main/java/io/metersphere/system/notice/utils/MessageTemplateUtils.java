@@ -220,11 +220,42 @@ public class MessageTemplateUtils {
                     String description = annotation.description();
                     if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
                         description = "{{" + description + "}}";
+                    } else {
+                        description = "<" + description + ">";
                     }
                     map.put(allField.getName(), description);
                 }
             }
             return getContent(template, map);
+        }
+    }
+
+    public static String getTranslateSubject(String taskType, String subject) {
+        if (StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.JENKINS_TASK)) {
+            if (StringUtils.isNotBlank(subject) && subject.contains("${name}")) {
+                subject = subject.replace("${name}", Translator.get("message.jenkins_name"));
+            }
+            return subject;
+        } else {
+            Field[] domainTemplateFields = getDomainTemplateFields(taskType);
+            Map<String, Object> map = new HashMap<>();
+            if (StringUtils.isNotBlank(subject) && subject.contains("${OPERATOR}")) {
+                subject = subject.replace("${OPERATOR}", Translator.get("message.operator"));
+            }
+            if (StringUtils.isNotBlank(subject) && subject.contains("${total}")) {
+                subject = subject.replace("${total}", "n");
+            }
+            for (Field allField : domainTemplateFields) {
+                Schema annotation = allField.getAnnotation(Schema.class);
+                if (annotation != null) {
+                    String description = annotation.description();
+                    if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
+                        description = "{{" + description + "}}";
+                    }
+                    map.put(allField.getName(), description);
+                }
+            }
+            return getContent(subject, map);
         }
     }
 }

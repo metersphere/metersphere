@@ -390,7 +390,11 @@ public class NoticeMessageTaskService {
 
     private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, ProjectRobot projectRobot, MessageTask messageTask, MessageTaskBlob messageTaskBlob) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
-        projectRobotConfigDTO.setRobotName(projectRobot.getName());
+        if (StringUtils.equalsIgnoreCase(projectRobot.getName(),"robot_in_site") || StringUtils.equalsIgnoreCase(projectRobot.getName(),"robot_mail")) {
+            projectRobotConfigDTO.setRobotName(Translator.get(projectRobot.getName()));
+        } else {
+            projectRobotConfigDTO.setRobotName(projectRobot.getName());
+        }
         projectRobotConfigDTO.setRobotId(projectRobot.getId());
         projectRobotConfigDTO.setPlatform(projectRobot.getPlatform());
         projectRobotConfigDTO.setDingType(projectRobot.getType());
@@ -406,7 +410,7 @@ public class NoticeMessageTaskService {
             projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
         }
         String translateTemplate = MessageTemplateUtils.getTranslateTemplate(messageTask.getTaskType(), projectRobotConfigDTO.getTemplate());
-        String translateSubject = MessageTemplateUtils.getTranslateTemplate(messageTask.getTaskType(), projectRobotConfigDTO.getSubject());
+        String translateSubject = MessageTemplateUtils.getTranslateSubject(messageTask.getTaskType(), projectRobotConfigDTO.getSubject());
         projectRobotConfigDTO.setPreviewTemplate(translateTemplate);
         projectRobotConfigDTO.setPreviewSubject(translateSubject);
         projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
@@ -419,7 +423,7 @@ public class NoticeMessageTaskService {
     private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String taskType, String defaultTemplate, String defaultSubject, ProjectRobot projectRobot) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
         projectRobotConfigDTO.setRobotId(projectRobot.getId());
-        projectRobotConfigDTO.setRobotName(projectRobot.getName());
+        projectRobotConfigDTO.setRobotName(Translator.get(projectRobot.getName()));
         projectRobotConfigDTO.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
         projectRobotConfigDTO.setDingType(projectRobot.getType());
         projectRobotConfigDTO.setEnable(false);
@@ -430,7 +434,7 @@ public class NoticeMessageTaskService {
         projectRobotConfigDTO.setUseDefaultSubject(true);
         projectRobotConfigDTO.setUseDefaultTemplate(true);
         String translateTemplate = MessageTemplateUtils.getTranslateTemplate(taskType, defaultTemplate);
-        String translateSubject = MessageTemplateUtils.getTranslateTemplate(taskType, defaultSubject);
+        String translateSubject = MessageTemplateUtils.getTranslateSubject(taskType, defaultSubject);
         projectRobotConfigDTO.setPreviewTemplate(translateTemplate);
         projectRobotConfigDTO.setPreviewSubject(translateSubject);
         return projectRobotConfigDTO;

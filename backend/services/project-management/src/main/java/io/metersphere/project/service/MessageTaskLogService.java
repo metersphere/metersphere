@@ -14,6 +14,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +55,9 @@ public class MessageTaskLogService {
 
         dto.setPath("/notice/message/task/save");
         dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(messageTasks.get(0)));
+        if (CollectionUtils.isNotEmpty(messageTasks)) {
+            dto.setOriginalValue(JSON.toJSONBytes(messageTasks.get(0)));
+        }
         return dto;
     }
 
