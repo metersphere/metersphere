@@ -65,6 +65,12 @@
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
     },
     {
+      key: 'templateManager',
+      title: 'project.permission.templateManager',
+      level: 2,
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_TEMPLATE,
+    },
+    {
       key: 'projectVersion',
       title: 'project.permission.projectVersion',
       level: 2,

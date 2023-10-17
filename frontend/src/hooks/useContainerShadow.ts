@@ -16,7 +16,7 @@ export interface ContainerShadowOptions {
 }
 
 /**
- * 监听指定容器的滚动事件，以给容器添加顶部和地步的阴影，需要给指定的容器添加 .ms-container--shadow() 样式类使用阴影
+ * 监听指定容器的滚动事件，以给容器添加顶部和底部的阴影，需要给指定的容器添加 .ms-container--shadow() 样式类使用阴影
  * @param options ContainerShadowOptions
  */
 export default function useContainerShadow(options: ContainerShadowOptions) {

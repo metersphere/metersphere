@@ -179,6 +179,37 @@ const Setting: AppRouteRecordRaw = {
           },
         },
         {
+          path: 'template',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
+          component: () => import('@/views/setting/organization/template/index.vue'),
+          meta: {
+            locale: 'menu.settings.organization.template',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
+        // 模版字段设置
+        {
+          path: 'templateFiledSetting',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
+          component: () => import('@/views/setting/organization/template/components/fieldSetting.vue'),
+          meta: {
+            locale: 'menu.settings.organization.templateFieldSetting',
+            roles: ['*'],
+            breadcrumbs: [
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
+                locale: 'menu.settings.organization.template',
+              },
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
+                locale: 'menu.settings.organization.templateFieldSetting',
+                editLocale: 'menu.settings.organization.templateFieldSetting',
+              },
+            ],
+          },
+        },
+        {
           path: 'log',
           name: SettingRouteEnum.SETTING_ORGANIZATION_LOG,
           component: () => import('@/views/setting/organization/log/index.vue'),

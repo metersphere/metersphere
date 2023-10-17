@@ -24,6 +24,7 @@ export enum ProjectManagementRouteEnum {
   PROJECT_MANAGEMENT_PERMISSION = 'projectManagementPermission',
   PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO = 'projectManagementPermissionBasicInfo',
   PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT = 'projectManagementPermissionMenuManagement',
+  PROJECT_MANAGEMENT_PERMISSION_TEMPLATE = 'projectManagementPermissionTemplate',
   PROJECT_MANAGEMENT_PERMISSION_VERSION = 'projectManagementPermissionVersion',
   PROJECT_MANAGEMENT_PERMISSION_USER_GROUP = 'projectManagementPermissionUserGroup',
   PROJECT_MANAGEMENT_PERMISSION_MEMBER = 'projectManagementPermissionMember',
@@ -57,6 +58,8 @@ export enum SettingRouteEnum {
   SETTING_ORGANIZATION_MEMBER = 'settingOrganizationMember',
   SETTING_ORGANIZATION_USER_GROUP = 'settingOrganizationUserGroup',
   SETTING_ORGANIZATION_PROJECT = 'settingOrganizationProject',
+  SETTING_ORGANIZATION_TEMPLATE = 'settingOrganizationTemplate',
+  SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING = 'settingOrganizationTemplateFiledSetting',
   SETTING_ORGANIZATION_SERVICE = 'settingOrganizationService',
   SETTING_ORGANIZATION_LOG = 'settingOrganizationLog',
 }

@@ -12,11 +12,6 @@
         <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="emit('MessageEvent', record, item)">{{
           item.name
         }}</span>
-        <span
-          class="ml-[150px] cursor-pointer text-[rgb(var(--primary-5))]"
-          @click="emit('MessageEvent', record, item)"
-          >{{ item.name }}</span
-        >
       </div>
     </div>
   </a-scrollbar>
@@ -55,6 +50,9 @@
     line-height: 54px;
     border-bottom: 1px solid var(--color-text-n8);
     @apply flex items-center align-middle leading-6;
+    &:last-of-type {
+      border-bottom: none;
+    }
   }
   .ms-self:hover {
     background: var(--color-fill-1);

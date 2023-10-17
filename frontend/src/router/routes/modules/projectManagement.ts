@@ -47,6 +47,16 @@ const ProjectManagement: AppRouteRecordRaw = {
             roles: ['*'],
           },
         },
+        // 模版管理
+        {
+          path: 'templateManager',
+          name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_TEMPLATE,
+          component: () => import('@/views/project-management/projectAndPermission/templateManagement/index.vue'),
+          meta: {
+            locale: 'project.permission.templateManager',
+            roles: ['*'],
+          },
+        },
         // 项目版本
         {
           path: 'projectVersion',

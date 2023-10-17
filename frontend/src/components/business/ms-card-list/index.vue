@@ -3,7 +3,11 @@
     <div
       ref="msCardListRef"
       class="ms-card-list"
-      :style="{ 'grid-template-columns': `repeat(auto-fill, minmax(${props.cardMinWidth}px, 1fr))` }"
+      :style="{
+        'grid-template-columns': `repeat(auto-fill, minmax(${props.cardMinWidth}px, 1fr))`,
+        'gap': `${props.gap}px` || '24px',
+        'padding-bottom': props.paddingBottomSpace || 0,
+      }"
     >
       <div v-if="topLoading" class="ms-card-list-loading">
         <a-spin :loading="topLoading"></a-spin>
@@ -12,6 +16,7 @@
         v-for="(item, index) in props.mode === 'remote' ? remoteList : props.list"
         :key="item.key"
         class="ms-card-list-item"
+        :style="{ 'aspect-ratio': props.isProportional ? 1 / 1 : 'none' }"
       >
         <slot name="item" :item="item" :index="index"></slot>
       </div>
@@ -39,9 +44,14 @@
       shadowLimit: number; // 滚动距离高度，用于计算顶部底部阴影
       remoteParams?: Record<string, any>; // 远程数据模式下，请求数据的参数
       remoteFunc?: (v: TableQueryParams) => Promise<CommonList<any>>; // 远程数据模式下，请求数据的函数
+      gap?: number; // 卡片之间的间距
+      isProportional?: boolean; // 是否等比正方形
+      paddingBottomSpace?: string; // 是否存在底部的间距
     }>(),
     {
       mode: 'static',
+      gap: 24,
+      isProportional: true,
     }
   );
 
@@ -157,9 +167,9 @@
       clientHeight = msCardListContainerRef.value.clientHeight;
     }
     // 最大列数 = （容器宽度 + gap） / （最小卡片宽度 + gap）
-    const maxCols = Math.floor((clientWidth + 24) / (props.cardMinWidth + 24));
+    const maxCols = Math.floor((clientWidth + props.gap) / (props.cardMinWidth + props.gap));
     // 最大行数 =（容器高度 + gap） / （最小卡片宽度 + gap）。因为卡片宽高是 1:1，所以行数和列数相同。这里+2是为了在视图区域外多加载两行，以避免滚动条不出现
-    const maxRows = Math.round((clientHeight + 24) / (props.cardMinWidth + 24)) + 2;
+    const maxRows = Math.round((clientHeight + props.gap) / (props.cardMinWidth + props.gap)) + 2;
     listSize.value = maxCols * maxRows;
     setTimeout(() => {
       // 设置 400ms 后初始化完成，避免 useResizeObserver 一开始就触发，因为useResizeObserver使用了debounce-300ms，所以会有延迟
@@ -214,12 +224,9 @@
 
       .ms-scroll-bar();
 
-      gap: 24px;
       grid-template-columns: repeat(auto-fill, minmax(102px, 1fr));
       .ms-card-list-item {
         @apply relative w-full;
-
-        aspect-ratio: 1/1;
       }
       .ms-card-list-loading {
         @apply col-span-full flex items-center justify-center;

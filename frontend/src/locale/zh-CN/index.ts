@@ -52,6 +52,8 @@ export default {
     'menu.settings.organization.userGroup': '用户组',
     'menu.settings.organization.project': '项目',
     'menu.settings.organization.serviceIntegration': '服务集成',
+    'menu.settings.organization.template': '模版',
+    'menu.settings.organization.templateFieldSetting': '字段设置',
     'menu.settings.organization.log': '日志',
     'navbar.action.locale': '切换为中文',
     ...sys,

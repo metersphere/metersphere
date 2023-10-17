@@ -6,6 +6,90 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "37662517",
+      "name": "icon_checkbox",
+      "font_class": "icon_checkbox",
+      "unicode": "e76e",
+      "unicode_decimal": 59246
+    },
+    {
+      "icon_id": "37662516",
+      "name": "icon_radio",
+      "font_class": "icon_radio",
+      "unicode": "e76f",
+      "unicode_decimal": 59247
+    },
+    {
+      "icon_id": "37662515",
+      "name": "icon_input",
+      "font_class": "icon_input",
+      "unicode": "e770",
+      "unicode_decimal": 59248
+    },
+    {
+      "icon_id": "37569253",
+      "name": "icon_single_choice",
+      "font_class": "icon_single_choice",
+      "unicode": "e766",
+      "unicode_decimal": 59238
+    },
+    {
+      "icon_id": "37569252",
+      "name": "icon_people",
+      "font_class": "icon_people",
+      "unicode": "e767",
+      "unicode_decimal": 59239
+    },
+    {
+      "icon_id": "37569251",
+      "name": "icon_style_one",
+      "font_class": "icon_style_one",
+      "unicode": "e768",
+      "unicode_decimal": 59240
+    },
+    {
+      "icon_id": "37569249",
+      "name": "icon_rich_text",
+      "font_class": "icon_rich_text",
+      "unicode": "e769",
+      "unicode_decimal": 59241
+    },
+    {
+      "icon_id": "37569250",
+      "name": "icon_multiple_choice",
+      "font_class": "icon_multiple_choice",
+      "unicode": "e76a",
+      "unicode_decimal": 59242
+    },
+    {
+      "icon_id": "37569247",
+      "name": "icon_pound",
+      "font_class": "icon_pound",
+      "unicode": "e76b",
+      "unicode_decimal": 59243
+    },
+    {
+      "icon_id": "37569248",
+      "name": "icon_calendar_dot",
+      "font_class": "icon_calendar_dot",
+      "unicode": "e76c",
+      "unicode_decimal": 59244
+    },
+    {
+      "icon_id": "37569246",
+      "name": "icon_tag",
+      "font_class": "icon_tag",
+      "unicode": "e76d",
+      "unicode_decimal": 59245
+    },
+    {
+      "icon_id": "37541406",
+      "name": "icon_replace_outlined",
+      "font_class": "icon_replace_outlined",
+      "unicode": "e765",
+      "unicode_decimal": 59237
+    },
+    {
       "icon_id": "37505843",
       "name": "icon_drilling_outlined",
       "font_class": "icon_drilling_outlined",
