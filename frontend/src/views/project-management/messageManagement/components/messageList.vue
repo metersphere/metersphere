@@ -178,7 +178,7 @@
       title: 'project.messageManagement.receiver',
       dataIndex: 'receiver',
       slotName: 'receiver',
-      width: 200,
+      width: 208,
       fixed: 'left',
     },
   ];
@@ -195,7 +195,7 @@
         title: robotOptions.value.find((e) => e.id === robotId)?.label,
         dataIndex: robotId,
         slotName: 'robot',
-        width: 150,
+        width: 180,
       });
     }
     return tempArr;

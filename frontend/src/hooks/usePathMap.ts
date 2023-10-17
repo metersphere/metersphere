@@ -37,8 +37,6 @@ export default function usePathMap() {
    * @param openNewPage 是否在新页面打开
    */
   const jumpRouteByMapKey = (key: PathMapRoute, routeQuery?: Record<string, any>, openNewPage = false) => {
-    console.log(router);
-
     const pathNode = findNodeByKey<PathMapItem>(pathMap, key as unknown as string);
     if (pathNode) {
       if (openNewPage) {
