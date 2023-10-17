@@ -1,12 +1,12 @@
 package io.metersphere.system.notice.utils;
 
-import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.functional.domain.CaseReview;
-import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.sdk.dto.ApiDefinitionCaseDTO;
+import io.metersphere.sdk.dto.FunctionalCaseMessageDTO;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.notice.constants.NoticeConstants;
@@ -137,22 +137,19 @@ public class MessageTemplateUtils {
         Field[] allFields;
         switch (taskType) {
             case NoticeConstants.TaskType.API_DEFINITION_TASK -> {
-                allFields = FieldUtils.getAllFields(ApiDefinition.class);
-
+                allFields = FieldUtils.getAllFields(ApiDefinitionCaseDTO.class);
             }
             case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
                 allFields = FieldUtils.getAllFields(ApiScenario.class);
-
             }
             case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
                 allFields = FieldUtils.getAllFields(TestPlan.class);
-
             }
             case NoticeConstants.TaskType.CASE_REVIEW_TASK -> {
                 allFields = FieldUtils.getAllFields(CaseReview.class);
             }
             case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> {
-                allFields = FieldUtils.getAllFields(FunctionalCase.class);
+                allFields = FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
             }
             case NoticeConstants.TaskType.BUG_TASK -> {
                 allFields = FieldUtils.getAllFields(Bug.class);

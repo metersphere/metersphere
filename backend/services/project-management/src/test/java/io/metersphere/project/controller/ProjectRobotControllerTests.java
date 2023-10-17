@@ -75,6 +75,18 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(1)
     void addRobotSuccessWeCom() throws Exception {
+        ProjectRobotDTO projectRobotDTOInSite = new ProjectRobotDTO();
+        projectRobotDTOInSite.setName("robot_in_site");
+        projectRobotDTOInSite.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
+        projectRobotDTOInSite.setProjectId("test_project");
+        projectRobotDTOInSite.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
+        getPostResult(projectRobotDTOInSite, ROBOT_ADD, status().isOk());
+        ProjectRobotDTO projectRobotDTOMail = new ProjectRobotDTO();
+        projectRobotDTOMail.setName("robot_mail");
+        projectRobotDTOMail.setPlatform(ProjectRobotPlatform.MAIL.toString());
+        projectRobotDTOMail.setProjectId("test_project");
+        projectRobotDTOMail.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
+        getPostResult(projectRobotDTOMail, ROBOT_ADD, status().isOk());
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName("企业微信机器人");
         projectRobotDTO.setPlatform(ProjectRobotPlatform.WE_COM.toString());
@@ -107,6 +119,18 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Test
     @Order(3)
     void addRobotSuccessDingCustom() throws Exception {
+        ProjectRobotDTO projectRobotDTOInSite = new ProjectRobotDTO();
+        projectRobotDTOInSite.setName("robot_in_site");
+        projectRobotDTOInSite.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
+        projectRobotDTOInSite.setProjectId("test_project3");
+        projectRobotDTOInSite.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
+        getPostResult(projectRobotDTOInSite, ROBOT_ADD, status().isOk());
+        ProjectRobotDTO projectRobotDTOMail = new ProjectRobotDTO();
+        projectRobotDTOMail.setName("robot_mail");
+        projectRobotDTOMail.setPlatform(ProjectRobotPlatform.MAIL.toString());
+        projectRobotDTOMail.setProjectId("test_project3");
+        projectRobotDTOMail.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
+        getPostResult(projectRobotDTOMail, ROBOT_ADD, status().isOk());
         setDingCustom("test_project3","钉钉自定义机器人4");
         checkName("test_project3", "钉钉自定义机器人4");
     }
@@ -314,6 +338,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Order(20)
     void getListSuccessNoKeyword() throws Exception {
         List<ProjectRobot> projectRobots = getList("test_project");
+        System.out.println(projectRobots);
         Assertions.assertTrue(projectRobots.size() > 0);
     }
 
