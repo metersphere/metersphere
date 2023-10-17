@@ -1,7 +1,7 @@
 import MSR from '@/api/http/index';
 import * as Url from '@/api/requrls/project-management/menuManagement';
 
-import { CommonList, TableQueryParams } from '@/models/common';
+import { TableQueryParams } from '@/models/common';
 import type {
   MenuTableConfigItem,
   MenuTableListItem,
@@ -10,15 +10,8 @@ import type {
 } from '@/models/projectManagement/menuManagement';
 import { MenuEnum } from '@/enums/commonEnum';
 
-export async function postTabletList(params: TableQueryParams): Promise<CommonList<MenuTableListItem>> {
-  const list = await MSR.get<MenuTableListItem[]>({ url: `${Url.getMenuListUrl}${params.projectId}` });
-  const result: CommonList<MenuTableListItem> = {
-    total: list.length,
-    list,
-    pageSize: 10,
-    current: 1,
-  };
-  return Promise.resolve(result);
+export async function postTabletList(params: TableQueryParams) {
+  return MSR.get<MenuTableListItem[]>({ url: `${Url.getMenuListUrl}${params.projectId}` });
 }
 
 // 获取资源池
@@ -99,4 +92,20 @@ export function getConfigByMenuItem(data: MenuTableListParams) {
       break;
   }
   return MSR.post<MenuTableConfigItem>({ url: `${Url.getConfigByMenuTypeUrl}${suffix}`, data });
+}
+
+/**
+ * 获取平台的下拉选项
+ * @param organizationId 组织id
+ * @returns
+ */
+export function getPlatformOptions(organizationId: string, type: MenuEnum) {
+  if (type === MenuEnum.bugManagement) {
+    return MSR.get<PoolOption[]>({ url: `${Url.getPlatformOptionUrlByBug}${organizationId}` });
+  }
+  return MSR.get<PoolOption[]>({ url: `${Url.getPlatformOptionUrlByCase}${organizationId}` });
+}
+
+export function postSaveDefectSync(data: MenuTableConfigItem, projectId: string) {
+  return MSR.post<MenuTableListItem>({ url: `${Url.postSyncBugConfigUrl}${projectId}`, data });
 }

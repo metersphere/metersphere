@@ -24,7 +24,7 @@ export default function useTableProps<T>(
   loadListFunc: (v?: TableQueryParams | any) => Promise<CommonList<MsTableDataItem<T>> | MsTableDataItem<T>>,
   props?: Partial<MsTableProps<T>>,
   // 数据处理的回调函数
-  dataTransform?: (item: T) => (TableData & T) | any,
+  dataTransform?: (item: TableData) => (TableData & T) | any,
   // 编辑操作的保存回调函数
   saveCallBack?: (item: T) => Promise<any>
 ) {

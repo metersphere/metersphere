@@ -39,7 +39,9 @@
       <template v-if="record.type === 'BUG_SYNC'">
         <!-- 同步缺陷 -->
         <span>{{ t('project.menu.row2') }}</span>
-        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.sd') }}</div>
+        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{
+          t('project.menu.sd')
+        }}</div>
       </template>
       <div v-if="record.type === 'CASE_PUBLIC'">
         <!-- 用例 公共用例库 -->
@@ -194,8 +196,6 @@
         v-if="record.children"
         v-model="record.moduleEnable"
         size="small"
-        checked-value="true"
-        unchecked-value="false"
         @change="(v: boolean | string| number) => handleMenuStatusChange(record.module,v as boolean,record.module)"
       />
       <!-- 同步缺陷状态 -->
@@ -303,18 +303,7 @@
       />
     </template>
   </MsBaseTable>
-  <MsDrawer
-    v-model:visible="defectDrawerVisible"
-    :title="t('project.menu.BUG_SYNC')"
-    :destroy-on-close="true"
-    :closable="true"
-    :mask-closable="false"
-    :get-container="false"
-    :body-style="{ padding: '0px' }"
-    :width="400"
-  >
-    <DefectSync />
-  </MsDrawer>
+  <DefectSync v-model:visible="defectDrawerVisible" @cancel="defectDrawerVisible = false" />
 </template>
 
 <script setup lang="ts">
@@ -323,7 +312,6 @@
    */
   import { Message, TableData } from '@arco-design/web-vue';
 
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -341,12 +329,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
-  import {
-    MenuTableConfigItem,
-    MenuTableListItem,
-    PoolOption,
-    SelectValue,
-  } from '@/models/projectManagement/menuManagement';
+  import { MenuTableConfigItem, PoolOption, SelectValue } from '@/models/projectManagement/menuManagement';
   import { MenuEnum } from '@/enums/commonEnum';
 
   const appStore = useAppStore();
@@ -384,6 +367,7 @@
       dataIndex: 'module',
       slotName: 'module',
       width: 221,
+      headerCellClass: 'pl-[16px]',
     },
     {
       title: 'project.menu.description',
@@ -400,7 +384,7 @@
     },
   ];
 
-  const getChildren = (record: MenuTableListItem) => {
+  const getChildren = (record: TableData) => {
     let children: MenuTableConfigItem[] = [];
     switch (record.module) {
       case MenuEnum.workstation: {
@@ -515,7 +499,7 @@
       showExpand: true,
       emptyDataShowLine: false,
     },
-    (item) => {
+    (item: TableData) => {
       const children = getChildren(item);
       return { ...item, children };
     }
