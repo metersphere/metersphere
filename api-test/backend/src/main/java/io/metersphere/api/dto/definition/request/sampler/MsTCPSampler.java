@@ -142,7 +142,7 @@ public class MsTCPSampler extends MsTestElement {
         //添加csv
         ElementUtil.addApiVariables(config, tree, this.getProjectId());
         final HashTree samplerHashTree = new ListedHashTree();
-        samplerHashTree.add(tcpConfig());
+        samplerHashTree.add(tcpConfig(config));
         TCPSampler tcpSampler = tcpSampler(config);
         // 失败重试
         if (config.getRetryNum() > 0 && !ElementUtil.isLoop(this.getParent())) {
@@ -257,19 +257,18 @@ public class MsTCPSampler extends MsTestElement {
         ElementUtil.setBaseParams(tcpSampler, this.getParent(), config, this.getId(), this.getIndex());
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
         tcpSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPSamplerGui"));
-        if (StringUtils.isEmpty(this.getClassname())) {
-            tcpSampler.setClassname("TCPClientImpl");
-        } else {
-            tcpSampler.setClassname(this.getClassname());
-        }
-        if (StringUtils.equals("TCPClientImpl", this.getClassname())) {
-            if (config.isOperating()) {
-                //导出时className不转换MsTCPClientImpl。 这个类在性能测试时tps会变得很低
-                tcpSampler.setClassname(TCPSampler.class.getName());
+
+        if (!config.isOperating() || !StringUtils.equals("TCPClientImpl", this.getClassname())) {
+            if (StringUtils.isEmpty(this.getClassname())) {
+                tcpSampler.setClassname("TCPClientImpl");
             } else {
+                tcpSampler.setClassname(this.getClassname());
+            }
+            if (StringUtils.equals("TCPClientImpl", this.getClassname())) {
                 tcpSampler.setClassname(MsTCPClientImpl.class.getCanonicalName());
             }
         }
+
         tcpSampler.setCharset(this.getConnectEncoding());
         tcpSampler.setServer(this.getServer());
         tcpSampler.setPort(this.getPort());
@@ -345,13 +344,15 @@ public class MsTCPSampler extends MsTestElement {
         return value;
     }
 
-    private ConfigTestElement tcpConfig() {
+    private ConfigTestElement tcpConfig(ParameterConfig config) {
         ConfigTestElement configTestElement = new ConfigTestElement();
         configTestElement.setEnabled(true);
         configTestElement.setName(this.getName());
         configTestElement.setProperty(TestElement.TEST_CLASS, ConfigTestElement.class.getName());
         configTestElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPConfigGui"));
-        configTestElement.setProperty(TCPSampler.CLASSNAME, this.getClassname());
+        if (!config.isOperating() || !StringUtils.equals("TCPClientImpl", this.getClassname())) {
+            configTestElement.setProperty(TCPSampler.CLASSNAME, this.getClassname());
+        }
         configTestElement.setProperty(TCPSampler.SERVER, this.getServer());
         configTestElement.setProperty(TCPSampler.PORT, this.getPort());
         configTestElement.setProperty(TCPSampler.TIMEOUT_CONNECT, this.getCtimeout());
