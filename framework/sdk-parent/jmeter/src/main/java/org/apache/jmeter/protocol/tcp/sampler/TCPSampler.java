@@ -289,7 +289,7 @@ public class TCPSampler extends AbstractSampler implements ThreadListener, Inter
     public String getClassname() {
         String clazz = getPropertyAsString(CLASSNAME,"");
         if (clazz==null || clazz.length()==0){
-            clazz = JMeterUtils.getPropDefault("tcp.handler", "MsClientImpl"); //$NON-NLS-1$ $NON-NLS-2$
+            clazz = JMeterUtils.getPropDefault("tcp.handler", "TCPClientImpl"); //$NON-NLS-1$ $NON-NLS-2$
         }
         return clazz;
     }
