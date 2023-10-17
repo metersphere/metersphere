@@ -64,7 +64,7 @@
                 type="info"
                 :underline="false"
                 v-permission-disable="['PROJECT_API_DEFINITION:READ']"
-                @click="redirectPage('api', 'apiTestCase', 'singleList:' + row.id)">
+                @click="redirectPage('api', 'apiTestCase', 'singleList:' + row.id, row.protocol)">
                 <span style="float: right">
                   {{ row.caseTotal }}
                 </span>
@@ -118,13 +118,13 @@
 </template>
 
 <script>
-import { definitionWeekList } from '@/api/definition';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { API_STATUS } from '@/business/definition/model/JsonData';
+import {definitionWeekList} from '@/api/definition';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
+import {API_STATUS} from '@/business/definition/model/JsonData';
 import ApiStatus from '@/business/definition/components/list/ApiStatus';
 import HomeTablePagination from '@/business/home/components/table/HomeTablePagination';
 import BasicStatusLabel from 'metersphere-frontend/src/components/BasicStatusLabel';
-import { hasPermission } from 'metersphere-frontend/src/utils/permission';
+import {hasPermission} from 'metersphere-frontend/src/utils/permission';
 
 export default {
   name: 'UpdatedApiList',
@@ -152,7 +152,7 @@ export default {
         if (!hasPermission('PROJECT_API_DEFINITION:READ')) {
           return;
         }
-        this.redirectPage('api', 'api', 'edit:' + row.id);
+        this.redirectPageWithDataType('api', 'api', 'edit:' + row.id);
       }
     },
     search(versionId) {
@@ -175,8 +175,12 @@ export default {
           this.loadError = true;
         });
     },
-    redirectPage(redirectPage, dataType, selectRange) {
-      this.$emit('redirectPage', redirectPage, dataType, selectRange, null);
+    redirectPage(redirectPage, dataType, selectRange, type) {
+      if (!type || type === undefined) {
+        this.$emit('redirectPage', redirectPage, dataType, selectRange, null, type);
+      } else {
+        this.$emit('redirectPageWithDataType', redirectPage, dataType, selectRange, null, type);
+      }
     },
   },
 };
