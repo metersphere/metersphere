@@ -243,8 +243,13 @@ INSERT INTO message_task_blob(id, template) VALUES (@test_plan_task_delete_id, '
 
 SET @test_plan_task_execute_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@test_plan_task_execute_id, 'EXECUTE_COMPLETED', 'OPERATOR', @robot_in_site_id, 'TEST_PLAN_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.test_plan_task_execute_completed');
-INSERT INTO message_task_blob(id, template) VALUES (@test_plan_task_execute_id, 'message.test_plan_task_execute_completed');
+VALUES (@test_plan_task_execute_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'TEST_PLAN_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.test_plan_task_execute_success');
+INSERT INTO message_task_blob(id, template) VALUES (@test_plan_task_execute_id, 'message.test_plan_task_execute');
+
+SET @test_plan_task_execute_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@test_plan_task_execute_id, 'EXECUTE_FAILED', 'OPERATOR', @robot_in_site_id, 'TEST_PLAN_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.test_plan_task_execute_failed');
+INSERT INTO message_task_blob(id, template) VALUES (@test_plan_task_execute_id, 'message.test_plan_task_execute');
 
 SET @test_plan_task_report_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
@@ -272,11 +277,6 @@ Insert into message_task(id, event, receiver, project_robot_id, task_type, test_
 VALUES (@bug_comment_id, 'COMMENT', 'CREATE_USER', @robot_in_site_id, 'BUG_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_task_comment');
 INSERT INTO message_task_blob(id, template) VALUES (@bug_comment_id, 'message.bug_task_comment');
 
-SET @bug_comment_at_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@bug_comment_at_id, 'COMMENT', 'CREATE_USER', @robot_in_site_id, 'BUG_TASK_AT', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_task_comment');
-INSERT INTO message_task_blob(id, template) VALUES (@bug_comment_at_id, 'message.bug_task_at_comment');
-
 SET @bug_sync_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
 VALUES (@bug_sync_id, 'EXECUTE_COMPLETED', 'OPERATOR', @robot_in_site_id, 'BUG_SYNC_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_sync_task_execute_completed');
@@ -298,15 +298,31 @@ Insert into message_task(id, event, receiver, project_robot_id, task_type, test_
 VALUES (@functional_delete_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_delete');
 INSERT INTO message_task_blob(id, template) VALUES (@functional_delete_id, 'message.functional_case_task_delete');
 
+SET @functional_review_passed_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@functional_review_passed_id, 'REVIEW_PASSED', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_review_passed');
+INSERT INTO message_task_blob(id, template) VALUES (@functional_review_passed_id, 'message.functional_case_task_review');
+
+SET @functional_review_fail_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@functional_review_fail_id, 'REVIEW_FAIL', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_review_fail');
+INSERT INTO message_task_blob(id, template) VALUES (@functional_review_fail_id, 'message.functional_case_task_review');
+
+SET @functional_execute_passed_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@functional_execute_passed_id, 'EXECUTE_PASSED', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_execute_passed');
+INSERT INTO message_task_blob(id, template) VALUES (@functional_execute_passed_id, 'message.functional_case_task_plan');
+
+SET @functional_execute_fail_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@functional_execute_fail_id, 'EXECUTE_FAIL', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_execute_fail');
+INSERT INTO message_task_blob(id, template) VALUES (@functional_execute_fail_id, 'message.functional_case_task_plan');
+
 SET @functional_comment_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
 VALUES (@functional_comment_id, 'COMMENT', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
 INSERT INTO message_task_blob(id, template) VALUES (@functional_comment_id, 'message.functional_case_task_comment');
 
-SET @functional_comment_at_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@functional_comment_at_id, 'COMMENT', 'CREATE_USER', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK_AT', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
-INSERT INTO message_task_blob(id, template) VALUES (@functional_comment_at_id, 'message.functional_case_task_at_comment');
 
 SET @case_creator_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
@@ -322,11 +338,6 @@ SET @case_delete_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
 VALUES (@case_delete_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'CASE_REVIEW_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_delete');
 INSERT INTO message_task_blob(id, template) VALUES (@case_delete_id, 'message.case_review_task_delete');
-
-SET @case_execute_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@case_execute_id, 'EXECUTE_REVIEW', 'CREATE_USER', @robot_in_site_id, 'CASE_REVIEW_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_execute_review');
-INSERT INTO message_task_blob(id, template) VALUES (@case_execute_id, 'message.case_review_task_execute_review');
 
 SET @case_review_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
@@ -447,56 +458,29 @@ Insert into message_task(id, event, receiver, project_robot_id, task_type, test_
 VALUES (@load_report_id, 'DELETE', 'CREATE_USER', @robot_in_site_id, 'LOAD_REPORT_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.load_report_task_delete');
 INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.load_report_task_delete');
 
-SET @load_report_id = UUID_SHORT();
+-- 初始化Jenkins消息数据
+SET @jenkins_execute_successful_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@load_report_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_UI_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_ui_task_execute_successful');
-INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_ui_task_execute');
+VALUES (@jenkins_execute_successful_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_task_execute_successful');
+INSERT INTO message_task_blob(id, template) VALUES (@jenkins_execute_successful_id, 'message.jenkins_task_execute');
 
-SET @load_report_id = UUID_SHORT();
+SET @jenkins_execute_failed_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@load_report_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_UI_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_ui_task_execute_failed');
-INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_ui_task_execute');
+VALUES (@jenkins_execute_failed_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_task_execute_failed');
+INSERT INTO message_task_blob(id, template) VALUES (@jenkins_execute_failed_id, 'message.jenkins_task_execute');
 
 
-SET @load_report_id = UUID_SHORT();
+-- 初始化定时任务消息数据
+SET @schedule_open_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@load_report_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_API_SCENARIO_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_api_scenario_task_execute_successful');
-INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_api_scenario_task_execute');
+VALUES (@schedule_open_id, 'OPEN', 'CREATE_USER', @robot_in_site_id, 'SCHEDULE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.schedule_task_open');
+INSERT INTO message_task_blob(id, template) VALUES (@schedule_open_id, 'message.schedule_task_open');
 
-SET @load_report_id = UUID_SHORT();
+SET @schedule_close_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@load_report_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_API_SCENARIO_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_api_scenario_task_execute_failed');
-INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_api_scenario_task_execute');
+VALUES (@schedule_close_id, 'CLOSE', 'CREATE_USER', @robot_in_site_id, 'SCHEDULE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.schedule_task_close');
+INSERT INTO message_task_blob(id, template) VALUES (@schedule_close_id, 'message.schedule_task_close');
 
-SET @load_report_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@load_report_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_API_CASE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_api_case_task_execute_successful');
-INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_api_case_task_execute');
-
-SET @load_report_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@load_report_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_API_CASE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_api_case_task_execute_failed');
-INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_api_case_task_execute');
-
-SET @load_report_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@load_report_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_LOAD_CASE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_load_case_task_execute_successful');
-INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_load_case_task_execute');
-
-SET @load_report_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@load_report_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_LOAD_CASE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_load_case_task_execute_failed');
-INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_load_case_task_execute');
-
-SET @load_report_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@load_report_id, 'EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'JENKINS_TEST_PLAN_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_test_plan_task_execute_successful');
-INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_test_plan_task_execute');
-
-SET @load_report_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES (@load_report_id, 'EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'JENKINS_TEST_PLAN_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.jenkins_test_plan_task_execute_failed');
-INSERT INTO message_task_blob(id, template) VALUES (@load_report_id, 'message.jenkins_test_plan_task_execute');
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -37,19 +37,13 @@ public class NoticeTemplateControllerTests extends BaseTest {
         List<String> typeList = new ArrayList<>();
         typeList.add(NoticeConstants.TaskType.API_DEFINITION_TASK);
         typeList.add(NoticeConstants.TaskType.API_SCENARIO_TASK);
-        typeList.add(NoticeConstants.TaskType.API_SCHEDULE_TASK);
         typeList.add(NoticeConstants.TaskType.TEST_PLAN_TASK);
         typeList.add(NoticeConstants.TaskType.CASE_REVIEW_TASK);
         typeList.add(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
         typeList.add(NoticeConstants.TaskType.BUG_TASK);
         typeList.add(NoticeConstants.TaskType.UI_SCENARIO_TASK);
         typeList.add(NoticeConstants.TaskType.LOAD_TEST_TASK);
-        typeList.add(NoticeConstants.TaskType.JENKINS_UI_TASK);
-        typeList.add(NoticeConstants.TaskType.JENKINS_API_SCENARIO_TASK);
-        typeList.add(NoticeConstants.TaskType.JENKINS_API_CASE_TASK);
-        typeList.add(NoticeConstants.TaskType.JENKINS_LOAD_CASE_TASK);
-        typeList.add(NoticeConstants.TaskType.JENKINS_TEST_PLAN_TASK);
-        typeList.add(NoticeConstants.TaskType.BUG_TASK_AT);
+
         for (String s : typeList) {
             MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/template/get/fields/project-template-test-1")
                             .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -61,7 +55,7 @@ public class NoticeTemplateControllerTests extends BaseTest {
             ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
             MessageTemplateResultDTO messageTemplateResultDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), MessageTemplateResultDTO.class);
             List<MessageTemplateFieldDTO> projectList = messageTemplateResultDTO.getFieldList();
-            if (s.equals(NoticeConstants.TaskType.BUG_TASK_AT)) {
+            if (s.equals(NoticeConstants.TaskType.SCHEDULE_TASK)) {
                 Assertions.assertTrue(CollectionUtils.isEmpty(projectList));
             } else {
                 Assertions.assertTrue(CollectionUtils.isNotEmpty(projectList));
@@ -74,7 +68,6 @@ public class NoticeTemplateControllerTests extends BaseTest {
         List<String> typeList = new ArrayList<>();
         typeList.add(NoticeConstants.TaskType.API_DEFINITION_TASK);
         typeList.add(NoticeConstants.TaskType.API_SCENARIO_TASK);
-        typeList.add(NoticeConstants.TaskType.API_SCHEDULE_TASK);
         typeList.add(NoticeConstants.TaskType.TEST_PLAN_TASK);
         typeList.add(NoticeConstants.TaskType.CASE_REVIEW_TASK);
         typeList.add(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
