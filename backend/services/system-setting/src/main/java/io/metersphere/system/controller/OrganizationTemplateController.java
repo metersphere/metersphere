@@ -39,7 +39,7 @@ public class OrganizationTemplateController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_READ)
     public List<Template> list(@Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
                                @PathVariable String organizationId,
-                               @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI）", requiredMode = Schema.RequiredMode.REQUIRED)
+                               @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI,TEST_PLAN）", requiredMode = Schema.RequiredMode.REQUIRED)
                                @PathVariable String scene) {
         return organizationTemplateservice.list(organizationId, scene);
     }

@@ -54,8 +54,7 @@ public class CustomField implements Serializable {
     @Schema(description = "项目字段所关联的组织字段ID")
     private String refId;
 
-    @Schema(description = "是否需要手动输入选项key", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{custom_field.enable_option_key.not_blank}", groups = {Created.class})
+    @Schema(description = "是否需要手动输入选项key")
     private Boolean enableOptionKey;
 
     @Schema(description = "组织或项目ID", requiredMode = Schema.RequiredMode.REQUIRED)

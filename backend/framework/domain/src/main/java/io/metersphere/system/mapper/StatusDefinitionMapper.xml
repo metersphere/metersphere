@@ -2,9 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.StatusDefinitionMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.StatusDefinition">
-    <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="status_id" jdbcType="VARCHAR" property="statusId" />
-    <result column="definition_id" jdbcType="VARCHAR" property="definitionId" />
+    <id column="status_id" jdbcType="VARCHAR" property="statusId" />
+    <id column="definition_id" jdbcType="VARCHAR" property="definitionId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,7 +64,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, status_id, definition_id
+    status_id, definition_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.StatusDefinitionExample" resultMap="BaseResultMap">
     select
@@ -81,15 +80,10 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from status_definition
-    where id = #{id,jdbcType=VARCHAR}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+  <delete id="deleteByPrimaryKey" parameterType="map">
     delete from status_definition
-    where id = #{id,jdbcType=VARCHAR}
+    where status_id = #{statusId,jdbcType=VARCHAR}
+      and definition_id = #{definitionId,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.system.domain.StatusDefinitionExample">
     delete from status_definition
@@ -98,17 +92,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.StatusDefinition">
-    insert into status_definition (id, status_id, definition_id
-      )
-    values (#{id,jdbcType=VARCHAR}, #{statusId,jdbcType=VARCHAR}, #{definitionId,jdbcType=VARCHAR}
-      )
+    insert into status_definition (status_id, definition_id)
+    values (#{statusId,jdbcType=VARCHAR}, #{definitionId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.StatusDefinition">
     insert into status_definition
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="statusId != null">
         status_id,
       </if>
@@ -117,9 +106,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=VARCHAR},
-      </if>
       <if test="statusId != null">
         #{statusId,jdbcType=VARCHAR},
       </if>
@@ -137,9 +123,6 @@
   <update id="updateByExampleSelective" parameterType="map">
     update status_definition
     <set>
-      <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
-      </if>
       <if test="record.statusId != null">
         status_id = #{record.statusId,jdbcType=VARCHAR},
       </if>
@@ -153,38 +136,18 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update status_definition
-    set id = #{record.id,jdbcType=VARCHAR},
-      status_id = #{record.statusId,jdbcType=VARCHAR},
+    set status_id = #{record.statusId,jdbcType=VARCHAR},
       definition_id = #{record.definitionId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.StatusDefinition">
-    update status_definition
-    <set>
-      <if test="statusId != null">
-        status_id = #{statusId,jdbcType=VARCHAR},
-      </if>
-      <if test="definitionId != null">
-        definition_id = #{definitionId,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.StatusDefinition">
-    update status_definition
-    set status_id = #{statusId,jdbcType=VARCHAR},
-      definition_id = #{definitionId,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
   <insert id="batchInsert" parameterType="map">
     insert into status_definition
-    (id, status_id, definition_id)
+    (status_id, definition_id)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.statusId,jdbcType=VARCHAR}, #{item.definitionId,jdbcType=VARCHAR}
-        )
+      (#{item.statusId,jdbcType=VARCHAR}, #{item.definitionId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -197,9 +160,6 @@
     <foreach collection="list" item="item" separator=",">
       (
       <foreach collection="selective" item="column" separator=",">
-        <if test="'id'.toString() == column.value">
-          #{item.id,jdbcType=VARCHAR}
-        </if>
         <if test="'status_id'.toString() == column.value">
           #{item.statusId,jdbcType=VARCHAR}
         </if>

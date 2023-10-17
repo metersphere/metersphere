@@ -81,7 +81,7 @@ public class ProjectTemplateService extends BaseTemplateService {
     }
 
 
-    private void checkProjectTemplateEnable(String projectId, String scene) {
+    public void checkProjectTemplateEnable(String projectId, String scene) {
         ProjectDTO project = projectService.getProjectById(projectId);
         if (isOrganizationTemplateEnable(project.getOrganizationId(), scene)) {
             throw new MSException(PROJECT_TEMPLATE_PERMISSION);

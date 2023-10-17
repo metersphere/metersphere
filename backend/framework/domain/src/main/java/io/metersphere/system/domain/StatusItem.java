@@ -37,6 +37,11 @@ public class StatusItem implements Serializable {
     @Size(min = 1, max = 50, message = "{status_item.scope_type.length_range}", groups = {Created.class, Updated.class})
     private String scopeType;
 
+    @Schema(description = "项目状态所关联的组织状态ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{status_item.ref_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{status_item.ref_id.length_range}", groups = {Created.class, Updated.class})
+    private String refId;
+
     @Schema(description = "组织或项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{status_item.scope_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{status_item.scope_id.length_range}", groups = {Created.class, Updated.class})
@@ -51,6 +56,7 @@ public class StatusItem implements Serializable {
         remark("remark", "remark", "VARCHAR", false),
         internal("internal", "internal", "BIT", false),
         scopeType("scope_type", "scopeType", "VARCHAR", false),
+        refId("ref_id", "refId", "VARCHAR", false),
         scopeId("scope_id", "scopeId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";

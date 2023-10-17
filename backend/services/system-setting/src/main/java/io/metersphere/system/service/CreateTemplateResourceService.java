@@ -6,15 +6,13 @@ import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.dto.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.domain.CustomField;
-import io.metersphere.system.domain.CustomFieldOption;
-import io.metersphere.system.domain.Template;
-import io.metersphere.system.domain.TemplateCustomField;
+import io.metersphere.system.domain.*;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -29,6 +27,14 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
     BaseCustomFieldService baseCustomFieldService;
     @Resource
     BaseCustomFieldOptionService baseCustomFieldOptionService;
+    @Resource
+    protected BaseStatusDefinitionService baseStatusDefinitionService;
+    @Resource
+    protected BaseStatusItemService baseStatusItemService;
+    @Resource
+    protected BaseStatusFlowService baseStatusFlowService;
+    @Resource
+    protected BaseStatusFlowSettingService baseStatusFlowSettingService;
 
     @Override
     public void createResources(String projectId) {
@@ -43,6 +49,7 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
                 // 先创建字段再创建模板
                 createProjectCustomField(projectId, organizationId, scene);
                 createProjectTemplate(projectId, organizationId, scene);
+                createProjectStatusSetting(projectId, organizationId, scene);
             } else {
                 // 开启了项目模板，则初始化项目模板和字段
                 initProjectTemplate(projectId, scene);
@@ -63,6 +70,7 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
                 break;
             case BUG:
                 baseTemplateService.initBugDefaultTemplate(projectId, TemplateScopeType.PROJECT);
+                baseStatusFlowSettingService.initBugDefaultStatusFlowSetting(projectId, TemplateScopeType.PROJECT);
                 break;
             case API:
                 baseTemplateService.initApiDefaultTemplate(projectId, TemplateScopeType.PROJECT);
@@ -122,6 +130,53 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
             List<CustomFieldOption> options = customFieldOptionMap.get(field.getId());
             addRefProjectCustomField(projectId, field, options);
         });
+    }
+
+    /**
+     * 当没有开启项目模板，创建项目时要根据当前组织状态流创建项目状态流
+     *
+     * @param projectId
+     * @param organizationId
+     * @param scene
+     */
+    private void createProjectStatusSetting(String projectId, String organizationId, TemplateScene scene) {
+        List<StatusItem> orgStatusItems = baseStatusItemService.getStatusItems(organizationId, scene.name());
+        List<String> orgStatusItemIds = orgStatusItems.stream().map(StatusItem::getId).toList();
+
+        // 同步创建项目级别状态项
+        List<StatusItem> projectStatusItems = orgStatusItems.stream().map(orgStatusItem -> {
+            StatusItem statusItem = BeanUtils.copyBean(new StatusItem(), orgStatusItem);
+            statusItem.setScopeType(TemplateScopeType.PROJECT.name());
+            statusItem.setRefId(orgStatusItem.getId());
+            statusItem.setScopeId(projectId);
+            statusItem.setId(UUID.randomUUID().toString());
+            return statusItem;
+        }).toList();
+        baseStatusItemService.batchAdd(projectStatusItems);
+
+        // 构建组织状态与对应项目状态的映射关系
+        Map<String, String> statusRefMap = projectStatusItems.stream()
+                .collect(Collectors.toMap(StatusItem::getRefId, StatusItem::getId));
+
+        // 同步创建项目级别状态定义
+        List<StatusDefinition> orgStatusDefinitions = baseStatusDefinitionService.getStatusDefinitions(orgStatusItemIds);
+        List<StatusDefinition> projectStatusDefinition = orgStatusDefinitions.stream().map(orgStatusDefinition -> {
+            StatusDefinition statusDefinition = BeanUtils.copyBean(new StatusDefinition(), orgStatusDefinition);
+            statusDefinition.setStatusId(statusRefMap.get(orgStatusDefinition.getStatusId()));
+            return statusDefinition;
+        }).toList();
+        baseStatusDefinitionService.batchAdd(projectStatusDefinition);
+
+        // 同步创建项目级别状态流
+        List<StatusFlow> orgStatusFlows = baseStatusFlowService.getStatusFlows(orgStatusItemIds);
+        List<StatusFlow> projectStatusFlows = orgStatusFlows.stream().map(orgStatusFlow -> {
+            StatusFlow statusFlow = BeanUtils.copyBean(new StatusFlow(), orgStatusFlow);
+            statusFlow.setToId(statusRefMap.get(orgStatusFlow.getToId()));
+            statusFlow.setFromId(statusRefMap.get(orgStatusFlow.getFromId()));
+            statusFlow.setId(UUID.randomUUID().toString());
+            return statusFlow;
+        }).toList();
+        baseStatusFlowService.batchAdd(projectStatusFlows);
     }
 
     /**

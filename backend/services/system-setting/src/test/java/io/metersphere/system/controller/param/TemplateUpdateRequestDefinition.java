@@ -11,7 +11,7 @@ import lombok.Data;
 public class TemplateUpdateRequestDefinition {
     @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{template.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{template.id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{template.id.length_range}", groups = {Updated.class})
     private String id;
 
     @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED)

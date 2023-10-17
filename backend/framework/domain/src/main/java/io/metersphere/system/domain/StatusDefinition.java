@@ -11,22 +11,18 @@ import lombok.Data;
 @Data
 public class StatusDefinition implements Serializable {
     @Schema(description = "状态ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{status_definition.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{status_definition.id.length_range}", groups = {Created.class, Updated.class})
-    private String id;
-
-    @Schema(description = "状态ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{status_definition.status_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{status_definition.status_id.length_range}", groups = {Created.class, Updated.class})
     private String statusId;
 
-    @Schema(description = "状态定义ID")
+    @Schema(description = "状态定义ID(在代码中定义)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{status_definition.definition_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 100, message = "{status_definition.definition_id.length_range}", groups = {Created.class, Updated.class})
     private String definitionId;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
-        id("id", "id", "VARCHAR", false),
         statusId("status_id", "statusId", "VARCHAR", false),
         definitionId("definition_id", "definitionId", "VARCHAR", false);
 

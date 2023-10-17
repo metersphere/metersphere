@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class CustomFieldUpdateRequestDefinition {
     @NotBlank(groups = {Updated.class})
-    @Size(min = 1, max = 50, groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, groups = {Updated.class})
     private String id;
 
     @NotBlank(groups = {Created.class})

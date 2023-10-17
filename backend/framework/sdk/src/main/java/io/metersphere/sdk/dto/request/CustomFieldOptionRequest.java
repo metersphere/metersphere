@@ -10,12 +10,12 @@ import lombok.Data;
 @Data
 public class CustomFieldOptionRequest {
     @Schema(title = "选项值", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{custom_field_option.value.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{custom_field_option.value.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{custom_field_option.value.length_range}", groups = {Created.class, Updated.class})
     private String value;
 
     @Schema(title = "选项值名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{custom_field_option.text.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{custom_field_option.text.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{custom_field_option.text.length_range}", groups = {Created.class, Updated.class})
     private String text;
 }

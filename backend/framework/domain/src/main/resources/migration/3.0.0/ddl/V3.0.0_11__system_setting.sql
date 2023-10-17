@@ -417,24 +417,22 @@ CREATE TABLE IF NOT EXISTS status_item(
     `remark` VARCHAR(500)    COMMENT '状态说明' ,
     `internal` BIT NOT NULL  DEFAULT 0 COMMENT '是否是内置字段' ,
     `scope_type` VARCHAR(50) NOT NULL  DEFAULT 0 COMMENT '组织或项目级别字段（PROJECT, ORGANIZATION）' ,
+    `ref_id` VARCHAR(50)    COMMENT '项目状态所关联的组织状态ID' ,
     `scope_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci
-    COMMENT = '状态流的状态项';
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '状态流的状态项';
 
 CREATE INDEX idx_scope_id ON status_item(scope_id);
 
 CREATE TABLE IF NOT EXISTS status_definition(
-    `id` VARCHAR(50) NOT NULL   COMMENT '状态ID' ,
-    `status_id` VARCHAR(50) NOT NULL   COMMENT '状态ID' ,
-    `definition_id` VARCHAR(500)    COMMENT '状态定义ID' ,
-    PRIMARY KEY (id)
+  `status_id` VARCHAR(50) NOT NULL   COMMENT '状态ID' ,
+  `definition_id` VARCHAR(100) NOT NULL   COMMENT '状态定义ID(在代码中定义)' ,
+  PRIMARY KEY (status_id,definition_id)
 ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci
-    COMMENT = '状态定义';
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '状态定义';
 
 CREATE INDEX idx_status_id ON status_definition(status_id);
 

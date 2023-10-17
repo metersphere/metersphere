@@ -225,7 +225,7 @@ public class BaseTemplateService {
     }
 
     private Template checkResourceExist(String id) {
-        return ServiceUtils.checkResourceExist(templateMapper.selectByPrimaryKey(id), "permission.system_template.name");
+        return ServiceUtils.checkResourceExist(templateMapper.selectByPrimaryKey(id), "permission.organization_template.name");
     }
 
     public boolean isOrganizationTemplateEnable(String orgId, String scene) {

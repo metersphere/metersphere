@@ -131,6 +131,7 @@ public class BaseCustomFieldService {
         customField.setInternal(false);
         customField.setCreateUser(null);
         customField.setCreateTime(null);
+        customField.setType(null);
         customField.setUpdateTime(System.currentTimeMillis());
         customFieldMapper.updateByPrimaryKeySelective(customField);
         if (options != null) {

@@ -1,6 +1,5 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.OrganizationParameterConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
@@ -63,8 +62,6 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     private BaseOrganizationParameterService organizationParameterService;
     @Resource
     private OrganizationTemplateService organizationTemplateService;
-    @Resource
-    private ProjectMapper projectMapper;
 
     private static Template addTemplate;
     private static Template anotherTemplateField;

@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author jianxing
  */
-@Tag(name = "系统设置-项目-自定义字段")
+@Tag(name = "项目管理-自定义字段")
 @RestController
 @RequestMapping("/project/custom/field")
 public class ProjectCustomFieldController {
@@ -39,7 +39,7 @@ public class ProjectCustomFieldController {
     @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FIELD_READ)
     public List<CustomField> list(@Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
                                   @PathVariable String projectId,
-                                  @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI）", requiredMode = Schema.RequiredMode.REQUIRED)
+                                  @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI,TEST_PLAN）", requiredMode = Schema.RequiredMode.REQUIRED)
                                   @PathVariable String scene) {
         return projectCustomFieldService.list(projectId, scene);
     }
