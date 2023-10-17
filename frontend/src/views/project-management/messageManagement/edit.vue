@@ -20,9 +20,7 @@
         <div class="flex items-center">
           <div class="font-medium text-[var(--color-text-1)]">{{ t('project.messageManagement.messageScript') }}</div>
           <a-tooltip :content="t('project.messageManagement.scriptTip')" position="tl" mini>
-            <icon-question-circle
-              class="mb-[2px] ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]"
-            />
+            <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
           </a-tooltip>
         </div>
         <a-select v-model:model-value="fieldType" class="my-[8px]" :options="fieldTypeOptions"></a-select>
@@ -61,8 +59,8 @@
           <div class="font-medium text-[var(--color-text-1)]">
             {{ t('project.messageManagement.messageTemplate') }}
           </div>
-          <icon-exclamation-circle class="mb-[2px] ml-[8px] mr-[4px] text-[rgb(var(--warning-6))]" />
-          <div class="text-[rgb(var(--warning-6))]">
+          <div class="flex whitespace-nowrap text-[rgb(var(--warning-6))]">
+            <icon-exclamation-circle class="mr-[4px] mt-[2px] text-[rgb(var(--warning-6))]" />
             {{
               currentLocale === 'zh-CN'
                 ? '引用消息变量格式为：${变量名称}'

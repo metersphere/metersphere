@@ -17,7 +17,7 @@
       >
         <div ref="robotListRef" class="robot-list">
           <div v-for="robot of botList" :key="robot.id" class="robot-card">
-            <div class="flex">
+            <div class="flex items-center">
               <MsIcon
                 :type="IconMap[robot.platform]"
                 class="mr-[8px] h-[40px] w-[40px] bg-[var(--color-text-n9)] p-[8px] text-[rgb(var(--primary-5))]"
@@ -27,7 +27,7 @@
                 <div v-if="['IN_SITE', 'MAIL'].includes(robot.platform)" class="text-[12px] text-[var(--color-text-4)]">
                   {{ robot.description }}
                 </div>
-                <div v-else class="flex items-center text-[12px] text-[var(--color-text-4)]">
+                <div v-else class="flex flex-wrap items-center text-[12px] text-[var(--color-text-4)]">
                   <div class="mr-[16px]">
                     <a-tooltip position="tl" mini :content="robot.createUser">{{ robot.createUser }}</a-tooltip>
                     {{

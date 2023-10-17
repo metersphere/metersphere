@@ -50,6 +50,11 @@ export default function useSelect(config: UseSelectOption) {
         if (lastWidth === 0) {
           maxTagCount.value = tagCount || 1;
         }
+        if (tagCount <= 1 && values.length > 0) {
+          singleTagMaxWidth.value = innerViewWidth - 100; // 100px 是 60px + 标签边距边框和 x 图标等40px
+        } else {
+          singleTagMaxWidth.value = 0;
+        }
       }
     });
   }

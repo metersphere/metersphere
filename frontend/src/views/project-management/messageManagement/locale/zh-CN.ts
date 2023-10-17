@@ -70,7 +70,7 @@ export default {
   'project.messageManagement.groupName': '群名称',
   'project.messageManagement.internalRobot': '内部机器人',
   'project.messageManagement.customRobot': '自定义机器人',
-  'project.messageManagement.larkRobotTip': '通过webhook将自定义服务的消息推送致飞书',
+  'project.messageManagement.larkRobotTip': '通过webhook将自定义服务的消息推送至飞书',
   'project.messageManagement.editMessage': '更新模版',
   'project.messageManagement.messageScript': '消息脚本',
   'project.messageManagement.scriptTip': '展示消息通知的具体内容，以及引用的消息变量',
