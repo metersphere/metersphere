@@ -113,8 +113,9 @@ public class MsLogAspect {
                     if (arg instanceof WebSession session) {
                         Object user = session.getAttribute("user");
                         if (user != null) {
-                            String username = (String) MethodUtils.invokeExactMethod(user, "getName");
-                            msOperLog.setOperUser(username);
+                            String userId = (String) MethodUtils.invokeExactMethod(user, "getId");
+                            msOperLog.setOperUser(userId);
+                            msOperLog.setCreateUser(userId);
                         }
                         break;
                     }
