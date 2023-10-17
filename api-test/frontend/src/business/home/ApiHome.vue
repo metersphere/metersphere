@@ -34,7 +34,8 @@
           </el-row>
           <el-row style="margin-top: 16px">
             <el-col style="background-color: #ffffff">
-              <updated-api-list @redirectPage="redirectPage" ref="updatedApiList" />
+              <updated-api-list ref="updatedApiList" @redirectPage="redirectPage"
+                                @redirectPageWithDataType="redirectPageWithDataType"/>
             </el-col>
           </el-row>
           <el-row style="margin-top: 16px">
@@ -49,7 +50,7 @@
 </template>
 
 <script>
-import { getUUID } from 'metersphere-frontend/src/utils';
+import {getUUID} from 'metersphere-frontend/src/utils';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
 import ApiDashboard from '@/business/home/components/dashboard/ApiDashboard';
@@ -58,9 +59,9 @@ import ScenarioDashboard from '@/business/home/components/dashboard/ScenarioDash
 import ScenarioScheduleDashboard from '@/business/home/components/dashboard/ScenarioScheduleDashboard';
 import UpdatedApiList from '@/business/home/components/table/UpdatedApiList';
 import ScheduleTaskList from '@/business/home/components/table/ScheduleTaskList';
-import { getProjectVersions } from '@/api/xpack';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { hasLicense } from 'metersphere-frontend/src/utils/permission';
+import {getProjectVersions} from '@/api/xpack';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
+import {hasLicense} from 'metersphere-frontend/src/utils/permission';
 
 export default {
   name: 'ApiHome',
