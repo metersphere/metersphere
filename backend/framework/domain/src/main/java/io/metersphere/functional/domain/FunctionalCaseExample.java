@@ -234,76 +234,6 @@ public class FunctionalCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andCustomNumIsNull() {
-            addCriterion("custom_num is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumIsNotNull() {
-            addCriterion("custom_num is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumEqualTo(String value) {
-            addCriterion("custom_num =", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumNotEqualTo(String value) {
-            addCriterion("custom_num <>", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumGreaterThan(String value) {
-            addCriterion("custom_num >", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumGreaterThanOrEqualTo(String value) {
-            addCriterion("custom_num >=", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumLessThan(String value) {
-            addCriterion("custom_num <", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumLessThanOrEqualTo(String value) {
-            addCriterion("custom_num <=", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumLike(String value) {
-            addCriterion("custom_num like", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumNotLike(String value) {
-            addCriterion("custom_num not like", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumIn(List<String> values) {
-            addCriterion("custom_num in", values, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumNotIn(List<String> values) {
-            addCriterion("custom_num not in", values, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumBetween(String value1, String value2) {
-            addCriterion("custom_num between", value1, value2, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumNotBetween(String value1, String value2) {
-            addCriterion("custom_num not between", value1, value2, "customNum");
-            return (Criteria) this;
-        }
-
         public Criteria andModuleIdIsNull() {
             addCriterion("module_id is null");
             return (Criteria) this;
@@ -441,6 +371,76 @@ public class FunctionalCaseExample {
 
         public Criteria andProjectIdNotBetween(String value1, String value2) {
             addCriterion("project_id not between", value1, value2, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdIsNull() {
+            addCriterion("template_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdIsNotNull() {
+            addCriterion("template_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdEqualTo(String value) {
+            addCriterion("template_id =", value, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdNotEqualTo(String value) {
+            addCriterion("template_id <>", value, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdGreaterThan(String value) {
+            addCriterion("template_id >", value, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdGreaterThanOrEqualTo(String value) {
+            addCriterion("template_id >=", value, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdLessThan(String value) {
+            addCriterion("template_id <", value, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdLessThanOrEqualTo(String value) {
+            addCriterion("template_id <=", value, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdLike(String value) {
+            addCriterion("template_id like", value, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdNotLike(String value) {
+            addCriterion("template_id not like", value, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdIn(List<String> values) {
+            addCriterion("template_id in", values, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdNotIn(List<String> values) {
+            addCriterion("template_id not in", values, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdBetween(String value1, String value2) {
+            addCriterion("template_id between", value1, value2, "templateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTemplateIdNotBetween(String value1, String value2) {
+            addCriterion("template_id not between", value1, value2, "templateId");
             return (Criteria) this;
         }
 
@@ -654,73 +654,73 @@ public class FunctionalCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelIsNull() {
-            addCriterion("case_model is null");
+        public Criteria andCaseEditTypeIsNull() {
+            addCriterion("case_edit_type is null");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelIsNotNull() {
-            addCriterion("case_model is not null");
+        public Criteria andCaseEditTypeIsNotNull() {
+            addCriterion("case_edit_type is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelEqualTo(String value) {
-            addCriterion("case_model =", value, "caseModel");
+        public Criteria andCaseEditTypeEqualTo(String value) {
+            addCriterion("case_edit_type =", value, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelNotEqualTo(String value) {
-            addCriterion("case_model <>", value, "caseModel");
+        public Criteria andCaseEditTypeNotEqualTo(String value) {
+            addCriterion("case_edit_type <>", value, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelGreaterThan(String value) {
-            addCriterion("case_model >", value, "caseModel");
+        public Criteria andCaseEditTypeGreaterThan(String value) {
+            addCriterion("case_edit_type >", value, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelGreaterThanOrEqualTo(String value) {
-            addCriterion("case_model >=", value, "caseModel");
+        public Criteria andCaseEditTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("case_edit_type >=", value, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelLessThan(String value) {
-            addCriterion("case_model <", value, "caseModel");
+        public Criteria andCaseEditTypeLessThan(String value) {
+            addCriterion("case_edit_type <", value, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelLessThanOrEqualTo(String value) {
-            addCriterion("case_model <=", value, "caseModel");
+        public Criteria andCaseEditTypeLessThanOrEqualTo(String value) {
+            addCriterion("case_edit_type <=", value, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelLike(String value) {
-            addCriterion("case_model like", value, "caseModel");
+        public Criteria andCaseEditTypeLike(String value) {
+            addCriterion("case_edit_type like", value, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelNotLike(String value) {
-            addCriterion("case_model not like", value, "caseModel");
+        public Criteria andCaseEditTypeNotLike(String value) {
+            addCriterion("case_edit_type not like", value, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelIn(List<String> values) {
-            addCriterion("case_model in", values, "caseModel");
+        public Criteria andCaseEditTypeIn(List<String> values) {
+            addCriterion("case_edit_type in", values, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelNotIn(List<String> values) {
-            addCriterion("case_model not in", values, "caseModel");
+        public Criteria andCaseEditTypeNotIn(List<String> values) {
+            addCriterion("case_edit_type not in", values, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelBetween(String value1, String value2) {
-            addCriterion("case_model between", value1, value2, "caseModel");
+        public Criteria andCaseEditTypeBetween(String value1, String value2) {
+            addCriterion("case_edit_type between", value1, value2, "caseEditType");
             return (Criteria) this;
         }
 
-        public Criteria andCaseModelNotBetween(String value1, String value2) {
-            addCriterion("case_model not between", value1, value2, "caseModel");
+        public Criteria andCaseEditTypeNotBetween(String value1, String value2) {
+            addCriterion("case_edit_type not between", value1, value2, "caseEditType");
             return (Criteria) this;
         }
 

@@ -4,13 +4,13 @@ SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS functional_case(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `num` INT NOT NULL   COMMENT '业务ID' ,
-    `custom_num` VARCHAR(64) NOT NULL   COMMENT '自定义业务ID' ,
     `module_id` VARCHAR(50) NOT NULL  DEFAULT '' COMMENT '模块ID' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
+    `template_id` VARCHAR(50) NOT NULL   COMMENT '模板ID' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '名称' ,
     `review_status` VARCHAR(64) NOT NULL  DEFAULT 'PREPARE' COMMENT '评审状态：未开始/进行中/已完成/已结束' ,
     `tags` VARCHAR(1000)    COMMENT '标签（JSON)' ,
-    `case_model` VARCHAR(50) NOT NULL  DEFAULT 'STEP' COMMENT '编辑模式：步骤模式/文本模式' ,
+    `case_edit_type` VARCHAR(50) NOT NULL  DEFAULT 'STEP' COMMENT '编辑模式：步骤模式/文本模式' ,
     `pos` BIGINT NOT NULL  DEFAULT 0 COMMENT '自定义排序，间隔5000' ,
     `version_id` VARCHAR(50) NOT NULL   COMMENT '版本ID' ,
     `ref_id` VARCHAR(50) NOT NULL   COMMENT '指向初始版本ID' ,
@@ -35,6 +35,9 @@ CREATE INDEX idx_project_id_pos ON functional_case(project_id,pos);
 CREATE INDEX idx_public_case_pos ON functional_case(public_case,pos);
 CREATE INDEX idx_ref_id ON functional_case(ref_id);
 CREATE INDEX idx_version_id ON functional_case(version_id);
+CREATE INDEX idx_create_time ON functional_case(create_time);
+CREATE INDEX idx_delete_time ON functional_case(delete_time);
+CREATE INDEX idx_update_time ON functional_case(update_time);
 
 
 CREATE TABLE IF NOT EXISTS functional_case_blob(
@@ -56,12 +59,13 @@ CREATE TABLE IF NOT EXISTS functional_case_comment(
     `create_user` VARCHAR(50) NOT NULL   COMMENT '评论人' ,
     `status` VARCHAR(64)    COMMENT '评审/测试计划执行状态:通过/不通过/重新提审/通过标准变更标记/强制通过标记/强制不通过标记/状态变更标记' ,
     `type` VARCHAR(64) NOT NULL  DEFAULT 'CASE' COMMENT '评论类型：用例评论/测试计划用例评论/评审用例评论' ,
-    `belong_id` VARCHAR(50)    COMMENT '评审ID' ,
+    `parent_id` VARCHAR(50)    COMMENT '父评论ID' ,
+    `resource_id` VARCHAR(50)    COMMENT '资源ID: 评审ID/测试计划ID' ,
+    `notifier` VARCHAR(1000)    COMMENT '通知人' ,
+    `content` TEXT NOT NULL   COMMENT '内容' ,
+    `reply_user` VARCHAR(50)    COMMENT '回复人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-    `description` TEXT NOT NULL   COMMENT '内容' ,
-    `reply_user` VARCHAR(50)    COMMENT '回复人' ,
-    `parent_id` VARCHAR(50)   DEFAULT '' COMMENT '父评论id' ,
     PRIMARY KEY (id)
     )  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
@@ -72,7 +76,7 @@ CREATE INDEX idx_create_time ON functional_case_comment(create_time);
 CREATE INDEX idx_case_id ON functional_case_comment(case_id);
 CREATE INDEX idx_status ON functional_case_comment(status);
 CREATE INDEX idx_type ON functional_case_comment(type);
-CREATE INDEX idx_belong_id ON functional_case_comment(belong_id);
+CREATE INDEX idx_resource_id ON functional_case_comment(resource_id);
 
 
 CREATE TABLE IF NOT EXISTS functional_case_module(
@@ -96,12 +100,24 @@ CREATE INDEX idx_name ON functional_case_module(name);
 
 
 CREATE TABLE IF NOT EXISTS functional_case_attachment(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'id' ,
     `case_id` VARCHAR(50) NOT NULL   COMMENT '功能用例ID' ,
     `file_id` VARCHAR(50) NOT NULL   COMMENT '文件的ID' ,
+    `file_name` VARCHAR(255) NOT NULL   COMMENT '文件名称' ,
+    `size` BIGINT NOT NULL   COMMENT '文件大小' ,
+    `local` BIT(1) NOT NULL   COMMENT '是否本地' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     PRIMARY KEY (case_id,file_id)
     )  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '功能用例和附件的中间表';
+
+
+CREATE INDEX idx_case_id ON functional_case_attachment(case_id);
+CREATE INDEX idx_local ON functional_case_attachment(local);
+CREATE INDEX idx_file_id ON functional_case_attachment(file_id);
+CREATE INDEX idx_file_name ON functional_case_attachment(file_name);
 
 
 CREATE TABLE IF NOT EXISTS functional_case_follower(
@@ -144,7 +160,7 @@ CREATE TABLE IF NOT EXISTS functional_case_test(
     COLLATE = utf8mb4_general_ci COMMENT = '功能用例和其他用例的中间表';
 
 
-CREATE UNIQUE INDEX uk_functional_case_id_test_id ON functional_case_test(case_id,test_id);
+CREATE UNIQUE INDEX uk_case_id_test_id ON functional_case_test(case_id,test_id);
 CREATE INDEX idx_test_id ON functional_case_test(test_id);
 
 
@@ -166,11 +182,26 @@ CREATE TABLE IF NOT EXISTS functional_case_custom_field(
     `case_id` VARCHAR(50) NOT NULL   COMMENT '资源ID' ,
     `field_id` VARCHAR(50) NOT NULL   COMMENT '字段ID' ,
     `value` VARCHAR(1000)    COMMENT '字段值' ,
-    `text_value` LONGTEXT    COMMENT '富文本类型字段值' ,
     PRIMARY KEY (case_id,field_id)
     )  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '自定义字段功能用例关系';
+
+
+CREATE TABLE IF NOT EXISTS functional_case_history(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `case_id` VARCHAR(50) NOT NULL   COMMENT '用例ID' ,
+    `num` INT NOT NULL   COMMENT '变更记录批次号' ,
+    `content` BLOB NOT NULL   COMMENT '修改内容' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '操作人' ,
+    `create_time` BIGINT NOT NULL   COMMENT '操作时间' ,
+    PRIMARY KEY (id)
+    )  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '用例变更记录';
+
+
+CREATE INDEX idx_case_id ON functional_case_history(case_id);
 
 
 CREATE TABLE IF NOT EXISTS case_review(

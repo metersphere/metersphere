@@ -33,8 +33,17 @@ public class FunctionalCaseComment implements Serializable {
     @Size(min = 1, max = 64, message = "{functional_case_comment.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
-    @Schema(description =  "评审ID")
-    private String belongId;
+    @Schema(description =  "父评论ID")
+    private String parentId;
+
+    @Schema(description =  "资源ID: 评审ID/测试计划ID")
+    private String resourceId;
+
+    @Schema(description =  "通知人")
+    private String notifier;
+
+    @Schema(description =  "回复人")
+    private String replyUser;
 
     @Schema(description =  "创建时间")
     private Long createTime;
@@ -42,16 +51,9 @@ public class FunctionalCaseComment implements Serializable {
     @Schema(description =  "更新时间")
     private Long updateTime;
 
-    @Schema(description =  "回复人")
-    private String replyUser;
-
-    @Schema(description =  "父评论id")
-    private String parentId;
-
     @Schema(description =  "内容", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_comment.description.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 65535, message = "{functional_case_comment.description.length_range}", groups = {Created.class, Updated.class})
-    private String description;
+    @NotBlank(message = "{functional_case_comment.content.not_blank}", groups = {Created.class})
+    private String content;
 
     private static final long serialVersionUID = 1L;
 
@@ -61,12 +63,13 @@ public class FunctionalCaseComment implements Serializable {
         createUser("create_user", "createUser", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         type("type", "type", "VARCHAR", true),
-        belongId("belong_id", "belongId", "VARCHAR", false),
+        parentId("parent_id", "parentId", "VARCHAR", false),
+        resourceId("resource_id", "resourceId", "VARCHAR", false),
+        notifier("notifier", "notifier", "VARCHAR", false),
+        replyUser("reply_user", "replyUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        replyUser("reply_user", "replyUser", "VARCHAR", false),
-        parentId("parent_id", "parentId", "VARCHAR", false),
-        description("description", "description", "LONGVARCHAR", false);
+        content("content", "content", "LONGVARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
