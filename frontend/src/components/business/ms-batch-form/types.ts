@@ -17,6 +17,8 @@ export interface FormItemModel {
   min?: number;
   max?: number;
   maxLength?: number;
+  hideAsterisk?: boolean;
+  hideLabel?: boolean;
 }
 
 declare const _default: import('vue').DefineComponent<

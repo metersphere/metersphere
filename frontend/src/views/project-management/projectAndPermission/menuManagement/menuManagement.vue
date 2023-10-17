@@ -321,19 +321,26 @@
   /**
    * @description 项目管理-项目与权限-菜单管理
    */
-  import { useI18n } from '@/hooks/useI18n';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import useTable from '@/components/pure/ms-table/useTable';
+  import { Message, TableData } from '@arco-design/web-vue';
+
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsTimeSelectorVue from '@/components/pure/ms-time-selector/MsTimeSelector.vue';
+  import DefectSync from './components/defectSync.vue';
+
   import {
-    postTabletList,
-    postUpdateMenu,
+    getAuditorOptions,
     getConfigByMenuItem,
     getPoolOptions,
-    getAuditorOptions,
+    postTabletList,
+    postUpdateMenu,
   } from '@/api/modules/project-management/menuManagement';
+  import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+
   import {
     MenuTableConfigItem,
     MenuTableListItem,
@@ -341,10 +348,6 @@
     SelectValue,
   } from '@/models/projectManagement/menuManagement';
   import { MenuEnum } from '@/enums/commonEnum';
-  import { Message, TableData } from '@arco-design/web-vue';
-  import MsTimeSelectorVue from '@/components/pure/ms-time-selector/MsTimeSelector.vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import DefectSync from './components/defectSync.vue';
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);

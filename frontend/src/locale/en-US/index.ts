@@ -52,6 +52,8 @@ export default {
     'menu.settings.organization.member': 'Member',
     'menu.settings.organization.userGroup': 'User Group',
     'menu.settings.organization.project': 'Project',
+    'menu.settings.organization.template': 'Template',
+    'menu.settings.organization.templateFieldSetting': 'fieldSetting',
     'menu.settings.organization.serviceIntegration': 'Service Integration',
     'menu.settings.organization.log': 'Log',
     'navbar.action.locale': 'Switch to English',

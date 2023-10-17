@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1695722459901') format('woff2'), url('iconfont.woff?t=1695722459901') format('woff'),
-    url('iconfont.ttf?t=1695722459901') format('truetype'), url('iconfont.svg?t=1695722459901#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1697180140168') format('woff2'), url('iconfont.woff?t=1697180140168') format('woff'),
+    url('iconfont.ttf?t=1697180140168') format('truetype'), url('iconfont.svg?t=1697180140168#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,42 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_checkbox::before {
+  content: '\e76e';
+}
+.icon-icon_radio::before {
+  content: '\e76f';
+}
+.icon-icon_input::before {
+  content: '\e770';
+}
+.icon-icon_single_choice::before {
+  content: '\e766';
+}
+.icon-icon_people::before {
+  content: '\e767';
+}
+.icon-icon_style_one::before {
+  content: '\e768';
+}
+.icon-icon_rich_text::before {
+  content: '\e769';
+}
+.icon-icon_multiple_choice::before {
+  content: '\e76a';
+}
+.icon-icon_pound::before {
+  content: '\e76b';
+}
+.icon-icon_calendar_dot::before {
+  content: '\e76c';
+}
+.icon-icon_tag::before {
+  content: '\e76d';
+}
+.icon-icon_replace_outlined::before {
+  content: '\e765';
 }
 .icon-icon_drilling_outlined::before {
   content: '\e764';

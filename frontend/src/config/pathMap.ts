@@ -163,6 +163,13 @@ export const pathMap: PathMapItem[] = [
             permission: [],
             level: MENU_LEVEL[1],
           },
+          {
+            key: 'SETTING_ORGANIZATION_TEMPLATE', // 系统设置-组织-模版
+            locale: 'menu.settings.organization.serviceIntegration',
+            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE,
+            permission: [],
+            level: MENU_LEVEL[1],
+          },
         ],
       },
     ],
@@ -192,6 +199,13 @@ export const pathMap: PathMapItem[] = [
             key: 'PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT', // 项目管理-项目与权限-菜单管理
             locale: 'project.permission.menuManagement',
             route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'PROJECT_MANAGEMENT_PERMISSION_TEMPLATE', // 项目管理-项目与权限-菜单管理
+            locale: 'project.permission.templateManager',
+            route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_TEMPLATE,
             permission: [],
             level: MENU_LEVEL[2],
           },

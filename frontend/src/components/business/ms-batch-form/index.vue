@@ -1,40 +1,56 @@
 <template>
   <a-form ref="formRef" :model="form" layout="vertical">
-    <div class="mb-[16px] overflow-y-auto rounded-[4px] bg-[var(--color-fill-1)] p-[12px]">
+    <div
+      class="mb-[16px] overflow-y-auto rounded-[4px] bg-[var(--color-fill-1)] p-[12px]"
+      :style="{ width: props.formWidth || '100%' }"
+    >
       <a-scrollbar class="overflow-y-auto" :style="{ 'max-height': props.maxHeight }">
-        <div class="flex flex-wrap items-start justify-between gap-[8px]">
-          <template v-for="(item, i) of form.list" :key="`form-item-${i}`">
-            <div class="flex w-full items-start justify-between gap-[8px]">
+        <Draggable
+          tag="div"
+          ghost-class="ghost"
+          drag-class="dragChosenClass"
+          :disabled="!props.isShowDrag"
+          :list="form.list"
+          item-key="dateIndex"
+          :force-fallback="true"
+        >
+          <template #item="{ element, index }">
+            <div class="draggableElement gap-[8px] py-[6px] pr-[8px]" :class="[props.isShowDrag ? 'cursor-move' : '']">
+              <div v-if="props.isShowDrag" class="ml-[8px] mr-[8px] pt-[8px]">
+                <MsIcon type="icon-icon_drag" class="block text-[16px] text-[var(--color-text-4)]"
+              /></div>
               <a-form-item
                 v-for="model of props.models"
-                :key="`${model.filed}${i}`"
-                :field="`list[${i}].${model.filed}`"
-                :class="i > 0 ? 'hidden-item' : 'mb-0 flex-1'"
-                :label="i === 0 && model.label ? t(model.label) : ''"
+                :key="`${model.filed}${index}`"
+                :field="`list[${index}].${model.filed}`"
+                :class="index > 0 ? 'hidden-item' : 'mb-0 flex-1'"
+                :label="index === 0 && model.label ? t(model.label) : ''"
                 :rules="
                   model.rules?.map((e) => {
                     if (e.notRepeat === true) {
                       return {
-                        validator: (val, callback) => fieldNotRepeat(val, callback, i, model.filed, e.message),
+                        validator: (val, callback) => fieldNotRepeat(val, callback, index, model.filed, e.message),
                       };
                     }
                     return e;
                   })
                 "
                 asterisk-position="end"
+                :hide-asterisk="model.hideAsterisk"
+                :hide-label="model.hideLabel"
               >
                 <a-input
                   v-if="model.type === 'input'"
-                  v-model="item[model.filed]"
-                  class="mb-[4px] flex-1"
+                  v-model="element[model.filed]"
+                  class="flex-1"
                   :placeholder="t(model.placeholder || '')"
                   :max-length="model.maxLength || 250"
                   allow-clear
                 />
                 <a-input-number
                   v-if="model.type === 'inputNumber'"
-                  v-model="item[model.filed]"
-                  class="mb-[4px] flex-1"
+                  v-model="element[model.filed]"
+                  class="flex-1"
                   :placeholder="t(model.placeholder || '')"
                   :min="model.min"
                   :max="model.max || 9999999"
@@ -43,6 +59,7 @@
               </a-form-item>
               <div
                 v-show="form.list.length > 1"
+                class="minus"
                 :class="[
                   'flex',
                   'h-full',
@@ -51,15 +68,16 @@
                   'items-center',
                   'justify-center',
                   'text-[var(--color-text-4)]',
-                  i === 0 ? 'mt-[36px]' : 'mt-[5px]',
+                  'mt-[8px]',
                 ]"
-                @click="removeField(i)"
+                :style="{ 'margin-top': index === 0 && !props.isShowDrag ? '36px' : '' }"
+                @click="removeField(index)"
               >
                 <icon-minus-circle />
               </div>
             </div>
           </template>
-        </div>
+        </Draggable>
       </a-scrollbar>
       <div v-if="props.formMode === 'create'" class="w-full">
         <a-button class="px-0" type="text" @click="addField">
@@ -81,6 +99,7 @@
 
   import type { FormItemModel, FormMode } from './types';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import Draggable from 'vuedraggable';
 
   const { t } = useI18n();
 
@@ -91,9 +110,12 @@
       addText: string;
       maxHeight?: string;
       defaultVals?: any[]; // 当外层是编辑状态时，可传入已填充的数据
+      isShowDrag: boolean; // 是否可以拖拽
+      formWidth?: string; // 自定义表单区域宽度
     }>(),
     {
       maxHeight: '30vh',
+      isShowDrag: false,
     }
   );
 
@@ -190,4 +212,21 @@
   });
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .draggableElement {
+    @apply flex w-full items-start justify-between rounded;
+  }
+  .ghost {
+    border: 1px dashed rgba(var(--primary-5));
+    background-color: rgba(var(--primary-1));
+    @apply rounded;
+  }
+  .dragChosenClass {
+    background: white;
+    opacity: 1 !important;
+    @apply rounded;
+    .minus {
+      margin: 0 !important;
+    }
+  }
+</style>
