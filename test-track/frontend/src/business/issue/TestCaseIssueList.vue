@@ -55,7 +55,7 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "@/business/common/tableItems/planview/TypeTableItem";
 import TestCaseRelateList from "@/business/issue/TestCaseRelateList";
-import { getTestCaseIssueList } from "@/api/testCase";
+import {getTestCaseIssueList} from "@/api/testCase";
 
 export default {
   name: "TestCaseIssueList",
@@ -123,9 +123,6 @@ export default {
             this.testCaseContainIds.add(item.id);
           });
           this.$refs.table.reloadTable();
-          if (this.cacheAddRows.length > 0) {
-            this.tableData.push(...this.cacheAddRows);
-          }
           this.result.loading = false;
         });
       }
