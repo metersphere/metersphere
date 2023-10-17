@@ -26,6 +26,9 @@ public class BugComment implements Serializable {
     @Schema(description = "回复人")
     private String replyUser;
 
+    @Schema(description = "通知人")
+    private String notifier;
+
     @Schema(description = "父评论ID")
     private String parentId;
 
@@ -52,6 +55,7 @@ public class BugComment implements Serializable {
         id("id", "id", "VARCHAR", false),
         bugId("bug_id", "bugId", "VARCHAR", false),
         replyUser("reply_user", "replyUser", "VARCHAR", false),
+        notifier("notifier", "notifier", "VARCHAR", false),
         parentId("parent_id", "parentId", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),

@@ -14,61 +14,64 @@ import java.util.Arrays;
 
 @Data
 public class Bug implements Serializable {
-    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{bug.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description = "业务ID")
+    @Schema(title = "业务ID")
     private Integer num;
 
-    @Schema(description = "缺陷标题", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "缺陷标题", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.title.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 300, message = "{bug.title.length_range}", groups = {Created.class, Updated.class})
     private String title;
 
-    @Schema(description = "指派人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "指派人", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.assign_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{bug.assign_user.length_range}", groups = {Created.class, Updated.class})
     private String assignUser;
 
-    @Schema(description = "创建人")
+    @Schema(title = "创建人")
     private String createUser;
 
-    @Schema(description = "创建时间")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-    @Schema(description = "更新时间")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
-    @Schema(description = "删除人")
+    @Schema(title = "删除人")
     private String deleteUser;
 
-    @Schema(description = "删除时间")
+    @Schema(title = "删除时间")
     private Long deleteTime;
 
-    @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{bug.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description = "模板ID")
+    @Schema(title = "模板ID")
     private String templateId;
 
-    @Schema(description = "缺陷平台", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "缺陷平台", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.platform.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{bug.platform.length_range}", groups = {Created.class, Updated.class})
     private String platform;
 
-    @Schema(description = "平台状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{bug.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
-    @Schema(description = "第三方平台缺陷ID")
+    @Schema(title = "标签")
+    private String tag;
+
+    @Schema(title = "第三方平台缺陷ID")
     private String platformBugId;
 
-    @Schema(description = "是否回收站", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "是否回收站", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{bug.trash.not_blank}", groups = {Created.class})
     private Boolean trash;
 
@@ -82,10 +85,13 @@ public class Bug implements Serializable {
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
+        deleteUser("delete_user", "deleteUser", "VARCHAR", false),
+        deleteTime("delete_time", "deleteTime", "BIGINT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         templateId("template_id", "templateId", "VARCHAR", false),
         platform("platform", "platform", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
+        tag("tag", "tag", "VARCHAR", false),
         platformBugId("platform_bug_id", "platformBugId", "VARCHAR", false),
         trash("trash", "trash", "BIT", false);
 

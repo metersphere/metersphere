@@ -314,6 +314,76 @@ public class BugCommentExample {
             return (Criteria) this;
         }
 
+        public Criteria andNotifierIsNull() {
+            addCriterion("notifier is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierIsNotNull() {
+            addCriterion("notifier is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierEqualTo(String value) {
+            addCriterion("notifier =", value, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierNotEqualTo(String value) {
+            addCriterion("notifier <>", value, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierGreaterThan(String value) {
+            addCriterion("notifier >", value, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierGreaterThanOrEqualTo(String value) {
+            addCriterion("notifier >=", value, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierLessThan(String value) {
+            addCriterion("notifier <", value, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierLessThanOrEqualTo(String value) {
+            addCriterion("notifier <=", value, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierLike(String value) {
+            addCriterion("notifier like", value, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierNotLike(String value) {
+            addCriterion("notifier not like", value, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierIn(List<String> values) {
+            addCriterion("notifier in", values, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierNotIn(List<String> values) {
+            addCriterion("notifier not in", values, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierBetween(String value1, String value2) {
+            addCriterion("notifier between", value1, value2, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierNotBetween(String value1, String value2) {
+            addCriterion("notifier not between", value1, value2, "notifier");
+            return (Criteria) this;
+        }
+
         public Criteria andParentIdIsNull() {
             addCriterion("parent_id is null");
             return (Criteria) this;
