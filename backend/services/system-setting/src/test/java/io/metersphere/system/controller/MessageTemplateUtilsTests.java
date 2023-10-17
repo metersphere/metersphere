@@ -32,7 +32,8 @@ public class MessageTemplateUtilsTests {
         Assertions.assertTrue(CollectionUtils.isNotEmpty(defaultRelatedUser));
         Map<String, String> defaultRelatedUserMap = MessageTemplateUtils.getDefaultRelatedUserMap();
         Assertions.assertTrue(MapUtils.isNotEmpty(defaultRelatedUserMap));
-
+        Map<String, String> fieldSourceMap = MessageTemplateUtils.getFieldSourceMap();
+        Assertions.assertTrue(MapUtils.isNotEmpty(fieldSourceMap));
         for (String type : typeList) {
             Field[] domainTemplateFields = MessageTemplateUtils.getDomainTemplateFields(type);
             Assertions.assertNotNull(domainTemplateFields);

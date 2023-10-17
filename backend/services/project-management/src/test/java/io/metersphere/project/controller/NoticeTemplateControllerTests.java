@@ -35,15 +35,7 @@ public class NoticeTemplateControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_project_template.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getTemplateFieldsSuccess() throws Exception {
         List<String> typeList = new ArrayList<>();
-        typeList.add(NoticeConstants.TaskType.API_DEFINITION_TASK);
-        typeList.add(NoticeConstants.TaskType.API_SCENARIO_TASK);
-        typeList.add(NoticeConstants.TaskType.TEST_PLAN_TASK);
-        typeList.add(NoticeConstants.TaskType.CASE_REVIEW_TASK);
-        typeList.add(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
-        typeList.add(NoticeConstants.TaskType.BUG_TASK);
-        typeList.add(NoticeConstants.TaskType.UI_SCENARIO_TASK);
-        typeList.add(NoticeConstants.TaskType.LOAD_TEST_TASK);
-
+        getTypeList(typeList);
         for (String s : typeList) {
             MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/template/get/fields/project-template-test-1")
                             .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -55,17 +47,15 @@ public class NoticeTemplateControllerTests extends BaseTest {
             ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
             MessageTemplateResultDTO messageTemplateResultDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), MessageTemplateResultDTO.class);
             List<MessageTemplateFieldDTO> projectList = messageTemplateResultDTO.getFieldList();
-            if (s.equals(NoticeConstants.TaskType.SCHEDULE_TASK)) {
+            if (s.equals(NoticeConstants.TaskType.LOAD_REPORT_TASK)) {
                 Assertions.assertTrue(CollectionUtils.isEmpty(projectList));
             } else {
                 Assertions.assertTrue(CollectionUtils.isNotEmpty(projectList));
             }
         }
     }
-    @Test
-    @Order(2)
-    public void getTemplateFieldsEmptySuccess() throws Exception {
-        List<String> typeList = new ArrayList<>();
+
+    private static void getTypeList(List<String> typeList) {
         typeList.add(NoticeConstants.TaskType.API_DEFINITION_TASK);
         typeList.add(NoticeConstants.TaskType.API_SCENARIO_TASK);
         typeList.add(NoticeConstants.TaskType.TEST_PLAN_TASK);
@@ -74,6 +64,15 @@ public class NoticeTemplateControllerTests extends BaseTest {
         typeList.add(NoticeConstants.TaskType.BUG_TASK);
         typeList.add(NoticeConstants.TaskType.UI_SCENARIO_TASK);
         typeList.add(NoticeConstants.TaskType.LOAD_TEST_TASK);
+        typeList.add(NoticeConstants.TaskType.JENKINS_TASK);
+        typeList.add(NoticeConstants.TaskType.SCHEDULE_TASK);
+    }
+
+    @Test
+    @Order(2)
+    public void getTemplateFieldsEmptySuccess() throws Exception {
+        List<String> typeList = new ArrayList<>();
+        getTypeList(typeList);
         for (String s : typeList) {
             MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/template/get/fields/project-template-test-2" )
                             .header(SessionConstants.HEADER_TOKEN, sessionId)
