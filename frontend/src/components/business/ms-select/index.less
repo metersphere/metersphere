@@ -1,0 +1,18 @@
+.ms-select {
+  .arco-select-view-prefix {
+    margin-top: 1px;
+  }
+  .arco-select-view-inner {
+    @apply relative;
+  }
+  .ms-select-inner-all {
+    @apply absolute top-0 flex h-full w-full items-center bg-white;
+
+    color: var(--color-text-1);
+  }
+}
+.arco-select-view-single {
+  .arco-select-view-value::after {
+    @apply hidden;
+  }
+}

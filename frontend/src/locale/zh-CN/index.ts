@@ -1,7 +1,7 @@
-import dayjsLocale from 'dayjs/locale/zh-cn';
+import common from './common';
 import localeSettings from './settings';
 import sys from './sys';
-import common from './common';
+import dayjsLocale from 'dayjs/locale/zh-cn';
 
 const _Cmodules: any = import.meta.glob('../../components/**/locale/zh-CN.ts', { eager: true });
 const _Vmodules: any = import.meta.glob('../../views/**/locale/zh-CN.ts', { eager: true });

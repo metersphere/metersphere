@@ -18,6 +18,7 @@
           title: 'name',
           children: 'children',
           disabled: 'disabled',
+          isLeaf: 'isLeaf',
         }"
       />
     </a-spin>
@@ -32,10 +33,13 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
   import { Message } from '@arco-design/web-vue';
+
+  import MsTransfer from '@/components/business/ms-transfer/index.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
+
   import type { BatchModel } from './types';
-  import MsTransfer from '@/components/pure/ms-transfer/index.vue';
 
   const { t } = useI18n();
 

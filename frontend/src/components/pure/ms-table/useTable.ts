@@ -3,11 +3,14 @@
 
 import { ref, watchEffect } from 'vue';
 import dayjs from 'dayjs';
+
 import { useAppStore, useTableStore } from '@/store';
-import type { TableData } from '@arco-design/web-vue';
-import type { TableQueryParams, CommonList } from '@/models/common';
+
+import type { CommonList, TableQueryParams } from '@/models/common';
 import { SelectAllEnum } from '@/enums/tableEnum';
-import type { MsTableProps, MsTableDataItem, MsTableColumn, MsTableErrorStatus, SetPaginationPrams } from './type';
+
+import type { MsTableColumn, MsTableDataItem, MsTableErrorStatus, MsTableProps, SetPaginationPrams } from './type';
+import type { TableData } from '@arco-design/web-vue';
 
 export interface Pagination {
   current: number;
@@ -18,10 +21,10 @@ export interface Pagination {
 const appStore = useAppStore();
 const tableStore = useTableStore();
 export default function useTableProps<T>(
-  loadListFunc: (v: TableQueryParams) => Promise<CommonList<MsTableDataItem<T>>>,
+  loadListFunc: (v?: TableQueryParams | any) => Promise<CommonList<MsTableDataItem<T>> | MsTableDataItem<T>>,
   props?: Partial<MsTableProps<T>>,
   // 数据处理的回调函数
-  dataTransform?: (item: T) => TableData & T,
+  dataTransform?: (item: T) => (TableData & T) | any,
   // 编辑操作的保存回调函数
   saveCallBack?: (item: T) => Promise<any>
 ) {
@@ -168,7 +171,7 @@ export default function useTableProps<T>(
           ...loadListParams.value,
         });
         const tmpArr = data.list;
-        (propsRes.value.data as MsTableDataItem<T>[]) = tmpArr.map((item) => {
+        propsRes.value.data = tmpArr.map((item: MsTableDataItem<T>) => {
           if (item.updateTime) {
             item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
           }
@@ -207,13 +210,12 @@ export default function useTableProps<T>(
       try {
         setLoading(true);
         const data = await loadListFunc({ keyword: keyword.value, ...loadListParams.value });
-        if (data.total === 0) {
+        if (data.length === 0) {
           setTableErrorStatus('empty');
           return;
         }
         setTableErrorStatus(false);
-        const tmpArr = data.list;
-        (propsRes.value.data as MsTableDataItem<T>[]) = tmpArr.map((item) => {
+        propsRes.value.data = data.map((item: MsTableDataItem<T>) => {
           if (item.updateTime) {
             item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
           }
@@ -227,6 +229,8 @@ export default function useTableProps<T>(
         });
         return data;
       } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log(err);
         setTableErrorStatus('error');
       } finally {
         setLoading(false);

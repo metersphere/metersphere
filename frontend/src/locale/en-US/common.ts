@@ -58,4 +58,6 @@ export default {
   'common.fullScreen': 'Full Screen',
   'common.offFullScreen': 'Exit',
   'common.allSelect': 'Select All',
+  'common.setting': 'Setting',
+  'common.resetDefault': 'Restore default',
 };

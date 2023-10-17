@@ -1,10 +1,11 @@
-import type { TreeNodeData, TreeFieldNames } from '@arco-design/web-vue';
+import type { TreeFieldNames, TreeNodeData } from '@arco-design/web-vue';
 
 export interface MsTreeFieldNames extends TreeFieldNames {
   key: string;
   title: string;
   children: string;
   isLeaf: string;
+  [key: string]: any;
 }
 
 export type MsTreeNodeData = {

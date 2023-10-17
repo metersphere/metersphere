@@ -1,153 +1,83 @@
 import MSR from '@/api/http/index';
 import {
-  RobotListUrl,
-  GetRobotUrl,
   AddRobotUrl,
-  UpdateRobotUrl,
+  DeleteRobotUrl,
   EnableRobotUrl,
+  GetMessageDetailUrl,
+  GetMessageFieldsUrl,
+  GetMessageUrl,
+  GetMessageUserListUrl,
+  GetRobotUrl,
+  RobotListUrl,
+  SaveMessageUrl,
+  UpdateRobotUrl,
 } from '@/api/requrls/project-management/messageManagement';
 
-import type { RobotItem, RobotAddParams, RobotEditParams } from '@/models/projectManagement/message';
-import type { TableQueryParams, CommonList } from '@/models/common';
+import type {
+  FieldMap,
+  MessageItem,
+  MessageTemplateDetail,
+  Receiver,
+  RobotAddParams,
+  RobotEditParams,
+  RobotItem,
+  SaveMessageTemplateParams,
+} from '@/models/projectManagement/message';
 
-const list = [
-  {
-    id: '1',
-    name: '站内信',
-    description: '系统内置，在顶部导航栏显示消息通知',
-    platform: 'IN_SITE',
-    enable: true,
-    webhook: 'asdasdasfasfsaf',
-    projectId: '1',
-    createTime: 1695721467045,
-    createUser: 'admin',
-  },
-  {
-    id: '2',
-    name: '邮件',
-    description: '系统内置，以添加用户邮箱为通知方式',
-    platform: 'MAIL',
-    enable: false,
-    webhook: 'sdfsdfasfasf',
-    projectId: '1',
-    createTime: 1695721467045,
-    createUser: 'admin',
-  },
-  {
-    id: '3',
-    name: '飞书',
-    description: '',
-    platform: 'LARK',
-    enable: false,
-    webhook: 'asdfgasdgasfgasgas',
-    projectId: '1',
-    createTime: 1695721467045,
-    createUser: 'admin',
-    updateUser: 'bai',
-    updateTime: 1695721467045,
-  },
-  {
-    id: '4',
-    name: '钉钉',
-    description: '',
-    platform: 'DING_TALK',
-    enable: false,
-    webhook: 'asfgasfasdfa',
-    type: 'CUSTOM',
-    projectId: '1',
-    createTime: 1695721467045,
-    createUser: 'admin',
-    updateUser: 'bai',
-    updateTime: 1695721467045,
-  },
-  {
-    id: '44',
-    name: '钉钉',
-    description: '',
-    platform: 'DING_TALK',
-    enable: false,
-    webhook: 'asfgasfasdfa',
-    appKey: 'asfasfasfasfasf',
-    appSecret: 'asfasfasfasfasf',
-    type: 'ENTERPRISE',
-    projectId: '1',
-    createTime: 1695721467045,
-    createUser: 'admin',
-    updateUser: 'bai',
-    updateTime: 1695721467045,
-  },
-  {
-    id: '5',
-    name: '企业微信',
-    description: '',
-    platform: 'WE_COM',
-    enable: false,
-    webhook: 'vevbbt',
-    projectId: '1',
-    createTime: 1695721467045,
-    createUser: 'admin',
-    updateUser: 'bai',
-    updateTime: 1695721467045,
-  },
-  {
-    id: '5',
-    name: '自定义',
-    description: '',
-    platform: 'CUSTOM',
-    enable: false,
-    webhook: 'bytnm',
-    projectId: '1',
-    createTime: 1695721467045,
-    createUser: 'admin',
-    updateUser: 'bai',
-    updateTime: 1695721467045,
-  },
-  {
-    id: '5',
-    name: '自定义',
-    description: '',
-    platform: 'CUSTOM',
-    enable: false,
-    webhook: 'bytnm',
-    projectId: '1',
-    createTime: 1695721467045,
-    createUser: 'admin',
-    updateUser: 'bai',
-    updateTime: 1695721467045,
-  },
-  {
-    id: '5',
-    name: '自定义',
-    description: '',
-    platform: 'CUSTOM',
-    enable: false,
-    webhook: 'bytnm',
-    projectId: '1',
-    createTime: 1695721467045,
-    createUser: 'admin',
-    updateUser: 'bai',
-    updateTime: 1695721467045,
-  },
-];
-
+// 获取机器人列表
 export function getRobotList(projectId: string) {
-  // return MSR.post<RobotItem[]>({ url: `${RobotListUrl}/${projectId}` });
-  return Promise.resolve(list);
+  return MSR.get<RobotItem[]>({ url: `${RobotListUrl}/${projectId}` });
 }
 
+// 获取机器人详情
 export function getRobotDetail(robotId: string) {
-  // return MSR.get<RobotItem>({ url: GetRobotUrl, params: robotId });
-  return Promise.resolve(list.find((item) => item.id === robotId));
+  return MSR.get<RobotItem>({ url: GetRobotUrl, params: robotId });
 }
 
+// 添加机器人
 export function addRobot(data: RobotAddParams) {
   return MSR.post({ url: AddRobotUrl, data });
 }
 
+// 更新机器人
 export function updateRobot(data: RobotEditParams) {
   return MSR.post({ url: UpdateRobotUrl, data });
 }
 
+// 启用/禁用机器人
 export function toggleRobot(id: string) {
   return MSR.get({ url: EnableRobotUrl, params: id });
+}
+
+// 删除机器人
+export function deleteRobot(id: string) {
+  return MSR.get({ url: DeleteRobotUrl, params: id });
+}
+
+// 获取消息配置列表
+export function getMessageList({ projectId }: { projectId: string }) {
+  return MSR.get<MessageItem[]>({ url: `${GetMessageUrl}/${projectId}` });
+}
+
+// 获取消息配置-用户列表
+export function getMessageUserList({ projectId, keyword }: { projectId: string; keyword: string }) {
+  return MSR.get<Receiver[]>({ url: `${GetMessageUserListUrl}/${projectId}`, params: { keyword } });
+}
+
+// 获取消息配置-字段
+export function getMessageFields(projectId: string, taskType: string) {
+  return MSR.get<FieldMap>({ url: `${GetMessageFieldsUrl}/${projectId}`, params: { taskType } });
+}
+
+// 获取消息配置详情
+export function getMessageDetail(projectId: string, taskType: string, event: string, robotId: string) {
+  return MSR.get<MessageTemplateDetail>({
+    url: `${GetMessageDetailUrl}/${projectId}`,
+    params: { taskType, event, robotId },
+  });
+}
+
+// 保存消息配置
+export function saveMessageConfig(data: SaveMessageTemplateParams) {
+  return MSR.post({ url: SaveMessageUrl, data });
 }

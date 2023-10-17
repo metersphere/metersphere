@@ -5,6 +5,8 @@
       :row-class="getRowClass"
       :span-method="spanMethod"
       :columns="currentColumns"
+      :expanded-keys="props.expandedKeys"
+      :span-all="props.spanAll"
       @expand="(rowKey, record) => emit('expand', record)"
       @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
     >
@@ -28,7 +30,6 @@
             />
           </template>
         </a-table-column>
-        <a-table-column v-if="attrs.showExpand" :width="34"> </a-table-column>
         <a-table-column
           v-for="(item, idx) in currentColumns"
           :key="idx"
@@ -129,7 +130,7 @@
                 </div>
               </template>
               <template v-else>
-                <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                <slot :name="item.slotName" v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex }">
                   {{ record[item.dataIndex as string] || (attrs.emptyDataShowLine ? '-' : '') }}
                 </slot>
               </template>
@@ -151,6 +152,7 @@
       </template>
     </a-table>
     <div
+      v-if="showBatchAction || attrs.showPagination"
       class="mt-[16px] flex h-[32px] w-[100%] flex-row flex-nowrap items-center justify-end px-0"
       :class="{ 'justify-between': showBatchAction, 'min-w-[952px]': attrs.selectable }"
     >
@@ -175,26 +177,29 @@
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
-  import { useAttrs, computed, ref, onMounted, nextTick } from 'vue';
-  import { useAppStore, useTableStore } from '@/store';
-  import selectAll from './select-all.vue';
-  import { SpecialColumnEnum, SelectAllEnum, ColumnEditTypeEnum } from '@/enums/tableEnum';
-  import BatchAction from './batchAction.vue';
-  import MsPagination from '@/components/pure/ms-pagination/index';
-  import ColumnSelector from './columnSelector.vue';
+  import { computed, nextTick, onMounted, ref, useAttrs } from 'vue';
+
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsPagination from '@/components/pure/ms-pagination/index';
+  import MsCheckbox from '../ms-checkbox/MsCheckbox.vue';
+  import BatchAction from './batchAction.vue';
+  import ColumnSelector from './columnSelector.vue';
+  import selectAll from './select-all.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore, useTableStore } from '@/store';
+
+  import { ColumnEditTypeEnum, SelectAllEnum, SpecialColumnEnum } from '@/enums/tableEnum';
 
   import type {
-    MsTableProps,
-    BatchActionParams,
     BatchActionConfig,
-    MsTableColumn,
-    MsPaginationI,
+    BatchActionParams,
     BatchActionQueryParams,
+    MsPaginationI,
+    MsTableColumn,
+    MsTableProps,
   } from './type';
   import type { TableData } from '@arco-design/web-vue';
-  import MsCheckbox from '../ms-checkbox/MsCheckbox.vue';
 
   const batchLeft = ref('10px');
   const { t } = useI18n();
@@ -211,6 +216,9 @@
     showSetting?: boolean;
     columns: MsTableColumn;
     spanMethod?: (params: { record: TableData; rowIndex: number; columnIndex: number }) => void;
+    expandedKeys?: string[];
+    rowClass?: string | any[] | Record<string, any> | ((record: TableData, rowIndex: number) => any);
+    spanAll?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'batchAction', value: BatchActionParams, queryParams: BatchActionQueryParams): void;
@@ -283,14 +291,14 @@
     return undefined;
   });
 
-  const initColumn = () => {
+  const initColumn = (arr?: MsTableColumn) => {
     let tmpArr: MsTableColumn = [];
     if (props.showSetting) {
       tmpArr = tableStore.getShowInTableColumns(attrs.tableKey as string) || [];
     } else {
       tmpArr = props.columns;
     }
-    currentColumns.value = tmpArr;
+    currentColumns.value = arr || tmpArr;
   };
 
   // 全选change事件
@@ -397,7 +405,11 @@
     initColumn();
   };
 
-  function getRowClass(record: TableData) {
+  function getRowClass(record: TableData, rowIndex: number) {
+    if (props.rowClass) {
+      return typeof props.rowClass === 'function' ? props.rowClass(record, rowIndex) : props.rowClass;
+    }
+
     if (!record.enable && !props.noDisable) {
       return 'ms-table-row-disabled';
     }
@@ -407,6 +419,7 @@
     initColumn();
     batchLeft.value = getBatchLeft();
   });
+
   defineExpose({
     initColumn,
   });

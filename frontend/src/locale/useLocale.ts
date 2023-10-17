@@ -1,10 +1,11 @@
-import { unref, ref } from 'vue';
-import dayjs from 'dayjs';
+import { ref, unref } from 'vue';
 import { Message } from '@arco-design/web-vue';
-import { i18n } from '@/locale';
-import { setHtmlPageLang, loadLocalePool } from '@/locale/helper';
+import dayjs from 'dayjs';
 
-import type { Recordable, LocaleType } from '#/global';
+import { i18n } from '@/locale';
+import { loadLocalePool, setHtmlPageLang } from '@/locale/helper';
+
+import type { LocaleType, Recordable } from '#/global';
 
 interface LangModule {
   message: Recordable;

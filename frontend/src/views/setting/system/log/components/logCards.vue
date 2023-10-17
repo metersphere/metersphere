@@ -3,7 +3,7 @@
     <div class="filter-box">
       <div class="filter-item">
         <MsSelect
-          v-model:model-value="operUser"
+          v-model:model-value="operator"
           mode="remote"
           placeholder="system.log.operatorPlaceholder"
           prefix="system.log.operator"
@@ -17,6 +17,7 @@
             email: 'email',
           }"
           :search-keys="['label', 'email']"
+          value-key="id"
           :option-tooltip-content="(item) => `${item.name}(${item.email})`"
           :option-label-render="
             (item) => `${item.label}<span class='text-[var(--color-text-2)]'>（${item.email}）</span>`
@@ -123,33 +124,36 @@
 <script lang="tsx" setup>
   import { onBeforeMount, ref } from 'vue';
   import dayjs from 'dayjs';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import usePathMap from '@/hooks/usePathMap';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsCascader from '@/components/business/ms-cascader/index.vue';
+  import MsSelect from '@/components/business/ms-select/index';
+
   import {
-    getSystemLogList,
-    getSystemLogOptions,
-    getSystemLogUsers,
     getOrgLogList,
     getOrgLogOptions,
     getOrgLogUsers,
     getProjectLogList,
     getProjectLogUsers,
+    getSystemLogList,
+    getSystemLogOptions,
+    getSystemLogUsers,
   } from '@/api/modules/setting/log';
-  import MsCascader from '@/components/business/ms-cascader/index.vue';
-  import useTableStore from '@/store/modules/ms-table';
-  import { TableKeyEnum } from '@/enums/tableEnum';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import { MENU_LEVEL } from '@/config/pathMap';
-  import MsSelect from '@/components/business/ms-select/index';
+  import { useI18n } from '@/hooks/useI18n';
+  import usePathMap from '@/hooks/usePathMap';
   import useAppStore from '@/store/modules/app';
+  import useTableStore from '@/store/modules/ms-table';
 
-  import type { CascaderOption, SelectOptionData } from '@arco-design/web-vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import type { LogItem, LogOptions, UserItem } from '@/models/setting/log';
   import type { CommonList } from '@/models/common';
+  import type { LogItem, LogOptions } from '@/models/setting/log';
+  import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import type { CascaderOption } from '@arco-design/web-vue';
 
   const props = defineProps<{
     mode: (typeof MENU_LEVEL)[number]; // 日志展示模式，系统/组织/项目
@@ -183,25 +187,7 @@
     },
   };
 
-  const operUser = ref(''); // 操作人
-  const userList = ref<SelectOptionData[]>([]); // 操作人列表
-
-  /**
-   * 初始化用户选项列表
-   */
-  async function initUserList() {
-    try {
-      const res = await requestFuncMap[props.mode].usersFunc(appStore.currentOrgId);
-      userList.value = res.map((e: UserItem) => ({
-        id: e.id,
-        value: e.id,
-        label: e.name,
-        email: e.email,
-      }));
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const operator = ref(''); // 操作人
 
   const operateRange = ref<(string | number | Record<string, any>)[]>([props.mode]); // 操作范围
   const rangeOptions = ref<CascaderOption[]>( // 系统级别才展示系统级别选项
@@ -211,6 +197,7 @@
             value: {
               level: 0,
               value: MENU_LEVEL[0],
+              label: t('system.log.system'),
             },
             label: t('system.log.system'),
             isLeaf: true,
@@ -234,6 +221,7 @@
           value: {
             level: 0,
             value: MENU_LEVEL[1], // 顶级范围-组织，单选
+            label: t('system.log.organization'),
           },
           label: t('system.log.organization'),
           children: res.organizationList.map((e) => ({
@@ -241,6 +229,7 @@
             value: {
               level: MENU_LEVEL[1],
               value: e.id,
+              label: `${t('system.log.organization')} / ${e.name}`,
             },
             label: e.name,
             isLeaf: true,
@@ -251,6 +240,7 @@
           value: {
             level: 0,
             value: MENU_LEVEL[1], // 顶级范围-组织，单选
+            label: t('system.log.organization'),
           },
           label: t('system.log.organization'),
         });
@@ -259,6 +249,7 @@
         value: {
           level: 0,
           value: MENU_LEVEL[2], // 顶级范围-项目，单选
+          label: t('system.log.project'),
         },
         label: t('system.log.project'),
         children: res.projectList.map((e) => ({
@@ -266,12 +257,14 @@
           value: {
             level: MENU_LEVEL[2],
             value: e.id,
+            label: `${t('system.log.project')} / ${e.name}`,
           },
           label: e.name,
           isLeaf: true,
         })),
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       rangeLoading.value = false;
@@ -407,7 +400,7 @@
   ];
 
   function resetFilter() {
-    operUser.value = '';
+    operator.value = '';
     operateRange.value = [props.mode];
     type.value = '';
     _module.value = '';
@@ -484,7 +477,7 @@
     }
 
     setLoadListParams({
-      operUser: operUser.value,
+      operator: operator.value,
       projectIds,
       organizationIds,
       type: type.value,
@@ -499,11 +492,15 @@
   }
 
   function handleNameClick(record: LogItem) {
-    jumpRouteByMapKey(record.module, record.sourceId ? { id: record.sourceId } : {}, true);
+    const routeQuery = {
+      organizationId: record.organizationId,
+      projectId: record.projectId,
+      id: record.sourceId,
+    };
+    jumpRouteByMapKey(record.module, routeQuery, true);
   }
 
   onBeforeMount(() => {
-    // initUserList();
     initRangeOptions();
     initModuleOptions();
     searchLog();

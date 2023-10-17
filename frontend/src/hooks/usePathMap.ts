@@ -1,6 +1,6 @@
-import { useRouter } from 'vue-router';
 import { MENU_LEVEL, pathMap, PathMapItem, PathMapRoute } from '@/config/pathMap';
-import { TreeNode, findNodeByKey, mapTree } from '@/utils';
+import router from '@/router';
+import { findNodeByKey, mapTree, TreeNode } from '@/utils';
 
 export default function usePathMap() {
   /**
@@ -37,7 +37,8 @@ export default function usePathMap() {
    * @param openNewPage 是否在新页面打开
    */
   const jumpRouteByMapKey = (key: PathMapRoute, routeQuery?: Record<string, any>, openNewPage = false) => {
-    const router = useRouter();
+    console.log(router);
+
     const pathNode = findNodeByKey<PathMapItem>(pathMap, key as unknown as string);
     if (pathNode) {
       if (openNewPage) {

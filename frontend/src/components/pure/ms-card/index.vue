@@ -13,6 +13,10 @@
       <div v-if="!props.simple" class="card-header">
         <div v-if="!props.hideBack" class="back-btn" @click="back"><icon-arrow-left /></div>
         <div class="font-medium text-[var(--color-text-000)]">{{ props.title }}</div>
+        <div class="text-[var(--color-text-4)]">{{ props.subTitle }}</div>
+        <div class="ml-auto">
+          <slot name="headerRight"></slot>
+        </div>
       </div>
       <a-divider v-if="!props.simple" class="mb-[16px]" />
       <div class="ms-card-container">
@@ -49,6 +53,7 @@
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
+
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -57,6 +62,7 @@
       Partial<{
         simple: boolean; // 简单模式，没有标题和底部栏
         title: string; // 卡片标题
+        subTitle: string; // 卡片副标题
         hideContinue: boolean; // 隐藏保存并继续创建按钮
         hideFooter: boolean; // 隐藏底部栏
         loading: boolean; // 卡片 loading 状态
@@ -96,7 +102,7 @@
     return appStore.menuCollapse ? collapsedWidth : appStore.menuWidth;
   });
 
-  const _specialHeight = props.hasBreadcrumb ? 31 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度31
+  const _specialHeight = props.hasBreadcrumb ? 32 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度32
 
   const cardOverHeight = computed(() => {
     if (props.simple) {
@@ -105,7 +111,7 @@
     }
     if (props.hideFooter) {
       // 隐藏底部
-      return 192;
+      return 192 + _specialHeight;
     }
     return 246 + _specialHeight;
   });

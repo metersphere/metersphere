@@ -107,4 +107,5 @@ export default {
   'system.user.tableColumnUserGroup': 'User Group',
   'system.user.tableColumnStatus': 'Status',
   'system.user.tableColumnActions': 'Actions',
+  'system.user.batchTransferSearchPlaceholder': 'Enter name to search',
 };

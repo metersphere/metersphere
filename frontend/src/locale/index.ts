@@ -1,9 +1,9 @@
 import { createI18n } from 'vue-i18n';
-import { setHtmlPageLang, setLoadLocalePool } from './helper';
 
+import { setHtmlPageLang, setLoadLocalePool } from './helper';
+import type { LocaleType } from '#/global';
 import type { App } from 'vue';
 import type { I18nOptions } from 'vue-i18n';
-import type { LocaleType } from '#/global';
 
 export const LOCALE_OPTIONS = [
   { label: '中文', value: 'zh-CN' },

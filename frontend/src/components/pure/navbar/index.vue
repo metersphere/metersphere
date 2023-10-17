@@ -15,6 +15,7 @@
           class="w-auto min-w-[150px] max-w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
           :default-value="appStore.getCurrentProjectId"
           :bordered="false"
+          allow-search
           @change="selectProject"
         >
           <template #arrow-icon>
@@ -177,23 +178,26 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, Ref, onBeforeMount } from 'vue';
+  import { computed, onBeforeMount, Ref, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { IconCompass, IconQuestionCircle, IconFile, IconInfoCircle } from '@arco-design/web-vue/es/icon';
-  // import { Message } from '@arco-design/web-vue';
-  // import { useFullscreen } from '@vueuse/core';
-  import { useAppStore } from '@/store';
-  import { LOCALE_OPTIONS } from '@/locale';
-  import useLocale from '@/locale/useLocale';
+
   // import useUser from '@/hooks/useUser';
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
+
   import { getProjectList } from '@/api/modules/project-management/project';
+  import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
   import { useI18n } from '@/hooks/useI18n';
   import usePathMap from '@/hooks/usePathMap';
-  import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
+  import { LOCALE_OPTIONS } from '@/locale';
+  import useLocale from '@/locale/useLocale';
+  // import { Message } from '@arco-design/web-vue';
+  // import { useFullscreen } from '@vueuse/core';
+  import { useAppStore } from '@/store';
 
   import type { ProjectListItem } from '@/models/setting/project';
+
+  import { IconCompass, IconFile, IconInfoCircle, IconQuestionCircle } from '@arco-design/web-vue/es/icon';
 
   const props = defineProps<{
     isPreview?: boolean;

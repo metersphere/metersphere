@@ -9,7 +9,7 @@ export type ProjectRobotDingTalkType = 'CUSTOM' | 'ENTERPRISE';
 
 export interface RobotCommon {
   name: string;
-  platform: ProjectRobotPlatformCanEdit;
+  platform: ProjectRobotPlatformCanEdit; // 机器人平台
   webhook: string;
   enable: boolean;
   description?: string;
@@ -17,9 +17,9 @@ export interface RobotCommon {
 
 export interface RobotAddParams extends RobotCommon {
   projectId: string;
-  type?: ProjectRobotDingTalkType;
-  appKey?: string;
-  appSecret?: string;
+  type?: ProjectRobotDingTalkType; // 钉钉机器人类型
+  appKey?: string; // 钉钉机器人-ENTERPRISE-appKey
+  appSecret?: string; // 钉钉机器人-ENTERPRISE-appSecret
 }
 
 export interface RobotEditParams extends RobotAddParams {
@@ -32,4 +32,90 @@ export interface RobotItem extends Omit<RobotEditParams, 'platform'> {
   createTime: number;
   updateUser?: string;
   updateTime?: number;
+}
+
+// 消息配置机器人设置
+export interface ProjectRobotConfig {
+  robotId: string; // 消息机器人id
+  robotName: string; // 消息机器人名称
+  platform: ProjectRobotPlatform;
+  type?: ProjectRobotDingTalkType; // 钉钉机器人类型
+  dingType?: ProjectRobotDingTalkType; // 钉钉机器人类型
+  enable: boolean; // 消息配置机器人是否开启
+  template: string; // 消息配置机器人发送模版
+  defaultTemplate: string; // 消息配置机器人默认发送模版
+  useDefaultTemplate: boolean; // 消息配置机器人是否使用默认模版
+  previewSubject?: string; // 消息配置机器人预览邮件标题
+  previewTemplate?: string; // 消息配置机器人预览发送模版
+  subject: string; // 消息模版配置的标题
+  defaultSubject: string; // 消息模版配置的默认标题
+  useDefaultSubject: boolean; // 消息模版是否使用默认标题
+}
+
+// 消息配置接收人
+export interface Receiver {
+  id: string;
+  name: string;
+}
+
+export interface MessageTaskDetailDTO {
+  event: string; // 消息配置场景
+  eventName: string; // 消息配置场景名称
+  receivers: Receiver[];
+  projectRobotConfigMap: Record<string, ProjectRobotConfig>;
+}
+
+export interface MessageTaskTypeDTO {
+  taskType: string; // 消息配置功能类型
+  taskTypeName: string; // 消息配置功能名称
+  messageTaskDetailDTOList: MessageTaskDetailDTO[];
+}
+
+export interface MessageItem {
+  projectId: string; // 消息配置所在项目ID
+  type: string; // 消息配置功能类型
+  name: string; // 消息配置功能名称
+  messageTaskTypeDTOList: MessageTaskTypeDTO[];
+}
+
+export interface SaveMessageTemplateParams {
+  projectId: string; // 消息配置所在项目ID
+  taskType: string; // 消息配置功能
+  dingType?: string; // 钉钉机器人类型
+  event: string; // 消息配置场景
+  receiverIds: string[]; // 消息配置接收人id集合
+  testId?: string; // 具体测试的ID
+  robotId: string;
+  enable: boolean;
+  template: string; // 消息配置企业用户自定义的消息模版
+  subject: string; // 消息配置企业用户自定义的邮件标题
+  useDefaultTemplate: boolean; // 是否使用默认模版
+  useDefaultSubject: boolean; // 是否使用默认邮件标题
+}
+
+export interface MessageTemplateDetail extends SaveMessageTemplateParams {
+  taskTypeName: string; // 消息配置功能名称
+  eventName: string; // 消息配置场景名称
+  robotName: string; // 消息配置机器人名称
+  platform: ProjectRobotPlatform;
+  previewSubject?: string; // 消息配置机器人预览邮件标题
+  previewTemplate?: string; // 消息配置机器人预览发送模版
+  defaultTemplate: string; // 消息配置机器人默认发送模版
+  defaultSubject: string; // 消息模版配置的默认标题
+}
+
+// 消息配置模版字段
+export interface Field {
+  id: string;
+  name: string;
+  fieldSource: string;
+}
+export interface FieldSource {
+  id: string;
+  name: string;
+}
+
+export interface FieldMap {
+  fieldList: Field[]; // 消息配置模版字段列表
+  fieldSourceList: FieldSource[]; // 消息配置模版字段来源列表
 }
