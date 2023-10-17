@@ -9,6 +9,7 @@
       class="ms-tree"
       @drop="onDrop"
       @select="select"
+      @check="checked"
     >
       <template v-if="$slots['title']" #title="_props">
         <slot name="title" v-bind="_props"></slot>
@@ -56,16 +57,18 @@
 </template>
 
 <script setup lang="ts">
-  import { onBeforeMount, ref, h, watch, Ref, watchEffect, nextTick } from 'vue';
+  import { h, nextTick, onBeforeMount, Ref, ref, watch, watchEffect } from 'vue';
   import { debounce } from 'lodash-es';
-  import { mapTree } from '@/utils/index';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import useContainerShadow from '@/hooks/useContainerShadow';
-
-  import type { MsTreeNodeData, MsTreeFieldNames, MsTreeSelectedData } from './types';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+
+  import useContainerShadow from '@/hooks/useContainerShadow';
+  import { mapTree } from '@/utils/index';
+
+  import type { MsTreeFieldNames, MsTreeNodeData, MsTreeSelectedData } from './types';
 
   const props = withDefaults(
     defineProps<{
@@ -83,6 +86,9 @@
       nodeMoreActions?: ActionsItem[]; // 节点展示在省略号按钮内的更多操作
       expandAll?: boolean; // 是否展开/折叠所有节点，true 为全部展开，false 为全部折叠
       emptyText?: string; // 空数据时的文案
+      checkable?: boolean; // 是否可选中
+      checkedStrategy?: 'all' | 'parent' | 'child'; // 选中节点时的策略
+      checkedKeys?: Array<string | number>; // 选中的节点 key
       virtualListProps?: Record<string, unknown>; // 虚拟滚动列表的属性
     }>(),
     {
@@ -111,6 +117,7 @@
     (e: 'update:focusNodeKey', val: string | number): void;
     (e: 'update:selectedKeys', val: Array<string | number>): void;
     (e: 'moreActionsClose'): void;
+    (e: 'check', val: Array<string | number>): void;
   }>();
 
   const treeContainerRef: Ref = ref(null);
@@ -267,6 +274,10 @@
    */
   function select(selectedKeys: Array<string | number>, data: MsTreeSelectedData) {
     emit('select', selectedKeys, data.selectedNodes);
+  }
+
+  function checked(checkedKeys: Array<string | number>) {
+    emit('check', checkedKeys);
   }
 
   const innerFocusNodeKey = ref(props.focusNodeKey || ''); // 聚焦的节点，一般用于在操作扩展按钮时，高亮当前节点，保持扩展按钮持续显示

@@ -1,9 +1,10 @@
-import { watch, ref, h, defineComponent, onBeforeMount, computed, Ref, Slot } from 'vue';
-import { debounce } from 'lodash-es';
+import { computed, defineComponent, h, onBeforeMount, onMounted, ref, Slot, watch, watchEffect } from 'vue';
+
 import { useI18n } from '@/hooks/useI18n';
 import useSelect from '@/hooks/useSelect';
 
-import type { SelectOptionData } from '@arco-design/web-vue';
+import './index.less';
+import type { SelectOptionData, TriggerProps } from '@arco-design/web-vue';
 
 export type ModelType = string | number | Record<string, any> | (string | number | Record<string, any>)[];
 export type RemoteFieldsMap = {
@@ -20,12 +21,19 @@ export interface MsSearchSelectProps {
   allowClear?: boolean;
   placeholder?: string;
   hasAllSelect?: boolean; // 是否有全选选项
+  defaultAllSelect?: boolean; // 是否默认全选
   searchKeys?: string[]; // 需要搜索的 key 名，关键字会遍历这个 key 数组，然后取 item[key] 进行模糊匹配
   valueKey?: string; // 选项的 value 字段名，默认为 value
+  labelKey?: string; // 选项的 label 字段名，默认为 label
   options: SelectOptionData[];
   multiple?: boolean; // 是否多选
   remoteFieldsMap?: RemoteFieldsMap; // 远程模式下的结果 key 映射，例如 { value: 'id' }，表示远程请求时，会将返回结果的 id 赋值到 value 字段
   remoteExtraParams?: Record<string, any>; // 远程模式下的额外参数
+  notAutoInitSearch?: boolean; // 是否禁用 arco-select 的初始化自动搜索功能
+  popupContainer?: HTMLElement | string; // 弹出层容器
+  triggerProps?: TriggerProps; // 触发器属性
+  loading?: boolean; // 加载状态
+  fallbackOption?: boolean | ((value: string | number | boolean | Record<string, unknown>) => SelectOptionData); // 自定义值中不存在的选项
   remoteFunc?(params: Record<string, any>): Promise<any>; // 远程模式下的请求函数，返回一个 Promise
   optionLabelRender?: (item: SelectOptionData) => string; // 自定义 option 的 label 渲染，返回一个 html 字符串，默认使用 item.label
   optionTooltipContent?: (item: SelectOptionData) => string; // 自定义 option 的 tooltip 内容，返回一个字符串，默认使用 item.label
@@ -43,27 +51,54 @@ export default defineComponent(
     const { t } = useI18n();
 
     const innerValue = ref(props.modelValue);
-    const filterOptions = ref<SelectOptionData[]>([]); // 实际渲染的 options，会根据搜索关键字进行过滤
+    const filterOptions = ref<SelectOptionData[]>([...props.options]); // 实际渲染的 options，会根据搜索关键字进行过滤
     const remoteOriginOptions = ref<SelectOptionData[]>([...props.options]); // 远程模式下的原始 options，接口返回的数据会存储在这里
-    watch(
-      () => props.modelValue,
-      (val) => {
-        innerValue.value = val;
-      }
-    );
 
-    const selectRef = ref<Ref>();
-
-    const { maxTagCount, getOptionComputedStyle, calculateMaxTag } = useSelect({
+    const selectRef = ref();
+    const { maxTagCount, getOptionComputedStyle, singleTagMaxWidth, calculateMaxTag } = useSelect({
       selectRef,
       selectVal: innerValue,
       isCascade: true,
       options: props.options,
+      valueKey: props.valueKey,
+      labelKey: props.labelKey,
     });
 
-    const loading = ref(false);
+    watch(
+      () => props.modelValue,
+      (val) => {
+        innerValue.value = val;
+        if (Array.isArray(val) && val.length > 0 && props.multiple) {
+          calculateMaxTag();
+        }
+      },
+      {
+        immediate: true,
+      }
+    );
 
-    async function handleUserSearch(val: string) {
+    const isArcoFirstSearch = ref(true); // 是否是第一次搜索，arco-select 会自动触发一次搜索，这里需要过滤掉
+    const loading = ref(props.loading || false);
+
+    watch(
+      () => props.loading,
+      (val) => {
+        loading.value = !!val;
+      }
+    );
+
+    watch(
+      () => loading.value,
+      (val) => {
+        emit('update:loading', val);
+      }
+    );
+
+    async function handleSearch(val: string, manual = false) {
+      if (isArcoFirstSearch.value && !manual) {
+        isArcoFirstSearch.value = false;
+        return;
+      }
       try {
         loading.value = true;
         // 如果是远程模式，则请求接口数据
@@ -82,18 +117,24 @@ export default defineComponent(
               }
               // 为了避免关键词搜索影响 label 值，这里需要开辟新字段存储 tooltip 内容
               item.tooltipContent =
-                typeof props.optionTooltipContent === 'function' ? props.optionTooltipContent(e) : e.label;
+                typeof props.optionTooltipContent === 'function'
+                  ? props.optionTooltipContent(e)
+                  : e[props.labelKey || 'label'];
+
               return item;
             }
           );
+          emit('remoteSearch', remoteOriginOptions.value);
         }
         if (val.trim() === '') {
           // 如果搜索关键字为空，则直接返回所有数据
           filterOptions.value = remoteOriginOptions.value.map((e) => ({
             ...e,
-            tooltipContent: typeof props.optionTooltipContent === 'function' ? props.optionTooltipContent(e) : e.label,
+            tooltipContent:
+              typeof props.optionTooltipContent === 'function'
+                ? props.optionTooltipContent(e)
+                : e[props.labelKey || 'label'],
           }));
-          calculateMaxTag();
           return;
         }
         const highlightedKeyword = `<span class="text-[rgb(var(--primary-4))]">${val}</span>`;
@@ -113,12 +154,17 @@ export default defineComponent(
               }
             }
             if (hasMatch) {
-              return item;
+              return {
+                ...item,
+                tooltipContent:
+                  typeof props.optionTooltipContent === 'function'
+                    ? props.optionTooltipContent(e)
+                    : e[props.labelKey || 'label'],
+              };
             }
             return null;
           })
           .filter((e) => e) as SelectOptionData[];
-        calculateMaxTag();
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -128,9 +174,12 @@ export default defineComponent(
     }
 
     const optionItemLabelRender = (item: SelectOptionData) =>
-      typeof props.optionLabelRender === 'function'
-        ? h('div', { innerHTML: props.optionLabelRender(item) })
-        : item.label;
+      h('div', {
+        innerHTML:
+          typeof props.optionLabelRender === 'function'
+            ? props.optionLabelRender(item)
+            : item[props.labelKey || 'label'],
+      });
 
     // 半选状态
     const indeterminate = computed(() => {
@@ -149,10 +198,11 @@ export default defineComponent(
       },
       set: (val) => val,
     });
+
     function handleSelectAllChange(val: boolean) {
       isSelectAll.value = val;
       if (val) {
-        innerValue.value = filterOptions.value.map((item) => item[props.valueKey || 'value']);
+        innerValue.value = [...filterOptions.value];
         emit('update:modelValue', innerValue.value);
       } else {
         innerValue.value = [];
@@ -160,12 +210,26 @@ export default defineComponent(
       }
     }
 
+    watch(
+      () => props.options,
+      (val) => {
+        if (props.mode !== 'remote') {
+          // 静态模式下，options 变化时，需要同步更新
+          remoteOriginOptions.value = [...val];
+          handleSearch('', true);
+          if (props.defaultAllSelect) {
+            handleSelectAllChange(true);
+          }
+        }
+      }
+    );
+
     const selectSlots = () => {
       const _slots: MsSearchSelectSlots = {
         default: () =>
           filterOptions.value.map((item) => (
             <a-tooltip content={item.tooltipContent} mouse-enter-delay={500}>
-              <a-option key={item.id} value={item[props.valueKey || 'value']}>
+              <a-option key={item.id} value={item}>
                 <div class="one-line-text" style={getOptionComputedStyle.value}>
                   {optionItemLabelRender(item)}
                 </div>
@@ -198,7 +262,42 @@ export default defineComponent(
     };
 
     onBeforeMount(() => {
-      handleUserSearch('');
+      if (props.mode === 'remote' && props.notAutoInitSearch === true) {
+        // 远程模式下，且无需自动搜索，则初始化一次 options
+        filterOptions.value = remoteOriginOptions.value.map((e) => ({
+          ...e,
+          tooltipContent:
+            typeof props.optionTooltipContent === 'function'
+              ? props.optionTooltipContent(e)
+              : e[props.labelKey || 'label'],
+        }));
+      } else {
+        handleSearch('', true);
+      }
+    });
+
+    onMounted(() => {
+      if (props.defaultAllSelect) {
+        handleSelectAllChange(true);
+      }
+    });
+
+    // 检测全选状态变化，全选时需要覆盖选择器的输入框内容，展示文本 ‘全部’；非全选时则移除文本 ‘全部’
+    watchEffect(() => {
+      const innerDom = selectRef.value?.$el.nextElementSibling.querySelector('.arco-select-view-inner') as HTMLElement;
+      if (innerDom && props.hasAllSelect) {
+        if (isSelectAll.value) {
+          const allSelectDom = document.createElement('div');
+          allSelectDom.className = 'ms-select-inner-all';
+          allSelectDom.innerText = t('common.all');
+          innerDom.appendChild(allSelectDom);
+        } else {
+          const allSelectDom = innerDom.querySelector('.ms-select-inner-all');
+          if (allSelectDom) {
+            innerDom.removeChild(allSelectDom);
+          }
+        }
+      }
     });
 
     return () => (
@@ -212,11 +311,28 @@ export default defineComponent(
         loading={loading.value}
         multiple={props.multiple}
         max-tag-count={maxTagCount.value}
+        search-delay={300}
+        class="ms-select"
+        value-key={props.valueKey || 'value'}
+        popup-container={props.popupContainer || document.body}
+        trigger-props={props.triggerProps}
+        fallback-option={props.fallbackOption}
         onUpdate:model-value={(value: ModelType) => emit('update:modelValue', value)}
-        onInputValueChange={debounce(handleUserSearch, 300)}
+        onSearch={handleSearch}
+        onPopupVisibleChange={(val: boolean) => emit('popupVisibleChange', val)}
       >
         {{
-          prefix: () => t(props.prefix || ''),
+          prefix: props.prefix ? () => t(props.prefix || '') : null,
+          label: ({ data }: { data: SelectOptionData }) => (
+            <a-tooltip content={data.label} position="top" mouse-enter-delay={500} mini>
+              <div
+                class="one-line-text"
+                style={singleTagMaxWidth.value > 0 ? { maxWidth: `${singleTagMaxWidth.value}px` } : {}}
+              >
+                {data.label}
+              </div>
+            </a-tooltip>
+          ),
           ...selectSlots(),
         }}
       </a-select>
@@ -240,8 +356,15 @@ export default defineComponent(
       'optionTooltipContent',
       'prefix',
       'hasAllSelect',
+      'defaultAllSelect',
       'multiple',
+      'notAutoInitSearch',
+      'popupContainer',
+      'triggerProps',
+      'loading',
+      'fallbackOption',
+      'labelKey',
     ],
-    emits: ['update:modelValue'],
+    emits: ['update:modelValue', 'remoteSearch', 'popupVisibleChange', 'update:loading'],
   }
 );

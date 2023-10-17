@@ -231,11 +231,37 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT,
         permission: [],
         level: MENU_LEVEL[2],
+        children: [
+          {
+            key: 'PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_CONFIG', // 项目管理-消息管理-消息设置
+            locale: 'project.messageManagement.config',
+            route: RouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_ROBOT', // 项目管理-消息管理-机器人列表
+            locale: 'project.messageManagement.botList',
+            route: RouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT,
+            permission: [],
+            routeQuery: {
+              tab: 'botList',
+            },
+            level: MENU_LEVEL[2],
+          },
+        ],
       },
       {
         key: 'PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT', // 项目管理-消息管理-编辑
         locale: 'menu.projectManagement.messageManagementEdit',
         route: RouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PROJECT_MANAGEMENT_LOG', // 项目管理-日志
+        locale: 'menu.projectManagement.log',
+        route: RouteEnum.PROJECT_MANAGEMENT_LOG,
         permission: [],
         level: MENU_LEVEL[2],
       },

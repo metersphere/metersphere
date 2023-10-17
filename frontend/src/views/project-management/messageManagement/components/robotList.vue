@@ -56,9 +56,9 @@
                 >
                   {{ t('common.edit') }}
                 </a-button>
-                <a-button type="outline" size="mini" class="arco-btn-outline--secondary" @click="deleteRobot(robot)">{{
-                  t('common.delete')
-                }}</a-button>
+                <a-button type="outline" size="mini" class="arco-btn-outline--secondary" @click="delRobot(robot)">
+                  {{ t('common.delete') }}
+                </a-button>
               </div>
               <a-switch
                 v-model:model-value="robot.enable"
@@ -74,7 +74,7 @@
     <MsDrawer
       v-model:visible="showDetailDrawer"
       :width="960"
-      :title="t('project.messageManagement.createBot')"
+      :title="isEdit ? t('project.messageManagement.updateBot') : t('project.messageManagement.createBot')"
       :ok-loading="drawerLoading"
       :show-continue="!isEdit"
       :ok-text="isEdit ? t('common.update') : t('common.create')"
@@ -253,33 +253,35 @@
 
 <script setup lang="ts">
   import { nextTick, ref, watch } from 'vue';
-  import dayjs from 'dayjs';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
+  import dayjs from 'dayjs';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import useModal from '@/hooks/useModal';
-  import useVisit from '@/hooks/useVisit';
+  import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
+
   import {
     addRobot,
-    updateRobot,
+    deleteRobot,
     getRobotList,
-    getRobotDetail,
     toggleRobot,
+    updateRobot,
   } from '@/api/modules/project-management/messageManagement';
+  import useContainerShadow from '@/hooks/useContainerShadow';
+  import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
+  import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
-  import useContainerShadow from '@/hooks/useContainerShadow';
 
   import type {
     ProjectRobotPlatform,
-    RobotItem,
+    ProjectRobotPlatformCanEdit,
     RobotAddParams,
     RobotEditParams,
-    ProjectRobotPlatformCanEdit,
+    RobotItem,
   } from '@/models/projectManagement/message';
 
   const props = defineProps<{
@@ -372,7 +374,7 @@
 
   function editRobot(robot: RobotItem) {
     isEdit.value = true;
-    robotForm.value = { ...robot };
+    robotForm.value = { ...robot, type: robot.type || 'CUSTOM' };
     showDetailDrawer.value = true;
   }
 
@@ -397,11 +399,13 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
+          await toggleRobot(robot.id);
           Message.success(
             t(robot.enable ? 'project.messageManagement.disableSuccess' : 'project.messageManagement.enableSuccess')
           );
           initRobotList();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -413,7 +417,7 @@
    * 删除机器人
    * @param robot 机器人信息
    */
-  function deleteRobot(robot: RobotItem) {
+  function delRobot(robot: RobotItem) {
     openModal({
       type: 'error',
       title: t('project.messageManagement.deleteTitle', { name: robot.name }),
@@ -426,6 +430,7 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
+          await deleteRobot(robot.id);
           Message.success(t('common.deleteSuccess'));
           initRobotList();
         } catch (error) {
@@ -469,6 +474,7 @@
           showDetailDrawer.value = false;
         }
       }
+      initRobotList();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -503,15 +509,16 @@
 <style lang="less" scoped>
   .robot-list-container {
     @apply relative;
+
+    background-color: var(--color-text-n9);
     .ms-container--shadow();
     .robot-list {
-      @apply grid  h-full overflow-y-auto;
+      @apply grid  max-h-full overflow-y-auto;
       .ms-scroll-bar();
 
       padding: 16px;
       grid-template-columns: repeat(2, minmax(128px, 1fr));
       border-radius: var(--border-radius-small);
-      background-color: var(--color-text-n9);
       gap: 16px;
       .robot-card {
         @apply flex flex-col bg-white;

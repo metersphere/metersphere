@@ -10,10 +10,12 @@
    */
   import { nextTick, ref } from 'vue';
   import { useRoute } from 'vue-router';
-  import { useI18n } from '@/hooks/useI18n';
+
   import MsTabCard from '@/components/pure/ms-tab-card/index.vue';
-  import RobotList from './components/robotList.vue';
   import MessageList from './components/messageList.vue';
+  import RobotList from './components/robotList.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   const route = useRoute();
   const { t } = useI18n();

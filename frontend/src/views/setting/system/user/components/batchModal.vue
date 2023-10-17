@@ -17,18 +17,23 @@
       <MsTransfer
         v-model="target"
         :data="treeData"
+        :title="[t('system.user.batchOptional'), t('system.user.batchChosen')]"
+        :source-input-search-props="{ placeholder: t('system.user.batchTransferSearchPlaceholder') }"
+        :target-input-search-props="{ placeholder: t('system.user.batchTransferSearchPlaceholder') }"
         :tree-filed="{
           key: 'id',
           title: 'name',
           children: 'children',
           disabled: 'disabled',
+          isLeaf: 'leafNode',
         }"
+        show-search
       />
     </a-spin>
     <template #footer>
-      <a-button type="secondary" :disabled="batchLoading" @click="cancelBatch">{{
-        t('system.user.batchModalCancel')
-      }}</a-button>
+      <a-button type="secondary" :disabled="batchLoading" @click="cancelBatch">
+        {{ t('system.user.batchModalCancel') }}
+      </a-button>
       <a-button type="primary" :disabled="target.length === 0" :loading="batchLoading" @click="confirmBatch">
         {{ t('system.user.batchModalConfirm') }}
       </a-button>
@@ -39,19 +44,21 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
+
+  import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
+  import MsTransfer from '@/components/business/ms-transfer/index.vue';
+
   import {
-    batchAddProject,
     batchAddOrg,
+    batchAddProject,
     batchAddUserGroup,
     getSystemOrgs,
     getSystemProjects,
     getSystemRoles,
   } from '@/api/modules/setting/user';
-  import MsTransfer from '@/components/pure/ms-transfer/index.vue';
+  import { useI18n } from '@/hooks/useI18n';
 
   import type { OrgsItem } from '@/models/setting/user';
-  import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
   const { t } = useI18n();
 

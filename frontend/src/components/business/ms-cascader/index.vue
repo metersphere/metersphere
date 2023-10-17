@@ -13,6 +13,7 @@
     :virtual-list-props="props.virtualListProps"
     :placeholder="props.placeholder"
     :loading="props.loading"
+    value-key="value"
     @change="handleMsCascaderChange"
     @clear="clearValues"
   >
@@ -71,7 +72,8 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch, Ref } from 'vue';
+  import { Ref, ref, watch } from 'vue';
+
   import useSelect from '@/hooks/useSelect';
 
   import type { CascaderOption } from '@arco-design/web-vue';

@@ -1,7 +1,7 @@
-import dayjsLocale from 'dayjs/locale/en';
+import common from './common';
 import localeSettings from './settings';
 import sys from './sys';
-import common from './common';
+import dayjsLocale from 'dayjs/locale/en';
 
 const _Cmodules: any = import.meta.glob('../../components/**/locale/en-US.ts', { eager: true });
 const _Vmodules: any = import.meta.glob('../../views/**/locale/en-US.ts', { eager: true });

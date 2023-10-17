@@ -1,17 +1,24 @@
 <template>
   <a-transfer
-    v-model="innerTarget"
-    :title="props.title || [t('system.user.batchOptional'), t('system.user.batchChosen')]"
+    v-model:model-value="innerTarget"
+    :title="props.title"
     :data="transferData"
-    show-search
+    :show-search="props.showSearch"
+    :source-input-search-props="{
+      ...props.sourceInputSearchProps,
+      onInput: inputChange,
+    }"
+    :target-input-search-props="props.targetInputSearchProps"
   >
     <template #source="{ selectedKeys, onSelect }">
-      <a-tree
+      <MsTree
         :checkable="true"
         checked-strategy="child"
         :checked-keys="selectedKeys"
         :data="getTreeData()"
+        :keyword="sourceKeyword"
         block-node
+        default-expand-all
         @check="onSelect"
       />
     </template>
@@ -20,15 +27,9 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
 
-  export interface TreeDataItem {
-    key?: string;
-    title?: string;
-    children?: TreeDataItem[];
-    disabled?: boolean;
-    [key: string]: any;
-  }
+  import MsTree from '@/components/business/ms-tree/index.vue';
+  import type { MsTreeFieldNames, MsTreeNodeData } from '@/components/business/ms-tree/types';
 
   export interface TransferDataItem {
     value: string;
@@ -41,8 +42,11 @@
     defineProps<{
       modelValue: string[];
       title?: string[]; // [left, right]左右标题
-      data: TreeDataItem[]; // 树结构数据
-      treeFiled?: Record<keyof TreeDataItem, string>; // 自定义树结构字段
+      data: MsTreeNodeData[]; // 树结构数据
+      treeFiled?: MsTreeFieldNames; // 自定义树结构字段
+      showSearch?: boolean; // 是否显示搜索框
+      sourceInputSearchProps?: Record<string, any>;
+      targetInputSearchProps?: Record<string, any>;
     }>(),
     {
       treeFiled: () => ({
@@ -50,12 +54,11 @@
         title: 'title',
         children: 'children',
         disabled: 'disabled',
+        isLeaf: 'isLeaf',
       }),
     }
   );
   const emit = defineEmits(['update:modelValue']);
-
-  const { t } = useI18n();
 
   const innerTarget = ref<string[]>([]);
   const transferData = ref<TransferDataItem[]>([]);
@@ -74,12 +77,14 @@
     }
   );
 
+  const sourceKeyword = ref<string>('');
+
   /**
    * 获取穿梭框数据，根据树结构获取
    * @param _treeData 树结构
    * @param transferDataSource 穿梭框数组
    */
-  const getTransferData = (_treeData: TreeDataItem[], transferDataSource: TransferDataItem[]) => {
+  const getTransferData = (_treeData: MsTreeNodeData[], transferDataSource: TransferDataItem[]) => {
     _treeData.forEach((item) => {
       const itemChildren = item[props.treeFiled.children];
       if (Array.isArray(itemChildren) && itemChildren.length > 0) getTransferData(itemChildren, transferDataSource);
@@ -87,18 +92,17 @@
         transferDataSource.push({
           label: item[props.treeFiled.title],
           value: item[props.treeFiled.key],
-          disabled: item[props.treeFiled.disabled],
+          disabled: props.treeFiled.disabled ? item[props.treeFiled.disabled] : false,
         });
     });
     return transferDataSource;
   };
-
   /**
    * 获取树结构数据，根据穿梭框过滤的数据获取
    */
   const getTreeData = () => {
-    const travel = (_treeData: TreeDataItem[]) => {
-      const treeDataSource: TreeDataItem[] = [];
+    const travel = (_treeData: MsTreeNodeData[]) => {
+      const treeDataSource: MsTreeNodeData[] = [];
       _treeData.forEach((item) => {
         const itemChildren = item[props.treeFiled.children];
         const itemKey = item[props.treeFiled.key];
@@ -108,21 +112,25 @@
           innerTarget.value.length > 0 &&
           Array.isArray(itemChildren) &&
           itemChildren.length > 0 &&
-          itemChildren?.every((child: TreeDataItem) => innerTarget.value.includes(child[props.treeFiled.key]));
+          itemChildren?.every((child: MsTreeNodeData) => innerTarget.value.includes(child[props.treeFiled.key]));
         if (!allSelected && !innerTarget.value.includes(itemKey)) {
           // 非选中父节点时，需要判断每个子节点是否已经在右侧的选中的数组内，不在才渲染到左侧
           treeDataSource.push({
             title: itemTitle,
             key: itemKey,
+            label: itemTitle,
             children: itemChildren ? travel(itemChildren) : [],
           });
         }
       });
       return treeDataSource;
     };
-
     return travel(props.data);
   };
+
+  function inputChange(val: string) {
+    sourceKeyword.value = val;
+  }
 
   watch(
     () => props.data,

@@ -23,7 +23,6 @@
       v-bind="propsRes"
       :action-config="tableBatchActions"
       v-on="propsEvent"
-      @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
       <template #organization="{ record }">
@@ -192,38 +191,41 @@
   import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
-  import useModal from '@/hooks/useModal';
-  import { useI18n } from '@/hooks/useI18n';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import useTable from '@/components/pure/ms-table/useTable';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
-  import {
-    getUserList,
-    batchCreateUser,
-    updateUserInfo,
-    toggleUserStatus,
-    deleteUserInfo,
-    importUserInfo,
-    getSystemRoles,
-    resetUserPassword,
-  } from '@/api/modules/setting/user';
-  import { validateEmail, validatePhone } from '@/utils/validate';
+  import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
   import batchModal from './components/batchModal.vue';
   import inviteModal from './components/inviteModal.vue';
-  import MsUpload from '@/components/pure/ms-upload/index.vue';
-  import { TableKeyEnum } from '@/enums/tableEnum';
-  import { useTableStore } from '@/store';
-  import MsCard from '@/components/pure/ms-card/index.vue';
-  import { characterLimit } from '@/utils';
-  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
 
-  import type { FormInstance, ValidatedError, FileItem } from '@arco-design/web-vue';
-  import type { MsTableColumn, BatchActionParams, BatchActionQueryParams } from '@/components/pure/ms-table/type';
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import {
+    batchCreateUser,
+    deleteUserInfo,
+    getSystemRoles,
+    getUserList,
+    importUserInfo,
+    resetUserPassword,
+    toggleUserStatus,
+    updateUserInfo,
+  } from '@/api/modules/setting/user';
+  import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
+  import { useTableStore } from '@/store';
+  import { characterLimit } from '@/utils';
+  import { validateEmail, validatePhone } from '@/utils/validate';
+
   import type { SimpleUserInfo, SystemRole, UserListItem } from '@/models/setting/user';
-  import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
+  import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import type { FileItem, FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -267,7 +269,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 100,
+      width: 110,
     },
   ];
   const tableStore = useTableStore();
@@ -298,12 +300,6 @@
 
   const tableSelected = ref<(string | number)[]>([]);
 
-  /**
-   * 处理表格选中
-   */
-  function handleTableSelect(arr: (string | number)[]) {
-    tableSelected.value = arr;
-  }
   const { openModal } = useModal();
 
   /**
@@ -524,6 +520,7 @@
    * @param event 批量操作事件对象
    */
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    tableSelected.value = params?.selectedIds || [];
     switch (event.eventTag) {
       case 'batchAddProject':
       case 'batchAddUserGroup':

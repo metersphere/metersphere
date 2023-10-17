@@ -60,4 +60,6 @@ export default {
   'common.fullScreen': '全屏',
   'common.offFullScreen': '退出全屏',
   'common.allSelect': '全选',
+  'common.setting': '设置',
+  'common.resetDefault': '恢复默认',
 };

@@ -106,4 +106,5 @@ export default {
   'system.user.tableColumnUserGroup': '用户组',
   'system.user.tableColumnStatus': '状态',
   'system.user.tableColumnActions': '操作',
+  'system.user.batchTransferSearchPlaceholder': '输入名称搜索',
 };
