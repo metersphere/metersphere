@@ -573,6 +573,26 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
+    @Test
+    @Order(23)
+    public void getTemplateDetailNotData() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/template/detail/project-message-test")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .param("taskType", NoticeConstants.TaskType.BUG_TASK)
+                        .param("event", NoticeConstants.Event.CREATE)
+                        .param("robotId", "test_message_robot3")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        MessageTemplateConfigDTO messageTemplateConfigDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), MessageTemplateConfigDTO.class);
+        Assertions.assertTrue(StringUtils.isNotBlank(messageTemplateConfigDTO.getTemplate()));
+        Assertions.assertTrue(CollectionUtils.isEmpty(messageTemplateConfigDTO.getReceiverIds()));
+
+    }
+
     public void setMessageTask(String projectId, String defaultRobotId) {
         StringBuilder jsonStr = new StringBuilder();
         InputStream inputStream = getClass().getResourceAsStream("/message_task.json");

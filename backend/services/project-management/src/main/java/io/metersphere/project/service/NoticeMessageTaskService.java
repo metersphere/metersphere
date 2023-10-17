@@ -36,10 +36,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -456,9 +453,26 @@ public class NoticeMessageTaskService {
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectIdEqualTo(projectId).andTaskTypeEqualTo(taskType).andEventEqualTo(event);
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
-        List<String> receiverIds = messageTasks.stream().map(MessageTask::getReceiver).distinct().toList();
-        Map<String, List<MessageTask>> messageRobotMap = messageTasks.stream().collect(Collectors.groupingBy(MessageTask::getProjectRobotId));
+        Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
+        Map<String, String> defaultTemplateSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
+        ProjectRobot projectRobot = projectRobotMapper.selectByPrimaryKey(robotId);
         MessageTask messageTask;
+        if (projectRobot == null) {
+            throw new MSException(Translator.get("robot_is_null"));
+        }
+        if (CollectionUtils.isEmpty(messageTasks)) {
+            messageTask = new MessageTask();
+            messageTask.setTaskType(taskType);
+            messageTask.setEvent(event);
+            messageTask.setEnable(false);
+            messageTask.setUseDefaultTemplate(true);
+            messageTask.setUseDefaultSubject(true);
+            messageTask.setProjectRobotId(projectRobot.getId());
+            messageTask.setProjectId(projectId);
+            messageTasks.add(messageTask);
+        }
+        List<String> receiverIds = messageTasks.stream().map(MessageTask::getReceiver).filter(Objects::nonNull).distinct().toList();
+        Map<String, List<MessageTask>> messageRobotMap = messageTasks.stream().collect(Collectors.groupingBy(MessageTask::getProjectRobotId));
         if (CollectionUtils.isNotEmpty(messageRobotMap.get(robotId))) {
             messageTask = messageRobotMap.get(robotId).get(0);
         } else {
@@ -468,14 +482,8 @@ public class NoticeMessageTaskService {
             messageTask.setUseDefaultSubject(true);
         }
         MessageTaskBlob messageTaskBlob = messageTaskBlobMapper.selectByPrimaryKey(messageTask.getId());
-        Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
-        Map<String, String> defaultTemplateSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
         String defaultTemplate = defaultTemplateMap.get(messageTask.getTaskType() + "_" + messageTask.getEvent());
         String defaultSubject = defaultTemplateSubjectMap.get(messageTask.getTaskType() + "_" + messageTask.getEvent());
-        ProjectRobot projectRobot = projectRobotMapper.selectByPrimaryKey(robotId);
-        if (projectRobot == null) {
-            throw new MSException(Translator.get("robot_is_null"));
-        }
         ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot, messageTask, messageTaskBlob);
         MessageTemplateConfigDTO messageTemplateConfigDTO = new MessageTemplateConfigDTO();
         BeanUtils.copyBean(messageTemplateConfigDTO, projectRobotConfigDTO);
