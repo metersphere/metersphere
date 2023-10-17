@@ -1,17 +1,18 @@
 import MSR from '@/api/http/index';
 import {
-  GetMemberListUrl,
   AddMemberUrl,
-  UpdateMemberUrl,
   BatchAddProjectUrl,
   BatchAddUserGroupUrl,
   DeleteMemberUrl,
+  GetMemberListUrl,
+  getProjectListUrl,
   getUserGroupList,
   getUserList,
-  getProjectListUrl,
+  UpdateMemberUrl,
 } from '@/api/requrls/setting/member';
-import type { MemberItem, AddorUpdateMemberModel, BatchAddProjectModel, LinkItem } from '@/models/setting/member';
-import type { TableQueryParams, CommonList } from '@/models/common';
+
+import type { CommonList, TableQueryParams } from '@/models/common';
+import type { AddorUpdateMemberModel, BatchAddProjectModel, LinkItem, MemberItem } from '@/models/setting/member';
 // 获取成员列表
 export function getMemberList(data: TableQueryParams) {
   return MSR.post<CommonList<MemberItem>>({ url: GetMemberListUrl, data });

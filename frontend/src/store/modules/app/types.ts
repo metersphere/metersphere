@@ -1,7 +1,9 @@
-import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
-import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
-import type { PageConfig, ThemeConfig, LoginConfig, PlatformConfig } from '@/models/setting/config';
 import type { MsFileItem } from '@/components/pure/ms-upload/types';
+import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
+
+import type { LoginConfig, PageConfig, PlatformConfig, ThemeConfig } from '@/models/setting/config';
+
+import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 
 export interface AppState {
   colorWeak: boolean;

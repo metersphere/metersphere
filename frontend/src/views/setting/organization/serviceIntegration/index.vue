@@ -55,12 +55,15 @@
    * @description 系统管理-组织-服务集成
    */
   import { ref } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import { useRouter } from 'vue-router';
+
   import MsCard from '@/components/pure/ms-card/index.vue';
   import ServiceList from './components/serviceList.vue';
-  import { useRouter } from 'vue-router';
-  import type { StepListType, SkipTitle } from '@/models/setting/serviceIntegration';
+
+  import { useI18n } from '@/hooks/useI18n';
   import { openWindow } from '@/utils/index';
+
+  import type { SkipTitle, StepListType } from '@/models/setting/serviceIntegration';
   import { SettingRouteEnum } from '@/enums/routeEnum';
 
   const { t } = useI18n();

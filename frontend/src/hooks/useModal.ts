@@ -1,7 +1,9 @@
-import { Modal } from '@arco-design/web-vue';
-import type { ModalConfig } from '@arco-design/web-vue';
-import { useI18n } from '@/hooks/useI18n';
 import { Ref, ref } from 'vue';
+import { Modal } from '@arco-design/web-vue';
+
+import { useI18n } from '@/hooks/useI18n';
+
+import type { ModalConfig } from '@arco-design/web-vue';
 
 export type ModalType = 'info' | 'success' | 'warning' | 'error';
 

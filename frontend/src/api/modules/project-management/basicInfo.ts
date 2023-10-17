@@ -1,5 +1,6 @@
 import MSR from '@/api/http/index';
 import { ProjectBasicInfoUrl, UpdateProjectUrl } from '@/api/requrls/project-management/basicInfo';
+
 import type { ProjectBasicInfoModel, UpdateProject } from '@/models/projectManagement/basicInfo';
 
 // 获取项目详情

@@ -1,17 +1,17 @@
 import MSR from '@/api/http/index';
 import {
-  GetSystemLogListUrl,
-  GetSystemLogOptionsUrl,
-  GetSystemLogUserUrl,
   GetOrgLogListUrl,
   GetOrgLogOptionsUrl,
   GetOrgLogUserUrl,
   GetProjectLogListUrl,
   GetProjectLogUserUrl,
+  GetSystemLogListUrl,
+  GetSystemLogOptionsUrl,
+  GetSystemLogUserUrl,
 } from '@/api/requrls/setting/log';
 
 import type { CommonList } from '@/models/common';
-import type { LogOptions, LogItem, UserItem, LogListParams } from '@/models/setting/log';
+import type { LogItem, LogListParams, LogOptions, UserItem } from '@/models/setting/log';
 
 // 获取系统日志列表
 export function getSystemLogList(data: LogListParams) {

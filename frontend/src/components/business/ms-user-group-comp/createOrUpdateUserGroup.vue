@@ -52,15 +52,18 @@
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect, inject } from 'vue';
+  import { inject, reactive, ref, watchEffect } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
-  import { updateOrAddOrgUserGroup, updateOrAddUserGroup } from '@/api/modules/setting/usergroup';
+
   import { updateOrAddProjectUserGroup } from '@/api/modules/project-management/usergroup';
+  import { updateOrAddOrgUserGroup, updateOrAddUserGroup } from '@/api/modules/setting/usergroup';
+  import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
+
   import { UserGroupItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';
-  import { useAppStore } from '@/store';
+
+  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
   const systemType = inject<AuthScopeEnum>('systemType');

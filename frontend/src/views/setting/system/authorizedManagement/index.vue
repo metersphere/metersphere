@@ -112,16 +112,19 @@
   /**
    * @description 系统管理-系统-授权管理
    */
-  import { ref, onBeforeMount, watch, reactive } from 'vue';
+  import { onBeforeMount, reactive, ref, watch } from 'vue';
+  import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import { getLicenseInfo, addLicense } from '@/api/modules/setting/authorizedManagement';
-  import type { LicenseInfo } from '@/models/setting/authorizedManagement';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
-  import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import useLicenseStore from '@/store/modules/setting/license';
+
+  import { addLicense, getLicenseInfo } from '@/api/modules/setting/authorizedManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import useLicenseStore from '@/store/modules/setting/license';
+
+  import type { LicenseInfo } from '@/models/setting/authorizedManagement';
 
   const { t } = useI18n();
   const licenseStore = useLicenseStore();

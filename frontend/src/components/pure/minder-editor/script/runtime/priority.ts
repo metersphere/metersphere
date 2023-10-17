@@ -1,5 +1,5 @@
-import { isDisableNode } from '../tool/utils';
 import useLocaleNotVue from '../tool/useLocaleNotVue';
+import { isDisableNode } from '../tool/utils';
 
 const tran = useLocaleNotVue;
 

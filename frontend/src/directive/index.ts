@@ -1,4 +1,5 @@
 import { App } from 'vue';
+
 import permission from './permission';
 import validateLicense from './validateLicense';
 

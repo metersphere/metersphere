@@ -1,5 +1,6 @@
-import { Recordable } from '#/global';
 import { FileItem } from '@arco-design/web-vue';
+
+import { Recordable } from '#/global';
 
 // 基础信息配置
 export interface BaseConfig {

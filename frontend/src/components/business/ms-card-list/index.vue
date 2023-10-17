@@ -23,12 +23,13 @@
 </template>
 
 <script setup lang="ts">
-  import { type Ref, ref, watch, nextTick, onMounted, watchEffect, computed } from 'vue';
+  import { computed, nextTick, onMounted, type Ref, ref, watch, watchEffect } from 'vue';
   import { useResizeObserver } from '@vueuse/core';
   import { debounce } from 'lodash-es';
+
   import useContainerShadow from '@/hooks/useContainerShadow';
 
-  import type { TableQueryParams, CommonList } from '@/models/common';
+  import type { CommonList, TableQueryParams } from '@/models/common';
 
   const props = withDefaults(
     defineProps<{

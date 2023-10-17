@@ -1,8 +1,11 @@
 import { defineStore } from 'pinia';
-import { MsTableState, TableOpenDetailMode } from './types';
+import { cloneDeep, filter, orderBy } from 'lodash-es';
+
 import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
+
 import { SpecialColumnEnum } from '@/enums/tableEnum';
-import { orderBy, filter, cloneDeep } from 'lodash';
+
+import { MsTableState, TableOpenDetailMode } from './types';
 
 const msTableStore = defineStore('msTable', {
   // 开启数据持久化

@@ -13,21 +13,24 @@
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
-  import useTable from '@/components/pure/ms-table/useTable';
+  import { computed, inject, ref, watchEffect } from 'vue';
+
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { useAppStore } from '@/store';
-  import { watchEffect, ref, computed, inject } from 'vue';
-  import {
-    postOrgUserByUserGroup,
-    deleteOrgUserFromUserGroup,
-    postUserByUserGroup,
-    deleteUserFromUserGroup,
-  } from '@/api/modules/setting/usergroup';
-  import { CurrentUserGroupItem, UserTableItem } from '@/models/setting/usergroup';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import AddUserModal from './addUserModal.vue';
+  import useTable from '@/components/pure/ms-table/useTable';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
+  import AddUserModal from './addUserModal.vue';
+
+  import {
+    deleteOrgUserFromUserGroup,
+    deleteUserFromUserGroup,
+    postOrgUserByUserGroup,
+    postUserByUserGroup,
+  } from '@/api/modules/setting/usergroup';
+  import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
+
+  import { CurrentUserGroupItem, UserTableItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';
 
   const systemType = inject<AuthScopeEnum>('systemType');

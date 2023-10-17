@@ -1,7 +1,8 @@
 import { useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
-import { useUserStore } from '@/store';
+
 import { useI18n } from '@/hooks/useI18n';
+import { useUserStore } from '@/store';
 
 export default function useUser() {
   const router = useRouter();

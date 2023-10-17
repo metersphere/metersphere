@@ -91,12 +91,14 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, nextTick } from 'vue';
-  import { Message } from '@arco-design/web-vue';
+  import { nextTick, ref } from 'vue';
   import { useClipboard } from '@vueuse/core';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import { Message } from '@arco-design/web-vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+
   import { useI18n } from '@/hooks/useI18n';
 
   export interface Description {

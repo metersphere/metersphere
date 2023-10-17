@@ -8,9 +8,9 @@
  * @author: techird
  * @copyright: Baidu FEX, 2014
  */
-import { isDisableNode, markChangeNode } from '../tool/utils';
 import Debug from '../tool/debug';
 import useLocaleNotVue from '../tool/useLocaleNotVue';
+import { isDisableNode, markChangeNode } from '../tool/utils';
 
 if (!('innerText' in document.createElement('a')) && 'getSelection' in window) {
   Object.defineProperty(HTMLElement.prototype, 'innerText', {

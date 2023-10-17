@@ -60,13 +60,14 @@
 
 <script setup lang="ts">
   import { nextTick, Ref, ref, watch } from 'vue';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import useContainerShadow from '@/hooks/useContainerShadow';
-
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+
+  import useContainerShadow from '@/hooks/useContainerShadow';
+  import { useI18n } from '@/hooks/useI18n';
 
   const props = withDefaults(
     defineProps<{

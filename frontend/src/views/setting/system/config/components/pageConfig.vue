@@ -302,24 +302,26 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, watch, onBeforeUnmount } from 'vue';
+  import { computed, onBeforeUnmount, ref, watch } from 'vue';
   import { useFullscreen } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import useLocale from '@/locale/useLocale';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsColorSelect from '@/components/pure/ms-color-select/index.vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import loginForm from '@/views/login/components/login-form.vue';
-  import banner from '@/views/login/components/banner.vue';
-  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
-  import useAppStore from '@/store/modules/app';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
+  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import defaultLayout from '@/layout/default-layout.vue';
+  import banner from '@/views/login/components/banner.vue';
+  import loginForm from '@/views/login/components/login-form.vue';
+
+  import { savePageConfig } from '@/api/modules/setting/config';
+  import { useI18n } from '@/hooks/useI18n';
+  import useLocale from '@/locale/useLocale';
+  import useAppStore from '@/store/modules/app';
+  import { sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { setCustomTheme, setPlatformColor, watchStyle, watchTheme } from '@/utils/theme';
-  import { sleep } from '@/utils';
-  import { savePageConfig } from '@/api/modules/setting/config';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 

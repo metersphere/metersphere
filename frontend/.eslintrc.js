@@ -18,7 +18,7 @@ module.exports = {
     'node': true,
     'vue/setup-compiler-macros': true,
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'simple-import-sort'],
   extends: [
     // Airbnb JavaScript Style Guide https://github.com/airbnb/javascript
     'airbnb-base',
@@ -75,6 +75,44 @@ module.exports = {
     'no-plusplus': 'off',
     'no-underscore-dangle': 'off',
     'vue/attributes-order': 1,
+    'simple-import-sort/exports': 'error',
+    // 调整导入语句的顺序
+    'simple-import-sort/imports': [
+      'error',
+      {
+        groups: [
+          [
+            '^vue$',
+            '^vue-router$',
+            '^vue-i18n$',
+            '^pinia$',
+            '^@vueuse/core$',
+            '^@arco-design/web-vue$',
+            '^monaco-editor$',
+            '^lodash-es$',
+            '^axios$',
+            '^dayjs$',
+            '^jsencrypt$',
+            '^echarts$',
+            '^color$',
+          ], // node依赖
+          ['.*/assets/.*', '^@/assets$'], // 项目静态资源
+          ['^@/components/pure/.*', '^@/components/business/.*', '.*\\.vue$'], // 组件
+          [
+            '^@/api($|/.*)',
+            '^@/config($|/.*)',
+            '^@/directive($|/.*)',
+            '^@/hooks($|/.*)',
+            '^@/locale($|/.*)',
+            '^@/router($|/.*)',
+            '^@/store($|/.*)',
+            '^@/utils($|/.*)',
+          ], // 项目公共模块
+          ['^@/models($|/.*)', '^@/enums($|/.*)'], // model、enum
+          ['^type'], // 第三方类型声明 or 全局类型声明
+        ],
+      },
+    ],
   },
   // 对特定文件进行配置
   overrides: [

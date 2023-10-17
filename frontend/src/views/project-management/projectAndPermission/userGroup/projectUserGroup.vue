@@ -96,26 +96,29 @@
   /**
    * @description 项目管理-项目与权限-用户组
    */
-  import { ref, onMounted, computed, provide } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import { computed, onMounted, provide, ref } from 'vue';
+  import { Message, ValidatedError } from '@arco-design/web-vue';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
-  import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import { useAppStore } from '@/store';
-  import { UserGroupItem, CurrentUserGroupItem } from '@/models/setting/usergroup';
-  import { AuthScopeEnum } from '@/enums/commonEnum';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
+  import UserDrawer from './userDrawer.vue';
+
   import {
-    postUserGroupList,
     deleteUserGroup,
+    postUserGroupList,
     updateOrAddProjectUserGroup,
   } from '@/api/modules/project-management/usergroup';
-  import UserDrawer from './userDrawer.vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
+  import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { Message, ValidatedError } from '@arco-design/web-vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import { useAppStore } from '@/store';
+
+  import { CurrentUserGroupItem, UserGroupItem } from '@/models/setting/usergroup';
+  import { AuthScopeEnum } from '@/enums/commonEnum';
+  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   provide('systemType', AuthScopeEnum.PROJECT);
 

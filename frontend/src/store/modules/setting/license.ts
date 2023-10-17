@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+
 import { getLicenseInfo } from '@/api/modules/setting/authorizedManagement';
 
 const useLicenseStore = defineStore('license', {

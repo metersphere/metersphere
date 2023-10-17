@@ -1,21 +1,22 @@
 import MSR from '@/api/http/index';
 import {
+  AddPoolUrl,
+  DeletePoolUrl,
+  DetailPoolUrl,
+  EnablePoolUrl,
   PoolListUrl,
   UpdatePoolUrl,
-  AddPoolUrl,
-  DetailPoolUrl,
-  DeletePoolUrl,
-  EnablePoolUrl,
 } from '@/api/requrls/setting/resourcePool';
 
-import type { LocationQueryValue } from 'vue-router';
-import type {
-  ResourcePoolItem,
-  AddResourcePoolParams,
-  UpdateResourcePoolParams,
-  ResourcePoolDetail,
-} from '@/models/setting/resourcePool';
 import type { CommonList, TableQueryParams } from '@/models/common';
+import type {
+  AddResourcePoolParams,
+  ResourcePoolDetail,
+  ResourcePoolItem,
+  UpdateResourcePoolParams,
+} from '@/models/setting/resourcePool';
+
+import type { LocationQueryValue } from 'vue-router';
 
 // 获取资源池列表
 export function getPoolList(data: TableQueryParams) {

@@ -1,38 +1,39 @@
 import MSR from '@/api/http/index';
 import {
-  GetUserListUrl,
-  CreateUserUrl,
-  UpdateUserUrl,
-  DeleteUserUrl,
-  ImportUserUrl,
-  EnableUserUrl,
-  GetSystemRoleUrl,
-  ResetPasswordUrl,
-  BatchAddUserGroupUrl,
   BatchAddOrgUrl,
   BatchAddProjectUrl,
+  BatchAddUserGroupUrl,
+  CreateUserUrl,
+  DeleteUserUrl,
+  EnableUserUrl,
   GetOrgsUrl,
   GetProjectsUrl,
+  GetSystemRoleUrl,
   GetUserInfoUrl,
+  GetUserListUrl,
+  ImportUserUrl,
   InviteUserUrl,
   RegisterByInviteUrl,
+  ResetPasswordUrl,
+  UpdateUserUrl,
 } from '@/api/requrls/setting/user';
+
+import type { CommonList, TableQueryParams } from '@/models/common';
 import type {
-  UserListItem,
+  BatchAddParams,
   CreateUserParams,
+  DeleteUserParams,
+  ImportResult,
+  ImportUserParams,
+  InviteUserParams,
+  OrgsItem,
+  RegisterByInviteParams,
+  ResetUserPasswordParams,
+  SystemRole,
   UpdateUserInfoParams,
   UpdateUserStatusParams,
-  DeleteUserParams,
-  ImportUserParams,
-  SystemRole,
-  ImportResult,
-  BatchAddParams,
-  ResetUserPasswordParams,
-  OrgsItem,
-  InviteUserParams,
-  RegisterByInviteParams,
+  UserListItem,
 } from '@/models/setting/user';
-import type { CommonList, TableQueryParams } from '@/models/common';
 
 // 获取用户列表
 export function getUserList(data: TableQueryParams) {

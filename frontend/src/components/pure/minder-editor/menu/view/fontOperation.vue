@@ -55,7 +55,8 @@
 </template>
 
 <script lang="ts" name="StyleOperation" setup>
-  import { ref, computed } from 'vue';
+  import { computed, ref } from 'vue';
+
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();

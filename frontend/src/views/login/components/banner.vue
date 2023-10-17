@@ -6,6 +6,7 @@
 
 <script lang="ts" setup>
   import { computed } from 'vue';
+
   import { GetLoginImageUrl } from '@/api/requrls/setting/config';
 
   const props = defineProps<{

@@ -93,17 +93,21 @@
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect, computed } from 'vue';
-  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
-  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { createOrUpdateProject, getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
+  import { computed, reactive, ref, watchEffect } from 'vue';
   import { Message } from '@arco-design/web-vue';
+
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
-  import useLicenseStore from '@/store/modules/setting/license';
-  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
   import MsSystemPool from '@/components/business/ms-system-pool/MsSystemPool.vue';
+  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+
+  import { createOrUpdateProject, getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
+  import { useI18n } from '@/hooks/useI18n';
+  import useLicenseStore from '@/store/modules/setting/license';
+
+  import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
+
+  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
   const props = defineProps<{

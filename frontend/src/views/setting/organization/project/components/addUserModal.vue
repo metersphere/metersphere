@@ -36,12 +36,14 @@
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect, onUnmounted, computed } from 'vue';
-  import { addProjectMemberByOrg } from '@/api/modules/setting/organizationAndProject';
-  import { Message, type FormInstance, type ValidatedError } from '@arco-design/web-vue';
+  import { computed, onUnmounted, reactive, ref, watchEffect } from 'vue';
+  import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
+
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
   import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+
+  import { addProjectMemberByOrg } from '@/api/modules/setting/organizationAndProject';
+  import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
   const { t } = useI18n();

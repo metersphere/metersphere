@@ -13,10 +13,12 @@
 </template>
 
 <script setup lang="ts">
-  import { useI18n } from '@/hooks/useI18n';
+  import { ref } from 'vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
-  import { ref } from 'vue';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   const props = defineProps<{
     title: string;

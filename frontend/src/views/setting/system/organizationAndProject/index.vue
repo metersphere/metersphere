@@ -37,14 +37,16 @@
   /**
    * @description 系统设置-系统-组织与项目
    */
-  import { ref, watch, nextTick, onBeforeMount } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import { nextTick, onBeforeMount, ref, watch } from 'vue';
+
   import MsCard from '@/components/pure/ms-card/index.vue';
   import AddOrganizationModal from './components/addOrganizationModal.vue';
+  import AddProjectModal from './components/addProjectModal.vue';
   import SystemOrganization from './components/systemOrganization.vue';
   import SystemProject from './components/systemProject.vue';
-  import AddProjectModal from './components/addProjectModal.vue';
+
   import { getOrgAndProjectCount } from '@/api/modules/setting/organizationAndProject';
+  import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
   const currentTable = ref('organization');

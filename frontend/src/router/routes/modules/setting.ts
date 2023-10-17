@@ -1,6 +1,6 @@
-import { DEFAULT_LAYOUT } from '../base';
 import { SettingRouteEnum } from '@/enums/routeEnum';
 
+import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const Setting: AppRouteRecordRaw = {

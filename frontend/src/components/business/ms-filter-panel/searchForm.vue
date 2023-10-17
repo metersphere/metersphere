@@ -48,10 +48,13 @@
 </template>
 
 <script setup lang="ts">
-  import { Message } from '@arco-design/web-vue';
   import { computed, ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
+
   import QueryFromItem from './query-form-item.vue';
+
   import { useI18n } from '@/hooks/useI18n';
+
   import type { ConditionOptions, QueryTemplate } from './type';
 
   const { t } = useI18n();

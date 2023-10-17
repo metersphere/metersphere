@@ -73,15 +73,18 @@
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
   import { onBeforeMount, ref } from 'vue';
-  import { useTableStore } from '@/store';
-  import { MsTableColumn } from './type';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import { TableOpenDetailMode } from '@/store/modules/ms-table/types';
-  import Draggable from 'vuedraggable';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
+  import { useTableStore } from '@/store';
+  import { TableOpenDetailMode } from '@/store/modules/ms-table/types';
+
+  import { MsTableColumn } from './type';
+  import Draggable from 'vuedraggable';
 
   const tableStore = useTableStore();
   const { t } = useI18n();

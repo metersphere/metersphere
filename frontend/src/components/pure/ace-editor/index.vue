@@ -9,13 +9,8 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, PropType, ref, onUnmounted, watch } from 'vue';
-  import { VAceEditor } from 'vue3-ace-editor';
-  import ace from 'ace-builds';
-  import workerJavascriptUrl from 'ace-builds/src-min-noconflict/worker-javascript?url';
-  import workerJsonUrl from 'ace-builds/src-min-noconflict/worker-json?url';
-  import workerHtmlUrl from 'ace-builds/src-min-noconflict/worker-html?url';
-  import workerXmlUrl from 'ace-builds/src-min-noconflict/worker-xml?url';
+  import { computed, onUnmounted, PropType, ref, watch } from 'vue';
+
   import 'ace-builds/src-min-noconflict/ext-language_tools';
   import 'ace-builds/src-min-noconflict/ext-beautify';
   import 'ace-builds/src-min-noconflict/theme-github_dark';
@@ -26,6 +21,12 @@
   import 'ace-builds/src-min-noconflict/mode-xml';
   import 'ace-builds/src-min-noconflict/mode-json';
   import 'ace-builds/src-min-noconflict/mode-java';
+  import ace from 'ace-builds';
+  import workerHtmlUrl from 'ace-builds/src-min-noconflict/worker-html?url';
+  import workerJavascriptUrl from 'ace-builds/src-min-noconflict/worker-javascript?url';
+  import workerJsonUrl from 'ace-builds/src-min-noconflict/worker-json?url';
+  import workerXmlUrl from 'ace-builds/src-min-noconflict/worker-xml?url';
+  import { VAceEditor } from 'vue3-ace-editor';
 
   export type LangType = 'javascript' | 'html' | 'xml' | 'json' | 'java' | 'text';
   export type ThemeType = 'github_dark' | 'github' | 'chrome';

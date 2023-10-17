@@ -1,11 +1,12 @@
-import type { Router } from 'vue-router';
-import { setRouteEmitter } from '@/utils/route-listener';
-import setupUserLoginInfoGuard from './userLoginInfo';
-import setupPermissionGuard from './permission';
 import { AxiosCanceler } from '@/api/http/axiosCancel';
-import usePathMap from '@/hooks/usePathMap';
 import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
+import usePathMap from '@/hooks/usePathMap';
 import useAppStore from '@/store/modules/app';
+import { setRouteEmitter } from '@/utils/route-listener';
+
+import setupPermissionGuard from './permission';
+import setupUserLoginInfoGuard from './userLoginInfo';
+import type { Router } from 'vue-router';
 
 function setupPageGuard(router: Router) {
   const axiosCanceler = new AxiosCanceler();

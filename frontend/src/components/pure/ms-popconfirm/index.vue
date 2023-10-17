@@ -74,11 +74,14 @@
 </template>
 
 <script setup lang="ts">
-  import { useI18n } from '@/hooks/useI18n';
   import { computed, ref, useAttrs, watch } from 'vue';
+
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import type { FormInstance, FieldRule } from '@arco-design/web-vue';
+
+  import { useI18n } from '@/hooks/useI18n';
   import { characterLimit } from '@/utils';
+
+  import type { FieldRule, FormInstance } from '@arco-design/web-vue';
 
   export type types = 'error' | 'info' | 'success' | 'warning';
 

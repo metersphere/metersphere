@@ -52,14 +52,16 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
-  import MsTree from '@/components/business/ms-tree/index.vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import useModal from '@/hooks/useModal';
   import { Message } from '@arco-design/web-vue';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+
+  import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
 
   const { t } = useI18n();
   const { openModal } = useModal();

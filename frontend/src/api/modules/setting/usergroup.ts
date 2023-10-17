@@ -1,12 +1,13 @@
 import MSR from '@/api/http/index';
 import * as ugUrl from '@/api/requrls/setting/usergroup';
-import { TableQueryParams, CommonList } from '@/models/common';
+
+import { CommonList, TableQueryParams } from '@/models/common';
 import {
-  UserGroupItem,
-  SystemUserGroupParams,
   OrgUserGroupParams,
-  UserGroupAuthSetting,
   SaveGlobalUSettingData,
+  SystemUserGroupParams,
+  UserGroupAuthSetting,
+  UserGroupItem,
   UserTableItem,
 } from '@/models/setting/usergroup';
 

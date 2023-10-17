@@ -22,9 +22,12 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
+
   import { job } from '../template';
 
   const props = defineProps<{

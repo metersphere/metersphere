@@ -9,12 +9,15 @@
 
 <script lang="ts" name="minderContainer" setup>
   import { onMounted, ref } from 'vue';
-  import type { Ref } from 'vue';
+
   import Navigator from './navigator.vue';
-  import { markChangeNode, markDeleteNode } from '../script/tool/utils';
+
   import { useI18n } from '@/hooks/useI18n';
+
   import { editMenuProps, mainEditorProps, priorityProps, tagProps } from '../props';
   import Editor from '../script/editor';
+  import { markChangeNode, markDeleteNode } from '../script/tool/utils';
+  import type { Ref } from 'vue';
 
   const { t } = useI18n();
   const props = defineProps({ ...editMenuProps, ...mainEditorProps, ...tagProps, ...priorityProps });

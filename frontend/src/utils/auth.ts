@@ -46,4 +46,4 @@ const isLoginExpires = () => {
   return diff > thirtyDay;
 };
 
-export { isLogin, getToken, setToken, clearToken, hasToken, setLoginExpires, isLoginExpires };
+export { clearToken, getToken, hasToken, isLogin, isLoginExpires, setLoginExpires, setToken };

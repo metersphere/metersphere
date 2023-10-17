@@ -21,6 +21,7 @@
 
 <script lang="ts" name="Mold" setup>
   import { computed, nextTick, onMounted, ref } from 'vue';
+
   import { moleProps } from '../../props';
 
   const props = defineProps(moleProps);

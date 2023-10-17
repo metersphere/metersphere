@@ -1,14 +1,17 @@
 import { h } from 'vue';
 import { defineStore } from 'pinia';
 import { Message, Notification } from '@arco-design/web-vue';
-import { UploadStatus } from '@/enums/uploadEnum';
-import { useI18n } from '@/hooks/useI18n';
+
 import BackstageMsg from '@/components/pure/ms-upload/backstageMsg.vue';
-import router from '@/router';
+import type { MsFileItem } from '@/components/pure/ms-upload/types';
+
 import { AxiosCanceler } from '@/api/http/axiosCancel';
+import { useI18n } from '@/hooks/useI18n';
+import router from '@/router';
+
+import { UploadStatus } from '@/enums/uploadEnum';
 
 import type { AsyncTaskState } from './types';
-import type { MsFileItem } from '@/components/pure/ms-upload/types';
 
 const axiosCanceler = new AxiosCanceler();
 

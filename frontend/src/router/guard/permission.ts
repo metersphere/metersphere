@@ -1,8 +1,8 @@
-import type { Router } from 'vue-router';
-import NProgress from 'nprogress'; // progress bar
-
 import usePermission from '@/hooks/usePermission';
-import { WHITE_LIST, NOT_FOUND } from '../constants';
+
+import { NOT_FOUND, WHITE_LIST } from '../constants';
+import NProgress from 'nprogress'; // progress bar
+import type { Router } from 'vue-router';
 
 export default function setupPermissionGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {

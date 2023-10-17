@@ -87,34 +87,37 @@
   /**
    * @description 项目管理-项目与权限-成员
    */
-  import { ref, onBeforeMount } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import { onBeforeMount, ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
+
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
+  import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
+  import AddMemberModal from './components/addMemberModal.vue';
+
   import {
+    addOrUpdateProjectMember,
+    addProjectUserGroup,
+    batchRemoveMember,
     getProjectMemberList,
     getProjectUserGroup,
-    addOrUpdateProjectMember,
-    batchRemoveMember,
     removeProjectMember,
-    addProjectUserGroup,
   } from '@/api/modules/project-management/projectMember';
-  import { TableKeyEnum } from '@/enums/tableEnum';
-  import { useTableStore, useUserStore } from '@/store';
+  import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import type { MsTableColumn, BatchActionParams, BatchActionQueryParams } from '@/components/pure/ms-table/type';
+  import { useTableStore, useUserStore } from '@/store';
   import { characterLimit } from '@/utils';
-  import AddMemberModal from './components/addMemberModal.vue';
-  import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
-  import { Message } from '@arco-design/web-vue';
+
   import type {
-    ProjectUserOption,
     ActionProjectMember,
     ProjectMemberItem,
+    ProjectUserOption,
     SearchParams,
   } from '@/models/projectManagement/projectAndPermission';
-  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
   const { openModal } = useModal();

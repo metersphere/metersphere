@@ -339,26 +339,29 @@
   /**
    * @description 系统设置-资源池详情
    */
-  import { computed, onBeforeMount, Ref, ref, watchEffect, watch } from 'vue';
+  import { computed, onBeforeMount, Ref, ref, watch, watchEffect } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message, FormInstance, SelectOptionData } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import useVisit from '@/hooks/useVisit';
-  import MsCard from '@/components/pure/ms-card/index.vue';
+  import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
+  import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
+  import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
-  import { getYaml, YamlType, job } from './template';
+
+  import { getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
+  import { addPool, getPoolInfo, updatePoolInfo } from '@/api/modules/setting/resourcePool';
+  import { useI18n } from '@/hooks/useI18n';
+  import useVisit from '@/hooks/useVisit';
+  import useAppStore from '@/store/modules/app';
   import { downloadStringFile, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
-  import { addPool, getPoolInfo, updatePoolInfo } from '@/api/modules/setting/resourcePool';
-  import { getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
-  import useAppStore from '@/store/modules/app';
 
-  import type { MsBatchFormInstance, FormItemModel } from '@/components/business/ms-batch-form/types';
-  import type { UpdateResourcePoolParams, NodesListItem } from '@/models/setting/resourcePool';
+  import type { NodesListItem, UpdateResourcePoolParams } from '@/models/setting/resourcePool';
+
+  import { getYaml, job, YamlType } from './template';
 
   const route = useRoute();
   const router = useRouter();

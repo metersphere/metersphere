@@ -23,10 +23,12 @@
 </template>
 
 <script setup lang="ts">
-  import { useI18n } from '@/hooks/useI18n';
-  import { ref, onMounted, computed } from 'vue';
-  import initOptionsFunc, { UserRequestTypeEnum } from './utils';
+  import { computed, onMounted, ref } from 'vue';
   import { debounce } from 'lodash-es';
+
+  import { useI18n } from '@/hooks/useI18n';
+
+  import initOptionsFunc, { UserRequestTypeEnum } from './utils';
 
   export interface MsUserSelectorOption {
     id: string;

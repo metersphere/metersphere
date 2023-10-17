@@ -1,6 +1,8 @@
 import { defineComponent } from 'vue';
-import type { NavigationGuard } from 'vue-router';
+
 import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
+
+import type { NavigationGuard } from 'vue-router';
 
 export type Component<T = any> =
   | ReturnType<typeof defineComponent>

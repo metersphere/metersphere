@@ -26,13 +26,15 @@
 </template>
 
 <script lang="ts" setup>
-  import { postProjectTableByOrgId } from '@/api/modules/setting/organizationAndProject';
+  import { ref, watch } from 'vue';
+
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+
+  import { postProjectTableByOrgId } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
-  import { watch, ref } from 'vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 
   export interface projectDrawerProps {
     visible: boolean;

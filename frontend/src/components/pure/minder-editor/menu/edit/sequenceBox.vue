@@ -21,9 +21,10 @@
 </template>
 
 <script lang="ts" name="sequenceBox" setup>
-  import { onMounted, reactive, nextTick, ref } from 'vue';
-  import { isDisableNode, setPriorityView } from '../../script/tool/utils';
+  import { nextTick, onMounted, reactive, ref } from 'vue';
+
   import { priorityProps } from '../../props';
+  import { isDisableNode, setPriorityView } from '../../script/tool/utils';
 
   const props = defineProps(priorityProps);
 

@@ -48,13 +48,16 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import { UploadAcceptEnum, UploadStatus } from '@/enums/uploadEnum';
-  import { formatFileSize } from '@/utils';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import { FileIconMap } from './iconMap';
 
-  import type { UploadType, MsFileItem } from './types';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
+  import { formatFileSize } from '@/utils';
+
+  import { UploadAcceptEnum, UploadStatus } from '@/enums/uploadEnum';
+
+  import { FileIconMap } from './iconMap';
+  import type { MsFileItem, UploadType } from './types';
 
   const { t } = useI18n();
 

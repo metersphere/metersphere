@@ -1,16 +1,19 @@
+/* eslint-disable simple-import-sort/imports */
 import { createApp } from 'vue';
 import ArcoVue from '@arco-design/web-vue';
-import '@arco-themes/vue-ms-theme-default/index.less';
-import ArcoVueIcon from '@arco-design/web-vue/es/icon';
-import SvgIcon from '@/components/pure/svg-icon/index.vue';
+
 import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-import router from './router';
-import store from './store';
-import { setupI18n } from './locale';
-import directive from './directive';
+import SvgIcon from '@/components/pure/svg-icon/index.vue';
 import App from './App.vue';
+
+import '@arco-themes/vue-ms-theme-default/index.less';
 // eslint-disable-next-line import/no-unresolved
 import 'virtual:svg-icons-register';
+import directive from './directive';
+import { setupI18n } from './locale';
+import router from './router';
+import store from './store';
+import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 import '@/assets/style/global.less';
 
 async function bootstrap() {

@@ -53,11 +53,13 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import { cloneDeep } from 'lodash-es';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import { cloneDeep } from 'lodash-es';
+
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+
   import { inviteUser } from '@/api/modules/setting/user';
+  import { useI18n } from '@/hooks/useI18n';
 
   import type { SystemRole } from '@/models/setting/user';
 

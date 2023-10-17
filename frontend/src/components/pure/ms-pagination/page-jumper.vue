@@ -23,9 +23,11 @@
 
 <script lang="ts" setup>
   import { computed, ref, watch } from 'vue';
+
   import { useI18n } from '@/hooks/useI18n';
-  import { getPrefixCls } from './utils';
   import useLocale from '@/locale/useLocale';
+
+  import { getPrefixCls } from './utils';
 
   defineOptions({ name: 'PageJumper' });
 

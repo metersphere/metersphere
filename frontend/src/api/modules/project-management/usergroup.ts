@@ -1,12 +1,13 @@
 import MSR from '@/api/http/index';
 import * as ugUrl from '@/api/requrls/project-management/usergroup';
-import { TableQueryParams, CommonList } from '@/models/common';
+
+import { CommonList, TableQueryParams } from '@/models/common';
 import {
-  UserGroupItem,
+  SaveGlobalUSettingData,
   SystemUserGroupParams,
   UserGroupAuthSetting,
+  UserGroupItem,
   UserTableItem,
-  SaveGlobalUSettingData,
 } from '@/models/setting/usergroup';
 
 // 项目-创建或修改用户组

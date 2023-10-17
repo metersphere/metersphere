@@ -16,10 +16,12 @@
 </template>
 
 <script lang="ts" name="edit_del" setup>
-  import { onMounted, reactive, nextTick, ref } from 'vue';
-  import { isDeleteDisableNode, isDisableNode } from '../../script/tool/utils';
+  import { nextTick, onMounted, reactive, ref } from 'vue';
+
   import { useI18n } from '@/hooks/useI18n';
+
   import { delProps } from '../../props';
+  import { isDeleteDisableNode, isDisableNode } from '../../script/tool/utils';
 
   const { t } = useI18n();
 

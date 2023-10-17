@@ -74,12 +74,14 @@
    * @description 功能测试-功能用例
    */
   import { computed, ref } from 'vue';
-  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import FeatureCaseTree from './components/featureCaseTree.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
+  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import CaseTable from './components/caseTable.vue';
+  import FeatureCaseTree from './components/featureCaseTree.vue';
+
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();

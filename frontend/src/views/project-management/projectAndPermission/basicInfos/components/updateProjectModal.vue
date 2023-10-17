@@ -29,12 +29,15 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import MsDialog from '@/components/pure/ms-dialog/index.vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import { updateProject } from '@/api/modules/project-management/basicInfo';
   import { FormInstance, Message } from '@arco-design/web-vue';
-  import type { UpdateProject, ProjectBasicInfoModel } from '@/models/projectManagement/basicInfo';
+
+  import MsDialog from '@/components/pure/ms-dialog/index.vue';
+
+  import { updateProject } from '@/api/modules/project-management/basicInfo';
+  import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+
+  import type { ProjectBasicInfoModel, UpdateProject } from '@/models/projectManagement/basicInfo';
 
   const { t } = useI18n();
   const appStore = useAppStore();

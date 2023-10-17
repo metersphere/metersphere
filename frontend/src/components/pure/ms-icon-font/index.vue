@@ -4,6 +4,7 @@
 
 <script lang="ts" setup>
   import { Icon } from '@arco-design/web-vue';
+
   import '@/assets/icon-font/iconfont';
 
   const props = defineProps<{

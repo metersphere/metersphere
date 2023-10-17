@@ -84,13 +84,16 @@
 
 <script setup lang="ts">
   import { computed, ref, watchEffect } from 'vue';
-  import { cloneDeep } from 'lodash-es';
-  import { useI18n } from '@/hooks/useI18n';
-  import { TEST_PLAN_TEST_CASE } from './caseUtils';
-  import TimerSelect from './time-select.vue';
   import { SelectOptionData } from '@arco-design/web-vue';
-  import type { FormInstance } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
+
+  import TimerSelect from './time-select.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
+
+  import { TEST_PLAN_TEST_CASE } from './caseUtils';
   import type { SearchKeyType } from './type';
+  import type { FormInstance } from '@arco-design/web-vue';
 
   const { t } = useI18n();
 

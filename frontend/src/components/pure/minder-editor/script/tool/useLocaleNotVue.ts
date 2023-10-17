@@ -1,6 +1,6 @@
-import type { Recordable } from '#/global';
-import zhCN from '../../locale/zh-CN';
 import enUS from '../../locale/en-US';
+import zhCN from '../../locale/zh-CN';
+import type { Recordable } from '#/global';
 
 const findCode = (arr: string[], tree: Recordable<Recordable>) => {
   let curCode = arr.shift();

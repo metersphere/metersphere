@@ -48,16 +48,18 @@
 </template>
 
 <script lang="ts" setup>
-  import { postProjectMemberByProjectId, deleteProjectMemberByOrg } from '@/api/modules/setting/organizationAndProject';
+  import { ref, watch } from 'vue';
+  import { Message, TableData } from '@arco-design/web-vue';
+
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import { useI18n } from '@/hooks/useI18n';
-  import { watch, ref } from 'vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import AddUserModal from './addUserModal.vue';
-  import { TableData, Message } from '@arco-design/web-vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import AddUserModal from './addUserModal.vue';
+
+  import { deleteProjectMemberByOrg, postProjectMemberByProjectId } from '@/api/modules/setting/organizationAndProject';
+  import { useI18n } from '@/hooks/useI18n';
 
   export interface projectDrawerProps {
     visible: boolean;

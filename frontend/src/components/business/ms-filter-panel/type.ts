@@ -1,4 +1,4 @@
-import { SelectOptionData, FieldRule } from '@arco-design/web-vue';
+import { FieldRule, SelectOptionData } from '@arco-design/web-vue';
 
 export interface ConditionOptions {
   id: string;

@@ -97,15 +97,18 @@
 <script setup lang="ts">
   import { computed, onBeforeUnmount, ref, watch } from 'vue';
   import dayjs from 'dayjs';
-  import { useI18n } from '@/hooks/useI18n';
-  import { formatFileSize } from '@/utils';
-  import useAsyncTaskStore from '@/store/modules/app/asyncTask';
-  import MsList from '@/components/pure/ms-list/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import { UploadStatus } from '@/enums/uploadEnum';
-  import { getFileEnum, getFileIcon } from './iconMap';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsList from '@/components/pure/ms-list/index.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
+  import useAsyncTaskStore from '@/store/modules/app/asyncTask';
+  import { formatFileSize } from '@/utils';
+
+  import { UploadStatus } from '@/enums/uploadEnum';
+
+  import { getFileEnum, getFileIcon } from './iconMap';
   import type { MsFileItem } from './types';
 
   const props = defineProps<{

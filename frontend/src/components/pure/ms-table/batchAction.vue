@@ -33,9 +33,11 @@
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
-  import { BatchActionConfig, BatchActionParams } from './type';
   import MsIcon from '../ms-icon-font/index.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
+
+  import { BatchActionConfig, BatchActionParams } from './type';
 
   const { t } = useI18n();
   const props = defineProps<{

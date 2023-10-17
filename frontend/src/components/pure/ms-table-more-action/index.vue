@@ -13,8 +13,9 @@
 </template>
 
 <script setup lang="ts">
-  import { useI18n } from '@/hooks/useI18n';
   import MsButton from '@/components/pure/ms-button/index.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   import type { ActionsItem, SelectedValue } from './types';
 

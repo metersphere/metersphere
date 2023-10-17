@@ -11,11 +11,13 @@
    */
   import { onMounted, ref, watch } from 'vue';
   import { useRoute } from 'vue-router';
+
   import MsTabCard from '@/components/pure/ms-tab-card/index.vue';
-  import { useI18n } from '@/hooks/useI18n';
+  import authConfig, { AuthConfigInstance } from './components/authConfig.vue';
   import baseConfig from './components/baseConfig.vue';
   import pageConfig from './components/pageConfig.vue';
-  import authConfig, { AuthConfigInstance } from './components/authConfig.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
   const route = useRoute();

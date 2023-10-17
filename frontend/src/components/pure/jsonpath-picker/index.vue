@@ -4,9 +4,10 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref, onUnmounted, Ref } from 'vue';
-  import JPPicker from 'jsonpath-picker-vanilla';
+  import { onMounted, onUnmounted, Ref, ref } from 'vue';
+
   import { Recordable } from '#/global';
+  import JPPicker from 'jsonpath-picker-vanilla';
 
   const jr: Ref<HTMLElement | null> = ref(null);
   const ip: Ref<HTMLInputElement | null> = ref(null);

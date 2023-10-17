@@ -525,35 +525,38 @@
 <script setup lang="ts">
   import { computed, onBeforeMount, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import { useTableStore } from '@/store';
-  import { TableKeyEnum } from '@/enums/tableEnum';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import MsCard from '@/components/pure/ms-card/index.vue';
+  import type { Description } from '@/components/pure/ms-description/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import useModal from '@/hooks/useModal';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
+
   import {
-    getAuthList,
-    getAuthDetail,
     addAuth,
-    updateAuth,
-    updateAuthStatus,
     deleteAuth,
+    getAuthDetail,
+    getAuthList,
     testLdapConnect,
     testLdapLogin,
+    updateAuth,
+    updateAuthStatus,
   } from '@/api/modules/setting/config';
-  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
-  import { scrollIntoView } from '@/utils/dom';
+  import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
+  import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { scrollIntoView } from '@/utils/dom';
+
+  import type { AuthDetail, AuthForm, AuthItem, AuthType } from '@/models/setting/config';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import type { AuthDetail, AuthForm, AuthItem, AuthType } from '@/models/setting/config';
-  import type { Description } from '@/components/pure/ms-description/index.vue';
 
   const { t } = useI18n();
   const { openModal } = useModal();

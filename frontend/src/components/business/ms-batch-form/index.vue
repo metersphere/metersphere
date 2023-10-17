@@ -74,12 +74,13 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect, unref } from 'vue';
+  import { ref, unref, watchEffect } from 'vue';
+
   import { useI18n } from '@/hooks/useI18n';
   import { scrollIntoView } from '@/utils/dom';
 
-  import type { ValidatedError, FormInstance } from '@arco-design/web-vue';
   import type { FormItemModel, FormMode } from './types';
+  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
 

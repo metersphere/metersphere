@@ -44,9 +44,11 @@
 
 <script lang="ts" name="minderEditor" setup>
   import { onMounted } from 'vue';
+
   import headerMenu from './main/header.vue';
   import mainEditor from './main/mainEditor.vue';
-  import { editMenuProps, mainEditorProps, moleProps, priorityProps, tagProps, delProps, viewMenuProps } from './props';
+
+  import { delProps, editMenuProps, mainEditorProps, moleProps, priorityProps, tagProps, viewMenuProps } from './props';
 
   const emit = defineEmits<{
     (e: 'moldChange', data: number): void;

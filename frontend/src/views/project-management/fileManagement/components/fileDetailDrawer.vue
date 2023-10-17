@@ -172,25 +172,27 @@
 
 <script setup lang="ts">
   import { ref, watch, watchEffect } from 'vue';
-  import dayjs from 'dayjs';
   import { useFileSystemAccess } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
-  import MsDescription, { type Description } from '@/components/pure/ms-description/index.vue';
-  import popConfirm from './popConfirm.vue';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import { getFileDetail, getFileCases, getFileVersions } from '@/api/modules/project-management/fileManagement';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import MsPreviewCard from '@/components/business/ms-thumbnail-card/index.vue';
-  import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
-  import { TableKeyEnum } from '@/enums/tableEnum';
-  import { downloadUrlFile } from '@/utils';
-  import useLocale from '@/locale/useLocale';
+  import dayjs from 'dayjs';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsDescription, { type Description } from '@/components/pure/ms-description/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsPaginationI, MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
+  import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
+  import MsPreviewCard from '@/components/business/ms-thumbnail-card/index.vue';
+  import popConfirm from './popConfirm.vue';
+
+  import { getFileCases, getFileDetail, getFileVersions } from '@/api/modules/project-management/fileManagement';
+  import { useI18n } from '@/hooks/useI18n';
+  import useLocale from '@/locale/useLocale';
+  import { downloadUrlFile } from '@/utils';
+
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     visible: boolean;

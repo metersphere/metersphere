@@ -55,10 +55,11 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   const props = defineProps<{
     visible: boolean;

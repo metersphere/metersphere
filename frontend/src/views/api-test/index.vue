@@ -7,12 +7,15 @@
 
 <script lang="ts" setup>
   import { onMounted } from 'vue';
+
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { BatchActionConfig, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+
   import { getTableList } from '@/api/modules/api-test/index';
-  import { TableKeyEnum } from '@/enums/tableEnum';
   import { useTableStore } from '@/store';
+
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const columns: MsTableColumn = [
     {

@@ -41,10 +41,13 @@
 
 <script lang="ts" name="headerVue" setup>
   import { ref } from 'vue';
+
   import editMenu from '../menu/edit/editMenu.vue';
   import viewMenu from '../menu/view/viewMenu.vue';
+
   import { useI18n } from '@/hooks/useI18n';
-  import { editMenuProps, moleProps, priorityProps, tagProps, delProps, viewMenuProps } from '../props';
+
+  import { delProps, editMenuProps, moleProps, priorityProps, tagProps, viewMenuProps } from '../props';
 
   const { t } = useI18n();
 

@@ -24,15 +24,16 @@
 </template>
 
 <script lang="ts" name="editMenu" setup>
+  import editDel from './editDel.vue';
+  import expand from './expand.vue';
   import insertBox from './insertBox.vue';
   import moveBox from './moveBox.vue';
-  import editDel from './editDel.vue';
-  import sequenceBox from './sequenceBox.vue';
   import progressBox from './progressBox.vue';
-  import expand from './expand.vue';
   import selection from './selection.vue';
+  import sequenceBox from './sequenceBox.vue';
   import TagBox from './tagBox.vue';
-  import { editMenuProps, priorityProps, tagProps, delProps } from '../../props';
+
+  import { delProps, editMenuProps, priorityProps, tagProps } from '../../props';
 
   const props = defineProps({ ...editMenuProps, ...priorityProps, ...tagProps, ...delProps });
 </script>

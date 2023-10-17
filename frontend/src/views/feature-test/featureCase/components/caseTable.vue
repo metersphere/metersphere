@@ -37,9 +37,11 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import { useI18n } from '@/hooks/useI18n';
   import FilterPanel from '@/components/business/ms-filter-panel/searchForm.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
   const versionOptions = ref([

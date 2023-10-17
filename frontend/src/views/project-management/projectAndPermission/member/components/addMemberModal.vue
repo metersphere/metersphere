@@ -40,18 +40,17 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
+
   import MsDialog from '@/components/pure/ms-dialog/index.vue';
-  import { getProjectMemberOptions, addOrUpdateProjectMember } from '@/api/modules/project-management/projectMember';
+  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+
+  import { addOrUpdateProjectMember, getProjectMemberOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import { useUserStore } from '@/store';
-  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { FormInstance, Message } from '@arco-design/web-vue';
-  import type {
-    ProjectUserOption,
-    ActionProjectMember,
-    AddProjectMember,
-  } from '@/models/projectManagement/projectAndPermission';
-  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+
+  import type { AddProjectMember, ProjectUserOption } from '@/models/projectManagement/projectAndPermission';
 
   const { t } = useI18n();
   const userStore = useUserStore();

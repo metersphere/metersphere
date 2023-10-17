@@ -9,8 +9,10 @@
 
 <script lang="ts" setup>
   import { computed } from 'vue';
-  import { getPrefixCls, getLegalPage } from './utils';
+
   import MsIcon from '../ms-icon-font/index.vue';
+
+  import { getLegalPage, getPrefixCls } from './utils';
 
   defineOptions({
     name: 'PageItemStep',

@@ -56,16 +56,18 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, watch, provide, onMounted } from 'vue';
-  import { useRouter, useRoute } from 'vue-router';
-  import { useAppStore, useUserStore } from '@/store';
-  import NavBar from '@/components/pure/navbar/index.vue';
-  import Menu from '@/components/pure/menu/index.vue';
+  import { computed, onMounted, provide, ref, watch } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+
   import Footer from '@/components/pure/footer/index.vue';
-  import usePermission from '@/hooks/usePermission';
-  import PageLayout from './page-layout.vue';
+  import Menu from '@/components/pure/menu/index.vue';
+  import NavBar from '@/components/pure/navbar/index.vue';
   import MsBreadCrumb from '@/components/business/ms-breadcrumb/index.vue';
+  import PageLayout from './page-layout.vue';
+
   import { GetTitleImgUrl } from '@/api/requrls/setting/config';
+  import usePermission from '@/hooks/usePermission';
+  import { useAppStore, useUserStore } from '@/store';
 
   interface Props {
     isPreview?: boolean;

@@ -61,10 +61,11 @@
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
-  import { useI18n } from '@/hooks/useI18n';
-  import { validatePasswordLength, validateWordPassword } from '@/utils/validate';
+
   import { registerByInvite } from '@/api/modules/setting/user';
-  import { sleep, encrypted } from '@/utils';
+  import { useI18n } from '@/hooks/useI18n';
+  import { encrypted, sleep } from '@/utils';
+  import { validatePasswordLength, validateWordPassword } from '@/utils/validate';
 
   const route = useRoute();
   const router = useRouter();

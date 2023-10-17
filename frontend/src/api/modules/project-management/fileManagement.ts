@@ -1,7 +1,7 @@
 import MSR from '@/api/http/index';
 import { FileDetailUrl, FileListUrl } from '@/api/requrls/project-management/fileManagement';
 
-import type { TableQueryParams, CommonList } from '@/models/common';
+import type { CommonList, TableQueryParams } from '@/models/common';
 
 const fileList = [
   {

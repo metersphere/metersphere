@@ -52,6 +52,7 @@
 
 <script setup lang="ts">
   import { ref, useAttrs, watch, watchEffect } from 'vue';
+
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();

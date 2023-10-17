@@ -50,14 +50,18 @@
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect, computed } from 'vue';
-  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
-  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { createOrUpdateOrg } from '@/api/modules/setting/organizationAndProject';
+  import { computed, reactive, ref, watchEffect } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
+
+  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
   import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+
+  import { createOrUpdateOrg } from '@/api/modules/setting/organizationAndProject';
+  import { useI18n } from '@/hooks/useI18n';
+
+  import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
+
+  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
   const props = defineProps<{

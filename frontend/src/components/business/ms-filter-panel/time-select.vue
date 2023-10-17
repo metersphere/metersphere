@@ -25,8 +25,9 @@
 </template>
 
 <script setup lang="ts">
-  import { CalendarValue } from '@arco-design/web-vue/es/date-picker/interface';
   import { ref, watch, watchEffect } from 'vue';
+
+  import { CalendarValue } from '@arco-design/web-vue/es/date-picker/interface';
 
   type PickerType = 'between' | 'gt' | 'lt'; // 之间 | 大于 | 小于
 

@@ -3,4 +3,4 @@
 dist
 postcss.config.js
 *.md
-/src/assets/icon-font
+/src/assets/icon-font/iconfont.js

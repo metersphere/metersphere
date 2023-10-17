@@ -15,12 +15,13 @@
 
 <script setup lang="ts">
   import { computed } from 'vue';
-  import { UploadStatus } from '@/enums/uploadEnum';
-  import { getFileEnum, FileIconMap } from '@/components/pure/ms-upload/iconMap';
+
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import { FileIconMap, getFileEnum } from '@/components/pure/ms-upload/iconMap';
+
+  import { UploadStatus } from '@/enums/uploadEnum';
 
   const props = withDefaults(
     defineProps<{
