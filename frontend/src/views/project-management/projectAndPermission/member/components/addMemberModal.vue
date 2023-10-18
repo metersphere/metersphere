@@ -16,7 +16,7 @@
           :rules="[{ required: true, message: t('project.member.selectMemberEmptyTip') }]"
         >
           <MsUserSelector
-            v-model:value="form.userIds"
+            v-model="form.userIds"
             :load-option-params="{ projectId: lastProjectId }"
             :type="UserRequestTypeEnum.PROJECT_PERMISSION_MEMBER"
             placeholder="project.member.selectMemberScope"

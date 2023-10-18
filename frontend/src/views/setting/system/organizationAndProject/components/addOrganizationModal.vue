@@ -28,7 +28,7 @@
         </a-form-item>
         <a-form-item field="name" :label="t('system.organization.organizationAdmin')">
           <MsUserSelector
-            v-model:value="form.memberIds"
+            v-model="form.userIds"
             placeholder="system.organization.organizationAdminPlaceholder"
             :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_ADMIN"
           />
@@ -78,9 +78,9 @@
     (e: 'submit'): void;
   }>();
 
-  const form = reactive<{ name: string; memberIds: string[]; description: string }>({
+  const form = reactive<{ name: string; userIds: string[]; description: string }>({
     name: '',
-    memberIds: [],
+    userIds: [],
     description: '',
   });
 
@@ -125,7 +125,7 @@
   watchEffect(() => {
     if (props.currentOrganization) {
       form.name = props.currentOrganization.name;
-      form.memberIds = props.currentOrganization.memberIds;
+      form.userIds = props.currentOrganization.userIds;
       form.description = props.currentOrganization.description;
     }
   });

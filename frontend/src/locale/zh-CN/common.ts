@@ -62,4 +62,5 @@ export default {
   'common.allSelect': '全选',
   'common.setting': '设置',
   'common.resetDefault': '恢复默认',
+  'common.tagPlaceholder': '添加标签回车结束',
 };

@@ -250,7 +250,7 @@
       id: record.id,
       name: record.name,
       description: record.description,
-      memberIds: record.orgAdmins.map((item: any) => item.id) || [],
+      userIds: record.orgAdmins.map((item: any) => item.id) || [],
     };
   };
 

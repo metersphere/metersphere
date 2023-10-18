@@ -3,6 +3,7 @@ import * as Url from '@/api/requrls/project-management/menuManagement';
 
 import { TableQueryParams } from '@/models/common';
 import type {
+  FakeTableListItem,
   MenuTableConfigItem,
   MenuTableListItem,
   MenuTableListParams,
@@ -106,6 +107,35 @@ export function getPlatformOptions(organizationId: string, type: MenuEnum) {
   return MSR.get<PoolOption[]>({ url: `${Url.getPlatformOptionUrlByCase}${organizationId}` });
 }
 
+/**
+ * 缺陷同步保存
+ * @param data 缺陷同步配置项
+ * @param projectId 项目ID
+ * @returns
+ */
 export function postSaveDefectSync(data: MenuTableConfigItem, projectId: string) {
   return MSR.post<MenuTableListItem>({ url: `${Url.postSyncBugConfigUrl}${projectId}`, data });
+}
+
+// 误报规则列表查询
+export function postFakeTableList(data: TableQueryParams) {
+  return MSR.post<FakeTableListItem[]>({ url: `${Url.postFakeTableUrl}`, data });
+}
+// 误报规则新增
+export function postAddFake(data: any) {
+  return MSR.post<FakeTableListItem[]>({ url: Url.postFakeTableAddUrl, data });
+}
+// 误报规则更新
+export function postUpdateFake(data: any) {
+  return MSR.post<FakeTableListItem[]>({ url: Url.postFakeTableUpdateUrl, data });
+}
+
+// 误报规则启用禁用
+export function postUpdateEnableFake(data: any) {
+  return MSR.post<FakeTableListItem[]>({ url: Url.postFakeTableEnableUrl, data });
+}
+
+// 误报规则删除
+export function getDeleteFake(data: any) {
+  return MSR.get<FakeTableListItem[]>({ url: Url.getFakeTableDeleteUrl, data });
 }

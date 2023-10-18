@@ -38,6 +38,8 @@
                 asterisk-position="end"
                 :hide-asterisk="model.hideAsterisk"
                 :hide-label="model.hideLabel"
+                :content-flex="model.type !== 'multiple'"
+                :merge-props="model.type !== 'multiple'"
               >
                 <a-input
                   v-if="model.type === 'input'"
@@ -56,7 +58,61 @@
                   :max="model.max || 9999999"
                   allow-clear
                 />
+                <MsTagsInput
+                  v-if="model.type === 'tagInput'"
+                  v-model="element[model.filed]"
+                  class="flex-1"
+                  :placeholder="t(model.placeholder || 'common.tagPlaceholder')"
+                  allow-clear
+                  unique-value
+                  retain-input-value
+                />
+                <a-select
+                  v-if="model.type === 'select'"
+                  v-model="element[model.filed]"
+                  class="flex-1"
+                  :placeholder="t(model.placeholder || '')"
+                  :options="model.options"
+                  :field-names="model.filedNames"
+                />
+                <div v-if="model.type === 'multiple'" class="flex flex-row items-center gap-[4px]">
+                  <a-form-item
+                    v-for="(child, childIndex) in model.children"
+                    :key="`${child.filed}${childIndex}${index}`"
+                    :field="`list[${index}].${child.filed}`"
+                    :label="child.label ? t(child.label) : ''"
+                    asterisk-position="end"
+                    :hide-asterisk="child.hideAsterisk"
+                    :hide-label="child.hideLabel"
+                    class="hidden-item"
+                  >
+                    <a-input
+                      v-if="child.type === 'input'"
+                      v-model="element[child.filed]"
+                      :class="child.className"
+                      :placeholder="t(child.placeholder || '')"
+                      :max-length="child.maxLength || 250"
+                      allow-clear
+                    />
+                    <a-select
+                      v-if="child.type === 'select'"
+                      v-model="element[child.filed]"
+                      :class="child.className"
+                      :placeholder="t(child.placeholder || '')"
+                      :options="child.options"
+                      :field-names="child.filedNames"
+                      :default-value="child.defaultValue"
+                    />
+                  </a-form-item>
+                </div>
               </a-form-item>
+              <div v-if="showEnable">
+                <a-switch
+                  v-model="element.enable"
+                  :style="{ 'margin-top': index === 0 && !props.isShowDrag ? '36px' : '' }"
+                  size="small"
+                />
+              </div>
               <div
                 v-show="form.list.length > 1"
                 class="minus"
@@ -94,6 +150,8 @@
 <script setup lang="ts">
   import { ref, unref, watchEffect } from 'vue';
 
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+
   import { useI18n } from '@/hooks/useI18n';
   import { scrollIntoView } from '@/utils/dom';
 
@@ -112,6 +170,7 @@
       defaultVals?: any[]; // 当外层是编辑状态时，可传入已填充的数据
       isShowDrag: boolean; // 是否可以拖拽
       formWidth?: string; // 自定义表单区域宽度
+      showEnable?: boolean; // 是否显示启用禁用switch状态
     }>(),
     {
       maxHeight: '30vh',

@@ -20,7 +20,7 @@
         <!-- 编辑项目 -->
         <a-form-item v-if="type === 'edit'" :label="t('organization.member.project')" asterisk-position="end">
           <MsUserSelector
-            v-model:value="form.projectIds"
+            v-model="form.projectIds"
             :load-option-params="{ organizationId: lastOrganizationId }"
             :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
             placeholder="organization.member.selectProjectScope"
@@ -35,7 +35,7 @@
           :rules="[{ required: true, message: t('organization.member.selectMemberEmptyTip') }]"
         >
           <MsUserSelector
-            v-model:value="form.memberIds"
+            v-model="form.memberIds"
             :load-option-params="{ organizationId: lastOrganizationId }"
             :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_MEMBER"
             placeholder="organization.member.selectMemberScope"

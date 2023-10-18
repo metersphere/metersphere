@@ -120,7 +120,7 @@
             </template>
           </a-input>
         </div>
-        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.far') }}</div>
+        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="pushFar">{{ t('project.menu.far') }}</div>
         <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
           <div>
             <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
@@ -310,6 +310,7 @@
   /**
    * @description 项目管理-项目与权限-菜单管理
    */
+  import { useRouter } from 'vue-router';
   import { Message, TableData } from '@arco-design/web-vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -331,8 +332,10 @@
 
   import { MenuTableConfigItem, PoolOption, SelectValue } from '@/models/projectManagement/menuManagement';
   import { MenuEnum } from '@/enums/commonEnum';
+  import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   const appStore = useAppStore();
+  const router = useRouter();
   const currentProjectId = computed(() => appStore.currentProjectId);
   const { t } = useI18n();
   const defectDrawerVisible = ref(false);
@@ -586,6 +589,10 @@
 
   const showDefectDrawer = () => {
     defectDrawerVisible.value = true;
+  };
+  // 跳转到误报规则列表页
+  const pushFar = () => {
+    router.push({ name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MENU_MANAGEMENT_ERROR_REPORT_RULE });
   };
 
   onMounted(() => {

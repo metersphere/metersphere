@@ -28,6 +28,7 @@ export enum ProjectManagementRouteEnum {
   PROJECT_MANAGEMENT_PERMISSION_VERSION = 'projectManagementPermissionVersion',
   PROJECT_MANAGEMENT_PERMISSION_USER_GROUP = 'projectManagementPermissionUserGroup',
   PROJECT_MANAGEMENT_PERMISSION_MEMBER = 'projectManagementPermissionMember',
+  PROJECT_MANAGEMENT_MENU_MANAGEMENT_ERROR_REPORT_RULE = 'projectManagementMenuManagementErrorReportRule',
 }
 
 export enum TestPlanRouteEnum {
