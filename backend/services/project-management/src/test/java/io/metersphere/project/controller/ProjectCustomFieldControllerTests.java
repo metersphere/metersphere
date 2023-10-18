@@ -26,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -203,12 +204,12 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestGetWithOk(LIST, DEFAULT_PROJECT_ID, scene)
                 .andReturn();
         // 校验数据是否正确
-        List<CustomField> resultList = getResultDataArray(mvcResult, CustomField.class);
+        List<CustomFieldDTO> resultList = getResultDataArray(mvcResult, CustomFieldDTO.class);
         List<CustomField> customFields = baseCustomFieldService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, scene);
         List<String> userIds = customFields.stream().map(CustomField::getCreateUser).toList();
         Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
         for (int i = 0; i < resultList.size(); i++) {
-            CustomField resultItem = resultList.get(i);
+            CustomField resultItem = BeanUtils.copyBean(new CustomField(), resultList.get(i));;
             CustomField customField = customFields.get(i);
             customField.setCreateUser(userNameMap.get(customField.getCreateUser()));
             if (customField.getInternal()) {
@@ -217,6 +218,11 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
             }
             Assertions.assertEquals(customField, resultItem);
             Assertions.assertEquals(resultItem.getScene(), scene);
+            // 有下拉框选项的校验选项
+            if (CustomFieldType.getHasOptionValueSet().contains(resultItem.getType())) {
+                Assertions.assertEquals(resultList.get(i).getOptions().stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList(),
+                        baseCustomFieldOptionService.getByFieldId(customField.getId()).stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList());
+            }
         }
 
         // @@校验组织是否存在

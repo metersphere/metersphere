@@ -4,20 +4,23 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.dto.CustomFieldDTO;
 import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.dto.request.CustomFieldUpdateRequest;
-import io.metersphere.system.domain.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
+import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.domain.CustomFieldExample;
+import io.metersphere.system.domain.CustomFieldOption;
+import io.metersphere.system.domain.OrganizationParameter;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
-import io.metersphere.system.service.UserLoginService;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
-import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.service.OrganizationCustomFieldService;
+import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -27,6 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -208,12 +212,12 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestGetWithOk(LIST, DEFAULT_ORGANIZATION_ID, scene)
                 .andReturn();
         // 校验数据是否正确
-        List<CustomField> resultList = getResultDataArray(mvcResult, CustomField.class);
+        List<CustomFieldDTO> resultList = getResultDataArray(mvcResult, CustomFieldDTO.class);
         List<CustomField> customFields = baseCustomFieldService.getByScopeIdAndScene(DEFAULT_ORGANIZATION_ID, scene);
         List<String> userIds = customFields.stream().map(CustomField::getCreateUser).toList();
         Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
         for (int i = 0; i < resultList.size(); i++) {
-            CustomField resultItem = resultList.get(i);
+            CustomField resultItem = BeanUtils.copyBean(new CustomField(), resultList.get(i));
             CustomField customField = customFields.get(i);
             customField.setCreateUser(userNameMap.get(customField.getCreateUser()));
             if (customField.getInternal()) {
@@ -222,6 +226,11 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             }
             Assertions.assertEquals(customField, resultItem);
             Assertions.assertEquals(resultItem.getScene(), scene);
+            // 有下拉框选项的校验选项
+            if (CustomFieldType.getHasOptionValueSet().contains(resultItem.getType())) {
+                Assertions.assertEquals(resultList.get(i).getOptions().stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList(),
+                        baseCustomFieldOptionService.getByFieldId(customField.getId()).stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList());
+            }
         }
 
         // @@校验组织是否存在

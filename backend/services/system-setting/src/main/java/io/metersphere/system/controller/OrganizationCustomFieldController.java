@@ -37,7 +37,7 @@ public class OrganizationCustomFieldController {
     @GetMapping("/list/{organizationId}/{scene}")
     @Operation(summary = "获取自定义字段列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_READ)
-    public List<CustomField> list(@Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    public List<CustomFieldDTO> list(@Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
                                   @PathVariable String organizationId,
                                   @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI,TEST_PLAN）", requiredMode = Schema.RequiredMode.REQUIRED)
                                   @PathVariable String scene) {

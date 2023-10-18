@@ -32,7 +32,7 @@ import java.util.List;
 public class OrganizationTemplateController {
 
     @Resource
-    private OrganizationTemplateService organizationTemplateservice;
+    private OrganizationTemplateService organizationTemplateService;
 
     @GetMapping("/list/{organizationId}/{scene}")
     @Operation(summary = "获取模版列表")
@@ -41,14 +41,14 @@ public class OrganizationTemplateController {
                                @PathVariable String organizationId,
                                @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI,TEST_PLAN）", requiredMode = Schema.RequiredMode.REQUIRED)
                                @PathVariable String scene) {
-        return organizationTemplateservice.list(organizationId, scene);
+        return organizationTemplateService.list(organizationId, scene);
     }
 
     @GetMapping("/get/{id}")
     @Operation(summary = "获取模版详情")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_READ)
     public TemplateDTO get(@PathVariable String id) {
-        return organizationTemplateservice.geDTOWithCheck(id);
+        return organizationTemplateService.geDTOWithCheck(id);
     }
 
     @PostMapping("/add")
@@ -59,7 +59,7 @@ public class OrganizationTemplateController {
         Template template = new Template();
         BeanUtils.copyBean(template, request);
         template.setCreateUser(SessionUtils.getUserId());
-        return organizationTemplateservice.add(template, request.getCustomFields());
+        return organizationTemplateService.add(template, request.getCustomFields());
     }
 
     @PostMapping("/update")
@@ -69,7 +69,7 @@ public class OrganizationTemplateController {
     public Template update(@Validated({Updated.class}) @RequestBody TemplateUpdateRequest request) {
         Template template = new Template();
         BeanUtils.copyBean(template, request);
-        return organizationTemplateservice.update(template, request.getCustomFields());
+        return organizationTemplateService.update(template, request.getCustomFields());
     }
 
     @GetMapping("/delete/{id}")
@@ -77,16 +77,15 @@ public class OrganizationTemplateController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = OrganizationTemplateLogService.class)
     public void delete(@PathVariable String id) {
-        organizationTemplateservice.delete(id);
+        organizationTemplateService.delete(id);
     }
 
     @GetMapping("/disable/{organizationId}/{scene}")
     @Operation(summary = "关闭组织模板，开启项目模板")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_ENABLE)
-    // todo 操作日志待页面设计
-    // @Log(type = OperationLogType.UPDATE, expression = "#msClass.update(#id)", msClass = OrganizationTemplateLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.disableOrganizationTemplateLog(#organizationId,#scene)", msClass = OrganizationTemplateLogService.class)
     public void disableOrganizationTemplate(@PathVariable String organizationId, @PathVariable String scene) {
-        organizationTemplateservice.disableOrganizationTemplate(organizationId, scene);
+        organizationTemplateService.disableOrganizationTemplate(organizationId, scene);
     }
 
     @GetMapping("/set-default/{id}")
@@ -94,6 +93,13 @@ public class OrganizationTemplateController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.setDefaultTemplateLog(#id)", msClass = OrganizationTemplateLogService.class)
     public void setDefaultTemplate(@PathVariable String id) {
-        organizationTemplateservice.setDefaultTemplate(id);
+        organizationTemplateService.setDefaultTemplate(id);
+    }
+
+    @GetMapping("/is-enable/{organizationId}/{scene}")
+    @Operation(summary = "是否启用组织模版")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_READ)
+    public boolean isOrganizationTemplateEnable(@PathVariable String organizationId, @PathVariable String scene) {
+        return organizationTemplateService.isOrganizationTemplateEnable(organizationId, scene);
     }
 }
