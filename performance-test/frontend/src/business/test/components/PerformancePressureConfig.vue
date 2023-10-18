@@ -214,7 +214,11 @@
                 </el-form-item>
                 <div v-if="threadGroup.strategy === 'auto'"></div>
                 <div v-else-if="threadGroup.strategy === 'specify'">
-                  <el-form-item :label="$t('load_test.specify_resource')">
+                  <el-button v-if="nodeTaskCount(resourceNodes[threadGroup.resourceNodeIndex]) !== -1" circle
+                             icon="el-icon-refresh" size="mini"
+                             style="margin:10px 0 0 0" @click="refreshNodeOperation"></el-button>
+
+                  <el-form-item :label="$t('load_test.specify_resource')" label-width="80px">
                     <el-select v-model="threadGroup.resourceNodeIndex" @change="specifyNodeChange(threadGroup)"
                                size="mini">
                       <el-option
@@ -226,11 +230,11 @@
                     </el-select>
                     <div style="margin-left: 5px;float: right">
                       <el-tag size="mini" v-if="nodeTaskCount(resourceNodes[threadGroup.resourceNodeIndex])===0"
-                              style="color:#E5594B;background-color: #FFFFFF;border-color: #E5594B;margin-left: 5px;margin-right: 5px">
+                              style="color:#89DB7E;background-color: #FFFFFF;border-color: #89DB7E;margin-left: 5px;margin-right: 5px">
                         {{ $t("commons.idle") }}
                       </el-tag>
                       <el-tag size="mini" v-else-if="nodeTaskCount(resourceNodes[threadGroup.resourceNodeIndex])>0"
-                              style="color:#89DB7E;background-color: #FFFFFF;border-color: #89DB7E;margin-left: 5px;margin-right: 5px">
+                              style="color:#E5594B;background-color: #FFFFFF;border-color: #E5594B;margin-left: 5px;margin-right: 5px">
                         {{ $t("commons.running") }}
                       </el-tag>
 
