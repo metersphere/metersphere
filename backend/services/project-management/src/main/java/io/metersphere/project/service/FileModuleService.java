@@ -11,7 +11,6 @@ import io.metersphere.sdk.dto.BaseModule;
 import io.metersphere.sdk.dto.BaseTreeNode;
 import io.metersphere.sdk.dto.request.NodeMoveRequest;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.service.ModuleTreeService;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.service.CleanupProjectResourceService;
 import io.metersphere.system.uid.UUID;

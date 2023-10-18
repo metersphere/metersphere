@@ -15,7 +15,6 @@ import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.service.FileService;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.uid.UUID;
 import jakarta.annotation.Resource;

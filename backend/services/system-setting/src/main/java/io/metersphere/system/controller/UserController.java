@@ -7,16 +7,15 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.dto.*;
-import io.metersphere.system.log.annotation.Log;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.UserRegisterRequest;
 import io.metersphere.system.dto.response.UserInviteResponse;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.request.OrganizationMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.user.UserChangeEnableRequest;
@@ -26,6 +25,7 @@ import io.metersphere.system.response.user.UserImportResponse;
 import io.metersphere.system.response.user.UserSelectOption;
 import io.metersphere.system.response.user.UserTableResponse;
 import io.metersphere.system.service.*;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.utils.TreeNodeParseUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -112,7 +112,7 @@ public class UserController {
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#request)", msClass = UserLogService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_DELETE)
     public TableBatchProcessResponse deleteUser(@Validated @RequestBody TableBatchProcessDTO request) {
-        return userService.deleteUser(request, SessionUtils.getUserId());
+        return userService.deleteUser(request, SessionUtils.getUserId(), SessionUtils.getUser().getName());
     }
 
     @PostMapping("/reset/password")
