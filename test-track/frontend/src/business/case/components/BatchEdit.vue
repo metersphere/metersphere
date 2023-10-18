@@ -84,6 +84,7 @@
           <ms-input-tag
             :currentScenario="form"
             v-if="showInputTag"
+            :max-length="50"
             ref="tag"
             class="ms-case-input"
           ></ms-input-tag>

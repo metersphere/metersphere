@@ -66,6 +66,10 @@ export default {
       type: String,
       default: "tags",
     },
+    maxLength: {
+      type: Number,
+      default: 15,
+    },
   },
   created() {
     if (!this.currentScenario[this.prop]) {
@@ -138,8 +142,8 @@ export default {
     addTag(tag) {
       tag = tag.trim();
       if (tag && !this.innerTags.includes(tag)) {
-        if (tag.length > 15) {
-          this.$error(this.$t("commons.tag_length_tip"));
+        if (tag.length > this.maxLength) {
+          this.$error(this.$t("commons.tag_length_tip", [this.maxLength]));
           return false;
         }
         this.innerTags.push(tag);

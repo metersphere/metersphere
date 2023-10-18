@@ -121,6 +121,10 @@ export default {
     },
     addTag(tag) {
       tag = tag.trim()
+      if (tag.length > 50) {
+        this.$error(this.$t("commons.tag_length_tip", [50]));
+        return false;
+      }
       if (tag && !this.innerTags.includes(tag)) {
         this.innerTags.push(tag)
         return true

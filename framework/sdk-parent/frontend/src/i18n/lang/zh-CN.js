@@ -387,7 +387,7 @@ const message = {
     },
     image: "镜像",
     tag: "标签",
-    tag_length_tip: "标签长度不能超过15个字符",
+    tag_length_tip: "标签长度不能超过{0}个字符",
     append_tag: "追加标签",
     append_tag_tip: "勾选：新增标签；不勾选：覆盖原有标签；",
     module: {

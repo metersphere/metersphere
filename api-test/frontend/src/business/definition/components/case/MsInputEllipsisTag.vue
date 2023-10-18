@@ -151,7 +151,7 @@ export default {
       tag = tag.trim();
       if (tag && !this.innerTags.includes(tag)) {
         if (tag.length > 15) {
-          this.$error(this.$t('commons.tag_length_tip'));
+          this.$error(this.$t('commons.tag_length_tip', [15]));
           return false;
         }
         this.innerTags.push(tag);
