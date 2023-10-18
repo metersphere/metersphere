@@ -394,7 +394,7 @@ const message = {
     },
     image: "Image",
     tag: "Tag",
-    tag_length_tip: "The length of the tag cannot exceed 15 characters",
+    tag_length_tip: "The length of the tag cannot exceed {0} characters",
     append_tag: "Append Tag",
     append_tag_tip:
       "Checked: add a new label; unchecked: overwrite the original label;",
