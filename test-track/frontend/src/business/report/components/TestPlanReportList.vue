@@ -138,7 +138,7 @@
           prop="passRate"
           :field="item"
           :fields-width="fieldsWidth"
-          :label="$t('test_track.report.list.pass_rate')"
+          :label="$t('test_track.pass_rate')"
         >
           <template v-slot:default="scope">
             <span v-if="scope.row.status  === 'RUNNING' || scope.row.status  === 'Running'"> - </span>
