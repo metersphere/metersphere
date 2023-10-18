@@ -12,16 +12,13 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.*;
-import io.metersphere.system.dto.AddProjectRequest;
-import io.metersphere.system.dto.ProjectDTO;
-import io.metersphere.system.dto.UpdateProjectRequest;
+import io.metersphere.system.dto.*;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
-import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.OrganizationProjectRequest;
@@ -73,6 +70,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     private final static String getAdminList = prefix + "/user-admin-list/";
     private final static String getMemberList = prefix + "/user-member-list/";
     private final static String getPoolOptions = prefix + "/pool-options/";
+    private final static String updateName = prefix + "/rename";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -858,6 +856,47 @@ public class OrganizationProjectControllerTests extends BaseTest {
         this.requestGetWithOkAndReturn(getPoolOptions + "organizationId");
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getPoolOptions + DEFAULT_ORGANIZATION_ID);
+    }
+
+    @Test
+    @Order(24)
+    public void testUpdateName() throws Exception {
+        UpdateProjectNameRequest project = new UpdateProjectNameRequest();
+        project.setId("projectId1");
+        project.setName("org-updateName");
+        project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        requestPost(updateName, project);
+        Project currentProject = projectMapper.selectByPrimaryKey(project.getId());
+        Assertions.assertEquals(currentProject.getName(), project.getName());
+        checkLog(project.getId(), OperationLogType.UPDATE);
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE, updateName, project);
+    }
+
+    @Test
+    @Order(25)
+    public void testUpdateNameError() throws Exception {
+        //项目名称存在 500
+        UpdateProjectNameRequest project = new UpdateProjectNameRequest();
+        project.setId("projectId2");
+        project.setName("org-updateName");
+        project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
+        //参数组织Id为空
+        project.setOrganizationId(null);
+        this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
+        //项目Id为空
+        project.setId(null);
+        project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
+        //项目名称为空
+        project.setName(null);
+        this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
+        //项目不存在
+        project.setId("1111");
+        project.setName("updateName");
+        project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
     }
 
 }

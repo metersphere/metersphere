@@ -6,6 +6,7 @@ import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.system.dto.UpdateProjectNameRequest;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -45,6 +46,24 @@ public class SystemProjectLogService {
      * @return
      */
     public LogDTO updateLog(UpdateProjectRequest request) {
+        Project project = projectMapper.selectByPrimaryKey(request.getId());
+        if (project != null) {
+            LogDTO dto = new LogDTO(
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
+                    project.getId(),
+                    project.getCreateUser(),
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.SETTING_SYSTEM_ORGANIZATION,
+                    project.getName());
+
+            dto.setOriginalValue(JSON.toJSONBytes(project));
+            return dto;
+        }
+        return null;
+    }
+
+    public LogDTO renameLog(UpdateProjectNameRequest request) {
         Project project = projectMapper.selectByPrimaryKey(request.getId());
         if (project != null) {
             LogDTO dto = new LogDTO(

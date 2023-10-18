@@ -11,6 +11,7 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.UpdateProjectNameRequest;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -158,6 +159,14 @@ public class SystemProjectController {
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public List<OptionDTO> getProjectOptions(@RequestParam(value = "organizationId",required = false) String organizationId) {
         return systemProjectService.getTestResourcePoolOptions(organizationId);
+    }
+
+    @PostMapping("/rename")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-修改项目名称")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.renameLog(#request)", msClass = SystemProjectLogService.class)
+    public void rename(@RequestBody @Validated({Updated.class}) UpdateProjectNameRequest request) {
+        systemProjectService.rename(request, SessionUtils.getUserId());
     }
 
 }

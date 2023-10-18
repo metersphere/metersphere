@@ -9,6 +9,7 @@ import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.UpdateProjectNameRequest;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -132,5 +133,9 @@ public class OrganizationProjectService {
 
     public List<OptionDTO> getTestResourcePoolOptions(String organizationId) {
         return commonProjectService.getTestResourcePoolOptions(organizationId);
+    }
+
+    public void rename(UpdateProjectNameRequest project, String userId) {
+        commonProjectService.rename(project, userId);
     }
 }

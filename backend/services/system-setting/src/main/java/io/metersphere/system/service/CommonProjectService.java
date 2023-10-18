@@ -19,10 +19,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.AddProjectRequest;
-import io.metersphere.system.dto.ProjectDTO;
-import io.metersphere.system.dto.ProjectResourcePoolDTO;
-import io.metersphere.system.dto.UpdateProjectRequest;
+import io.metersphere.system.dto.*;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -289,6 +286,10 @@ public class CommonProjectService {
                 projectTestResourcePools.add(projectTestResourcePool);
             });
             projectTestResourcePoolMapper.batchInsert(projectTestResourcePools);
+        } else {
+            ProjectTestResourcePoolExample projectTestResourcePoolExample = new ProjectTestResourcePoolExample();
+            projectTestResourcePoolExample.createCriteria().andProjectIdEqualTo(project.getId());
+            projectTestResourcePoolMapper.deleteByExample(projectTestResourcePoolExample);
         }
 
         UserRoleRelationExample example = new UserRoleRelationExample();
@@ -342,6 +343,9 @@ public class CommonProjectService {
         if (CollectionUtils.isNotEmpty(updateProjectDto.getModuleIds())) {
             project.setModuleSetting(JSON.toJSONString(updateProjectDto.getModuleIds()));
             projectDTO.setModuleIds(updateProjectDto.getModuleIds());
+        } else {
+            project.setModuleSetting(null);
+            projectDTO.setModuleIds(new ArrayList<>());
         }
 
         projectMapper.updateByPrimaryKeySelective(project);
@@ -606,5 +610,19 @@ public class CommonProjectService {
         return testResourcePools.stream().map(testResourcePool ->
                 new OptionDTO(testResourcePool.getId(), testResourcePool.getName())
         ).toList();
+    }
+
+    public void rename(UpdateProjectNameRequest request, String userId) {
+        checkProjectNotExist(request.getId());
+        Project project = new Project();
+        project.setId(request.getId());
+        project.setName(request.getName());
+        project.setOrganizationId(request.getOrganizationId());
+        checkProjectExistByName(project);
+        project.setCreateTime(null);
+        project.setCreateUser(null);
+        project.setUpdateUser(userId);
+        project.setUpdateTime(System.currentTimeMillis());
+        projectMapper.updateByPrimaryKeySelective(project);
     }
 }
