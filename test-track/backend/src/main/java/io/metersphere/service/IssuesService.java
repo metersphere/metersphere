@@ -55,7 +55,6 @@ import io.metersphere.service.remote.project.TrackIssueTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.service.wapper.UserService;
 import io.metersphere.utils.DistinctKeyUtil;
-import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.dto.PlatformUser;
 import io.metersphere.xpack.track.dto.*;
@@ -373,7 +372,8 @@ public class IssuesService {
     public IssuesWithBLOBs updateIssues(IssuesUpdateRequest issuesRequest) {
         PlatformIssuesUpdateRequest platformIssuesUpdateRequest = JSON.parseObject(JSON.toJSONString(issuesRequest), PlatformIssuesUpdateRequest.class);
         Project project = baseProjectService.getProjectById(issuesRequest.getProjectId());
-        if (StringUtils.isNotBlank(project.getPlatform()) && !StringUtils.equals(project.getPlatform(), issuesRequest.getPlatform())) {
+        if (StringUtils.isNotBlank(project.getPlatform()) && StringUtils.isNotBlank(issuesRequest.getPlatform()) &&
+                !StringUtils.equals(project.getPlatform(), issuesRequest.getPlatform())) {
             // 如果项目平台与缺陷平台不一致, 则修改报错, 只保存用例与缺陷关联关系
             issuesService.handleTestCaseIssues(issuesRequest);
             MSException.throwException(Translator.get("platform_not_match"));
