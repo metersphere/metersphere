@@ -1,4 +1,4 @@
-package io.metersphere.sdk.dto;
+package io.metersphere.system.dto;
 
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -8,11 +8,14 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.List;
-
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ProjectBaseRequest {
+public class UpdateProjectNameRequest {
+
+    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{project.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{project.id.length_range}", groups = {Updated.class})
+    private String id;
 
     @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.organization_id.not_blank}", groups = {Created.class, Updated.class})
@@ -23,19 +26,4 @@ public class ProjectBaseRequest {
     @NotBlank(message = "{project.name.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{project.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
-
-    @Schema(description =  "项目描述")
-    private String description;
-
-    @Schema(description =  "是否启用")
-    private Boolean enable;
-
-    @Schema(description =  "模块设置", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private List<String> moduleIds;
-
-    @Schema(description =  "成员数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private List<String> userIds;
-
-    @Schema(description =  "资源池", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private List<String> resourcePoolIds;
 }

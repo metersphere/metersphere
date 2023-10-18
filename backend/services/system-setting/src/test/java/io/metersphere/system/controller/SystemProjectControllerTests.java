@@ -15,10 +15,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.AddProjectRequest;
-import io.metersphere.system.dto.ProjectDTO;
-import io.metersphere.system.dto.StatusFlowSettingDTO;
-import io.metersphere.system.dto.UpdateProjectRequest;
+import io.metersphere.system.dto.*;
 import io.metersphere.system.job.CleanProjectJob;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
@@ -72,6 +69,7 @@ public class SystemProjectControllerTests extends BaseTest {
     private final static String enableProject = prefix + "/enable/";
     private final static String userList = prefix + "/user-list";
     private final static String getPoolOptions = prefix + "/pool-options";
+    private final static String updateName = prefix + "/rename";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -994,4 +992,46 @@ public class SystemProjectControllerTests extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isEmpty(baseTemplateService.getByScopeId(id)));
         Assertions.assertTrue(CollectionUtils.isEmpty(baseStatusItemService.getByScopeId(id)));
     }
+
+    @Test
+    @Order(24)
+    public void testUpdateName() throws Exception {
+        UpdateProjectNameRequest project = new UpdateProjectNameRequest();
+        project.setId("projectId1");
+        project.setName("updateName");
+        project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        requestPost(updateName, project);
+        Project currentProject = projectMapper.selectByPrimaryKey(project.getId());
+        Assertions.assertEquals(currentProject.getName(), project.getName());
+        checkLog(project.getId(), OperationLogType.UPDATE);
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, updateName, project);
+    }
+
+    @Test
+    @Order(25)
+    public void testUpdateNameError() throws Exception {
+        //项目名称存在 500
+        UpdateProjectNameRequest project = new UpdateProjectNameRequest();
+        project.setId("projectId2");
+        project.setName("updateName");
+        project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
+        //参数组织Id为空
+        project.setOrganizationId(null);
+        this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
+        //项目Id为空
+        project.setId(null);
+        project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
+        //项目名称为空
+        project.setName(null);
+        this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
+        //项目不存在
+        project.setId("1111");
+        project.setName("updateName");
+        project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
+    }
+
 }

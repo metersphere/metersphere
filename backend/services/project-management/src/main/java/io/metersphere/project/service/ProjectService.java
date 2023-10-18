@@ -16,7 +16,6 @@ import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.ProjectDTO;
@@ -25,8 +24,8 @@ import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
-import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.service.CommonProjectService;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
@@ -115,11 +114,6 @@ public class ProjectService {
         checkProjectNotExist(project.getId());
         projectDTO.setOrganizationName(organizationMapper.selectByPrimaryKey(updateProjectDto.getOrganizationId()).getName());
         BeanUtils.copyBean(projectDTO, project);
-        //判断是否有模块设置
-        if (CollectionUtils.isNotEmpty(updateProjectDto.getModuleIds())) {
-            project.setModuleSetting(JSON.toJSONString(updateProjectDto.getModuleIds()));
-            projectDTO.setModuleIds(updateProjectDto.getModuleIds());
-        }
 
         projectMapper.updateByPrimaryKeySelective(project);
         return projectDTO;
