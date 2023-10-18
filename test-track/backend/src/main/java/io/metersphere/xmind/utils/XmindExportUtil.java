@@ -1,5 +1,6 @@
 package io.metersphere.xmind.utils;
 
+import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.TestCaseDTO;
@@ -42,7 +43,6 @@ public class XmindExportUtil {
         try {
             response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("TestCaseExport", StandardCharsets.UTF_8.name()) + ".xmind");
             workBook.save(response.getOutputStream());
-//            EasyExcel.write(response.getOutputStream(), this.clazz).registerWriteHandler(horizontalCellStyleStrategy).sheet(sheetName).doWrite(data);
         } catch (UnsupportedEncodingException e) {
             LogUtil.error(e.getMessage(), e);
             throw new ExcelException("Utf-8 encoding is not supported");
@@ -252,7 +252,27 @@ public class XmindExportUtil {
                     }
                 }
 
-                if (dto.getSteps() != null) {
+                if (StringUtils.equals(dto.getStepModel(), TestCaseConstants.StepModel.TEXT.name())) {
+                    // 如果是文本描述，导出文本描述的内容
+                    ITopic stepTopic = workbook.createTopic();
+                    String desc = dto.getStepDescription();
+                    stepTopic.setTitleText(desc == null ? "" : desc);
+                    if (style != null) {
+                        stepTopic.setStyleId(style.getId());
+                    }
+
+                    String result = dto.getExpectedResult();
+                    ITopic resultTopic = workbook.createTopic();
+                    resultTopic.setTitleText(result == null ? "" : result);
+                    if (style != null) {
+                        resultTopic.setStyleId(style.getId());
+                    }
+                    stepTopic.add(resultTopic, ITopic.ATTACHED);
+
+                    if (StringUtils.isNotEmpty(desc) || StringUtils.isNotEmpty(result)) {
+                        itemTopic.add(stepTopic, ITopic.ATTACHED);
+                    }
+                } else if (dto.getSteps() != null) {
                     try {
                         List<Map> arr = JSON.parseArray(dto.getSteps());
                         for (int i = 0; i < arr.size(); i++) {
