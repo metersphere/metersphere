@@ -287,8 +287,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         List<CustomField> refFields = organizationCustomFieldService.getByRefId(customField.getId());
         List<Project> orgProjects = getProjectByOrgId(customField.getScopeId());
         // 校验所有项目下是否都有同步变更
-    /*    Assertions.assertEquals(getCustomFieldByScopeId(customField.getScopeId()).size(),
-                getCustomFieldByScopeId(orgProjects.get(0).getId()).size() * orgProjects.size());*/
+        Assertions.assertEquals(refFields.size(), orgProjects.size());
         refFields.forEach(refField -> {
             Assertions.assertEquals(refField.getScene(), customField.getScene());
             Assertions.assertEquals(refField.getRemark(), customField.getRemark());
@@ -304,12 +303,6 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(orgId);
         return projectMapper.selectByExample(projectExample);
-    }
-
-    private List<CustomField> getCustomFieldByScopeId(String scopeId) {
-        CustomFieldExample example = new CustomFieldExample();
-        example.createCriteria().andScopeIdEqualTo(scopeId);
-        return customFieldMapper.selectByExample(example);
     }
 
     private void changeOrgTemplateEnable(boolean enable) {

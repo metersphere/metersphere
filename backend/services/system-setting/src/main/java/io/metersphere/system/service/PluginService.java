@@ -38,6 +38,7 @@ import java.sql.Driver;
 import java.util.*;
 
 import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_EXIST;
+import static io.metersphere.system.controller.result.SystemResultCode.PLUGIN_PARSE_ERROR;
 
 /**
  * @author jianxing
@@ -142,7 +143,10 @@ public class PluginService {
             // 删除插件
             pluginLoadService.unloadPlugin(id);
             pluginLoadService.deletePluginFile(file.getOriginalFilename());
-            throw e;
+            if (e instanceof MSException) {
+                throw e;
+            }
+            throw new MSException(PLUGIN_PARSE_ERROR, e);
         }
         return plugin;
     }
