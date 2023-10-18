@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.CustomFieldType;
 import io.metersphere.sdk.constants.DefaultFunctionalCustomField;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
 
@@ -44,18 +46,26 @@ public class BaseCustomFieldService {
     @Resource
     protected BaseOrganizationParameterService baseOrganizationParameterService;
 
-    public List<CustomField> list(String scopeId, String scene) {
+    public List<CustomFieldDTO> list(String scopeId, String scene) {
         checkScene(scene);
         List<CustomField> customFields = getByScopeIdAndScene(scopeId, scene);
         List<String> userIds = customFields.stream().map(CustomField::getCreateUser).toList();
         Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
-        customFields.forEach(item -> {
+        List<CustomFieldOption> customFieldOptions = baseCustomFieldOptionService.getByFieldIds(customFields.stream().map(CustomField::getId).toList());
+        Map<String, List<CustomFieldOption>> optionMap = customFieldOptions.stream().collect(Collectors.groupingBy(CustomFieldOption::getFieldId));
+        return customFields.stream().map(item -> {
             item.setCreateUser(userNameMap.get(item.getCreateUser()));
             if (item.getInternal()) {
                 item.setName(translateInternalField(item.getName()));
             }
-        });
-        return customFields;
+            CustomFieldDTO customFieldDTO = new CustomFieldDTO();
+            BeanUtils.copyBean(customFieldDTO, item);
+            customFieldDTO.setOptions(optionMap.get(item.getId()));
+            if (CustomFieldType.getHasOptionValueSet().contains(customFieldDTO.getType()) && customFieldDTO.getOptions() == null) {
+                customFieldDTO.setOptions(List.of());
+            }
+            return customFieldDTO;
+        }).toList();
     }
 
     /**

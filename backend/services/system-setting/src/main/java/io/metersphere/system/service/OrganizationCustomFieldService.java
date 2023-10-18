@@ -33,7 +33,7 @@ public class OrganizationCustomFieldService extends BaseCustomFieldService {
     private ExtOrganizationCustomFieldMapper extOrganizationCustomFieldMapper;
 
     @Override
-    public List<CustomField> list(String orgId, String scene) {
+    public List<CustomFieldDTO> list(String orgId, String scene) {
         OrganizationService.checkResourceExist(orgId);
         return super.list(orgId, scene);
     }

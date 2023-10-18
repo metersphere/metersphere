@@ -45,6 +45,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     private static final String LIST = "list/{0}/{1}";
     private static final String DISABLE_ORG_TEMPLATE = "disable/{0}/{1}";
     private static final String SET_DEFAULT = "set-default/{0}";
+    protected static final String IS_ORGANIZATION_TEMPLATE_ENABLE = "is-enable/{0}/{1}";
 
     @Resource
     private TemplateMapper templateMapper;
@@ -342,8 +343,8 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         // 提高覆盖率
         this.requestGetWithOk(DISABLE_ORG_TEMPLATE, addTemplate.getScopeId(), addTemplate.getScene());
 
-        // todo @@校验日志
-        //  checkLog(addTemplate.getId(), OperationLogType.DELETE);
+        // @@校验日志
+        checkLog(addTemplate.getScene(), OperationLogType.UPDATE);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_ENABLE, DISABLE_ORG_TEMPLATE, addTemplate.getScopeId(), addTemplate.getScene());
     }
@@ -424,5 +425,20 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         checkLog(addTemplate.getId(), OperationLogType.DELETE);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_DELETE, DEFAULT_DELETE, addTemplate.getId());
+    }
+
+    @Test
+    @Order(8)
+    public void isOrganizationTemplateEnable() throws Exception {
+        // @@请求成功
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(IS_ORGANIZATION_TEMPLATE_ENABLE, DEFAULT_ORGANIZATION_ID, TemplateScene.FUNCTIONAL.name());
+        Assertions.assertTrue(getResultData(mvcResult, Boolean.class));
+        changeOrgTemplateEnable(false);
+        mvcResult = this.requestGetWithOkAndReturn(IS_ORGANIZATION_TEMPLATE_ENABLE, DEFAULT_ORGANIZATION_ID, TemplateScene.FUNCTIONAL.name());
+        Assertions.assertFalse(getResultData(mvcResult, Boolean.class));
+        changeOrgTemplateEnable(true);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, IS_ORGANIZATION_TEMPLATE_ENABLE, DEFAULT_ORGANIZATION_ID, TemplateScene.FUNCTIONAL.name());
     }
 }

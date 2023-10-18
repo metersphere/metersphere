@@ -11,6 +11,7 @@ import io.metersphere.system.domain.Template;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 /**
  * @author jianxing
  * @date : 2023-8-30
@@ -50,6 +51,17 @@ public class OrganizationTemplateLogService {
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
         return dto;
+    }
+
+    public LogDTO disableOrganizationTemplateLog(String organizationId, String scene) {
+        return new LogDTO(
+                OperationLogConstants.ORGANIZATION,
+                organizationId,
+                scene,
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                Translator.get("project_template_enable"));
     }
 
     public LogDTO updateLog(TemplateUpdateRequest request) {

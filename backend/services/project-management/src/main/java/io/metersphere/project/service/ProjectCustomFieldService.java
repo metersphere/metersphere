@@ -27,7 +27,7 @@ public class ProjectCustomFieldService extends BaseCustomFieldService {
     private ProjectService projectService;
 
     @Override
-    public List<CustomField> list(String projectId, String scene) {
+    public List<CustomFieldDTO> list(String projectId, String scene) {
         projectService.checkResourceExist(projectId);
         return super.list(projectId, scene);
     }
