@@ -6,10 +6,6 @@ import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.mapper.BaseUserMapper;
-import io.metersphere.system.notice.sender.impl.MailNoticeSender;
-import io.metersphere.system.uid.UUID;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.UserBatchCreateDTO;
@@ -19,13 +15,17 @@ import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.UserRegisterRequest;
 import io.metersphere.system.dto.response.UserInviteResponse;
+import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.notice.sender.impl.MailNoticeSender;
 import io.metersphere.system.request.user.UserChangeEnableRequest;
 import io.metersphere.system.request.user.UserEditRequest;
 import io.metersphere.system.response.user.UserImportResponse;
 import io.metersphere.system.response.user.UserTableResponse;
+import io.metersphere.system.uid.UUID;
 import io.metersphere.system.utils.UserImportEventListener;
 import jakarta.annotation.Resource;
 import jakarta.mail.internet.InternetAddress;
@@ -266,26 +266,26 @@ public class UserService {
     }
 
 
-    public TableBatchProcessResponse deleteUser(@Valid TableBatchProcessDTO request, String operator) {
+    public TableBatchProcessResponse deleteUser(@Valid TableBatchProcessDTO request, String operatorId, String operatorName) {
         List<String> userIdList = userToolService.getBatchUserIds(request);
         this.checkUserInDb(userIdList);
         //检查是否含有Admin
-        this.checkAdminAndThrowException(userIdList);
+        this.checkCannotDeleteUserAndThrowException(userIdList, operatorId, operatorName);
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(userIdList);
         //更新删除标志位
         TableBatchProcessResponse response = new TableBatchProcessResponse();
         response.setTotalCount(userIdList.size());
-        response.setSuccessCount(this.deleteUserByList(userIdList, operator));
+        response.setSuccessCount(this.deleteUserByList(userIdList, operatorId));
         //删除用户角色关系
         userRoleRelationService.deleteByUserIdList(userIdList);
         return response;
     }
 
-    private void checkAdminAndThrowException(List<String> userIdList) {
+    private void checkCannotDeleteUserAndThrowException(List<String> userIdList, String operatorId, String operatorName) {
         for (String userId : userIdList) {
-            if (userId.equals("admin")) {
-                throw new MSException(Translator.get("user.not.delete"));
+            if (StringUtils.equalsAny(userId, "admin", operatorId)) {
+                throw new MSException(Translator.get("user.not.delete") + ":" + operatorName);
             }
         }
     }
