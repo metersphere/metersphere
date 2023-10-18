@@ -124,6 +124,7 @@
         </div>
 
         <ms-performance-report-export :title="reportName" id="performanceReportExport" v-show="reportExportVisible"
+                                      :error-samples="errorSamples" :have-error-samples="haveErrorSamples"
                                       :project-env-map="allProjectEnvMap"
                                       :report="report"/>
 
@@ -389,6 +390,9 @@ export default {
       this.$nextTick(function () {
         setTimeout(() => {
           let ids = ['testOverview', 'testDetails', 'requestStatistics', 'errorLog', 'monitorCard'];
+          if (this.haveErrorSamples) {
+            ids = ['testOverview', 'testDetails', 'requestStatistics', 'errorSamples', 'monitorCard'];
+          }
           let promises = [];
           ids.forEach(id => {
             let promise = html2canvas(document.getElementById(id), {scale: 2});
