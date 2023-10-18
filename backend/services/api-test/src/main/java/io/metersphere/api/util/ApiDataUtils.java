@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-public class JSONUtils {
+public class ApiDataUtils {
     private static final ObjectMapper objectMapper = JsonMapper.builder()
             .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
             .build();
@@ -81,10 +81,20 @@ public class JSONUtils {
     /**
      * 设置动态加载的jar的Resolver
      *
-     * @param namedTypes
+     * @param namedTypes PluginSubType 注解的类
      */
     public static void setResolver(List<NamedType> namedTypes) {
         namedTypes.forEach(resolver::registerSubtypes);
+        objectMapper.setSubtypeResolver(resolver);
+    }
+
+    /**
+     * 设置动态加载的jar的Resolver
+     *
+     * @param clazz PluginSubType 注解的类
+     */
+    public static void setResolver(Class<?> clazz) {
+        resolver.registerSubtypes(clazz);
         objectMapper.setSubtypeResolver(resolver);
     }
 }
