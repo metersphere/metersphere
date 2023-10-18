@@ -194,22 +194,24 @@
   // 使用正则表达式替换 ${variableName} 格式的字符串内的变量名为变量描述
   function replaceVariableStr(str: string, fields: Field[], isSubject = false) {
     const regex = /\$\{([^}]+)\}/g;
-    return str.replace(regex, (match, variableName) => {
-      // 在数组中查找匹配的 variableName，并返回其 name 属性
-      const variable = fields.find((v) => v.id === variableName);
-      if (variableName === 'name' && !isSubject) {
-        return variable ? `<span style='color: rgb(var(--primary-6))'><${variable.name}></span>` : match;
-      }
-      if (isSubject) {
-        return variable ? variable.name : match;
-      }
-      return variable ? `<${variable.name}>` : match;
-    });
+    return str
+      .replace(regex, (match, variableName) => {
+        // 在数组中查找匹配的 variableName，并返回其 name 属性
+        const variable = fields.find((v) => v.id === variableName);
+        if (variableName === 'name' && !isSubject) {
+          return variable ? `<span style='color: rgb(var(--primary-6))'><${variable.name}></span>` : match;
+        }
+        if (isSubject) {
+          return variable ? variable.name : match;
+        }
+        return variable ? `<${variable.name}>` : match;
+      })
+      .replace(/\n/g, '<br>');
   }
 
   // 使用正则表达式替换 {{name}} 为高亮的关键字
   function replacePreviewName(str: string) {
-    return str.replace(/{{(.*?)}}/g, `<span style='color: rgb(var(--primary-6))'><$1></span>`);
+    return str.replace(/{{(.*?)}}/g, `<span style='color: rgb(var(--primary-6))'><$1></span>`).replace(/\n/g, '<br>');
   }
 
   const subject = computed(() => {

@@ -94,6 +94,7 @@ export default {
   'project.messageManagement.desc': 'Description',
   'project.messageManagement.saveSuccess': 'Template saved successfully',
   'project.messageManagement.enableRobotSuccess': '{name} is enabled',
+  'project.messageManagement.disableRobotSuccess': '{name} is disabled',
   'project.messageManagement.saveReceiverSuccess': 'Recipient modified successfully',
   'project.messageManagement.unsetReceiverTip': 'Please set up message recipients before enabling the robot',
   'project.messageManagement.receiverNotNull': 'Please set at least one message recipient',
