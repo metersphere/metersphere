@@ -50,14 +50,18 @@ export default {
     datetimeFormat,
 
     handleClose(done) {
+      this.activeName = '1';
+      this.sampleRecord = [];
       done();
     },
     openRecord(samples) {
       this.sampleRecord = [];
-      samples.forEach(sample => {
-        this.sampleRecord.push(sample);
-      });
-      this.drawer = true;
+      this.$nextTick(() => {
+        samples.forEach(sample => {
+          this.sampleRecord.push(sample);
+        });
+        this.drawer = true;
+      })
     },
   },
 }

@@ -26,6 +26,13 @@
       </template>
       <ms-report-request-statistics :report="report" ref="requestStatistics"/>
     </el-card>
+
+    <el-card v-if="haveErrorSamples" id="errorSamples" title="'errorSamples'">
+      <template v-slot:header>
+        <span class="title">{{ $t('report.test_error_log') }}</span>
+      </template>
+      <samples-tabs ref="errorSamples" :samples="errorSamples"/>
+    </el-card>
     <el-card id="errorLog" title="'errorLog'">
       <template v-slot:header>
         <span class="title">{{ $t('report.test_error_log') }}</span>
@@ -52,11 +59,13 @@ import MsReportExportTemplate from "metersphere-frontend/src/components/report/M
 import MsReportTestDetails from "./components/TestDetails";
 import MonitorCard from "./components/MonitorCard";
 import MsTag from "metersphere-frontend/src/components/MsTag";
+import SamplesTabs from "@/business/report/components/samples/SamplesTabs.vue";
 
 
 export default {
   name: "MsPerformanceReportExport",
   components: {
+    SamplesTabs,
     MonitorCard,
     MsReportExportTemplate,
     MsReportTitle,
@@ -66,7 +75,7 @@ export default {
     MsReportTestOverview,
     MsTag,
   },
-  props: ['report', 'title', 'projectEnvMap']
+  props: ['report', 'title', 'projectEnvMap', 'haveErrorSamples', 'errorSamples']
 }
 </script>
 
