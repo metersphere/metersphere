@@ -16,7 +16,7 @@
           :rules="[{ required: true, message: t('system.organization.addMemberRequired') }]"
         >
           <MsUserSelector
-            v-model:value="form.name"
+            v-model="form.name"
             :type="UserRequestTypeEnum.PROJECT_USER_GROUP"
             :load-option-params="{ projectId: props.projectId, userRoleId: props.userRoleId }"
             disabled-key="checkRoleFlag"

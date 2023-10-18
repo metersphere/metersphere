@@ -6,7 +6,7 @@ export interface CreateOrUpdateSystemOrgParams {
   id?: string;
   name: string;
   description: string;
-  memberIds: string[];
+  userIds: string[];
 }
 export interface CreateOrUpdateSystemProjectParams {
   id?: string;

@@ -15,7 +15,7 @@
           :label="t('system.userGroup.user')"
           :rules="[{ required: true, message: t('system.userGroup.pleaseSelectUser') }]"
         >
-          <MsUserSelector v-model:value="form.name" v-bind="userSelectorProps" />
+          <MsUserSelector v-model="form.name" v-bind="userSelectorProps" />
         </a-form-item>
       </a-form>
     </div>

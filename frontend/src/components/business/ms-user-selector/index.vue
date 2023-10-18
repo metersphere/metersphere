@@ -40,7 +40,7 @@
 
   const props = withDefaults(
     defineProps<{
-      value: string[] | string; // 选中的值
+      modelValue: string[] | string; // 选中的值
       disabled?: boolean; // 是否禁用
       disabledKey?: string; // 禁用的key
       valueKey?: string; // value的key
@@ -61,17 +61,16 @@
   );
 
   const emit = defineEmits<{
-    (e: 'update:value', value: string[]): void;
+    (e: 'update:modelValue', value: string[]): void;
   }>();
   const { t } = useI18n();
 
   const allOptions = ref<MsUserSelectorOption[]>([]);
-  const currentOptions = ref<MsUserSelectorOption[]>([]);
   const currentLoadParams = ref<Record<string, any>>(props.loadOptionParams || {});
   const loading = ref(false);
 
   const currentValue = computed(() => {
-    return currentOptions.value.filter((item) => props.value.includes(item.id)) || [];
+    return allOptions.value.filter((item) => props.modelValue.includes(item.id)) || [];
   });
 
   const loadList = async () => {
@@ -128,13 +127,11 @@
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) => {
     const tmpArr = Array.isArray(value) ? value : [value];
-    currentOptions.value = tmpArr;
     const { valueKey } = props;
     emit(
-      'update:value',
+      'update:modelValue',
       tmpArr.map((item) => item[valueKey])
     );
-    debouncedSearch('');
   };
 
   onMounted(async () => {

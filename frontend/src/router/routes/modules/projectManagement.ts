@@ -143,6 +143,29 @@ const ProjectManagement: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
+    // 菜单管理-误报规则
+    {
+      path: 'errorReportRule',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MENU_MANAGEMENT_ERROR_REPORT_RULE,
+      component: () =>
+        import('@/views/project-management/projectAndPermission/menuManagement/components/falseAlermRule.vue'),
+      meta: {
+        locale: 'project.menu.far',
+        roles: ['*'],
+        breadcrumbs: [
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
+            locale: 'project.permission.menuManagement',
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MENU_MANAGEMENT_ERROR_REPORT_RULE,
+            locale: 'menu.projectManagement.menuManagementErrorReportRule',
+            editTag: 'id',
+            editLocale: 'project.menu.far',
+          },
+        ],
+      },
+    },
   ],
 };
 

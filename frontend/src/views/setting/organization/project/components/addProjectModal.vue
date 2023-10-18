@@ -40,7 +40,7 @@
         </a-form-item>
         <a-form-item field="userIds" :label="t('system.project.projectAdmin')">
           <MsUserSelector
-            v-model:value="form.userIds"
+            v-model="form.userIds"
             :type="UserRequestTypeEnum.ORGANIZATION_PROJECT_ADMIN"
             placeholder="system.project.projectAdminPlaceholder"
             :load-option-params="{

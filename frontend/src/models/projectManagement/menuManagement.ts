@@ -25,3 +25,12 @@ export type SelectValue =
   | boolean
   | Record<string, any>
   | (string | number | boolean | Record<string, any>)[];
+
+export interface FakeTableListItem {
+  name: string;
+  enable: boolean;
+  label: string[];
+  rule: string;
+  creator: string;
+  updateDate: string;
+}
