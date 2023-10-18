@@ -99,15 +99,19 @@ export default {
           value: 'modulePath',
         },
         {
-          label: this.$t('commons.name'),
+          label: this.$t('ui.automation.scenario.id'),
+          value: 'id',
+        },
+        {
+          label: this.$t('ui.automation.scenario.name'),
           value: 'name',
         },
         {
-          label: this.$t('commons.level'),
+          label: this.$t('ui.automation.scenario.level'),
           value: 'level',
         },
         {
-          label: this.$t('commons.status'),
+          label: this.$t('ui.automation.scenario.status'),
           value: 'status',
         },
         {
@@ -145,6 +149,10 @@ export default {
         {
           label: this.$t('commons.delete_time'),
           value: 'deleteTime',
+        },
+        {
+          label: this.$t('ui.automation.scenario.delete_user'),
+          value: 'deleteUser',
         },
         {
           label: this.$t('commons.delete_user_id'),
