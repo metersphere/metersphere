@@ -1781,9 +1781,9 @@ public class TestPlanService {
             }
             issuesService.calculateReportByIssueList(testPlanCaseReportResultDTO.getIssueList(), report);
 
-            DecimalFormat rateFormat = new DecimalFormat("#0.00");
-            rateFormat.setMinimumFractionDigits(2);
-            rateFormat.setMaximumFractionDigits(2);
+            DecimalFormat rateFormat = new DecimalFormat("#0.0000");
+            rateFormat.setMinimumFractionDigits(4);
+            rateFormat.setMaximumFractionDigits(4);
 
             if (report.getExecuteCount() != 0 && report.getCaseCount() != null) {
                 double executeRate = Double.parseDouble(rateFormat.format((double) report.getExecuteCount() / (double) report.getCaseCount()));
@@ -1793,7 +1793,7 @@ public class TestPlanService {
                     report.setExecuteRate(executeRate);
                 }
             } else {
-                report.setExecuteRate(0.00);
+                report.setExecuteRate(0.0000);
             }
             if (report.getPassCount() != 0 && report.getCaseCount() != null) {
                 double passRate = Double.parseDouble(rateFormat.format((double) report.getPassCount() / (double) report.getCaseCount()));
@@ -1803,7 +1803,7 @@ public class TestPlanService {
                     report.setPassRate(passRate);
                 }
             } else {
-                report.setPassRate(0.00);
+                report.setPassRate(0.0000);
             }
 
             report.setName(testPlan.getName());
