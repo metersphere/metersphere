@@ -12,13 +12,17 @@ import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import io.metersphere.api.dto.jmeter.processors.MSJSR223Processor;
 import io.metersphere.api.dto.jmeter.sampler.MSDebugSampler;
+import io.metersphere.sdk.exception.MSException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-public class JSONUtils {
+public class ApiDataUtils {
+    private ApiDataUtils() {
+    }
+
     private static final ObjectMapper objectMapper = JsonMapper.builder()
             .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
             .build();
@@ -45,7 +49,7 @@ public class JSONUtils {
         try {
             return objectMapper.writeValueAsString(value);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MSException(e);
         }
     }
 
@@ -57,7 +61,7 @@ public class JSONUtils {
         try {
             return objectMapper.readValue(content, valueType);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MSException(e);
         }
     }
 
@@ -65,7 +69,7 @@ public class JSONUtils {
         try {
             return objectMapper.readValue(src, valueType);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MSException(e);
         }
     }
 
@@ -74,17 +78,27 @@ public class JSONUtils {
         try {
             return objectMapper.readValue(content, javaType);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MSException(e);
         }
     }
 
     /**
      * 设置动态加载的jar的Resolver
      *
-     * @param namedTypes
+     * @param namedTypes PluginSubType 注解的类
      */
     public static void setResolver(List<NamedType> namedTypes) {
         namedTypes.forEach(resolver::registerSubtypes);
+        objectMapper.setSubtypeResolver(resolver);
+    }
+
+    /**
+     * 设置动态加载的jar的Resolver
+     *
+     * @param clazz PluginSubType 注解的类
+     */
+    public static void setResolver(Class<?> clazz) {
+        resolver.registerSubtypes(clazz);
         objectMapper.setSubtypeResolver(resolver);
     }
 }
