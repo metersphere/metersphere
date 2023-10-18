@@ -27,6 +27,16 @@ public interface FileRepository {
     String saveFile(byte[] bytes, FileRequest request) throws Exception;
 
     /**
+     * 保存文件
+     *
+     * @param inputStream
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    String saveFile(InputStream inputStream, FileRequest request) throws Exception;
+
+    /**
      * 删除文件
      *
      * @param request

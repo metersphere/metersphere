@@ -58,6 +58,11 @@ public class MinioRepository implements FileRepository {
     }
 
     @Override
+    public String saveFile(InputStream inputStream, FileRequest request) throws Exception {
+        return null;
+    }
+
+    @Override
     public void delete(FileRequest request) throws Exception {
         String filePath = getPath(request);
         // 删除单个文件

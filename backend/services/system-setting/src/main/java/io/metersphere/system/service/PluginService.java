@@ -138,7 +138,7 @@ public class PluginService {
 
             // 通知其他节点加载插件
             notifiedPluginAdd(id, plugin.getFileName());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // 删除插件
             pluginLoadService.unloadPlugin(id);
             pluginLoadService.deletePluginFile(file.getOriginalFilename());
