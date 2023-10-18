@@ -55,7 +55,14 @@ public class PluginLoadService {
      * @return
      */
     public String loadPlugin(String fileName) {
-        return msPluginManager.loadPlugin(Paths.get(MsFileUtils.PLUGIN_DIR + "/" + fileName));
+        MsFileUtils.validateFileName(fileName);
+        String filePath = MsFileUtils.PLUGIN_DIR + "/" + fileName;
+        File file = new File(filePath);
+        if (!file.exists()) {
+            // 文件不存在，则从对象存储重新下载
+            downloadPluginFromRepository(fileName);
+        }
+        return msPluginManager.loadPlugin(Paths.get(filePath));
     }
 
 
@@ -66,6 +73,7 @@ public class PluginLoadService {
      * @throws Exception
      */
     public void loadPluginFromRepository(String fileName) {
+        MsFileUtils.validateFileName(fileName);
         String filePath = MsFileUtils.PLUGIN_DIR + "/" + fileName;
         File file = new File(filePath);
         try {
@@ -105,6 +113,21 @@ public class PluginLoadService {
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException("文件上传异常", e);
+        }
+    }
+
+    /**
+     * 从对象存储中下载插件
+     *
+     * @param fileName
+     */
+    public void downloadPluginFromRepository(String fileName) {
+        try {
+            InputStream inputStream = FileCenter.getDefaultRepository().getFileAsStream(getFileRequest(fileName));
+            FileCenter.getRepository(StorageType.LOCAL).saveFile(inputStream, getFileRequest(fileName));
+        } catch (Exception e) {
+            LogUtils.error(e);
+            throw new MSException("下载插件异常", e);
         }
     }
 

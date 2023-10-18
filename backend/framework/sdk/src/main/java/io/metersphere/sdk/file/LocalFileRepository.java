@@ -44,6 +44,13 @@ public class LocalFileRepository implements FileRepository {
     }
 
     @Override
+    public String saveFile(InputStream inputStream, FileRequest request) throws Exception {
+        File file = new File(getFilePath(request));
+        FileUtils.copyInputStreamToFile(inputStream, file);
+        return file.getPath();
+    }
+
+    @Override
     public void delete(FileRequest request) throws Exception {
         String path = StringUtils.join(getFilePath(request));
         File file = new File(path);
