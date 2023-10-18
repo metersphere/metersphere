@@ -8,6 +8,7 @@
             v-model:model-value="robotFilters"
             :options="robotOptions"
             :allow-search="false"
+            allow-clear
             class="mr-[8px] w-[240px]"
             :prefix="t('project.messageManagement.robot')"
             value-key="id"
@@ -62,6 +63,7 @@
             :options="defaultReceivers"
             :search-keys="['label']"
             allow-search
+            allow-clear
             value-key="id"
             label-key="name"
             :multiple="true"
@@ -365,7 +367,7 @@
         enable: val, // 消息配置是否启用
       });
       Message.success(
-        t('project.messageManagement.enableRobotSuccess', {
+        t(val ? 'project.messageManagement.enableRobotSuccess' : 'project.messageManagement.disableRobotSuccess', {
           name: `${record.functionName}-${record.eventName}-${record.projectRobotConfigMap?.[dataIndex].robotName}`,
         })
       );

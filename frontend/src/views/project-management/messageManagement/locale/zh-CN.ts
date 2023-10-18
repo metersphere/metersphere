@@ -86,6 +86,7 @@ export default {
   'project.messageManagement.desc': '描述',
   'project.messageManagement.saveSuccess': '模版保存成功',
   'project.messageManagement.enableRobotSuccess': '{name} 已启用',
+  'project.messageManagement.disableRobotSuccess': '{name} 已禁用',
   'project.messageManagement.saveReceiverSuccess': '接收人修改成功',
   'project.messageManagement.unsetReceiverTip': '启用机器人前请先设置消息接收人',
   'project.messageManagement.receiverNotNull': '请最少设置一位消息接收人',

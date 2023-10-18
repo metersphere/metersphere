@@ -1,6 +1,7 @@
 <template>
   <div ref="treeContainerRef" :class="['ms-tree-container', containerStatusClass]">
     <a-tree
+      v-show="treeData.length > 0"
       v-bind="props"
       ref="treeRef"
       v-model:expanded-keys="expandedKeys"
@@ -16,6 +17,7 @@
       </template>
       <template v-if="$slots['extra']" #extra="_props">
         <div
+          v-if="_props.hideMoreAction !== true"
           :class="[
             'ms-tree-node-extra',
             innerFocusNodeKey === _props[props.fieldNames.key] ? 'ms-tree-node-extra--focus' : '',

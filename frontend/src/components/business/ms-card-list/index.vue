@@ -34,7 +34,7 @@
 
   import useContainerShadow from '@/hooks/useContainerShadow';
 
-  import type { CommonList, TableQueryParams } from '@/models/common';
+  import type { CommonList } from '@/models/common';
 
   const props = withDefaults(
     defineProps<{
@@ -43,10 +43,10 @@
       cardMinWidth: number; // 卡片最小宽度px
       shadowLimit: number; // 滚动距离高度，用于计算顶部底部阴影
       remoteParams?: Record<string, any>; // 远程数据模式下，请求数据的参数
-      remoteFunc?: (v: TableQueryParams) => Promise<CommonList<any>>; // 远程数据模式下，请求数据的函数
       gap?: number; // 卡片之间的间距
       isProportional?: boolean; // 是否等比正方形
       paddingBottomSpace?: string; // 是否存在底部的间距
+      remoteFunc?: (v: any) => Promise<CommonList<any>>; // 远程数据模式下，请求数据的函数
     }>(),
     {
       mode: 'static',

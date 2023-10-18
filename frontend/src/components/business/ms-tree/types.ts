@@ -9,6 +9,7 @@ export interface MsTreeFieldNames extends TreeFieldNames {
 }
 
 export type MsTreeNodeData = {
+  hideMoreAction?: boolean; // 隐藏更多操作
   [key: string]: any;
 } & TreeNodeData;
 
