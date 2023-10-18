@@ -2,7 +2,7 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.dto.jmeter.processors.MSJSR223Processor;
 import io.metersphere.api.dto.jmeter.sampler.MSDebugSampler;
-import io.metersphere.api.util.JSONUtils;
+import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.dto.TestElementDTO;
 import io.metersphere.system.uid.UUID;
 import org.junit.jupiter.api.*;
@@ -30,9 +30,9 @@ public class PluginSubTypeTests {
         msjsr223Processor.setJsrEnable(true);
         msjsr223Processor.setChildren(hashTree);
 
-        String json = JSONUtils.toJSONString(msjsr223Processor);
+        String json = ApiDataUtils.toJSONString(msjsr223Processor);
         Assertions.assertNotNull(json);
-        TestElementDTO testElementDTO = JSONUtils.parseObject(json, TestElementDTO.class);
+        TestElementDTO testElementDTO = ApiDataUtils.parseObject(json, TestElementDTO.class);
         Assertions.assertNotNull(testElementDTO);
     }
 }
