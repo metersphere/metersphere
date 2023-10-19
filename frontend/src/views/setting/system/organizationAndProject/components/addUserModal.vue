@@ -110,4 +110,3 @@
     color: var(--color-text-4);
   }
 </style>
-@/api/modules/setting/organizationAndProject

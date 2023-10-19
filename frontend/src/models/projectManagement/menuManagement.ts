@@ -1,3 +1,5 @@
+import { TableQueryParams } from '../common';
+
 export interface MenuTableConfigItem {
   [key: string]: any;
 }
@@ -28,9 +30,21 @@ export type SelectValue =
 
 export interface FakeTableListItem {
   name: string;
-  enable: boolean;
+  enable?: boolean;
   label: string[];
   rule: string;
   creator: string;
   updateDate: string;
+  type: string | string[];
+  id?: string;
+  projectId?: string;
+  typeList?: string[];
+}
+export interface FakeTableOperationParams {
+  projectId: string;
+  excludeIds?: string[]; // 排除的id
+  selectedIds?: string[]; // 选中的id
+  selectAll: boolean; // 是否跨页全选
+  params?: TableQueryParams; // 查询参数
+  enable?: boolean; // 是否启用
 }

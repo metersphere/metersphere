@@ -178,7 +178,6 @@
 
   // 移除查询条件项
   const removeField = (index: number) => {
-    debugger;
     formModels.value.splice(index, 1);
   };
 
