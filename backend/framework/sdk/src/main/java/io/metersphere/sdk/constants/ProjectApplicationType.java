@@ -76,4 +76,9 @@ public class ProjectApplicationType {
         MECHANISM,
     }
 
+    // 版本管理-配置项
+    public enum VERSION{
+        VERSION_ENABLE
+    }
+
 }
