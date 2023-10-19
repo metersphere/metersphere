@@ -591,5 +591,8 @@ INSERT INTO message_task_blob(id, template) VALUES (@schedule_close_id, 'message
 SET @load_report_id = UUID_SHORT();
 INSERT INTO schedule(`id`, `key`, `type`, `value`, `job`, `enable`, `resource_id`, `create_user`, `create_time`, `update_time`, `project_id`, `name`, `config`)
 VALUES (@load_report_id, '100001100001', 'CRON', '0 0 2 * * ?', 'io.metersphere.project.job.CleanUpReportJob', true, '100001100001', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000, '100001100001', 'Clean Report Job', NULL);
+
+-- 初始化默认项目版本配置项
+INSERT INTO project_application (`project_id`, `type`, `type_value`) VALUES ('100001100001', 'VERSION_ENABLE', 'FALSE');
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
