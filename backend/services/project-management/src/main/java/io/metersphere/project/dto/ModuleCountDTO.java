@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class ModuleCountDTO {
     private String moduleId;
-    private long dataCount;
+    private int dataCount;
 }

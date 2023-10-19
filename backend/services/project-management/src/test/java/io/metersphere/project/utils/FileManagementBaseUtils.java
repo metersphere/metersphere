@@ -1,11 +1,11 @@
 package io.metersphere.project.utils;
 
 import io.metersphere.project.dto.FileInformationDTO;
-import io.metersphere.project.dto.FileTableResult;
 import io.metersphere.project.request.filemanagement.FileMetadataTableRequest;
 import io.metersphere.sdk.dto.BaseTreeNode;
 import io.metersphere.sdk.util.FilePreviewUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Pager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.List;
+import java.util.Map;
 
 public class FileManagementBaseUtils {
     public static BaseTreeNode getNodeByName(List<BaseTreeNode> preliminaryTreeNodes, String nodeName) {
@@ -96,12 +97,12 @@ public class FileManagementBaseUtils {
         }
     }
 
-    public static void checkFilePage(FileTableResult result, FileMetadataTableRequest request, boolean hasData) {
+    public static void checkFilePage(Pager<List<FileInformationDTO>> tableData, Map<String, Integer> moduleCount, FileMetadataTableRequest request, boolean hasData) {
         //返回值的页码和当前页码相同
-        Assertions.assertEquals(result.getTableData().getCurrent(), request.getCurrent());
+        Assertions.assertEquals(tableData.getCurrent(), request.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
-        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getTableData().getList())).size() <= request.getPageSize());
-        List<FileInformationDTO> fileInformationDTOList = JSON.parseArray(JSON.toJSONString(result.getTableData().getList()), FileInformationDTO.class);
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(tableData.getList())).size() <= request.getPageSize());
+        List<FileInformationDTO> fileInformationDTOList = JSON.parseArray(JSON.toJSONString(tableData.getList()), FileInformationDTO.class);
         for (FileInformationDTO fileInformationDTO : fileInformationDTOList) {
             if (FilePreviewUtils.isImage(fileInformationDTO.getFileType())) {
                 //检查是否有预览文件
@@ -113,11 +114,11 @@ public class FileManagementBaseUtils {
 
         //判断返回的节点统计总量是否和表格总量匹配
         long allResult = 0;
-        for (Long countByModuleId : result.getModuleCount().values()) {
+        for (int countByModuleId : moduleCount.values()) {
             allResult += countByModuleId;
         }
-        Assertions.assertEquals(allResult, result.getTableData().getTotal());
-        Assertions.assertEquals(request.getPageSize(), result.getTableData().getPageSize());
+        Assertions.assertEquals(allResult, tableData.getTotal());
+        Assertions.assertEquals(request.getPageSize(), tableData.getPageSize());
         if (hasData) {
             Assertions.assertTrue(allResult > 0);
         } else {

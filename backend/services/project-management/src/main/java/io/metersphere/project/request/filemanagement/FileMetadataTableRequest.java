@@ -13,7 +13,7 @@ public class FileMetadataTableRequest extends BasePageRequest {
     private List<String> moduleIds;
     
     @Schema(description = "文件类型")
-    private List<String> fileTypes;
+    private String fileType;
 
     @Schema(description = "项目ID")
     @NotBlank(message = "{id must not be blank}")

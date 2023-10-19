@@ -1,11 +1,12 @@
 package io.metersphere.project.controller;
 
-import io.metersphere.project.dto.FileTableResult;
+import io.metersphere.project.dto.FileInformationDTO;
 import io.metersphere.project.request.filemanagement.*;
 import io.metersphere.project.service.FileManagementService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
 
 @Tag(name = "项目管理-文件管理-文件")
 @RestController
@@ -30,8 +34,15 @@ public class FileManagementController {
     @PostMapping("/page")
     @Operation(summary = "项目管理-文件管理-表格分页查询文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
-    public FileTableResult page(@Validated @RequestBody FileMetadataTableRequest request) {
+    public Pager<List<FileInformationDTO>> page(@Validated @RequestBody FileMetadataTableRequest request) {
         return fileMetadataService.page(request);
+    }
+
+    @PostMapping("/module/count")
+    @Operation(summary = "项目管理-文件管理-表格分页查询文件")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
+    public Map<String, Integer> moduleCount(@Validated @RequestBody FileMetadataTableRequest request) {
+        return fileMetadataService.moduleCount(request);
     }
 
 

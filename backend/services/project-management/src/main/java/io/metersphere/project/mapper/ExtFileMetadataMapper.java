@@ -7,9 +7,9 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface ExtFileMetadataMapper {
-    List<FileMetadata> selectByKeywordAndFileType(@Param("projectId") String projectId, @Param("keyword") String keyword, @Param("moduleIds") List<String> moduleIds, @Param("fileTypes") List<String> fileTypes, @Param("isRefId") boolean isRefId);
+    List<FileMetadata> selectByKeywordAndFileType(@Param("projectId") String projectId, @Param("keyword") String keyword, @Param("moduleIds") List<String> moduleIds, @Param("fileType") String fileType, @Param("isRefId") boolean isRefId);
 
-    List<ModuleCountDTO> countModuleIdByKeywordAndFileType(@Param("projectId") String projectId, @Param("keyword") String keyword, @Param("moduleIds") List<String> moduleIds, @Param("fileTypes") List<String> fileTypes);
+    List<ModuleCountDTO> countModuleIdByKeywordAndFileType(@Param("projectId") String projectId, @Param("keyword") String keyword, @Param("moduleIds") List<String> moduleIds, @Param("fileType") String fileType);
 
     List<String> selectIdByRefIdList(@Param("refIdList") List<String> refIdList);
 
