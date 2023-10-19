@@ -90,5 +90,6 @@ export default {
   'project.messageManagement.saveReceiverSuccess': '接收人修改成功',
   'project.messageManagement.unsetReceiverTip': '启用机器人前请先设置消息接收人',
   'project.messageManagement.receiverNotNull': '请最少设置一位消息接收人',
+  'project.messageManagement.unsetReceiversTip': '配置模版前请先设置消息接收人',
   'project.messageManagement.noMatchField': '暂无匹配字段',
 };

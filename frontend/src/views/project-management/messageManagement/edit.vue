@@ -146,6 +146,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
+  import useUserStore from '@/store/modules/user';
   import { sleep } from '@/utils';
 
   import type { Field, MessageTemplateDetail } from '@/models/projectManagement/message';
@@ -153,6 +154,7 @@
   const route = useRoute();
   const router = useRouter();
   const appStore = useAppStore();
+  const userStore = useUserStore();
   const { t } = useI18n();
   const { currentLocale } = useLocale();
 
@@ -183,6 +185,7 @@
         taskType: route.query.taskType as string,
         event: route.query.event as string,
         projectId: appStore.currentProjectId,
+        receiverIds: messageDetail.value?.receiverIds || [userStore.id || ''],
       });
       Message.success(t('project.messageManagement.saveSuccess'));
       await sleep(300);

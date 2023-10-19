@@ -108,12 +108,12 @@
     {
       title: 'system.resourcePool.tableColumnCreateTime',
       dataIndex: 'createTime',
-      width: 170,
+      width: 180,
     },
     {
       title: 'system.resourcePool.tableColumnUpdateTime',
       dataIndex: 'updateTime',
-      width: 170,
+      width: 180,
     },
     {
       title: 'system.resourcePool.tableColumnActions',

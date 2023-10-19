@@ -281,7 +281,6 @@
       columns,
       size: 'default',
       selectable: true,
-      pageSimple: true,
       showSetting: true,
     },
     (record) => ({

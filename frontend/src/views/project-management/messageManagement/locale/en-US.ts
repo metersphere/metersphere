@@ -98,5 +98,6 @@ export default {
   'project.messageManagement.saveReceiverSuccess': 'Recipient modified successfully',
   'project.messageManagement.unsetReceiverTip': 'Please set up message recipients before enabling the robot',
   'project.messageManagement.receiverNotNull': 'Please set at least one message recipient',
+  'project.messageManagement.unsetReceiversTip': 'Please set the message recipients before configuring the template.',
   'project.messageManagement.noMatchField': 'No matching fields yet',
 };
