@@ -13,7 +13,7 @@
         v-if="nodeOperationInfo!== undefined && nodeOperationInfo.runningTask>0 && nodeOperationInfo.cpuUsage!== undefined"
         style="color:#A9A9A9">
       {{ " CPU:" + nodeOperationInfo.cpuUsage }}</span>
-    <span v-if="nodeOperationInfo!== undefined && nodeOperationInfo.cpuUsage!== undefined" style="color:#A9A9A9;">
+    <span v-else-if="nodeOperationInfo!== undefined && nodeOperationInfo.cpuUsage!== undefined" style="color:#A9A9A9;">
       {{ " CPU:" + nodeOperationInfo.cpuUsage }}</span>
   </div>
 </template>
