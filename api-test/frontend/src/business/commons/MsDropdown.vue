@@ -37,6 +37,11 @@ export default {
       this.currentCommand = this.commands[0];
     }
   },
+  watch: {
+    defaultCommand(val) {
+      this.currentCommand = val;
+    },
+  },
   methods: {
     handleCommand(command) {
       this.currentCommand = command;

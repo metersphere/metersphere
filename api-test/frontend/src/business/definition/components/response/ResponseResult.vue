@@ -179,6 +179,23 @@ export default {
           }
         });
       }
+      if (this.response && this.response.responseResult && this.response.responseResult.contentType) {
+        switch (this.response.responseResult.contentType) {
+          case 'application/json':
+             this.mode = BODY_FORMAT.JSON;
+             break;
+          case 'text/html':
+             this.mode = BODY_FORMAT.HTML;
+            break;
+          case 'text/xml':
+             this.mode = BODY_FORMAT.XML;
+            break;
+          default:
+             this.mode = BODY_FORMAT.TEXT;
+            break;
+        }
+      }
+      this.msCodeReload();
     },
     msCodeReload() {
       this.isMsCodeEditShow = false;
