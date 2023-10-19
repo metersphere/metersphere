@@ -2,12 +2,10 @@ package io.metersphere.system.controller.user;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.dto.*;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.sdk.dto.*;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.uid.UUID;
-import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.domain.UserInvite;
@@ -18,6 +16,7 @@ import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.UserRegisterRequest;
 import io.metersphere.system.dto.response.UserInviteResponse;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.UserInviteMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
@@ -30,6 +29,7 @@ import io.metersphere.system.response.user.UserTableResponse;
 import io.metersphere.system.service.GlobalUserRoleRelationService;
 import io.metersphere.system.service.UserService;
 import io.metersphere.system.service.UserToolService;
+import io.metersphere.system.uid.UUID;
 import io.metersphere.system.utils.user.UserParamUtils;
 import io.metersphere.system.utils.user.UserRequestUtils;
 import jakarta.annotation.Resource;
@@ -451,6 +451,11 @@ public class UserControllerTests extends BaseTest {
         //含有非法用户
         userChangeEnableRequest.setSelectIds(new ArrayList<>() {{
             this.add("BCDEDIT");
+        }});
+        this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, ERROR_REQUEST_MATCHER);
+        //含有当前用户
+        userChangeEnableRequest.setSelectIds(new ArrayList<>() {{
+            this.add("admin");
         }});
         this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, ERROR_REQUEST_MATCHER);
     }

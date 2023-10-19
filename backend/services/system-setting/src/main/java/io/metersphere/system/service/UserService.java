@@ -181,9 +181,15 @@ public class UserService {
         return userEditRequest;
     }
 
-    public TableBatchProcessResponse updateUserEnable(UserChangeEnableRequest request, String operator) {
+    public TableBatchProcessResponse updateUserEnable(UserChangeEnableRequest request, String operatorId, String operatorName) {
         request.setSelectIds(userToolService.getBatchUserIds(request));
         this.checkUserInDb(request.getSelectIds());
+
+        if (!request.isEnable()) {
+            //不能禁用当前用户和admin
+            this.checkProcessUserAndThrowException(request.getSelectIds(), operatorId, operatorName, Translator.get("user.not.disable"));
+        }
+
         TableBatchProcessResponse response = new TableBatchProcessResponse();
         response.setTotalCount(request.getSelectIds().size());
         UserExample userExample = new UserExample();
@@ -192,7 +198,7 @@ public class UserService {
         );
         User updateUser = new User();
         updateUser.setEnable(request.isEnable());
-        updateUser.setUpdateUser(operator);
+        updateUser.setUpdateUser(operatorId);
         updateUser.setUpdateTime(System.currentTimeMillis());
         response.setSuccessCount(userMapper.updateByExampleSelective(updateUser, userExample));
         return response;
@@ -270,7 +276,7 @@ public class UserService {
         List<String> userIdList = userToolService.getBatchUserIds(request);
         this.checkUserInDb(userIdList);
         //检查是否含有Admin
-        this.checkCannotDeleteUserAndThrowException(userIdList, operatorId, operatorName);
+        this.checkProcessUserAndThrowException(userIdList, operatorId, operatorName, Translator.get("user.not.delete"));
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(userIdList);
         //更新删除标志位
@@ -282,10 +288,17 @@ public class UserService {
         return response;
     }
 
-    private void checkCannotDeleteUserAndThrowException(List<String> userIdList, String operatorId, String operatorName) {
+    /**
+     * 检查要处理的用户并抛出异常
+     *
+     * @param userIdList
+     * @param operatorId
+     * @param operatorName
+     */
+    private void checkProcessUserAndThrowException(List<String> userIdList, String operatorId, String operatorName, String exceptionMessage) {
         for (String userId : userIdList) {
             if (StringUtils.equalsAny(userId, "admin", operatorId)) {
-                throw new MSException(Translator.get("user.not.delete") + ":" + operatorName);
+                throw new MSException(exceptionMessage + ":" + operatorName);
             }
         }
     }

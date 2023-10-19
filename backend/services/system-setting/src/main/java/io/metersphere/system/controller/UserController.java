@@ -97,7 +97,7 @@ public class UserController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateEnableLog(#request)", msClass = UserLogService.class)
     public TableBatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
-        return userService.updateUserEnable(request, SessionUtils.getSessionId());
+        return userService.updateUserEnable(request, SessionUtils.getUserId(), SessionUtils.getUser().getName());
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
