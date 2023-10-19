@@ -63,4 +63,5 @@ export default {
   'common.setting': '设置',
   'common.resetDefault': '恢复默认',
   'common.tagPlaceholder': '添加标签回车结束',
+  'common.batchModify': '批量修改',
 };

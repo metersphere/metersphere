@@ -120,7 +120,9 @@
             </template>
           </a-input>
         </div>
-        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="pushFar">{{ t('project.menu.far') }}</div>
+        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="pushFar">{{
+          t('project.menu.far')
+        }}</div>
         <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
           <div>
             <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />

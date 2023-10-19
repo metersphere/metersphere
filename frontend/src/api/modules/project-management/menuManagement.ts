@@ -4,6 +4,7 @@ import * as Url from '@/api/requrls/project-management/menuManagement';
 import { TableQueryParams } from '@/models/common';
 import type {
   FakeTableListItem,
+  FakeTableOperationParams,
   MenuTableConfigItem,
   MenuTableListItem,
   MenuTableListParams,
@@ -122,20 +123,20 @@ export function postFakeTableList(data: TableQueryParams) {
   return MSR.post<FakeTableListItem[]>({ url: `${Url.postFakeTableUrl}`, data });
 }
 // 误报规则新增
-export function postAddFake(data: any) {
+export function postAddFake(data: FakeTableListItem[]) {
   return MSR.post<FakeTableListItem[]>({ url: Url.postFakeTableAddUrl, data });
 }
 // 误报规则更新
-export function postUpdateFake(data: any) {
+export function postUpdateFake(data: FakeTableListItem[]) {
   return MSR.post<FakeTableListItem[]>({ url: Url.postFakeTableUpdateUrl, data });
 }
 
 // 误报规则启用禁用
-export function postUpdateEnableFake(data: any) {
+export function postUpdateEnableFake(data: FakeTableOperationParams) {
   return MSR.post<FakeTableListItem[]>({ url: Url.postFakeTableEnableUrl, data });
 }
 
 // 误报规则删除
-export function getDeleteFake(data: any) {
-  return MSR.get<FakeTableListItem[]>({ url: Url.getFakeTableDeleteUrl, data });
+export function getDeleteFake(data: FakeTableOperationParams) {
+  return MSR.post<FakeTableListItem[]>({ url: Url.getFakeTableDeleteUrl, data });
 }

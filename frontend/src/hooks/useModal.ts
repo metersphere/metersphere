@@ -61,7 +61,7 @@ export default function useModal() {
     },
     openDeleteModal: (options: DeleteModalOptions) => {
       const deleteLoading = ref<boolean>(false);
-      Modal.warning({
+      Modal.error({
         okText: t('common.confirmDelete'),
         cancelText: t('common.cancel'),
         hideCancel: false,

@@ -24,6 +24,7 @@ export interface FormItemModel {
   filedNames?: SelectFieldNames; // select option 选项字段名
   className?: string; // 自定义样式
   defaultValue?: string | string[] | number | number[] | boolean; // 默认值
+  hasRedStar?: boolean; // 是否有红星
 }
 
 declare const _default: import('vue').DefineComponent<

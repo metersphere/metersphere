@@ -1,7 +1,7 @@
 <template>
   <MsCard simple>
     <div class="mb-4 flex items-center justify-between">
-      <a-button type="primary" @click="showAddRule">{{ t('project.menu.addFalseAlertRules') }}</a-button>
+      <a-button type="primary" @click="showAddRule(undefined)">{{ t('project.menu.addFalseAlertRules') }}</a-button>
       <a-input-search
         v-model="keyword"
         :placeholder="t('project.menu.nameSearch')"
@@ -11,20 +11,33 @@
         @search="fetchData"
       ></a-input-search>
     </div>
-    <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+    <MsBaseTable
+      v-bind="propsRes"
+      :action-config="tableBatchActions"
+      v-on="propsEvent"
+      @batch-action="handleTableBatch"
+    >
+      <template #label="{ record }">
+        <MsTagGroup is-string-tag theme="outline" :tag-list="record.typeList"> </MsTagGroup>
+      </template>
       <template #operation="{ record }">
-        <template v-if="record.deleted">
-          <MsButton @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
-        </template>
-        <template v-else-if="!record.enable">
-          <MsButton @click="handleEnableOrDisableProject(record)">{{ t('common.enable') }}</MsButton>
-          <MsButton @click="handleDelete(record)">{{ t('common.delete') }}</MsButton>
+        <template v-if="!record.enable">
+          <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id)">{{ t('common.enable') }}</MsButton>
+          <a-divider direction="vertical" />
+          <MsButton class="!mr-0" @click="handleDelete(record.id)">{{ t('common.delete') }}</MsButton>
         </template>
         <template v-else>
-          <MsButton @click="showAddProjectModal(record)">{{ t('common.edit') }}</MsButton>
-          <MsButton @click="showAddUserModal(record)">{{ t('system.organization.addMember') }}</MsButton>
-          <MsButton @click="handleEnableOrDisableProject(record, false)">{{ t('common.end') }}</MsButton>
-          <MsTableMoreAction :list="tableActions" @select="handleMoreAction($event, record)"></MsTableMoreAction>
+          <MsButton class="!mr-0" @click="showAddRule(record)">{{ t('common.edit') }}</MsButton>
+          <a-divider direction="vertical" />
+          <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id, false)">{{
+            t('common.disable')
+          }}</MsButton>
+          <a-divider direction="vertical" />
+          <MsTableMoreAction
+            class="!mr-0"
+            :list="tableActions"
+            @select="handleMoreAction($event, record)"
+          ></MsTableMoreAction>
         </template>
       </template>
     </MsBaseTable>
@@ -39,47 +52,49 @@
     :body-style="{ padding: '0px' }"
     :width="1200"
     :ok-loading="addLoading"
+    :ok-text="ruleFormMode === 'create' ? t('common.add') : t('common.update')"
     @cancel="handleCancel(false)"
     @confirm="handleConfirm"
   >
-    <a-form ref="ruleFormRef" class="rounded-[4px]" :model="ruleForm" layout="vertical">
-      <MsBatchForm
-        ref="batchFormRef"
-        :models="batchFormModels"
-        :form-mode="ruleFormMode"
-        add-text="system.user.addUser"
-        :default-vals="ruleForm.list"
-        show-enable
-      ></MsBatchForm>
-    </a-form>
+    <MsBatchForm
+      ref="batchFormRef"
+      :models="batchFormModels"
+      :form-mode="ruleFormMode"
+      add-text="project.menu.rule.addResource"
+      :default-vals="currentList"
+      show-enable
+      :is-show-drag="false"
+    ></MsBatchForm>
   </MsDrawer>
 </template>
 
 <script lang="ts" setup>
-  import { FormInstance, Message, TableData } from '@arco-design/web-vue';
+  import { Message, TableData } from '@arco-design/web-vue';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import { FormItemModel } from '@/components/business/ms-batch-form/types';
 
-  import { postFakeTableList } from '@/api/modules/project-management/menuManagement';
   import {
-    createOrUpdateProjectByOrg,
-    deleteProjectByOrg,
-    enableOrDisableProjectByOrg,
-    postProjectTableByOrg,
-    revokeDeleteProjectByOrg,
-  } from '@/api/modules/setting/organizationAndProject';
+    getDeleteFake,
+    postAddFake,
+    postFakeTableList,
+    postUpdateEnableFake,
+    postUpdateFake,
+  } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
-  import { validateEmail, validatePhone } from '@/utils/validate';
 
+  import { FakeTableListItem } from '@/models/projectManagement/menuManagement';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   type UserModalMode = 'create' | 'edit';
@@ -89,69 +104,112 @@
   const currentProjectId = computed(() => appStore.currentProjectId);
   const addVisible = ref(false);
   const addLoading = ref(false);
-  const ruleFormRef = ref<FormInstance>();
-  const batchFormRef = ref<FormInstance>();
+  const batchFormRef = ref();
   const ruleFormMode = ref<UserModalMode>('create');
-  const ruleForm = reactive({
-    name: '',
-    enable: true,
-    label: '',
-    type: '',
-    creator: '',
-    updateTime: '',
-    list: [],
-  });
+  const currentList = ref<FakeTableListItem[]>([]);
+  const headerOptions = computed(() => [
+    { label: 'Response Headers', value: 'headers' },
+    { label: 'Response Data', value: 'data' },
+    { label: 'Response Body', value: 'body' },
+  ]);
+  const relationOptions = computed(() => [
+    { label: '包含', value: 'contain' },
+    { label: '不包含', value: 'notContain' },
+    { label: '等于', value: 'equal' },
+    { label: '不等于', value: 'notEqual' },
+    { label: '正则匹配', value: 'regex' },
+    { label: '以...开始', value: 'startWith' },
+    { label: '以...结束', value: 'endWith' },
+  ]);
+
+  const tableBatchActions = {
+    baseAction: [
+      {
+        label: 'common.batchModify',
+        eventTag: 'batchModify',
+      },
+      {
+        label: 'common.enable',
+        eventTag: 'batchEnable',
+      },
+      {
+        label: 'common.disable',
+        eventTag: 'batchDisable',
+      },
+      {
+        label: 'common.delete',
+        eventTag: 'batchDelete',
+        danger: true,
+      },
+    ],
+  };
+
+  const getRowRuleString = (record: TableData) => {
+    const header = headerOptions.value.find((item) => item.value === record.respType)?.label;
+    const relation = relationOptions.value.find((item) => item.value === record.relation)?.label;
+    return `${header} ${relation} ${record.expression}`;
+  };
+
   const rulesColumn: MsTableColumn = [
     {
       title: 'project.menu.rule.name',
       dataIndex: 'name',
-      width: 100,
       showTooltip: true,
+      width: 149,
     },
     {
       title: 'project.menu.rule.enable',
       dataIndex: 'enable',
-      showTooltip: true,
+      width: 143,
     },
     {
       title: 'project.menu.rule.label',
-      dataIndex: 'label',
-      width: 100,
-      showTooltip: true,
+      dataIndex: 'type',
+      slotName: 'label',
+      isTag: true,
+      width: 146,
     },
     {
       title: 'project.menu.rule.rule',
-      dataIndex: 'type',
-      width: 100,
+      dataIndex: 'ruleResult',
       showTooltip: true,
     },
     {
       title: 'project.menu.rule.creator',
-      dataIndex: 'creator',
-      width: 100,
+      dataIndex: 'createUser',
+      width: 108,
       showTooltip: true,
     },
     {
       title: 'project.menu.rule.updateTime',
       dataIndex: 'updateTime',
-      width: 100,
-      showTooltip: true,
+      width: 210,
     },
     {
       title: 'project.menu.rule.operation',
       dataIndex: 'operation',
       slotName: 'operation',
-      width: 100,
       showTooltip: true,
+      width: 169,
     },
   ];
-  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(postFakeTableList, {
-    columns: rulesColumn,
-    tableKey: TableKeyEnum.PROJECT_MANAGEMENT_MENU_FALSE_ALERT,
-    selectable: true,
-    noDisable: false,
-    size: 'default',
-  });
+
+  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(
+    postFakeTableList,
+    {
+      scroll: { x: 1200 },
+      columns: rulesColumn,
+      tableKey: TableKeyEnum.PROJECT_MANAGEMENT_MENU_FALSE_ALERT,
+      selectable: true,
+      noDisable: false,
+      size: 'default',
+    },
+    (record: TableData) => {
+      record.typeList = record.type.split(',');
+      record.ruleResult = getRowRuleString(record);
+      return record;
+    }
+  );
 
   const { openDeleteModal, openModal } = useModal();
 
@@ -162,13 +220,22 @@
     await loadList();
   };
 
-  const handleDelete = (record: TableData) => {
+  const handleDelete = (v: string | BatchActionQueryParams) => {
     openDeleteModal({
-      title: t('system.organization.deleteName', { name: record.name }),
-      content: t('system.organization.deleteTip'),
+      title: t('project.menu.rule.deleteRule', { size: typeof v === 'string' ? 1 : v.currentSelectCount }),
+      content: t('project.menu.rule.deleteRuleTip'),
       onBeforeOk: async () => {
         try {
-          await deleteProjectByOrg(record.id);
+          if (typeof v === 'string') {
+            // 单个删除
+            await getDeleteFake({ selectedIds: [v], projectId: currentProjectId.value, selectAll: false });
+          } else {
+            // 批量删除
+            await getDeleteFake({
+              ...v,
+              projectId: currentProjectId.value,
+            });
+          }
           Message.success(t('common.deleteSuccess'));
           fetchData();
         } catch (error) {
@@ -181,7 +248,7 @@
 
   const handleMoreAction = (tag: ActionsItem, record: TableData) => {
     if (tag.eventTag === 'delete') {
-      handleDelete(record);
+      handleDelete(record.id);
     }
   };
 
@@ -193,19 +260,34 @@
     },
   ];
 
-  const handleEnableOrDisableProject = async (record: any, isEnable = true) => {
-    const title = isEnable ? t('system.project.enableTitle') : t('system.project.endTitle');
-    const content = isEnable ? t('system.project.enableContent') : t('system.project.endContent');
+  const handleEnableOrDisableProject = async (v: string | BatchActionQueryParams, isEnable = true) => {
+    const title = isEnable ? t('project.menu.rule.enableRule') : t('project.menu.rule.disableRule');
+    const content = isEnable ? t('project.menu.rule.enableRuleTip') : t('project.menu.rule.disableRuleTip');
     const okText = isEnable ? t('common.confirmEnable') : t('common.confirmClose');
     openModal({
-      type: 'error',
+      type: 'info',
       cancelText: t('common.cancel'),
       title,
       content,
       okText,
       onBeforeOk: async () => {
         try {
-          await enableOrDisableProjectByOrg(record.id, isEnable);
+          if (typeof v === 'string') {
+            // 单个启用/禁用
+            await postUpdateEnableFake({
+              selectedIds: [v],
+              projectId: currentProjectId.value,
+              enable: isEnable,
+              selectAll: false,
+            });
+          } else {
+            // 批量启用/禁用
+            await postUpdateEnableFake({
+              ...v,
+              projectId: currentProjectId.value,
+              enable: isEnable,
+            });
+          }
           Message.success(isEnable ? t('common.enableSuccess') : t('common.closeSuccess'));
           fetchData();
         } catch (error) {
@@ -216,59 +298,91 @@
       hideCancel: false,
     });
   };
-  const handleRevokeDelete = async (record: TableData) => {
-    openModal({
-      type: 'error',
-      cancelText: t('common.cancel'),
-      title: t('system.project.revokeDeleteTitle', { name: record.name }),
-      content: t('system.project.enableContent'),
-      okText: t('common.revokeDelete'),
-      onBeforeOk: async () => {
-        try {
-          await revokeDeleteProjectByOrg(record.id);
-          Message.success(t('common.revokeDeleteSuccess'));
-          fetchData();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error(error);
+
+  const showAddRule = (record?: FakeTableListItem | FakeTableListItem[]) => {
+    if (record) {
+      // 编辑模式
+      ruleFormMode.value = 'edit';
+
+      if (record instanceof Array) {
+        record.forEach((item) => {
+          if (typeof item.type === 'string') {
+            item.type = item.type.split(',');
+          }
+        });
+        // 批量编辑
+        currentList.value = record;
+      } else {
+        // 单个编辑
+        if (typeof record.type === 'string') {
+          record.type = record.type.split(',');
         }
-      },
-      hideCancel: false,
-    });
-  };
-
-  const showAddProjectModal = (record: any) => {
-    console.log(record);
-  };
-
-  const showAddUserModal = (record: any) => {
-    console.log(record);
-  };
-  const showAddRule = () => {
+        currentList.value = [record];
+      }
+    } else {
+      ruleFormMode.value = 'create';
+    }
     addVisible.value = true;
   };
 
-  const handleConfirm = () => {
-    addVisible.value = false;
-  };
-
-  const handleCancel = (shouldSearch: boolean) => {
+  const handleCancel = (shouldSearch: boolean, isClose = true) => {
     if (shouldSearch) {
       fetchData();
     }
-    addVisible.value = false;
+    if (isClose) {
+      addVisible.value = false;
+    }
+  };
+
+  const handleConfirm = () => {
+    batchFormRef.value.formValidate(async (list: FakeTableListItem[]) => {
+      try {
+        addLoading.value = true;
+        // eslint-disable-next-line no-console
+        const tmpArr = JSON.parse(JSON.stringify(list)) as FakeTableListItem[];
+        tmpArr.forEach((element) => {
+          if (ruleFormMode.value === 'create') {
+            element.projectId = currentProjectId.value;
+          } else if (element.typeList) {
+            delete element.typeList;
+          }
+          element.type = element.type instanceof Array ? element.type.join(',') : '';
+        });
+        if (ruleFormMode.value === 'create') {
+          await postAddFake(tmpArr);
+          Message.success(t('common.addSuccess'));
+        } else {
+          await postUpdateFake(tmpArr);
+          Message.success(t('common.updateSuccess'));
+        }
+
+        handleCancel(true, false);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        addLoading.value = false;
+      }
+    });
   };
 
   /**
-   * 校验用户姓名
-   * @param value 输入的值
-   * @param callback 失败回调，入参是提示信息
+   * 处理表格选中后批量操作
+   * @param event 批量操作事件对象
    */
-  function checkUerName(value: string | undefined, callback: (error?: string) => void) {
-    if (value === '' || value === undefined) {
-      callback(t('system.user.createUserNameNotNull'));
-    } else if (value.length > 50) {
-      callback(t('system.user.createUserNameOverLength'));
+  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    switch (event.eventTag) {
+      case 'batchModify':
+        // showAddRule(params);
+        break;
+      case 'batchEnable':
+        handleEnableOrDisableProject(params);
+        break;
+      case 'batchDisable':
+        handleEnableOrDisableProject(params, false);
+        break;
+      default:
+        handleDelete(params);
     }
   }
 
@@ -278,9 +392,8 @@
       type: 'input',
       label: 'project.menu.rule.ruleName',
       rules: [
-        { required: true, message: t('system.user.createUserNameNotNull') },
-        { validator: checkUerName },
-        { notRepeat: true, message: 'system.user.createUserEmailNoRepeat' },
+        { required: true, message: t('project.menu.rule.ruleNameNotNull') },
+        { notRepeat: true, message: 'project.menu.rule.ruleNameRepeat' },
       ],
     },
     {
@@ -292,40 +405,26 @@
       filed: 'rule',
       type: 'multiple',
       label: 'project.menu.rule.rule',
-      // rules: [{ required: true, message: t('system.user.createUserEmailNotNull') }],
+      hasRedStar: true,
       children: [
         {
           filed: 'respType', // 匹配规则-内容类型/header/data/body
           type: 'select',
-          rules: [{ required: true, message: t('system.user.createUserEmailNotNull') }],
-          options: [
-            { label: 'Response Headers', value: 'headers' },
-            { label: 'Response Data', value: 'data' },
-            { label: 'Response Body', value: 'body' },
-          ],
+          options: headerOptions.value,
           className: 'w-[205px]',
           defaultValue: 'headers',
         },
         {
           filed: 'relation', // 匹配规则-操作类型
           type: 'select',
-          options: [
-            { label: '包含', value: 'contain' },
-            { label: '不包含', value: 'notContain' },
-            { label: '等于', value: 'equal' },
-            { label: '不等于', value: 'notEqual' },
-            { label: '正则匹配', value: 'regex' },
-            { label: '以...开始', value: 'startWith' },
-            { label: '以...结束', value: 'endWith' },
-          ],
-          rules: [{ required: true, message: t('system.user.createUserEmailNotNull') }],
+          options: relationOptions.value,
           className: 'w-[120px]',
-          defaultValue: 'contain',
+          defaultValue: 'equal',
         },
         {
           filed: 'expression', // 匹配规则-表达式
           type: 'input',
-          rules: [{ required: true, message: t('system.user.createUserEmailNotNull') }],
+          rules: [{ required: true, message: t('project.menu.rule.expressionNotNull') }],
           className: 'w-[301px]',
         },
       ],

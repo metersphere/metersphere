@@ -6,6 +6,7 @@
     :allow-clear="props.allowClear"
     :retain-input-value="props.retainInputValue"
     :unique-value="props.uniqueValue"
+    :max-tag-count="props.maxTagCount"
     @press-enter="tagInputEnter"
     @blur="tagInputBlur"
   >
@@ -39,6 +40,7 @@
       customPrefix?: boolean;
       customTag?: boolean;
       customSuffix?: boolean;
+      maxTagCount?: number;
     }>(),
     {
       retainInputValue: true,

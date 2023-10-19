@@ -24,7 +24,6 @@
                 :key="`${model.filed}${index}`"
                 :field="`list[${index}].${model.filed}`"
                 :class="index > 0 ? 'hidden-item' : 'mb-0 flex-1'"
-                :label="index === 0 && model.label ? t(model.label) : ''"
                 :rules="
                   model.rules?.map((e) => {
                     if (e.notRepeat === true) {
@@ -41,6 +40,14 @@
                 :content-flex="model.type !== 'multiple'"
                 :merge-props="model.type !== 'multiple'"
               >
+                <template #label>
+                  <div class="inline-flex flex-row">
+                    <div>{{ index === 0 && model.label ? t(model.label) : '' }}</div>
+                    <div v-if="model.hasRedStar" class="ml-[2px] flex items-center">
+                      <svg-icon width="6px" height="6px" name="form-star" class="text-[rgb(var(--danger-6))]" />
+                    </div>
+                  </div>
+                </template>
                 <a-input
                   v-if="model.type === 'input'"
                   v-model="element[model.filed]"
@@ -60,12 +67,13 @@
                 />
                 <MsTagsInput
                   v-if="model.type === 'tagInput'"
-                  v-model="element[model.filed]"
+                  v-model:model-value="element[model.filed]"
                   class="flex-1"
                   :placeholder="t(model.placeholder || 'common.tagPlaceholder')"
                   allow-clear
                   unique-value
                   retain-input-value
+                  :max-tag-count="2"
                 />
                 <a-select
                   v-if="model.type === 'select'"
@@ -75,7 +83,7 @@
                   :options="model.options"
                   :field-names="model.filedNames"
                 />
-                <div v-if="model.type === 'multiple'" class="flex flex-row items-center gap-[4px]">
+                <div v-if="model.type === 'multiple'" class="flex flex-row gap-[4px]">
                   <a-form-item
                     v-for="(child, childIndex) in model.children"
                     :key="`${child.filed}${childIndex}${index}`"
@@ -85,6 +93,7 @@
                     :hide-asterisk="child.hideAsterisk"
                     :hide-label="child.hideLabel"
                     class="hidden-item"
+                    :rules="child.rules"
                   >
                     <a-input
                       v-if="child.type === 'input'"
@@ -101,7 +110,6 @@
                       :placeholder="t(child.placeholder || '')"
                       :options="child.options"
                       :field-names="child.filedNames"
-                      :default-value="child.defaultValue"
                     />
                   </a-form-item>
                 </div>
@@ -109,6 +117,7 @@
               <div v-if="showEnable">
                 <a-switch
                   v-model="element.enable"
+                  class="mt-[8px]"
                   :style="{ 'margin-top': index === 0 && !props.isShowDrag ? '36px' : '' }"
                   size="small"
                 />
@@ -192,7 +201,24 @@
    */
   watchEffect(() => {
     props.models.forEach((e) => {
-      formItem[e.filed] = e.type === 'inputNumber' ? null : '';
+      // 默认填充表单项
+      let value = null;
+      if (e.type === 'inputNumber') {
+        value = null;
+      } else if (e.type === 'tagInput') {
+        value = [];
+      } else {
+        value = e.defaultValue;
+      }
+      formItem[e.filed] = value;
+      if (props.showEnable) {
+        // 如果有开启关闭状态，将默认禁用
+        formItem.enable = false;
+      }
+      // 默认填充表单项的子项
+      e.children?.forEach((child) => {
+        formItem[child.filed] = child.type === 'inputNumber' ? null : child.defaultValue;
+      });
     });
     form.value.list = [{ ...formItem }];
     if (props.defaultVals?.length) {
