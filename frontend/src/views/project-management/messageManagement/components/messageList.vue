@@ -63,7 +63,7 @@
             :options="defaultReceivers"
             :search-keys="['label']"
             allow-search
-            allow-clear
+            :at-least-one="true"
             value-key="id"
             label-key="name"
             :multiple="true"
@@ -77,6 +77,7 @@
               label: (val as Record<string, any>).name,
               value: val,
             })"
+            @remove="changeMessageReceivers(false, record, dataIndex as string)"
             @popup-visible-change="changeMessageReceivers($event, record, dataIndex as string)"
           />
           <span v-else></span>
@@ -336,6 +337,10 @@
   });
 
   function editRobot(record: TableMessageChildrenItem, dataIndex: string) {
+    if (record.receivers?.length === 0) {
+      Message.warning(t('project.messageManagement.unsetReceiversTip'));
+      return;
+    }
     router.push({
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT,
       query: {

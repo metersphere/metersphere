@@ -27,6 +27,7 @@ export interface MsSearchSelectProps {
   labelKey?: string; // 选项的 label 字段名，默认为 label
   options: SelectOptionData[];
   multiple?: boolean; // 是否多选
+  atLeastOne?: boolean; // 是否至少选择一个，多选模式下有效
   remoteFieldsMap?: RemoteFieldsMap; // 远程模式下的结果 key 映射，例如 { value: 'id' }，表示远程请求时，会将返回结果的 id 赋值到 value 字段
   remoteExtraParams?: Record<string, any>; // 远程模式下的额外参数
   notAutoInitSearch?: boolean; // 是否禁用 arco-select 的初始化自动搜索功能
@@ -229,7 +230,22 @@ export default defineComponent(
         default: () =>
           filterOptions.value.map((item) => (
             <a-tooltip content={item.tooltipContent} mouse-enter-delay={500}>
-              <a-option key={item.id} value={item}>
+              <a-option
+                key={item[props.valueKey || 'value']}
+                value={item}
+                tag-props={
+                  props.multiple && props.atLeastOne
+                    ? { closable: Array.isArray(innerValue.value) && innerValue.value.length > 1 }
+                    : {}
+                }
+                disabled={
+                  props.multiple &&
+                  props.atLeastOne &&
+                  Array.isArray(innerValue.value) &&
+                  innerValue.value.find((e) => e[props.valueKey || 'value'] === item[props.valueKey || 'value']) &&
+                  innerValue.value.length === 1
+                }
+              >
                 <div class="one-line-text" style={getOptionComputedStyle.value}>
                   {optionItemLabelRender(item)}
                 </div>
@@ -320,6 +336,7 @@ export default defineComponent(
         onUpdate:model-value={(value: ModelType) => emit('update:modelValue', value)}
         onSearch={handleSearch}
         onPopupVisibleChange={(val: boolean) => emit('popupVisibleChange', val)}
+        onRemove={(val: string | number | boolean | Record<string, any> | undefined) => emit('remove', val)}
       >
         {{
           prefix: props.prefix ? () => t(props.prefix || '') : null,
@@ -364,7 +381,8 @@ export default defineComponent(
       'loading',
       'fallbackOption',
       'labelKey',
+      'atLeastOne',
     ],
-    emits: ['update:modelValue', 'remoteSearch', 'popupVisibleChange', 'update:loading'],
+    emits: ['update:modelValue', 'remoteSearch', 'popupVisibleChange', 'update:loading', 'remove'],
   }
 );

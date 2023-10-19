@@ -168,7 +168,7 @@
       addText: string;
       maxHeight?: string;
       defaultVals?: any[]; // 当外层是编辑状态时，可传入已填充的数据
-      isShowDrag: boolean; // 是否可以拖拽
+      isShowDrag?: boolean; // 是否可以拖拽
       formWidth?: string; // 自定义表单区域宽度
       showEnable?: boolean; // 是否显示启用禁用switch状态
     }>(),
