@@ -71,7 +71,7 @@ import {
   saveBaseUrl
 } from "../../api/user";
 import {useUserStore} from "@/store"
-import {checkMicroMode, operationConfirm} from "../../utils";
+import {operationConfirm} from "../../utils";
 import {getModuleList} from "../../api/module";
 import {getLicense} from "../../api/license";
 import {setLanguage} from "../../i18n";
@@ -140,13 +140,10 @@ export default {
       .catch(() => {
       });
     // ldap open
-    // 网关统一登录，本地不再提供这个登录方式
-    if (checkMicroMode()) {
-      checkLdapOpen("/ldap/open")
-        .then(response => {
-          this.openLdap = response.data;
-        });
-    }
+    checkLdapOpen("/ldap/open")
+      .then(response => {
+        this.openLdap = response.data;
+      });
     getModuleList()
       .then(response => {
         let modules = {};
@@ -161,13 +158,10 @@ export default {
         if (!hasLicense()) {
           return;
         }
-        // 网关统一sso登录，本地不再提供这个登录方式
-        if (checkMicroMode()) {
-          getAuthSources()
-            .then(response => {
-              this.authSources = response.data;
-            });
-        }
+        getAuthSources()
+          .then(response => {
+            this.authSources = response.data;
+          });
         getDisplayInfo()
           .then(response => {
             if (response.data[3].paramValue) {
@@ -205,10 +199,8 @@ export default {
   created: function () {
     document.addEventListener("keydown", this.watchEnter);
     let authenticate = localStorage.getItem('AuthenticateType');
-    if (checkMicroMode()) {
-      if (authenticate === 'LOCAL' || authenticate === 'LDAP') {
-        this.form.authenticate = authenticate;
-      }
+    if (authenticate === 'LOCAL' || authenticate === 'LDAP') {
+      this.form.authenticate = authenticate;
     }
   },
 
