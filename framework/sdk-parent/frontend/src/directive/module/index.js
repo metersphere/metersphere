@@ -1,21 +1,6 @@
 function enableModules(...modules) {
-  let sysModules = JSON.parse(sessionStorage.getItem("modules"));
-  let projectModules = JSON.parse(sessionStorage.getItem("project_modules"));
-  let workModules = JSON.parse(sessionStorage.getItem("workspace_modules"));
   for (let module of modules) {
-    if (module === "project" || module === "setting") {
-      return modules && modules[module] === "ENABLE";
-    }
-    if (projectModules && projectModules.length > 0) {
-      return (
-        sysModules[module] === "ENABLE" && projectModules.indexOf(module) > -1
-      );
-    }
-    if (workModules && workModules.length > 0) {
-      return (
-        sysModules[module] === "ENABLE" && workModules.indexOf(module) > -1
-      );
-    }
+    let modules = JSON.parse(localStorage.getItem("modules"));
     if (modules && modules[module] === "DISABLE") {
       return false;
     }
