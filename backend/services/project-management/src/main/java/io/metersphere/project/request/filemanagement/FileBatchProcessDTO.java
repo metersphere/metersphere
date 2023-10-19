@@ -15,7 +15,7 @@ public class FileBatchProcessDTO extends TableBatchProcessDTO {
     private String projectId;
 
     @Schema(description = "文件类型")
-    private List<String> fileTypes;
+    private String fileType;
 
     @Schema(description = "模块ID")
     private List<String> moduleIds;

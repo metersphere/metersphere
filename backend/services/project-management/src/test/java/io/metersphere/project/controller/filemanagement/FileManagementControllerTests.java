@@ -1,7 +1,7 @@
 package io.metersphere.project.controller.filemanagement;
 
 import io.metersphere.project.domain.*;
-import io.metersphere.project.dto.FileTableResult;
+import io.metersphere.project.dto.FileInformationDTO;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -15,6 +15,7 @@ import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.dto.BaseTreeNode;
 import io.metersphere.sdk.dto.request.NodeMoveRequest;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -101,14 +102,14 @@ public class FileManagementControllerTests extends BaseTest {
             this.setPageSize(10);
             this.setProjectId(project.getId());
         }};
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        MvcResult pageResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
+        String returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        FileTableResult result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FileTableResult.class);
+        Pager<List<FileInformationDTO>> result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
         //返回值的页码和当前页码相同
-        Assertions.assertEquals(result.getTableData().getCurrent(), request.getCurrent());
+        Assertions.assertEquals(result.getCurrent(), request.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
-        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getTableData().getList())).size() <= request.getPageSize());
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= request.getPageSize());
     }
 
     @Test
@@ -584,9 +585,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setCurrent(1);
             this.setPageSize(10);
             this.setProjectId(project.getId());
-            this.setFileTypes(new ArrayList<>() {{
-                this.add("JPG");
-            }});
+            this.setFileType("JPG");
         }};
         this.filePageRequestAndCheck(request, true);
 
@@ -595,9 +594,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setCurrent(1);
             this.setPageSize(10);
             this.setProjectId(project.getId());
-            this.setFileTypes(new ArrayList<>() {{
-                this.add("JpG");
-            }});
+            this.setFileType("JpG");
         }};
         this.filePageRequestAndCheck(request, true);
 
@@ -606,9 +603,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setCurrent(1);
             this.setPageSize(10);
             this.setProjectId(project.getId());
-            this.setFileTypes(new ArrayList<>() {{
-                this.add("fire");
-            }});
+            this.setFileType("fire");
         }};
         this.filePageRequestAndCheck(request, false);
     }
@@ -1111,10 +1106,14 @@ public class FileManagementControllerTests extends BaseTest {
 
     private void filePageRequestAndCheck(FileMetadataTableRequest request, Boolean hasData) throws Exception {
         MvcResult mvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
-        FileTableResult result = JSON.parseObject(JSON.toJSONString(
+        Pager<List<FileInformationDTO>> pageResult = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
-                FileTableResult.class);
-        FileManagementBaseUtils.checkFilePage(result, request, hasData);
+                Pager.class);
+        MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_MODULE_COUNT, request);
+        Map<String, Integer> moduleCountResult = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Map.class);
+        FileManagementBaseUtils.checkFilePage(pageResult, moduleCountResult, request, hasData);
     }
 
     private void preliminaryData() throws Exception {

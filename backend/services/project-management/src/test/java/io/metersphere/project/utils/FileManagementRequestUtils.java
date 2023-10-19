@@ -16,6 +16,8 @@ public class FileManagementRequestUtils {
     public static final String URL_FILE_UPLOAD = "/project/file/upload";
     //文件列表查询
     public static final String URL_FILE_PAGE = "/project/file/page";
+    //文件列表查询对应的模块统计
+    public static final String URL_FILE_MODULE_COUNT = "/project/file/module/count";
     //文件重传
     public static final String URL_FILE_RE_UPLOAD = "/project/file/re-upload";
     //文件下载

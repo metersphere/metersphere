@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.FileMetadataExample;
 import io.metersphere.project.dto.FileInformationDTO;
-import io.metersphere.project.dto.FileTableResult;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtFileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
@@ -55,7 +54,7 @@ public class FileMetadataService {
 
     public List<FileInformationDTO> list(FileMetadataTableRequest request) {
         List<FileInformationDTO> returnList = new ArrayList<>();
-        List<FileMetadata> fileMetadataList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getKeyword(), request.getModuleIds(), request.getFileTypes(), false);
+        List<FileMetadata> fileMetadataList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getKeyword(), request.getModuleIds(), request.getFileType(), false);
         fileMetadataList.forEach(fileMetadata -> {
             FileInformationDTO fileInformationDTO = new FileInformationDTO(fileMetadata);
             if (FilePreviewUtils.isImage(fileMetadata.getType())) {
@@ -238,17 +237,10 @@ public class FileMetadataService {
         }
     }
 
-    public FileTableResult page(FileMetadataTableRequest request) {
-        FileTableResult dto = new FileTableResult();
+    public Pager<List<FileInformationDTO>> page(FileMetadataTableRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "update_time desc");
-        dto.setTableData(PageUtils.setPageInfo(page, this.list(request)));
-
-        //获取模块统计
-        List<ModuleCountDTO> moduleCountDTOList = extFileMetadataMapper.countModuleIdByKeywordAndFileType(request.getProjectId(), request.getKeyword(), request.getModuleIds(), request.getFileTypes());
-        Map<String, Long> moduleCountMap = moduleCountDTOList.stream().collect(Collectors.toMap(ModuleCountDTO::getModuleId, ModuleCountDTO::getDataCount));
-        dto.setModuleCount(moduleCountMap);
-        return dto;
+        return PageUtils.setPageInfo(page, this.list(request));
     }
 
     public ResponseEntity<byte[]> batchDownload(FileBatchProcessDTO request) {
@@ -292,5 +284,11 @@ public class FileMetadataService {
         if (maxFileSize.compareTo(dataSize) < 0) {
             throw new MSException(Translator.get("file.size.is.too.large"));
         }
+    }
+
+    //获取模块统计
+    public Map<String, Integer> moduleCount(FileMetadataTableRequest request) {
+        List<ModuleCountDTO> moduleCountDTOList = extFileMetadataMapper.countModuleIdByKeywordAndFileType(request.getProjectId(), request.getKeyword(), request.getModuleIds(), request.getFileType());
+        return moduleCountDTOList.stream().collect(Collectors.toMap(ModuleCountDTO::getModuleId, ModuleCountDTO::getDataCount));
     }
 }

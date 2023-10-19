@@ -76,7 +76,7 @@ public class FileManagementService {
         List<String> processIds = request.getSelectIds();
         List<FileMetadata> refFileList = new ArrayList<>();
         if (request.isSelectAll()) {
-            refFileList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getCondition().getKeyword(), request.getModuleIds(), request.getFileTypes(), true);
+            refFileList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getCondition().getKeyword(), request.getModuleIds(), request.getFileType(), true);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 refFileList = refFileList.stream().filter(fileMetadata -> !request.getExcludeIds().contains(fileMetadata.getId())).collect(Collectors.toList());
             }
@@ -97,7 +97,7 @@ public class FileManagementService {
         List<String> processIds = request.getSelectIds();
         List<FileMetadata> refFileList = new ArrayList<>();
         if (request.isSelectAll()) {
-            refFileList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getCondition().getKeyword(), request.getModuleIds(), request.getFileTypes(), false);
+            refFileList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getCondition().getKeyword(), request.getModuleIds(), request.getFileType(), false);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 refFileList = refFileList.stream().filter(fileMetadata -> !request.getExcludeIds().contains(fileMetadata.getId())).collect(Collectors.toList());
             }

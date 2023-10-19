@@ -92,6 +92,15 @@ public class FileManagementPermissionControllerTests extends BaseTest {
         this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ, FileManagementRequestUtils.URL_FILE_PAGE, request);
     }
 
+    @Test
+    void moduleCountTestSuccess() throws Exception {
+        FileMetadataTableRequest request = new FileMetadataTableRequest() {{
+            this.setCurrent(1);
+            this.setPageSize(10);
+            this.setProjectId(DEFAULT_PROJECT_ID);
+        }};
+        this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ, FileManagementRequestUtils.URL_FILE_MODULE_COUNT, request);
+    }
 
     @Test
     public void fileDeleteSuccess() throws Exception {
