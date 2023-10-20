@@ -99,6 +99,7 @@ public class ApiDefinitionService {
     public static final String JSONSCHEMA = "jsonSchema";
     private static final String COPY = "Copy";
     private static final String SCHEDULE = "schedule";
+    private static final String API_CASE = "apiCase";
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
@@ -190,12 +191,41 @@ public class ApiDefinitionService {
         buildUserInfo(resList);
         if (StringUtils.isNotBlank(request.getProjectId())) {
             buildProjectInfo(resList, request.getProjectId());
-            calculateResult(resList, request.getProjectId());
+            calculateApiResult(resList, request.getProjectId());
         } else {
             buildProjectInfoWithoutProject(resList);
         }
         buildCustomField(resList);
         return resList;
+    }
+
+    public void calculateApiResult(List<ApiDefinitionResult> resList, String projectId) {
+        if (!resList.isEmpty()) {
+            List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
+            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
+            Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
+            for (ApiDefinitionResult res : resList) {
+                ApiComputeResult compRes = resultMap.get(res.getId());
+                if (compRes != null) {
+                    res.setCaseType(API_CASE);
+                    res.setCaseTotal(String.valueOf(compRes.getCaseTotal()));
+                    res.setCasePassingRate(compRes.getPassRate());
+                    // 状态优先级 未执行，未通过，通过
+                    if ((compRes.getError() + compRes.getSuccess()) < compRes.getCaseTotal()) {
+                        res.setCaseStatus(ApiReportStatus.PENDING.name());
+                    } else if (compRes.getError() > 0) {
+                        res.setCaseStatus(ApiReportStatus.ERROR.name());
+                    } else {
+                        res.setCaseStatus(ApiReportStatus.SUCCESS.name());
+                    }
+                } else {
+                    res.setCaseType(API_CASE);
+                    res.setCaseTotal("0");
+                    res.setCasePassingRate("-");
+                    res.setCaseStatus("-");
+                }
+            }
+        }
     }
 
     private void setCustomFieldsOrder(ApiDefinitionRequest request) {
@@ -1380,10 +1410,10 @@ public class ApiDefinitionService {
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());
                 if (compRes != null) {
-                    res.setCaseType("apiCase");
+                    res.setCaseType(API_CASE);
                     res.setCaseTotal(String.valueOf(compRes.getCaseTotal()));
                 } else {
-                    res.setCaseType("apiCase");
+                    res.setCaseType(API_CASE);
                     res.setCaseTotal("0");
                 }
             }

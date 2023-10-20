@@ -24,6 +24,8 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiComputeResult> countByApiIdAndStatusIsNotTrash(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
+    List<ApiComputeResult> selectByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids, @Param("projectId") String projectId);
+
     int removeToGcByExample(ApiDefinitionExampleWithOperation example);
 
     int reduction(@Param("ids") List<String> ids);
