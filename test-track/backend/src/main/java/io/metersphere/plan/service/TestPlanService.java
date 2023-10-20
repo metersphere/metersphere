@@ -1049,7 +1049,10 @@ public class TestPlanService {
             } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
                 scenarioRequest.setTriggerMode(ReportTriggerMode.MANUAL.name());
                 scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
-            } else {
+            } else if (StringUtils.equals(triggerMode, ReportTriggerMode.BATCH.name())) {
+                scenarioRequest.setTriggerMode(ReportTriggerMode.BATCH.name());
+                scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
+            }else{
                 scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
                 scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
             }

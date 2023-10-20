@@ -6,7 +6,12 @@
         :label="$t('api_test.definition.request.response_body')"
         name="body"
         class="pane">
-        <ms-sql-result-table v-if="isSqlType" :body="response.body" />
+        <ms-sql-result-table v-if="isSqlType && !response.contentType" :body="response.body" />
+        <el-row v-else-if="isPicture && activeName === 'body'">
+          <el-col :span="24">
+            <el-image :src="srcUrl" fit="contain" style="width: 100%;height: 100%;"></el-image>
+          </el-col>
+        </el-row>
         <ms-code-edit v-else :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit" />
       </el-tab-pane>
 
@@ -86,6 +91,17 @@ export default {
       modes: ['text', 'json', 'xml', 'html'],
       sqlModes: ['text', 'table'],
       mode: BODY_FORMAT.TEXT,
+      contentType: [
+        'image/png',
+        'image/jpeg',
+        'image/gif',
+        'image/bmp',
+        'image/webp',
+        'image/svg+xml',
+        'image/apng',
+        'image/avif'
+      ],
+      srcUrl: '',
     };
   },
 
@@ -105,6 +121,26 @@ export default {
     if (this.response.headers.indexOf('Content-Type: application/json') > 0) {
       this.mode = BODY_FORMAT.JSON;
     }
+    if (this.response.contentType && this.contentType.includes(this.response.contentType)) {
+      this.modes.push('picture')
+      this.srcUrl = 'data:' + this.response.contentType + ';base64,' + this.response.imageUrl;
+    }
+    if (this.response && this.response.contentType) {
+      switch (this.response.contentType) {
+        case 'application/json':
+          this.mode = BODY_FORMAT.JSON;
+          break;
+        case 'text/html':
+          this.mode = BODY_FORMAT.HTML;
+          break;
+        case 'text/xml':
+          this.mode = BODY_FORMAT.XML;
+          break;
+        default:
+          this.mode = BODY_FORMAT.TEXT;
+          break;
+      }
+    }
   },
 
   computed: {
@@ -114,6 +150,9 @@ export default {
         this.response.responseCode === '200' &&
         this.mode === 'table'
       );
+    },
+    isPicture() {
+      return this.response.contentType && this.contentType.includes(this.response.contentType) && this.mode === 'picture';
     },
   },
 };
