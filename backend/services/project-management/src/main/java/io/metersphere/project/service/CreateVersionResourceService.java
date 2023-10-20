@@ -7,7 +7,7 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.service.CreateProjectResourceService;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +31,7 @@ public class CreateVersionResourceService implements CreateProjectResourceServic
     public void createResources(String projectId) {
         // 初始化版本V1.0, 初始化版本配置项
         ProjectVersion defaultVersion = new ProjectVersion();
-        defaultVersion.setId(UUID.randomUUID().toString());
+        defaultVersion.setId(IDGenerator.nextStr());
         defaultVersion.setProjectId(projectId);
         defaultVersion.setName(DEFAULT_VERSION);
         defaultVersion.setStatus(DEFAULT_VERSION_STATUS);

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +68,7 @@ public class BaseUserRolePermissionService {
             if (BooleanUtils.isTrue(permission.getEnable())) {
                 String permissionId = permission.getId();
                 UserRolePermission groupPermission = new UserRolePermission();
-                groupPermission.setId(UUID.randomUUID().toString());
+                groupPermission.setId(IDGenerator.nextStr());
                 groupPermission.setRoleId(groupId);
                 groupPermission.setPermissionId(permissionId);
                 userRolePermissionMapper.insert(groupPermission);

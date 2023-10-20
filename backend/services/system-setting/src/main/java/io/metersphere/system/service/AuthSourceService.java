@@ -2,7 +2,7 @@ package io.metersphere.system.service;
 
 
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.AuthSource;
@@ -46,7 +46,7 @@ public class AuthSourceService {
         source.setType(authSource.getType());
         source.setCreateTime(createTime);
         source.setUpdateTime(createTime);
-        source.setId(UUID.randomUUID().toString());
+        source.setId(IDGenerator.nextStr());
         return source;
     }
 

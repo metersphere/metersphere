@@ -17,7 +17,7 @@ import io.metersphere.system.domain.UserRolePermissionExample;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRolePermissionMapper;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;
@@ -513,7 +513,7 @@ public abstract class BaseTest {
     private UserRolePermission initUserRolePermission(String roleId, String permissionId) {
         UserRolePermission userRolePermission = new UserRolePermission();
         userRolePermission.setRoleId(roleId);
-        userRolePermission.setId(UUID.randomUUID().toString());
+        userRolePermission.setId(IDGenerator.nextStr());
         userRolePermission.setPermissionId(permissionId);
         userRolePermissionMapper.insert(userRolePermission);
         return userRolePermission;

@@ -18,7 +18,7 @@ import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,7 +51,7 @@ public class TestResourcePoolService {
 
 
     public TestResourcePool addTestResourcePool(TestResourcePoolDTO testResourcePool) {
-        String id = UUID.randomUUID().toString();
+        String id = IDGenerator.nextStr();
 
         checkTestResourcePool(testResourcePool);
 
@@ -92,7 +92,7 @@ public class TestResourcePoolService {
             testResourcePool.setAllOrg(false);
             testResourceDTO.getOrgIds().forEach(orgId -> {
                 TestResourcePoolOrganization testResourcePoolOrganization = new TestResourcePoolOrganization();
-                testResourcePoolOrganization.setId(UUID.randomUUID().toString());
+                testResourcePoolOrganization.setId(IDGenerator.nextStr());
                 testResourcePoolOrganization.setOrgId(orgId);
                 testResourcePoolOrganization.setTestResourcePoolId(id);
                 poolOrganizationMapper.insert(testResourcePoolOrganization);

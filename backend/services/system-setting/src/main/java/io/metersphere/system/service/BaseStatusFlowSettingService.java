@@ -13,7 +13,7 @@ import io.metersphere.system.domain.StatusFlow;
 import io.metersphere.system.domain.StatusItem;
 import io.metersphere.system.dto.StatusFlowSettingDTO;
 import io.metersphere.system.mapper.StatusDefinitionMapper;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -169,7 +169,7 @@ public class BaseStatusFlowSettingService {
             List<String> statusFlowTargets = defaultBugStatusItem.getStatusFlowTargets();
             for (String statusFlowTarget : statusFlowTargets) {
                 StatusFlow statusFlow = new StatusFlow();
-                statusFlow.setId(UUID.randomUUID().toString());
+                statusFlow.setId(IDGenerator.nextStr());
                 statusFlow.setFromId(fromStatusId);
                 statusFlow.setToId(statusNameMap.get(statusFlowTarget));
                 statusFlows.add(statusFlow);

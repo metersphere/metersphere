@@ -21,7 +21,7 @@ import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -216,7 +216,7 @@ public class NoticeMessageTaskService {
         boolean useDefaultSubject = messageTaskRequest.getUseDefaultSubject() == null || messageTaskRequest.getUseDefaultSubject();
         boolean useDefaultTemplate = messageTaskRequest.getUseDefaultTemplate() == null || messageTaskRequest.getUseDefaultTemplate();
 
-        String insertId = UUID.randomUUID().toString();
+        String insertId = IDGenerator.nextStr();
         messageTask.setId(insertId);
         messageTask.setTaskType(messageTaskRequest.getTaskType());
         messageTask.setEvent(messageTaskRequest.getEvent());

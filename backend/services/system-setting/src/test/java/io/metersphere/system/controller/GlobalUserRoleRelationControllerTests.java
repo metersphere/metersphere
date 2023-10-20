@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
@@ -234,12 +234,12 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
     private UserRoleRelation getNonGlobalUserRoleRelation() {
         UserRole nonGlobalUserRole = getNonGlobalUserRole();
         UserRoleRelation userRoleRelation = new UserRoleRelation();
-        userRoleRelation.setId(UUID.randomUUID().toString());
+        userRoleRelation.setId(IDGenerator.nextStr());
         userRoleRelation.setRoleId(nonGlobalUserRole.getId());
         userRoleRelation.setCreateUser(ADMIN.getValue());
         userRoleRelation.setUserId(ADMIN.getValue());
         userRoleRelation.setCreateTime(System.currentTimeMillis());
-        userRoleRelation.setSourceId(UUID.randomUUID().toString());
+        userRoleRelation.setSourceId(IDGenerator.nextStr());
         userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
         userRoleRelationMapper.insert(userRoleRelation);
         return userRoleRelation;
@@ -250,12 +250,12 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
      */
     private UserRoleRelation getNonSystemUserRoleRelation() {
         UserRoleRelation userRoleRelation = new UserRoleRelation();
-        userRoleRelation.setId(UUID.randomUUID().toString());
+        userRoleRelation.setId(IDGenerator.nextStr());
         userRoleRelation.setRoleId(ORG_ADMIN.getValue());
         userRoleRelation.setUserId(ADMIN.getValue());
         userRoleRelation.setCreateUser(ADMIN.getValue());
         userRoleRelation.setCreateTime(System.currentTimeMillis());
-        userRoleRelation.setSourceId(UUID.randomUUID().toString());
+        userRoleRelation.setSourceId(IDGenerator.nextStr());
         userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
         userRoleRelationMapper.insert(userRoleRelation);
         return userRoleRelation;
@@ -269,7 +269,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         UserRole nonGlobalUserRole = userRoleMapper.selectByPrimaryKey(ADMIN.getValue());
         nonGlobalUserRole.setName("非全局用户组");
         nonGlobalUserRole.setScopeId("not global");
-        nonGlobalUserRole.setId(UUID.randomUUID().toString());
+        nonGlobalUserRole.setId(IDGenerator.nextStr());
         userRoleMapper.insert(nonGlobalUserRole);
         return nonGlobalUserRole;
     }
@@ -282,7 +282,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         UserRole nonInternalRole = userRoleMapper.selectByPrimaryKey(ADMIN.getValue());
         nonInternalRole.setName("非内置用户组");
         nonInternalRole.setInternal(false);
-        nonInternalRole.setId(UUID.randomUUID().toString());
+        nonInternalRole.setId(IDGenerator.nextStr());
         userRoleMapper.insert(nonInternalRole);
         return nonInternalRole;
     }

@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
@@ -118,7 +118,7 @@ public class BaseTemplateService {
 
     public Template baseAdd(Template template, List<TemplateCustomFieldRequest> customFields) {
         checkAddExist(template);
-        template.setId(UUID.randomUUID().toString());
+        template.setId(IDGenerator.nextStr());
         template.setCreateTime(System.currentTimeMillis());
         template.setUpdateTime(System.currentTimeMillis());
         templateMapper.insert(template);
@@ -320,7 +320,7 @@ public class BaseTemplateService {
 
     public Template initDefaultTemplate(String scopeId, String name, TemplateScopeType scopeType, TemplateScene scene) {
         Template template = new Template();
-        template.setId(UUID.randomUUID().toString());
+        template.setId(IDGenerator.nextStr());
         template.setName(name);
         template.setInternal(true);
         template.setUpdateTime(System.currentTimeMillis());

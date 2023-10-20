@@ -25,7 +25,7 @@ import io.metersphere.system.request.user.UserChangeEnableRequest;
 import io.metersphere.system.request.user.UserEditRequest;
 import io.metersphere.system.response.user.UserImportResponse;
 import io.metersphere.system.response.user.UserTableResponse;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.UserImportEventListener;
 import jakarta.annotation.Resource;
 import jakarta.mail.internet.InternetAddress;
@@ -114,7 +114,7 @@ public class UserService {
         List<User> saveUserList = new ArrayList<>();
         //添加用户
         for (UserCreateInfo userInfo : userCreateDTO.getUserInfoList()) {
-            userInfo.setId(UUID.randomUUID().toString());
+            userInfo.setId(IDGenerator.nextStr());
             User user = new User();
             BeanUtils.copyBean(user, userInfo);
             user.setCreateUser(operator);
@@ -471,7 +471,7 @@ public class UserService {
         //创建用户
         long createTime = System.currentTimeMillis();
         User user = new User();
-        user.setId(UUID.randomUUID().toString());
+        user.setId(IDGenerator.nextStr());
         user.setEmail(userInvite.getEmail());
         user.setPassword(CodingUtils.md5(RsaUtils.privateDecrypt(request.getPassword(), RsaUtils.getRsaKey().getPrivateKey())));
         user.setName(request.getName());

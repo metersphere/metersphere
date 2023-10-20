@@ -19,7 +19,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.request.*;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -195,7 +195,7 @@ public class OrganizationService {
                     continue;
                 }
                 UserRoleRelation userRoleRelation = new UserRoleRelation();
-                userRoleRelation.setId(UUID.randomUUID().toString());
+                userRoleRelation.setId(IDGenerator.nextStr());
                 userRoleRelation.setUserId(userId);
                 userRoleRelation.setSourceId(organizationId);
                 userRoleRelation.setRoleId(InternalUserRole.ORG_MEMBER.getValue());
@@ -616,7 +616,7 @@ public class OrganizationService {
 
     private UserRoleRelation buildUserRoleRelation(String createUserId, String memberId, String sourceId, String roleId, String organizationId) {
         UserRoleRelation userRoleRelation = new UserRoleRelation();
-        userRoleRelation.setId(UUID.randomUUID().toString());
+        userRoleRelation.setId(IDGenerator.nextStr());
         userRoleRelation.setUserId(memberId);
         userRoleRelation.setOrganizationId(organizationId);
         userRoleRelation.setSourceId(sourceId);

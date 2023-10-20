@@ -25,7 +25,7 @@ import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -184,7 +184,7 @@ public class ProjectMemberService {
                 return;
             }
             UserRoleRelation relation = new UserRoleRelation();
-            relation.setId(UUID.randomUUID().toString());
+            relation.setId(IDGenerator.nextStr());
             relation.setUserId(request.getUserId());
             relation.setRoleId(roleId);
             relation.setSourceId(request.getProjectId());
@@ -278,7 +278,7 @@ public class ProjectMemberService {
                     return;
                 }
                 UserRoleRelation relation = new UserRoleRelation();
-                relation.setId(UUID.randomUUID().toString());
+                relation.setId(IDGenerator.nextStr());
                 relation.setUserId(userId);
                 relation.setRoleId(roleId);
                 relation.setSourceId(request.getProjectId());

@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -45,7 +45,7 @@ public class UserKeyService {
         }
 
         UserKey userKeys = new UserKey();
-        userKeys.setId(UUID.randomUUID().toString());
+        userKeys.setId(IDGenerator.nextStr());
         userKeys.setCreateUser(userId);
         userKeys.setEnable(true);
         userKeys.setAccessKey(RandomStringUtils.randomAlphanumeric(16));

@@ -6,7 +6,7 @@ import io.metersphere.sdk.dto.UserExcludeOptionDTO;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
@@ -80,7 +80,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
             userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
             checkExist(userRoleRelation);
             userRoleRelation.setCreateTime(System.currentTimeMillis());
-            userRoleRelation.setId(UUID.randomUUID().toString());
+            userRoleRelation.setId(IDGenerator.nextStr());
             userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
             userRoleRelations.add(userRoleRelation);
         });
@@ -118,7 +118,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
                 userRoleRelation.setCreateUser(operator);
                 userRoleRelation.setCreateTime(createTime);
                 userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
-                userRoleRelation.setId(UUID.randomUUID().toString());
+                userRoleRelation.setId(IDGenerator.nextStr());
                 userRoleRelation.setOrganizationId(UserRoleScope.SYSTEM);
                 saveList.add(userRoleRelation);
             }

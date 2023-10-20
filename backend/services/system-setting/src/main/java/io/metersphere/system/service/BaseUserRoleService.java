@@ -14,7 +14,7 @@ import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -133,7 +133,7 @@ public class BaseUserRoleService {
     }
 
     protected UserRole add(UserRole userRole) {
-        userRole.setId(UUID.randomUUID().toString());
+        userRole.setId(IDGenerator.nextStr());
         userRole.setCreateTime(System.currentTimeMillis());
         userRole.setUpdateTime(System.currentTimeMillis());
         userRoleMapper.insert(userRole);
@@ -243,7 +243,7 @@ public class BaseUserRoleService {
             // 如果当前用户组只有一个用户，并且就是要删除的用户组，则添加组织成员等默认用户组
             if (relations.size() == 1 && StringUtils.equals(relations.get(0).getRoleId(), roleId)) {
                 UserRoleRelation relation = new UserRoleRelation();
-                relation.setId(UUID.randomUUID().toString());
+                relation.setId(IDGenerator.nextStr());
                 relation.setUserId(relations.get(0).getUserId());
                 relation.setSourceId(relations.get(0).getSourceId());
                 relation.setRoleId(defaultRoleId);

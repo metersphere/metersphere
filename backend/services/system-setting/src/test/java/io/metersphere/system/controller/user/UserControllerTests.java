@@ -29,7 +29,7 @@ import io.metersphere.system.response.user.UserTableResponse;
 import io.metersphere.system.service.GlobalUserRoleRelationService;
 import io.metersphere.system.service.UserService;
 import io.metersphere.system.service.UserToolService;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.user.UserParamUtils;
 import io.metersphere.system.utils.user.UserRequestUtils;
 import jakarta.annotation.Resource;
@@ -199,7 +199,7 @@ public class UserControllerTests extends BaseTest {
     public void testGetByEmailError() throws Exception {
         //测试使用任意参数，不能获取到任何用户信息
         this.checkUserList();
-        String url = UserRequestUtils.URL_USER_GET + UUID.randomUUID();
+        String url = UserRequestUtils.URL_USER_GET + IDGenerator.randomUUID();
         MvcResult mvcResult = userRequestUtils.responseGet(url);
 
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -278,7 +278,7 @@ public class UserControllerTests extends BaseTest {
 
         //查找不存在的用户
         basePageRequest = UserParamUtils.getDefaultPageRequest();
-        basePageRequest.setKeyword(UUID.randomUUID().toString());
+        basePageRequest.setKeyword(IDGenerator.nextStr());
         returnPager = userRequestUtils.selectUserPage(basePageRequest);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
@@ -1196,7 +1196,7 @@ public class UserControllerTests extends BaseTest {
         //400-用户名为空
         UserRegisterRequest request = new UserRegisterRequest();
         request.setInviteId(inviteId);
-        request.setPassword(UUID.randomUUID().toString());
+        request.setPassword(IDGenerator.nextStr());
         userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, BAD_REQUEST_MATCHER);
         request.setName("");
         userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, BAD_REQUEST_MATCHER);
@@ -1211,16 +1211,16 @@ public class UserControllerTests extends BaseTest {
         //400-邀请ID为空
         request = new UserRegisterRequest();
         request.setName("建国通过邮箱邀请2");
-        request.setPassword(UUID.randomUUID().toString());
+        request.setPassword(IDGenerator.nextStr());
         userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, BAD_REQUEST_MATCHER);
         request.setInviteId("");
         userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, BAD_REQUEST_MATCHER);
 
         //500-邀请ID不存在
         request = new UserRegisterRequest();
-        request.setInviteId(UUID.randomUUID().toString());
+        request.setInviteId(IDGenerator.nextStr());
         request.setName("建国通过邮箱邀请2");
-        request.setPassword(UUID.randomUUID().toString());
+        request.setPassword(IDGenerator.nextStr());
         userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, ERROR_REQUEST_MATCHER);
 
         //500-邀请ID已过期，且暂未删除
@@ -1231,7 +1231,7 @@ public class UserControllerTests extends BaseTest {
         request = new UserRegisterRequest();
         request.setInviteId(inviteId);
         request.setName("建国通过邮箱邀请2");
-        request.setPassword(UUID.randomUUID().toString());
+        request.setPassword(IDGenerator.nextStr());
         userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, ERROR_REQUEST_MATCHER);
 
         //500-用户邮箱在用户注册之前已经被注册过了
@@ -1256,7 +1256,7 @@ public class UserControllerTests extends BaseTest {
         request = new UserRegisterRequest();
         request.setInviteId(inviteId);
         request.setName("建国通过邮箱邀请2");
-        request.setPassword(UUID.randomUUID().toString());
+        request.setPassword(IDGenerator.nextStr());
         userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, ERROR_REQUEST_MATCHER);
     }
 }

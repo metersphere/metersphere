@@ -6,7 +6,7 @@ import io.metersphere.system.domain.StatusItem;
 import io.metersphere.system.domain.StatusItemExample;
 import io.metersphere.system.mapper.ExtStatusItemMapper;
 import io.metersphere.system.mapper.StatusItemMapper;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -77,7 +77,7 @@ public class BaseStatusItemService {
     }
 
     public StatusItem baseAdd(StatusItem statusItem) {
-        statusItem.setId(UUID.nextStr());
+        statusItem.setId(IDGenerator.nextStr());
         statusItemMapper.insert(statusItem);
         return statusItem;
     }
@@ -92,7 +92,7 @@ public class BaseStatusItemService {
         if (CollectionUtils.isEmpty(statusItems)) {
             return List.of();
         }
-        statusItems.forEach(statusItem -> statusItem.setId(UUID.nextStr()));
+        statusItems.forEach(statusItem -> statusItem.setId(IDGenerator.nextStr()));
         statusItemMapper.batchInsert(statusItems);
         return statusItems;
     }

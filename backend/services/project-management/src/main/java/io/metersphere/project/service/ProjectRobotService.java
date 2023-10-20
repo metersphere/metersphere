@@ -10,7 +10,7 @@ import io.metersphere.project.mapper.ProjectRobotMapper;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +34,7 @@ public class ProjectRobotService {
     private MessageTaskBlobMapper messageTaskBlobMapper;
 
     public void add(ProjectRobot projectRobot) {
-        projectRobot.setId(UUID.randomUUID().toString());
+        projectRobot.setId(IDGenerator.nextStr());
         projectRobot.setEnable(projectRobot.getEnable());
         checkDingTalk(projectRobot);
         robotMapper.insert(projectRobot);

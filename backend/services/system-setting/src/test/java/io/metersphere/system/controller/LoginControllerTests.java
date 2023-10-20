@@ -8,7 +8,7 @@ import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.SystemProjectService;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -107,7 +107,7 @@ public class LoginControllerTests extends BaseTest {
         userRoleRelation.setRoleId("org-member");
         userRoleRelation.setCreateUser("test.login");
         userRoleRelation.setCreateTime(System.currentTimeMillis());
-        userRoleRelation.setId(UUID.randomUUID().toString());
+        userRoleRelation.setId(IDGenerator.nextStr());
         userRoleRelationMapper.insert(userRoleRelation);
         mockMvc.perform(MockMvcRequestBuilders.post(login)
                         .content(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", "test.login", "test.login@163.com"))
@@ -134,7 +134,7 @@ public class LoginControllerTests extends BaseTest {
         userRoleRelation.setRoleId("org-member");
         userRoleRelation.setCreateUser("test.login");
         userRoleRelation.setCreateTime(System.currentTimeMillis());
-        userRoleRelation.setId(UUID.randomUUID().toString());
+        userRoleRelation.setId(IDGenerator.nextStr());
         userRoleRelationMapper.insert(userRoleRelation);
         user.setLastOrganizationId(DEFAULT_ORGANIZATION_ID);
         user.setLastProjectId(null);

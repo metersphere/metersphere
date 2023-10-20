@@ -10,7 +10,7 @@ import io.metersphere.sdk.mapper.ProjectParametersMapper;
 
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,7 +33,7 @@ public class GlobalParamsService {
         projectParameters.setProjectId(globalParamsRequest.getProjectId());
         checkExist(globalParamsRequest.getProjectId());
         checkProjectExist(globalParamsRequest.getProjectId());
-        projectParameters.setId(UUID.randomUUID().toString());
+        projectParameters.setId(IDGenerator.nextStr());
         projectParameters.setCreateUser(userId);
         projectParameters.setUpdateUser(userId);
         projectParameters.setCreateTime(System.currentTimeMillis());

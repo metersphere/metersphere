@@ -7,7 +7,7 @@ import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
@@ -87,7 +87,7 @@ public class UserRoleRelationService {
         for (String userRoleId : userRoleIdList) {
             for (User user : userList) {
                 UserRoleRelation userRoleRelation = new UserRoleRelation();
-                userRoleRelation.setId(UUID.randomUUID().toString());
+                userRoleRelation.setId(IDGenerator.nextStr());
                 userRoleRelation.setUserId(user.getId());
                 userRoleRelation.setRoleId(userRoleId);
                 userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
@@ -117,7 +117,7 @@ public class UserRoleRelationService {
         //添加用户组织关系
         for (String userRoleId : userRoleIdList) {
             UserRoleRelation userRoleRelation = new UserRoleRelation();
-            userRoleRelation.setId(UUID.randomUUID().toString());
+            userRoleRelation.setId(IDGenerator.nextStr());
             userRoleRelation.setUserId(user.getId());
             userRoleRelation.setRoleId(userRoleId);
             userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
@@ -187,7 +187,7 @@ public class UserRoleRelationService {
         for (String roleId : roleList) {
             if (!userSavedRoleIdList.contains(roleId)) {
                 UserRoleRelation userRoleRelation = new UserRoleRelation();
-                userRoleRelation.setId(UUID.randomUUID().toString());
+                userRoleRelation.setId(IDGenerator.nextStr());
                 userRoleRelation.setUserId(user.getId());
                 userRoleRelation.setRoleId(roleId);
                 userRoleRelation.setSourceId(UserRoleScope.SYSTEM);

@@ -19,7 +19,7 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -67,7 +67,7 @@ public class FileManagementControllerTests extends BaseTest {
     public void initTestData() {
         if (project == null) {
             Project initProject = new Project();
-            initProject.setId(UUID.randomUUID().toString());
+            initProject.setId(IDGenerator.nextStr());
             initProject.setNum(null);
             initProject.setOrganizationId("100001");
             initProject.setName("建国创建的项目");
@@ -264,7 +264,7 @@ public class FileManagementControllerTests extends BaseTest {
         request = new FileModuleCreateRequest();
         request.setProjectId(project.getId());
         request.setName("ParentIsUUID");
-        request.setParentId(UUID.randomUUID().toString());
+        request.setParentId(IDGenerator.nextStr());
         this.requestPost(FileManagementRequestUtils.URL_MODULE_ADD, request).andExpect(status().is5xxServerError());
 
         //添加重复的a1节点
@@ -282,7 +282,7 @@ public class FileManagementControllerTests extends BaseTest {
 
         //子节点的项目ID和父节点的不匹配
         request = new FileModuleCreateRequest();
-        request.setProjectId(UUID.randomUUID().toString());
+        request.setProjectId(IDGenerator.nextStr());
         request.setName("RandomUUID");
         request.setParentId(a1Node.getId());
         this.requestPost(FileManagementRequestUtils.URL_MODULE_ADD, request).andExpect(status().is5xxServerError());
@@ -333,8 +333,8 @@ public class FileManagementControllerTests extends BaseTest {
 
         //id不存在
         updateRequest = new FileModuleUpdateRequest();
-        updateRequest.setId(UUID.randomUUID().toString());
-        updateRequest.setName(UUID.randomUUID().toString());
+        updateRequest.setId(IDGenerator.nextStr());
+        updateRequest.setName(IDGenerator.nextStr());
         this.requestPost(FileManagementRequestUtils.URL_MODULE_UPDATE, updateRequest).andExpect(status().is5xxServerError());
 
         //名称重复   a1-a1改为a1-b1
@@ -416,7 +416,7 @@ public class FileManagementControllerTests extends BaseTest {
         this.requestMultipart(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap).andExpect(status().isBadRequest());
 
         //模块不存在
-        fileUploadRequest.setModuleId(UUID.randomUUID().toString());
+        fileUploadRequest.setModuleId(IDGenerator.nextStr());
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", file);
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
@@ -486,7 +486,7 @@ public class FileManagementControllerTests extends BaseTest {
         this.requestMultipart(FileManagementRequestUtils.URL_FILE_RE_UPLOAD, paramMap).andExpect(status().isBadRequest());
 
         //旧文件不存在
-        fileReUploadRequest.setFileId(UUID.randomUUID().toString());
+        fileReUploadRequest.setFileId(IDGenerator.nextStr());
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", file);
         paramMap.add("request", JSON.toJSONString(fileReUploadRequest));
@@ -514,7 +514,7 @@ public class FileManagementControllerTests extends BaseTest {
     @Order(16)
     public void fileDownloadTestError() throws Exception {
         //下载不存在的文件
-        mockMvc.perform(getRequestBuilder(FileManagementRequestUtils.URL_FILE_DOWNLOAD, UUID.randomUUID()))
+        mockMvc.perform(getRequestBuilder(FileManagementRequestUtils.URL_FILE_DOWNLOAD, IDGenerator.randomUUID()))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
     }
@@ -575,7 +575,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setPageSize(10);
             this.setProjectId(project.getId());
             this.setModuleIds(new ArrayList<>() {{
-                this.add(UUID.randomUUID().toString());
+                this.add(IDGenerator.nextStr());
             }});
         }};
         this.filePageRequestAndCheck(request, false);
@@ -658,7 +658,7 @@ public class FileManagementControllerTests extends BaseTest {
         batchProcessDTO.setSelectAll(false);
         batchProcessDTO.setProjectId(project.getId());
         batchProcessDTO.setSelectIds(new ArrayList<>() {{
-            this.add(UUID.randomUUID().toString());
+            this.add(IDGenerator.nextStr());
         }});
 
         mockMvc.perform(getPostRequestBuilder(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, batchProcessDTO))
@@ -694,7 +694,7 @@ public class FileManagementControllerTests extends BaseTest {
         fileBatchProcessDTO.setSelectAll(true);
         fileBatchProcessDTO.setProjectId(project.getId());
         fileBatchProcessDTO.setExcludeIds(new ArrayList<>() {{
-            this.add(UUID.randomUUID().toString());
+            this.add(IDGenerator.nextStr());
         }});
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessDTO);
         FileMetadataExample example = new FileMetadataExample();
@@ -762,7 +762,7 @@ public class FileManagementControllerTests extends BaseTest {
         this.requestPost(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest).andExpect(status().isBadRequest());
 
         //文件不存在
-        updateRequest.setId(UUID.randomUUID().toString());
+        updateRequest.setId(IDGenerator.nextStr());
         this.requestPost(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest).andExpect(status().is5xxServerError());
 
         //模块不存在
@@ -775,7 +775,7 @@ public class FileManagementControllerTests extends BaseTest {
             break;
         }
         updateRequest.setId(updateFileId);
-        updateRequest.setModuleId(UUID.randomUUID().toString());
+        updateRequest.setModuleId(IDGenerator.nextStr());
         this.requestPost(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest).andExpect(status().is5xxServerError());
 
     }
@@ -1042,7 +1042,7 @@ public class FileManagementControllerTests extends BaseTest {
         checkLog(a1a1Node.getId(), OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE);
 
         //删除不存在的节点
-        this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, UUID.randomUUID()));
+        this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, IDGenerator.randomUUID()));
         // 测试删除根节点
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, ModuleConstants.DEFAULT_NODE_ID));
 

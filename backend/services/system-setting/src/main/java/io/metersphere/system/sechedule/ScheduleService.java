@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 
 @Transactional(rollbackFor = Exception.class)
 public class ScheduleService {
@@ -25,7 +25,7 @@ public class ScheduleService {
     private ScheduleManager scheduleManager;
 
     public void addSchedule(Schedule schedule) {
-        schedule.setId(UUID.randomUUID().toString());
+        schedule.setId(IDGenerator.nextStr());
         schedule.setCreateTime(System.currentTimeMillis());
         schedule.setUpdateTime(System.currentTimeMillis());
         scheduleMapper.insert(schedule);

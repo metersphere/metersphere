@@ -14,7 +14,7 @@ import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.CreateProjectResourceService;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +44,7 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
     public void createResources(String projectId) {
         List<ProjectRobot> list = new ArrayList<>();
         ProjectRobot projectRobot = new ProjectRobot();
-        String inSiteId = UUID.randomUUID().toString();
+        String inSiteId = IDGenerator.nextStr();
         projectRobot.setId(inSiteId);
         projectRobot.setProjectId(projectId);
         projectRobot.setName("robot_in_site");
@@ -58,7 +58,7 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
         projectRobot.setDescription("robot_in_site_description");
         list.add(projectRobot);
         ProjectRobot projectRobotMail = new ProjectRobot();
-        projectRobotMail.setId(UUID.randomUUID().toString());
+        projectRobotMail.setId(IDGenerator.nextStr());
         projectRobotMail.setProjectId(projectId);
         projectRobotMail.setName("robot_mail");
         projectRobotMail.setPlatform(ProjectRobotPlatform.MAIL.toString());
@@ -108,7 +108,7 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
                         continue;
                     }
                     for (OptionDTO receiver : receivers) {
-                        String id = UUID.randomUUID().toString();
+                        String id = IDGenerator.nextStr();
                         MessageTask messageTask = new MessageTask();
                         messageTask.setId(id);
                         messageTask.setEvent(event);
