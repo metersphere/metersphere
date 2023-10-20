@@ -14,7 +14,6 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.service.CleanupProjectResourceService;
 import io.metersphere.system.uid.UUID;
-import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,12 +51,12 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
             List<FileModule> notMatchedList = new ArrayList<>();
             for (FileModule fileModule : fileModuleList) {
                 if (StringUtils.equals(fileModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-                    BaseTreeNode node = new BaseTreeNode(fileModule.getId(), fileModule.getName(), ModuleConstants.NODE_TYPE_DEFAULT);
+                    BaseTreeNode node = new BaseTreeNode(fileModule.getId(), fileModule.getName(), ModuleConstants.NODE_TYPE_DEFAULT, fileModule.getParentId());
                     baseTreeNodeList.add(node);
                     baseTreeNodeMap.put(fileModule.getId(), node);
                 } else {
                     if (baseTreeNodeMap.containsKey(fileModule.getParentId())) {
-                        BaseTreeNode node = new BaseTreeNode(fileModule.getId(), fileModule.getName(), ModuleConstants.NODE_TYPE_DEFAULT);
+                        BaseTreeNode node = new BaseTreeNode(fileModule.getId(), fileModule.getName(), ModuleConstants.NODE_TYPE_DEFAULT, fileModule.getParentId());
                         baseTreeNodeMap.get(fileModule.getParentId()).addChild(node);
                         baseTreeNodeMap.put(fileModule.getId(), node);
                     } else {
@@ -227,7 +226,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
 
     @Override
     public void cleanReportResources(String projectId) {
-
+        // nothing to do
     }
 
 }
