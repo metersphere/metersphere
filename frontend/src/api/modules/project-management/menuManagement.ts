@@ -109,6 +109,18 @@ export function getPlatformOptions(organizationId: string, type: MenuEnum) {
 }
 
 /**
+ * 获取平台的下拉选项
+ * @param organizationId 组织id
+ * @returns
+ */
+export function getPlatformInfo(pluginId: string, type: MenuEnum) {
+  if (type === MenuEnum.bugManagement) {
+    return MSR.get<unknown>({ url: `${Url.getPluginInfoByBug}${pluginId}` });
+  }
+  return MSR.get<unknown>({ url: `${Url.getPluginInfoByCase}${pluginId}` });
+}
+
+/**
  * 缺陷同步保存
  * @param data 缺陷同步配置项
  * @param projectId 项目ID

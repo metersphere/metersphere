@@ -1,5 +1,5 @@
 export default {
-  'project.menu.management': '菜单管理',
+  'project.menu.management': '应用管理',
   'project.menu.manageTip':
     '可根据使用场景配置各功能开关关闭后，将隐藏功能入口，成员无法访问该功能和数据；已产生的数据不够此规则影响；再次开启时，即恢复至关闭前状态',
   'project.menu.name': '菜单名称',
@@ -49,7 +49,9 @@ export default {
   'project.menu.configure': '进行配置',
   'project.menu.status': '状态',
   'project.menu.incrementalSync': '增量同步',
+  'project.menu.incrementalSyncTip': '仅同步在 MeterSphere 创建的缺陷内容变更',
   'project.menu.fullSync': '全量同步',
+  'project.menu.fullSyncTip': '将第三方平台的缺陷全量同步到 MeterSphere 平台',
   'project.menu.platformPlaceholder': '暂未集成第三方平台，请联系组织管理员集成',
   'project.menu.platformLabel': '第三方项目管理平台',
   'project.menu.syncMechanism': '同步机制',
@@ -64,6 +66,10 @@ export default {
   'project.menu.pleaseInputJiraKey': '请输入 JIRA 项目 key',
   'project.menu.addFalseAlertRules': '新增误报规则',
   'project.menu.nameSearch': '通过名称搜索',
+  // 同步缺陷
+  'project.menu.defect.enableTip': '开启：平台创建的缺陷同步至第三方项目管理平台',
+  'project.menu.defect.closeTip': '关闭：平台创建的缺陷则无法同步至第三方项目管理平台',
+  'project.menu.defect.customLabel': '自定义频率',
   'project.menu.rule.name': '名称',
   'project.menu.rule.enable': '状态',
   'project.menu.rule.label': '标签',
