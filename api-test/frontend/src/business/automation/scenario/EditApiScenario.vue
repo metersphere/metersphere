@@ -1612,6 +1612,7 @@ export default {
         request.hashTree = [];
       }
       if (referenced === 'REF' && request.hashTree) {
+        request.disabled = true;
         this.recursiveSorting(request.hashTree);
       }
       if (this.selectedTreeNode) {
