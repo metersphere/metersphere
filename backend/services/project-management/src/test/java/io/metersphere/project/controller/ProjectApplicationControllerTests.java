@@ -507,15 +507,18 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(34)
     public void testBugConfig() throws Exception {
+        ProjectApplication request = creatRequest(ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name(), "true");
+        this.requestPost(BUG_UPDATE_URL, request);
+
         Map<String, String> congifs = mockTestData();
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_BUG_CONFIG_URL + "/default-project-2", congifs);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_BUG_CONFIG_URL + "/project_application_test_id", congifs);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         congifs.put("jiraKey", "222");
-        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_BUG_CONFIG_URL + "/default-project-2", congifs);
+        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_BUG_CONFIG_URL + "/project_application_test_id", congifs);
         // 获取返回值
         String updateData = updateResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder updateResultHolder = JSON.parseObject(updateData, ResultHolder.class);
@@ -523,16 +526,17 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Assertions.assertNotNull(updateResultHolder);
         congifs.remove("CRON_EXPRESSION");
         this.requestPostWithOkAndReturn(UPDATE_BUG_CONFIG_URL + "/default-project-2", congifs);
+
+        ProjectApplication afterRequest = creatRequest(ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name(), "true");
+        this.requestPost(BUG_UPDATE_URL, afterRequest);
     }
 
     private Map<String, String> mockTestData() {
+        String jsonConfig = "{\"jiraKey\":\"111\",\"jiraIssueTypeId\":\"10086\",\"jiraStoryTypeId\":\"10010\"}";
         Map<String, String> configs = new HashMap<>();
-        configs.put("platform", "jira");
-        configs.put("jiraKey", "111");
-        configs.put("jiraIssueTypeId", "10086");
-        configs.put("jiraStoryTypeId", "10010");
         configs.put("CRON_EXPRESSION", "0 0 0/1 * * ?");
         configs.put("SYNC_ENABLE", "true");
+        configs.put("PLATFORM", jsonConfig);
         configs.put("MECHANISM", "1");
         return configs;
     }
@@ -581,8 +585,10 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(37)
     public void testCaseRelatedConfig() throws Exception {
+        ProjectApplication request = creatRequest(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name(), "true");
+        this.requestPost(CASE_UPDATE_URL, request);
         Map<String, String> configs = mockRelatedTestData();
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/default-project-2", configs);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/project_application_test_id", configs);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -591,21 +597,21 @@ public class ProjectApplicationControllerTests extends BaseTest {
 
         //更新
         configs.put("jiraKey", "222");
-        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/default-project-2", configs);
+        MvcResult updateResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/project_application_test_id", configs);
         // 获取返回值
         String updateData = updateResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder updateResultHolder = JSON.parseObject(updateData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(updateResultHolder);
+        ProjectApplication afterRequest = creatRequest(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name(), "true");
+        this.requestPost(CASE_UPDATE_URL, afterRequest);
     }
 
     private Map<String, String> mockRelatedTestData() {
+        String jsonConfig = "{\"jiraKey\":\"111\",\"jiraIssueTypeId\":\"10086\",\"jiraStoryTypeId\":\"10010\"}";
         Map<String, String> configs = new HashMap<>();
-        configs.put("platform", "jira");
-        configs.put("jiraKey", "111");
-        configs.put("jiraIssueTypeId", "10086");
-        configs.put("jiraStoryTypeId", "10010");
-        configs.put("ENABLE", "true");
+        configs.put("PLATFORM", jsonConfig);
+        configs.put("CASE_ENABLE", "true");
         return configs;
     }
 
@@ -692,7 +698,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(40)
     public void testGetProjectDemandThirdPartConfig() throws Exception {
         projectApplicationService.getProjectDemandThirdPartConfig(DEFAULT_PROJECT_ID);
-        projectApplicationService.getProjectDemandThirdPartConfig("test+project_id");
+        projectApplicationService.getProjectDemandThirdPartConfig("test_project_id");
     }
 
 }
