@@ -290,83 +290,79 @@ public class ProjectApplicationService {
     /**
      * 测试计划 日志
      *
-     * @param applications
+     * @param application
      * @return
      */
-    public List<LogDTO> updateTestPlanLog(List<ProjectApplication> applications) {
-        return delLog(applications, OperationLogModule.PROJECT_PROJECT_MANAGER, "测试计划配置");
+    public LogDTO updateTestPlanLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "测试计划配置");
     }
 
 
     /**
      * UI 日志
      *
-     * @param applications
+     * @param application
      * @return
      */
-    public List<LogDTO> updateUiLog(List<ProjectApplication> applications) {
-        return delLog(applications, OperationLogModule.PROJECT_PROJECT_MANAGER, "UI配置");
+    public LogDTO updateUiLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "UI配置");
     }
 
     /**
      * 性能测试 日志
      *
-     * @param applications
+     * @param application
      * @return
      */
-    public List<LogDTO> updatePerformanceLog(List<ProjectApplication> applications) {
-        return delLog(applications, OperationLogModule.PROJECT_PROJECT_MANAGER, "性能测试配置");
+    public LogDTO updatePerformanceLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "性能测试配置");
     }
 
     /**
      * 接口测试 日志
      *
-     * @param applications
+     * @param application
      * @return
      */
-    public List<LogDTO> updateApiLog(List<ProjectApplication> applications) {
-        return delLog(applications, OperationLogModule.PROJECT_PROJECT_MANAGER, "接口测试配置");
+    public LogDTO updateApiLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "接口测试配置");
     }
 
 
     /**
      * 用例管理 日志
      *
-     * @param applications
+     * @param application
      * @return
      */
-    public List<LogDTO> updateCaseLog(List<ProjectApplication> applications) {
-        return delLog(applications, OperationLogModule.PROJECT_PROJECT_MANAGER, "用例管理配置");
+    public LogDTO updateCaseLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "用例管理配置");
     }
 
     /**
      * 工作台 日志
      *
-     * @param applications
+     * @param application
      * @return
      */
-    public List<LogDTO> updateWorkstationLog(List<ProjectApplication> applications) {
-        return delLog(applications, OperationLogModule.PROJECT_PROJECT_MANAGER, "工作台配置");
+    public LogDTO updateWorkstationLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "工作台配置");
     }
 
-    private List<LogDTO> delLog(List<ProjectApplication> applications, String module, String content) {
-        List<LogDTO> logs = new ArrayList<>();
-        applications.forEach(application -> {
-            ProjectApplicationExample example = new ProjectApplicationExample();
-            example.createCriteria().andTypeEqualTo(application.getType()).andProjectIdEqualTo(application.getProjectId());
-            List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
-            LogDTO dto = new LogDTO(
-                    application.getProjectId(),
-                    "",
-                    OperationLogConstants.SYSTEM,
-                    null,
-                    OperationLogType.UPDATE.name(),
-                    module,
-                    content);
-            dto.setOriginalValue(JSON.toJSONBytes(list));
-            logs.add(dto);
-        });
-        return logs;
+    private LogDTO delLog(ProjectApplication application, String module, String content) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andTypeEqualTo(application.getType()).andProjectIdEqualTo(application.getProjectId());
+        List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
+        LogDTO dto = new LogDTO(
+                application.getProjectId(),
+                "",
+                OperationLogConstants.SYSTEM,
+                null,
+                OperationLogType.UPDATE.name(),
+                module,
+                content);
+        dto.setOriginalValue(JSON.toJSONBytes(list));
+       return dto;
     }
 
 

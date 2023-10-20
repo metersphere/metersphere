@@ -9,6 +9,8 @@ import io.metersphere.sdk.constants.ModuleType;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -45,7 +47,7 @@ public class ProjectApplicationController {
     @PostMapping("/update/test-plan")
     @Operation(summary = "测试计划-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_TEST_PLAN_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateTestPlanLog(#applications)", msClass = ProjectApplicationService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateTestPlanLog(#application)", msClass = ProjectApplicationService.class)
     public void updateTestPlan(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
         projectApplicationService.update(application, SessionUtils.getUserId());
     }
@@ -66,7 +68,7 @@ public class ProjectApplicationController {
     @PostMapping("/update/ui")
     @Operation(summary = "UI测试-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateUiLog(#applications)", msClass = ProjectApplicationService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateUiLog(#application)", msClass = ProjectApplicationService.class)
     public void updateUI(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
         projectApplicationService.update(application, SessionUtils.getUserId());
     }
@@ -94,7 +96,7 @@ public class ProjectApplicationController {
     @PostMapping("/update/performance-test")
     @Operation(summary = "性能测试-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePerformanceLog(#applications)", msClass = ProjectApplicationService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePerformanceLog(#application)", msClass = ProjectApplicationService.class)
     public void updatePerformanceTest(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
         projectApplicationService.update(application, SessionUtils.getUserId());
     }
@@ -122,7 +124,7 @@ public class ProjectApplicationController {
     @PostMapping("/update/api")
     @Operation(summary = "接口测试-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateApiLog(#applications)", msClass = ProjectApplicationService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateApiLog(#application)", msClass = ProjectApplicationService.class)
     public void updateApi(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
         projectApplicationService.update(application, SessionUtils.getUserId());
     }
@@ -161,8 +163,14 @@ public class ProjectApplicationController {
     @PostMapping("/update/case")
     @Operation(summary = "用例管理-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateCaseLog(#applications)", msClass = ProjectApplicationService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateCaseLog(#application)", msClass = ProjectApplicationService.class)
     public void updateCase(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        if (ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name().equals(application.getType())) {
+            String projectDemandThirdPartConfig = projectApplicationService.getProjectDemandThirdPartConfig(application.getProjectId());
+            if (StringUtils.isBlank(projectDemandThirdPartConfig)) {
+                throw new MSException(Translator.get("third_part_config_is_null"));
+            }
+        }
         projectApplicationService.update(application, SessionUtils.getUserId());
     }
 
@@ -216,7 +224,7 @@ public class ProjectApplicationController {
     @PostMapping("/update/workstation")
     @Operation(summary = "工作台-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_WORKSTATION_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#applications)", msClass = ProjectApplicationService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#application)", msClass = ProjectApplicationService.class)
     public void updateWorkstation(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
         projectApplicationService.update(application, SessionUtils.getUserId());
     }
@@ -237,8 +245,14 @@ public class ProjectApplicationController {
     @PostMapping("/update/bug")
     @Operation(summary = "缺陷管理-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#applications)", msClass = ProjectApplicationService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#application)", msClass = ProjectApplicationService.class)
     public void updateBug(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        if (ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name().equals(application.getType())) {
+            String projectBugThirdPartConfig = projectApplicationService.getProjectBugThirdPartConfig(application.getProjectId());
+            if (StringUtils.isBlank(projectBugThirdPartConfig)) {
+                throw new MSException(Translator.get("third_part_config_is_null"));
+            }
+        }
         projectApplicationService.update(application, SessionUtils.getUserId());
     }
 
