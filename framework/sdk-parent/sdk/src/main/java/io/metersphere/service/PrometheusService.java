@@ -78,9 +78,6 @@ public class PrometheusService {
             ResourcePoolOperationInfo nodeOperationInfo = new ResourcePoolOperationInfo();
             nodeOperationInfo.setId(testResourcePoolDTO.getId());
 
-            //如果没有在prometheus查到数据则runningTask为-1。
-            int runningTask = -1;
-
             for (TestResource testResource : testResourcePoolDTO.getResources()) {
                 String config = testResource.getConfiguration();
                 try {
@@ -105,13 +102,11 @@ public class PrometheusService {
                         }};
                         String taskCountQL = this.generatePromQL(taskSeriesNames.toArray(new String[0]), nodeId);
                         String result = this.runPromQL(headers, host, taskCountQL);
+
                         if (StringUtils.isNotBlank(result)) {
-                            if (runningTask == -1) {
-                                runningTask = 0;
-                            }
-                            runningTask += Integer.parseInt(result);
+                            int taskResult = Integer.parseInt(result);
+                            nodeOperationInfo.addNodeOperationInfo(String.valueOf(configMap.get("id")), ip, port, cpuUsage, taskResult);
                         }
-                        nodeOperationInfo.addNodeOperationInfo(String.valueOf(configMap.get("id")), ip, port, cpuUsage, runningTask);
                     }
                 } catch (Exception e) {
                     LogUtil.error("查找node监控报错:" + testResourcePoolDTO.getName(), e);
