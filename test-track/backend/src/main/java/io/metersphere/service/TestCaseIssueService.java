@@ -10,13 +10,13 @@ import io.metersphere.dto.TestCaseDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.request.issues.IssuesRelevanceRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -144,25 +144,29 @@ public class TestCaseIssueService {
     public String getIssueLogDetails(String caseResourceId, String issuesId) {
         TestCaseWithBLOBs bloBs = testCaseService.getTestCase(caseResourceId);
         if (bloBs != null) {
-            IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(issuesId);
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(issuesId), bloBs.getProjectId(), bloBs.getName() + " 关联 " + issuesWithBLOBs.getTitle(), bloBs.getCreateUser(), new LinkedList<>());
-            return JSON.toJSONString(details);
+            IssuesWithBLOBs issue = issuesMapper.selectByPrimaryKey(issuesId);
+            if (issue != null) {
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(issuesId), bloBs.getProjectId(), bloBs.getName() + " 关联 " + issue.getTitle(), bloBs.getCreateUser(), new LinkedList<>());
+                return JSON.toJSONString(details);
+            }
         }
         return null;
     }
 
     public String getIssueLogDetails(String caseResourceId, String refId, String issuesId) {
-        TestCaseWithBLOBs issue = null;
+        TestCaseWithBLOBs testCase = null;
         if (StringUtils.isNotBlank(refId)) {
-            issue = testCaseService.getTestCase(refId);
+            testCase = testCaseService.getTestCase(refId);
         }
-        if (issue == null) {
-            issue = testCaseService.getTestCase(caseResourceId);
+        if (testCase == null) {
+            testCase = testCaseService.getTestCase(caseResourceId);
         }
-        if (issue != null) {
-            IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(issuesId);
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(issuesId), issue.getProjectId(), issue.getName() + Translator.get("relate_resource") + issuesWithBLOBs.getTitle(), issue.getCreateUser(), new LinkedList<>());
-            return JSON.toJSONString(details);
+        if (testCase != null) {
+            IssuesWithBLOBs issue = issuesMapper.selectByPrimaryKey(issuesId);
+            if (issue != null) {
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(issuesId), testCase.getProjectId(), testCase.getName() + Translator.get("relate_resource") + issue.getTitle(), testCase.getCreateUser(), new LinkedList<>());
+                return JSON.toJSONString(details);
+            }
         }
         return null;
     }
