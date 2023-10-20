@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS bug(
     `assign_user` VARCHAR(50) NOT NULL   COMMENT '指派人' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
     `delete_user` VARCHAR(50) NOT NULL   COMMENT '删除人' ,
     `delete_time` BIGINT NOT NULL   COMMENT '删除时间' ,

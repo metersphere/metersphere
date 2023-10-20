@@ -8,6 +8,7 @@
     <result column="assign_user" jdbcType="VARCHAR" property="assignUser" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
@@ -78,8 +79,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, title, assign_user, create_user, create_time, update_time, delete_user, 
-    delete_time, project_id, template_id, platform, `status`, tag, platform_bug_id, trash
+    id, num, title, assign_user, create_user, create_time, update_user, update_time, 
+    delete_user, delete_time, project_id, template_id, platform, `status`, tag, platform_bug_id, 
+    trash
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugExample" resultMap="BaseResultMap">
     select
@@ -114,16 +116,16 @@
   <insert id="insert" parameterType="io.metersphere.bug.domain.Bug">
     insert into bug (id, num, title, 
       assign_user, create_user, create_time, 
-      update_time, delete_user, delete_time, 
-      project_id, template_id, platform, 
-      `status`, tag, platform_bug_id, 
-      trash)
+      update_user, update_time, delete_user, 
+      delete_time, project_id, template_id, 
+      platform, `status`, tag, 
+      platform_bug_id, trash)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, 
       #{assignUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
-      #{projectId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{tag,jdbcType=VARCHAR}, #{platformBugId,jdbcType=VARCHAR}, 
-      #{trash,jdbcType=BIT})
+      #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
+      #{deleteTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR}, 
+      #{platform,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{tag,jdbcType=VARCHAR}, 
+      #{platformBugId,jdbcType=VARCHAR}, #{trash,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.bug.domain.Bug">
     insert into bug
@@ -145,6 +147,9 @@
       </if>
       <if test="createTime != null">
         create_time,
+      </if>
+      <if test="updateUser != null">
+        update_user,
       </if>
       <if test="updateTime != null">
         update_time,
@@ -195,6 +200,9 @@
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
@@ -255,6 +263,9 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
@@ -298,6 +309,7 @@
       assign_user = #{record.assignUser,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       delete_user = #{record.deleteUser,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
@@ -329,6 +341,9 @@
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
@@ -370,6 +385,7 @@
       assign_user = #{assignUser,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
+      update_user = #{updateUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
       delete_user = #{deleteUser,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
@@ -384,17 +400,17 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into bug
-    (id, num, title, assign_user, create_user, create_time, update_time, delete_user, 
-      delete_time, project_id, template_id, platform, `status`, tag, platform_bug_id, 
+    (id, num, title, assign_user, create_user, create_time, update_user, update_time, 
+      delete_user, delete_time, project_id, template_id, platform, `status`, tag, platform_bug_id, 
       trash)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=INTEGER}, #{item.title,jdbcType=VARCHAR}, 
         #{item.assignUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, 
-        #{item.projectId,jdbcType=VARCHAR}, #{item.templateId,jdbcType=VARCHAR}, #{item.platform,jdbcType=VARCHAR}, 
-        #{item.status,jdbcType=VARCHAR}, #{item.tag,jdbcType=VARCHAR}, #{item.platformBugId,jdbcType=VARCHAR}, 
-        #{item.trash,jdbcType=BIT})
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, 
+        #{item.deleteTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, #{item.templateId,jdbcType=VARCHAR}, 
+        #{item.platform,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.tag,jdbcType=VARCHAR}, 
+        #{item.platformBugId,jdbcType=VARCHAR}, #{item.trash,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -424,6 +440,9 @@
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
         </if>
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
