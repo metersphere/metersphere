@@ -43,8 +43,9 @@ export interface FakeTableListItem {
 export interface FakeTableOperationParams {
   projectId: string;
   excludeIds?: string[]; // 排除的id
-  selectedIds?: string[]; // 选中的id
+  selectIds?: string[]; // 选中的id
   selectAll: boolean; // 是否跨页全选
   params?: TableQueryParams; // 查询参数
   enable?: boolean; // 是否启用
+  condition?: TableQueryParams; // 条件
 }
