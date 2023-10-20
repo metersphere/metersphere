@@ -421,8 +421,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                     BeanUtils.copyBean(customFieldItemDTO, customFieldDao);
                     if (StringUtils.isEmpty(v.toString())) {
                         if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_MEMBER.getValue(),
-                                CustomFieldType.MULTIPLE_SELECT.getValue(), CustomFieldType.CHECKBOX.getValue(),
-                                CustomFieldType.CASCADING_SELECT.getValue())) {
+                                CustomFieldType.MULTIPLE_SELECT.getValue(), CustomFieldType.CHECKBOX.getValue())) {
                             customFieldItemDTO.setValue("[]");
                             customFieldResourceDTO.setValue("[]");
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_INPUT.getValue())) {
