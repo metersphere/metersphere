@@ -261,9 +261,9 @@
   </div>
 </template>
 <script>
-import { createDefinitionEnv, getDefinitionById, getDefinitionEnv } from '@/api/definition';
-import { getProjectConfig } from '@/api/project';
-import { getApiModuleByProjectIdAndProtocol, trashCount } from '@/api/definition-module';
+import {createDefinitionEnv, getDefinitionById, getDefinitionEnv} from '@/api/definition';
+import {getProjectConfig} from '@/api/project';
+import {getApiModuleByProjectIdAndProtocol, trashCount} from '@/api/definition-module';
 import MsApiList from './components/list/ApiList';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
@@ -277,9 +277,9 @@ import MsRunTestHttpPage from './components/runtest/RunTestHTTPPage';
 import MsRunTestTcpPage from './components/runtest/RunTestTCPPage';
 import MsRunTestSqlPage from './components/runtest/RunTestSQLPage';
 import MsRunTestDubboPage from './components/runtest/RunTestDubboPage';
-import { getCurrentProjectID, getCurrentUser, getCurrentUserId } from 'metersphere-frontend/src/utils/token';
-import { hasPermission } from 'metersphere-frontend/src/utils/permission';
-import { getUUID } from 'metersphere-frontend/src/utils';
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId} from 'metersphere-frontend/src/utils/token';
+import {hasPermission} from 'metersphere-frontend/src/utils/permission';
+import {getUUID} from 'metersphere-frontend/src/utils';
 import MsApiModule from './components/module/ApiModule';
 import ApiCaseSimpleList from './components/list/ApiCaseSimpleList';
 import ApiDocumentsPage from '@/business/definition/components/list/ApiDocumentsPage';
@@ -288,10 +288,10 @@ import MsTabButton from '@/business/commons/MsTabs';
 import ApiSchedule from '@/business/definition/components/import/ApiSchedule';
 import MsEditCompleteContainer from './components/EditCompleteContainer';
 import MsEnvironmentSelect from './components/case/MsEnvironmentSelect';
-import { PROJECT_ID, WORKSPACE_ID } from 'metersphere-frontend/src/utils/constants';
-import { useApiStore } from '@/store';
-import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
-import { createMockConfig, getMockApiParams, mockExpectConfig } from '@/api/api-mock';
+import {PROJECT_ID, WORKSPACE_ID} from 'metersphere-frontend/src/utils/constants';
+import {useApiStore} from '@/store';
+import {buildTree} from 'metersphere-frontend/src/model/NodeTree';
+import {createMockConfig, getMockApiParams, mockExpectConfig} from '@/api/api-mock';
 import MockEditDrawer from '@/business/definition/components/mock/MockEditDrawer';
 import {getUserDefaultApiType} from "metersphere-frontend/src/api/environment";
 
