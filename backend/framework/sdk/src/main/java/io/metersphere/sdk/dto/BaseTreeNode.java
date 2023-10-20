@@ -23,8 +23,8 @@ public class BaseTreeNode {
     @Schema(description = "是否是叶子节点")
     private boolean leafNode = false;
 
-    //    @Schema(description = "排序单位")
-    //    private int pos;
+    @Schema(description = "父节点ID")
+    private String parentId;
 
     @Schema(description = "子节点")
     private List<BaseTreeNode> children = new ArrayList<>();
@@ -35,12 +35,12 @@ public class BaseTreeNode {
         this.type = type;
     }
 
-    //    public BaseTreeNode(String id, String name, String type, int pos) {
-    //        this.id = id;
-    //        this.name = name;
-    //        this.type = type;
-    //        this.pos = pos;
-    //    }
+    public BaseTreeNode(String id, String name, String type, String parentId) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.parentId = parentId;
+    }
 
     public void addChild(BaseTreeNode node) {
         this.leafNode = false;
