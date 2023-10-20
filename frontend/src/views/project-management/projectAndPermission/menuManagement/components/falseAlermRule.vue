@@ -125,10 +125,6 @@
   const tableBatchActions = {
     baseAction: [
       {
-        label: 'common.batchModify',
-        eventTag: 'batchModify',
-      },
-      {
         label: 'common.enable',
         eventTag: 'batchEnable',
       },
@@ -194,7 +190,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(
+  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams, resetSelector } = useTable(
     postFakeTableList,
     {
       scroll: { x: 1200 },
@@ -218,6 +214,7 @@
   const fetchData = async () => {
     setKeyword(keyword.value);
     await loadList();
+    resetSelector();
   };
 
   const handleDelete = (v: string | BatchActionQueryParams) => {
@@ -228,11 +225,14 @@
         try {
           if (typeof v === 'string') {
             // 单个删除
-            await getDeleteFake({ selectedIds: [v], projectId: currentProjectId.value, selectAll: false });
+            await getDeleteFake({ selectIds: [v], projectId: currentProjectId.value, selectAll: false });
           } else {
             // 批量删除
             await getDeleteFake({
-              ...v,
+              selectIds: v.selectedIds,
+              selectAll: v.selectAll,
+              excludeIds: v.excludeIds,
+              condition: v.params,
               projectId: currentProjectId.value,
             });
           }
@@ -275,7 +275,7 @@
           if (typeof v === 'string') {
             // 单个启用/禁用
             await postUpdateEnableFake({
-              selectedIds: [v],
+              selectIds: [v],
               projectId: currentProjectId.value,
               enable: isEnable,
               selectAll: false,
@@ -283,7 +283,10 @@
           } else {
             // 批量启用/禁用
             await postUpdateEnableFake({
-              ...v,
+              selectIds: v.selectedIds,
+              selectAll: v.selectAll,
+              excludeIds: v.excludeIds,
+              condition: v.params,
               projectId: currentProjectId.value,
               enable: isEnable,
             });
