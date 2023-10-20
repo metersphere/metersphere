@@ -157,7 +157,7 @@ export default {
   },
   methods: {
     redirectApiCaseEditPage(row) {
-      window.open("/#/api/definition?caseId=" + row.caseId);
+      window.open("/#/api/definition?caseId=" + row.caseId + "&projectId=" + row.projectId);
     },
     getScenarioApiCase() {
       if (this.isTemplate || this.isDb) {
