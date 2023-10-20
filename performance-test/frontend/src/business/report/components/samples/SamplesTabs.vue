@@ -46,7 +46,8 @@ export default {
         for (let sampleName in this.samples.sampleCount) {
           let sampleCountObj = this.samples.sampleCount[sampleName];
           for (let code in sampleCountObj) {
-            if (code !== '200') {
+
+            if (Number.isNaN(Number(code)) || 300 <= Number(code) || Number(code) < 200) {
               if (!this.errorSamples.sampleCount[sampleName]) {
                 this.errorSamples.sampleCount[sampleName] = {};
                 this.errorSamples.samples[sampleName] = {};
