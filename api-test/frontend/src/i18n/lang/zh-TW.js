@@ -129,7 +129,7 @@ const message = {
     project_no_permission: '當前人操作無此步驟的操作權限',
     document_validity_msg: '文件已經被修改，請重新上傳',
     scenario_step_ref_message: '當前操作可能導致頁面加載異常，是否繼續',
-    case_message: '請選擇案例',
+    case_message: '請選擇用例',
     scenario_message: '請選擇場景',
     scenario_plugin_debug_warning: '場景包含挿件步驟，對應場景已經刪除不能調試! ',
     scenario_plugin_save_warning: '場景包含挿件步驟，對應場景已經刪除不能編輯! ',
