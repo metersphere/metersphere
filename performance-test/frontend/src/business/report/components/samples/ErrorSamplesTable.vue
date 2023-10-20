@@ -136,7 +136,10 @@ export default {
       done();
     },
     openRecord(row) {
-      let drawerSamples = this.errorSamples.samples[row.name][row.code];
+      let drawerSamples = [];
+      if (this.errorSamples.samples[row.name]) {
+        drawerSamples = this.errorSamples.samples[row.name][row.code];
+      }
       this.$refs.sampleDrawer.openRecord(drawerSamples);
     },
   },
