@@ -210,7 +210,7 @@ export default {
 
 .other-field-tip {
   margin-top: 30px;
-  font-size: 10px;
+  font-size: 14px;
   color: #9ea0a3;
 }
 </style>
