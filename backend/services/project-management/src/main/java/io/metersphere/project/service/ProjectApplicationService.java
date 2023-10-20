@@ -515,4 +515,39 @@ public class ProjectApplicationService {
         long l = fakeErrorMapper.countByExample(example);
         return (int) l;
     }
+
+
+    /**
+     * 获取缺陷项目配置信息
+     *
+     * @param projectId
+     * @return
+     */
+    public String getProjectBugThirdPartConfig(String projectId) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "_PLATFORM");
+        List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return list.get(0).getTypeValue();
+        }
+        return null;
+    }
+
+
+    /**
+     * 获取需求项目配置信息
+     *
+     * @param projectId
+     * @return
+     */
+    public String getProjectDemandThirdPartConfig(String projectId) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_PLATFORM");
+        List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return list.get(0).getTypeValue();
+        }
+        return null;
+    }
+
 }

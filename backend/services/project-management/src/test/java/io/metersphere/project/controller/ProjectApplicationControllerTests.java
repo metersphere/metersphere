@@ -4,6 +4,7 @@ import io.metersphere.project.controller.param.ProjectApplicationDefinition;
 import io.metersphere.project.controller.param.ProjectApplicationRequestDefinition;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.request.ProjectApplicationRequest;
+import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -45,6 +46,9 @@ public class ProjectApplicationControllerTests extends BaseTest {
     private static Plugin plugin;
     @Resource
     private PluginService pluginService;
+
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     public static final String PROJECT_ID = "project_application_test_id";
     public static final String TIME_TYPE_VALUE = "3M";
@@ -674,4 +678,21 @@ public class ProjectApplicationControllerTests extends BaseTest {
         private String address;
         private String version;
     }
+
+
+    @Test
+    @Order(40)
+    public void testGetProjectBugThirdPartConfig() throws Exception {
+        projectApplicationService.getProjectBugThirdPartConfig(DEFAULT_PROJECT_ID);
+        projectApplicationService.getProjectBugThirdPartConfig("test_project_id");
+    }
+
+
+    @Test
+    @Order(40)
+    public void testGetProjectDemandThirdPartConfig() throws Exception {
+        projectApplicationService.getProjectDemandThirdPartConfig(DEFAULT_PROJECT_ID);
+        projectApplicationService.getProjectDemandThirdPartConfig("test+project_id");
+    }
+
 }

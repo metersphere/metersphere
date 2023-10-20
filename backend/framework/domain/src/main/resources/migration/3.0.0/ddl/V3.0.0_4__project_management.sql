@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS project_application
 (
     `project_id` VARCHAR(50) NOT NULL COMMENT '项目ID',
     `type`       VARCHAR(50) NOT NULL COMMENT '配置项',
-    `type_value` VARCHAR(255) COMMENT '配置值',
+    `type_value` VARCHAR(512) COMMENT '配置值',
     PRIMARY KEY (project_id, type)
 ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4

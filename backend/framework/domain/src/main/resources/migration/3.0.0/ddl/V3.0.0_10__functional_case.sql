@@ -43,7 +43,7 @@ CREATE INDEX idx_update_time ON functional_case(update_time);
 CREATE TABLE IF NOT EXISTS functional_case_blob(
     `id` VARCHAR(50) NOT NULL   COMMENT '功能用例ID' ,
     `steps` LONGTEXT    COMMENT '用例步骤（JSON)，step_model 为 Step 时启用' ,
-    `text_description` LONGTEXT    COMMENT '步骤描述，step_model 为 Text 时启用' ,
+    `text_description` LONGTEXT    COMMENT '文本描述，step_model 为 Text 时启用' ,
     `expected_result` LONGTEXT    COMMENT '预期结果，step_model 为 Text  时启用' ,
     `prerequisite` LONGTEXT    COMMENT '前置条件' ,
     `description` LONGTEXT    COMMENT '备注' ,
