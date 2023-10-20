@@ -176,11 +176,11 @@ export default {
 }
 
 .add-text {
-  font-size: 10px;
+  font-size: 14px;
 }
 
 .add-text:hover {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: bold;
 }
 
