@@ -105,6 +105,7 @@
     },
     {
       title: 'system.organization.member',
+      dataIndex: 'memberCount',
       slotName: 'memberCount',
     },
     {

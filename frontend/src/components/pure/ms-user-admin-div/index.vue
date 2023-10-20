@@ -11,5 +11,5 @@
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
-  const props = withDefaults(defineProps<{ name: string; isAdmin?: boolean }>(), { isAdmin: false });
+  const props = withDefaults(defineProps<{ name?: string; isAdmin?: boolean }>(), { isAdmin: false });
 </script>

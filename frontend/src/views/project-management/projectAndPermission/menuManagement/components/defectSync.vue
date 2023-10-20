@@ -22,6 +22,7 @@
           :options="platformOption"
           :placeholder="platformDisabled ? t('project.menu.platformPlaceholder') : ''"
           :field-names="{ label: 'name', value: 'id' }"
+          @change="handlePlatformChange"
         >
         </a-select>
       </a-form-item>
@@ -53,8 +54,8 @@
           <a-radio-group v-model="form.MECHANISM">
             <a-radio value="increment">
               <div class="flex flex-row items-center gap-[4px]">
-                <span class="text-[var(--color-text-1)]">{{ t('project.menu.MECHANISM') }}</span>
-                <a-tooltip :content="t('project.menu.MECHANISM_TIP')" position="right">
+                <span class="text-[var(--color-text-1)]">{{ t('project.menu.incrementalSync') }}</span>
+                <a-tooltip :content="t('project.menu.incrementalSyncTip')" position="top">
                   <div>
                     <MsIcon class="ml-[4px] text-[var(--color-text-4)]" type="icon-icon-maybe_outlined" />
                   </div>
@@ -63,8 +64,8 @@
             </a-radio>
             <a-radio value="full">
               <div class="flex flex-row items-center gap-[4px]">
-                <span class="text-[var(--color-text-1)]">{{ t('project.menu.MECHANISM') }}</span>
-                <a-tooltip :content="t('project.menu.MECHANISM_TIP')" position="right">
+                <span class="text-[var(--color-text-1)]">{{ t('project.menu.fullSync') }}</span>
+                <a-tooltip :content="t('project.menu.fullSyncTip')" position="bl">
                   <div>
                     <MsIcon class="ml-[4px] text-[var(--color-text-4)]" type="icon-icon-maybe_outlined" />
                   </div>
@@ -82,6 +83,11 @@
             </span>
             <span v-if="data.extra" class="text-[var(--color-text-4)]"> {{ data.extra }} </span>
           </a-option>
+          <a-option value="custom">
+            <div class="border-t-1 cursor-pointer text-[rgb(var(--primary-5))]">{{
+              t('project.menu.defect.customLabel')
+            }}</div>
+          </a-option>
         </a-select>
       </a-form-item>
     </a-form>
@@ -91,7 +97,13 @@
         <span class="text-[var(--color-text-1)]">
           {{ t('project.menu.status') }}
         </span>
-        <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
+        <a-tooltip position="tl" :content-style="{ maxWidth: '500px' }">
+          <template #content>
+            <div class="flex flex-col">
+              <div>{{ t('project.menu.defect.enableTip') }}</div>
+              <div class="flex flex-nowrap">{{ t('project.menu.defect.closeTip') }}</div>
+            </div>
+          </template>
           <div>
             <MsIcon class="ml-[4px] text-[var(--color-text-4)]" type="icon-icon-maybe_outlined" />
           </div>
@@ -106,11 +118,15 @@
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 
-  import { getPlatformOptions, postSaveDefectSync } from '@/api/modules/project-management/menuManagement';
+  import {
+    getPlatformInfo,
+    getPlatformOptions,
+    postSaveDefectSync,
+  } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
-  import { PoolOption } from '@/models/projectManagement/menuManagement';
+  import { PoolOption, SelectValue } from '@/models/projectManagement/menuManagement';
   import { MenuEnum } from '@/enums/commonEnum';
 
   const { t } = useI18n();
@@ -157,6 +173,15 @@
   const handleCancel = (shouldSearch: boolean) => {
     emit('cancel', shouldSearch);
   };
+  const handlePlatformChange = async (value: SelectValue) => {
+    try {
+      // TODO: 获取平台信息 Pending
+      await getPlatformInfo(value as string, MenuEnum.bugManagement);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
 
   const handleConfirm = async () => {
     await formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
@@ -184,6 +209,7 @@
         platformOption.value = res;
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };

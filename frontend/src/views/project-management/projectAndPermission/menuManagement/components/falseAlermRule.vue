@@ -179,6 +179,10 @@
     {
       title: 'project.menu.rule.updateTime',
       dataIndex: 'updateTime',
+      sortable: {
+        sorter: true,
+        sortDirections: ['ascend', 'descend'],
+      },
       width: 210,
     },
     {

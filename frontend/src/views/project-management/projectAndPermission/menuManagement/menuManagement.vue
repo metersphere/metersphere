@@ -7,7 +7,7 @@
       </div>
     </a-tooltip>
   </div>
-  <MsBaseTable class="mt-[16px]" v-bind="propsRes" @expand="expandChange" v-on="propsEvent">
+  <MsBaseTable ref="tableRef" class="mt-[16px]" v-bind="propsRes" @expand="expandChange" v-on="propsEvent">
     <template #module="{ record }">
       <div v-if="record.children">
         <MsIcon class="text-[var(--color-text-4)]" :type="getMenuIcon(record.module)" />
@@ -50,7 +50,9 @@
       <div v-if="record.type === 'CASE_RELATED'" class="flex flex-row">
         <!-- 用例 关联需求 -->
         <div>{{ t('project.menu.row4') }}</div>
-        <div class="ml-[8px] text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{ t('project.menu.rr') }}</div>
+        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{
+          t('project.menu.rr')
+        }}</div>
       </div>
       <div v-if="record.type === 'CASE_RE_REVIEW'">
         <!-- 用例 重新提审 -->
@@ -83,7 +85,11 @@
           @change="(v: SelectValue) => handleMenuStatusChange('API_RESOURCE_POOL_ID',v as string,MenuEnum.apiTest)"
         />
         <a-tooltip
-          :content="t('project.menu.API_RESOURCE_POOL_TIP', { name: allValueMap['API_RESOURCE_POOL'] })"
+          :content="
+            t('project.menu.API_RESOURCE_POOL_TIP', {
+              name: getPoolTipName(allValueMap['API_RESOURCE_POOL_ID'], MenuEnum.apiTest),
+            })
+          "
           position="right"
         >
           <div>
@@ -109,7 +115,7 @@
       <div v-if="record.type === 'API_ERROR_REPORT_RULE'" class="flex w-[100%] flex-row items-center">
         <!--接口测试 误报规则 -->
         <div class="error-report">
-          <a-input
+          <a-input-number
             v-model="allValueMap['FAKE_ERROR_NUM']"
             class="w-[120px]"
             disabled
@@ -118,7 +124,7 @@
             <template #append>
               <div>{{ t('project.menu.count') }}</div>
             </template>
-          </a-input>
+          </a-input-number>
         </div>
         <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="pushFar">{{
           t('project.menu.far')
@@ -154,7 +160,11 @@
           @change="(v: SelectValue) => handleMenuStatusChange('UI_RESOURCE_POOL_ID',v as string,MenuEnum.uiTest)"
         />
         <a-tooltip
-          :content="t('project.menu.UI_RESOURCE_POOL_TIP', { name: allValueMap['UI_RESOURCE_POOL_ID'] })"
+          :content="
+            t('project.menu.UI_RESOURCE_POOL_TIP', {
+              name: getPoolTipName(allValueMap['UI_RESOURCE_POOL_ID'], MenuEnum.uiTest),
+            })
+          "
           position="right"
         >
           <div>
@@ -193,19 +203,14 @@
       </div>
     </template>
     <template #operation="{ record }">
-      <!-- 父级菜单是否展示 -->
-      <a-switch
-        v-if="record.children"
-        v-model="record.moduleEnable"
-        size="small"
-        @change="(v: boolean | string| number) => handleMenuStatusChange(record.module,v as boolean,record.module)"
-      />
       <!-- 同步缺陷状态 -->
       <a-tooltip v-if="record.type === 'BUG_SYNC' && !allValueMap['BUG_SYNC_SYNC_ENABLE']" position="tr">
         <template #content>
           <span>
             {{ t('project.menu.notConfig') }}
-            <span class="cursor-pointer text-[rgb(var(--primary-4))]">{{ t(`project.menu.${record.type}`) }}</span>
+            <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">{{
+              t(`project.menu.${record.type}`)
+            }}</span>
             {{ t('project.menu.configure') }}
           </span>
         </template>
@@ -229,7 +234,9 @@
         <template #content>
           <span>
             {{ t('project.menu.notConfig') }}
-            <span class="cursor-pointer text-[rgb(var(--primary-4))]">{{ t(`project.menu.${record.type}`) }}</span>
+            <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">{{
+              t(`project.menu.${record.type}`)
+            }}</span>
             {{ t('project.menu.configure') }}
           </span>
         </template>
@@ -317,7 +324,6 @@
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTimeSelectorVue from '@/components/pure/ms-time-selector/MsTimeSelector.vue';
   import DefectSync from './components/defectSync.vue';
@@ -345,6 +351,7 @@
   const uiPoolOption = ref<PoolOption[]>([]);
   const apiAuditorOption = ref<PoolOption[]>([]);
   const performanceAuditorOption = ref<PoolOption[]>([]);
+  const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
 
   const expandedKeys = ref<string[]>([]);
 
@@ -366,7 +373,7 @@
 
   const allValueMap = ref<MenuTableConfigItem>(defaultValueMap);
 
-  const columns: MsTableColumn = [
+  const hasTitleColumns = [
     {
       title: 'project.menu.name',
       dataIndex: 'module',
@@ -383,6 +390,29 @@
     },
     {
       title: 'common.operation',
+      slotName: 'operation',
+      dataIndex: 'moduleEnable',
+      width: 58,
+    },
+  ];
+
+  const noTitleColumns = [
+    {
+      title: 'project.menu.name',
+      dataIndex: 'module',
+      slotName: 'module',
+      width: 221,
+      headerCellClass: 'pl-[16px]',
+    },
+    {
+      title: '',
+      slotName: 'description',
+      dataIndex: 'description',
+      showDrag: true,
+      width: 515,
+    },
+    {
+      title: '',
       slotName: 'operation',
       dataIndex: 'moduleEnable',
       width: 58,
@@ -496,7 +526,7 @@
     postTabletList,
     {
       showPagination: false,
-      columns,
+      columns: noTitleColumns,
       selectable: false,
       scroll: { x: '100%' },
       noDisable: true,
@@ -597,10 +627,30 @@
     router.push({ name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MENU_MANAGEMENT_ERROR_REPORT_RULE });
   };
 
+  // 获取执行资源池的名称
+  const getPoolTipName = (id: string, type: MenuEnum) => {
+    const poolOption = type === MenuEnum.apiTest ? apiPoolOption.value : uiPoolOption.value;
+    const pool = poolOption.find((item) => item.id === id);
+    return pool?.name;
+  };
+
   onMounted(() => {
     setLoadListParams({ projectId: currentProjectId.value });
     fetchData();
   });
+  watch(currentProjectId, () => {
+    fetchData();
+  });
+  watch(
+    () => expandedKeys.value.length,
+    (val) => {
+      if (!val) {
+        tableRef.value?.initColumn(noTitleColumns);
+      } else {
+        tableRef.value?.initColumn(hasTitleColumns);
+      }
+    }
+  );
 </script>
 
 <style scoped></style>

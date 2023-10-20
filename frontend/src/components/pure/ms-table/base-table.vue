@@ -361,7 +361,7 @@
     const match = dataIndex.match(regex);
     const lastDigit = match && (match[1] as unknown as number);
     if (lastDigit) {
-      dataIndex = currentColumns.value[lastDigit].dataIndex as string;
+      dataIndex = currentColumns.value[lastDigit - 1].dataIndex as string;
     }
     let sortOrder = '';
     if (direction === 'ascend') {
