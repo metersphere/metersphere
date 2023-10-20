@@ -532,7 +532,7 @@ export default {
 
 :deep(.ms-opt-btn) {
   position: fixed;
-  z-index: 9999;
+  z-index: 999;
   right: 50px;
   top: 85px;
   float: right;
