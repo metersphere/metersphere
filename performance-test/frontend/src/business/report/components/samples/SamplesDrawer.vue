@@ -56,12 +56,16 @@ export default {
     },
     openRecord(samples) {
       this.sampleRecord = [];
+
       this.$nextTick(() => {
-        samples.forEach(sample => {
-          this.sampleRecord.push(sample);
-        });
+        if (samples) {
+          samples.forEach(sample => {
+            this.sampleRecord.push(sample);
+          });
+        }
         this.drawer = true;
       })
+
     },
   },
 }

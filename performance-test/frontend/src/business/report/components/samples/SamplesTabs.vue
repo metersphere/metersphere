@@ -52,7 +52,9 @@ export default {
                 this.errorSamples.samples[sampleName] = {};
               }
               this.errorSamples.sampleCount[sampleName][code] = this.samples.sampleCount[sampleName][code] || {};
-              this.errorSamples.samples[sampleName][code] = this.samples.samples[sampleName][code] || [];
+              if (this.samples.samples[sampleName]) {
+                this.errorSamples.samples[sampleName][code] = this.samples.samples[sampleName][code] || [];
+              }
             }
           }
         }
