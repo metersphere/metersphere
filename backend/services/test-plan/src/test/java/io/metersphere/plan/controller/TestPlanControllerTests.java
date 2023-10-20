@@ -6,7 +6,7 @@ import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -37,7 +37,7 @@ public class TestPlanControllerTests {
 
     static List<TestPlanDTO> SAVED_TEST_PLAN_DTO_LIST = new ArrayList<>();
 
-    static final String STATIC_UUID = UUID.randomUUID().toString();
+    static final String STATIC_UUID = IDGenerator.nextStr();
 
     private TestPlanDTO getSimpleTestPlan() {
         TestPlanDTO testPlan = new TestPlanDTO();
@@ -267,7 +267,7 @@ public class TestPlanControllerTests {
 
         //测试parentId和id相同
         testPlan = this.getSimpleTestPlan();
-        testPlan.setId(UUID.randomUUID().toString());
+        testPlan.setId(IDGenerator.nextStr());
         testPlan.setParentId(testPlan.getId());
         mockMvc.perform(MockMvcRequestBuilders.post("/test-plan/add")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)

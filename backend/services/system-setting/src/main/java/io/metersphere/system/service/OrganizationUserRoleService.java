@@ -11,7 +11,7 @@ import io.metersphere.system.domain.*;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,7 +83,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
         request.getUserIds().forEach(userId -> {
             checkMemberParam(userId, request.getUserRoleId());
             UserRoleRelation relation = new UserRoleRelation();
-            relation.setId(UUID.randomUUID().toString());
+            relation.setId(IDGenerator.nextStr());
             relation.setUserId(userId);
             relation.setRoleId(request.getUserRoleId());
             relation.setSourceId(request.getOrganizationId());

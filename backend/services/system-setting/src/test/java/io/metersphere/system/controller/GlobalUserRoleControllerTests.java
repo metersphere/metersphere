@@ -9,7 +9,7 @@ import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.BaseUserRolePermissionService;
 import io.metersphere.system.service.BaseUserRoleRelationService;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.controller.param.PermissionSettingUpdateRequestDefinition;
@@ -349,7 +349,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
         UserRole nonGlobalUserRole = userRoleMapper.selectByPrimaryKey(ADMIN.getValue());
         nonGlobalUserRole.setName("非全局用户组");
         nonGlobalUserRole.setScopeId("not global");
-        nonGlobalUserRole.setId(UUID.randomUUID().toString());
+        nonGlobalUserRole.setId(IDGenerator.nextStr());
         userRoleMapper.insert(nonGlobalUserRole);
         return nonGlobalUserRole;
     }
@@ -361,7 +361,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
     private UserRoleRelation prepareOneLimitTest(String userRoleId) {
         // 插入一条用户数据
         User user = new User();
-        user.setId(UUID.randomUUID().toString());
+        user.setId(IDGenerator.nextStr());
         user.setCreateUser(SessionUtils.getUserId());
         user.setName("test one user role");
         user.setSource(UserSource.LOCAL.name());
@@ -374,7 +374,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
         user.setDeleted(false);
         userMapper.insert(user);
         UserRoleRelation roleRelation = new UserRoleRelation();
-        roleRelation.setId(UUID.randomUUID().toString());
+        roleRelation.setId(IDGenerator.nextStr());
         roleRelation.setCreateTime(System.currentTimeMillis());
         roleRelation.setRoleId(userRoleId);
         roleRelation.setCreateUser(ADMIN.getValue());

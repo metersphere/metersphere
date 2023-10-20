@@ -26,7 +26,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -103,7 +103,7 @@ public class CommonProjectService {
 
         Project project = new Project();
         ProjectDTO projectDTO = new ProjectDTO();
-        project.setId(UUID.randomUUID().toString());
+        project.setId(IDGenerator.nextStr());
         project.setName(addProjectDTO.getName());
         project.setOrganizationId(addProjectDTO.getOrganizationId());
         checkProjectExistByName(project);
@@ -168,7 +168,7 @@ public class CommonProjectService {
             userId.forEach(id -> {
                 if (!orgUserIds.contains(id)) {
                     UserRoleRelation memberRole = new UserRoleRelation();
-                    memberRole.setId(UUID.randomUUID().toString());
+                    memberRole.setId(IDGenerator.nextStr());
                     memberRole.setUserId(id);
                     memberRole.setRoleId(InternalUserRole.ORG_MEMBER.getValue());
                     memberRole.setSourceId(orgId);
@@ -396,7 +396,7 @@ public class CommonProjectService {
                         .andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
                 if (userRoleRelationMapper.selectByExample(userRoleRelationExample).size() == 0) {
                     UserRoleRelation adminRole = new UserRoleRelation();
-                    adminRole.setId(UUID.randomUUID().toString());
+                    adminRole.setId(IDGenerator.nextStr());
                     adminRole.setUserId(userId);
                     adminRole.setRoleId(InternalUserRole.PROJECT_ADMIN.getValue());
                     adminRole.setSourceId(projectId);
@@ -452,7 +452,7 @@ public class CommonProjectService {
                         .andSourceIdEqualTo(projectId);
                 if (userRoleRelationMapper.selectByExample(userRoleRelationExample).size() == 0) {
                     UserRoleRelation memberRole = new UserRoleRelation();
-                    memberRole.setId(UUID.randomUUID().toString());
+                    memberRole.setId(IDGenerator.nextStr());
                     memberRole.setUserId(userId);
                     memberRole.setRoleId(InternalUserRole.PROJECT_MEMBER.getValue());
                     memberRole.setSourceId(projectId);

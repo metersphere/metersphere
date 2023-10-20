@@ -13,8 +13,7 @@ import io.metersphere.sdk.dto.request.NodeMoveRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.service.CleanupProjectResourceService;
-import io.metersphere.system.uid.UUID;
-import io.metersphere.system.utils.SessionUtils;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -72,7 +71,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
 
     public String add(FileModuleCreateRequest request, String operator) {
         FileModule fileModule = new FileModule();
-        fileModule.setId(UUID.randomUUID().toString());
+        fileModule.setId(IDGenerator.nextStr());
         fileModule.setName(request.getName());
         fileModule.setParentId(request.getParentId());
         fileModule.setProjectId(request.getProjectId());

@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -52,7 +52,7 @@ public class BaseTemplateCustomFieldService {
         AtomicReference<Integer> pos = new AtomicReference<>(0);
         List<TemplateCustomField> templateCustomFields = customFieldRequests.stream().map(field -> {
             TemplateCustomField templateCustomField = new TemplateCustomField();
-            templateCustomField.setId(UUID.randomUUID().toString());
+            templateCustomField.setId(IDGenerator.nextStr());
             BeanUtils.copyBean(templateCustomField, field);
             templateCustomField.setTemplateId(id);
             templateCustomField.setPos(pos.getAndSet(pos.get() + 1));

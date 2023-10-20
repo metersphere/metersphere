@@ -3,7 +3,7 @@ package io.metersphere.system.uid;
 import io.metersphere.system.uid.impl.CachedUidGenerator;
 import io.metersphere.sdk.util.CommonBeanFactory;
 
-public class UUID {
+public class IDGenerator {
     private static final CachedUidGenerator DEFAULT_UID_GENERATOR;
 
     static {

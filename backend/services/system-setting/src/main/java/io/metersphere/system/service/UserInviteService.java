@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserInvite;
@@ -37,7 +37,7 @@ public class UserInviteService {
             userInvite.setRoles(JSON.toJSONString(userRoleIds));
             userInvite.setInviteUser(inviteUser);
             userInvite.setInviteTime(inviteTime);
-            userInvite.setId(UUID.randomUUID().toString());
+            userInvite.setId(IDGenerator.nextStr());
             inviteList.add(userInvite);
         }
         userInviteMapper.batchInsert(inviteList);

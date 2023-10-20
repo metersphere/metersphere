@@ -3,7 +3,7 @@ package io.metersphere.system.service;
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.utils.ServiceUtils;
@@ -84,7 +84,7 @@ public class ServiceIntegrationService {
         basePluginService.checkPluginEnableAndPermission(request.getPluginId(), request.getOrganizationId());
         ServiceIntegration serviceIntegration = new ServiceIntegration();
         BeanUtils.copyBean(serviceIntegration, request);
-        serviceIntegration.setId(UUID.randomUUID().toString());
+        serviceIntegration.setId(IDGenerator.nextStr());
         serviceIntegration.setConfiguration(JSON.toJSONBytes(request.getConfiguration()));
         checkAddExist(serviceIntegration);
         serviceIntegrationMapper.insert(serviceIntegration);

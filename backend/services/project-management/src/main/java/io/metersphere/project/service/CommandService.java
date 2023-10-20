@@ -7,7 +7,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.MsFileUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class CommandService {
         if (!fileDir.exists()) {
             fileDir.mkdirs();
         }
-        File file = new File(dir + UUID.randomUUID().toString() + "_" + bodyFile.getOriginalFilename());
+        File file = new File(dir + IDGenerator.nextStr() + "_" + bodyFile.getOriginalFilename());
         try (InputStream in = bodyFile.getInputStream(); OutputStream out = new FileOutputStream(file)) {
             file.createNewFile();
             FileUtil.copyStream(in, out);

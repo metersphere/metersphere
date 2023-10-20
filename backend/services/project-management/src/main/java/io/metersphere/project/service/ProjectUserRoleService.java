@@ -19,7 +19,7 @@ import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.BaseUserRoleService;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -108,7 +108,7 @@ public class ProjectUserRoleService extends BaseUserRoleService {
         request.getUserIds().forEach(userId -> {
             checkMemberParam(userId, request.getUserRoleId());
             UserRoleRelation relation = new UserRoleRelation();
-            relation.setId(UUID.randomUUID().toString());
+            relation.setId(IDGenerator.nextStr());
             relation.setUserId(userId);
             relation.setRoleId(request.getUserRoleId());
             relation.setSourceId(request.getProjectId());

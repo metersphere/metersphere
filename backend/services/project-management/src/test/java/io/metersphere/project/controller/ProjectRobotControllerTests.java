@@ -19,7 +19,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -541,7 +541,7 @@ public class ProjectRobotControllerTests extends BaseTest {
                         continue;
                     }
                     for (OptionDTO receiver : receivers) {
-                        String id = UUID.randomUUID().toString();
+                        String id = IDGenerator.nextStr();
                         MessageTask messageTask = new MessageTask();
                         messageTask.setId(id);
                         messageTask.setEvent(event);

@@ -4,7 +4,7 @@ import io.metersphere.api.dto.jmeter.processors.MSJSR223Processor;
 import io.metersphere.api.dto.jmeter.sampler.MSDebugSampler;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.dto.TestElementDTO;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +22,7 @@ public class PluginSubTypeTests {
     public void pluginSubTypeTest() throws Exception {
         MSDebugSampler debugSampler = new MSDebugSampler();
         debugSampler.setName("测试DebugSampler");
-        debugSampler.setUuid(UUID.randomUUID().toString());
+        debugSampler.setUuid(IDGenerator.nextStr());
         LinkedList<TestElementDTO> hashTree = new LinkedList<>();
         hashTree.add(debugSampler);
         MSJSR223Processor msjsr223Processor = new MSJSR223Processor();

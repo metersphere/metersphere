@@ -7,9 +7,7 @@ import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.utils.SessionUtils;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -55,7 +53,7 @@ public class TestPlanService {
         }
 
         if (StringUtils.isBlank(testPlanCreateRequest.getId())) {
-            testPlanCreateRequest.setId(UUID.randomUUID().toString());
+            testPlanCreateRequest.setId(IDGenerator.nextStr());
         }
         testPlanCreateRequest.setCreateTime(System.currentTimeMillis());
         testPlanCreateRequest.setUpdateTime(System.currentTimeMillis());

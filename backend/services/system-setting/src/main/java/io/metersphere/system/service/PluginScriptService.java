@@ -2,7 +2,7 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.PluginScript;
 import io.metersphere.system.domain.PluginScriptExample;
@@ -46,7 +46,7 @@ public class PluginScriptService {
             ids.add(scriptInfo.getId());
             pluginScript.setPluginId(pluginId);
             pluginScript.setScriptId(
-                    StringUtils.isBlank(scriptInfo.getId()) ? UUID.randomUUID().toString() : scriptInfo.getId()
+                    StringUtils.isBlank(scriptInfo.getId()) ? IDGenerator.nextStr() : scriptInfo.getId()
             );
             pluginScript.setName(scriptInfo.getName());
             pluginScript.setScript(script.getBytes());

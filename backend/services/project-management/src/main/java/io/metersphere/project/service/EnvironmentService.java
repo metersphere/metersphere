@@ -28,7 +28,7 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.service.JdbcDriverPluginService;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -101,7 +101,7 @@ public class EnvironmentService {
 
     public EnvironmentRequest add(EnvironmentRequest request, String userId, List<MultipartFile> sslFiles) {
         Environment environment = new Environment();
-        environment.setId(UUID.randomUUID().toString());
+        environment.setId(IDGenerator.nextStr());
         environment.setCreateUser(userId);
         environment.setName(request.getName());
         environment.setProjectId(request.getProjectId());
@@ -220,7 +220,7 @@ public class EnvironmentService {
                     Project project = projectMapper.selectByPrimaryKey(currentProjectId);
                     environmentRequests.forEach(environmentRequest -> {
                         Environment environment = new Environment();
-                        environment.setId(UUID.randomUUID().toString());
+                        environment.setId(IDGenerator.nextStr());
                         environment.setCreateUser(userId);
                         environment.setName(environmentRequest.getName());
                         environment.setProjectId(currentProjectId);

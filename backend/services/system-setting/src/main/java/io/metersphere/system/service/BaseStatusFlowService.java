@@ -5,7 +5,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.StatusFlow;
 import io.metersphere.system.domain.StatusFlowExample;
 import io.metersphere.system.mapper.StatusFlowMapper;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -48,7 +48,7 @@ public class BaseStatusFlowService {
         List<StatusFlow> statusFlows = statusFlowRequests.stream().map(request -> {
             StatusFlow statusFlow = new StatusFlow();
             BeanUtils.copyBean(statusFlow, request);
-            statusFlow.setId(UUID.nextStr());
+            statusFlow.setId(IDGenerator.nextStr());
             return statusFlow;
         }).toList();
         statusFlowMapper.batchInsert(statusFlows);
@@ -91,7 +91,7 @@ public class BaseStatusFlowService {
             return;
         }
         statusFlows.forEach(statusFlow -> {
-            statusFlow.setId(UUID.nextStr());
+            statusFlow.setId(IDGenerator.nextStr());
         });
         statusFlowMapper.batchInsert(statusFlows);
     }

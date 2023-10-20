@@ -13,7 +13,7 @@ import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.mapper.CustomFieldMapper;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -124,7 +124,7 @@ public class BaseCustomFieldService {
      */
     public CustomField baseAdd(CustomField customField, List<CustomFieldOption> options) {
         checkAddExist(customField);
-        customField.setId(UUID.randomUUID().toString());
+        customField.setId(IDGenerator.nextStr());
         customField.setCreateTime(System.currentTimeMillis());
         customField.setUpdateTime(System.currentTimeMillis());
         customFieldMapper.insert(customField);
@@ -247,7 +247,7 @@ public class BaseCustomFieldService {
     }
 
     public CustomField initDefaultCustomField(CustomField customField) {
-        customField.setId(UUID.randomUUID().toString());
+        customField.setId(IDGenerator.nextStr());
         customField.setInternal(true);
         customField.setCreateTime(System.currentTimeMillis());
         customField.setUpdateTime(System.currentTimeMillis());

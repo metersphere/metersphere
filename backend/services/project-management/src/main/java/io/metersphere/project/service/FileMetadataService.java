@@ -15,7 +15,7 @@ import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
-import io.metersphere.system.uid.UUID;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -82,7 +82,7 @@ public class FileMetadataService {
         //检查处理后的用户名合法性
         this.checkFileName(null, fileMetadata.getName(), request.getProjectId());
 
-        fileMetadata.setId(UUID.randomUUID().toString());
+        fileMetadata.setId(IDGenerator.nextStr());
         fileMetadata.setStorage(StorageType.MINIO.name());
         fileMetadata.setProjectId(request.getProjectId());
         fileMetadata.setModuleId(request.getModuleId());
@@ -139,7 +139,7 @@ public class FileMetadataService {
 
         long operationTime = System.currentTimeMillis();
         FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setId(UUID.randomUUID().toString());
+        fileMetadata.setId(IDGenerator.nextStr());
         fileMetadata.setStorage(oldFile.getStorage());
         fileMetadata.setProjectId(oldFile.getProjectId());
         fileMetadata.setModuleId(oldFile.getModuleId());
