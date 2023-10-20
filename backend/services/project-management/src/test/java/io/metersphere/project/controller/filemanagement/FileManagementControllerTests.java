@@ -514,7 +514,7 @@ public class FileManagementControllerTests extends BaseTest {
     @Order(16)
     public void fileDownloadTestError() throws Exception {
         //下载不存在的文件
-        mockMvc.perform(getRequestBuilder(FileManagementRequestUtils.URL_FILE_DOWNLOAD, IDGenerator.randomUUID()))
+        mockMvc.perform(getRequestBuilder(FileManagementRequestUtils.URL_FILE_DOWNLOAD, IDGenerator.nextNum()))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
     }
@@ -1042,7 +1042,7 @@ public class FileManagementControllerTests extends BaseTest {
         checkLog(a1a1Node.getId(), OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE);
 
         //删除不存在的节点
-        this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, IDGenerator.randomUUID()));
+        this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, IDGenerator.nextNum()));
         // 测试删除根节点
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, ModuleConstants.DEFAULT_NODE_ID));
 

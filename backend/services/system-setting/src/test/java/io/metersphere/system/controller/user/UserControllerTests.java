@@ -199,7 +199,7 @@ public class UserControllerTests extends BaseTest {
     public void testGetByEmailError() throws Exception {
         //测试使用任意参数，不能获取到任何用户信息
         this.checkUserList();
-        String url = UserRequestUtils.URL_USER_GET + IDGenerator.randomUUID();
+        String url = UserRequestUtils.URL_USER_GET + IDGenerator.nextNum();
         MvcResult mvcResult = userRequestUtils.responseGet(url);
 
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);

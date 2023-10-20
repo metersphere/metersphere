@@ -13,7 +13,7 @@ public class IDGenerator {
     /**
      * 生成一个唯一的数字
      */
-    public static Long randomUUID() {
+    public static Long nextNum() {
         return DEFAULT_UID_GENERATOR.getUID();
     }
 
