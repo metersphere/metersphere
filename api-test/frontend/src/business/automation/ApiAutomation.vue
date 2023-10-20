@@ -734,7 +734,7 @@ export default {
     setTabTitle(data) {
       for (let index in this.tabs) {
         let tab = this.tabs[index];
-        if (tab && tab.name === this.activeName) {
+        if (tab && tab.currentScenario && tab.currentScenario.id === data.id) {
           tab.label = data.name;
           break;
         }
