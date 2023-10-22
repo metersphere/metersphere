@@ -1,5 +1,6 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.dto.ProjectTemplateDTO;
 import io.metersphere.project.service.ProjectTemplateLogService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -37,9 +38,9 @@ public class ProjectTemplateController {
     @GetMapping("/list/{projectId}/{scene}")
     @Operation(summary = "获取模版列表")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ)
-    public List<Template> list(@Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    public List<ProjectTemplateDTO> list(@Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
                                @PathVariable String projectId,
-                               @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI,TEST_PLAN）", requiredMode = Schema.RequiredMode.REQUIRED)
+                                         @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI,TEST_PLAN）", requiredMode = Schema.RequiredMode.REQUIRED)
                                @PathVariable String scene) {
         return projectTemplateservice.list(projectId, scene);
     }
@@ -48,7 +49,7 @@ public class ProjectTemplateController {
     @Operation(summary = "获取模版详情")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ)
     public TemplateDTO get(@PathVariable String id) {
-        return projectTemplateservice.geDTOWithCheck(id);
+        return projectTemplateservice.geTemplateDTOWithCheck(id);
     }
 
     @PostMapping("/add")
@@ -80,11 +81,11 @@ public class ProjectTemplateController {
         projectTemplateservice.delete(id);
     }
 
-    @GetMapping("/set-default/{id}")
+    @GetMapping("/set-default/{projectId}/{id}")
     @Operation(summary = "设置模板模板")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.setDefaultTemplateLog(#id)", msClass = ProjectTemplateLogService.class)
-    public void setDefaultTemplate(@PathVariable String id) {
-        projectTemplateservice.setDefaultTemplate(id);
+    public void setDefaultTemplate(@PathVariable String projectId, @PathVariable String id) {
+        projectTemplateservice.setDefaultTemplate(projectId, id);
     }
 }

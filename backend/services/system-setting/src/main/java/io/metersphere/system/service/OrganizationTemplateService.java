@@ -45,7 +45,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
     public TemplateDTO geDTOWithCheck(String id) {
         Template template = super.getWithCheck(id);
         checkOrgResourceExist(template);
-        return super.geDTOWithCheck(template);
+        return super.geTemplateDTO(template);
     }
 
     @Override
@@ -130,34 +130,6 @@ public class OrganizationTemplateService extends BaseTemplateService {
         checkOrganizationTemplateEnable(template.getScopeId(), template.getScene());
         deleteRefProjectTemplate(id);
         super.delete(id);
-    }
-
-    /**
-     * 将模板设置成默认模板
-     * 同时将其他没模板设置成非默认模板
-     *
-     * @param id
-     */
-    @Override
-    public void setDefaultTemplate(String id) {
-        Template template = getWithCheck(id);
-        checkOrganizationTemplateEnable(template.getScopeId(), template.getScene());
-        setRefDefaultTemplate(id);
-        super.setDefaultTemplate(id);
-    }
-
-    /**
-     * 同步设置项目级别模板
-     * 当开启组织模板时，操作组织模板，同时维护与之关联的项目模板
-     * 避免当开启项目模板时，需要将各个资源关联的模板和字段从组织切换为项目
-     * 无论是否开启组织模板，各资源都只关联各自项目下的模板和字段
-     *
-     * @param id
-     */
-    private void setRefDefaultTemplate(String id) {
-        getByRefId(id).stream()
-                .map(Template::getId)
-                .forEach(super::setDefaultTemplate);
     }
 
     /**

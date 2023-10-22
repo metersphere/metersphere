@@ -1,25 +1,22 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.base.BasePluginTestService;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.ServiceIntegrationUpdateRequestDefinition;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.dto.ServiceIntegrationDTO;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
-import io.metersphere.system.request.PluginUpdateRequest;
 import io.metersphere.system.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.system.service.OrganizationService;
-import io.metersphere.system.service.PluginService;
+import io.metersphere.system.service.PluginLoadService;
 import jakarta.annotation.Resource;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.mockserver.client.MockServerClient;
@@ -27,15 +24,11 @@ import org.mockserver.model.Header;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
 
-import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.PLUGIN_ENABLE;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.PLUGIN_PERMISSION;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
@@ -58,7 +51,6 @@ public class ServiceIntegrationControllerTests extends BaseTest {
     private static final String VALIDATE_POST = "/validate/{0}";
     private static final String SCRIPT_GET = "/script/{0}";
     private static ServiceIntegration addServiceIntegration;
-    private static Plugin plugin;
     private static Organization defaultOrg;
 
     @Resource
@@ -68,7 +60,7 @@ public class ServiceIntegrationControllerTests extends BaseTest {
     @Resource
     private PluginLoadService pluginLoadService;
     @Resource
-    private PluginService pluginService;
+    private BasePluginTestService basePluginTestService;
     @Resource
     private PluginMapper pluginMapper;
     @Resource
@@ -95,9 +87,9 @@ public class ServiceIntegrationControllerTests extends BaseTest {
     @Test
     @Order(1)
     public void add() throws Exception {
-        plugin = addPlugin();
+        Plugin plugin = basePluginTestService.addJiraPlugin();
 
-        JiraIntegrationConfig integrationConfig = new JiraIntegrationConfig();
+        BasePluginTestService.JiraIntegrationConfig integrationConfig = new BasePluginTestService.JiraIntegrationConfig();
         Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
 
         // @@请求成功
@@ -140,7 +132,7 @@ public class ServiceIntegrationControllerTests extends BaseTest {
     @Test
     @Order(2)
     public void update() throws Exception {
-        JiraIntegrationConfig integrationConfig = new JiraIntegrationConfig();
+        BasePluginTestService.JiraIntegrationConfig integrationConfig = new BasePluginTestService.JiraIntegrationConfig();
         integrationConfig.setAddress(String.format("http://%s:%s", mockServerHost, mockServerHostPort));
         Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
 
@@ -148,7 +140,7 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         ServiceIntegrationUpdateRequest request = new ServiceIntegrationUpdateRequest();
         request.setId(addServiceIntegration.getId());
         request.setEnable(false);
-        request.setPluginId(plugin.getId());
+        request.setPluginId(basePluginTestService.getJiraPlugin().getId());
         request.setConfiguration(integrationConfigMap);
         request.setOrganizationId(defaultOrg.getId());
         this.requestPostWithOk(DEFAULT_UPDATE, request);
@@ -190,6 +182,7 @@ public class ServiceIntegrationControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void list() throws Exception {
+        Plugin plugin = basePluginTestService.getJiraPlugin();
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOkAndReturn(LIST, defaultOrg.getId());
         // 校验请求成功数据
@@ -252,7 +245,8 @@ public class ServiceIntegrationControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void validatePost() throws Exception {
-        JiraIntegrationConfig integrationConfig = new JiraIntegrationConfig();
+        Plugin plugin = basePluginTestService.getJiraPlugin();
+        BasePluginTestService.JiraIntegrationConfig integrationConfig = new BasePluginTestService.JiraIntegrationConfig();
         integrationConfig.setAddress(String.format("http://%s:%s", mockServerHost, mockServerHostPort));
         Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
         // @@请求成功
@@ -277,6 +271,7 @@ public class ServiceIntegrationControllerTests extends BaseTest {
     @Test
     @Order(6)
     public void getPluginScript() throws Exception {
+        Plugin plugin = basePluginTestService.getJiraPlugin();
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOkAndReturn(SCRIPT_GET, plugin.getId());
         // 校验请求成功数据
@@ -307,7 +302,7 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         Assertions.assertNull(serviceIntegration);
 
         // 清理插件
-        deletePlugin();
+        basePluginTestService.deleteJiraPlugin();
 
         // @@校验日志
         checkLog(addServiceIntegration.getId(), OperationLogType.DELETE);
@@ -317,28 +312,6 @@ public class ServiceIntegrationControllerTests extends BaseTest {
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_SERVICE_INTEGRATION_DELETE, DEFAULT_DELETE, addServiceIntegration.getId());
-    }
-
-
-    /**
-     * 添加插件，供测试使用
-     *
-     * @return
-     * @throws Exception
-     */
-    public Plugin addPlugin() throws Exception {
-        PluginUpdateRequest request = new PluginUpdateRequest();
-        File jarFile = new File(
-                this.getClass().getClassLoader().getResource("file/metersphere-jira-plugin-3.x.jar")
-                        .getPath()
-        );
-        FileInputStream inputStream = new FileInputStream(jarFile);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), jarFile.getName(), "jar", inputStream);
-        request.setName("测试插件");
-        request.setGlobal(true);
-        request.setEnable(true);
-        request.setCreateUser(ADMIN.name());
-        return pluginService.add(request, mockMultipartFile);
     }
 
     public void setPluginEnable(String pluginId, boolean enabled) {
@@ -353,24 +326,5 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         plugin.setId(pluginId);
         plugin.setGlobal(global);
         pluginMapper.updateByPrimaryKeySelective(plugin);
-    }
-
-    /**
-     * 删除插件
-     * @throws Exception
-     */
-    public void deletePlugin() {
-        pluginService.delete(plugin.getId());
-    }
-
-    @Getter
-    @Setter
-    public class JiraIntegrationConfig {
-        private String account;
-        private String password;
-        private String token;
-        private String authType;
-        private String address;
-        private String version;
     }
 }

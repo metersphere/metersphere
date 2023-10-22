@@ -1,5 +1,8 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.dto.ProjectTemplateDTO;
+import io.metersphere.project.dto.ProjectTemplateOptionDTO;
+import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.OrganizationParameterConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
@@ -9,6 +12,7 @@ import io.metersphere.sdk.dto.TemplateDTO;
 import io.metersphere.sdk.dto.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.dto.request.TemplateUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.TemplateUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
@@ -22,6 +26,7 @@ import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +35,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static io.metersphere.project.enums.result.ProjectResultCode.PROJECT_TEMPLATE_PERMISSION;
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
@@ -40,13 +47,13 @@ import static io.metersphere.system.controller.handler.result.MsHttpResultCode.N
  * @author jianxing
  * @date : 2023-8-30
  */
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProjectTemplateControllerTests extends BaseTest {
     private static final String BASE_PATH = "/project/template/";
     private static final String LIST = "list/{0}/{1}";
-    private static final String SET_DEFAULT = "set-default/{0}";
+    private static final String SET_DEFAULT = "set-default/{0}/{1}";
 
     @Resource
     private TemplateMapper templateMapper;
@@ -60,6 +67,10 @@ public class ProjectTemplateControllerTests extends BaseTest {
     private BaseTemplateCustomFieldService baseTemplateCustomFieldService;
     @Resource
     private OrganizationParameterMapper organizationParameterMapper;
+    @Resource
+    private ProjectTemplateService projectTemplateService;
+    @Resource
+    private BasePluginTestService basePluginTestService;
 
     private static Template addTemplate;
     private static Template anotherTemplateField;
@@ -77,6 +88,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(LIST, DEFAULT_PROJECT_ID, TemplateScene.FUNCTIONAL.name());
         List<Template> templates = getResultDataArray(mvcResult, Template.class);
         this.defaultTemplate = templates.get(0);
+        this.requestGetWithOkAndReturn(LIST, DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
     }
 
     @Test
@@ -228,26 +240,58 @@ public class ProjectTemplateControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void list() throws Exception {
+
         String scene = TemplateScene.FUNCTIONAL.name();
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(LIST, DEFAULT_PROJECT_ID, scene)
                 .andReturn();
         // 校验数据是否正确
-        List<Template> resultList = getResultDataArray(mvcResult, Template.class);
-        List<Template> templates = baseTemplateService.getTemplates(DEFAULT_PROJECT_ID, scene);
-        List<String> userIds = templates.stream().map(Template::getCreateUser).toList();
-        Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
-        for (int i = 0; i < resultList.size(); i++) {
-            Template resultItem = resultList.get(i);
-            Template template = templates.get(i);
-            template.setCreateUser(userNameMap.get(template.getCreateUser()));
-            if (template.getInternal()) {
-                // 校验内置用户名称是否翻译
-                template.setName(baseTemplateService.translateInternalTemplate(template.getName()));
-            }
-            Assertions.assertEquals(template, resultItem);
-            Assertions.assertEquals(resultItem.getScene(), scene);
-        }
+        List<ProjectTemplateDTO> resultList = getResultDataArray(mvcResult, ProjectTemplateDTO.class);
+        List<Template> dbTemplates = baseTemplateService.getTemplates(DEFAULT_PROJECT_ID, scene);
+        assertListTemplate(scene, resultList, dbTemplates);
+
+        // 校验获取模板选项方法
+        List<ProjectTemplateOptionDTO> projectTemplateOptions = projectTemplateService.getOption(DEFAULT_PROJECT_ID, scene);
+        assertTemplateOption(resultList, projectTemplateOptions);
+
+        scene = TemplateScene.BUG.name();
+        // @@缺陷模板请求成功
+        mvcResult = this.requestGetWithOk(LIST, DEFAULT_PROJECT_ID, scene)
+                .andReturn();
+        // 校验数据是否正确
+        resultList = getResultDataArray(mvcResult, ProjectTemplateDTO.class);
+        dbTemplates = baseTemplateService.getTemplates(DEFAULT_PROJECT_ID, scene);
+        assertListTemplate(scene, resultList, dbTemplates);
+
+        // 校验获取模板选项方法
+        projectTemplateOptions = projectTemplateService.getOption(DEFAULT_PROJECT_ID, scene);
+        assertTemplateOption(resultList, projectTemplateOptions);
+
+        // 上传jira插件，添加jira集成
+        basePluginTestService.addJiraPlugin();
+        basePluginTestService.addServiceIntegration(DEFAULT_ORGANIZATION_ID);
+        // @@校验配置服务集成后，是否有jira模板
+        mvcResult = this.requestGetWithOk(LIST, DEFAULT_PROJECT_ID, scene)
+                .andReturn();
+        resultList = getResultDataArray(mvcResult, ProjectTemplateDTO.class);
+        // 没有配置项目信息，校验是否有jira模板
+        Assertions.assertTrue(resultList.size() == dbTemplates.size());
+        Assertions.assertTrue(resultList.stream().filter(item -> StringUtils.equals(item.getId(), "jira")).count() == 0);
+
+        // 校验获取模板选项方法
+        projectTemplateOptions = projectTemplateService.getOption(DEFAULT_PROJECT_ID, scene);
+        assertTemplateOption(resultList, projectTemplateOptions);
+
+        // 配置项目信息
+        basePluginTestService.enableProjectBugConfig(DEFAULT_PROJECT_ID);
+        // @@校验配置项目信息后，是否有jira模板
+        mvcResult = this.requestGetWithOk(LIST, DEFAULT_PROJECT_ID, scene)
+                .andReturn();
+        Template jiraTemplate = getResultDataArray(mvcResult, Template.class).stream()
+                .filter(item -> StringUtils.equals(item.getId(), "jira"))
+                .findFirst()
+                .get();
+        Assertions.assertNotNull(jiraTemplate);
 
         // @@校验组织是否存在
         assertErrorCode(this.requestGet(LIST, "1111", scene), NOT_FOUND);
@@ -257,6 +301,34 @@ public class ProjectTemplateControllerTests extends BaseTest {
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_READ, LIST, DEFAULT_PROJECT_ID, scene);
+    }
+
+    private static void assertTemplateOption(List<ProjectTemplateDTO> resultList, List<ProjectTemplateOptionDTO> projectTemplateOptions) {
+        Map<String, ProjectTemplateDTO> templateMap = resultList.stream().collect(Collectors.toMap(Template::getId, Function.identity()));
+        Assertions.assertEquals(projectTemplateOptions.size(), resultList.size());
+        projectTemplateOptions.forEach(option -> {
+            ProjectTemplateDTO template = templateMap.get(option.getId());
+            Assertions.assertEquals(option.getId(), template.getId());
+            Assertions.assertEquals(option.getName(), template.getName());
+            Assertions.assertEquals(option.getEnableDefault(), template.getEnableDefault());
+        });
+    }
+
+    private void assertListTemplate(String scene, List<ProjectTemplateDTO> resultList, List<Template> dbTemplates) {
+        List<String> userIds = dbTemplates.stream().map(Template::getCreateUser).toList();
+        Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
+        Assertions.assertTrue(resultList.size() == dbTemplates.size());
+        for (int i = 0; i < resultList.size(); i++) {
+            Template resultItem = resultList.get(i);
+            Template template = dbTemplates.get(i);
+            template.setCreateUser(userNameMap.get(template.getCreateUser()));
+            if (template.getInternal()) {
+                // 校验内置用户名称是否翻译
+                template.setName(baseTemplateService.translateInternalTemplate());
+            }
+            Assertions.assertEquals(template, resultItem);
+            Assertions.assertEquals(resultItem.getScene(), scene);
+        }
     }
 
     @Test
@@ -289,20 +361,26 @@ public class ProjectTemplateControllerTests extends BaseTest {
     @Order(5)
     public void setDefaultTemplate() throws Exception {
         changeOrgTemplateEnable(false);
+
+        String projectId = DEFAULT_PROJECT_ID;
+        String scene = TemplateScene.FUNCTIONAL.name();
+        String defaultTemplateId = projectTemplateService.getDefaultTemplateId(projectId, scene);
+        // 校验默认没有设置默认模板，使用内置模板
+        Assertions.assertNull(defaultTemplateId);
+        TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(projectId, scene);
+        Assertions.assertEquals(defaultTemplateDTO.getInternal(), true);
+
         // @@请求成功
-        this.requestGetWithOk(SET_DEFAULT, addTemplate.getId());
+        this.requestGetWithOk(SET_DEFAULT, DEFAULT_PROJECT_ID, addTemplate.getId());
         Template template = templateMapper.selectByPrimaryKey(addTemplate.getId());
         assertSetDefaultTemplate(template);
-
-        // @校验是否开启项目模板
-        changeOrgTemplateEnable(true);
-        assertErrorCode(this.requestGet(SET_DEFAULT, addTemplate.getId()), PROJECT_TEMPLATE_PERMISSION);
-        changeOrgTemplateEnable(false);
+        defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(projectId, scene);
+        Assertions.assertEquals(defaultTemplateDTO.getId(), template.getId());
 
         // @@校验日志
         checkLog(addTemplate.getId(), OperationLogType.UPDATE);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, SET_DEFAULT, addTemplate.getScopeId(), addTemplate.getScene());
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, SET_DEFAULT, DEFAULT_PROJECT_ID, addTemplate.getId());
     }
 
     @Test
@@ -313,23 +391,21 @@ public class ProjectTemplateControllerTests extends BaseTest {
         assertErrorCode(this.requestGet(DEFAULT_DELETE, addTemplate.getId()), PROJECT_TEMPLATE_PERMISSION);
         changeOrgTemplateEnable(false);
 
+        // @@校验内置模板删除异常
+        Template internalTemplate = projectTemplateService.getInternalTemplate(DEFAULT_PROJECT_ID, TemplateScene.FUNCTIONAL.name());
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, internalTemplate.getId()), INTERNAL_TEMPLATE_PERMISSION);
+
         // @@校验删除默认模板
         assertErrorCode(this.requestGet(DEFAULT_DELETE, addTemplate.getId()), DEFAULT_TEMPLATE_PERMISSION);
         // 设置回来，保证正常删除
-        this.requestGetWithOk(SET_DEFAULT, defaultTemplate.getId());
-        
+        this.requestGetWithOk(SET_DEFAULT, DEFAULT_PROJECT_ID, defaultTemplate.getId());
+
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addTemplate.getId());
         Assertions.assertNull(templateMapper.selectByPrimaryKey(addTemplate.getId()));
         Assertions.assertTrue(CollectionUtils.isEmpty(baseTemplateCustomFieldService.getByTemplateId(addTemplate.getId())));
 
-        // @@校验内置模板删除异常
-        TemplateExample example = new TemplateExample();
-        example.createCriteria()
-                .andScopeTypeEqualTo(TemplateScopeType.PROJECT.name())
-                .andInternalEqualTo(true);
-        Template internalTemplate = templateMapper.selectByExample(example).get(0);
-        assertErrorCode(this.requestGet(DEFAULT_DELETE, internalTemplate.getId()), INTERNAL_TEMPLATE_PERMISSION);
+        basePluginTestService.deleteJiraPlugin();
 
         // @@校验 NOT_FOUND 异常
         assertErrorCode(this.requestGet(DEFAULT_DELETE, "1111"), NOT_FOUND);
@@ -341,18 +417,8 @@ public class ProjectTemplateControllerTests extends BaseTest {
     }
 
     private void assertSetDefaultTemplate(Template template) {
-        Assertions.assertTrue(template.getEnableDefault());
-        int defaultCount = getTemplateByScopeId(addTemplate.getScopeId())
-                .stream()
-                .filter(Template::getEnableDefault)
-                .toList().size();
-        Assertions.assertEquals(defaultCount, 1);
-    }
-
-    private List<Template> getTemplateByScopeId(String scopeId) {
-        TemplateExample example = new TemplateExample();
-        example.createCriteria().andScopeIdEqualTo(scopeId);
-        return templateMapper.selectByExample(example);
+        String defaultTemplateId = projectTemplateService.getDefaultTemplateId(template.getScopeId(), template.getScene());
+        Assertions.assertEquals(defaultTemplateId, template.getId());
     }
 
     private void changeOrgTemplateEnable(boolean enable) {

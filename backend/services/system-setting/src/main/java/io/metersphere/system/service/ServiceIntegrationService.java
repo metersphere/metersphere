@@ -73,7 +73,7 @@ public class ServiceIntegrationService {
         }).toList();
     }
 
-    private List<ServiceIntegration> getServiceIntegrationByOrgId(String organizationId) {
+    public List<ServiceIntegration> getServiceIntegrationByOrgId(String organizationId) {
         ServiceIntegrationExample example = new ServiceIntegrationExample();
         example.createCriteria()
                 .andOrganizationIdEqualTo(organizationId);

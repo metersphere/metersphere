@@ -50,10 +50,15 @@ public class BaseTemplateService {
         List<Template> templates = getTemplates(scopeId, scene);
         List<String> userIds = templates.stream().map(Template::getCreateUser).toList();
         Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
+        templates.forEach(item -> item.setCreateUser(userNameMap.get(item.getCreateUser())));
+        translateInternalTemplate(templates);
+        return templates;
+    }
+
+    public List<Template> translateInternalTemplate(List<Template> templates) {
         templates.forEach(item -> {
-            item.setCreateUser(userNameMap.get(item.getCreateUser()));
             if (item.getInternal()) {
-                item.setName(translateInternalTemplate(item.getName()));
+                item.setName(translateInternalTemplate());
             }
         });
         return templates;
@@ -74,16 +79,19 @@ public class BaseTemplateService {
         return templateMapper.selectByExample(example);
     }
 
-    public String translateInternalTemplate(String filedName) {
-        return Translator.get("template." + filedName);
+    public String translateInternalTemplate() {
+        return Translator.get("template.default");
     }
 
     public Template getWithCheck(String id) {
         return checkResourceExist(id);
     }
 
+    public Template get(String id) {
+        return templateMapper.selectByPrimaryKey(id);
+    }
 
-    public TemplateDTO geDTOWithCheck(Template template) {
+    protected TemplateDTO geTemplateDTO(Template template) {
         List<TemplateCustomField> templateCustomFields = baseTemplateCustomFieldService.getByTemplateId(template.getId());
 
         // 查找字段名称
@@ -112,7 +120,6 @@ public class BaseTemplateService {
 
     public Template add(Template template, List<TemplateCustomFieldRequest> customFields) {
         template.setInternal(false);
-        template.setEnableDefault(false);
         return this.baseAdd(template, customFields);
     }
 
@@ -144,7 +151,6 @@ public class BaseTemplateService {
         template.setScopeId(null);
         template.setCreateUser(null);
         template.setCreateTime(null);
-        template.setEnableDefault(null);
         // customFields 为 null 则不修改
         if (customFields != null) {
             baseTemplateCustomFieldService.deleteByTemplateId(template.getId());
@@ -157,27 +163,8 @@ public class BaseTemplateService {
     public void delete(String id) {
         Template template = checkResourceExist(id);
         checkInternal(template);
-        checkDefault(template);
         templateMapper.deleteByPrimaryKey(id);
         baseTemplateCustomFieldService.deleteByTemplateId(id);
-    }
-
-    public void setDefaultTemplate(String id) {
-        Template originTemplate = templateMapper.selectByPrimaryKey(id);
-        // 将当前模板设置成默认模板
-        Template template = new Template();
-        template.setId(id);
-        template.setEnableDefault(true);
-        templateMapper.updateByPrimaryKeySelective(template);
-
-        // 将其他模板设置成非默认模板
-        template = new Template();
-        template.setEnableDefault(false);
-        TemplateExample example = new TemplateExample();
-        example.createCriteria()
-                .andIdNotEqualTo(id)
-                .andScopeIdEqualTo(originTemplate.getScopeId());
-        templateMapper.updateByExampleSelective(template, example);
     }
 
     /**
@@ -187,16 +174,6 @@ public class BaseTemplateService {
     protected void checkInternal(Template template) {
         if (template.getInternal()) {
             throw new MSException(INTERNAL_TEMPLATE_PERMISSION);
-        }
-    }
-
-    /**
-     * 设置成默认模板后不能删除
-     * @param template
-     */
-    protected void checkDefault(Template template) {
-        if (template.getEnableDefault()) {
-            throw new MSException(DEFAULT_TEMPLATE_PERMISSION);
         }
     }
 
@@ -329,7 +306,6 @@ public class BaseTemplateService {
         template.setScopeType(scopeType.name());
         template.setScopeId(scopeId);
         template.setEnableThirdPart(false);
-        template.setEnableDefault(true);
         template.setScene(scene.name());
         templateMapper.insert(template);
         return template;
