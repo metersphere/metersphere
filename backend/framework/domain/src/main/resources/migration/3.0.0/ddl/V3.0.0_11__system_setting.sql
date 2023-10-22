@@ -380,19 +380,17 @@ CREATE TABLE IF NOT EXISTS template(
     `update_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-    `scope_type` VARCHAR(50) NOT NULL  COMMENT '组织或项目级别字段（PROJECT, ORGANIZATION）' ,
+    `scope_type` VARCHAR(50) NOT NULL   COMMENT '组织或项目级别字段（PROJECT, ORGANIZATION）' ,
     `scope_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
     `enable_third_part` BIT NOT NULL  DEFAULT 0 COMMENT '是否开启api字段名配置' ,
-    `enable_default` BIT NOT NULL  DEFAULT 0 COMMENT '是否是默认模板' ,
     `ref_id` VARCHAR(50)    COMMENT '项目模板所关联的组织模板ID' ,
     `scene` VARCHAR(30) NOT NULL   COMMENT '使用场景' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci
-    COMMENT = '模版';
+    COLLATE = utf8mb4_general_ci COMMENT = '模版';
 
-CREATE INDEX idx_scope_id ON template(scope_id);
+CREATE INDEX idx_scope_id_scene ON template(`scope_id`,`scene`);
 
 CREATE TABLE IF NOT EXISTS template_custom_field(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,

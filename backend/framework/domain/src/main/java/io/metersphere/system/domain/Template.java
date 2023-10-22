@@ -50,10 +50,6 @@ public class Template implements Serializable {
     @NotNull(message = "{template.enable_third_part.not_blank}", groups = {Created.class})
     private Boolean enableThirdPart;
 
-    @Schema(description = "是否是默认模板", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{template.enable_default.not_blank}", groups = {Created.class})
-    private Boolean enableDefault;
-
     @Schema(description = "项目模板所关联的组织模板ID")
     private String refId;
 
@@ -75,7 +71,6 @@ public class Template implements Serializable {
         scopeType("scope_type", "scopeType", "VARCHAR", false),
         scopeId("scope_id", "scopeId", "VARCHAR", false),
         enableThirdPart("enable_third_part", "enableThirdPart", "BIT", false),
-        enableDefault("enable_default", "enableDefault", "BIT", false),
         refId("ref_id", "refId", "VARCHAR", false),
         scene("scene", "scene", "VARCHAR", false);
 

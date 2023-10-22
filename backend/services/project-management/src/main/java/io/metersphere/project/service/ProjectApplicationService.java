@@ -87,7 +87,7 @@ public class ProjectApplicationService {
         this.createOrUpdateConfig(application);
     }
 
-    private void createOrUpdateConfig(ProjectApplication application) {
+    public void createOrUpdateConfig(ProjectApplication application) {
         String type = application.getType();
         String projectId = application.getProjectId();
         ProjectApplicationExample example = new ProjectApplicationExample();
@@ -546,4 +546,10 @@ public class ProjectApplicationService {
         return null;
     }
 
+    public ProjectApplication getByType(String projectId, String type) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(type);
+        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
+        return CollectionUtils.isEmpty(projectApplications) ? null : projectApplications.get(0);
+    }
 }

@@ -1,5 +1,7 @@
 package io.metersphere.sdk.constants;
 
+import java.util.Arrays;
+
 /**
  * 应用设置 -相关配置
  */
@@ -79,6 +81,24 @@ public class ProjectApplicationType {
     // 版本管理-配置项
     public enum VERSION{
         VERSION_ENABLE
+    }
+
+    /**
+     * 记录项目中配置的默认模板
+     */
+    public enum DEFAULT_TEMPLATE{
+        FUNCTIONAL_DEFAULT_TEMPLATE,
+        BUG_DEFAULT_TEMPLATE,
+        API_DEFAULT_TEMPLATE,
+        UI_DEFAULT_TEMPLATE,
+        TEST_PLAN_DEFAULT_TEMPLATE;
+
+        public static DEFAULT_TEMPLATE getByTemplateScene(String scene) {
+            return Arrays.stream(DEFAULT_TEMPLATE.values())
+                    .filter(e -> e.name().startsWith(scene))
+                    .findFirst()
+                    .orElse(null);
+        }
     }
 
 }

@@ -44,7 +44,6 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     private static final String BASE_PATH = "/organization/template/";
     private static final String LIST = "list/{0}/{1}";
     private static final String DISABLE_ORG_TEMPLATE = "disable/{0}/{1}";
-    private static final String SET_DEFAULT = "set-default/{0}";
     protected static final String IS_ORGANIZATION_TEMPLATE_ENABLE = "is-enable/{0}/{1}";
 
     @Resource
@@ -286,7 +285,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
             template.setCreateUser(userNameMap.get(template.getCreateUser()));
             if (template.getInternal()) {
                 // 校验内置用户名称是否翻译
-                template.setName(baseTemplateService.translateInternalTemplate(template.getName()));
+                template.setName(baseTemplateService.translateInternalTemplate());
             }
             Assertions.assertEquals(template, resultItem);
             Assertions.assertEquals(resultItem.getScene(), scene);
@@ -350,46 +349,6 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(6)
-    public void setDefaultTemplate() throws Exception {
-        changeOrgTemplateEnable(true);
-        // @@请求成功
-        this.requestGetWithOk(SET_DEFAULT, addTemplate.getId());
-        Template template = templateMapper.selectByPrimaryKey(addTemplate.getId());
-        assertSetDefaultTemplate(template);
-        assertRefSetDefaultTemplate(template);
-
-        // @校验是否开启组织模板
-        changeOrgTemplateEnable(false);
-        assertErrorCode(this.requestGet(SET_DEFAULT, addTemplate.getId()), ORGANIZATION_TEMPLATE_PERMISSION);
-        changeOrgTemplateEnable(true);
-
-        // @@校验日志
-        checkLog(addTemplate.getId(), OperationLogType.UPDATE);
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, SET_DEFAULT, addTemplate.getScopeId(), addTemplate.getScene());
-    }
-
-    private void assertSetDefaultTemplate(Template template) {
-        Assertions.assertTrue(template.getEnableDefault());
-        int defaultCount = getTemplateByScopeId(addTemplate.getScopeId())
-                .stream()
-                .filter(Template::getEnableDefault)
-                .toList().size();
-        Assertions.assertEquals(defaultCount, 1);
-    }
-
-    /**
-     * 校验变更组织模板时，有没有同步变更项目模板
-     *
-     * @param template
-     */
-    private void assertRefSetDefaultTemplate(Template template) {
-        List<Template> refTemplates = organizationTemplateService.getByRefId(template.getId());
-        refTemplates.forEach(this::assertSetDefaultTemplate);
-    }
-
-    @Test
     @Order(7)
     public void delete() throws Exception {
 
@@ -397,11 +356,6 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         changeOrgTemplateEnable(false);
         assertErrorCode(this.requestGet(DEFAULT_DELETE, addTemplate.getId()), ORGANIZATION_TEMPLATE_PERMISSION);
         changeOrgTemplateEnable(true);
-
-        // @@校验删除默认模板
-        assertErrorCode(this.requestGet(DEFAULT_DELETE, addTemplate.getId()), DEFAULT_TEMPLATE_PERMISSION);
-        // 设置回来，保证正常删除
-        this.requestGetWithOk(SET_DEFAULT, defaultTemplate.getId());
 
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addTemplate.getId());

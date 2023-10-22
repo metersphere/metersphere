@@ -88,14 +88,6 @@ public class OrganizationTemplateController {
         organizationTemplateService.disableOrganizationTemplate(organizationId, scene);
     }
 
-    @GetMapping("/set-default/{id}")
-    @Operation(summary = "设置模板模板")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.setDefaultTemplateLog(#id)", msClass = OrganizationTemplateLogService.class)
-    public void setDefaultTemplate(@PathVariable String id) {
-        organizationTemplateService.setDefaultTemplate(id);
-    }
-
     @GetMapping("/is-enable/{organizationId}/{scene}")
     @Operation(summary = "是否启用组织模版")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_READ)
