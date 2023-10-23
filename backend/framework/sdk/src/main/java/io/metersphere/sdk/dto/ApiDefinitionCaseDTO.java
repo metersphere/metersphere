@@ -8,76 +8,73 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ApiDefinitionCaseDTO {
 
-    @Schema(description = "接口名称")
+    @Schema(description ="message.domain.name")
     private String name;
 
-    @Schema(description = "接口协议")
+    @Schema(description ="message.domain.protocol")
     private String protocol;
 
-    @Schema(description = "http协议类型post/get/其它协议则是协议名(mqtt)")
+    @Schema(description ="message.domain.method")
     private String method;
 
-    @Schema(description = "http协议路径/其它协议则为空")
+    @Schema(description ="message.domain.path")
     private String path;
 
-    @Schema(description = "接口状态/进行中/已完成")
+    @Schema(description ="message.domain.status")
     private String status;
 
-    @Schema(description = "描述")
+    @Schema(description ="message.domain.description")
     private String description;
 
-    @Schema(description = "创建时间")
+    @Schema(description ="message.domain.create_time")
     private Long createTime;
 
-    @Schema(description = "创建人")
+    @Schema(description ="message.domain.create_user")
     private String createUser;
 
-    @Schema(description = "修改时间")
+    @Schema(description ="message.domain.update_time")
     private Long updateTime;
 
-    @Schema(description = "修改人")
+    @Schema(description ="message.domain.update_user")
     private String updateUser;
 
-    @Schema(description = "删除人")
+    @Schema(description ="message.domain.delete_user")
     private String deleteUser;
 
-    @Schema(description = "删除时间")
+    @Schema(description ="message.domain.delete_time")
     private Long deleteTime;
 
-    @Schema(description = "接口用例名称")
+    @Schema(description ="message.domain.case_name")
     private String caseName;
 
-    @Schema(description = "用例等级")
+    @Schema(description ="message.domain.priority")
     private String priority;
 
-    @Schema(description = "用例状态")
+    @Schema(description ="message.domain.case_status")
     private String caseStatus;
 
-    @Schema(description = "用例最新执行结果状态")
+    @Schema(description ="message.domain.last_report_status")
     private String lastReportStatus;
 
-    @Schema(description = "用例最后执行结果报告fk")
-    private String lastReportId;
-
-    @Schema(description = "用例责任人")
+    @Schema(description ="message.domain.principal")
     private String principal;
 
-    @Schema(description = "用例创建时间")
+    @Schema(description ="message.domain.case_create_time")
     private Long caseCreateTime;
 
-    @Schema(description = "用例创建人")
+    @Schema(description ="message.domain.case_create_user")
     private String caseCreateUser;
 
-    @Schema(description = "用例更新时间")
+    @Schema(description ="message.domain.case_update_time")
     private Long caseUpdateTime;
 
-    @Schema(description = "用例更新人")
+    @Schema(description ="message.domain.case_update_user")
     private String caseUpdateUser;
 
-    @Schema(description = "用例删除时间")
+    @Schema(description ="message.domain.case_delete_time")
     private Long caseDeleteTime;
 
-    @Schema(description = "用例删除人")
+    @Schema(description ="message.domain.case_delete_user")
     private String caseDeleteUser;
 
 

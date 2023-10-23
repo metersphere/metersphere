@@ -5,11 +5,11 @@ import io.metersphere.bug.domain.Bug;
 import io.metersphere.functional.domain.CaseReview;
 import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.sdk.dto.ApiDefinitionCaseDTO;
-import io.metersphere.sdk.dto.FunctionalCaseMessageDTO;
 import io.metersphere.project.dto.MessageTemplateFieldDTO;
 import io.metersphere.project.dto.MessageTemplateResultDTO;
 import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.dto.ApiDefinitionCaseDTO;
+import io.metersphere.sdk.dto.FunctionalCaseMessageDTO;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
@@ -164,9 +164,9 @@ public class NoticeTemplateService {
         messageTemplateFieldDTOS.add(messageTemplateFieldFollow);
         MessageTemplateFieldDTO messageTemplateFieldTriggerMode = new MessageTemplateFieldDTO();
         messageTemplateFieldTriggerMode.setId("TRIGGER_MODE");
-        messageTemplateFieldOperator.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
-        messageTemplateFieldOperator.setName(Translator.get("message.trigger_mode"));
-        messageTemplateFieldDTOS.add(messageTemplateFieldOperator);
+        messageTemplateFieldTriggerMode.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
+        messageTemplateFieldTriggerMode.setName(Translator.get("message.trigger_mode"));
+        messageTemplateFieldDTOS.add(messageTemplateFieldTriggerMode);
     }
 
     public MessageTemplateResultDTO getTemplateFields(String projectId, String taskType) {

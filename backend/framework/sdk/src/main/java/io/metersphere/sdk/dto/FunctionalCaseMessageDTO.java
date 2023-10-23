@@ -8,40 +8,40 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FunctionalCaseMessageDTO {
 
-    @Schema(description =  "名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description ="message.domain.name")
     private String name;
 
-    @Schema(description =  "测试计划名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "message.domain.test_plan_name")
     private String testPlanName;
 
-    @Schema(description =  "评审名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "message.domain.review_name")
     private String reviewName;
 
-    @Schema(description =  "评审状态：未开始/进行中/已完成/已结束", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "message.domain.review_status")
     private String reviewStatus;
 
-    @Schema(description =  "编辑模式：步骤模式/文本模式", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "message.domain.case_model")
     private String caseModel;
 
-    @Schema(description =  "最近的执行结果：未执行/通过/失败/阻塞/跳过", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "message.domain.last_execute_result")
     private String lastExecuteResult;
 
-    @Schema(description =  "创建人")
+    @Schema(description = "message.domain.create_user")
     private String createUser;
 
-    @Schema(description =  "更新人")
+    @Schema(description = "message.domain.update_user")
     private String updateUser;
 
-    @Schema(description =  "删除人")
+    @Schema(description = "message.domain.delete_user")
     private String deleteUser;
 
-    @Schema(description =  "创建时间")
+    @Schema(description = "message.domain.create_time")
     private Long createTime;
 
-    @Schema(description =  "更新时间")
+    @Schema(description = "message.domain.update_time")
     private Long updateTime;
 
-    @Schema(description =  "删除时间")
+    @Schema(description = "message.domain.delete_time")
     private Long deleteTime;
 
 }

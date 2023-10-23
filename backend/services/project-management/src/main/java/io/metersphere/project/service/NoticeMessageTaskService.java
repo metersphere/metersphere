@@ -6,6 +6,7 @@ import io.metersphere.project.dto.*;
 import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.enums.result.ProjectResultCode;
 import io.metersphere.project.mapper.*;
+import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.request.MessageTaskRequest;
 import io.metersphere.sdk.exception.MSException;
@@ -13,10 +14,8 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserExample;
-import io.metersphere.system.domain.UserRoleRelation;
-import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.domain.*;
+import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
@@ -59,6 +58,8 @@ public class NoticeMessageTaskService {
     private ProjectMapper projectMapper;
     @Resource
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
+    @Resource
+    protected CustomFieldMapper customFieldMapper;
 
 
     public static final String USER_IDS = "user_ids";
@@ -288,6 +289,28 @@ public class NoticeMessageTaskService {
     }
 
     /**
+     * 获取自定义字段的解释
+     *
+     * @return Map<String, String>
+     */
+    public Map<String, String> getCustomFielddMap(String projectId) {
+        Map<String, String> customFielddMap = new HashMap<>();
+        List<String> sceneList = new ArrayList<>();
+        sceneList.add(TemplateScene.API.toString());
+        sceneList.add(TemplateScene.TEST_PLAN.toString());
+        sceneList.add(TemplateScene.FUNCTIONAL.toString());
+        sceneList.add(TemplateScene.BUG.toString());
+        sceneList.add(TemplateScene.UI.toString());
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria().andScopeIdEqualTo(projectId).andSceneIn(sceneList);
+        List<CustomField> customFields = customFieldMapper.selectByExample(example);
+        for (CustomField customField : customFields) {
+            customFielddMap.put(customField.getName(), StringUtils.isBlank(customField.getRemark()) ? "-" : customField.getRemark());
+        }
+        return customFielddMap;
+    }
+
+    /**
      * 根据项目id 获取当前项目的消息设置
      *
      * @param projectId 项目ID
@@ -337,6 +360,7 @@ public class NoticeMessageTaskService {
         Map<String, String> eventMap = MessageTemplateUtils.getEventMap();
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         Map<String, String> defaultTemplateSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
+        Map<String, String> customFielddMap = getCustomFielddMap(projectId);
         ProjectRobot projectRobot = getDefaultRobot(projectId, null);
         for (MessageTaskDTO messageTaskDTO : messageTaskDTOList) {
             messageTaskDTO.setProjectId(projectId);
@@ -356,7 +380,7 @@ public class NoticeMessageTaskService {
                     String defaultTemplate = defaultTemplateMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
                     if (CollectionUtils.isEmpty(messageTaskList)) {
                         String defaultSubject = defaultTemplateSubjectMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
-                        ProjectRobotConfigDTO projectRobotConfigDTO = getDefaultProjectRobotConfigDTO(messageTaskTypeDTO.getTaskType(), defaultTemplate, defaultSubject, projectRobot);
+                        ProjectRobotConfigDTO projectRobotConfigDTO = getDefaultProjectRobotConfigDTO(messageTaskTypeDTO.getTaskType(), defaultTemplate, defaultSubject, projectRobot, customFielddMap);
                         projectRobotConfigMap.put(projectRobot.getId(), projectRobotConfigDTO);
                     } else {
                         for (MessageTask messageTask : messageTaskList) {
@@ -372,7 +396,7 @@ public class NoticeMessageTaskService {
                             } else {
                                 defaultSubject = defaultTemplateSubjectMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
                             }
-                            ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, robotMap.get(messageTask.getProjectRobotId()), messageTask, messageTaskBlob);
+                            ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, robotMap.get(messageTask.getProjectRobotId()), messageTask, messageTaskBlob, customFielddMap);
                             projectRobotConfigMap.put(messageTask.getProjectRobotId(), projectRobotConfigDTO);
                         }
                     }
@@ -385,9 +409,9 @@ public class NoticeMessageTaskService {
         return messageTaskDTOList;
     }
 
-    private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, ProjectRobot projectRobot, MessageTask messageTask, MessageTaskBlob messageTaskBlob) {
+    private ProjectRobotConfigDTO getProjectRobotConfigDTO(String defaultTemplate, String defaultSubject, ProjectRobot projectRobot, MessageTask messageTask, MessageTaskBlob messageTaskBlob, Map<String, String> customFielddMap) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
-        if (StringUtils.equalsIgnoreCase(projectRobot.getName(),"robot_in_site") || StringUtils.equalsIgnoreCase(projectRobot.getName(),"robot_mail")) {
+        if (StringUtils.equalsIgnoreCase(projectRobot.getName(), "robot_in_site") || StringUtils.equalsIgnoreCase(projectRobot.getName(), "robot_mail")) {
             projectRobotConfigDTO.setRobotName(Translator.get(projectRobot.getName()));
         } else {
             projectRobotConfigDTO.setRobotName(projectRobot.getName());
@@ -406,8 +430,8 @@ public class NoticeMessageTaskService {
         } else {
             projectRobotConfigDTO.setTemplate(messageTaskBlob.getTemplate());
         }
-        String translateTemplate = MessageTemplateUtils.getTranslateTemplate(messageTask.getTaskType(), projectRobotConfigDTO.getTemplate());
-        String translateSubject = MessageTemplateUtils.getTranslateSubject(messageTask.getTaskType(), projectRobotConfigDTO.getSubject());
+        String translateTemplate = MessageTemplateUtils.getTranslateTemplate(messageTask.getTaskType(), projectRobotConfigDTO.getTemplate(), customFielddMap);
+        String translateSubject = MessageTemplateUtils.getTranslateSubject(messageTask.getTaskType(), projectRobotConfigDTO.getSubject(), customFielddMap);
         projectRobotConfigDTO.setPreviewTemplate(translateTemplate);
         projectRobotConfigDTO.setPreviewSubject(translateSubject);
         projectRobotConfigDTO.setDefaultTemplate(defaultTemplate);
@@ -417,7 +441,7 @@ public class NoticeMessageTaskService {
         return projectRobotConfigDTO;
     }
 
-    private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String taskType, String defaultTemplate, String defaultSubject, ProjectRobot projectRobot) {
+    private static ProjectRobotConfigDTO getDefaultProjectRobotConfigDTO(String taskType, String defaultTemplate, String defaultSubject, ProjectRobot projectRobot, Map<String, String> customFielddMap) {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
         projectRobotConfigDTO.setRobotId(projectRobot.getId());
         projectRobotConfigDTO.setRobotName(Translator.get(projectRobot.getName()));
@@ -430,8 +454,8 @@ public class NoticeMessageTaskService {
         projectRobotConfigDTO.setDefaultSubject(defaultSubject);
         projectRobotConfigDTO.setUseDefaultSubject(true);
         projectRobotConfigDTO.setUseDefaultTemplate(true);
-        String translateTemplate = MessageTemplateUtils.getTranslateTemplate(taskType, defaultTemplate);
-        String translateSubject = MessageTemplateUtils.getTranslateSubject(taskType, defaultSubject);
+        String translateTemplate = MessageTemplateUtils.getTranslateTemplate(taskType, defaultTemplate, customFielddMap);
+        String translateSubject = MessageTemplateUtils.getTranslateSubject(taskType, defaultSubject, customFielddMap);
         projectRobotConfigDTO.setPreviewTemplate(translateTemplate);
         projectRobotConfigDTO.setPreviewSubject(translateSubject);
         return projectRobotConfigDTO;
@@ -455,6 +479,7 @@ public class NoticeMessageTaskService {
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         Map<String, String> defaultTemplateSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
+        Map<String, String> customFielddMap = getCustomFielddMap(projectId);
         ProjectRobot projectRobot = projectRobotMapper.selectByPrimaryKey(robotId);
         MessageTask messageTask;
         if (projectRobot == null) {
@@ -484,7 +509,7 @@ public class NoticeMessageTaskService {
         MessageTaskBlob messageTaskBlob = messageTaskBlobMapper.selectByPrimaryKey(messageTask.getId());
         String defaultTemplate = defaultTemplateMap.get(messageTask.getTaskType() + "_" + messageTask.getEvent());
         String defaultSubject = defaultTemplateSubjectMap.get(messageTask.getTaskType() + "_" + messageTask.getEvent());
-        ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot, messageTask, messageTaskBlob);
+        ProjectRobotConfigDTO projectRobotConfigDTO = getProjectRobotConfigDTO(defaultTemplate, defaultSubject, projectRobot, messageTask, messageTaskBlob, customFielddMap);
         MessageTemplateConfigDTO messageTemplateConfigDTO = new MessageTemplateConfigDTO();
         BeanUtils.copyBean(messageTemplateConfigDTO, projectRobotConfigDTO);
         Map<String, String> taskTypeMap = MessageTemplateUtils.getTaskTypeMap();
