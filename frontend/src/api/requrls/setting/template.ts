@@ -29,6 +29,8 @@ export const GetOrganizeTemplateDetailUrl = '/organization/template/get';
 export const DeleteOrganizeTemplateUrl = '/organization/template/delete';
 // 关闭组织模板，开启项目模版
 export const EnableOrOffTemplateUrl = '/organization/template/disable';
+// 是否启用组织模板
+export const isEnableTemplateUrl = '/organization/template/is-enable';
 
 // 系统设置-组织-自定义字段
 

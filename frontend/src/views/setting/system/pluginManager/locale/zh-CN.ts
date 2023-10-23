@@ -58,6 +58,7 @@ export default {
   'system.plugin.currentScene': '当前场景',
   'system.plugin.deletePluginSuccess': '删除成功',
   'system.plugin.disablePluginSuccess': '禁用成功',
+  'system.plugin.enablePluginSuccess': '启用成功',
   'system.plugin.disablePluginContent': '项目无法与该平台集成且该平台默认模版不可用，谨慎操作！',
   'system.plugin.alertDescribe':
     'MeterSphereV2.10LTS 版本支持 DevOps、API 导入、请求、项目管理、协议类型的插件，具体支持插件请',

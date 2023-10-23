@@ -35,24 +35,17 @@
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCardList from '@/components/business/ms-card-list/index.vue';
-  import TemplateItem from '@/components/business/ms-template-card/index.vue';
+  import TemplateItem from './components/templateItem.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
+  import useTemplateStore from '@/store/modules/setting/template';
+
+  import { cardList } from './components/fieldSetting';
+
+  const templateStore = useTemplateStore();
 
   const { t } = useI18n();
-
-  const cardList = ref([
-    {
-      id: 1001,
-      value: 'FUNCTIONAL',
-      name: t('system.orgTemplate.caseTemplates'),
-    },
-    { id: 1002, value: 'API', name: t('system.orgTemplate.APITemplates') },
-    { id: 1003, value: 'UI', name: t('system.orgTemplate.UITemplates') },
-    { id: 1004, value: 'TEST_PLAN', name: t('system.orgTemplate.testPlanTemplates') },
-    { id: 1005, value: 'BUG', name: t('system.orgTemplate.defectTemplates') },
-  ]);
 
   const visitedKey = 'notRemind';
   const { addVisited } = useVisit(visitedKey);
@@ -68,6 +61,9 @@
   const doCheckIsTip = () => {
     isShowTip.value = !getIsVisited();
   };
+  onBeforeMount(() => {
+    templateStore.setStatus();
+  });
 
   onMounted(() => {
     doCheckIsTip();

@@ -1,53 +1,55 @@
 <script lang="ts" setup>
-  import '@halo-dev/richtext-editor/dist/style.css';
   // import { unified } from 'unified';
   // import rehypeParse from 'rehype-parse';
   // import rehypeFormat from 'rehype-format';
   // import rehypeStringify from 'rehype-stringify';
   import { useLocalStorage } from '@vueuse/core';
+
   import useLocale from '@/locale/useLocale';
+
+  import '@halo-dev/richtext-editor/dist/style.css';
   import {
+    ExtensionAudio,
     ExtensionBlockquote,
     ExtensionBold,
     ExtensionBulletList,
     ExtensionCode,
+    ExtensionCodeBlock,
+    ExtensionColor,
+    ExtensionColumn,
+    ExtensionColumns,
+    ExtensionCommands,
     ExtensionDocument,
+    ExtensionDraggable,
     ExtensionDropcursor,
+    ExtensionFontSize,
     ExtensionGapcursor,
     ExtensionHardBreak,
     ExtensionHeading,
+    ExtensionHighlight,
     ExtensionHistory,
     ExtensionHorizontalRule,
-    ExtensionItalic,
-    ExtensionOrderedList,
-    ExtensionStrike,
-    ExtensionText,
+    ExtensionIframe,
     ExtensionImage,
-    ExtensionTaskList,
+    ExtensionIndent,
+    ExtensionItalic,
     ExtensionLink,
-    ExtensionTextAlign,
-    ExtensionUnderline,
-    ExtensionTable,
+    ExtensionNodeSelected,
+    ExtensionOrderedList,
+    ExtensionPlaceholder,
+    ExtensionStrike,
     ExtensionSubscript,
     ExtensionSuperscript,
-    ExtensionPlaceholder,
-    ExtensionHighlight,
-    ExtensionCommands,
-    ExtensionIframe,
+    ExtensionTable,
+    ExtensionTaskList,
+    ExtensionText,
+    ExtensionTextAlign,
+    ExtensionTrailingNode,
+    ExtensionUnderline,
     ExtensionVideo,
-    ExtensionAudio,
-    ExtensionCodeBlock,
-    ExtensionColor,
-    ExtensionFontSize,
     lowlight,
     RichTextEditor,
     useEditor,
-    ExtensionIndent,
-    ExtensionDraggable,
-    ExtensionColumns,
-    ExtensionColumn,
-    ExtensionNodeSelected,
-    ExtensionTrailingNode,
   } from '@halo-dev/richtext-editor';
 
   const content = useLocalStorage('content', '');
@@ -133,7 +135,13 @@
 </script>
 
 <template>
-  <div style="height: 100vh" class="flex">
+  <div style="height: 140px" class="rich-wrapper flex w-full">
     <RichTextEditor v-if="editor" :editor="editor" :locale="locale" />
   </div>
 </template>
+
+<style scoped lang="less">
+  .rich-wrapper {
+    border: 1px solid var(--color-text-n8);
+  }
+</style>
