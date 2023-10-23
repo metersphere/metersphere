@@ -124,6 +124,7 @@ public class MessageTemplateUtils {
 
     /**
      * 获取字段来源
+     *
      * @return FieldSourceMap
      */
     public static Map<String, String> getFieldSourceMap() {
@@ -196,41 +197,100 @@ public class MessageTemplateUtils {
         });
     }
 
-    public static String getTranslateTemplate(String taskType, String template) {
+    public static String getTranslateTemplate(String taskType, String template, Map<String, String> customFielddMap) {
         if (StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.JENKINS_TASK)) {
             if (StringUtils.isNotBlank(template) && template.contains("${name}")) {
-                template = template.replace("${name}", "<"+Translator.get("message.jenkins_name")+">");
+                template = template.replace("${name}", "{{" + Translator.get("message.jenkins_name") + "}}");
             }
             return template;
         } else {
             Field[] domainTemplateFields = getDomainTemplateFields(taskType);
             Map<String, Object> map = new HashMap<>();
             if (StringUtils.isNotBlank(template) && template.contains("${OPERATOR}")) {
-                template = template.replace("${OPERATOR}", "<"+Translator.get("message.operator")+">");
+                template = template.replace("${OPERATOR}", "<" + Translator.get("message.operator") + ">");
             }
             if (StringUtils.isNotBlank(template) && template.contains("${total}")) {
                 template = template.replace("${total}", "<n>");
             }
-            for (Field allField : domainTemplateFields) {
-                Schema annotation = allField.getAnnotation(Schema.class);
-                if (annotation != null) {
-                    String description = annotation.description();
-                    if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
-                        description = "{{" + description + "}}";
-                    } else {
-                        description = "<" + description + ">";
-                    }
-                    map.put(allField.getName(), description);
-                }
-            }
+            setMap(taskType, domainTemplateFields, map);
+            Map<String, String> defaultRelatedUserMap = getDefaultRelatedUserMap();
+            map.putAll(defaultRelatedUserMap);
+            map.putAll(customFielddMap);
             return getContent(template, map);
         }
     }
 
-    public static String getTranslateSubject(String taskType, String subject) {
+    private static void setMap(String taskType, Field[] domainTemplateFields, Map<String, Object> map) {
+        switch (taskType) {
+            case NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> {
+                putDescription(domainTemplateFields, map);
+            }
+            case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
+                String tableName = "api_scenario_";
+                putDomainName(domainTemplateFields, map, tableName);
+            }
+            case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
+                String tableName = "test_plan_";
+                putDomainName(domainTemplateFields, map, tableName);
+            }
+            case NoticeConstants.TaskType.CASE_REVIEW_TASK -> {
+                String tableName = "case_review_";
+                putDomainName(domainTemplateFields, map, tableName);
+            }
+            case NoticeConstants.TaskType.BUG_TASK -> {
+                String tableName = "bug_";
+                putDomainName(domainTemplateFields, map, tableName);
+            }
+            case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
+                String tableName = "ui_";
+                putDomainName(domainTemplateFields, map, tableName);
+            }
+            case NoticeConstants.TaskType.LOAD_TEST_TASK -> {
+                String tableName = "load_";
+                putDomainName(domainTemplateFields, map, tableName);
+            }
+            case NoticeConstants.TaskType.SCHEDULE_TASK -> {
+                String tableName = "schedule_";
+                putDomainName(domainTemplateFields, map, tableName);
+            }
+            default ->{}
+        }
+    }
+
+    private static void putDomainName(Field[] domainTemplateFields, Map<String, Object> map, String tableName) {
+        for (Field allField : domainTemplateFields) {
+            Schema annotation = allField.getAnnotation(Schema.class);
+            if (annotation != null) {
+               String description;
+                if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
+                    description = "{{" + Translator.get("message.domain."+ tableName +allField.getName()) + "}}";
+                } else {
+                    description = "<" + Translator.get("message.domain."+ tableName +allField.getName()) + ">";
+                }
+                map.put(allField.getName(), description);
+            }
+        }
+    }
+
+    private static void putDescription(Field[] domainTemplateFields, Map<String, Object> map) {
+        for (Field allField : domainTemplateFields) {
+            Schema annotation = allField.getAnnotation(Schema.class);
+            if (annotation != null) {
+                String description = annotation.description();
+                if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
+                    description = "{{" + description + "}}";
+                } else {
+                    description = "<" + description + ">";
+                }
+                map.put(allField.getName(), description);
+            }
+        }
+    }
+
+    public static String getTranslateSubject(String taskType, String subject, Map<String, String> customFielddMap) {
         if (StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.JENKINS_TASK)) {
             if (StringUtils.isNotBlank(subject) && subject.contains("${name}")) {
-                subject = subject.replace("${name}", Translator.get("message.jenkins_name"));
+                subject = subject.replace("${name}", "{{" + Translator.get("message.jenkins_name") + "}}");
             }
             return subject;
         } else {
@@ -242,17 +302,13 @@ public class MessageTemplateUtils {
             if (StringUtils.isNotBlank(subject) && subject.contains("${total}")) {
                 subject = subject.replace("${total}", "n");
             }
-            for (Field allField : domainTemplateFields) {
-                Schema annotation = allField.getAnnotation(Schema.class);
-                if (annotation != null) {
-                    String description = annotation.description();
-                    if (StringUtils.equals(allField.getName(), "name") || StringUtils.equals(allField.getName(), "title")) {
-                        description = "{{" + description + "}}";
-                    }
-                    map.put(allField.getName(), description);
-                }
-            }
+            setMap(taskType, domainTemplateFields, map);
+            Map<String, String> defaultRelatedUserMap = getDefaultRelatedUserMap();
+            map.putAll(defaultRelatedUserMap);
+            map.putAll(customFielddMap);
             return getContent(subject, map);
         }
     }
+
+
 }

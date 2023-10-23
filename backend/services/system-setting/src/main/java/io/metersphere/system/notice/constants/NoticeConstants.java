@@ -487,10 +487,22 @@ public interface NoticeConstants {
     }
 
     interface SensitiveField {
+        String id = "id";
         String deleted = "deleted";
         String refId = "refId";
+        String latest = "latest";
         String versionId = "versionId";
         String reportId = "reportId";
         String moduleId = "moduleId";
+        String lastReportId = "lastReportId";
+        String pos = "pos";
+        String customNum = "customNum";
+        String projectId = "projectId";
+        String apiScenarioModuleId = "apiScenarioModuleId";
+        String parentId = "parentId";
+        String trash = "trash";
+        String templateId = "templateId";
+        String testResourcePoolId = "testResourcePoolId";
+        String resourceId = "resourceId";
     }
 }
