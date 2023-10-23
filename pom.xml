@@ -245,6 +245,7 @@
                         <exclude>io/metersphere/**/config/**</exclude>
                         <exclude>io/metersphere/**/constants/**</exclude>
                         <exclude>io/metersphere/sdk/**</exclude>
+                        <exclude>io/metersphere/plugin/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
