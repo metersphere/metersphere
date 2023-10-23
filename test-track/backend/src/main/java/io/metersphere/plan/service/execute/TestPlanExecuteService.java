@@ -331,9 +331,6 @@ public class TestPlanExecuteService {
                         String environmentGroupId = testPlanRunRequest.getEnvironmentGroupId();
                         runModeConfig = testPlanService.getRunModeConfigDTO(testPlanRunRequest, envType, envMap, environmentGroupId, testPlanId);
                         runModeConfig.setTestPlanDefaultEnvMap(testPlanRunRequest.getTestPlanDefaultEnvMap());
-                        if (!testPlanRunRequest.isRunWithinResourcePool()) {
-                            runModeConfig.setResourcePoolId(null);
-                        }
                     }
                 } catch (Exception e) {
                     LogUtil.error("获取测试计划保存的环境信息出错!", e);
