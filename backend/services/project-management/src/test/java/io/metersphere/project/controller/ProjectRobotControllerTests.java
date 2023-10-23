@@ -12,12 +12,15 @@ import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.domain.OperationLogExample;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.request.MessageTaskRequest;
+import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -71,6 +74,9 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
+    @Resource
+    private OperationLogMapper operationLogMapper;
+
 
     @Test
     @Order(1)
@@ -94,7 +100,6 @@ public class ProjectRobotControllerTests extends BaseTest {
         projectRobotDTO.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
         getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
         checkName("test_project", "企业微信机器人");
-
     }
 
     private void checkName(String projectId, String name) throws Exception {
@@ -113,7 +118,8 @@ public class ProjectRobotControllerTests extends BaseTest {
         projectRobotDTO.setWebhook("https://open.feishu.cn/open-apis/bot/v2/hook/a6024229-9d9d-41c2-8662-7bc3da1092cb");
         getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
         checkName("test_project", "飞书机器人");
-
+        ProjectRobot robot = getRobot("test_project", "飞书机器人");
+        checkContentLog(robot.getName(),OperationLogType.ADD);
     }
 
     @Test
@@ -217,6 +223,7 @@ public class ProjectRobotControllerTests extends BaseTest {
         setCustomRobot("用于更新自定义机器人","test_project");
         ProjectRobot projectRobot = getRobot("test_project", "用于更新自定义机器人");
         checkUpdate(projectRobot, "更新自定义机器人", status().isOk());
+        checkLog(projectRobot.getId(),OperationLogType.UPDATE);
     }
 
     @Test
@@ -291,6 +298,7 @@ public class ProjectRobotControllerTests extends BaseTest {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        checkLog(projectRobotId,OperationLogType.DELETE);
         mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_DETAIL + "/" + projectRobotId)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
@@ -584,5 +592,29 @@ public class ProjectRobotControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
+    }
+
+    protected void checkLog(String resourceId, OperationLogType operationLogType) throws Exception {
+        OperationLogExample example = new OperationLogExample();
+        example.createCriteria().andSourceIdEqualTo(resourceId).andTypeEqualTo(operationLogType.name());
+        operationLogMapper.selectByExample(example).stream()
+                .filter(operationLog -> operationLog.getSourceId().equalsIgnoreCase(resourceId))
+                .filter(operationLog -> operationLog.getType().equalsIgnoreCase(operationLogType.name()))
+                .filter(operationLog -> StringUtils.isNotBlank(operationLog.getProjectId()))
+                .filter(operationLog -> StringUtils.isNotBlank(operationLog.getModule()))
+                .findFirst()
+                .orElseThrow(() -> new Exception("日志不存在，请补充操作日志"));
+    }
+
+    protected void checkContentLog(String content, OperationLogType operationLogType) throws Exception {
+        OperationLogExample example = new OperationLogExample();
+        example.createCriteria().andContentEqualTo(content).andTypeEqualTo(operationLogType.name());
+        operationLogMapper.selectByExample(example).stream()
+                .filter(operationLog -> operationLog.getContent().equalsIgnoreCase(content))
+                .filter(operationLog -> operationLog.getType().equalsIgnoreCase(operationLogType.name()))
+                .filter(operationLog -> StringUtils.isNotBlank(operationLog.getProjectId()))
+                .filter(operationLog -> StringUtils.isNotBlank(operationLog.getModule()))
+                .findFirst()
+                .orElseThrow(() -> new Exception("日志不存在，请补充操作日志"));
     }
 }
