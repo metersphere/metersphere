@@ -3,9 +3,12 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.domain.ProjectRobot;
 import io.metersphere.project.dto.ProjectRobotDTO;
+import io.metersphere.project.service.MessageTaskLogService;
 import io.metersphere.project.service.ProjectRobotService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -37,6 +40,7 @@ public class ProjectRobotController {
     @PostMapping("add")
     @Operation(summary = "项目管理-消息管理-新增机器人")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addRobotLog(#projectRobotDTO)", msClass = MessageTaskLogService.class)
     public void add(@Validated({Created.class}) @RequestBody ProjectRobotDTO projectRobotDTO) {
         ProjectRobot projectRobot = new ProjectRobot();
         BeanUtils.copyBean(projectRobot, projectRobotDTO);
@@ -50,6 +54,7 @@ public class ProjectRobotController {
     @PostMapping("update")
     @Operation(summary = "项目管理-消息管理-更新机器人")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateRobotLog(#projectRobotDTO)", msClass = MessageTaskLogService.class)
     public void update(@Validated({Updated.class}) @RequestBody ProjectRobotDTO projectRobotDTO) {
         ProjectRobot projectRobot = new ProjectRobot();
         BeanUtils.copyBean(projectRobot, projectRobotDTO);
@@ -70,6 +75,7 @@ public class ProjectRobotController {
     @GetMapping("delete/{id}")
     @Operation(summary = "项目管理-消息管理-删除机器人")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.delRobotLog(#id)", msClass = MessageTaskLogService.class)
     public void delete(@PathVariable(value = "id") String id) {
         projectRobotService.delete(id);
     }
