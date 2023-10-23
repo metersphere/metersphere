@@ -39,7 +39,7 @@
           label="Response Code"
           min-width="180">
         <template v-slot:default="scope">
-          <span v-if="scope.row.code === '200' " style="color: #44b349">{{ scope.row.code }}</span>
+          <span v-if="isSuccessRspCode(scope.row.code)" style="color: #44b349">{{ scope.row.code }}</span>
           <span v-else style="color: #E6113C">{{ scope.row.code }}</span>
         </template>
       </el-table-column>
@@ -79,6 +79,9 @@ export default {
     this.initTableData();
   },
   methods: {
+    isSuccessRspCode(code) {
+      return !(Number.isNaN(Number(code)) || 300 <= Number(code) || Number(code) < 200);
+    },
     initTableData() {
       if (this.errorSamples && this.errorSamples.sampleCount) {
         let allSampleCount = 0;
@@ -136,7 +139,10 @@ export default {
       done();
     },
     openRecord(row) {
-      let drawerSamples = this.errorSamples.samples[row.name][row.code];
+      let drawerSamples = [];
+      if (this.errorSamples.samples[row.name]) {
+        drawerSamples = this.errorSamples.samples[row.name][row.code];
+      }
       this.$refs.sampleDrawer.openRecord(drawerSamples);
     },
   },
