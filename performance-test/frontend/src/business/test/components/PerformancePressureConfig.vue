@@ -460,15 +460,17 @@ export default {
   },
   methods: {
     refreshNodeOperation() {
-      let nodeOperationInfoRequest = {nodeIds: []};
-      this.resourcePools.forEach(item => {
-        nodeOperationInfoRequest.nodeIds.push(item.id);
-      });
+      if (!this.isShare) {
+        let nodeOperationInfoRequest = {nodeIds: []};
+        this.resourcePools.forEach(item => {
+          nodeOperationInfoRequest.nodeIds.push(item.id);
+        });
 
-      getNodeOperationInfo(nodeOperationInfoRequest)
+        getNodeOperationInfo(nodeOperationInfoRequest)
           .then(response => {
             this.parseNodeOperationStatus(response.data);
           });
+      }
     },
     nodeCpuUsage(row) {
       let nodeInfo = this.nodeOperationInfo[this.resourcePool];
@@ -506,11 +508,12 @@ export default {
             this.resourcePools.forEach(item => {
               nodeOperationInfoRequest.nodeIds.push(item.id);
             });
-
-            getNodeOperationInfo(nodeOperationInfoRequest)
-              .then(response => {
-                this.parseNodeOperationStatus(response.data);
-              });
+            if (!this.isShare) {
+              getNodeOperationInfo(nodeOperationInfoRequest)
+                .then(response => {
+                  this.parseNodeOperationStatus(response.data);
+                });
+            }
             this.resourcePoolChange();
           });
     },
