@@ -1249,7 +1249,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id":"",
+                "id":"CREATE_USER",
                 "name":""
               }
             ],
@@ -1271,7 +1271,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id":"",
+                "id":"CREATE_USER",
                 "name":""
               }
             ],
@@ -1306,7 +1306,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id":"",
+                "id":"CREATE_USER",
                 "name":""
               }
             ],
@@ -1328,7 +1328,7 @@
             "eventName":"",
             "receivers":[
               {
-                "id":"",
+                "id":"CREATE_USER",
                 "name":""
               }
             ],
