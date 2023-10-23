@@ -4,6 +4,7 @@
         :visible.sync="drawer"
         direction="rtl"
         custom-class="sample-drawer"
+        :append-to-body="true"
         :size="820"
         :before-close="handleClose">
       <template v-slot:title>
