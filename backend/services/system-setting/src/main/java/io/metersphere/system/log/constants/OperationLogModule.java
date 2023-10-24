@@ -94,4 +94,7 @@ public class OperationLogModule {
     public static final String PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_ROBOT = "PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_ROBOT";
     public static final String PROJECT_TEMPLATE = "PROJECT_TEMPLATE";// 项目模板
     public static final String PROJECT_CUSTOM_FIELD = "PROJECT_CUSTOM_FIELD";// 项目字段
+
+    //用例
+    public static final String FUNCTIONAL_CASE = "FUNCTIONAL_CASE";
 }

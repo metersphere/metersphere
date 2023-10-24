@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.functional.mapper.ExtFunctionalCaseMapper">
+
+    <select id="getMaxNumByProjectId" resultType="io.metersphere.functional.domain.FunctionalCase">
+        SELECT
+            num
+        FROM
+            functional_case
+        WHERE
+            project_id = #{projectId}
+        ORDER BY
+            num DESC
+            LIMIT 1;
+    </select>
+
+
+    <select id="getPos" resultType="java.lang.Long">
+        SELECT
+            pos
+        FROM
+            functional_case
+        WHERE
+            project_id = #{projectId}
+        ORDER BY
+            pos DESC
+            LIMIT 1;
+    </select>
+
+</mapper>
