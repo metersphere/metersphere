@@ -63,7 +63,6 @@ public class ProjectApplicationControllerTests extends BaseTest {
     //测试计划 - 清理报告配置
     @Test
     @Order(1)
-    @Sql(scripts = {"/dml/init_project_application_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testTestPlanClean() throws Exception {
         this.testGetTestPlan();
         //新增
@@ -358,7 +357,8 @@ public class ProjectApplicationControllerTests extends BaseTest {
 
     //用例管理 - 获取平台下拉列表
     @Test
-    @Order(25)
+    @Order(40)
+    @Sql(scripts = {"/dml/init_project_application_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testGetPlatform() throws Exception {
         this.requestGetWithOkAndReturn(GET_PLATFORM_URL + "/100002");
         MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_PLATFORM_URL + "/100001");
@@ -439,7 +439,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
 
     //缺陷管理 - 获取平台下拉列表
     @Test
-    @Order(31)
+    @Order(41)
     public void testGetBugPlatform() throws Exception {
         this.requestGetWithOkAndReturn(GET_BUG_PLATFORM_URL + "/100002");
         MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_BUG_PLATFORM_URL + "/100001");
@@ -643,7 +643,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
         configs.put("jiraKey", "Test");
         configs.put("jiraIssueTypeId", "10086");
         configs.put("jiraStoryTypeId", "10010");
-        assertErrorCode(this.requestPost(CHECK_PROJECT_KEY_URL + "/" + plugin.getId(), configs), NOT_FOUND);
+        assertErrorCode(this.requestPost(CHECK_PROJECT_KEY_URL + "/" + "test", configs), NOT_FOUND);
         JiraIntegrationConfig integrationConfig = new JiraIntegrationConfig();
         integrationConfig.setAddress(String.format("http://%s:%s", mockServerHost, mockServerHostPort));
         Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
