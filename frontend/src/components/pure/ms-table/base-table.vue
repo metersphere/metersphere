@@ -167,7 +167,7 @@
         v-if="attrs.showPagination"
         v-show="props.selectorStatus !== SelectAllEnum.CURRENT"
         size="small"
-        v-bind="attrs.msPagination"
+        v-bind="(attrs.msPagination as MsPaginationI)"
         hide-on-single-page
         @change="pageChange"
         @page-size-change="pageSizeChange"
