@@ -41,8 +41,8 @@ public class FileManagementController {
     @PostMapping("/module/count")
     @Operation(summary = "项目管理-文件管理-表格分页查询文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
-    public Map<String, Integer> moduleCount(@Validated @RequestBody FileMetadataTableRequest request) {
-        return fileMetadataService.moduleCount(request);
+    public Map<String, Long> moduleCount(@Validated @RequestBody FileMetadataTableRequest request) {
+        return fileMetadataService.moduleCount(request, SessionUtils.getUserId());
     }
 
 
