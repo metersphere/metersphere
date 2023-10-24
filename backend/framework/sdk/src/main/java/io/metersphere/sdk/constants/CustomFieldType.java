@@ -56,12 +56,7 @@ public enum CustomFieldType {
     /**
      * 多值输入框（标签输入框）
      */
-    MULTIPLE_INPUT(false),
-    /**
-     * 级联下拉框
-     * 第三方平台可能会使用
-     */
-    CASCADING_SELECT(false);
+    MULTIPLE_INPUT(false);
 
     private final Boolean hasOption;
 

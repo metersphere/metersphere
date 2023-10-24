@@ -350,7 +350,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
             Assertions.assertEquals(customFieldDTO.getApiFieldId(), templateCustomField.getApiFieldId());
             Assertions.assertEquals(customFieldDTO.getRequired(), templateCustomField.getRequired());
             Assertions.assertEquals(templateCustomField.getTemplateId(), template.getId());
-            Assertions.assertEquals(customFieldDTO.getFieldName(), "优先级");
+            Assertions.assertEquals(customFieldDTO.getFieldName(), "用例等级");
         }
 
         // @@校验权限
