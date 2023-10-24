@@ -10,8 +10,8 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 @Data
 @EqualsAndHashCode(callSuper = true)
-@PluginSubType("MSDebugSampler")
-public class MSDebugSampler extends TestElementDTO {
+@PluginSubType("MsDebugSampler")
+public class MsDebugSampler extends TestElementDTO {
     private boolean displayJMeterProperties = false;
     private boolean displayJMeterVariables = true;
     private boolean displaySystemProperties = false;
@@ -21,7 +21,7 @@ public class MSDebugSampler extends TestElementDTO {
         DebugSampler debugSampler = new DebugSampler();
         debugSampler.setEnabled(this.isEnable());
         if (StringUtils.isEmpty(this.getName())) {
-            this.setName(MSDebugSampler.class.getSimpleName());
+            this.setName(MsDebugSampler.class.getSimpleName());
         }
         debugSampler.setName(this.getName());
         debugSampler.setProperty(TestElement.TEST_CLASS, DebugSampler.class.getName());

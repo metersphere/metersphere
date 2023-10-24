@@ -7,8 +7,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@PluginSubType("MSJSR223Processor")
-public class MSJSR223Processor extends TestElementDTO {
+@PluginSubType("MsJSR223Processor")
+public class MsJSR223Processor extends TestElementDTO {
     private String script;
     private String scriptLanguage;
     private Boolean jsrEnable;

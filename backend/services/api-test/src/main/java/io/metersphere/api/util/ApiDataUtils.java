@@ -2,6 +2,7 @@ package io.metersphere.api.util;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,8 +11,8 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.type.CollectionType;
-import io.metersphere.api.dto.jmeter.processors.MSJSR223Processor;
-import io.metersphere.api.dto.jmeter.sampler.MSDebugSampler;
+import io.metersphere.api.dto.jmeter.post.processors.MsPostJSR223Processor;
+import io.metersphere.api.dto.jmeter.sampler.MsDebugSampler;
 import io.metersphere.sdk.exception.MSException;
 
 import java.io.IOException;
@@ -32,10 +33,12 @@ public class ApiDataUtils {
     static {
         // 添加处理资源文件的类
         final List<NamedType> namedTypes = new LinkedList<>();
-        namedTypes.add(new NamedType(MSJSR223Processor.class, MSJSR223Processor.class.getSimpleName()));
-        namedTypes.add(new NamedType(MSDebugSampler.class, MSDebugSampler.class.getSimpleName()));
+        namedTypes.add(new NamedType(MsPostJSR223Processor.class, MsPostJSR223Processor.class.getSimpleName()));
+        namedTypes.add(new NamedType(MsDebugSampler.class, MsDebugSampler.class.getSimpleName()));
 
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        // 支持json字符中带注释符
+        objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
         // 自动检测所有类的全部属性
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         // 如果一个对象中没有任何的属性，那么在序列化的时候就会报错

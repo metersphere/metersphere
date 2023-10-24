@@ -2,6 +2,7 @@ package io.metersphere.sdk.util;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -30,6 +31,8 @@ public class JSON {
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        // 支持json字符中带注释符
+        objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
         // 自动检测所有类的全部属性
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         // 如果一个对象中没有任何的属性，那么在序列化的时候就会报错
