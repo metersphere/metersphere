@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="errorSamplesTable">
     <el-table
         ref="samplesTable"
         :data="tableData"
@@ -151,5 +151,10 @@ export default {
 <style scoped>
 .el-table :deep(.sample-table-header) {
   color: #1a1a1a;
+}
+
+.errorSamplesTable {
+  overflow: auto;
+  height: calc(100vh - 200px);
 }
 </style>
