@@ -49,7 +49,7 @@ public class BaseStatusItemService {
         return statusItems;
     }
 
-    public String translateInternalStatusItem(String statusName) {
+    public static String translateInternalStatusItem(String statusName) {
         return Translator.get("status_item." + statusName);
     }
 
@@ -85,6 +85,10 @@ public class BaseStatusItemService {
     public StatusItem add(StatusItem statusItem) {
         checkAddExist(statusItem);
         statusItem.setInternal(false);
+        if (statusItem.getPos() == null) {
+            // 如果没有指定排序，就放到最后
+            statusItem.setPos(getByScopeIdAndScene(statusItem.getScopeId(), statusItem.getScene()).size() + 1);
+        }
         return baseAdd(statusItem);
     }
 
@@ -92,7 +96,12 @@ public class BaseStatusItemService {
         if (CollectionUtils.isEmpty(statusItems)) {
             return List.of();
         }
-        statusItems.forEach(statusItem -> statusItem.setId(IDGenerator.nextStr()));
+        int pos = getByScopeIdAndScene(statusItems.get(0).getScopeId(), statusItems.get(0).getScene()).size();
+        for (StatusItem statusItem : statusItems) {
+            statusItem.setId(IDGenerator.nextStr());
+            // 设置排序
+            statusItem.setPos(pos++);
+        }
         statusItemMapper.batchInsert(statusItems);
         return statusItems;
     }
@@ -180,5 +189,11 @@ public class BaseStatusItemService {
         StatusItemExample example = new StatusItemExample();
         example.createCriteria().andScopeIdEqualTo(scopeId);
         statusItemMapper.deleteByExample(example);
+    }
+
+    public void updateByRefId(StatusItem copyStatusItem, String refId) {
+        StatusItemExample example = new StatusItemExample();
+        example.createCriteria().andRefIdEqualTo(refId);
+        statusItemMapper.updateByExampleSelective(copyStatusItem, example);
     }
 }

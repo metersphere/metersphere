@@ -6,14 +6,14 @@ import io.metersphere.sdk.dto.request.StatusFlowUpdateRequest;
 import io.metersphere.sdk.dto.request.StatusItemAddRequest;
 import io.metersphere.sdk.dto.request.StatusItemUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.OrganizationStatusFlowSettingControllerTest;
 import io.metersphere.system.controller.param.StatusDefinitionUpdateRequestDefinition;
 import io.metersphere.system.controller.param.StatusFlowUpdateRequestDefinition;
 import io.metersphere.system.controller.param.StatusItemAddRequestDefinition;
 import io.metersphere.system.controller.param.StatusItemUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.StatusFlowSettingDTO;
+import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.mapper.StatusItemMapper;
@@ -29,15 +29,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static io.metersphere.project.enums.result.ProjectResultCode.PROJECT_TEMPLATE_PERMISSION;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.STATUS_ITEM_EXIST;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.STATUS_ITEM_NOT_EXIST;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static io.metersphere.system.controller.result.SystemResultCode.ORGANIZATION_TEMPLATE_PERMISSION;
 
 /**
  * @author jianxing
@@ -53,7 +51,8 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
     private static final String STATUS_DEFINITION_UPDATE = "status/definition/update";
     private static final String STATUS_ADD = "status/add";
     private static final String STATUS_UPDATE = "status/update";
-    private static final String STATUS_DELETE = "status/delete/{id}";
+    private static final String STATUS_SORT = "/status/sort/{0}/{1}";
+    private static final String STATUS_DELETE = "status/delete/{0}";
     private static final String STATUS_FLOW_UPDATE = "status/flow/update";
 
     private static StatusItem addStatusItem;
@@ -79,44 +78,8 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
     public void getStatusFlowSetting() throws Exception {
         // @@校验没有数据的情况
         MvcResult mvcResult = this.requestGetWithOkAndReturn(GET, DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
-        StatusFlowSettingDTO statusFlowSetting = getResultData(mvcResult, StatusFlowSettingDTO.class);
-        List<StatusItem> statusItems = statusFlowSetting.getStatusItems();
-        List<StatusDefinition> statusDefinitions = statusFlowSetting.getStatusDefinitions();
-        List<StatusFlow> statusFlows = statusFlowSetting.getStatusFlows();
-        List<String> statusDefinitionTypes = statusFlowSetting.getStatusDefinitionTypes();
-        Map<String, String> nameIdMap = baseStatusItemService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, TemplateScene.BUG.name()).stream()
-                .collect(Collectors.toMap(StatusItem::getId, StatusItem::getName));
-
-        // 校验状态定义是否正确
-        Assertions.assertEquals(statusDefinitionTypes, Arrays.stream(BugStatusDefinitionType.values()).map(Enum::name).toList());
-
-        // 校验默认的状态定义是否初始化正确
-        Assertions.assertEquals(statusItems.size(), DefaultBugStatusItem.values().length);
-        for (DefaultBugStatusItem defaultBugStatusItem : DefaultBugStatusItem.values()) {
-            StatusItem statusItem = statusItems.stream()
-                    .filter(item -> item.getName().equals(Translator.get("status_item." + defaultBugStatusItem.getName())))
-                    .findFirst()
-                    .get();
-
-            // 校验默认的状态定义是否初始化正确
-            List<String> defaultDefinitionTypes = defaultBugStatusItem.getDefinitionTypes()
-                    .stream()
-                    .map(BugStatusDefinitionType::name)
-                    .toList();
-            List<String> definitionTypes = statusDefinitions.stream()
-                    .filter(item -> item.getStatusId().equals(statusItem.getId()))
-                    .map(StatusDefinition::getDefinitionId)
-                    .toList();
-            Assertions.assertEquals(defaultDefinitionTypes, definitionTypes);
-
-            // 校验默认的状态流是否初始化正确
-            List<String> defaultFlowTargets = defaultBugStatusItem.getStatusFlowTargets();
-            List<String> flowTargets = statusFlows.stream()
-                    .filter(item -> item.getFromId().equals(statusItem.getId()))
-                    .map(item -> nameIdMap.get(item.getToId()))
-                    .toList();
-            Assertions.assertEquals(defaultFlowTargets, flowTargets);
-        }
+        List<StatusItemDTO> statusItemDTOS = getResultDataArray(mvcResult, StatusItemDTO.class);
+        OrganizationStatusFlowSettingControllerTest.assertDefaultStatusFlowSettingInit(statusItemDTOS);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_READ, GET, DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
     }
@@ -141,6 +104,7 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         requestStatusItem.setId(statusItem.getId());
         requestStatusItem.setScopeType(statusItem.getScopeType());
         requestStatusItem.setInternal(statusItem.getInternal());
+        requestStatusItem.setPos(baseStatusItemService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, TemplateScene.BUG.name()).size());
         Assertions.assertEquals(statusItem.getScopeType(), TemplateScopeType.PROJECT.name());
         Assertions.assertEquals(statusItem.getInternal(), false);
         Assertions.assertEquals(requestStatusItem, statusItem);
@@ -154,6 +118,12 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         changeOrgTemplateEnable(true);
         assertErrorCode(this.requestPost(STATUS_ADD, request), PROJECT_TEMPLATE_PERMISSION);
         changeOrgTemplateEnable(false);
+
+        request.setName("test3");
+        request.setAllTransferTo(true);
+        mvcResult = this.requestPostWithOkAndReturn(STATUS_ADD, request);
+        statusItemId = getResultData(mvcResult, StatusItem.class).getId();
+        OrganizationStatusFlowSettingControllerTest.assertAllTransferTo(statusItemId, request.getScopeId());
 
         // @@校验组织是否存在
         request.setScopeId("1111");
@@ -329,7 +299,28 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, STATUS_DELETE, addStatusItem.getId());
     }
 
+    @Order(6)
+    public void sortStatusItem() throws Exception {
+        List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
+        List<String> statusIds = statusItems.stream().map(StatusItem::getId).toList().reversed();
+        // @@校验请求成功
+        this.requestPostWithOkAndReturn(STATUS_SORT, statusIds, DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
+        OrganizationStatusFlowSettingControllerTest.assertSortStatusItem(DEFAULT_PROJECT_ID, statusIds);
 
+        // @校验是否开启组织模板
+        changeOrgTemplateEnable(false);
+        assertErrorCode(this.requestPost(STATUS_SORT, statusIds, DEFAULT_PROJECT_ID, TemplateScene.BUG.name()), ORGANIZATION_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(true);
+
+        // @@状态不存在
+        assertErrorCode(this.requestPost(STATUS_SORT, List.of("1111"), DEFAULT_PROJECT_ID, TemplateScene.BUG.name()), STATUS_ITEM_NOT_EXIST);
+
+        // @@校验组织是否存在
+        assertErrorCode(this.requestPost(STATUS_SORT, statusIds, "111", TemplateScene.BUG.name()), NOT_FOUND);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, STATUS_SORT, List.of(), DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
+    }
 
     private void changeOrgTemplateEnable(boolean enable) {
         if (enable) {

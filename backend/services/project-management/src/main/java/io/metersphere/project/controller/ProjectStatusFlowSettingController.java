@@ -8,15 +8,18 @@ import io.metersphere.sdk.dto.request.StatusFlowUpdateRequest;
 import io.metersphere.sdk.dto.request.StatusItemAddRequest;
 import io.metersphere.sdk.dto.request.StatusItemUpdateRequest;
 import io.metersphere.system.domain.StatusItem;
-import io.metersphere.system.dto.StatusFlowSettingDTO;
+import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author jianxing
@@ -33,9 +36,9 @@ public class ProjectStatusFlowSettingController {
     @GetMapping("/get/{projectId}/{scene}")
     @Operation(summary = "项目管理-模板-状态流设置-获取状态流设置")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ)
-    public StatusFlowSettingDTO getStatusFlowSetting(@Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    public List<StatusItemDTO> getStatusFlowSetting(@Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
                                                      @PathVariable String projectId,
-                                                     @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI,TEST_PLAN）", requiredMode = Schema.RequiredMode.REQUIRED)
+                                                    @Schema(description = "模板的使用场景（FUNCTIONAL,BUG,API,UI,TEST_PLAN）", requiredMode = Schema.RequiredMode.REQUIRED)
                                                      @PathVariable String scene) {
         return projectStatusFlowSettingService.getStatusFlowSetting(projectId, scene);
     }
@@ -46,6 +49,17 @@ public class ProjectStatusFlowSettingController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateStatusDefinitionLog(#request)", msClass = ProjectStatusFlowSettingLogService.class)
     public void updateStatusDefinition(@RequestBody StatusDefinitionUpdateRequest request) {
         projectStatusFlowSettingService.updateStatusDefinition(request);
+    }
+
+    @PostMapping("/status/sort/{projectId}/{scene}")
+    @Operation(summary = "系统设置-组织-状态流设置-状态项排序")
+    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
+    public void sortStatusItem(@PathVariable
+                               String projectId, @PathVariable String scene,
+                               @RequestBody
+                               @NotEmpty
+                               List<String> statusIds) {
+        projectStatusFlowSettingService.sortStatusItem(projectId, scene, statusIds);
     }
 
     @PostMapping("/status/add")

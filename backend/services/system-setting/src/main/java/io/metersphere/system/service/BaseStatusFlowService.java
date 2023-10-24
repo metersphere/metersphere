@@ -11,8 +11,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author jianxing
@@ -32,6 +34,9 @@ public class BaseStatusFlowService {
         StatusFlowExample example = new StatusFlowExample();
         example.createCriteria()
                 .andFromIdIn(statusIds);
+        StatusFlowExample.Criteria criteria = example.createCriteria()
+                .andToIdIn(statusIds);
+        example.or(criteria);
         return statusFlowMapper.selectByExample(example);
     }
 
@@ -55,12 +60,12 @@ public class BaseStatusFlowService {
     }
 
     public static List<String> getStatusIds(List<StatusFlowUpdateRequest.StatusFlowRequest> statusFlows) {
-        List<String> statusIds = new ArrayList<>();
+        Set<String> statusIds = new HashSet<>();
         statusFlows.forEach(statusFlow -> {
             statusIds.add(statusFlow.getFromId());
             statusIds.add(statusFlow.getToId());
         });
-        return statusIds;
+        return statusIds.stream().collect(Collectors.toList());
     }
 
     public void deleteByStatusId(String statusId) {

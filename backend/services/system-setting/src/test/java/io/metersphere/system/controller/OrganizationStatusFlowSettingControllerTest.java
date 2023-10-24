@@ -6,6 +6,7 @@ import io.metersphere.sdk.dto.request.StatusFlowUpdateRequest;
 import io.metersphere.sdk.dto.request.StatusItemAddRequest;
 import io.metersphere.sdk.dto.request.StatusItemUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.StatusDefinitionUpdateRequestDefinition;
@@ -13,7 +14,7 @@ import io.metersphere.system.controller.param.StatusFlowUpdateRequestDefinition;
 import io.metersphere.system.controller.param.StatusItemAddRequestDefinition;
 import io.metersphere.system.controller.param.StatusItemUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.StatusFlowSettingDTO;
+import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.mapper.StatusItemMapper;
@@ -29,7 +30,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,7 +53,8 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
     private static final String STATUS_DEFINITION_UPDATE = "status/definition/update";
     private static final String STATUS_ADD = "status/add";
     private static final String STATUS_UPDATE = "status/update";
-    private static final String STATUS_DELETE = "status/delete/{id}";
+    private static final String STATUS_SORT = "/status/sort/{0}/{1}";
+    private static final String STATUS_DELETE = "status/delete/{0}";
     private static final String STATUS_FLOW_UPDATE = "status/flow/update";
 
     private static StatusItem addStatusItem;
@@ -79,21 +80,20 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
     public void getStatusFlowSetting() throws Exception {
         // @@校验没有数据的情况
         MvcResult mvcResult = this.requestGetWithOkAndReturn(GET, DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
-        StatusFlowSettingDTO statusFlowSetting = getResultData(mvcResult, StatusFlowSettingDTO.class);
-        List<StatusItem> statusItems = statusFlowSetting.getStatusItems();
-        List<StatusDefinition> statusDefinitions = statusFlowSetting.getStatusDefinitions();
-        List<StatusFlow> statusFlows = statusFlowSetting.getStatusFlows();
-        List<String> statusDefinitionTypes = statusFlowSetting.getStatusDefinitionTypes();
-        Map<String, String> nameIdMap = baseStatusItemService.getByScopeIdAndScene(DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name()).stream()
+        List<StatusItemDTO> statusItemDTOS = getResultDataArray(mvcResult, StatusItemDTO.class);
+
+        assertDefaultStatusFlowSettingInit(statusItemDTOS);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, GET, DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
+    }
+
+    public static void assertDefaultStatusFlowSettingInit( List<StatusItemDTO> statusItemDTOS) {
+        Map<String, String> nameIdMap = statusItemDTOS.stream()
                 .collect(Collectors.toMap(StatusItem::getId, StatusItem::getName));
-
-        // 校验状态定义是否正确
-        Assertions.assertEquals(statusDefinitionTypes, Arrays.stream(BugStatusDefinitionType.values()).map(Enum::name).toList());
-
         // 校验默认的状态定义是否初始化正确
-        Assertions.assertEquals(statusItems.size(), DefaultBugStatusItem.values().length);
+        Assertions.assertEquals(statusItemDTOS.size(), DefaultBugStatusItem.values().length);
         for (DefaultBugStatusItem defaultBugStatusItem : DefaultBugStatusItem.values()) {
-            StatusItem statusItem = statusItems.stream()
+            StatusItemDTO statusItemDTO = statusItemDTOS.stream()
                     .filter(item -> item.getName().equals(Translator.get("status_item." + defaultBugStatusItem.getName())))
                     .findFirst()
                     .get();
@@ -103,24 +103,19 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
                     .stream()
                     .map(BugStatusDefinitionType::name)
                     .toList();
-            List<String> definitionTypes = statusDefinitions.stream()
-                    .filter(item -> item.getStatusId().equals(statusItem.getId()))
-                    .map(StatusDefinition::getDefinitionId)
-                    .toList();
+            List<String> definitionTypes = statusItemDTO.getStatusDefinitions();
             Assertions.assertEquals(defaultDefinitionTypes, definitionTypes);
 
             // 校验默认的状态流是否初始化正确
             List<String> defaultFlowTargets = defaultBugStatusItem.getStatusFlowTargets();
-            List<String> flowTargets = statusFlows.stream()
-                    .filter(item -> item.getFromId().equals(statusItem.getId()))
-                    .map(item -> nameIdMap.get(item.getToId()))
+            List<String> flowTargets = statusItemDTO.getStatusFlowTargets()
+                    .stream()
+                    .map(nameIdMap::get)
                     .toList();
-            Assertions.assertEquals(defaultFlowTargets, flowTargets);
+            Assertions.assertEquals(defaultFlowTargets.stream().map(i -> BaseStatusItemService.translateInternalStatusItem(i)).toList(),
+                    flowTargets);
         }
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, GET, DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
     }
-
 
     @Test
     @Order(1)
@@ -139,6 +134,7 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
         requestStatusItem.setId(statusItem.getId());
         requestStatusItem.setScopeType(statusItem.getScopeType());
         requestStatusItem.setInternal(statusItem.getInternal());
+        requestStatusItem.setPos(baseStatusItemService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, TemplateScene.BUG.name()).size());
         Assertions.assertEquals(statusItem.getScopeType(), TemplateScopeType.ORGANIZATION.name());
         Assertions.assertEquals(statusItem.getInternal(), false);
         Assertions.assertEquals(requestStatusItem, statusItem);
@@ -154,6 +150,14 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
         assertErrorCode(this.requestPost(STATUS_ADD, request), ORGANIZATION_TEMPLATE_PERMISSION);
         changeOrgTemplateEnable(true);
 
+        // @校验 allTransferTo
+        request.setName("test2");
+        request.setAllTransferTo(true);
+        mvcResult = this.requestPostWithOkAndReturn(STATUS_ADD, request);
+        statusItemId = getResultData(mvcResult, StatusItem.class).getId();
+        assertAllTransferTo(statusItemId, request.getScopeId());
+        assertRefAllTransferTo(statusItemId);
+
         // @@校验组织是否存在
         request.setScopeId("1111");
         assertErrorCode(this.requestPost(STATUS_ADD, request), NOT_FOUND);
@@ -164,6 +168,38 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
         createdGroupParamValidateTest(StatusItemAddRequestDefinition.class, STATUS_ADD);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, STATUS_ADD, request);
+    }
+
+    /**
+     * 校验变更组织状态项时，有没有同步变更项目状态项
+     *
+     * @param orgStatusItemId
+     */
+    private void assertRefAllTransferTo(String orgStatusItemId) {
+        List<StatusItem> refStatusItems = baseStatusItemService.getByRefId(orgStatusItemId);
+        refStatusItems.forEach(refStatusItem -> {
+            assertAllTransferTo(refStatusItem.getId(), refStatusItem.getScopeId());
+        });
+    }
+
+    /**
+     * 校验 allTransferTo
+     * @param statusItemId
+     */
+    public static void assertAllTransferTo(String statusItemId, String scopeId) {
+        BaseStatusFlowService baseStatusFlowService = CommonBeanFactory.getBean(BaseStatusFlowService.class);
+        BaseStatusItemService baseStatusItemService = CommonBeanFactory.getBean(BaseStatusItemService.class);
+        List<StatusFlow> statusFlows = baseStatusFlowService.getStatusFlows(List.of(statusItemId));
+        Map<String, List<StatusFlow>> formMap = statusFlows.stream().collect(Collectors.groupingBy(StatusFlow::getToId));
+        Assertions.assertEquals(1, formMap.size());
+        Assertions.assertTrue(formMap.containsKey(statusItemId));
+        List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(scopeId, TemplateScene.BUG.name());
+        Assertions.assertEquals(statusFlows.size() + 1, statusItems.size());
+        for (StatusItem item : statusItems) {
+            if (!StringUtils.equals(item.getId(), statusItemId)) {
+                Assertions.assertEquals(statusFlows.stream().filter(i -> StringUtils.equals(i.getFromId(), item.getId())).count(), 1);
+            }
+        }
     }
 
     /**
@@ -353,7 +389,54 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, STATUS_DELETE, addStatusItem.getId());
     }
 
+    @Test
+    @Order(6)
+    public void sortStatusItem() throws Exception {
+        List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
+        List<String> statusIds = statusItems.stream().map(StatusItem::getId).toList().reversed();
+        // @@校验请求成功
+        this.requestPostWithOkAndReturn(STATUS_SORT, statusIds, DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
+        assertSortStatusItem(DEFAULT_ORGANIZATION_ID, statusIds);
+        // 校验同步更新项目状态
+        assertSortStatusItem();
 
+        // @校验是否开启组织模板
+        changeOrgTemplateEnable(false);
+        assertErrorCode(this.requestPost(STATUS_SORT, statusIds, DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name()), ORGANIZATION_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(true);
+
+        // @@状态不存在
+        assertErrorCode(this.requestPost(STATUS_SORT, List.of("1111"), DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name()), STATUS_ITEM_NOT_EXIST);
+
+        // @@校验组织是否存在
+        assertErrorCode(this.requestPost(STATUS_SORT, statusIds, "111", TemplateScene.BUG.name()), NOT_FOUND);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, STATUS_SORT, List.of(), DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
+    }
+
+    private void assertSortStatusItem() {
+        List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
+        List<StatusItem> projectStatusItems = baseStatusItemService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
+        for (int i = 0; i < projectStatusItems.size(); i++) {
+            StatusItem projectStatusItem = projectStatusItems.get(i);
+            StatusItem statusItem = statusItems.stream().filter(item -> StringUtils.equals(item.getId(), projectStatusItem.getRefId()))
+                    .findFirst().orElse(null);
+            Assertions.assertEquals(statusItem.getPos(), projectStatusItem.getPos());
+        }
+    }
+
+    public static void assertSortStatusItem(String scopeId, List<String> statusIds) {
+        BaseStatusItemService baseStatusItemService = CommonBeanFactory.getBean(BaseStatusItemService.class);
+        List<StatusItem> statusItems = baseStatusItemService.getByScopeId(scopeId);
+        for (int i = 0; i < statusIds.size(); i++) {
+            String statusId = statusIds.get(i);
+            // 根据statusId 查询
+            StatusItem statusItem = statusItems.stream().filter(item -> StringUtils.equals(item.getId(), statusId))
+                    .findFirst().orElse(null);
+            Assertions.assertEquals(statusItem.getPos(), i);
+        }
+    }
 
     private void changeOrgTemplateEnable(boolean enable) {
         if (enable) {

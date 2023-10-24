@@ -8,13 +8,15 @@ import io.metersphere.sdk.dto.request.StatusItemUpdateRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.StatusItem;
-import io.metersphere.system.dto.StatusFlowSettingDTO;
+import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.StatusItemMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @author jianxing
@@ -54,7 +56,7 @@ public class ProjectStatusFlowSettingLogService {
     }
 
     public LogDTO updateStatusFlowSettingLog(String scopeId, String scene) {
-        StatusFlowSettingDTO statusFlowSetting = projectStatusFlowSettingService.getStatusFlowSetting(scopeId, scene);
+        List<StatusItemDTO> statusItemDTOS = projectStatusFlowSettingService.getStatusFlowSetting(scopeId, scene);
         LogDTO dto = new LogDTO(
                 null,
                 null,
@@ -63,7 +65,7 @@ public class ProjectStatusFlowSettingLogService {
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.SETTING_SYSTEM_ORGANIZATION_STATUS_FLOW_SETTING,
                 Translator.get("status_flow.name"));
-        dto.setOriginalValue(JSON.toJSONBytes(statusFlowSetting));
+        dto.setOriginalValue(JSON.toJSONBytes(statusItemDTOS));
         return dto;
     }
 }

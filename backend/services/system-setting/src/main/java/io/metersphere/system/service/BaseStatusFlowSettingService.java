@@ -6,23 +6,27 @@ import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.dto.request.StatusDefinitionUpdateRequest;
 import io.metersphere.sdk.dto.request.StatusFlowUpdateRequest;
+import io.metersphere.sdk.dto.request.StatusItemAddRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.StatusDefinition;
 import io.metersphere.system.domain.StatusDefinitionExample;
 import io.metersphere.system.domain.StatusFlow;
 import io.metersphere.system.domain.StatusItem;
-import io.metersphere.system.dto.StatusFlowSettingDTO;
+import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.mapper.StatusDefinitionMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -44,29 +48,51 @@ public class BaseStatusFlowSettingService {
 
     /**
      * 查询状态流设置
+     *
      * @param scopeId
      * @param scene
      * @return
      */
-    public StatusFlowSettingDTO getStatusFlowSetting(String scopeId, String scene) {
-        StatusFlowSettingDTO statusFlowSetting = new StatusFlowSettingDTO();
+    public List<StatusItemDTO> getStatusFlowSetting(String scopeId, String scene) {
         List<StatusItem> statusItems = baseStatusItemService.getStatusItems(scopeId, scene);
         statusItems = baseStatusItemService.translateInternalStatusItem(statusItems);
         List<String> statusIds = statusItems.stream().map(StatusItem::getId).toList();
 
-        statusFlowSetting.setStatusDefinitionTypes(
-                Arrays.stream(BugStatusDefinitionType.values())
-                        .map(BugStatusDefinitionType::name).toList()
-        );
-        statusFlowSetting.setStatusItems(statusItems);
-        statusFlowSetting.setStatusDefinitions(baseStatusDefinitionService.getStatusDefinitions(statusIds));
-        statusFlowSetting.setStatusFlows(baseStatusFlowService.getStatusFlows(statusIds));
-        return statusFlowSetting;
+        // 获取状态定义
+        Map<String, List<StatusDefinition>> statusDefinitionMap = baseStatusDefinitionService.getStatusDefinitions(statusIds)
+                .stream()
+                .collect(Collectors.groupingBy(StatusDefinition::getStatusId));
+
+        // 获取状态流
+        Map<String, List<StatusFlow>> statusFlowMap = baseStatusFlowService.getStatusFlows(statusIds).stream()
+                .collect(Collectors.groupingBy(StatusFlow::getFromId));
+
+        return statusItems.stream().map(statusItem -> {
+                    StatusItemDTO statusItemDTO = BeanUtils.copyBean(new StatusItemDTO(), statusItem);
+                    List<StatusDefinition> statusDefinitions = statusDefinitionMap.get(statusItem.getId());
+                    List<String> statusDefinitionIds = statusDefinitions == null ? new ArrayList<>() : statusDefinitions
+                            .stream()
+                            .map(StatusDefinition::getDefinitionId)
+                            .collect(Collectors.toList());
+
+                    List<StatusFlow> statusFlows = statusFlowMap.get(statusItem.getId());
+                    List<String> statusFlowTargets = statusFlows == null ? new ArrayList<>() : statusFlows
+                            .stream()
+                            .map(StatusFlow::getToId)
+                            .collect(Collectors.toList());
+
+                    statusItemDTO.setStatusFlowTargets(statusFlowTargets);
+                    statusItemDTO.setStatusDefinitions(statusDefinitionIds);
+                    return statusItemDTO;
+                }).sorted(Comparator.comparing(StatusItemDTO::getPos))
+                .collect(Collectors.toList());
+
     }
 
     /**
      * 设置状态定义
      * 比如设置成项目
+     *
      * @param request
      */
     public void updateStatusDefinition(StatusDefinitionUpdateRequest request) {
@@ -88,6 +114,7 @@ public class BaseStatusFlowSettingService {
     /**
      * 设置状态定义
      * 比如设置成项目
+     *
      * @param scopeStatusItemIds
      * @param statusDefinitions
      */
@@ -112,9 +139,10 @@ public class BaseStatusFlowSettingService {
 
     /**
      * 更新状态流配置
+     *
      * @param request
      */
-    protected void updateStatusFlow( StatusFlowUpdateRequest request) {
+    protected void updateStatusFlow(StatusFlowUpdateRequest request) {
         List<StatusFlowUpdateRequest.StatusFlowRequest> statusFlows = request.getStatusFlows();
         List<String> statusIds = baseStatusFlowService.getStatusIds(statusFlows);
         baseStatusItemService.checkStatusScope(request.getScopeId(), statusIds);
@@ -132,6 +160,7 @@ public class BaseStatusFlowSettingService {
 
     /**
      * 初始化组织或者项目的默认状态流配置
+     *
      * @param projectId
      * @param scopeType
      */
@@ -181,6 +210,7 @@ public class BaseStatusFlowSettingService {
 
     /**
      * 删除组织或项目下状态流
+     *
      * @param scopeId
      */
     public void deleteByScopeId(String scopeId) {
@@ -191,5 +221,48 @@ public class BaseStatusFlowSettingService {
         baseStatusFlowService.deleteByStatusIds(statusItemIds);
         baseStatusDefinitionService.deleteByStatusIds(statusItemIds);
         baseStatusItemService.deleteByScopeId(scopeId);
+    }
+
+    /**
+     * 当勾选了所有状态都可以流转到该状态
+     * 添加对应的状态流转
+     * @param request
+     * @param addStatusItemId
+     */
+    protected void handleAllTransferTo(StatusItemAddRequest request, String addStatusItemId) {
+        if (BooleanUtils.isTrue(request.getAllTransferTo())) {
+            List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(request.getScopeId(), request.getScene());
+            List<StatusFlowUpdateRequest.StatusFlowRequest> statusFlows = statusItems.stream()
+                    // 过滤自己
+                    .filter(item -> !StringUtils.equals(item.getId(), addStatusItemId))
+                    .map(item -> {
+                        StatusFlowUpdateRequest.StatusFlowRequest statusFlow = new StatusFlowUpdateRequest.StatusFlowRequest();
+                        statusFlow.setFromId(item.getId());
+                        statusFlow.setToId(addStatusItemId);
+                        return statusFlow;
+                    }).toList();
+            StatusFlowUpdateRequest statusFlowUpdateRequest = new StatusFlowUpdateRequest();
+            statusFlowUpdateRequest.setScopeId(request.getScopeId());
+            statusFlowUpdateRequest.setScene(request.getScene());
+            statusFlowUpdateRequest.setStatusFlows(statusFlows);
+            updateStatusFlow(statusFlowUpdateRequest);
+        }
+    }
+
+    protected List<StatusItem> sortStatusItem(String scopeId, String scene, List<String> statusIds) {
+        baseStatusItemService.checkStatusScope(scopeId, statusIds);
+        List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(scopeId, scene);
+        statusItems.sort(Comparator.comparingInt(item -> statusIds.indexOf(item.getId())));
+        AtomicInteger pos = new AtomicInteger();
+        statusItems = statusItems.stream().map(item -> {
+            StatusItem statusItem = new StatusItem();
+            statusItem.setId(item.getId());
+            statusItem.setPos(pos.getAndIncrement());
+            return statusItem;
+        }).toList();
+        for (StatusItem statusItem : statusItems) {
+            baseStatusItemService.update(statusItem);
+        }
+        return statusItems;
     }
 }

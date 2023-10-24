@@ -10,6 +10,7 @@
     <result column="scope_type" jdbcType="VARCHAR" property="scopeType" />
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="scope_id" jdbcType="VARCHAR" property="scopeId" />
+    <result column="pos" jdbcType="INTEGER" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, scene, remark, internal, scope_type, ref_id, scope_id
+    id, `name`, scene, remark, internal, scope_type, ref_id, scope_id, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.StatusItemExample" resultMap="BaseResultMap">
     select
@@ -105,10 +106,12 @@
   <insert id="insert" parameterType="io.metersphere.system.domain.StatusItem">
     insert into status_item (id, `name`, scene, 
       remark, internal, scope_type, 
-      ref_id, scope_id)
+      ref_id, scope_id, pos
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{scene,jdbcType=VARCHAR}, 
       #{remark,jdbcType=VARCHAR}, #{internal,jdbcType=BIT}, #{scopeType,jdbcType=VARCHAR}, 
-      #{refId,jdbcType=VARCHAR}, #{scopeId,jdbcType=VARCHAR})
+      #{refId,jdbcType=VARCHAR}, #{scopeId,jdbcType=VARCHAR}, #{pos,jdbcType=INTEGER}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.StatusItem">
     insert into status_item
@@ -137,6 +140,9 @@
       <if test="scopeId != null">
         scope_id,
       </if>
+      <if test="pos != null">
+        pos,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -162,6 +168,9 @@
       </if>
       <if test="scopeId != null">
         #{scopeId,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -198,6 +207,9 @@
       <if test="record.scopeId != null">
         scope_id = #{record.scopeId,jdbcType=VARCHAR},
       </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=INTEGER},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -212,7 +224,8 @@
       internal = #{record.internal,jdbcType=BIT},
       scope_type = #{record.scopeType,jdbcType=VARCHAR},
       ref_id = #{record.refId,jdbcType=VARCHAR},
-      scope_id = #{record.scopeId,jdbcType=VARCHAR}
+      scope_id = #{record.scopeId,jdbcType=VARCHAR},
+      pos = #{record.pos,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,6 +254,9 @@
       <if test="scopeId != null">
         scope_id = #{scopeId,jdbcType=VARCHAR},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -252,17 +268,19 @@
       internal = #{internal,jdbcType=BIT},
       scope_type = #{scopeType,jdbcType=VARCHAR},
       ref_id = #{refId,jdbcType=VARCHAR},
-      scope_id = #{scopeId,jdbcType=VARCHAR}
+      scope_id = #{scopeId,jdbcType=VARCHAR},
+      pos = #{pos,jdbcType=INTEGER}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into status_item
-    (id, `name`, scene, remark, internal, scope_type, ref_id, scope_id)
+    (id, `name`, scene, remark, internal, scope_type, ref_id, scope_id, pos)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.scene,jdbcType=VARCHAR}, 
         #{item.remark,jdbcType=VARCHAR}, #{item.internal,jdbcType=BIT}, #{item.scopeType,jdbcType=VARCHAR}, 
-        #{item.refId,jdbcType=VARCHAR}, #{item.scopeId,jdbcType=VARCHAR})
+        #{item.refId,jdbcType=VARCHAR}, #{item.scopeId,jdbcType=VARCHAR}, #{item.pos,jdbcType=INTEGER}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -298,6 +316,9 @@
         </if>
         <if test="'scope_id'.toString() == column.value">
           #{item.scopeId,jdbcType=VARCHAR}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=INTEGER}
         </if>
       </foreach>
       )

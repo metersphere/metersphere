@@ -94,7 +94,7 @@ public class BaseTemplateService {
         return templateMapper.selectByPrimaryKey(id);
     }
 
-    protected TemplateDTO geTemplateDTO(Template template) {
+    protected TemplateDTO getTemplateDTO(Template template) {
         List<TemplateCustomField> templateCustomFields = baseTemplateCustomFieldService.getByTemplateId(template.getId());
 
         // 查找字段名称

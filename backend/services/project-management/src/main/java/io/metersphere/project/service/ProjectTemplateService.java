@@ -137,7 +137,7 @@ public class ProjectTemplateService extends BaseTemplateService {
                 template = getInternalTemplate(projectId, scene);
             }
         }
-        return geTemplateDTO(template);
+        return getTemplateDTO(template);
     }
 
     /**
@@ -268,10 +268,10 @@ public class ProjectTemplateService extends BaseTemplateService {
      * @param id
      * @return
      */
-    public TemplateDTO geTemplateDTOWithCheck(String id) {
+    public TemplateDTO getTemplateDTOWithCheck(String id) {
         Template template = super.getWithCheck(id);
         checkProjectResourceExist(template);
-        return super.geTemplateDTO(template);
+        return super.getTemplateDTO(template);
     }
 
     @Override

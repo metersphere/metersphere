@@ -417,10 +417,11 @@ CREATE TABLE IF NOT EXISTS status_item(
     `scope_type` VARCHAR(50) NOT NULL  DEFAULT 0 COMMENT '组织或项目级别字段（PROJECT, ORGANIZATION）' ,
     `ref_id` VARCHAR(50)    COMMENT '项目状态所关联的组织状态ID' ,
     `scope_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
+    `pos` INT NOT NULL  DEFAULT 0 COMMENT '排序字段' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '状态流的状态项';
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '状态流的状态项';
 
 CREATE INDEX idx_scope_id ON status_item(scope_id);
 
