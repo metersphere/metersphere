@@ -1,5 +1,6 @@
 <template>
   <a-popover
+    ref="popoverRef"
     :popup-visible="currentVisible"
     position="bl"
     trigger="click"
@@ -7,44 +8,45 @@
     :content-class="props.id ? 'move-left' : ''"
   >
     <template #content>
-      <div class="form">
-        <a-form
-          ref="formRef"
-          :model="form"
-          size="large"
-          layout="vertical"
-          :label-col-props="{ span: 0 }"
-          :wrapper-col-props="{ span: 24 }"
-        >
-          <a-form-item>
-            <div class="text-[14px] text-[var(--color-text-1)]">{{
+      <div v-outer="handleOutsideClick">
+        <div class="form">
+          <a-form
+            ref="formRef"
+            :model="form"
+            size="large"
+            layout="vertical"
+            :label-col-props="{ span: 0 }"
+            :wrapper-col-props="{ span: 24 }"
+          >
+            <div class="mb-[8px] text-[14px] font-medium text-[var(--color-text-1)]">{{
               props.id ? t('system.userGroup.rename') : t('system.userGroup.createUserGroup')
             }}</div>
-          </a-form-item>
-          <a-form-item field="name" :rules="[{ validator: validateName }]">
-            <a-input
-              v-model="form.name"
-              class="w-[243px]"
-              :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
-              @press-enter="handleBeforeOk"
-              @keyup.esc="handleCancel"
-            />
-          </a-form-item>
-        </a-form>
-      </div>
-      <div class="flex flex-row flex-nowrap justify-end gap-2">
-        <a-button type="secondary" size="mini" :disabled="loading" @click="handleCancel">
-          {{ t('common.cancel') }}
-        </a-button>
-        <a-button
-          type="primary"
-          size="mini"
-          :loading="loading"
-          :disabled="form.name.length === 0"
-          @click="handleBeforeOk"
-        >
-          {{ props.id ? t('common.rename') : t('common.create') }}
-        </a-button>
+            <a-form-item field="name" :rules="[{ validator: validateName }]">
+              <a-input
+                v-model="form.name"
+                class="w-[243px]"
+                :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
+                allow-clear
+                @press-enter="handleBeforeOk"
+                @keyup.esc="handleCancel"
+              />
+            </a-form-item>
+          </a-form>
+        </div>
+        <div class="flex flex-row flex-nowrap justify-end gap-2">
+          <a-button type="secondary" size="mini" :disabled="loading" @click="handleCancel">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button
+            type="primary"
+            size="mini"
+            :loading="loading"
+            :disabled="form.name.length === 0"
+            @click="handleBeforeOk"
+          >
+            {{ props.id ? t('common.rename') : t('common.create') }}
+          </a-button>
+        </div>
       </div>
     </template>
     <slot></slot>
@@ -82,6 +84,7 @@
 
   const formRef = ref<FormInstance>();
   const currentVisible = ref(props.visible);
+  // trigger相关变量
 
   const form = reactive({
     name: '',
@@ -154,6 +157,12 @@
     currentVisible.value = props.visible;
     form.name = props.defaultName || '';
   });
+
+  const handleOutsideClick = () => {
+    if (currentVisible.value) {
+      handleCancel();
+    }
+  };
 </script>
 
 <style lang="less">

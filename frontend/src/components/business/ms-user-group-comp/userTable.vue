@@ -79,7 +79,7 @@
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(getRequestBySystemType(), {
     columns: userGroupUsercolumns,
-    scroll: { x: '100%' },
+    scroll: { x: '100%', minWidth: 700 },
     selectable: false,
     noDisable: true,
     showSetting: false,

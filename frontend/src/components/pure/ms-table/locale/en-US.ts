@@ -33,5 +33,9 @@ export default {
     modify: 'Modify{name}',
     nameIsNotNull: 'Name cannot be empty',
     nameIsExist: '{name} already exists',
+    empty: 'No Content',
+    loading: 'Loading, please wait',
+    errorStatus: 'Failed to load data, please',
+    retry: 'Retry',
   },
 };

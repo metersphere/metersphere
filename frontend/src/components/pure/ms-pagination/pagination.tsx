@@ -1,5 +1,3 @@
-import { computed, defineComponent, reactive, ref, toRefs, watch } from 'vue';
-
 import Pager from './page-item.vue';
 import EllipsisPager from './page-item-ellipsis.vue';
 import StepPager from './page-item-step.vue';

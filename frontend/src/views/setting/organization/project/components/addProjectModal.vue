@@ -143,7 +143,7 @@
     description: '',
     resourcePoolIds: [],
     enable: true,
-    moduleIds: [],
+    moduleIds: ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'],
   });
 
   const currentVisible = ref(props.visible);
@@ -162,7 +162,7 @@
     form.organizationId = currentOrgId.value;
     form.description = '';
     form.enable = true;
-    form.moduleIds = [];
+    form.moduleIds = ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'];
     form.resourcePoolIds = [];
   };
   const handleCancel = (shouldSearch: boolean) => {

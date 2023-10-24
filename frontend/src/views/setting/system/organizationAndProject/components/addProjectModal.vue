@@ -141,7 +141,7 @@
     organizationId: '',
     description: '',
     enable: true,
-    moduleIds: [],
+    moduleIds: ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'],
     resourcePoolIds: [],
   });
 
@@ -161,7 +161,7 @@
     form.organizationId = '';
     form.description = '';
     form.enable = true;
-    form.moduleIds = [];
+    form.moduleIds = ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'];
   };
   const handleCancel = (shouldSearch: boolean) => {
     emit('cancel', shouldSearch);

@@ -43,7 +43,7 @@
     }
   );
 
-  const emit = defineEmits(['update:width']);
+  const emit = defineEmits(['update:width', 'expandChange']);
 
   const innerWidth = ref(props.width || '300px');
 
@@ -71,8 +71,10 @@
     isExpandedLeft.value = !isExpandedLeft.value;
     if (isExpandedLeft.value) {
       innerWidth.value = props.width || '300px';
+      emit('expandChange', true);
     } else {
       innerWidth.value = '0px';
+      emit('expandChange', false);
     }
     // 动画结束，去掉动画类
     setTimeout(() => {
