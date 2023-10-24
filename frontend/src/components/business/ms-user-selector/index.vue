@@ -7,6 +7,7 @@
     :disabled="props.disabled"
     :filter-option="false"
     allow-clear
+    :loading="loading"
     @change="change"
     @search="debouncedSearch"
   >
@@ -97,6 +98,8 @@
       // eslint-disable-next-line no-console
       console.log(error);
       allOptions.value = [];
+    } finally {
+      loading.value = false;
     }
   };
 

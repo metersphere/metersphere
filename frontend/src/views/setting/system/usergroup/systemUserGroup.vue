@@ -1,48 +1,47 @@
 <template>
   <div class="card">
-    <div class="flex h-full flex-row">
-      <Transition>
-        <div v-if="leftCollapse" class="user-group-left ms-scroll-bar">
-          <UserGroupLeft ref="ugLeftRef" @handle-select="handleSelect" />
-        </div>
-      </Transition>
-      <Transition>
-        <div class="usergroup-collapse" :style="{ left: leftCollapse ? '300px' : '0' }" @click="handleCollapse">
-          <icon-double-left v-if="leftCollapse" class="text-[12px] text-[var(--color-text-brand)]" />
-          <icon-double-right v-if="!leftCollapse" class="text-[12px] text-[var(--color-text-brand)]" />
-        </div>
-      </Transition>
-      <div class="p-[24px]" :style="{ width: leftCollapse ? 'calc(100% - 300px)' : '100%' }">
-        <div class="flex flex-row items-center justify-between">
-          <a-tooltip :content="currentUserGroupItem.name">
-            <div class="one-line-text max-w-[300px]">{{ currentUserGroupItem.name }}</div>
-          </a-tooltip>
-          <div class="flex items-center">
-            <a-input-search
-              v-if="currentTable === 'user'"
-              :placeholder="t('system.user.searchUser')"
-              class="w-[240px]"
-              allow-clear
-              @press-enter="handleEnter"
-              @search="handleSearch"
-            ></a-input-search>
-            <a-radio-group v-if="couldShowUser && couldShowAuth" v-model="currentTable" class="ml-[14px]" type="button">
-              <a-radio v-if="couldShowAuth" value="auth">{{ t('system.userGroup.auth') }}</a-radio>
-              <a-radio v-if="couldShowUser" value="user">{{ t('system.userGroup.user') }}</a-radio>
-            </a-radio-group>
+    <MsSplitBox @expand-change="handleCollapse">
+      <template #left>
+        <UserGroupLeft ref="ugLeftRef" @handle-select="handleSelect" @add-user-success="handleAddMember" />
+      </template>
+      <template #right>
+        <div class="p-[24px]">
+          <div class="flex flex-row items-center justify-between">
+            <a-tooltip :content="currentUserGroupItem.name">
+              <div class="one-line-text max-w-[300px]">{{ currentUserGroupItem.name }}</div>
+            </a-tooltip>
+            <div class="flex items-center">
+              <a-input-search
+                v-if="currentTable === 'user'"
+                :placeholder="t('system.user.searchUser')"
+                class="w-[240px]"
+                allow-clear
+                @press-enter="handleEnter"
+                @search="handleSearch"
+              ></a-input-search>
+              <a-radio-group
+                v-if="couldShowUser && couldShowAuth"
+                v-model="currentTable"
+                class="ml-[14px]"
+                type="button"
+              >
+                <a-radio v-if="couldShowAuth" value="auth">{{ t('system.userGroup.auth') }}</a-radio>
+                <a-radio v-if="couldShowUser" value="user">{{ t('system.userGroup.user') }}</a-radio>
+              </a-radio-group>
+            </div>
+          </div>
+          <div class="mt-[16px]">
+            <UserTable
+              v-if="currentTable === 'user' && couldShowUser"
+              ref="userRef"
+              :keyword="currentKeyword"
+              :current="currentUserGroupItem"
+            />
+            <AuthTable v-if="currentTable === 'auth' && couldShowAuth" ref="authRef" :current="currentUserGroupItem" />
           </div>
         </div>
-        <div class="mt-[16px]">
-          <UserTable
-            v-if="currentTable === 'user' && couldShowUser"
-            ref="userRef"
-            :keyword="currentKeyword"
-            :current="currentUserGroupItem"
-          />
-          <AuthTable v-if="currentTable === 'auth' && couldShowAuth" ref="authRef" :current="currentUserGroupItem" />
-        </div>
-      </div>
-    </div>
+      </template>
+    </MsSplitBox>
   </div>
   <div
     v-if="currentTable === 'auth'"
@@ -63,6 +62,7 @@
   import { computed, nextTick, onMounted, provide, ref, watchEffect } from 'vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
   import UserGroupLeft from '@/components/business/ms-user-group-comp/msUserGroupLeft.vue';
   import UserTable from '@/components/business/ms-user-group-comp/userTable.vue';
@@ -119,13 +119,18 @@
     currentUserGroupItem.value = item;
   };
 
+  const handleAddMember = (id: string) => {
+    if (id === currentUserGroupItem.value.id) {
+      tableSearch();
+    }
+  };
+
   const couldShowUser = computed(() => currentUserGroupItem.value.type === AuthScopeEnum.SYSTEM);
   const couldShowAuth = computed(() => currentUserGroupItem.value.id !== 'admin');
-  const handleCollapse = () => {
-    leftCollapse.value = !leftCollapse.value;
-    if (leftCollapse.value) {
+  const handleCollapse = (collapse: boolean) => {
+    if (collapse) {
       nextTick(() => {
-        ugLeftRef.value?.initData(currentUserGroupItem.value.id, false);
+        ugLeftRef.value?.initData(currentUserGroupItem.value.id);
       });
     }
   };
@@ -177,6 +182,7 @@
     overflow-x: hidden;
     overflow-y: auto;
     padding-right: 6px;
+    padding-bottom: 24px;
     width: 300px;
     min-width: 300px;
     height: 100%;
@@ -194,13 +200,5 @@
     background-color: var(--color-text-n8);
     flex-shrink: 0;
     cursor: pointer;
-  }
-  .v-enter-active,
-  .v-leave-active {
-    transition: opacity 0.5s ease;
-  }
-  .v-enter-from,
-  .v-leave-to {
-    opacity: 0;
   }
 </style>

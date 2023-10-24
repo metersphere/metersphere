@@ -166,7 +166,9 @@
 
   // 获取当前标题的样式
   const titleClass = computed(() => {
-    return props.isDelete ? 'ml-2 font-semibold' : 'mb-[8px] font-medium text-[var(--color-text-1)] text-[14px]';
+    return props.isDelete
+      ? 'ml-2 font-[14px] text-[var(--color-text-1)]'
+      : 'mb-[8px] font-medium text-[var(--color-text-1)] text-[14px]';
   });
 
   watch(

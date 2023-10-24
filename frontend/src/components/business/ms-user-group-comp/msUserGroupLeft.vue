@@ -1,6 +1,6 @@
 <template>
-  <div class="ms-ug-left flex h-full flex-col px-[24px] pb-[24px]">
-    <div class="sticky top-0 z-[999] w-[252px] bg-white pt-[24px]">
+  <div class="flex flex-col px-[24px] pb-[24px]">
+    <div class="sticky top-0 z-[999] bg-white pt-[24px]">
       <a-input-search
         :placeholder="t('system.userGroup.searchHolder')"
         allow-clear
@@ -8,7 +8,7 @@
         @search="searchData"
       />
     </div>
-    <div v-if="showSystem" class="mt-2 w-[252px]">
+    <div v-if="showSystem" class="mt-2">
       <CreateUserGroupPopup
         :list="systemUserGroupList"
         :visible="systemUserGroupVisible"
@@ -36,8 +36,8 @@
               {{ t('system.userGroup.systemUserGroup') }}
             </div>
           </div>
-          <MsMoreAction :list="createSystemUGActionItem" @select="systemUserGroupVisible = true">
-            <icon-plus-circle-fill class="text-[rgb(var(--primary-7))]" size="20" />
+          <MsMoreAction :list="createSystemUGActionItem" @select="handleCreateUG(AuthScopeEnum.SYSTEM)">
+            <icon-plus-circle-fill class="cursor-pointer text-[rgb(var(--primary-7))]" size="20" />
           </MsMoreAction>
         </div>
       </CreateUserGroupPopup>
@@ -56,10 +56,10 @@
               @cancel="handleRenameCancel(element)"
               @submit="handleRenameCancel(element, element.id)"
             >
-              <div class="flex grow flex-row items-center justify-between">
+              <div class="flex max-w-[100%] grow flex-row items-center justify-between">
                 <a-tooltip :content="element.name">
                   <div
-                    class="one-line-text max-w-[156px] text-[var(--color-text-1)]"
+                    class="one-line-text text-[var(--color-text-1)]"
                     :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
                     >{{ element.name }}</div
                   >
@@ -90,7 +90,7 @@
         </div>
       </Transition>
     </div>
-    <div v-if="showOrg" class="mt-2 w-[252px]">
+    <div v-if="showOrg" class="mt-2">
       <CreateUserGroupPopup
         :list="orgUserGroupList"
         :visible="orgUserGroupVisible"
@@ -119,7 +119,7 @@
             </div>
           </div>
           <MsMoreAction :list="createOrgUGActionItem" @select="orgUserGroupVisible = true">
-            <icon-plus-circle-fill class="text-[rgb(var(--primary-7))]" size="20" />
+            <icon-plus-circle-fill class="cursor-pointer text-[rgb(var(--primary-7))]" size="20" />
           </MsMoreAction>
         </div>
       </CreateUserGroupPopup>
@@ -138,10 +138,10 @@
               @cancel="handleRenameCancel(element)"
               @submit="handleRenameCancel(element, element.id)"
             >
-              <div class="flex grow flex-row items-center justify-between">
+              <div class="flex max-w-[100%] grow flex-row items-center justify-between">
                 <a-tooltip :content="element.name">
                   <div
-                    class="one-line-text max-w-[156px] text-[var(--color-text-1)]"
+                    class="one-line-text text-[var(--color-text-1)]"
                     :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
                     >{{ element.name }}</div
                   >
@@ -172,7 +172,7 @@
         </div>
       </Transition>
     </div>
-    <div v-if="showProject" class="mt-2 w-[252px]">
+    <div v-if="showProject" class="mt-2">
       <CreateUserGroupPopup
         :list="projectUserGroupList"
         :visible="projectUserGroupVisible"
@@ -201,7 +201,7 @@
             </div>
           </div>
           <MsMoreAction :list="createProjectUGActionItem" @select="projectUserGroupVisible = true">
-            <icon-plus-circle-fill class="text-[rgb(var(--primary-7))]" size="20" />
+            <icon-plus-circle-fill class="cursor-pointer text-[rgb(var(--primary-7))]" size="20" />
           </MsMoreAction>
         </div>
       </CreateUserGroupPopup>
@@ -220,10 +220,10 @@
               @cancel="handleRenameCancel(element)"
               @submit="handleRenameCancel(element, element.id)"
             >
-              <div class="flex grow flex-row items-center justify-between">
+              <div class="flex max-w-[100%] grow flex-row items-center justify-between">
                 <a-tooltip :content="element.name">
                   <div
-                    class="one-line-text max-w-[156px] text-[var(--color-text-1)]"
+                    class="one-line-text text-[var(--color-text-1)]"
                     :class="{ 'text-[rgb(var(--primary-7))]': element.id === currentId }"
                     >{{ element.name }}</div
                   >
@@ -254,7 +254,7 @@
       </Transition>
     </div>
   </div>
-  <AddUserModal :visible="userModalVisible" :current-id="currentItem.id" @cancel="userModalVisible = false" />
+  <AddUserModal :visible="userModalVisible" :current-id="currentItem.id" @cancel="handleAddUserCancel" />
 </template>
 
 <script setup lang="ts">
@@ -286,6 +286,7 @@
 
   const emit = defineEmits<{
     (e: 'handleSelect', element: UserGroupItem): void;
+    (e: 'addUserSuccess', id: string): void;
   }>();
   const appStore = useAppStore();
   const { openModal } = useModal();
@@ -383,16 +384,13 @@
       }
       if (res.length > 0) {
         userGroupList.value = res;
-        let tmpItem = res[0];
-        if (id) {
-          tmpItem = res.find((i) => i.id === id) || res[0];
-        }
         if (isSelect) {
           // leftCollapse 切换时不重复数据请求
-          handleListItemClick(tmpItem);
-        } else {
-          // leftCollapse 切换时调用
-          currentId.value = id || '';
+          if (id) {
+            handleListItemClick(res.find((i) => i.id === id) || res[0]);
+          } else {
+            handleListItemClick(res[0]);
+          }
         }
         // 弹窗赋值
         const tmpObj: PopVisible = {};
@@ -452,7 +450,7 @@
 
   function enterData(eve: Event) {
     if (!(eve.target as HTMLInputElement).value) {
-      initData();
+      initData('', false);
       return;
     }
     const keyword = (eve.target as HTMLInputElement).value;
@@ -461,7 +459,7 @@
   }
   function searchData(value: string) {
     if (!value) {
-      initData();
+      initData('', false);
       return;
     }
     const keyword = value;
@@ -480,6 +478,21 @@
   defineExpose({
     initData,
   });
+  const handleCreateUG = (scoped: AuthScopeEnum) => {
+    if (scoped === AuthScopeEnum.SYSTEM) {
+      systemUserGroupVisible.value = true;
+    } else if (scoped === AuthScopeEnum.ORGANIZATION) {
+      orgUserGroupVisible.value = true;
+    } else if (scoped === AuthScopeEnum.PROJECT) {
+      projectUserGroupVisible.value = true;
+    }
+  };
+  const handleAddUserCancel = (shouldSearch: boolean) => {
+    userModalVisible.value = false;
+    if (shouldSearch) {
+      emit('addUserSuccess', currentId.value);
+    }
+  };
 </script>
 
 <style lang="less" scoped>

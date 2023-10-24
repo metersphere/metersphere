@@ -1,17 +1,13 @@
 <template>
   <div class="card">
     <div class="flex h-full flex-row">
-      <Transition>
-        <div v-if="leftCollapse" class="user-group-left ms-scroll-bar">
-          <UserGroupLeft ref="ugLeftRef" @handle-select="handleSelect" />
-        </div>
-      </Transition>
-      <Transition>
-        <div class="usergroup-collapse" :style="{ left: leftCollapse ? '300px' : '0' }" @click="handleCollapse">
-          <icon-double-left v-if="leftCollapse" class="text-[12px] text-[var(--color-text-brand)]" />
-          <icon-double-right v-else class="text-[12px] text-[var(--color-text-brand)]" />
-        </div>
-      </Transition>
+      <div v-if="leftCollapse" class="user-group-left ms-scroll-bar">
+        <UserGroupLeft ref="ugLeftRef" @handle-select="handleSelect" @add-user-success="handleAddMember" />
+      </div>
+      <div class="usergroup-collapse" :style="{ left: leftCollapse ? '300px' : '0' }" @click="handleCollapse">
+        <icon-double-left v-if="leftCollapse" class="text-[12px] text-[var(--color-text-brand)]" />
+        <icon-double-right v-else class="text-[12px] text-[var(--color-text-brand)]" />
+      </div>
       <div class="p-[24px]" :style="{ width: leftCollapse ? 'calc(100% - 300px)' : '100%' }">
         <div class="flex flex-row items-center justify-between">
           <a-tooltip :content="currentUserGroupItem.name">
@@ -125,7 +121,7 @@
     leftCollapse.value = !leftCollapse.value;
     if (leftCollapse.value) {
       nextTick(() => {
-        ugLeftRef.value?.initData(currentUserGroupItem.value.id, false);
+        ugLeftRef.value?.initData(currentUserGroupItem.value.id);
       });
     }
   };
@@ -142,6 +138,11 @@
   };
   const handleSave = () => {
     authRef.value?.handleSave();
+  };
+  const handleAddMember = (id: string) => {
+    if (id === currentUserGroupItem.value.id) {
+      tableSearch();
+    }
   };
   const canSave = computed(() => {
     if (currentTable.value === 'auth') {
@@ -194,13 +195,5 @@
     background-color: var(--color-text-n8);
     flex-shrink: 0;
     cursor: pointer;
-  }
-  .v-enter-active,
-  .v-leave-active {
-    transition: opacity 0.5s ease;
-  }
-  .v-enter-from,
-  .v-leave-to {
-    opacity: 0;
   }
 </style>
