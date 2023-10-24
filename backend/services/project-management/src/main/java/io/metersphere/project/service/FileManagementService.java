@@ -11,6 +11,7 @@ import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.TempFileUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,7 +65,10 @@ public class FileManagementService {
                 fileRequest.setProjectId(fileMetadata.getProjectId());
                 fileRequest.setStorage(fileMetadata.getStorage());
                 try {
+                    //删除存储容器中的文件
                     fileService.deleteFile(fileRequest);
+                    //删除临时文件
+                    TempFileUtils.deleteTmpFile(fileMetadata.getId());
                 } catch (Exception e) {
                     LogUtils.error("删除文件失败", e);
                 }

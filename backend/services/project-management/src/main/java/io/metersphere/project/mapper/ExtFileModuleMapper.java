@@ -1,12 +1,14 @@
 package io.metersphere.project.mapper;
 
-import io.metersphere.project.domain.FileModule;
+import io.metersphere.sdk.dto.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface ExtFileModuleMapper {
-    List<FileModule> selectBaseByProjectId(String projectId);
+    List<BaseTreeNode> selectBaseByProjectId(String projectId);
+
+    List<BaseTreeNode> selectIdAndParentIdByProjectId(String projectId);
 
     List<String> selectChildrenIdsByParentIds(@Param("ids") List<String> deleteIds);
 

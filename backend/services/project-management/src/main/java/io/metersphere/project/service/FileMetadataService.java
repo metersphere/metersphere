@@ -33,7 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -47,6 +46,8 @@ public class FileMetadataService {
     @Resource
     private FileManagementService fileManagementService;
     @Resource
+    private FileModuleService fileModuleService;
+    @Resource
     private FileService fileService;
 
     @Value("${metersphere.file.batch-download-max:600MB}")
@@ -57,8 +58,13 @@ public class FileMetadataService {
         List<FileMetadata> fileMetadataList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getKeyword(), request.getModuleIds(), request.getFileType(), false);
         fileMetadataList.forEach(fileMetadata -> {
             FileInformationDTO fileInformationDTO = new FileInformationDTO(fileMetadata);
-            if (FilePreviewUtils.isImage(fileMetadata.getType())) {
-                fileInformationDTO.setPreviewSrc(FilePreviewUtils.catchFileIfNotExists(fileMetadata.getPath() + "." + fileMetadata.getType(), this.getFile(fileMetadata)));
+            if (TempFileUtils.isImage(fileMetadata.getType())) {
+                if (TempFileUtils.isFileExists(fileMetadata.getId())) {
+                    fileInformationDTO.setPreviewSrc(TempFileUtils.getFileTmpPath(fileMetadata.getId()));
+                } else {
+                    fileInformationDTO.setPreviewSrc(TempFileUtils.catchCompressFileIfNotExists(fileMetadata.getId(), this.getFile(fileMetadata)));
+                }
+
             }
             returnList.add(fileInformationDTO);
         });
@@ -125,48 +131,7 @@ public class FileMetadataService {
         }
     }
 
-    /**
-     * 重新上传
-     */
-    public String reUpload(FileReUploadRequest request, String operator, MultipartFile uploadFile) throws Exception {
-        //检查模块的合法性
-        FileMetadata oldFile = fileMetadataMapper.selectByPrimaryKey(request.getFileId());
-        if (oldFile == null) {
-            throw new MSException(Translator.get("old.file.not.exist"));
-        }
-        oldFile.setLatest(false);
-        fileMetadataMapper.updateByPrimaryKeySelective(oldFile);
-
-        long operationTime = System.currentTimeMillis();
-        FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setId(IDGenerator.nextStr());
-        fileMetadata.setStorage(oldFile.getStorage());
-        fileMetadata.setProjectId(oldFile.getProjectId());
-        fileMetadata.setModuleId(oldFile.getModuleId());
-        fileMetadata.setName(oldFile.getName());
-        fileMetadata.setType(oldFile.getType());
-        fileMetadata.setCreateTime(operationTime);
-        fileMetadata.setCreateUser(operator);
-        fileMetadata.setUpdateTime(operationTime);
-        fileMetadata.setUpdateUser(operator);
-        fileMetadata.setSize(uploadFile.getSize());
-        fileMetadata.setRefId(oldFile.getRefId());
-        fileMetadata.setLatest(true);
-        fileMetadataMapper.insert(fileMetadata);
-
-        //记录日志
-        fileMetadataLogService.saveReUploadLog(fileMetadata, operator);
-
-        // 上传文件
-        String filePath = this.uploadFile(fileMetadata, uploadFile);
-        FileMetadata updateFileMetadata = new FileMetadata();
-        updateFileMetadata.setId(fileMetadata.getId());
-        updateFileMetadata.setPath(filePath);
-        updateFileMetadata.setFileVersion(fileMetadata.getId());
-        fileMetadataMapper.updateByPrimaryKeySelective(updateFileMetadata);
-
-        return fileMetadata.getId();
-    }
+    private static final String FILE_MODULE_COUNT_ALL = "all";
 
     private String uploadFile(FileMetadata fileMetadata, MultipartFile file) throws Exception {
         FileRequest uploadFileRequest = new FileRequest();
@@ -206,7 +171,7 @@ public class FileMetadataService {
         } catch (Exception e) {
             LogUtils.error("获取文件失败", e);
         }
-        return null;
+        return new byte[0];
     }
 
     public void update(FileUpdateRequest request, String operator) {
@@ -285,10 +250,63 @@ public class FileMetadataService {
             throw new MSException(Translator.get("file.size.is.too.large"));
         }
     }
+    private static final String FILE_MODULE_COUNT_MY = "my";
+
+    /**
+     * 重新上传
+     */
+    public String reUpload(FileReUploadRequest request, String operator, MultipartFile uploadFile) throws Exception {
+        //检查模块的合法性
+        FileMetadata oldFile = fileMetadataMapper.selectByPrimaryKey(request.getFileId());
+        if (oldFile == null) {
+            throw new MSException(Translator.get("old.file.not.exist"));
+        }
+        oldFile.setLatest(false);
+        fileMetadataMapper.updateByPrimaryKeySelective(oldFile);
+
+        //删除旧的预览文件
+        TempFileUtils.deleteTmpFile(oldFile.getId());
+
+        long operationTime = System.currentTimeMillis();
+        FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setId(IDGenerator.nextStr());
+        fileMetadata.setStorage(oldFile.getStorage());
+        fileMetadata.setProjectId(oldFile.getProjectId());
+        fileMetadata.setModuleId(oldFile.getModuleId());
+        fileMetadata.setName(oldFile.getName());
+        fileMetadata.setType(oldFile.getType());
+        fileMetadata.setCreateTime(operationTime);
+        fileMetadata.setCreateUser(oldFile.getCreateUser());
+        fileMetadata.setUpdateTime(operationTime);
+        fileMetadata.setUpdateUser(operator);
+        fileMetadata.setSize(uploadFile.getSize());
+        fileMetadata.setRefId(oldFile.getRefId());
+        fileMetadata.setLatest(true);
+        fileMetadataMapper.insert(fileMetadata);
+
+        //记录日志
+        fileMetadataLogService.saveReUploadLog(fileMetadata, operator);
+
+        // 上传文件
+        String filePath = this.uploadFile(fileMetadata, uploadFile);
+        FileMetadata updateFileMetadata = new FileMetadata();
+        updateFileMetadata.setId(fileMetadata.getId());
+        updateFileMetadata.setPath(filePath);
+        updateFileMetadata.setFileVersion(fileMetadata.getId());
+        fileMetadataMapper.updateByPrimaryKeySelective(updateFileMetadata);
+
+        return fileMetadata.getId();
+    }
 
     //获取模块统计
-    public Map<String, Integer> moduleCount(FileMetadataTableRequest request) {
-        List<ModuleCountDTO> moduleCountDTOList = extFileMetadataMapper.countModuleIdByKeywordAndFileType(request.getProjectId(), request.getKeyword(), request.getModuleIds(), request.getFileType());
-        return moduleCountDTOList.stream().collect(Collectors.toMap(ModuleCountDTO::getModuleId, ModuleCountDTO::getDataCount));
+    public Map<String, Long> moduleCount(FileMetadataTableRequest request, String operator) {
+        //查出每个模块节点下的资源数量
+        List<ModuleCountDTO> moduleCountDTOList = extFileMetadataMapper.countModuleIdByKeywordAndFileType(request.getProjectId(), request.getKeyword(), null, request.getFileType());
+        long allCount = fileModuleService.getAllCount(moduleCountDTOList);
+        long myFileCount = extFileMetadataMapper.countMyFile(request.getProjectId(), request.getKeyword(), null, request.getFileType(), operator);
+        Map<String, Long> moduleCountMap = fileModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
+        moduleCountMap.put(FILE_MODULE_COUNT_MY, myFileCount);
+        moduleCountMap.put(FILE_MODULE_COUNT_ALL, allCount);
+        return moduleCountMap;
     }
 }

@@ -93,6 +93,7 @@ public class FileManagementControllerTests extends BaseTest {
             if (StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
                 hasNode = true;
             }
+            Assertions.assertNotNull(baseTreeNode.getParentId());
         }
         Assertions.assertTrue(hasNode);
 
@@ -128,6 +129,7 @@ public class FileManagementControllerTests extends BaseTest {
             if (StringUtils.equals(baseTreeNode.getName(), request.getName())) {
                 a1Node = baseTreeNode;
             }
+            Assertions.assertNotNull(baseTreeNode.getParentId());
         }
         Assertions.assertNotNull(a1Node);
         checkLog(a1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD);
@@ -151,11 +153,13 @@ public class FileManagementControllerTests extends BaseTest {
         BaseTreeNode a1b1Node = null;
         BaseTreeNode a2Node = null;
         for (BaseTreeNode baseTreeNode : treeNodes) {
+            Assertions.assertNotNull(baseTreeNode.getParentId());
             if (StringUtils.equals(baseTreeNode.getName(), "a1") && CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
                 for (BaseTreeNode childNode : baseTreeNode.getChildren()) {
                     if (StringUtils.equals(childNode.getName(), "a1-b1")) {
                         a1b1Node = childNode;
                     }
+                    Assertions.assertNotNull(childNode.getParentId());
                 }
             } else if (StringUtils.equals(baseTreeNode.getName(), "a2")) {
                 a2Node = baseTreeNode;
@@ -177,8 +181,10 @@ public class FileManagementControllerTests extends BaseTest {
         treeNodes = this.getFileModuleTreeNode();
         BaseTreeNode a1ChildNode = null;
         for (BaseTreeNode baseTreeNode : treeNodes) {
+            Assertions.assertNotNull(baseTreeNode.getParentId());
             if (StringUtils.equals(baseTreeNode.getName(), "a1") && CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
                 for (BaseTreeNode childNode : baseTreeNode.getChildren()) {
+                    Assertions.assertNotNull(childNode.getParentId());
                     if (StringUtils.equals(childNode.getName(), "a1")) {
                         a1ChildNode = childNode;
                     }
@@ -197,10 +203,13 @@ public class FileManagementControllerTests extends BaseTest {
         treeNodes = this.getFileModuleTreeNode();
         BaseTreeNode a1a1c1Node = null;
         for (BaseTreeNode baseTreeNode : treeNodes) {
+            Assertions.assertNotNull(baseTreeNode.getParentId());
             if (StringUtils.equals(baseTreeNode.getName(), "a1") && CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
                 for (BaseTreeNode secondNode : baseTreeNode.getChildren()) {
+                    Assertions.assertNotNull(secondNode.getParentId());
                     if (StringUtils.equals(secondNode.getName(), "a1") && CollectionUtils.isNotEmpty(secondNode.getChildren())) {
                         for (BaseTreeNode thirdNode : secondNode.getChildren()) {
+                            Assertions.assertNotNull(thirdNode.getParentId());
                             if (StringUtils.equals(thirdNode.getName(), "a1-a1-c1")) {
                                 a1a1c1Node = thirdNode;
                             }
@@ -532,7 +541,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setPageSize(10);
             this.setProjectId(project.getId());
         }};
-        this.filePageRequestAndCheck(request, true);
+        this.filePageRequestAndCheck(request);
 
         //查找默认模块
         request = new FileMetadataTableRequest() {{
@@ -543,7 +552,7 @@ public class FileManagementControllerTests extends BaseTest {
                 this.add(ModuleConstants.DEFAULT_NODE_ID);
             }});
         }};
-        this.filePageRequestAndCheck(request, true);
+        this.filePageRequestAndCheck(request);
 
         //查找有数据的a1-a1模块
         BaseTreeNode a1a1Node = FileManagementBaseUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-a1");
@@ -555,7 +564,7 @@ public class FileManagementControllerTests extends BaseTest {
                 this.add(a1a1Node.getId());
             }});
         }};
-        this.filePageRequestAndCheck(request, true);
+        this.filePageRequestAndCheck(request);
         //查找没有数据的a1-b1模块
 
         BaseTreeNode a1b2Node = FileManagementBaseUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-b1");
@@ -567,7 +576,7 @@ public class FileManagementControllerTests extends BaseTest {
                 this.add(a1b2Node.getId());
             }});
         }};
-        this.filePageRequestAndCheck(request, false);
+        this.filePageRequestAndCheck(request);
 
         //查找不存在的模块
         request = new FileMetadataTableRequest() {{
@@ -578,7 +587,7 @@ public class FileManagementControllerTests extends BaseTest {
                 this.add(IDGenerator.nextStr());
             }});
         }};
-        this.filePageRequestAndCheck(request, false);
+        this.filePageRequestAndCheck(request);
 
         //使用已存在的文件类型过滤 区分大小写
         request = new FileMetadataTableRequest() {{
@@ -587,7 +596,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setProjectId(project.getId());
             this.setFileType("JPG");
         }};
-        this.filePageRequestAndCheck(request, true);
+        this.filePageRequestAndCheck(request);
 
         //使用已存在的文件类型过滤 不区分大小写
         request = new FileMetadataTableRequest() {{
@@ -596,7 +605,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setProjectId(project.getId());
             this.setFileType("JpG");
         }};
-        this.filePageRequestAndCheck(request, true);
+        this.filePageRequestAndCheck(request);
 
         //使用不存在的文件类型过滤
         request = new FileMetadataTableRequest() {{
@@ -605,7 +614,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setProjectId(project.getId());
             this.setFileType("fire");
         }};
-        this.filePageRequestAndCheck(request, false);
+        this.filePageRequestAndCheck(request);
     }
 
     @Test
@@ -1104,7 +1113,7 @@ public class FileManagementControllerTests extends BaseTest {
         return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
     }
 
-    private void filePageRequestAndCheck(FileMetadataTableRequest request, Boolean hasData) throws Exception {
+    private void filePageRequestAndCheck(FileMetadataTableRequest request) throws Exception {
         MvcResult mvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
         Pager<List<FileInformationDTO>> pageResult = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
@@ -1113,7 +1122,7 @@ public class FileManagementControllerTests extends BaseTest {
         Map<String, Integer> moduleCountResult = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Map.class);
-        FileManagementBaseUtils.checkFilePage(pageResult, moduleCountResult, request, hasData);
+        FileManagementBaseUtils.checkFilePage(pageResult, moduleCountResult, request);
     }
 
     private void preliminaryData() throws Exception {
