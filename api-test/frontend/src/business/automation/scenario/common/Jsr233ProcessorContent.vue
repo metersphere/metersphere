@@ -166,6 +166,15 @@ export default {
     jsr223Processor() {
       this.reload();
     },
+    activeName: {
+      handler() {
+        setTimeout(() => {
+          // 展开动画大概是 300ms 左右，使视觉效果更流畅
+          this.$refs.codeEdit?.$el.querySelector('.ace_text-input')?.focus();
+        }, 300);
+      },
+      immediate: true,
+    },
   },
   methods: {
     addTemplate(template) {
