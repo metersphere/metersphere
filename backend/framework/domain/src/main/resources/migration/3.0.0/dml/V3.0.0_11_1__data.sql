@@ -217,24 +217,24 @@ VALUES (UUID_SHORT(), 'test_plan_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_
 -- 初始化组织缺陷状态项
 -- 新建
 INSERT INTO status_item
-(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
-VALUES(UUID_SHORT(), 'bug_new', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001');
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id, pos)
+VALUES(UUID_SHORT(), 'bug_new', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001', 0);
 -- 处理中
 INSERT INTO status_item
-(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
-VALUES(UUID_SHORT(), 'bug_in_process', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001');
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id, pos)
+VALUES(UUID_SHORT(), 'bug_in_process', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001', 1);
 -- 已关闭
 INSERT INTO status_item
-(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
-VALUES(UUID_SHORT(), 'bug_closed', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001');
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id, pos)
+VALUES(UUID_SHORT(), 'bug_closed', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001', 2);
 -- 已解决
 INSERT INTO status_item
-(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
-VALUES(UUID_SHORT(), 'bug_resolved', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001');
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id, pos)
+VALUES(UUID_SHORT(), 'bug_resolved', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001', 3);
 -- 已拒绝
 INSERT INTO status_item
-(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
-VALUES(UUID_SHORT(), 'bug_rejected', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001');
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id, pos)
+VALUES(UUID_SHORT(), 'bug_rejected', 'BUG', NULL, 1, 'ORGANIZATION', NULL, '100001', 4);
 
 -- 初始化组织缺陷状态定义
 INSERT INTO status_definition(status_id, definition_id)
@@ -267,24 +267,24 @@ VALUES(UUID_SHORT(), (SELECT id FROM status_item where name = 'bug_rejected'), (
 -- 初始化项目缺陷状态项
 -- 新建
 INSERT INTO status_item
-(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
-VALUES(UUID_SHORT(), 'bug_new', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_new'), '100001100001');
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id, pos)
+VALUES(UUID_SHORT(), 'bug_new', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_new'), '100001100001', 0);
 -- 处理中
 INSERT INTO status_item
-(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
-VALUES(UUID_SHORT(), 'bug_in_process', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_in_process'), '100001100001');
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id, pos)
+VALUES(UUID_SHORT(), 'bug_in_process', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_in_process'), '100001100001', 1);
 -- 已解决
 INSERT INTO status_item
-(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
-VALUES(UUID_SHORT(), 'bug_resolved', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_resolved'), '100001100001');
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id, pos)
+VALUES(UUID_SHORT(), 'bug_resolved', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_resolved'), '100001100001', 2);
 -- 已关闭
 INSERT INTO status_item
-(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
-VALUES(UUID_SHORT(), 'bug_closed', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_closed'), '100001100001');
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id, pos)
+VALUES(UUID_SHORT(), 'bug_closed', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_closed'), '100001100001', 3);
 -- 已拒绝
 INSERT INTO status_item
-(id, name, scene, remark, internal, scope_type, ref_id, scope_id)
-VALUES(UUID_SHORT(), 'bug_rejected', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_rejected'), '100001100001');
+(id, name, scene, remark, internal, scope_type, ref_id, scope_id, pos)
+VALUES(UUID_SHORT(), 'bug_rejected', 'BUG', NULL, 1, 'PROJECT', (SELECT id FROM (SELECT * FROM status_item) t where name = 'bug_rejected'), '100001100001', 4);
 
 -- 初始化项目缺陷状态定义
 INSERT INTO status_definition(status_id, definition_id)

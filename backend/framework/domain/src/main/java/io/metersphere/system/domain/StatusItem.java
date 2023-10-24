@@ -45,6 +45,10 @@ public class StatusItem implements Serializable {
     @Size(min = 1, max = 50, message = "{status_item.scope_id.length_range}", groups = {Created.class, Updated.class})
     private String scopeId;
 
+    @Schema(description = "排序字段", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{status_item.pos.not_blank}", groups = {Created.class})
+    private Integer pos;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -55,7 +59,8 @@ public class StatusItem implements Serializable {
         internal("internal", "internal", "BIT", false),
         scopeType("scope_type", "scopeType", "VARCHAR", false),
         refId("ref_id", "refId", "VARCHAR", false),
-        scopeId("scope_id", "scopeId", "VARCHAR", false);
+        scopeId("scope_id", "scopeId", "VARCHAR", false),
+        pos("pos", "pos", "INTEGER", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

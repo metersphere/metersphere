@@ -45,7 +45,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
     public TemplateDTO geDTOWithCheck(String id) {
         Template template = super.getWithCheck(id);
         checkOrgResourceExist(template);
-        return super.geTemplateDTO(template);
+        return super.getTemplateDTO(template);
     }
 
     @Override

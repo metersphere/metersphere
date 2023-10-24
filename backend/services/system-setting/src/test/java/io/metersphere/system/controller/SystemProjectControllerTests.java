@@ -11,7 +11,6 @@ import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
@@ -249,7 +248,8 @@ public class SystemProjectControllerTests extends BaseTest {
         Assertions.assertNull(currentProject.getModuleSetting());
         // 项目模板开启时，校验是否初始化了项目模板
         assertionsInitTemplate(projectId);
-        assertionsInitStatusFlowSetting(projectId);
+        List<StatusItemDTO> statusItemDTOS = baseStatusFlowSettingService.getStatusFlowSetting(projectId, TemplateScene.BUG.name());
+        OrganizationStatusFlowSettingControllerTest.assertDefaultStatusFlowSettingInit(statusItemDTOS);
 
         //设置了模块模版
         List<String> moduleIds = new ArrayList<>();
@@ -414,47 +414,6 @@ public class SystemProjectControllerTests extends BaseTest {
                     .filter(field -> StringUtils.equals(field.getScene(), scene.name()))
                     .findFirst().get();
             Assertions.assertNotNull(template);
-        }
-    }
-
-    public void assertionsInitStatusFlowSetting(String projectId) {
-        StatusFlowSettingDTO statusFlowSetting = baseStatusFlowSettingService.getStatusFlowSetting(projectId, TemplateScene.BUG.name());
-        List<StatusItem> statusItems = statusFlowSetting.getStatusItems();
-        List<StatusDefinition> statusDefinitions = statusFlowSetting.getStatusDefinitions();
-        List<StatusFlow> statusFlows = statusFlowSetting.getStatusFlows();
-        List<String> statusDefinitionTypes = statusFlowSetting.getStatusDefinitionTypes();
-        Map<String, String> nameIdMap = baseStatusItemService.getByScopeIdAndScene(projectId, TemplateScene.BUG.name()).stream()
-                .collect(Collectors.toMap(StatusItem::getId, StatusItem::getName));
-
-        // 校验状态定义是否正确
-        Assertions.assertEquals(statusDefinitionTypes, Arrays.stream(BugStatusDefinitionType.values()).map(Enum::name).toList());
-
-        // 校验默认的状态定义是否初始化正确
-        Assertions.assertEquals(statusItems.size(), DefaultBugStatusItem.values().length);
-        for (DefaultBugStatusItem defaultBugStatusItem : DefaultBugStatusItem.values()) {
-            StatusItem statusItem = statusItems.stream()
-                    .filter(item -> item.getName().equals(Translator.get("status_item." + defaultBugStatusItem.getName())))
-                    .findFirst()
-                    .get();
-
-            // 校验默认的状态定义是否初始化正确
-            List<String> defaultDefinitionTypes = defaultBugStatusItem.getDefinitionTypes()
-                    .stream()
-                    .map(BugStatusDefinitionType::name)
-                    .toList();
-            List<String> definitionTypes = statusDefinitions.stream()
-                    .filter(item -> item.getStatusId().equals(statusItem.getId()))
-                    .map(StatusDefinition::getDefinitionId)
-                    .toList();
-            Assertions.assertEquals(defaultDefinitionTypes, definitionTypes);
-
-            // 校验默认的状态流是否初始化正确
-            List<String> defaultFlowTargets = defaultBugStatusItem.getStatusFlowTargets();
-            List<String> flowTargets = statusFlows.stream()
-                    .filter(item -> item.getFromId().equals(statusItem.getId()))
-                    .map(item -> nameIdMap.get(item.getToId()))
-                    .toList();
-            Assertions.assertEquals(defaultFlowTargets, flowTargets);
         }
     }
 

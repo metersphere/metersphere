@@ -49,7 +49,7 @@ public class ProjectTemplateController {
     @Operation(summary = "获取模版详情")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ)
     public TemplateDTO get(@PathVariable String id) {
-        return projectTemplateservice.geTemplateDTOWithCheck(id);
+        return projectTemplateservice.getTemplateDTOWithCheck(id);
     }
 
     @PostMapping("/add")

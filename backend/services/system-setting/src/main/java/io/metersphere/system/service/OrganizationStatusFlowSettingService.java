@@ -10,7 +10,7 @@ import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.StatusDefinition;
 import io.metersphere.system.domain.StatusFlow;
 import io.metersphere.system.domain.StatusItem;
-import io.metersphere.system.dto.StatusFlowSettingDTO;
+import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -33,14 +33,16 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
     private OrganizationTemplateService organizationTemplateService;
     @Resource
     private BaseProjectMapper baseProjectMapper;
+
     /**
      * 查询状态流设置
+     *
      * @param organizationId
      * @param scene
      * @return
      */
     @Override
-    public StatusFlowSettingDTO getStatusFlowSetting(String organizationId, String scene) {
+    public List<StatusItemDTO> getStatusFlowSetting(String organizationId, String scene) {
         OrganizationService.checkResourceExist(organizationId);
         return super.getStatusFlowSetting(organizationId, scene);
     }
@@ -48,6 +50,7 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
     /**
      * 设置状态定义
      * 比如设置成项目
+     *
      * @param request
      */
     @Override
@@ -121,6 +124,8 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
         statusItem = baseStatusItemService.add(statusItem);
         // 同步添加项目级别状态项
         addRefProjectStatusItem(request.getScopeId(), statusItem);
+        // 处理所有状态都可以流转到该状态
+        super.handleAllTransferTo(request, statusItem.getId());
         return statusItem;
     }
 
@@ -212,6 +217,7 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
 
     /**
      * 更新状态流配置
+     *
      * @param request
      */
     public void updateStatusFlow(StatusFlowUpdateRequest request) {
@@ -268,5 +274,19 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
             // 在添加
             baseStatusFlowService.batchAdd(statusFlows);
         });
+    }
+
+    @Override
+    public List<StatusItem> sortStatusItem(String organizationId, String scene, List<String> statusIds) {
+        OrganizationService.checkResourceExist(organizationId);
+        organizationTemplateService.checkOrganizationTemplateEnable(organizationId, scene);
+        List<StatusItem> statusItems = super.sortStatusItem(organizationId, scene, statusIds);
+        // 同步更新项目级别状态项
+        for (StatusItem statusItem : statusItems) {
+            StatusItem copyStatusItem = new StatusItem();
+            copyStatusItem.setPos(statusItem.getPos());
+            baseStatusItemService.updateByRefId(copyStatusItem, statusItem.getId());
+        }
+        return statusItems;
     }
 }

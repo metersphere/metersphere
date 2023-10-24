@@ -7,11 +7,14 @@ import io.metersphere.sdk.dto.request.StatusItemAddRequest;
 import io.metersphere.sdk.dto.request.StatusItemUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.StatusItem;
-import io.metersphere.system.dto.StatusFlowSettingDTO;
+import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.service.BaseStatusFlowSettingService;
+import io.metersphere.system.service.OrganizationService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @author jianxing
@@ -30,7 +33,7 @@ public class ProjectStatusFlowSettingService extends BaseStatusFlowSettingServic
      * @return
      */
     @Override
-    public StatusFlowSettingDTO getStatusFlowSetting(String projectId, String scene) {
+    public List<StatusItemDTO> getStatusFlowSetting(String projectId, String scene) {
         ProjectService.checkResourceExist(projectId);
         return super.getStatusFlowSetting(projectId, scene);
     }
@@ -59,7 +62,10 @@ public class ProjectStatusFlowSettingService extends BaseStatusFlowSettingServic
         StatusItem statusItem = new StatusItem();
         BeanUtils.copyBean(statusItem, request);
         statusItem.setScopeType(TemplateScopeType.PROJECT.name());
-        return baseStatusItemService.add(statusItem);
+        statusItem = baseStatusItemService.add(statusItem);
+        // 处理所有状态都可以流转到该状态
+        super.handleAllTransferTo(request, statusItem.getId());
+        return statusItem;
     }
 
     /**
@@ -102,5 +108,12 @@ public class ProjectStatusFlowSettingService extends BaseStatusFlowSettingServic
         ProjectService.checkResourceExist(request.getScopeId());
         projectTemplateService.checkProjectTemplateEnable(request.getScopeId(), request.getScene());
         super.updateStatusFlow(request);
+    }
+
+    @Override
+    public List<StatusItem> sortStatusItem(String projectId, String scene, List<String> statusIds) {
+        OrganizationService.checkResourceExist(projectId);
+        projectTemplateService.checkProjectTemplateEnable(projectId, scene);
+        return super.sortStatusItem(projectId, scene, statusIds);
     }
 }
