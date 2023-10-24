@@ -94,7 +94,7 @@ public class NoticeTemplateService {
             }
             case NoticeConstants.TaskType.JENKINS_TASK -> {
                 MessageTemplateFieldDTO messageTemplateFieldOperator = new MessageTemplateFieldDTO();
-                messageTemplateFieldOperator.setId("JENKINS_NAME");
+                messageTemplateFieldOperator.setId("name");
                 messageTemplateFieldOperator.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
                 messageTemplateFieldOperator.setName(Translator.get("message.jenkins_name"));
                 messageTemplateFieldDTOList.add(messageTemplateFieldOperator);
