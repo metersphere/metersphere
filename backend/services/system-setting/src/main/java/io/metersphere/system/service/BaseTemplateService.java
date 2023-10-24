@@ -7,6 +7,9 @@ import io.metersphere.sdk.dto.TemplateDTO;
 import io.metersphere.sdk.dto.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.resolver.field.AbstractCustomFieldResolver;
+import io.metersphere.system.resolver.field.CustomFieldResolverFactory;
 import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
@@ -96,20 +99,30 @@ public class BaseTemplateService {
 
         // 查找字段名称
         List<String> fieldIds = templateCustomFields.stream().map(TemplateCustomField::getFieldId).toList();
-        Map<String, String> fieldNameMap = baseCustomFieldService.getByIds(fieldIds)
+        List<CustomField> customFields = baseCustomFieldService.getByIds(fieldIds);
+        Map<String, CustomField> fieldMap = customFields
                 .stream()
-                .collect(Collectors.toMap(CustomField::getId, i -> {
-                    if (i.getInternal()) {
-                        return baseCustomFieldService.translateInternalField(i.getName());
+                .collect(Collectors.toMap(CustomField::getId, customField -> {
+                    if (customField.getInternal()) {
+                        customField.setName(baseCustomFieldService.translateInternalField(customField.getName()));
                     }
-                    return i.getName();
+                    return customField;
                 }));
 
         // 封装字段信息
         List<TemplateCustomFieldDTO> fieldDTOS = templateCustomFields.stream().map(i -> {
+            CustomField customField = fieldMap.get(i.getFieldId());
             TemplateCustomFieldDTO templateCustomFieldDTO = new TemplateCustomFieldDTO();
             BeanUtils.copyBean(templateCustomFieldDTO, i);
-            templateCustomFieldDTO.setFieldName(fieldNameMap.get(i.getFieldId()));
+            templateCustomFieldDTO.setFieldName(customField.getName());
+            AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
+            Object defaultValue = null;
+            try {
+                defaultValue = customFieldResolver.parse2Value(i.getDefaultValue());
+            } catch (Exception e) {
+                LogUtils.error(e);
+            }
+            templateCustomFieldDTO.setDefaultValue(defaultValue);
             return templateCustomFieldDTO;
         }).toList();
 

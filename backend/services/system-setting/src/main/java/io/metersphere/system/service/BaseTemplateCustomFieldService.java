@@ -5,7 +5,10 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.TemplateCustomField;
 import io.metersphere.system.domain.TemplateCustomFieldExample;
+import io.metersphere.system.dto.CustomFieldDao;
 import io.metersphere.system.mapper.TemplateCustomFieldMapper;
+import io.metersphere.system.resolver.field.AbstractCustomFieldResolver;
+import io.metersphere.system.resolver.field.CustomFieldResolverFactory;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -49,6 +52,17 @@ public class BaseTemplateCustomFieldService {
         if (CollectionUtils.isEmpty(customFieldRequests)) {
             return;
         }
+
+        // 过滤下不存在的字段
+        List<String> ids = customFieldRequests.stream().map(TemplateCustomFieldRequest::getFieldId).toList();
+        Set<String> fieldIdSet = baseCustomFieldService.getByIds(ids)
+                .stream()
+                .map(CustomField::getId)
+                .collect(Collectors.toSet());
+        customFieldRequests = customFieldRequests.stream()
+                .filter(item -> fieldIdSet.contains(item.getFieldId()))
+                .toList();
+
         AtomicReference<Integer> pos = new AtomicReference<>(0);
         List<TemplateCustomField> templateCustomFields = customFieldRequests.stream().map(field -> {
             TemplateCustomField templateCustomField = new TemplateCustomField();
@@ -56,17 +70,22 @@ public class BaseTemplateCustomFieldService {
             BeanUtils.copyBean(templateCustomField, field);
             templateCustomField.setTemplateId(id);
             templateCustomField.setPos(pos.getAndSet(pos.get() + 1));
+            templateCustomField.setDefaultValue(parseDefaultValue(field));
             return templateCustomField;
         }).toList();
-
-        // 过滤下不存在的字段
-        List<String> ids = templateCustomFields.stream().map(TemplateCustomField::getFieldId).toList();
-        Set<String> fieldIdSet = baseCustomFieldService.getByIds(ids).stream().map(CustomField::getId).collect(Collectors.toSet());
-        templateCustomFields = templateCustomFields.stream().filter(item -> fieldIdSet.contains(item.getFieldId())).toList();
 
         if (templateCustomFields.size() > 0) {
             templateCustomFieldMapper.batchInsert(templateCustomFields);
         }
+    }
+
+    private String parseDefaultValue(TemplateCustomFieldRequest field) {
+        CustomField customField = baseCustomFieldService.getWithCheck(field.getFieldId());
+        AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
+        CustomFieldDao customFieldDao = BeanUtils.copyBean(new CustomFieldDao(), customField);
+        customFieldDao.setRequired(false);
+        customFieldResolver.validate(customFieldDao, field.getDefaultValue());
+        return customFieldResolver.parse2String(field.getDefaultValue());
     }
 
     public List<TemplateCustomField> getByTemplateId(String id) {

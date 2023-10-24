@@ -22,5 +22,5 @@ public class TemplateCustomFieldRequest {
     private String apiFieldId;
 
     @Schema(title = "默认值")
-    private String defaultValue;
+    private Object defaultValue;
 }

@@ -9,6 +9,7 @@ import io.metersphere.sdk.dto.TemplateDTO;
 import io.metersphere.sdk.dto.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.dto.request.TemplateUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.base.BaseCustomFieldTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.TemplateUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
@@ -37,7 +38,7 @@ import static io.metersphere.system.controller.result.SystemResultCode.ORGANIZAT
  * @author jianxing
  * @date : 2023-8-30
  */
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class OrganizationTemplateControllerTests extends BaseTest {
@@ -62,6 +63,8 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     private BaseOrganizationParameterService organizationParameterService;
     @Resource
     private OrganizationTemplateService organizationTemplateService;
+    @Resource
+    private BaseCustomFieldTestService baseCustomFieldTestService;
 
     private static Template addTemplate;
     private static Template anotherTemplateField;
@@ -320,7 +323,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
             Assertions.assertEquals(customFieldDTO.getApiFieldId(), templateCustomField.getApiFieldId());
             Assertions.assertEquals(customFieldDTO.getRequired(), templateCustomField.getRequired());
             Assertions.assertEquals(templateCustomField.getTemplateId(), template.getId());
-            Assertions.assertEquals(customFieldDTO.getFieldName(), "优先级");
+            Assertions.assertEquals(customFieldDTO.getFieldName(), "用例等级");
         }
 
         // @@校验权限
@@ -394,5 +397,17 @@ public class OrganizationTemplateControllerTests extends BaseTest {
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, IS_ORGANIZATION_TEMPLATE_ENABLE, DEFAULT_ORGANIZATION_ID, TemplateScene.FUNCTIONAL.name());
+    }
+
+    /**
+     * 测试自定义字段解析器
+     */
+    @Test
+    @Order(9)
+    public void testCustomFiledResolver() {
+        baseCustomFieldTestService.addOrgTestCustomFields();
+        baseCustomFieldTestService.testResolverEmptyValidate();
+        baseCustomFieldTestService.testResolverErrorValidate();
+        baseCustomFieldTestService.testResolverParse();
     }
 }
