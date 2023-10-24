@@ -2,12 +2,13 @@ package io.metersphere.project.service;
 
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
+import io.metersphere.plugin.sdk.spi.MsPlugin;
 import io.metersphere.project.domain.FakeErrorExample;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.dto.ModuleDTO;
-import io.metersphere.project.job.CleanUpReportJob;
 import io.metersphere.project.job.BugSyncJob;
+import io.metersphere.project.job.CleanUpReportJob;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
 import io.metersphere.project.mapper.FakeErrorMapper;
@@ -24,17 +25,18 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.mapper.ExtPluginMapper;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.sechedule.ScheduleService;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
+import io.metersphere.system.service.ServiceIntegrationService;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.pf4j.PluginWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,8 +59,6 @@ public class ProjectApplicationService {
 
     @Resource
     private ServiceIntegrationMapper serviceIntegrationMapper;
-    @Resource
-    private ExtPluginMapper extPluginMapper;
 
     @Resource
     private PluginMapper pluginMapper;
@@ -74,6 +74,9 @@ public class ProjectApplicationService {
 
     @Resource
     private FakeErrorMapper fakeErrorMapper;
+
+    @Resource
+    private ServiceIntegrationService serviceIntegrationService;
 
     /**
      * 更新配置信息
@@ -184,15 +187,28 @@ public class ProjectApplicationService {
      * @return
      */
     public List<OptionDTO> getPlatformOptions(String organizationId) {
-        ServiceIntegrationExample example = new ServiceIntegrationExample();
-        example.createCriteria().andOrganizationIdEqualTo(organizationId).andEnableEqualTo(true);
-        List<ServiceIntegration> serviceIntegrations = serviceIntegrationMapper.selectByExample(example);
+        Set<String> orgPluginIds = platformPluginService.getOrgEnabledPlatformPlugins(organizationId)
+                .stream()
+                .map(Plugin::getId)
+                .collect(Collectors.toSet());
+        // 查询服务集成中启用并且支持第三方模板的插件
+        List<ServiceIntegration> plusins = serviceIntegrationService.getServiceIntegrationByOrgId(organizationId)
+                .stream()
+                .filter(serviceIntegration -> {
+                    return serviceIntegration.getEnable()    // 服务集成开启
+                            && orgPluginIds.contains(serviceIntegration.getPluginId());  // 该服务集成对应的插件有权限
+                }).collect(Collectors.toList());
         List<OptionDTO> options = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(serviceIntegrations)) {
-            List<String> pluginIds = serviceIntegrations.stream().map(ServiceIntegration::getPluginId).collect(Collectors.toList());
-            options = extPluginMapper.selectPluginOptions(pluginIds);
-            return options;
-        }
+        plusins.forEach(serviceIntegration -> {
+            PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(serviceIntegration.getPluginId());
+            MsPlugin plugin = (MsPlugin) pluginWrapper.getPlugin();
+            if (plugin instanceof AbstractPlatformPlugin) {
+                OptionDTO optionDTO = new OptionDTO();
+                optionDTO.setName(plugin.getName());
+                optionDTO.setId(pluginWrapper.getPluginId());
+                options.add(optionDTO);
+            }
+        });
         return options;
     }
 
