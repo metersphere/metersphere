@@ -1,7 +1,7 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.dto.jmeter.processors.MSJSR223Processor;
-import io.metersphere.api.dto.jmeter.sampler.MSDebugSampler;
+import io.metersphere.api.dto.jmeter.post.processors.MsPostJSR223Processor;
+import io.metersphere.api.dto.jmeter.sampler.MsDebugSampler;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.dto.TestElementDTO;
 import io.metersphere.system.uid.IDGenerator;
@@ -20,12 +20,12 @@ public class PluginSubTypeTests {
     @Test
     @Order(0)
     public void pluginSubTypeTest() throws Exception {
-        MSDebugSampler debugSampler = new MSDebugSampler();
+        MsDebugSampler debugSampler = new MsDebugSampler();
         debugSampler.setName("测试DebugSampler");
         debugSampler.setUuid(IDGenerator.nextStr());
         LinkedList<TestElementDTO> hashTree = new LinkedList<>();
         hashTree.add(debugSampler);
-        MSJSR223Processor msjsr223Processor = new MSJSR223Processor();
+        MsPostJSR223Processor msjsr223Processor = new MsPostJSR223Processor();
         msjsr223Processor.setName("测试jsr223");
         msjsr223Processor.setJsrEnable(true);
         msjsr223Processor.setChildren(hashTree);
