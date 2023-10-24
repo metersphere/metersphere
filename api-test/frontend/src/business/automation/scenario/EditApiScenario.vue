@@ -272,7 +272,7 @@
               <!-- 场景步骤内容 -->
               <div ref="stepInfo" style="height: calc(100vh - 170px)">
                 <vue-virtual-tree
-                  node-key="id"
+                  node-key="data.id"
                   height="calc(100vh - 170px)"
                   :minItemSize="43"
                   :sizeDependencies="['expanded']"

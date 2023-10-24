@@ -9,11 +9,9 @@
     "report": "NODE_ENV=analyze vue-cli-service build"
   },
   "dependencies": {
-    "html-webpack-inline-source-plugin": "1.0.0-beta.2",
-    "inline-source-webpack-plugin": "^3.0.1",
     "@ckeditor/ckeditor5-build-classic": "^18.0.0",
     "@ckeditor/ckeditor5-vue": "^1.0.1",
-    "@fit2cloud-ui/vue-virtual-tree": "^1.0.0",
+    "@fit2cloud-ui/vue-virtual-tree": "^1.0.1",
     "@form-create/element-ui": "^2.5.8",
     "@fortawesome/fontawesome-svg-core": "^1.2.26",
     "@fortawesome/free-brands-svg-icons": "^5.13.0",
@@ -29,7 +27,9 @@
     "element-resize-detector": "^1.2.4",
     "element-ui": ">2.15.9 || 2.15.8",
     "fit2cloud-ui": "^1.8.0",
+    "html-webpack-inline-source-plugin": "1.0.0-beta.2",
     "html2canvas": "^1.0.0-rc.7",
+    "inline-source-webpack-plugin": "^3.0.1",
     "js-base64": "^3.4.4",
     "js-file-download": "^0.4.12",
     "jsencrypt": "^3.1.0",
