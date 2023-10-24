@@ -5,7 +5,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.request.ProjectSwitchRequest;
-import io.metersphere.sdk.constants.ModuleType;
+import io.metersphere.sdk.constants.ApplicationScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.dto.UserDTO;
@@ -327,15 +327,15 @@ public class ProjectControllerTests extends BaseTest {
     @Test
     @Order(9)
     public void testGetPoolOptions() throws Exception {
-        MvcResult mvcResult = this.responseGet(getPoolOptions + ModuleType.API_TEST + "/" + DEFAULT_PROJECT_ID);
-        mvcResult = this.responseGet(getPoolOptions + ModuleType.UI_TEST + "/" + DEFAULT_PROJECT_ID);
-        mvcResult = this.responseGet(getPoolOptions + ModuleType.LOAD_TEST + "/" + DEFAULT_PROJECT_ID);
+        MvcResult mvcResult = this.responseGet(getPoolOptions + ApplicationScope.API_TEST + "/" + DEFAULT_PROJECT_ID);
+        mvcResult = this.responseGet(getPoolOptions + ApplicationScope.UI_TEST + "/" + DEFAULT_PROJECT_ID);
+        mvcResult = this.responseGet(getPoolOptions + ApplicationScope.LOAD_TEST + "/" + DEFAULT_PROJECT_ID);
         mvcResult = this.responseGet(getPoolOptions + "test" + "/" + DEFAULT_PROJECT_ID);
-        mvcResult = this.responseGet(getPoolOptions + ModuleType.API_TEST + "/" + "projectId");
-        mvcResult = this.responseGet(getPoolOptions + ModuleType.UI_TEST + "/" + "projectId");
-        mvcResult = this.responseGet(getPoolOptions + ModuleType.LOAD_TEST + "/" + "projectId");
+        mvcResult = this.responseGet(getPoolOptions + ApplicationScope.API_TEST + "/" + "projectId");
+        mvcResult = this.responseGet(getPoolOptions + ApplicationScope.UI_TEST + "/" + "projectId");
+        mvcResult = this.responseGet(getPoolOptions + ApplicationScope.LOAD_TEST + "/" + "projectId");
         //项目不存在
-        this.responseGet(getPoolOptions + ModuleType.LOAD_TEST + "/" + "projectId20", status().is5xxServerError());
+        this.responseGet(getPoolOptions + ApplicationScope.LOAD_TEST + "/" + "projectId20", status().is5xxServerError());
         //权限校验
         requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getPoolOptions + "api_test" + "/" + DEFAULT_PROJECT_ID);
 

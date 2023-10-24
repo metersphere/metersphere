@@ -9,7 +9,7 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.project.request.ProjectSwitchRequest;
 import io.metersphere.sdk.constants.InternalUserRole;
-import io.metersphere.sdk.constants.ModuleType;
+import io.metersphere.sdk.constants.ApplicationScope;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
@@ -166,15 +166,15 @@ public class ProjectService {
         criteria.andIdIn(poolIds).andEnableEqualTo(true).andDeletedEqualTo(false);
         List<TestResourcePool> testResourcePools = new ArrayList<>();
         testResourcePools =  switch (type) {
-            case ModuleType.API_TEST-> {
+            case ApplicationScope.API_TEST-> {
                 criteria.andApiTestEqualTo(true);
                 yield testResourcePoolMapper.selectByExample(example);
             }
-            case ModuleType.UI_TEST -> {
+            case ApplicationScope.UI_TEST -> {
                 criteria.andUiTestEqualTo(true);
                 yield testResourcePoolMapper.selectByExample(example);
             }
-            case ModuleType.LOAD_TEST -> {
+            case ApplicationScope.LOAD_TEST -> {
                 criteria.andLoadTestEqualTo(true);
                 yield testResourcePoolMapper.selectByExample(example);
             }

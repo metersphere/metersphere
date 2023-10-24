@@ -5,7 +5,7 @@ import io.metersphere.project.dto.ModuleDTO;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectService;
-import io.metersphere.sdk.constants.ModuleType;
+import io.metersphere.sdk.constants.ApplicationScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.dto.OptionDTO;
@@ -85,7 +85,7 @@ public class ProjectApplicationController {
     @Operation(summary = "UI测试-获取资源池列表")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_READ)
     public List<OptionDTO> getUiPoolOptions(@PathVariable String projectId) {
-        return projectService.getPoolOptions(projectId, ModuleType.UI_TEST);
+        return projectService.getPoolOptions(projectId, ApplicationScope.UI_TEST);
     }
 
 
@@ -152,7 +152,7 @@ public class ProjectApplicationController {
     @Operation(summary = "接口测试-获取资源池列表")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_READ)
     public List<OptionDTO> getApiPoolOptions(@PathVariable String projectId) {
-        return projectService.getPoolOptions(projectId, ModuleType.API_TEST);
+        return projectService.getPoolOptions(projectId, ApplicationScope.API_TEST);
     }
 
 
