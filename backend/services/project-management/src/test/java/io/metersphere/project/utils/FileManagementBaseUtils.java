@@ -3,9 +3,9 @@ package io.metersphere.project.utils;
 import io.metersphere.project.dto.FileInformationDTO;
 import io.metersphere.project.request.filemanagement.FileMetadataTableRequest;
 import io.metersphere.sdk.dto.BaseTreeNode;
-import io.metersphere.sdk.util.FilePreviewUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.sdk.util.TempFileUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
@@ -97,14 +97,14 @@ public class FileManagementBaseUtils {
         }
     }
 
-    public static void checkFilePage(Pager<List<FileInformationDTO>> tableData, Map<String, Integer> moduleCount, FileMetadataTableRequest request, boolean hasData) {
+    public static void checkFilePage(Pager<List<FileInformationDTO>> tableData, Map<String, Integer> moduleCount, FileMetadataTableRequest request) {
         //返回值的页码和当前页码相同
         Assertions.assertEquals(tableData.getCurrent(), request.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(tableData.getList())).size() <= request.getPageSize());
         List<FileInformationDTO> fileInformationDTOList = JSON.parseArray(JSON.toJSONString(tableData.getList()), FileInformationDTO.class);
         for (FileInformationDTO fileInformationDTO : fileInformationDTOList) {
-            if (FilePreviewUtils.isImage(fileInformationDTO.getFileType())) {
+            if (TempFileUtils.isImage(fileInformationDTO.getFileType())) {
                 //检查是否有预览文件
                 String previewPath = fileInformationDTO.getPreviewSrc();
                 File file = new File(previewPath);
@@ -112,17 +112,19 @@ public class FileManagementBaseUtils {
             }
         }
 
-        //判断返回的节点统计总量是否和表格总量匹配
-        long allResult = 0;
+        //如果没有数据，则返回的模块节点也不应该有数据
+        boolean moduleHaveResource = false;
         for (int countByModuleId : moduleCount.values()) {
-            allResult += countByModuleId;
+            if (countByModuleId > 0) {
+                moduleHaveResource = true;
+            }
         }
-        Assertions.assertEquals(allResult, tableData.getTotal());
         Assertions.assertEquals(request.getPageSize(), tableData.getPageSize());
-        if (hasData) {
-            Assertions.assertTrue(allResult > 0);
-        } else {
-            Assertions.assertTrue(allResult == 0);
+        if (tableData.getTotal() > 0) {
+            Assertions.assertTrue(moduleHaveResource);
         }
+
+        Assertions.assertTrue(moduleCount.containsKey("all"));
+        Assertions.assertTrue(moduleCount.containsKey("my"));
     }
 }

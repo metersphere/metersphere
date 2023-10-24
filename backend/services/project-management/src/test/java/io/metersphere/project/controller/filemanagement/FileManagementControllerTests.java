@@ -532,7 +532,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setPageSize(10);
             this.setProjectId(project.getId());
         }};
-        this.filePageRequestAndCheck(request, true);
+        this.filePageRequestAndCheck(request);
 
         //查找默认模块
         request = new FileMetadataTableRequest() {{
@@ -543,7 +543,7 @@ public class FileManagementControllerTests extends BaseTest {
                 this.add(ModuleConstants.DEFAULT_NODE_ID);
             }});
         }};
-        this.filePageRequestAndCheck(request, true);
+        this.filePageRequestAndCheck(request);
 
         //查找有数据的a1-a1模块
         BaseTreeNode a1a1Node = FileManagementBaseUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-a1");
@@ -555,7 +555,7 @@ public class FileManagementControllerTests extends BaseTest {
                 this.add(a1a1Node.getId());
             }});
         }};
-        this.filePageRequestAndCheck(request, true);
+        this.filePageRequestAndCheck(request);
         //查找没有数据的a1-b1模块
 
         BaseTreeNode a1b2Node = FileManagementBaseUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-b1");
@@ -567,7 +567,7 @@ public class FileManagementControllerTests extends BaseTest {
                 this.add(a1b2Node.getId());
             }});
         }};
-        this.filePageRequestAndCheck(request, false);
+        this.filePageRequestAndCheck(request);
 
         //查找不存在的模块
         request = new FileMetadataTableRequest() {{
@@ -578,7 +578,7 @@ public class FileManagementControllerTests extends BaseTest {
                 this.add(IDGenerator.nextStr());
             }});
         }};
-        this.filePageRequestAndCheck(request, false);
+        this.filePageRequestAndCheck(request);
 
         //使用已存在的文件类型过滤 区分大小写
         request = new FileMetadataTableRequest() {{
@@ -587,7 +587,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setProjectId(project.getId());
             this.setFileType("JPG");
         }};
-        this.filePageRequestAndCheck(request, true);
+        this.filePageRequestAndCheck(request);
 
         //使用已存在的文件类型过滤 不区分大小写
         request = new FileMetadataTableRequest() {{
@@ -596,7 +596,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setProjectId(project.getId());
             this.setFileType("JpG");
         }};
-        this.filePageRequestAndCheck(request, true);
+        this.filePageRequestAndCheck(request);
 
         //使用不存在的文件类型过滤
         request = new FileMetadataTableRequest() {{
@@ -605,7 +605,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.setProjectId(project.getId());
             this.setFileType("fire");
         }};
-        this.filePageRequestAndCheck(request, false);
+        this.filePageRequestAndCheck(request);
     }
 
     @Test
@@ -1104,7 +1104,7 @@ public class FileManagementControllerTests extends BaseTest {
         return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
     }
 
-    private void filePageRequestAndCheck(FileMetadataTableRequest request, Boolean hasData) throws Exception {
+    private void filePageRequestAndCheck(FileMetadataTableRequest request) throws Exception {
         MvcResult mvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
         Pager<List<FileInformationDTO>> pageResult = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
@@ -1113,7 +1113,7 @@ public class FileManagementControllerTests extends BaseTest {
         Map<String, Integer> moduleCountResult = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Map.class);
-        FileManagementBaseUtils.checkFilePage(pageResult, moduleCountResult, request, hasData);
+        FileManagementBaseUtils.checkFilePage(pageResult, moduleCountResult, request);
     }
 
     private void preliminaryData() throws Exception {

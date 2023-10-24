@@ -32,6 +32,13 @@
         GROUP BY f.module_id
     </select>
 
+    <select id="countMyFile" resultType="java.lang.Long">
+        SELECT count(f.id)
+        FROM file_metadata f
+        INNER JOIN user u ON f.update_user = u.id
+        <include refid="file_page_request"/>
+        AND f.create_user = #{operator}
+    </select>
     <sql id="file_page_request">
         <where>
             f.latest = true
