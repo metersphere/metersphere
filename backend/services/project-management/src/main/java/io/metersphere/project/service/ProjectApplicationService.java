@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class ProjectApplicationService {
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;

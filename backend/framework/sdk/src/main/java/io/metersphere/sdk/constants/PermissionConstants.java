@@ -207,4 +207,10 @@ public class PermissionConstants {
     public static final String PROJECT_TEMPLATE_UPDATE = "PROJECT_TEMPLATE:READ+UPDATE";
     public static final String PROJECT_TEMPLATE_DELETE = "PROJECT_TEMPLATE:READ+DELETE";
     /*------ end: PROJECT_TEMPLATE ------*/
+
+
+
+    /*------ start: FUNCTIONAL_CASE ------*/
+    public static final String FUNCTIONAL_CASE_READ_ADD = "FUNCTIONAL_CASE:READ+ADD";
+    /*------ end: FUNCTIONAL_CASE ------*/
 }

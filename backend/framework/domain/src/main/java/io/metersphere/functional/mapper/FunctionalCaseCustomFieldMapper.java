@@ -16,21 +16,15 @@ public interface FunctionalCaseCustomFieldMapper {
 
     int insertSelective(FunctionalCaseCustomField record);
 
-    List<FunctionalCaseCustomField> selectByExampleWithBLOBs(FunctionalCaseCustomFieldExample example);
-
     List<FunctionalCaseCustomField> selectByExample(FunctionalCaseCustomFieldExample example);
 
     FunctionalCaseCustomField selectByPrimaryKey(@Param("caseId") String caseId, @Param("fieldId") String fieldId);
 
     int updateByExampleSelective(@Param("record") FunctionalCaseCustomField record, @Param("example") FunctionalCaseCustomFieldExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") FunctionalCaseCustomField record, @Param("example") FunctionalCaseCustomFieldExample example);
-
     int updateByExample(@Param("record") FunctionalCaseCustomField record, @Param("example") FunctionalCaseCustomFieldExample example);
 
     int updateByPrimaryKeySelective(FunctionalCaseCustomField record);
-
-    int updateByPrimaryKeyWithBLOBs(FunctionalCaseCustomField record);
 
     int updateByPrimaryKey(FunctionalCaseCustomField record);
 

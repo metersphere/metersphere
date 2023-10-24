@@ -25,16 +25,12 @@ public class FunctionalCaseCustomField implements Serializable {
     @Schema(description =  "字段值")
     private String value;
 
-    @Schema(description =  "富文本类型字段值")
-    private String textValue;
-
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         caseId("case_id", "caseId", "VARCHAR", false),
         fieldId("field_id", "fieldId", "VARCHAR", false),
-        value("value", "value", "VARCHAR", true),
-        textValue("text_value", "textValue", "LONGVARCHAR", false);
+        value("value", "value", "VARCHAR", true);
 
         private static final String BEGINNING_DELIMITER = "`";
 

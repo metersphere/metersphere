@@ -6,9 +6,6 @@
     <id column="field_id" jdbcType="VARCHAR" property="fieldId" />
     <result column="value" jdbcType="VARCHAR" property="value" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.functional.domain.FunctionalCaseCustomField">
-    <result column="text_value" jdbcType="LONGVARCHAR" property="textValue" />
-  </resultMap>
   <sql id="Example_Where_Clause">
     <where>
       <foreach collection="oredCriteria" item="criteria" separator="or">
@@ -70,25 +67,6 @@
   <sql id="Base_Column_List">
     case_id, field_id, `value`
   </sql>
-  <sql id="Blob_Column_List">
-    text_value
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.functional.domain.FunctionalCaseCustomFieldExample" resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from functional_case_custom_field
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseCustomFieldExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -103,11 +81,9 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="map" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from functional_case_custom_field
     where case_id = #{caseId,jdbcType=VARCHAR}
       and field_id = #{fieldId,jdbcType=VARCHAR}
@@ -124,10 +100,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseCustomField">
-    insert into functional_case_custom_field (case_id, field_id, `value`, 
-      text_value)
-    values (#{caseId,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}, 
-      #{textValue,jdbcType=LONGVARCHAR})
+    insert into functional_case_custom_field (case_id, field_id, `value`
+      )
+    values (#{caseId,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseCustomField">
     insert into functional_case_custom_field
@@ -141,9 +117,6 @@
       <if test="value != null">
         `value`,
       </if>
-      <if test="textValue != null">
-        text_value,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="caseId != null">
@@ -154,9 +127,6 @@
       </if>
       <if test="value != null">
         #{value,jdbcType=VARCHAR},
-      </if>
-      <if test="textValue != null">
-        #{textValue,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -178,20 +148,7 @@
       <if test="record.value != null">
         `value` = #{record.value,jdbcType=VARCHAR},
       </if>
-      <if test="record.textValue != null">
-        text_value = #{record.textValue,jdbcType=LONGVARCHAR},
-      </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update functional_case_custom_field
-    set case_id = #{record.caseId,jdbcType=VARCHAR},
-      field_id = #{record.fieldId,jdbcType=VARCHAR},
-      `value` = #{record.value,jdbcType=VARCHAR},
-      text_value = #{record.textValue,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -211,17 +168,7 @@
       <if test="value != null">
         `value` = #{value,jdbcType=VARCHAR},
       </if>
-      <if test="textValue != null">
-        text_value = #{textValue,jdbcType=LONGVARCHAR},
-      </if>
     </set>
-    where case_id = #{caseId,jdbcType=VARCHAR}
-      and field_id = #{fieldId,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.functional.domain.FunctionalCaseCustomField">
-    update functional_case_custom_field
-    set `value` = #{value,jdbcType=VARCHAR},
-      text_value = #{textValue,jdbcType=LONGVARCHAR}
     where case_id = #{caseId,jdbcType=VARCHAR}
       and field_id = #{fieldId,jdbcType=VARCHAR}
   </update>
@@ -233,11 +180,11 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into functional_case_custom_field
-    (case_id, field_id, `value`, text_value)
+    (case_id, field_id, `value`)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.caseId,jdbcType=VARCHAR}, #{item.fieldId,jdbcType=VARCHAR}, #{item.value,jdbcType=VARCHAR}, 
-        #{item.textValue,jdbcType=LONGVARCHAR})
+      (#{item.caseId,jdbcType=VARCHAR}, #{item.fieldId,jdbcType=VARCHAR}, #{item.value,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -258,9 +205,6 @@
         </if>
         <if test="'value'.toString() == column.value">
           #{item.value,jdbcType=VARCHAR}
-        </if>
-        <if test="'text_value'.toString() == column.value">
-          #{item.textValue,jdbcType=LONGVARCHAR}
         </if>
       </foreach>
       )

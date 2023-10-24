@@ -42,7 +42,7 @@ public class FunctionalCase implements Serializable {
     @Size(min = 1, max = 255, message = "{functional_case.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description =  "评审状态：未开始/进行中/已完成/已结束", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "评审状态：未评审/评审中/通过/不通过/重新提审", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.review_status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{functional_case.review_status.length_range}", groups = {Created.class, Updated.class})
     private String reviewStatus;
