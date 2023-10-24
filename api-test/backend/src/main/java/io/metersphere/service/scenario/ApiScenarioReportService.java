@@ -861,9 +861,9 @@ public class ApiScenarioReportService {
 
     private Map<String, String> extractScenarioEnv(String envType, String envJson, String envGroupId) {
         Map<String, String> scenarioEnv = new LinkedHashMap<>();
-        if (envType.equals(EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
+        if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
             scenarioEnv = JSON.parseObject(envJson, Map.class);
-        } else if (envType.equals(EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
+        } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
             scenarioEnv = environmentGroupProjectService.getEnvMap(envGroupId);
         }
         return scenarioEnv;
