@@ -20,14 +20,14 @@ public class BaseTreeNode {
     @Schema(description = "节点类型")
     private String type;
 
-    @Schema(description = "是否是叶子节点")
-    private boolean leafNode = false;
-
     @Schema(description = "父节点ID")
     private String parentId;
 
     @Schema(description = "子节点")
     private List<BaseTreeNode> children = new ArrayList<>();
+
+    @Schema(description = "节点资源数量（多数情况下不会随着节点信息返回，视接口而定）")
+    private long count = 0;
 
     public BaseTreeNode(String id, String name, String type) {
         this.id = id;
@@ -43,7 +43,6 @@ public class BaseTreeNode {
     }
 
     public void addChild(BaseTreeNode node) {
-        this.leafNode = false;
         children.add(node);
     }
 }

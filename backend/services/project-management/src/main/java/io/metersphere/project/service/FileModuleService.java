@@ -2,6 +2,7 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.FileModule;
 import io.metersphere.project.domain.FileModuleExample;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtFileModuleMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.request.filemanagement.FileModuleCreateRequest;
@@ -41,32 +42,14 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
     private FileManagementService fileManagementService;
 
     public List<BaseTreeNode> getTree(String projectId) {
-        BaseTreeNode defaultNode = this.getDefaultModule();
-        List<BaseTreeNode> baseTreeNodeList = new ArrayList<>();
-        baseTreeNodeList.add(defaultNode);
-        List<FileModule> fileModuleList = extFileModuleMapper.selectBaseByProjectId(projectId);
-        int lastSize = 0;
-        Map<String, BaseTreeNode> baseTreeNodeMap = new HashMap<>();
-        while (CollectionUtils.isNotEmpty(fileModuleList) && fileModuleList.size() != lastSize) {
-            List<FileModule> notMatchedList = new ArrayList<>();
-            for (FileModule fileModule : fileModuleList) {
-                if (StringUtils.equals(fileModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-                    BaseTreeNode node = new BaseTreeNode(fileModule.getId(), fileModule.getName(), ModuleConstants.NODE_TYPE_DEFAULT, fileModule.getParentId());
-                    baseTreeNodeList.add(node);
-                    baseTreeNodeMap.put(fileModule.getId(), node);
-                } else {
-                    if (baseTreeNodeMap.containsKey(fileModule.getParentId())) {
-                        BaseTreeNode node = new BaseTreeNode(fileModule.getId(), fileModule.getName(), ModuleConstants.NODE_TYPE_DEFAULT, fileModule.getParentId());
-                        baseTreeNodeMap.get(fileModule.getParentId()).addChild(node);
-                        baseTreeNodeMap.put(fileModule.getId(), node);
-                    } else {
-                        notMatchedList.add(fileModule);
-                    }
-                }
-            }
-            fileModuleList = notMatchedList;
-        }
-        return baseTreeNodeList;
+        List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectBaseByProjectId(projectId);
+        return this.traverseToBuildTree(fileModuleList, true);
+    }
+
+    //节点内容只有Id和parentId
+    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
+        List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectIdAndParentIdByProjectId(projectId);
+        return this.traverseToBuildTree(fileModuleList, moduleCountDTOList, true);
     }
 
     public String add(FileModuleCreateRequest request, String operator) {
@@ -182,6 +165,24 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         fileModuleLogService.saveMoveLog(request, currentUser);
     }
 
+    public Map<String, Long> getModuleCountMap(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
+        //构建模块树，然后统计每个节点下的所有数量（包含子节点）
+        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, moduleCountDTOList);
+        Map<String, Long> returnMap = new HashMap<>();
+
+        List<BaseTreeNode> whileList = new ArrayList<>(treeNodeList);
+        //通过广度遍历的方式构建返回值
+        while (CollectionUtils.isNotEmpty(whileList)) {
+            List<BaseTreeNode> childList = new ArrayList<>();
+            for (BaseTreeNode treeNode : whileList) {
+                returnMap.put(treeNode.getId(), treeNode.getCount());
+                childList.addAll(treeNode.getChildren());
+            }
+            whileList = childList;
+        }
+        return returnMap;
+    }
+
     @Override
     public BaseModule getNode(String id) {
         FileModule module = fileModuleMapper.selectByPrimaryKey(id);
@@ -228,5 +229,4 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
     public void cleanReportResources(String projectId) {
         // nothing to do
     }
-
 }
