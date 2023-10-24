@@ -3,7 +3,7 @@
     <div class="innerWrapper">
       <div class="content">
         <div class="logo-img h-[48px] w-[48px]">
-          <svg-icon width="36px" height="36px" :name="svgList[props.cardItem.value]"></svg-icon>
+          <svg-icon width="36px" height="36px" :name="props.cardItem.value"></svg-icon>
         </div>
         <div class="template-operation">
           <div class="flex items-center">
@@ -16,12 +16,14 @@
               <a-divider direction="vertical" />
             </span>
             <span class="operation hover:text-[rgb(var(--primary-5))]">
-              <span>{{ t('system.orgTemplate.TemplateManagement') }}</span> <a-divider direction="vertical" />
+              <span @click="templateManagement">{{ t('system.orgTemplate.TemplateManagement') }}</span>
+              <a-divider v-if="props.cardItem.key == 'BUG'" direction="vertical" />
             </span>
-            <span v-if="props.cardItem.value === 'BUG'" class="operation hover:text-[rgb(var(--primary-5))]">
-              <span>{{ t('system.orgTemplate.workflowSetup') }}</span> <a-divider direction="vertical" />
+            <span v-if="props.cardItem.key === 'BUG'" class="operation hover:text-[rgb(var(--primary-5))]">
+              <span>{{ t('system.orgTemplate.workflowSetup') }}</span>
+              <a-divider v-if="!props.cardItem.enable" direction="vertical" />
             </span>
-            <span class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]">
+            <span v-if="!props.cardItem.enable" class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]">
               <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect"
             /></span>
           </div>
@@ -58,14 +60,6 @@
     },
   ]);
 
-  const svgList = ref<Record<string, any>>({
-    FUNCTIONAL: 'caseTemplate',
-    API: 'api_ui_Template',
-    UI: 'api_ui_Template',
-    TEST_PLAN: 'testPlanTemplate',
-    BUG: 'defectTemplate',
-  });
-
   const handleMoreActionSelect = (item: ActionsItem) => {};
 
   // 字段设置
@@ -73,7 +67,16 @@
     router.push({
       name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
       query: {
-        type: props.cardItem.value,
+        type: props.cardItem.key,
+      },
+    });
+  };
+
+  const templateManagement = () => {
+    router.push({
+      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+      query: {
+        type: props.cardItem.key,
       },
     });
   };

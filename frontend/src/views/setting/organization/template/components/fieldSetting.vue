@@ -1,9 +1,11 @@
 <template>
   <MsCard :has-breadcrumb="true" simple>
-    <a-alert class="mb-6" type="warning">{{ t('system.orgTemplate.enableDescription') }}</a-alert>
+    <a-alert class="mb-6" :type="isEnable ? 'warning' : 'info'">{{
+      isEnable ? t('system.orgTemplate.enableDescription') : t('system.orgTemplate.fieldLimit')
+    }}</a-alert>
     <div class="mb-4 flex items-center justify-between">
       <span v-if="isEnable" class="font-medium">{{ t('system.orgTemplate.fieldList') }}</span>
-      <a-button v-else type="primary" :disabled="false" @click="fieldHandler('add')">
+      <a-button v-else type="primary" :disabled="totalData.length > 20" @click="fieldHandler('add')">
         {{ t('system.orgTemplate.addField') }}
       </a-button>
       <a-input-search
@@ -17,13 +19,22 @@
     </div>
     <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">
       <template #name="{ record }">
-        <MsIcon v-if="getIconType(record.type).type !== 'system'" :type="getIconType(record.type).iconName" size="16" />
+        <MsIcon v-if="!record.internal" :type="getIconType(record.type)?.iconName || ''" size="16" />
         <span class="ml-2">{{ record.name }}</span>
         <span v-if="record.internal" class="system-flag">{{ t('system.orgTemplate.isSystem') }}</span>
       </template>
       <template #operation="{ record }">
         <div class="flex flex-row flex-nowrap">
-          <MsButton class="!mr-0" @click="fieldHandler('edit', record)">{{ t('system.orgTemplate.edit') }}</MsButton>
+          <MsPopConfirm
+            type="error"
+            :title="t('system.orgTemplate.updateTip', { name: characterLimit(record.name) })"
+            :sub-title-tip="t('system.orgTemplate.updateDescription')"
+            :ok-text="t('system.orgTemplate.confirm')"
+            @confirm="handleOk(record)"
+          >
+            <MsButton class="!mr-0">{{ t('system.orgTemplate.edit') }}</MsButton></MsPopConfirm
+          >
+
           <a-divider v-if="!record.internal" direction="vertical" />
           <MsTableMoreAction
             v-if="!record.internal"
@@ -33,7 +44,7 @@
         </div>
       </template>
       <template #fieldType="{ record }">
-        <span>{{ getIconType(record.type)['type'] }}</span>
+        <span>{{ getIconType(record.type)?.label }}</span>
       </template>
     </MsBaseTable>
     <EditFieldDrawer ref="fieldDrawerRef" v-model:visible="showDrawer" @success="successHandler" />
@@ -41,12 +52,16 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 系统管理-组织-模版-字段列表
+   */
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -58,11 +73,15 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
+  import useTemplateStore from '@/store/modules/setting/template';
   import { characterLimit } from '@/utils';
 
-  import type { AddOrUpdateField } from '@/models/setting/template';
+  import type { AddOrUpdateField, SeneType } from '@/models/setting/template';
   import { TableKeyEnum } from '@/enums/tableEnum';
-  import { TemplateIconEnum } from '@/enums/templateEnum';
+
+  import { cardList, getIconType } from './fieldSetting';
+
+  const templateStore = useTemplateStore();
 
   const { t } = useI18n();
   const tableStore = useTableStore();
@@ -109,11 +128,10 @@
       showDrag: false,
     },
   ];
-
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE, fieldColumns, 'drawer');
+  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_FIELD_SETTING, fieldColumns, 'drawer');
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setProps } = useTable(getFieldList, {
-    tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE,
+    tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_FIELD_SETTING,
     scroll: { x: '1000px' },
     selectable: false,
     noDisable: true,
@@ -124,70 +142,37 @@
   });
 
   const keyword = ref('');
+  const totalData = ref([]);
 
-  // 查询字段
+  // 查询模板字段
   const searchFiled = async () => {
     try {
-      const totalData = await getFieldList({ organizationId: currentOrd, scene: route.query.type });
-      const filterData = totalData.filter((item: AddOrUpdateField) => item.name.includes(keyword.value));
+      totalData.value = await getFieldList({ organizationId: currentOrd, scene: route.query.type });
+      const filterData = totalData.value.filter((item: AddOrUpdateField) => item.name.includes(keyword.value));
       setProps({ data: filterData });
     } catch (error) {
       console.log(error);
     }
   };
-
+  const scene = ref<SeneType>('');
   const fetchData = async () => {
-    const scene = route.query.type;
+    scene.value = route.query.type;
     setLoadListParams({ organizationId: currentOrd, scene });
     await loadList();
   };
 
   const tableRef = ref();
-  const isEnable = ref<boolean>(false); // 开始默认未启用
+  const isEnable = ref<boolean>(templateStore.templateStatus[scene.value as string]); // 开始默认未启用
 
   // 切换模版是否启用展示操作列
   const isEnableOperation = () => {
     if (isEnable.value) {
       const noOperationColumn = fieldColumns.slice(0, -1);
-      tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE, noOperationColumn, 'drawer');
+      tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE_FIELD_SETTING, noOperationColumn, 'drawer');
       tableRef.value.initColumn();
     } else {
-      tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE, fieldColumns, 'drawer');
+      tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE_FIELD_SETTING, fieldColumns, 'drawer');
       tableRef.value.initColumn();
-    }
-  };
-
-  // 获取当前字段类型
-  const getIconType = (iconType: string) => {
-    switch (iconType) {
-      case 'INPUT':
-        return { iconName: TemplateIconEnum.INPUT, type: t('system.orgTemplate.input') };
-      case 'TEXTAREA':
-        return { iconName: TemplateIconEnum.TEXTAREA, type: t('system.orgTemplate.textarea') };
-      case 'SELECT':
-        return { iconName: TemplateIconEnum.SELECT, type: t('system.orgTemplate.select') };
-      case 'MULTIPLE_SELECT':
-        return { iconName: TemplateIconEnum.MULTIPLE_SELECT, type: t('system.orgTemplate.multipleSelect') };
-      case 'RADIO':
-        return { iconName: TemplateIconEnum.RADIO, type: t('system.orgTemplate.radio') };
-      case 'CHECKBOX':
-        return { iconName: TemplateIconEnum.CHECKBOX, type: t('system.orgTemplate.checkbox') };
-      case 'MEMBER':
-        return { iconName: TemplateIconEnum.MEMBER, type: t('system.orgTemplate.member') };
-      case 'MULTIPLE_MEMBER':
-        return { iconName: TemplateIconEnum.MULTIPLE_MEMBER, type: t('system.orgTemplate.multipleMember') };
-      case 'DATE':
-        return { iconName: TemplateIconEnum.DATE, type: t('system.orgTemplate.date') };
-      case 'DATETIME':
-        return { iconName: TemplateIconEnum.DATE, type: t('system.orgTemplate.dateTime') };
-      case 'INT':
-        return { iconName: TemplateIconEnum.NUMBER, type: t('system.orgTemplate.number') };
-      case 'FLOAT':
-        return { iconName: TemplateIconEnum.NUMBER, type: t('system.orgTemplate.number') };
-      case 'MULTIPLE_INPUT':
-        return { iconName: TemplateIconEnum.MULTIPLE_INPUT, type: t('system.orgTemplate.multipleInput') };
-      default:
-        return { type: 'system', iconName: '' };
     }
   };
 
@@ -235,28 +220,21 @@
   const fieldDrawerRef = ref();
   const fieldHandler = (type: string, record?: AddOrUpdateField) => {
     showDrawer.value = true;
-    if (type === 'edit' && record) fieldDrawerRef.value.isEditHandler(record);
+    if (type === 'edit' && record) fieldDrawerRef.value.editHandler(record);
+  };
+
+  const handleOk = (record: AddOrUpdateField) => {
+    fieldHandler('edit', record);
   };
 
   const successHandler = () => {
     loadList();
   };
 
-  const templateList = ref([
-    {
-      value: 'FUNCTIONAL',
-      name: 'system.orgTemplate.caseTemplates',
-    },
-    { value: 'API', name: 'system.orgTemplate.APITemplates' },
-    { value: 'UI', name: 'system.orgTemplate.UITemplates' },
-    { value: 'TEST_PLAN', name: 'system.orgTemplate.testPlanTemplates' },
-    { value: 'BUG', name: 'system.orgTemplate.defectTemplates' },
-  ]);
-
   // 更新面包屑根据不同的模版
   const updateBreadcrumbList = () => {
     const { breadcrumbList } = appStore;
-    const breadTitle = templateList.value.find((item) => item.value === route.query.type);
+    const breadTitle = cardList.find((item) => item.key === route.query.type);
     if (breadTitle) {
       breadcrumbList[0].locale = breadTitle.name;
       appStore.setBreadcrumbList(breadcrumbList);
