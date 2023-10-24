@@ -10,6 +10,9 @@ import io.metersphere.project.mapper.ProjectRobotMapper;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserExample;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,7 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -32,6 +39,9 @@ public class ProjectRobotService {
 
     @Resource
     private MessageTaskBlobMapper messageTaskBlobMapper;
+
+    @Resource
+    private UserMapper userMapper;
 
     public void add(ProjectRobot projectRobot) {
         projectRobot.setId(IDGenerator.nextStr());
@@ -87,11 +97,7 @@ public class ProjectRobotService {
 
     public void enable(String id, String updateUser, Long updateTime) {
         ProjectRobot projectRobot = checkRobotExist(id);
-        if (projectRobot.getEnable()) {
-            projectRobot.setEnable(false);
-        } else {
-            projectRobot.setEnable(true);
-        }
+        projectRobot.setEnable(!projectRobot.getEnable());
         projectRobot.setCreateUser(null);
         projectRobot.setCreateTime(null);
         projectRobot.setUpdateUser(updateUser);
@@ -106,8 +112,9 @@ public class ProjectRobotService {
         criteria.andProjectIdEqualTo(projectId);
         projectExample.setOrderByClause("create_time desc");
         List<ProjectRobot> projectRobots = robotMapper.selectByExample(projectExample);
-        Integer inSiteIndex = 0;
-        Integer mailIndex = 0;
+        Map<String, String> userMap = getUserMap(projectRobots);
+        int inSiteIndex = 0;
+        int mailIndex = 0;
         for (int i = 0; i < projectRobots.size(); i++) {
             ProjectRobot projectRobot = projectRobots.get(i);
             if (StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), ProjectRobotPlatform.IN_SITE.toString())) {
@@ -120,6 +127,12 @@ public class ProjectRobotService {
                 projectRobot.setDescription(Translator.get(projectRobot.getDescription()));
                 projectRobot.setName(Translator.get(projectRobot.getName()));
             }
+            if (userMap.get(projectRobot.getCreateUser())!=null) {
+                projectRobot.setCreateUser(userMap.get(projectRobot.getCreateUser()));
+            }
+            if (userMap.get(projectRobot.getUpdateUser())!=null) {
+                projectRobot.setUpdateUser(userMap.get(projectRobot.getUpdateUser()));
+            }
         }
         if (projectRobots.size()>0 && inSiteIndex != 0) {
             Collections.swap(projectRobots, inSiteIndex, 0);
@@ -128,6 +141,17 @@ public class ProjectRobotService {
             Collections.swap(projectRobots, mailIndex, 1);
         }
         return projectRobots;
+    }
+
+    private Map<String, String> getUserMap(List<ProjectRobot> projectRobots) {
+        List<String> userIds = projectRobots.stream().flatMap(projectRobot -> Stream.of(projectRobot.getCreateUser(), projectRobot.getUpdateUser())).distinct().toList();;
+        if (CollectionUtils.isEmpty(userIds)) {
+            return new HashMap<>();
+        }
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(userIds);
+        List<User> users = userMapper.selectByExample(userExample);
+        return users.stream().collect(Collectors.toMap(User::getId, User::getName));
     }
 
     public ProjectRobotDTO getDetail(String robotId) {

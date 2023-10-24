@@ -346,7 +346,6 @@ public class ProjectRobotControllerTests extends BaseTest {
     @Order(20)
     void getListSuccessNoKeyword() throws Exception {
         List<ProjectRobot> projectRobots = getList("test_project");
-        System.out.println(projectRobots);
         Assertions.assertTrue(projectRobots.size() > 0);
     }
 
@@ -580,7 +579,6 @@ public class ProjectRobotControllerTests extends BaseTest {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         List<MessageTaskDTO> testProject1 = getMessageList(projectId);
         Assertions.assertTrue(testProject1.size()>0);
-        System.out.println(testProject1);
     }
 
     private List<MessageTaskDTO> getMessageList(String projectId) throws Exception {
