@@ -106,6 +106,11 @@
     () => props.visible,
     (visible) => {
       currentVisible.value = visible;
+      if (visible) {
+        fetchData();
+      } else {
+        setKeyword('');
+      }
     }
   );
 </script>

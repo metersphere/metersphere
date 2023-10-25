@@ -187,6 +187,7 @@
   const currentUserDrawer = reactive({
     visible: false,
     organizationId: '',
+    currentName: '',
   });
 
   const tableActions: ActionsItem[] = [
@@ -221,11 +222,11 @@
   };
 
   const handleEnableOrDisableOrg = async (record: any, isEnable = true) => {
-    const title = isEnable ? t('system.organization.enableTitle') : t('system.organization.enableTitle');
+    const title = isEnable ? t('system.organization.enableTitle') : t('system.organization.endTitle');
     const content = isEnable ? t('system.organization.enableContent') : t('system.organization.endContent');
     const okText = isEnable ? t('common.confirmEnable') : t('common.confirmClose');
     openModal({
-      type: 'warning',
+      type: 'info',
       cancelText: t('common.cancel'),
       title,
       content,
@@ -275,6 +276,7 @@
     currentProjectDrawer.visible = false;
     currentUserDrawer.visible = true;
     currentUserDrawer.organizationId = record.id;
+    currentUserDrawer.currentName = record.name;
   };
 
   const handleUserDrawerCancel = () => {
@@ -284,9 +286,11 @@
   const handleAddUserModalCancel = () => {
     userVisible.value = false;
   };
-  const handleAddOrgModalCancel = () => {
+  const handleAddOrgModalCancel = (shouldSearch: boolean) => {
     orgVisible.value = false;
-    fetchData();
+    if (shouldSearch) {
+      fetchData();
+    }
   };
 
   const handleRevokeDelete = async (record: TableData) => {

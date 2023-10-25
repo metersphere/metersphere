@@ -175,9 +175,9 @@
     try {
       await updateOrAddProjectUserGroup(record);
       Message.success(t('common.updateSuccess'));
+      return true;
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+      return false;
     }
   };
 

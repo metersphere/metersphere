@@ -13,6 +13,7 @@
         <a-form-item
           field="name"
           :label="t('system.organization.member')"
+          asterisk-position="end"
           :rules="[{ required: true, message: t('system.organization.addMemberRequired') }]"
         >
           <MsUserSelector

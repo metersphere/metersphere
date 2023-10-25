@@ -21,11 +21,12 @@
           field="name"
           required
           :label="t('system.project.name')"
+          asterisk-position="end"
           :rules="[{ required: true, message: t('system.project.projectNameRequired') }]"
         >
           <a-input v-model="form.name" allow-clear :placeholder="t('system.project.projectNamePlaceholder')" />
         </a-form-item>
-        <a-form-item field="organizationId" :label="t('system.project.affiliatedOrg')">
+        <a-form-item field="organizationId" asterisk-position="end" :label="t('system.project.affiliatedOrg')">
           <a-select
             v-model="form.organizationId"
             disabled
@@ -166,7 +167,6 @@
     form.resourcePoolIds = [];
   };
   const handleCancel = (shouldSearch: boolean) => {
-    formReset();
     emit('cancel', shouldSearch);
   };
 
@@ -200,7 +200,6 @@
     }
   };
   watchEffect(() => {
-    initAffiliatedOrgOption();
     if (isEdit.value && props.currentProject) {
       form.id = props.currentProject.id;
       form.name = props.currentProject.name;
@@ -212,4 +211,15 @@
       form.resourcePoolIds = props.currentProject.resourcePoolIds;
     }
   });
+  watch(
+    () => props.visible,
+    (val) => {
+      currentVisible.value = val;
+      if (!val) {
+        formReset();
+      } else {
+        initAffiliatedOrgOption();
+      }
+    }
+  );
 </script>

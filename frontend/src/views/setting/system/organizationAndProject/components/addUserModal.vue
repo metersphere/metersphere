@@ -12,6 +12,7 @@
       <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
         <a-form-item
           field="name"
+          asterisk-position="end"
           :label="t('system.organization.member')"
           :rules="[{ required: true, message: t('system.organization.addMemberRequired') }]"
         >

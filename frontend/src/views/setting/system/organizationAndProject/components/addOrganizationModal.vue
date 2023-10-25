@@ -5,7 +5,7 @@
     :ok-text="t('system.organization.create')"
     unmount-on-close
     title-align="start"
-    @cancel="handleCancel"
+    @cancel="handleCancel(false)"
   >
     <template #title>
       <span v-if="isEdit">
@@ -21,6 +21,7 @@
         <a-form-item
           field="name"
           required
+          asterisk-position="end"
           :label="t('system.organization.organizationName')"
           :rules="[{ required: true, message: t('system.organization.organizationNameRequired') }]"
         >
@@ -39,7 +40,7 @@
       </a-form>
     </div>
     <template #footer>
-      <a-button type="secondary" :loading="loading" @click="handleCancel">
+      <a-button type="secondary" :disabled="loading" @click="handleCancel(false)">
         {{ t('common.cancel') }}
       </a-button>
       <a-button type="primary" :loading="loading" @click="handleBeforeOk">
@@ -74,8 +75,7 @@
   const loading = ref(false);
 
   const emit = defineEmits<{
-    (e: 'cancel'): void;
-    (e: 'submit'): void;
+    (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
   const form = reactive<{ name: string; userIds: string[]; description: string }>({
@@ -89,13 +89,9 @@
   watchEffect(() => {
     currentVisible.value = props.visible;
   });
-  const handleCancel = () => {
-    emit('cancel');
-  };
-
-  const handleSubmit = () => {
-    handleCancel();
-    emit('submit');
+  const handleCancel = (shouldSearch = false) => {
+    emit('cancel', shouldSearch);
+    formRef.value?.resetFields();
   };
 
   const handleBeforeOk = () => {
@@ -111,12 +107,10 @@
             ? t('system.organization.updateOrganizationSuccess')
             : t('system.organization.createOrganizationSuccess')
         );
-        handleSubmit();
-        return true;
+        handleCancel(true);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
-        return false;
       } finally {
         loading.value = false;
       }

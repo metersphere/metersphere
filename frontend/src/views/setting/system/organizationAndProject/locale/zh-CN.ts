@@ -9,6 +9,7 @@ export default {
   'system.organization.removeName': '确认移除 {name} 这个用户吗',
   'system.organization.removeTip': '移除后，将失去组织权限',
   'system.organization.addMember': '添加成员',
+  'system.organization.addMemberTitle': '添加成员（{name}）',
   'system.organization.addMemberPlaceholder': '请选择成员',
   'system.organization.addMemberRequired': '请选择成员',
   'system.organization.searchPlaceholder': '请输入组织名称回车查询',
