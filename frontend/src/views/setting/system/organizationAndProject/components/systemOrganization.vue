@@ -68,9 +68,9 @@
   import UserDrawer from './userDrawer.vue';
 
   import {
-    createOrUpdateOrg,
     deleteOrg,
     enableOrDisableOrg,
+    modifyOrgName,
     postOrgTable,
     revokeDeleteOrg,
   } from '@/api/modules/setting/organizationAndProject';
@@ -150,10 +150,11 @@
 
   const handleNameChange = async (record: OrgProjectTableItem) => {
     try {
-      await createOrUpdateOrg(record);
+      await modifyOrgName({ id: record.id, name: record.name });
       Message.success(t('common.updateSuccess'));
+      return true;
     } catch (error) {
-      Message.error(t('common.updateFailed'));
+      return false;
     }
   };
 

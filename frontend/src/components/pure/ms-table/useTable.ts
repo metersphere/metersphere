@@ -199,6 +199,7 @@ export default function useTableProps<T>(
         }
       } catch (err) {
         setTableErrorStatus('error');
+        propsRes.value.data = [];
       } finally {
         setLoading(false);
         // debug 模式下打印属性
@@ -233,9 +234,8 @@ export default function useTableProps<T>(
           return data;
         }
       } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log(err);
         setTableErrorStatus('error');
+        propsRes.value.data = [];
       } finally {
         setLoading(false);
       }
@@ -311,9 +311,10 @@ export default function useTableProps<T>(
       }
     },
     // 编辑触发
-    rowNameChange: (record: T) => {
+    rowNameChange: async (record: T, cb: (v: boolean) => void) => {
       if (saveCallBack) {
-        saveCallBack(record);
+        const res = await saveCallBack(record);
+        cb(res);
       }
     },
     // 重置排序
