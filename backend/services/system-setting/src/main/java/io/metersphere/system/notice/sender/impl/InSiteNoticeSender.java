@@ -9,11 +9,13 @@ import io.metersphere.system.notice.Receiver;
 import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import io.metersphere.system.service.NotificationService;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,19 +28,25 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
     public void sendAnnouncement(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
         List<Receiver> receivers = noticeModel.getReceivers();
         // 排除自己
-        if (noticeModel.isExcludeSelf()) {
-            receivers.removeIf(u -> StringUtils.equals(u.getUserId(), noticeModel.getOperator()));
+        List<Receiver> realReceivers = new ArrayList<>();
+        for (Receiver receiver : receivers) {
+            if (!StringUtils.equals(receiver.getUserId(), noticeModel.getOperator())) {
+                realReceivers.add(receiver);
+            }
         }
-        if (CollectionUtils.isEmpty(receivers)) {
+
+        if (CollectionUtils.isEmpty(realReceivers)) {
+            LogUtils.info("发送人是自己不发");
             return;
         }
 
-        LogUtils.info("发送站内通知: {}", receivers);
-        receivers.forEach(receiver -> {
+        LogUtils.info("发送站内通知: {}", realReceivers);
+        realReceivers.forEach(receiver -> {
 
             Map<String, Object> paramMap = noticeModel.getParamMap();
             Notification notification = new Notification();
-            notification.setTitle(noticeModel.getSubject());
+            notification.setId(IDGenerator.nextNum());
+            notification.setSubject(noticeModel.getSubject());
             notification.setOperator(noticeModel.getOperator());
             notification.setOperation(noticeModel.getEvent());
             notification.setResourceId((String) paramMap.get("id"));
@@ -53,6 +61,7 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
             notification.setStatus(NotificationConstants.Status.UNREAD.name());
             notification.setCreateTime(System.currentTimeMillis());
             notification.setReceiver(receiver.getUserId());
+            notification.setContent(context);
             notificationService.sendAnnouncement(notification);
         });
     }

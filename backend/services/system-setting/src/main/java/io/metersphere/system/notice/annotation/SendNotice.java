@@ -34,7 +34,4 @@ public @interface SendNotice {
      */
     String context() default "";
 
-    String successContext() default "";
-
-    String failedContext() default "";
 }

@@ -586,6 +586,38 @@ Insert into message_task(id, event, receiver, project_robot_id, task_type, test_
 VALUES (@schedule_close_id, 'CLOSE', 'CREATE_USER', @robot_in_site_id, 'SCHEDULE_TASK', 'NONE', '100001100001', false, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.schedule_task_close');
 INSERT INTO message_task_blob(id, template) VALUES (@schedule_close_id, 'message.schedule_task_close');
 
+-- 初始化内部at 消息通知
+SET @case_comment_at_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@case_comment_at_id, 'AT', 'NONE', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
+INSERT INTO message_task_blob(id, template) VALUES (@case_comment_at_id, 'message.functional_case_task_at_comment');
+
+SET @case_comment_reply_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@case_comment_reply_id, 'REPLY', 'NONE', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
+INSERT INTO message_task_blob(id, template) VALUES (@case_comment_reply_id, 'message.functional_case_task_reply_comment');
+
+SET @case_review_at_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@case_review_at_id, 'REVIEW_AT', 'NONE', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_review_at');
+INSERT INTO message_task_blob(id, template) VALUES (@case_review_at_id, 'message.functional_case_task_review_at');
+
+SET @case_plan_at_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@case_plan_at_id, 'EXECUTE_AT', 'NONE', @robot_in_site_id, 'FUNCTIONAL_CASE_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_execute_at');
+INSERT INTO message_task_blob(id, template) VALUES (@case_plan_at_id, 'message.functional_case_task_plan_at');
+
+SET @bug_comment_at_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@bug_comment_at_id, 'AT', 'NONE', @robot_in_site_id, 'BUG_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_task_comment');
+INSERT INTO message_task_blob(id, template) VALUES (@bug_comment_at_id, 'message.bug_task_at_comment');
+
+SET @bug_comment_reply_id = UUID_SHORT();
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@bug_comment_reply_id, 'REPLY', 'NONE', @robot_in_site_id, 'BUG_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.bug_task_comment');
+INSERT INTO message_task_blob(id, template) VALUES (@bug_comment_reply_id, 'message.bug_task_reply_comment');
+
+
 
 -- 初始化定时任务数据
 INSERT INTO schedule(`id`, `key`, `type`, `value`, `job`, `enable`, `resource_id`, `create_user`, `create_time`, `update_time`, `project_id`, `name`, `config`)

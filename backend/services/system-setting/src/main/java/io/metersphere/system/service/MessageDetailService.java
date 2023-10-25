@@ -8,6 +8,7 @@ import io.metersphere.system.notice.MessageDetail;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +55,9 @@ public class MessageDetailService {
                 .andProjectIdEqualTo(projectId).andEnableEqualTo(true);
         example.setOrderByClause("create_time asc");
         List<MessageTask> messageTaskLists = messageTaskMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(messageTaskLists)) {
+            return new ArrayList<>();
+        }
         getMessageDetails(messageDetails, messageTaskLists);
         return messageDetails.stream()
                 .sorted(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed())
@@ -93,7 +97,9 @@ public class MessageDetailService {
                 return;
             }
             messageDetail.setType(projectRobot.getPlatform());
-            messageDetail.setWebhook(projectRobot.getWebhook());
+            if (StringUtils.isNotBlank(projectRobot.getWebhook())) {
+                messageDetail.setWebhook(projectRobot.getWebhook());
+            }
             if (StringUtils.isNotBlank(messageTask.getTestId())) {
                 messageDetail.setTestId(messageTask.getTestId());
             }
