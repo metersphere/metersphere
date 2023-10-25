@@ -6,10 +6,12 @@
   import { ref, watch, watchEffect } from 'vue';
 
   import PassWord from './formcreate-password.vue';
+  import SearchSelect from './searchSelect.vue';
 
   import formCreate, { FormRule } from '@form-create/arco-design';
 
   formCreate.component('PassWord', PassWord);
+  formCreate.component('SearchSelect', SearchSelect);
   const FormCreate = formCreate.$form();
 
   const props = defineProps<{
@@ -21,7 +23,7 @@
   const emits = defineEmits<{
     (e: 'update:api', val: any): void;
   }>();
-  const formApi = ref({});
+  const formApi = ref<any>({});
 
   watchEffect(() => {
     formApi.value = props.api;
@@ -30,6 +32,18 @@
     () => formApi.value,
     (val) => {
       emits('update:api', val);
+    }
+  );
+
+  const formRules = ref<FormRule | undefined>([]);
+  watchEffect(() => {
+    formRules.value = props.rule;
+  });
+  watch(
+    () => props.rule,
+    (val) => {
+      formRules.value = val;
+      formApi.value?.refresh();
     }
   );
 </script>

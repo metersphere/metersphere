@@ -22,14 +22,14 @@
           <a-input
             v-model:model-value="fieldForm.name"
             :placeholder="t('system.orgTemplate.fieldNamePlaceholder')"
-            :max-length="250"
+            :max-length="255"
             show-word-limit
           ></a-input>
         </a-form-item>
         <a-form-item field="remark" :label="t('system.orgTemplate.description')" asterisk-position="end">
           <a-textarea
             v-model="fieldForm.remark"
-            :max-length="250"
+            :max-length="255"
             :placeholder="t('system.orgTemplate.resDescription')"
             :auto-size="{
               maxRows: 1,
@@ -42,11 +42,12 @@
             class="w-[260px]"
             :placeholder="t('system.orgTemplate.fieldTypePlaceholder')"
             allow-clear
+            :disabled="isEdit"
             @change="fieldChangeHandler"
           >
-            <a-option v-for="item of fieldOptions" :key="item.value" :value="item.id">
+            <a-option v-for="item of fieldOptions" :key="item.key" :value="item.key">
               <div class="flex items-center"
-                ><MsIcon :type="item.value" class="mx-2" /> <span>{{ item.label }}</span></div
+                ><MsIcon :type="item.iconName" class="mx-2" /> <span>{{ item.label }}</span></div
               >
             </a-option>
           </a-select>
@@ -81,9 +82,7 @@
         <a-form-item
           v-if="showDateOrNumber"
           field="selectFormat"
-          :label="
-            fieldForm.type === 'NUMBER' ? t('system.orgTemplate.numberFormat') : t('system.orgTemplate.dateFormat')
-          "
+          :label="fieldType === 'NUMBER' ? t('system.orgTemplate.numberFormat') : t('system.orgTemplate.dateFormat')"
           asterisk-position="end"
         >
           <a-select
@@ -91,6 +90,7 @@
             class="w-[260px]"
             :placeholder="t('system.orgTemplate.formatPlaceholder')"
             allow-clear
+            :disabled="isEdit"
           >
             <a-option v-for="item of showDateOrNumber" :key="item.value" :value="item.value">
               <div class="flex items-center">{{ item.label }}</div>
@@ -108,6 +108,7 @@
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import type { FormItemType } from '@/components/pure/ms-form-create/types';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
 
@@ -116,10 +117,9 @@
   import { useAppStore } from '@/store';
   import { getGenerateId } from '@/utils';
 
-  import type { AddOrUpdateField } from '@/models/setting/template';
-  import { TemplateIconEnum } from '@/enums/templateEnum';
+  import type { AddOrUpdateField, fieldIconAndNameModal } from '@/models/setting/template';
 
-  import { getFieldType } from './fieldSetting';
+  import { fieldIconAndName, getFieldType } from './fieldSetting';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -136,7 +136,7 @@
   const fieldFormRef = ref<FormInstance>();
   const initFieldForm: AddOrUpdateField = {
     name: '',
-    type: '',
+    type: 'INPUT',
     remark: '',
     scopeId: '',
     scene: 'FUNCTIONAL',
@@ -144,19 +144,19 @@
   };
   const fieldForm = ref<AddOrUpdateField>({ ...initFieldForm });
   const isEdit = computed(() => !!fieldForm.value.id);
-  const selectFormat = ref(''); // 选择格式
+  const selectFormat = ref<FormItemType>(); // 选择格式
   const isMultipleSelectMember = ref<boolean | undefined>(false); // 成员多选
-  const fieldType = ref(''); // 整体字段类型
+  const fieldType = ref<FormItemType>(); // 整体字段类型
 
   // 是否展示选项添加面板
   const showOptionsSelect = computed(() => {
-    const showOptionsType = ['RADIO', 'CHECKBOX', 'SELECT', 'MULTIPLE_SELECT'];
-    return showOptionsType.includes(fieldType.value);
+    const showOptionsType: FormItemType[] = ['RADIO', 'CHECKBOX', 'SELECT', 'MULTIPLE_SELECT'];
+    return showOptionsType.includes(fieldType.value as FormItemType);
   });
 
   // 是否展示日期或数值
   const showDateOrNumber = computed(() => {
-    return getFieldType(fieldType.value);
+    if (fieldType.value) return getFieldType(fieldType.value);
   });
 
   // 批量表单-1.仅选项情况
@@ -174,9 +174,9 @@
 
   const resetForm = () => {
     fieldForm.value = { ...initFieldForm };
-    selectFormat.value = '';
+    selectFormat.value = undefined;
     isMultipleSelectMember.value = false;
-    fieldType.value = '';
+    fieldType.value = undefined;
     batchFormRef.value?.resetForm();
   };
 
@@ -190,20 +190,23 @@
   const confirmHandler = async (isContinue: boolean) => {
     try {
       drawerLoading.value = true;
+      if (fieldType.value) {
+        fieldForm.value.type = fieldType.value;
+      }
+
       fieldForm.value.scene = route.query.type;
-      fieldForm.value = {
-        ...fieldForm.value,
-        scopeId: appStore.currentOrgId,
-        type: fieldType.value,
-      };
+      fieldForm.value.scopeId = appStore.currentOrgId;
+
       // 如果选择是日期或者数值
       if (selectFormat.value) {
         fieldForm.value.type = selectFormat.value;
       }
+
       // 如果选择是成员（单选||多选）
       if (isMultipleSelectMember.value) {
         fieldForm.value.type = isMultipleSelectMember.value ? 'MULTIPLE_MEMBER' : 'MEMBER';
       }
+
       // 如果选择是日期或者是数值
       if (selectFormat.value) {
         fieldForm.value.type = selectFormat.value;
@@ -212,6 +215,7 @@
       // 处理参数
       const { id, name, options, scopeId, scene, type, remark } = fieldForm.value;
       const params: AddOrUpdateField = { name, options, scopeId, scene, type, remark };
+
       if (isEdit) {
         params.id = id;
       }
@@ -247,59 +251,7 @@
   };
 
   // 字段类型列表选项
-  const fieldOptions = ref([
-    {
-      id: 'TEXTAREA',
-      label: t('system.orgTemplate.textarea'),
-      value: TemplateIconEnum.TEXTAREA,
-    },
-    {
-      id: 'INPUT',
-      label: t('system.orgTemplate.input'),
-      value: TemplateIconEnum.INPUT,
-    },
-    {
-      id: 'RADIO',
-      label: t('system.orgTemplate.radio'),
-      value: TemplateIconEnum.RADIO,
-    },
-    {
-      id: 'CHECKBOX',
-      label: t('system.orgTemplate.checkbox'),
-      value: TemplateIconEnum.CHECKBOX,
-    },
-    {
-      id: 'SELECT',
-      label: t('system.orgTemplate.select'),
-      value: TemplateIconEnum.SELECT,
-    },
-    {
-      id: 'MULTIPLE_SELECT',
-      label: t('system.orgTemplate.multipleSelect'),
-      value: TemplateIconEnum.MULTIPLE_SELECT,
-    },
-    {
-      id: 'MEMBER',
-      label: t('system.orgTemplate.member'),
-      value: TemplateIconEnum.MEMBER,
-    },
-    {
-      id: 'DATE',
-      label: t('system.orgTemplate.date'),
-      value: TemplateIconEnum.DATE,
-    },
-    {
-      id: 'NUMBER',
-      label: t('system.orgTemplate.number'),
-      value: TemplateIconEnum.NUMBER,
-    },
-    {
-      id: 'MULTIPLE_INPUT',
-      label: t('system.orgTemplate.multipleInput'),
-      value: TemplateIconEnum.MULTIPLE_INPUT,
-    },
-  ]);
-
+  const fieldOptions = ref<fieldIconAndNameModal[]>([]);
   const fieldDefaultValues = ref([]);
 
   // 获取字段选项详情
@@ -317,7 +269,7 @@
   };
 
   // 处理特殊情况编辑回显
-  const getSpecialHandler = (itemType: string): string => {
+  const getSpecialHandler = (itemType: FormItemType): FormItemType => {
     switch (itemType) {
       case 'INT':
         selectFormat.value = itemType;
@@ -336,7 +288,7 @@
   };
 
   // 编辑
-  const isEditHandler = (item: AddOrUpdateField) => {
+  const editHandler = (item: AddOrUpdateField) => {
     showDrawer.value = true;
     isMultipleSelectMember.value = item.type === 'MULTIPLE_MEMBER';
     if (isEdit && item.id) {
@@ -345,7 +297,7 @@
         ...item,
         type: getSpecialHandler(item.type),
       };
-      fieldType.value = getSpecialHandler(item.type);
+      fieldType.value = fieldForm.value.type;
     }
   };
 
@@ -368,9 +320,13 @@
       showDrawer.value = val;
     }
   );
+  onMounted(() => {
+    const excludeOptions = ['MULTIPLE_MEMBER', 'DATETIME', 'SYSTEM', 'INT', 'FLOAT'];
+    fieldOptions.value = fieldIconAndName.filter((item: any) => excludeOptions.indexOf(item.key) < 0);
+  });
 
   defineExpose({
-    isEditHandler,
+    editHandler,
   });
 </script>
 

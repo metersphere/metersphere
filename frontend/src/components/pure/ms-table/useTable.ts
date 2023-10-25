@@ -21,7 +21,7 @@ export interface Pagination {
 const appStore = useAppStore();
 const tableStore = useTableStore();
 export default function useTableProps<T>(
-  loadListFunc: (v?: TableQueryParams | any) => Promise<CommonList<MsTableDataItem<T>> | MsTableDataItem<T>>,
+  loadListFunc?: (v?: TableQueryParams | any) => Promise<CommonList<MsTableDataItem<T>> | MsTableDataItem<T>>,
   props?: Partial<MsTableProps<T>>,
   // 数据处理的回调函数
   dataTransform?: (item: TableData) => (TableData & T) | any,
@@ -161,40 +161,42 @@ export default function useTableProps<T>(
       const { current, pageSize } = propsRes.value.msPagination as Pagination;
       const { rowKey, selectorStatus, excludeKeys } = propsRes.value;
       try {
-        setLoading(true);
-        const data = await loadListFunc({
-          current,
-          pageSize,
-          sort: sortItem.value,
-          filter: filterItem.value,
-          keyword: keyword.value,
-          ...loadListParams.value,
-        });
-        const tmpArr = data.list;
-        propsRes.value.data = tmpArr.map((item: MsTableDataItem<T>) => {
-          if (item.updateTime) {
-            item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
-          }
-          if (item.createTime) {
-            item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
-          }
-          if (dataTransform) {
-            item = dataTransform(item);
-          }
-          if (selectorStatus === SelectAllEnum.ALL) {
-            if (!excludeKeys.has(item[rowKey])) {
-              setTableSelected(item[rowKey]);
+        if (loadListFunc) {
+          setLoading(true);
+          const data = await loadListFunc({
+            current,
+            pageSize,
+            sort: sortItem.value,
+            filter: filterItem.value,
+            keyword: keyword.value,
+            ...loadListParams.value,
+          });
+          const tmpArr = data.list;
+          propsRes.value.data = tmpArr.map((item: MsTableDataItem<T>) => {
+            if (item.updateTime) {
+              item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
             }
+            if (item.createTime) {
+              item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
+            }
+            if (dataTransform) {
+              item = dataTransform(item);
+            }
+            if (selectorStatus === SelectAllEnum.ALL) {
+              if (!excludeKeys.has(item[rowKey])) {
+                setTableSelected(item[rowKey]);
+              }
+            }
+            return item;
+          });
+          if (data.total === 0) {
+            setTableErrorStatus('empty');
+          } else {
+            setTableErrorStatus(false);
           }
-          return item;
-        });
-        if (data.total === 0) {
-          setTableErrorStatus('empty');
-        } else {
-          setTableErrorStatus(false);
+          setPagination({ current: data.current, total: data.total });
+          return data;
         }
-        setPagination({ current: data.current, total: data.total });
-        return data;
       } catch (err) {
         setTableErrorStatus('error');
       } finally {
@@ -208,26 +210,28 @@ export default function useTableProps<T>(
     } else {
       // 没分页的情况下，直接调用loadListFunc
       try {
-        setLoading(true);
-        const data = await loadListFunc({ keyword: keyword.value, ...loadListParams.value });
-        if (data.length === 0) {
-          setTableErrorStatus('empty');
-          return;
+        if (loadListFunc) {
+          setLoading(true);
+          const data = await loadListFunc({ keyword: keyword.value, ...loadListParams.value });
+          if (data.length === 0) {
+            setTableErrorStatus('empty');
+            return;
+          }
+          setTableErrorStatus(false);
+          propsRes.value.data = data.map((item: MsTableDataItem<T>) => {
+            if (item.updateTime) {
+              item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
+            }
+            if (item.createTime) {
+              item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
+            }
+            if (dataTransform) {
+              item = dataTransform(item);
+            }
+            return item;
+          });
+          return data;
         }
-        setTableErrorStatus(false);
-        propsRes.value.data = data.map((item: MsTableDataItem<T>) => {
-          if (item.updateTime) {
-            item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
-          }
-          if (item.createTime) {
-            item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
-          }
-          if (dataTransform) {
-            item = dataTransform(item);
-          }
-          return item;
-        });
-        return data;
       } catch (err) {
         // eslint-disable-next-line no-console
         console.log(err);

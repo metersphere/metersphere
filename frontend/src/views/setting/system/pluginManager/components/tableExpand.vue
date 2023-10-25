@@ -9,7 +9,7 @@
     <div class="ms-scroll">
       <div v-for="(item, index) in recordItem.pluginForms" :key="item.id" class="ms-self">
         <span class="circle text-xs leading-[16px]"> {{ index + 1 }} </span>
-        <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="emit('MessageEvent', recordItem, item)">{{
+        <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="getScriptEmit(recordItem, item)">{{
           item.name
         }}</span>
       </div>
@@ -24,8 +24,16 @@
     recordItem: PluginItem;
   }>();
   const emit = defineEmits<{
-    (e: 'MessageEvent', record: PluginItem, item: PluginForms): void;
+    (e: 'messageEvent', record: PluginItem, item: PluginForms): void;
   }>();
+
+  const originPluginId = ref('');
+  const getScriptEmit = (record: PluginItem, item: PluginForms) => {
+    if (originPluginId.value !== item.id) {
+      emit('messageEvent', record, item);
+      originPluginId.value = item.id;
+    }
+  };
 </script>
 
 <style scoped lang="less">

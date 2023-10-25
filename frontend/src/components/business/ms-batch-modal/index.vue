@@ -13,6 +13,7 @@
       <MsTransfer
         v-model="target"
         :data="treeList"
+        :title="[t('system.user.batchOptional'), t('system.user.batchChosen')]"
         :tree-filed="{
           key: 'id',
           title: 'name',
