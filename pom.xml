@@ -54,7 +54,7 @@
         <flatten.version>1.2.7</flatten.version>
         <jmeter.version>5.6.2</jmeter.version>
         <codehaus-groovy.version>3.0.11</codehaus-groovy.version>
-        <jython.version>2.7.0</jython.version>
+        <graalpy-scriptengine.version>1.0.0</graalpy-scriptengine.version>
         <docker-java.version>3.2.14</docker-java.version>
         <selenium.version>4.14.0</selenium.version>
         <jmeter-plugins-webdriver.version>4.14.0</jmeter-plugins-webdriver.version>
