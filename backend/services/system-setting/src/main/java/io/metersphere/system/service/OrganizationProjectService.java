@@ -1,7 +1,7 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -76,7 +76,7 @@ public class OrganizationProjectService {
         return commonProjectService.delete(id, deleteUser);
     }
 
-    public List<UserExtend> getProjectMember(ProjectMemberRequest request) {
+    public List<UserExtendDTO> getProjectMember(ProjectMemberRequest request) {
         return extSystemProjectMapper.getProjectMemberList(request);
     }
 
@@ -106,12 +106,12 @@ public class OrganizationProjectService {
         commonProjectService.disable(id, updateUser);
     }
 
-    public List<UserExtend> getUserAdminList(String organizationId, String keyword) {
+    public List<UserExtendDTO> getUserAdminList(String organizationId, String keyword) {
         checkOrgIsExist(organizationId);
         return extSystemProjectMapper.getUserAdminList(organizationId, keyword);
     }
 
-    public List<UserExtend> getUserMemberList(String organizationId, String projectId, String keyword) {
+    public List<UserExtendDTO> getUserMemberList(String organizationId, String projectId, String keyword) {
         checkOrgIsExist(organizationId);
         commonProjectService.checkProjectNotExist(projectId);
         UserRoleRelationExample example = new UserRoleRelationExample();

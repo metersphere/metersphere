@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.system.mapper.ExtSystemProjectMapper">
 
 
-    <select id="getProjectMemberList" resultType="io.metersphere.sdk.dto.UserExtend">
+    <select id="getProjectMemberList" resultType="io.metersphere.sdk.dto.UserExtendDTO">
         SELECT temp.* , MAX( if (temp.role_id = 'project_admin', true, false)) as adminFlag
         FROM (
                  SELECT `user`.* , user_role_relation.role_id
@@ -42,7 +42,7 @@
         INNER JOIN organization o on p.organization_id = o.id
         <include refid="queryWhereCondition"/>
     </select>
-    <select id="getProjectAdminList" resultType="io.metersphere.sdk.dto.UserExtend">
+    <select id="getProjectAdminList" resultType="io.metersphere.sdk.dto.UserExtendDTO">
         SELECT `user`.*, user_role_relation.source_id
         FROM user_role_relation
         LEFT JOIN `user` ON user_role_relation.user_id = `user`.id
@@ -114,7 +114,7 @@
         </if>
     </sql>
 
-    <select id="getUserAdminList" resultType="io.metersphere.sdk.dto.UserExtend">
+    <select id="getUserAdminList" resultType="io.metersphere.sdk.dto.UserExtendDTO">
         select distinct
         u.id,
         u.NAME,
@@ -129,7 +129,7 @@
 
     </select>
 
-    <select id="getUserMemberList" resultType="io.metersphere.sdk.dto.UserExtend">
+    <select id="getUserMemberList" resultType="io.metersphere.sdk.dto.UserExtendDTO">
         select distinct   u.id,
         u.NAME,
         u.email, count(temp.id) > 0 as memberFlag from

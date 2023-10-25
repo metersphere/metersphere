@@ -4,22 +4,22 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
-import io.metersphere.system.log.annotation.Log;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
 import io.metersphere.system.service.OrganizationUserRoleLogService;
 import io.metersphere.system.service.OrganizationUserRoleService;
 import io.metersphere.system.service.UserRoleService;
+import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -106,9 +106,9 @@ public class OrganizationUserRoleController {
             @Parameter(name = "organizationId", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
             @Parameter(name = "roleId", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     })
-    public List<UserExtend> getMember(@PathVariable String organizationId,
-                                      @PathVariable String roleId,
-                                      @Schema(description = "查询关键字，根据邮箱和用户名查询")
+    public List<UserExtendDTO> getMember(@PathVariable String organizationId,
+                                         @PathVariable String roleId,
+                                         @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                       @RequestParam(required = false) String keyword) {
         return userRoleService.getMember(organizationId, roleId, keyword);
     }

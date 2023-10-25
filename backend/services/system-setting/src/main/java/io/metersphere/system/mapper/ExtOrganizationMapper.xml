@@ -56,7 +56,7 @@
         where id = #{id}
     </update>
 
-    <select id="listMember" resultType="io.metersphere.sdk.dto.UserExtend">
+    <select id="listMember" resultType="io.metersphere.sdk.dto.UserExtendDTO">
         select temp.*, max(if(temp.role_id = 'org_admin', true, false)) as adminFlag
         from (
         select u.*, urr.role_id

@@ -12,7 +12,7 @@ import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -210,49 +210,51 @@ public class CommonProjectService {
     public List<ProjectDTO> buildUserInfo(List<ProjectDTO> projectList) {
         //取项目的创建人  修改人  删除人到一个list中
         List<String> userIds = new ArrayList<>();
-        userIds.addAll(projectList.stream().map(ProjectDTO::getCreateUser).toList());
-        userIds.addAll(projectList.stream().map(ProjectDTO::getUpdateUser).toList());
-        userIds.addAll(projectList.stream().map(ProjectDTO::getDeleteUser).toList());
-        Map<String, String> userMap = userLoginService.getUserNameMap(userIds.stream().filter(StringUtils::isNotBlank).distinct().toList());
-        // 获取项目id
-        List<String> projectIds = projectList.stream().map(ProjectDTO::getId).toList();
-        List<UserExtend> users = extSystemProjectMapper.getProjectAdminList(projectIds);
-        List<ProjectDTO> projectDTOList = extSystemProjectMapper.getProjectExtendDTOList(projectIds);
-        Map<String, ProjectDTO> projectMap = projectDTOList.stream().collect(Collectors.toMap(ProjectDTO::getId, projectDTO -> projectDTO));
-        //根据sourceId分组
-        Map<String, List<UserExtend>> userMapList = users.stream().collect(Collectors.groupingBy(UserExtend::getSourceId));
-        //获取资源池
-        List<ProjectResourcePoolDTO> projectResourcePoolDTOList = extSystemProjectMapper.getProjectResourcePoolDTOList(projectIds);
-        //根据projectId分组 key为项目id 值为资源池TestResourcePool
-        Map<String, List<ProjectResourcePoolDTO>> poolMap = projectResourcePoolDTOList.stream().collect(Collectors.groupingBy(ProjectResourcePoolDTO::getProjectId));
+        if (CollectionUtils.isNotEmpty(projectList)) {
+            userIds.addAll(projectList.stream().map(ProjectDTO::getCreateUser).toList());
+            userIds.addAll(projectList.stream().map(ProjectDTO::getUpdateUser).toList());
+            userIds.addAll(projectList.stream().map(ProjectDTO::getDeleteUser).toList());
+            Map<String, String> userMap = userLoginService.getUserNameMap(userIds.stream().filter(StringUtils::isNotBlank).distinct().toList());
+            // 获取项目id
+            List<String> projectIds = projectList.stream().map(ProjectDTO::getId).toList();
+            List<UserExtendDTO> users = extSystemProjectMapper.getProjectAdminList(projectIds);
+            List<ProjectDTO> projectDTOList = extSystemProjectMapper.getProjectExtendDTOList(projectIds);
+            Map<String, ProjectDTO> projectMap = projectDTOList.stream().collect(Collectors.toMap(ProjectDTO::getId, projectDTO -> projectDTO));
+            //根据sourceId分组
+            Map<String, List<UserExtendDTO>> userMapList = users.stream().collect(Collectors.groupingBy(UserExtendDTO::getSourceId));
+            //获取资源池
+            List<ProjectResourcePoolDTO> projectResourcePoolDTOList = extSystemProjectMapper.getProjectResourcePoolDTOList(projectIds);
+            //根据projectId分组 key为项目id 值为资源池TestResourcePool
+            Map<String, List<ProjectResourcePoolDTO>> poolMap = projectResourcePoolDTOList.stream().collect(Collectors.groupingBy(ProjectResourcePoolDTO::getProjectId));
 
-        projectList.forEach(projectDTO -> {
-            if (StringUtils.isNotBlank(projectDTO.getModuleSetting())) {
-                projectDTO.setModuleIds(JSON.parseArray(projectDTO.getModuleSetting(), String.class));
-            }
-            projectDTO.setMemberCount(projectMap.get(projectDTO.getId()).getMemberCount());
-            List<UserExtend> userExtends = userMapList.get(projectDTO.getId());
-            if (CollectionUtils.isNotEmpty(userExtends)) {
-                projectDTO.setAdminList(userExtends);
-                List<String> userIdList = userExtends.stream().map(User::getId).collect(Collectors.toList());
-                if (CollectionUtils.isNotEmpty(userIdList) && userIdList.contains(projectDTO.getCreateUser())) {
-                    projectDTO.setProjectCreateUserIsAdmin(true);
-                } else {
-                    projectDTO.setProjectCreateUserIsAdmin(false);
+            projectList.forEach(projectDTO -> {
+                if (StringUtils.isNotBlank(projectDTO.getModuleSetting())) {
+                    projectDTO.setModuleIds(JSON.parseArray(projectDTO.getModuleSetting(), String.class));
                 }
-            } else {
-                projectDTO.setAdminList(new ArrayList<>());
-            }
-            List<ProjectResourcePoolDTO> projectResourcePoolDTOS = poolMap.get(projectDTO.getId());
-            if (CollectionUtils.isNotEmpty(projectResourcePoolDTOS)) {
-                projectDTO.setResourcePoolList(projectResourcePoolDTOS);
-            } else {
-                projectDTO.setResourcePoolList(new ArrayList<>());
-            }
-            projectDTO.setCreateUser(userMap.get(projectDTO.getCreateUser()));
-            projectDTO.setUpdateUser(userMap.get(projectDTO.getUpdateUser()));
-            projectDTO.setDeleteUser(userMap.get(projectDTO.getDeleteUser()));
-        });
+                projectDTO.setMemberCount(projectMap.get(projectDTO.getId()).getMemberCount());
+                List<UserExtendDTO> userExtendDTOS = userMapList.get(projectDTO.getId());
+                if (CollectionUtils.isNotEmpty(userExtendDTOS)) {
+                    projectDTO.setAdminList(userExtendDTOS);
+                    List<String> userIdList = userExtendDTOS.stream().map(User::getId).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(userIdList) && userIdList.contains(projectDTO.getCreateUser())) {
+                        projectDTO.setProjectCreateUserIsAdmin(true);
+                    } else {
+                        projectDTO.setProjectCreateUserIsAdmin(false);
+                    }
+                } else {
+                    projectDTO.setAdminList(new ArrayList<>());
+                }
+                List<ProjectResourcePoolDTO> projectResourcePoolDTOS = poolMap.get(projectDTO.getId());
+                if (CollectionUtils.isNotEmpty(projectResourcePoolDTOS)) {
+                    projectDTO.setResourcePoolList(projectResourcePoolDTOS);
+                } else {
+                    projectDTO.setResourcePoolList(new ArrayList<>());
+                }
+                projectDTO.setCreateUser(userMap.get(projectDTO.getCreateUser()));
+                projectDTO.setUpdateUser(userMap.get(projectDTO.getUpdateUser()));
+                projectDTO.setDeleteUser(userMap.get(projectDTO.getDeleteUser()));
+            });
+        }
         return projectList;
     }
 

@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.mapper.ExtUserMapper;
@@ -39,8 +39,8 @@ public class UserRoleService {
         }
     }
 
-    public List<UserExtend> getMember(String sourceId, String roleId, String keyword) {
-        List<UserExtend> userExtends = new ArrayList<>();
+    public List<UserExtendDTO> getMember(String sourceId, String roleId, String keyword) {
+        List<UserExtendDTO> userExtendDTOS = new ArrayList<>();
         // 查询组织或项目下所有用户关系
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(sourceId);
@@ -49,22 +49,22 @@ public class UserRoleService {
             Map<String, List<String>> userRoleMap = userRoleRelations.stream().collect(Collectors.groupingBy(UserRoleRelation::getUserId,
                     Collectors.mapping(UserRoleRelation::getRoleId, Collectors.toList())));
             userRoleMap.forEach((k, v) -> {
-                UserExtend userExtend = new UserExtend();
-                userExtend.setId(k);
+                UserExtendDTO userExtendDTO = new UserExtendDTO();
+                userExtendDTO.setId(k);
                 v.forEach(roleItem -> {
                     if (StringUtils.equals(roleItem, roleId)) {
                         // 该用户已存在用户组关系, 设置为选中状态
-                        userExtend.setCheckRoleFlag(true);
+                        userExtendDTO.setCheckRoleFlag(true);
                     }
                 });
-                userExtends.add(userExtend);
+                userExtendDTOS.add(userExtendDTO);
             });
             // 设置用户信息, 用户不存在或者已删除, 则不展示
-            List<String> userIds = userExtends.stream().map(UserExtend::getId).toList();
+            List<String> userIds = userExtendDTOS.stream().map(UserExtendDTO::getId).toList();
             List<User> users = extUserMapper.getRoleUserByParam(userIds, keyword);
             if (CollectionUtils.isNotEmpty(users)) {
                 Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
-                userExtends.removeIf(userExtend -> {
+                userExtendDTOS.removeIf(userExtend -> {
                     if (userMap.containsKey(userExtend.getId())) {
                         BeanUtils.copyBean(userExtend, userMap.get(userExtend.getId()));
                         return false;
@@ -72,11 +72,11 @@ public class UserRoleService {
                     return true;
                 });
             } else {
-                userExtends.clear();
+                userExtendDTOS.clear();
             }
         }
 
-        userExtends.sort(Comparator.comparing(UserExtend::getName));
-        return userExtends;
+        userExtendDTOS.sort(Comparator.comparing(UserExtendDTO::getName));
+        return userExtendDTOS;
     }
 }

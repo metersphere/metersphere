@@ -6,7 +6,7 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -108,7 +108,7 @@ public class OrganizationService {
      * @param request 请求参数
      * @return 组织成员集合
      */
-    public List<UserExtend> getMemberListBySystem(OrganizationRequest request) {
+    public List<UserExtendDTO> getMemberListBySystem(OrganizationRequest request) {
         return extOrganizationMapper.listMember(request);
     }
 

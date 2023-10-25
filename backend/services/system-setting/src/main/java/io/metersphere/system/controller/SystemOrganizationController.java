@@ -4,13 +4,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.dto.OrganizationDTO;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.request.OrganizationMemberRequest;
 import io.metersphere.system.request.OrganizationProjectRequest;
 import io.metersphere.system.request.OrganizationRequest;
@@ -18,6 +17,7 @@ import io.metersphere.system.request.ProjectRequest;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.service.UserService;
+import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -66,7 +66,7 @@ public class SystemOrganizationController {
     @PostMapping("/list-member")
     @Operation(summary = "系统设置-系统-组织与项目-组织-获取组织成员列表")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ})
-    public Pager<List<UserExtend>> listMember(@Validated @RequestBody OrganizationRequest request) {
+    public Pager<List<UserExtendDTO>> listMember(@Validated @RequestBody OrganizationRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
         return PageUtils.setPageInfo(page, organizationService.getMemberListBySystem(request));
     }
@@ -118,8 +118,8 @@ public class SystemOrganizationController {
     @Operation(summary = "系统设置-系统-组织与项目-获取成员下拉选项")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ})
     @Parameter(name = "sourceId", description = "组织ID或项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-    public List<UserExtend> getMemberOption(@PathVariable String sourceId,
-                                            @Schema(description = "查询关键字，根据邮箱和用户名查询")
+    public List<UserExtendDTO> getMemberOption(@PathVariable String sourceId,
+                                               @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                             @RequestParam(value = "keyword", required = false) String keyword) {
         return userService.getMemberOption(sourceId, keyword);
     }

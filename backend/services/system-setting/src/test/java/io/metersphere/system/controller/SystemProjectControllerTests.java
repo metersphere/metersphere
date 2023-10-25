@@ -7,7 +7,7 @@ import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
@@ -563,6 +563,13 @@ public class SystemProjectControllerTests extends BaseTest {
             Assertions.assertFalse(projectDTO.getOrganizationName().compareTo(firstOrganizationName) > 0);
         }
 
+        //查询不存在的组织id
+        projectRequest.setOrganizationId("111111");
+        mvcResult = this.responsePost(getProjectList, projectRequest);
+        returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        //返回值为
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProjectList, projectRequest);
@@ -786,17 +793,17 @@ public class SystemProjectControllerTests extends BaseTest {
         //返回值的页码和当前页码相同
         Assertions.assertEquals(returnPager.getCurrent(), memberRequest.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
-        Assertions.assertTrue(((List<UserExtend>) returnPager.getList()).size() <= memberRequest.getPageSize());
+        Assertions.assertTrue(((List<UserExtendDTO>) returnPager.getList()).size() <= memberRequest.getPageSize());
         memberRequest.setSort(new HashMap<>() {{
             put("createTime", "desc");
         }});
         mvcResult = this.responsePost(getProjectMemberList, memberRequest);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //第一个数据的createTime是最大的
-        List<UserExtend> userExtends = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserExtend.class);
-        long firstCreateTime = userExtends.get(0).getCreateTime();
-        for (UserExtend userExtend : userExtends) {
-            Assertions.assertFalse(userExtend.getCreateTime() > firstCreateTime);
+        List<UserExtendDTO> userExtendDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserExtendDTO.class);
+        long firstCreateTime = userExtendDTOS.get(0).getCreateTime();
+        for (UserExtendDTO userExtendDTO : userExtendDTOS) {
+            Assertions.assertFalse(userExtendDTO.getCreateTime() > firstCreateTime);
         }
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProjectMemberList, memberRequest);
