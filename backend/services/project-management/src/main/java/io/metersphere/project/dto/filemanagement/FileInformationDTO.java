@@ -1,4 +1,4 @@
-package io.metersphere.project.dto;
+package io.metersphere.project.dto.filemanagement;
 
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.sdk.util.JSON;
@@ -32,9 +32,6 @@ public class FileInformationDTO {
 
     @Schema(description = "更新时间")
     private long updateTime;
-
-    @Schema(description = "预览路径")
-    private String previewSrc;
 
     @Schema(description = "文件大小")
     private long size;

@@ -4,8 +4,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.FileMetadataExample;
-import io.metersphere.project.dto.FileInformationDTO;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.filemanagement.FileInformationDTO;
+import io.metersphere.project.dto.filemanagement.FileManagementPageDTO;
 import io.metersphere.project.mapper.ExtFileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.request.filemanagement.*;
@@ -55,17 +56,10 @@ public class FileMetadataService {
 
     public List<FileInformationDTO> list(FileMetadataTableRequest request) {
         List<FileInformationDTO> returnList = new ArrayList<>();
-        List<FileMetadata> fileMetadataList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getKeyword(), request.getModuleIds(), request.getFileType(), false);
+        FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
+        List<FileMetadata> fileMetadataList = extFileMetadataMapper.selectByKeywordAndFileType(pageDTO);
         fileMetadataList.forEach(fileMetadata -> {
             FileInformationDTO fileInformationDTO = new FileInformationDTO(fileMetadata);
-            if (TempFileUtils.isImage(fileMetadata.getType())) {
-                if (TempFileUtils.isFileExists(fileMetadata.getId())) {
-                    fileInformationDTO.setPreviewSrc(TempFileUtils.getFileTmpPath(fileMetadata.getId()));
-                } else {
-                    fileInformationDTO.setPreviewSrc(TempFileUtils.catchCompressFileIfNotExists(fileMetadata.getId(), this.getFile(fileMetadata)));
-                }
-
-            }
             returnList.add(fileInformationDTO);
         });
         return returnList;
@@ -301,12 +295,40 @@ public class FileMetadataService {
     //获取模块统计
     public Map<String, Long> moduleCount(FileMetadataTableRequest request, String operator) {
         //查出每个模块节点下的资源数量
-        List<ModuleCountDTO> moduleCountDTOList = extFileMetadataMapper.countModuleIdByKeywordAndFileType(request.getProjectId(), request.getKeyword(), null, request.getFileType());
+        FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
+        List<ModuleCountDTO> moduleCountDTOList = extFileMetadataMapper.countModuleIdByKeywordAndFileType(pageDTO);
         long allCount = fileModuleService.getAllCount(moduleCountDTOList);
-        long myFileCount = extFileMetadataMapper.countMyFile(request.getProjectId(), request.getKeyword(), null, request.getFileType(), operator);
+
+        pageDTO.setOperator(operator);
+        long myFileCount = extFileMetadataMapper.countMyFile(pageDTO);
+
         Map<String, Long> moduleCountMap = fileModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
         moduleCountMap.put(FILE_MODULE_COUNT_MY, myFileCount);
         moduleCountMap.put(FILE_MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
+    }
+
+    public ResponseEntity<byte[]> downloadPreviewImgById(String id) {
+        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(id);
+        String previewImgPath = null;
+        if (TempFileUtils.isImage(fileMetadata.getType())) {
+            if (TempFileUtils.isImgFileExists(fileMetadata.getId())) {
+                previewImgPath = TempFileUtils.getImgFileTmpPath(fileMetadata.getId());
+            } else {
+                previewImgPath = TempFileUtils.catchCompressImgIfNotExists(fileMetadata.getId(), this.getFile(fileMetadata));
+            }
+        }
+
+        byte[] bytes;
+        if (StringUtils.isNotBlank(previewImgPath)) {
+            bytes = TempFileUtils.getPreviewFile(previewImgPath);
+        } else {
+            bytes = new byte[]{};
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + this.getFileName(fileMetadata.getName(), fileMetadata.getType()) + "\"")
+                .body(bytes);
     }
 }

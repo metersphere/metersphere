@@ -3,6 +3,7 @@ package io.metersphere.project.service;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.FileMetadataExample;
 import io.metersphere.project.domain.FileModuleExample;
+import io.metersphere.project.dto.filemanagement.FileManagementPageDTO;
 import io.metersphere.project.mapper.ExtFileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
@@ -79,8 +80,9 @@ public class FileManagementService {
     public List<FileMetadata> getDeleteList(FileBatchProcessDTO request) {
         List<String> processIds = request.getSelectIds();
         List<FileMetadata> refFileList = new ArrayList<>();
+        FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
         if (request.isSelectAll()) {
-            refFileList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getCondition().getKeyword(), request.getModuleIds(), request.getFileType(), true);
+            refFileList = extFileMetadataMapper.selectRefIdByKeywordAndFileType(pageDTO);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 refFileList = refFileList.stream().filter(fileMetadata -> !request.getExcludeIds().contains(fileMetadata.getId())).collect(Collectors.toList());
             }
@@ -101,7 +103,8 @@ public class FileManagementService {
         List<String> processIds = request.getSelectIds();
         List<FileMetadata> refFileList = new ArrayList<>();
         if (request.isSelectAll()) {
-            refFileList = extFileMetadataMapper.selectByKeywordAndFileType(request.getProjectId(), request.getCondition().getKeyword(), request.getModuleIds(), request.getFileType(), false);
+            FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
+            refFileList = extFileMetadataMapper.selectByKeywordAndFileType(pageDTO);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 refFileList = refFileList.stream().filter(fileMetadata -> !request.getExcludeIds().contains(fileMetadata.getId())).collect(Collectors.toList());
             }
