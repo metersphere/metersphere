@@ -30,6 +30,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -393,7 +394,8 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
     @Order(6)
     public void sortStatusItem() throws Exception {
         List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
-        List<String> statusIds = statusItems.stream().map(StatusItem::getId).toList().reversed();
+        List<String> statusIds = statusItems.stream().map(StatusItem::getId).collect(Collectors.toList());
+        Collections.reverse(statusIds);
         // @@校验请求成功
         this.requestPostWithOkAndReturn(STATUS_SORT, statusIds, DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
         assertSortStatusItem(DEFAULT_ORGANIZATION_ID, statusIds);
