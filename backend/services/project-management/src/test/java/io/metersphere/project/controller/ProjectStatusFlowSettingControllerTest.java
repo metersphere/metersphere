@@ -29,7 +29,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.metersphere.project.enums.result.ProjectResultCode.PROJECT_TEMPLATE_PERMISSION;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.STATUS_ITEM_EXIST;
@@ -302,7 +304,8 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
     @Order(6)
     public void sortStatusItem() throws Exception {
         List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
-        List<String> statusIds = statusItems.stream().map(StatusItem::getId).toList().reversed();
+        List<String> statusIds = statusItems.stream().map(StatusItem::getId).collect(Collectors.toList());
+        Collections.reverse(statusIds);
         // @@校验请求成功
         this.requestPostWithOkAndReturn(STATUS_SORT, statusIds, DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
         OrganizationStatusFlowSettingControllerTest.assertSortStatusItem(DEFAULT_PROJECT_ID, statusIds);
