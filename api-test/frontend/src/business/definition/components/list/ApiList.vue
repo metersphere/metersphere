@@ -190,7 +190,7 @@
             prop="caseStatus"
             :fields-width="fieldsWidth"
             min-width="100px"
-            :label="$t('api_test.definition.api_case_status')">
+            :label="$t('api_test.definition.api_case_result')">
             <template v-slot:default="{ row }">
               <ms-api-report-status :status="row.caseStatus" style="text-align: left;"/>
             </template>
