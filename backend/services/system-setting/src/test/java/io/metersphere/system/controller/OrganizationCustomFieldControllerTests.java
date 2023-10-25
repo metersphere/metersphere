@@ -90,6 +90,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         request.setType(CustomFieldType.SELECT.name());
         request.setRemark("AAA");
         request.setScopeId(DEFAULT_ORGANIZATION_ID);
+        request.setEnableOptionKey(true);
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("1111");
         customFieldOptionRequest.setText("test");
@@ -156,6 +157,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         request.setType(CustomFieldType.SELECT.name());
         request.setRemark("AAA1");
         request.setScopeId("1111");
+        request.setEnableOptionKey(false);
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("11112");
         customFieldOptionRequest.setText("test1");

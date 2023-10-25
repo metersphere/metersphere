@@ -87,6 +87,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("1111");
         customFieldOptionRequest.setText("test");
+        request.setEnableOptionKey(true);
         List<CustomFieldOptionRequest> optionRequests = Arrays.asList(customFieldOptionRequest);
         request.setOptions(optionRequests);
 
@@ -149,6 +150,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         request.setType(CustomFieldType.SELECT.name());
         request.setRemark("AAA1");
         request.setScopeId("1111");
+        request.setEnableOptionKey(false);
         CustomFieldOptionRequest customFieldOptionRequest = new CustomFieldOptionRequest();
         customFieldOptionRequest.setValue("11112");
         customFieldOptionRequest.setText("test1");

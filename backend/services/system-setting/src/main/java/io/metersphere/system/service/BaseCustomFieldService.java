@@ -127,6 +127,7 @@ public class BaseCustomFieldService {
         customField.setId(IDGenerator.nextStr());
         customField.setCreateTime(System.currentTimeMillis());
         customField.setUpdateTime(System.currentTimeMillis());
+        customField.setEnableOptionKey(BooleanUtils.isTrue(customField.getEnableOptionKey()));
         customFieldMapper.insert(customField);
         baseCustomFieldOptionService.addByFieldId(customField.getId(), options);
         return customField;

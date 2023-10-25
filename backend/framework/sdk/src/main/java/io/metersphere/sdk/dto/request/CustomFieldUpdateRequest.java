@@ -45,6 +45,9 @@ public class CustomFieldUpdateRequest {
     @Size(min = 1, max = 50, message = "{custom_field.scope_id.length_range}", groups = {Created.class})
     private String scopeId;
 
+    @Schema(description = "是否需要手动输入选项key")
+    private Boolean enableOptionKey;
+
     @Valid
     @Schema(title = "自定义字段选项")
     private List<CustomFieldOptionRequest> options;
