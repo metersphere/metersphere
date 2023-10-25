@@ -188,7 +188,7 @@ const Setting: AppRouteRecordRaw = {
             isTopMenu: true,
           },
         },
-        // 模版字段设置
+        // 模板列表-模版字段设置
         {
           path: 'templateFiledSetting',
           name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
@@ -205,6 +205,52 @@ const Setting: AppRouteRecordRaw = {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
                 locale: 'menu.settings.organization.templateFieldSetting',
                 editLocale: 'menu.settings.organization.templateFieldSetting',
+              },
+            ],
+          },
+        },
+        // 模版管理-模版列表
+        {
+          path: 'templateManagement',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+          component: () => import('@/views/setting/organization/template/components/templateManagement.vue'),
+          meta: {
+            locale: 'menu.settings.organization.templateManagementList',
+            roles: ['*'],
+            breadcrumbs: [
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
+                locale: 'menu.settings.organization.template',
+              },
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                locale: 'menu.settings.organization.templateManagementList',
+                editLocale: 'menu.settings.organization.templateManagementList',
+              },
+            ],
+          },
+        },
+        // 模板列表-模板管理-创建&编辑模版
+        {
+          path: 'templateManagementDetail',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
+          component: () => import('@/views/setting/organization/template/components/templateDetail.vue'),
+          meta: {
+            locale: 'menu.settings.organization.templateManagementDetail',
+            roles: ['*'],
+            breadcrumbs: [
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
+                locale: 'menu.settings.organization.template',
+              },
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                locale: 'menu.settings.organization.templateManagementList',
+              },
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+                locale: 'menu.settings.organization.templateManagementDetail',
+                editLocale: 'menu.settings.organization.templateManagementEdit',
               },
             ],
           },

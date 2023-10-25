@@ -9,20 +9,45 @@ import {
   GetFieldDetailUrl,
   GetOrganizeTemplateDetailUrl,
   GetOrganizeTemplateUrl,
+  GetProjectTemplateDetailUrl,
+  isEnableTemplateUrl,
   SetOrganizeTemplateUrl,
   UpdateFieldUrl,
+  UpdateOrganizeTemplateUrl,
   UpdateProjectTemplateUrl,
 } from '@/api/requrls/setting/template';
 
 import { CommonList, TableQueryParams } from '@/models/common';
-import type { AddOrUpdateField, DefinedFieldItem, OrganizeTemplateItem } from '@/models/setting/template';
+import type {
+  ActionTemplateManage,
+  AddOrUpdateField,
+  DefinedFieldItem,
+  OrganizeTemplateItem,
+} from '@/models/setting/template';
 
 /** *
  * 模版
  */
 // 获取模版列表(组织)
-export function getOrganizeTemplateList(organizationId: string, scene: string) {
-  return MSR.get<OrganizeTemplateItem[]>({ url: GetOrganizeTemplateUrl, params: `/${organizationId}/${scene}` });
+export function getOrganizeTemplateList(params: TableQueryParams) {
+  return MSR.get({ url: `${GetOrganizeTemplateUrl}/${params.organizationId}/${params.scene}` });
+}
+// 获取模版详情
+export function getOrganizeTemplateInfo(id: string) {
+  return MSR.get({ url: `${GetOrganizeTemplateDetailUrl}/${id}` });
+}
+// 创建模板列表(组织)
+export function createOrganizeTemplateInfo(data: ActionTemplateManage) {
+  return MSR.post({ url: `${CreateOrganizeTemplateUrl}`, data });
+}
+
+// 编辑模板列表(组织)
+export function updateOrganizeTemplateInfo(data: ActionTemplateManage) {
+  return MSR.post({ url: `${UpdateOrganizeTemplateUrl}`, data });
+}
+// 是否启用组织XX模板
+export function isEnableTemplate(organizationId: string, scene: string) {
+  return MSR.get<boolean>({ url: `${isEnableTemplateUrl}/${organizationId}/${scene}` });
 }
 
 /** *

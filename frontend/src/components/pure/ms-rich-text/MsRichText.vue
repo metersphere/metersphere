@@ -135,7 +135,13 @@
 </script>
 
 <template>
-  <div style="height: 100vh" class="flex">
+  <div style="height: 140px" class="rich-wrapper flex w-full">
     <RichTextEditor v-if="editor" :editor="editor" :locale="locale" />
   </div>
 </template>
+
+<style scoped lang="less">
+  .rich-wrapper {
+    border: 1px solid var(--color-text-n8);
+  }
+</style>

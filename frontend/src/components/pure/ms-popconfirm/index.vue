@@ -18,8 +18,8 @@
             class="mr-[2px] text-xl text-[rgb(var(--danger-6))]"
           />
         </slot>
-        <span :class="titleClass">
-          {{ characterLimit(props.title) || '' }}
+        <span :class="[titleClass]">
+          {{ props.title || '' }}
         </span>
       </div>
       <!-- 描述展示 -->
@@ -64,7 +64,7 @@
           {{ props.cancelText || t('common.cancel') }}
         </a-button>
         <a-button type="primary" size="mini" :loading="props.loading" @click="handleConfirm">
-          {{ props.isDelete ? t('common.remove') : props.okText || t('common.confirm') }}
+          {{ t(props.okText) || t('common.confirm') }}
         </a-button>
       </div>
     </template>
@@ -79,7 +79,6 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { characterLimit } from '@/utils';
 
   import type { FieldRule, FormInstance } from '@arco-design/web-vue';
 
@@ -113,6 +112,7 @@
     {
       type: 'warning',
       isDelete: true, // 默认移除pop
+      okText: 'common.remove',
     }
   );
   const emits = defineEmits<{
@@ -167,7 +167,7 @@
   // 获取当前标题的样式
   const titleClass = computed(() => {
     return props.isDelete
-      ? 'ml-2 font-[14px] text-[var(--color-text-1)]'
+      ? 'ml-2 font-medium text-[var(--color-text-1)] text-[14px]'
       : 'mb-[8px] font-medium text-[var(--color-text-1)] text-[14px]';
   });
 

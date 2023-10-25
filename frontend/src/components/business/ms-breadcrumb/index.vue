@@ -47,7 +47,7 @@
   }, true);
 
   function jumpTo(name: RouteRecordName) {
-    router.push({ name });
+    router.push({ name, query: route.query });
   }
 </script>
 

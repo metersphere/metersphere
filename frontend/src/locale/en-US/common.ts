@@ -60,4 +60,5 @@ export default {
   'common.allSelect': 'Select All',
   'common.setting': 'Setting',
   'common.resetDefault': 'Restore default',
+  'common.pleaseSelect': 'Please Select',
 };

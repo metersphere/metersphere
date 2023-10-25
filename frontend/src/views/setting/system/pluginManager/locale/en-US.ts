@@ -35,6 +35,7 @@ export default {
   'system.resourcePool.disablePoolCancel': 'Cancel',
   'system.plugin.deletePluginSuccess': 'Delete successfully',
   'system.plugin.disablePluginSuccess': 'Disabled successfully',
+  'system.plugin.enablePluginSuccess': 'Enabled successfully',
   'system.plugin.disablePluginContent':
     'The project can not integrate with the platform and the default template of the platform is not available, be careful!',
   'system.plugin.alertDescribe':
