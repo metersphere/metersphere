@@ -115,6 +115,7 @@
   }
 
   const handleCancel = () => {
+    keyword.value = '';
     emit('cancel');
   };
 
@@ -157,6 +158,9 @@
     () => props.visible,
     (visible) => {
       currentVisible.value = visible;
+      if (visible) {
+        fetchData();
+      }
     }
   );
 </script>

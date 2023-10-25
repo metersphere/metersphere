@@ -21,6 +21,7 @@
         <a-form-item
           field="name"
           required
+          asterisk-position="end"
           :label="t('system.project.name')"
           :rules="[{ required: true, message: t('system.project.projectNameRequired') }]"
         >
@@ -29,6 +30,7 @@
         <a-form-item
           required
           field="organizationId"
+          asterisk-position="end"
           :label="t('system.project.affiliatedOrg')"
           :rules="[{ required: true, message: t('system.project.affiliatedOrgRequired') }]"
         >
@@ -73,14 +75,14 @@
     <template #footer>
       <div class="flex flex-row justify-between">
         <div class="flex flex-row items-center gap-[4px]">
-          <a-switch v-model="form.enable" />
+          <a-switch v-model="form.enable" size="small" />
           <span>{{ t('system.organization.status') }}</span>
           <a-tooltip :content="t('system.project.createTip')" position="top">
             <MsIcon type="icon-icon-maybe_outlined" class="text-[var(--color-text-4)]" />
           </a-tooltip>
         </div>
         <div class="flex flex-row gap-[14px]">
-          <a-button type="secondary" :loading="loading" @click="handleCancel(false)">
+          <a-button type="secondary" :disabled="loading" @click="handleCancel(false)">
             {{ t('common.cancel') }}
           </a-button>
           <a-button type="primary" :loading="loading" @click="handleBeforeOk">
@@ -151,10 +153,6 @@
     return licenseStore.hasLicense();
   });
 
-  watchEffect(() => {
-    currentVisible.value = props.visible;
-  });
-
   const formReset = () => {
     form.name = '';
     form.userIds = [];
@@ -165,7 +163,6 @@
   };
   const handleCancel = (shouldSearch: boolean) => {
     emit('cancel', shouldSearch);
-    formReset();
   };
 
   const handleBeforeOk = async () => {
@@ -179,7 +176,6 @@
         Message.success(
           isEdit.value ? t('system.project.updateProjectSuccess') : t('system.project.createProjectSuccess')
         );
-
         handleCancel(true);
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -199,7 +195,6 @@
     }
   };
   watchEffect(() => {
-    initAffiliatedOrgOption();
     if (props.currentProject) {
       form.id = props.currentProject.id;
       form.name = props.currentProject.name;
@@ -211,4 +206,15 @@
       form.resourcePoolIds = props.currentProject.resourcePoolIds;
     }
   });
+  watch(
+    () => props.visible,
+    (val) => {
+      currentVisible.value = val;
+      if (!val) {
+        formReset();
+      } else {
+        initAffiliatedOrgOption();
+      }
+    }
+  );
 </script>

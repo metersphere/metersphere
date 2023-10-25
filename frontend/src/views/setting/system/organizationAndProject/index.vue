@@ -106,11 +106,17 @@
     }
   };
 
-  const handleAddProjectCancel = () => {
+  const handleAddProjectCancel = (shouldSearch: boolean) => {
     projectVisible.value = false;
+    if (shouldSearch) {
+      tableSearch();
+    }
   };
-  const handleAddOrganizationCancel = () => {
+  const handleAddOrganizationCancel = (shouldSearch: boolean) => {
     organizationVisible.value = false;
+    if (shouldSearch) {
+      tableSearch();
+    }
   };
 
   watch(

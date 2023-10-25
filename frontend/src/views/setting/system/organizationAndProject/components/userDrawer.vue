@@ -6,7 +6,7 @@
     unmount-on-close
     :footer="false"
     class="ms-drawer-no-mask"
-    :title="t('system.organization.addMember')"
+    :title="t('system.organization.addMemberTitle', { name: props.currentName })"
     @cancel="handleCancel"
   >
     <div>
@@ -70,6 +70,7 @@
     visible: boolean;
     organizationId?: string;
     projectId?: string;
+    currentName: string;
   }
   const { t } = useI18n();
   const props = defineProps<projectDrawerProps>();
@@ -127,6 +128,7 @@
   }
 
   const handleCancel = () => {
+    keyword.value = '';
     emit('cancel');
   };
 
@@ -184,6 +186,9 @@
     () => props.visible,
     (visible) => {
       currentVisible.value = visible;
+      if (visible) {
+        fetchData();
+      }
     }
   );
 </script>

@@ -116,6 +116,7 @@
   }
 
   const handleCancel = () => {
+    keyword.value = '';
     emit('cancel');
   };
 
@@ -149,9 +150,15 @@
       console.error(error);
     }
   };
-  watchEffect(() => {
-    currentVisible.value = props.visible;
-  });
+  watch(
+    () => props.visible,
+    (visible) => {
+      currentVisible.value = visible;
+      if (visible) {
+        fetchData();
+      }
+    }
+  );
   watchEffect(() => {
     const { projectId, userRoleId } = props;
     if (projectId && userRoleId) {

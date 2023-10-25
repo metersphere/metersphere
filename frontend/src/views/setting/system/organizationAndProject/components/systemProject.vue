@@ -181,6 +181,7 @@
   const currentUserDrawer = reactive({
     visible: false,
     projectId: '',
+    currentName: '',
   });
 
   const tableActions: ActionsItem[] = [
@@ -219,7 +220,7 @@
     const content = isEnable ? t('system.project.enableContent') : t('system.project.endContent');
     const okText = isEnable ? t('common.confirmEnable') : t('common.confirmClose');
     openModal({
-      type: 'error',
+      type: 'info',
       cancelText: t('common.cancel'),
       title,
       content,
@@ -261,11 +262,13 @@
   const showUserDrawer = (record: TableData) => {
     currentUserDrawer.visible = true;
     currentUserDrawer.projectId = record.id;
+    currentUserDrawer.currentName = record.name;
   };
 
   const handleUserDrawerCancel = () => {
     currentUserDrawer.visible = false;
     currentUserDrawer.projectId = '';
+    currentUserDrawer.currentName = '';
   };
 
   const handleAddUserModalCancel = () => {
