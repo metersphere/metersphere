@@ -1418,6 +1418,7 @@ const message = {
       api_last_time: "更新时间",
       api_case_number: "用例数",
       api_case_status: "用例状态",
+      api_case_result: "用例执行结果",
       api_case_passing_rate: "用例通过率",
       create_tip: "注: 详细的接口信息可以在编辑页面填写",
       api_import: "接口导入",

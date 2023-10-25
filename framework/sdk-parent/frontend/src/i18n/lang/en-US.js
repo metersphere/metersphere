@@ -1462,6 +1462,7 @@ const message = {
       api_last_time: "Last Update Time",
       api_case_number: "Cases",
       api_case_status: "Case Status",
+      api_case_result: "Case Result",
       api_case_passing_rate: "Use Case Pass Rate",
       create_tip:
         "Note: Detailed interface information can be filled out on the edit page",
