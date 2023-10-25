@@ -7,9 +7,9 @@
     }"
   >
     <div class="ms-scroll">
-      <div v-for="(item, index) in record.pluginForms" :key="item.id" class="ms-self">
+      <div v-for="(item, index) in recordItem.pluginForms" :key="item.id" class="ms-self">
         <span class="circle text-xs leading-[16px]"> {{ index + 1 }} </span>
-        <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="emit('MessageEvent', record, item)">{{
+        <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="emit('MessageEvent', recordItem, item)">{{
           item.name
         }}</span>
       </div>
@@ -21,7 +21,7 @@
   import type { PluginForms, PluginItem } from '@/models/setting/plugin';
 
   defineProps<{
-    record: PluginItem;
+    recordItem: PluginItem;
   }>();
   const emit = defineEmits<{
     (e: 'MessageEvent', record: PluginItem, item: PluginForms): void;

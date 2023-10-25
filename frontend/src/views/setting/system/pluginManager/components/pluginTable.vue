@@ -378,18 +378,11 @@
   const expandable = reactive({
     title: '',
     width: 54,
-    expandedRowRender: (record: TableData) => {
+    expandedRowRender: (record: Record<string, any>) => {
       if (record.pluginForms && record.pluginForms.length > 0) {
-        return h(
-          // @ts-ignore
-          TableExpand,
-          {
-            record,
-            onMessageEvent: (recordItem: PluginItem, item: PluginForms) => detailScript(recordItem, item),
-          },
-          null
-        );
+        return h(TableExpand, { recordItem: record, onMessageEvent: detailScript });
       }
+      return undefined;
     },
   });
   const handleExpand = (rowKey: string | number) => {
