@@ -194,6 +194,9 @@ public class MdFileService {
      * @param resourceIds
      */
     public void deleteBySourceIds(List<String> resourceIds) {
+        if (CollectionUtils.isEmpty(resourceIds)) {
+            return;
+        }
         // 查询文件是否被其他资源引用
         List<FileAssociation> deleteFileAssociations = fileAssociationService.getByResourceIds(resourceIds);
         List<String> fileNames = deleteFileAssociations.stream().map(FileAssociation::getFileMetadataId).toList();
