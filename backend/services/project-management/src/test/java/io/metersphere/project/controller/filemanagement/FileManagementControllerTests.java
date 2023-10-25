@@ -1,7 +1,7 @@
 package io.metersphere.project.controller.filemanagement;
 
 import io.metersphere.project.domain.*;
-import io.metersphere.project.dto.FileInformationDTO;
+import io.metersphere.project.dto.filemanagement.FileInformationDTO;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -16,6 +16,7 @@ import io.metersphere.sdk.dto.BaseTreeNode;
 import io.metersphere.sdk.dto.request.NodeMoveRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.sdk.util.TempFileUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -53,6 +54,8 @@ public class FileManagementControllerTests extends BaseTest {
     private static final Map<String, String> FILE_ID_PATH = new LinkedHashMap<>();
 
     private static final Map<String, String> FILE_VERSIONS_ID_MAP = new HashMap<>();
+
+    private static String reUploadFileId;
 
     @Resource
     private FileModuleService fileModuleService;
@@ -453,12 +456,11 @@ public class FileManagementControllerTests extends BaseTest {
     @Test
     @Order(12)
     public void fileReUploadTestSuccess() throws Exception {
-        String existFileId = null;
         if (MapUtils.isEmpty(FILE_ID_PATH)) {
             this.fileUploadTestSuccess();
         }
         for (String key : FILE_ID_PATH.keySet()) {
-            existFileId = key;
+            reUploadFileId = key;
         }
 
         FileUploadRequest fileUploadRequest = new FileUploadRequest();
@@ -466,7 +468,7 @@ public class FileManagementControllerTests extends BaseTest {
 
         //重新上传并修改文件版本
         FileReUploadRequest fileReUploadRequest = new FileReUploadRequest();
-        fileReUploadRequest.setFileId(existFileId);
+        fileReUploadRequest.setFileId(reUploadFileId);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_re-upload.JPG")).getPath();
         MockMultipartFile file = new MockMultipartFile("file", "file_re-upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
         LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
@@ -477,7 +479,7 @@ public class FileManagementControllerTests extends BaseTest {
         String reUploadId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(reUploadId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_RE_UPLOAD);
         FILE_ID_PATH.put(reUploadId, filePath);
-        FILE_VERSIONS_ID_MAP.put(reUploadId, existFileId);
+        FILE_VERSIONS_ID_MAP.put(reUploadId, reUploadFileId);
     }
 
     @Test
@@ -615,6 +617,36 @@ public class FileManagementControllerTests extends BaseTest {
             this.setFileType("fire");
         }};
         this.filePageRequestAndCheck(request);
+
+        //combine掺杂了奇奇怪怪的参数
+        request = new FileMetadataTableRequest() {{
+            this.setCurrent(1);
+            this.setPageSize(10);
+            this.setProjectId(project.getId());
+            this.setFileType("JpG");
+        }};
+        request.setCombine(new HashMap<>() {{
+            this.put(IDGenerator.nextStr(), IDGenerator.nextStr());
+        }});
+        this.filePageRequestAndCheck(request);
+
+        //查找我的文件
+        request = new FileMetadataTableRequest() {{
+            this.setCurrent(1);
+            this.setPageSize(10);
+            this.setProjectId(project.getId());
+            this.setFileType("JpG");
+        }};
+        request.setCombine(new HashMap<>() {{
+            this.put("createUser", "admin");
+        }});
+        this.filePageRequestAndCheck(request);
+
+        //查找任何一个人创建的文件
+        request.setCombine(new HashMap<>() {{
+            this.put("createUser", IDGenerator.nextNum());
+        }});
+        this.filePageRequestAndCheck(request, 0);
     }
 
     @Test
@@ -672,6 +704,43 @@ public class FileManagementControllerTests extends BaseTest {
 
         mockMvc.perform(getPostRequestBuilder(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, batchProcessDTO))
                 .andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    @Order(18)
+    public void filePreviewImgDownload() throws Exception {
+        this.preliminaryData();
+        if (MapUtils.isEmpty(FILE_ID_PATH)) {
+            //做一个重复上传过的文件的测试
+            this.fileReUploadTestSuccess();
+        }
+        FileMetadataTableRequest request = new FileMetadataTableRequest() {{
+            this.setCurrent(1);
+            this.setPageSize(50);
+            this.setProjectId(project.getId());
+        }};
+        //获取第一页的所有文件（一页50）
+        MvcResult fileMvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
+        Pager<List<FileInformationDTO>> pageResult = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(fileMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        List<FileInformationDTO> fileList = JSON.parseArray(JSON.toJSONString(pageResult.getList()), FileInformationDTO.class);
+        for (FileInformationDTO fileDTO : fileList) {
+            MvcResult mvcResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_PREVIEW_IMG_FILE_DOWNLOAD, fileDTO.getId()));
+            byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
+            if (TempFileUtils.isImage(fileDTO.getFileType())) {
+                if (StringUtils.equals(reUploadFileId, fileDTO.getId())) {
+                    //重新上传的文件并不是图片
+                    Assertions.assertEquals(fileBytes.length, 0);
+                } else {
+                    Assertions.assertTrue(fileBytes.length > 0);
+                }
+
+            } else {
+                Assertions.assertEquals(fileBytes.length, 0);
+            }
+        }
+
     }
 
     @Test
@@ -1123,6 +1192,14 @@ public class FileManagementControllerTests extends BaseTest {
                         JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Map.class);
         FileManagementBaseUtils.checkFilePage(pageResult, moduleCountResult, request);
+    }
+
+    private void filePageRequestAndCheck(FileMetadataTableRequest request, int fileCount) throws Exception {
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
+        Pager<List<FileInformationDTO>> pageResult = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        Assertions.assertEquals(pageResult.getTotal(), fileCount);
     }
 
     private void preliminaryData() throws Exception {

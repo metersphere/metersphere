@@ -1,11 +1,10 @@
 package io.metersphere.project.utils;
 
-import io.metersphere.project.dto.FileInformationDTO;
+import io.metersphere.project.dto.filemanagement.FileInformationDTO;
 import io.metersphere.project.request.filemanagement.FileMetadataTableRequest;
 import io.metersphere.sdk.dto.BaseTreeNode;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.sdk.util.TempFileUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
@@ -102,15 +101,6 @@ public class FileManagementBaseUtils {
         Assertions.assertEquals(tableData.getCurrent(), request.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(tableData.getList())).size() <= request.getPageSize());
-        List<FileInformationDTO> fileInformationDTOList = JSON.parseArray(JSON.toJSONString(tableData.getList()), FileInformationDTO.class);
-        for (FileInformationDTO fileInformationDTO : fileInformationDTOList) {
-            if (TempFileUtils.isImage(fileInformationDTO.getFileType())) {
-                //检查是否有预览文件
-                String previewPath = fileInformationDTO.getPreviewSrc();
-                File file = new File(previewPath);
-                Assertions.assertTrue(file.exists());
-            }
-        }
 
         //如果没有数据，则返回的模块节点也不应该有数据
         boolean moduleHaveResource = false;

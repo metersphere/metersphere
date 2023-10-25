@@ -18,20 +18,20 @@ public class TempFileUtils {
     }
 
 
-    public static String getFileTmpPath(String fileId) {
-        return TEMP_FILE_FOLDER + fileId;
+    public static String getImgFileTmpPath(String fileId) {
+        return TEMP_FILE_FOLDER + fileId + ".jpg";
     }
 
     public static void deleteTmpFile(String fileId) {
-        File file = new File(getFileTmpPath(fileId));
+        File file = new File(getImgFileTmpPath(fileId));
         if (file.exists()) {
             file.delete();
         }
     }
 
-    public static String catchCompressFileIfNotExists(String fileId, byte[] fileBytes) {
+    public static String catchCompressImgIfNotExists(String fileId, byte[] fileBytes) {
         try {
-            String previewPath = getFileTmpPath(fileId);
+            String previewPath = getImgFileTmpPath(fileId);
             compressPic(fileBytes, previewPath);
             return previewPath;
         } catch (Exception ignore) {
@@ -95,8 +95,27 @@ public class TempFileUtils {
         }
     }
 
-    public static boolean isFileExists(String fileId) {
-        File file = new File(getFileTmpPath(fileId));
+    public static boolean isImgFileExists(String fileId) {
+        File file = new File(getImgFileTmpPath(fileId));
         return file.exists();
+    }
+
+    public static byte[] getPreviewFile(String filePreviewPath) {
+        File file = new File(filePreviewPath);
+        byte[] previewByte = new byte[0];
+        if (file.exists()) {
+            try (FileInputStream fis = new FileInputStream(file);
+                 ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                byte[] b = new byte[1024];
+                int n;
+                while ((n = fis.read(b)) != -1) {
+                    bos.write(b, 0, n);
+                }
+                previewByte = bos.toByteArray();
+            } catch (Exception ignore) {
+
+            }
+        }
+        return previewByte;
     }
 }

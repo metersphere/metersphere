@@ -22,6 +22,8 @@ public class FileManagementRequestUtils {
     public static final String URL_FILE_RE_UPLOAD = "/project/file/re-upload";
     //文件下载
     public static final String URL_FILE_DOWNLOAD = "/project/file/download/%s";
+    //文件预览下载
+    public static final String URL_PREVIEW_IMG_FILE_DOWNLOAD = "/project/file/download/preview-img/%s";
     //文件批量下载
     public static final String URL_FILE_BATCH_DOWNLOAD = "/project/file/batch-download";
     //文件批量删除

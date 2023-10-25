@@ -2,19 +2,19 @@ package io.metersphere.project.mapper;
 
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.filemanagement.FileManagementPageDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface ExtFileMetadataMapper {
-    List<FileMetadata> selectByKeywordAndFileType(@Param("projectId") String projectId, @Param("keyword") String keyword,
-                                                  @Param("moduleIds") List<String> moduleIds, @Param("fileType") String fileType, @Param("isRefId") boolean isRefId);
+    List<FileMetadata> selectByKeywordAndFileType(FileManagementPageDTO fileManagementPageDTO);
 
-    List<ModuleCountDTO> countModuleIdByKeywordAndFileType(@Param("projectId") String projectId, @Param("keyword") String keyword,
-                                                           @Param("moduleIds") List<String> moduleIds, @Param("fileType") String fileType);
+    List<FileMetadata> selectRefIdByKeywordAndFileType(FileManagementPageDTO fileManagementPageDTO);
 
-    long countMyFile(@Param("projectId") String projectId, @Param("keyword") String keyword,
-                     @Param("moduleIds") List<String> moduleIds, @Param("fileType") String fileType, @Param("operator") String operator);
+    List<ModuleCountDTO> countModuleIdByKeywordAndFileType(FileManagementPageDTO fileManagementPageDTO);
+
+    long countMyFile(FileManagementPageDTO fileManagementPageDTO);
 
     List<String> selectIdByRefIdList(@Param("refIdList") List<String> refIdList);
 
