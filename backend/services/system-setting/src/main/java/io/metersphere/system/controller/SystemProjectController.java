@@ -5,7 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
@@ -120,7 +120,7 @@ public class SystemProjectController {
     @PostMapping("/member-list")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     @Operation(summary = "系统设置-系统-组织与项目-项目-成员列表")
-    public Pager<List<UserExtend>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
+    public Pager<List<UserExtendDTO>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, systemProjectService.getProjectMember(request));

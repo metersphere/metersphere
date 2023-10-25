@@ -1,7 +1,7 @@
 package io.metersphere.project.mapper;
 
 import io.metersphere.project.request.ProjectMemberRequest;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -25,5 +25,5 @@ public interface ExtProjectMemberMapper {
      * @param keyword 搜索关键字
      * @return 成员
      */
-    List<UserExtend> getMemberByOrg(@Param("organizationId") String organizationId, @Param("keyword") String keyword);
+    List<UserExtendDTO> getMemberByOrg(@Param("organizationId") String organizationId, @Param("keyword") String keyword);
 }

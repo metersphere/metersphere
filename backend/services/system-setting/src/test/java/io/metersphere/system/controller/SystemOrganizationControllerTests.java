@@ -2,13 +2,13 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.dto.ProjectDTO;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.OrganizationDTO;
+import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.request.OrganizationMemberRequest;
 import io.metersphere.system.request.OrganizationRequest;
@@ -171,10 +171,10 @@ public class SystemOrganizationControllerTests extends BaseTest{
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字admin
-        UserExtend userExtend = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtend.class).get(0);
-        Assertions.assertTrue(StringUtils.contains(userExtend.getName(), organizationRequest.getKeyword())
-                || StringUtils.contains(userExtend.getEmail(), organizationRequest.getKeyword())
-                || StringUtils.contains(userExtend.getPhone(), organizationRequest.getKeyword()));
+        UserExtendDTO userExtendDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtendDTO.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(userExtendDTO.getName(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtendDTO.getEmail(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtendDTO.getPhone(), organizationRequest.getKeyword()));
 
         // sort不为空
         Map<String, String> sort = new HashMap<>();
@@ -185,8 +185,8 @@ public class SystemOrganizationControllerTests extends BaseTest{
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是admin
-        UserExtend userExtend1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), UserExtend.class).get(0);
-        Assertions.assertTrue(StringUtils.contains(userExtend1.getId(), "admin"));
+        UserExtendDTO userExtendDTO1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), UserExtendDTO.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(userExtendDTO1.getId(), "admin"));
         // 权限校验
         requestPostPermissionsTest(List.of(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ),
                 ORGANIZATION_LIST_MEMBER, organizationRequest);
@@ -241,10 +241,10 @@ public class SystemOrganizationControllerTests extends BaseTest{
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字admin
-        UserExtend userExtend = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtend.class).get(0);
-        Assertions.assertTrue(StringUtils.contains(userExtend.getName(), organizationRequest.getKeyword())
-                || StringUtils.contains(userExtend.getEmail(), organizationRequest.getKeyword())
-                || StringUtils.contains(userExtend.getPhone(), organizationRequest.getKeyword()));
+        UserExtendDTO userExtendDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtendDTO.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(userExtendDTO.getName(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtendDTO.getEmail(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtendDTO.getPhone(), organizationRequest.getKeyword()));
         // 权限校验
         organizationMemberRequest.setUserIds(List.of("admin"));
         requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD, ORGANIZATION_ADD_MEMBER, organizationMemberRequest);
@@ -277,10 +277,10 @@ public class SystemOrganizationControllerTests extends BaseTest{
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字admin
-        UserExtend userExtend = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtend.class).get(0);
-        Assertions.assertTrue(StringUtils.contains(userExtend.getName(), organizationRequest.getKeyword())
-                || StringUtils.contains(userExtend.getEmail(), organizationRequest.getKeyword())
-                || StringUtils.contains(userExtend.getPhone(), organizationRequest.getKeyword()));
+        UserExtendDTO userExtendDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtendDTO.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(userExtendDTO.getName(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtendDTO.getEmail(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtendDTO.getPhone(), organizationRequest.getKeyword()));
     }
 
     @Test

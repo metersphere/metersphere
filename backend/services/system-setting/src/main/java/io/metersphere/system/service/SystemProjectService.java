@@ -2,7 +2,7 @@ package io.metersphere.system.service;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.*;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -58,7 +58,7 @@ public class SystemProjectService {
         return commonProjectService.delete(id, deleteUser);
     }
 
-    public List<UserExtend> getProjectMember(ProjectMemberRequest request) {
+    public List<UserExtendDTO> getProjectMember(ProjectMemberRequest request) {
         return extSystemProjectMapper.getProjectMemberList(request);
     }
 

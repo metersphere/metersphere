@@ -6,19 +6,20 @@ import io.metersphere.project.domain.ProjectTestResourcePool;
 import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.sdk.dto.*;
-import io.metersphere.system.dto.*;
-import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.dto.*;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.OrganizationProjectRequest;
@@ -667,7 +668,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         //返回值的页码和当前页码相同
         Assertions.assertEquals(returnPager.getCurrent(), memberRequest.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
-        Assertions.assertTrue(((List<UserExtend>) returnPager.getList()).size() <= memberRequest.getPageSize());
+        Assertions.assertTrue(((List<UserExtendDTO>) returnPager.getList()).size() <= memberRequest.getPageSize());
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId);
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
@@ -682,10 +683,10 @@ public class OrganizationProjectControllerTests extends BaseTest {
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //第一个数据的createTime是最大的
         assert returnPager != null;
-        List<UserExtend> userExtends = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserExtend.class);
-        long firstCreateTime = userExtends.get(0).getCreateTime();
-        for (UserExtend userExtend : userExtends) {
-            Assertions.assertFalse(userExtend.getCreateTime() > firstCreateTime);
+        List<UserExtendDTO> userExtendDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserExtendDTO.class);
+        long firstCreateTime = userExtendDTOS.get(0).getCreateTime();
+        for (UserExtendDTO userExtendDTO : userExtendDTOS) {
+            Assertions.assertFalse(userExtendDTO.getCreateTime() > firstCreateTime);
         }
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getProjectMemberList, memberRequest);

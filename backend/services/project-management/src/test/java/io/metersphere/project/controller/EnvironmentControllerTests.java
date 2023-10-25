@@ -324,16 +324,16 @@ public class EnvironmentControllerTests extends BaseTest {
         ScriptContent.ApiScript apiScript = new ScriptContent.ApiScript();
         ScriptContent scriptContent = new ScriptContent();
         scriptContent.setScript("script");
-        apiScript.setEnvJSR223PostScript(scriptContent);
-        ScriptContent.ScenarioPostScript scenarioPostScript = new ScriptContent.ScenarioPostScript();
-        scenarioPostScript.setAssociateScenarioResults(true);
-        scenarioPostScript.setScript("scenarioPostScript");
-        apiScript.setScenarioJSR223PostScript(scenarioPostScript);
-        ScriptContent.StepPostScript stepPostScript = new ScriptContent.StepPostScript();
-        stepPostScript.setPreScriptExecBefore(true);
+        apiScript.setEnvJSR223Script(scriptContent);
+        ScriptContent.ScenarioScript scenarioScript = new ScriptContent.ScenarioScript();
+        scenarioScript.setAssociateScenarioResults(true);
+        scenarioScript.setScript("scenarioPostScript");
+        apiScript.setScenarioJSR223Script(scenarioScript);
+        ScriptContent.StepScript stepPostScript = new ScriptContent.StepScript();
+        stepPostScript.setScriptExecBefore(true);
         stepPostScript.setScriptContent(scriptContent);
-        stepPostScript.setFilterRequestPostScript(new ArrayList<>());
-        apiScript.setStepJSR223PostScript(stepPostScript);
+        stepPostScript.setFilterRequestScript(new ArrayList<>());
+        apiScript.setStepJSR223Script(List.of(stepPostScript));
         return apiScript;
     }
 

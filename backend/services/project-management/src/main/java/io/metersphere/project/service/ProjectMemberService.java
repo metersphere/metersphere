@@ -13,7 +13,7 @@ import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.UserExtend;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -109,18 +109,18 @@ public class ProjectMemberService {
      * @param projectId 项目ID
      * @return 项目成员下拉选项
      */
-    public List<UserExtend> getMemberOption(String projectId, String keyword) {
+    public List<UserExtendDTO> getMemberOption(String projectId, String keyword) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         if (project == null) {
             return new ArrayList<>();
         }
         // 组织成员
-        List<UserExtend> orgMembers = extProjectMemberMapper.getMemberByOrg(project.getOrganizationId(), keyword);
+        List<UserExtendDTO> orgMembers = extProjectMemberMapper.getMemberByOrg(project.getOrganizationId(), keyword);
         if (CollectionUtils.isEmpty(orgMembers)) {
             return new ArrayList<>();
         }
         // 设置是否是项目成员
-        List<String> orgMemberIds = orgMembers.stream().map(UserExtend::getId).toList();
+        List<String> orgMemberIds = orgMembers.stream().map(UserExtendDTO::getId).toList();
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andUserIdIn(orgMemberIds).andSourceIdEqualTo(projectId).andOrganizationIdEqualTo(project.getOrganizationId());
         List<UserRoleRelation> projectRelations = userRoleRelationMapper.selectByExample(example);

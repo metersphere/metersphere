@@ -3,7 +3,6 @@ package io.metersphere.system.service;
 import com.alibaba.excel.EasyExcelFactory;
 import io.metersphere.sdk.constants.ParamConstants;
 import io.metersphere.sdk.constants.UserSource;
-import io.metersphere.sdk.dto.UserExtend;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
@@ -330,7 +329,7 @@ public class UserService {
      * @param sourceId 组织ID, 项目ID
      * @return 系统用户选项
      */
-    public List<UserExtend> getMemberOption(String sourceId, String keyword) {
+    public List<UserExtendDTO> getMemberOption(String sourceId, String keyword) {
         return extUserMapper.getMemberOption(sourceId, keyword);
     }
 

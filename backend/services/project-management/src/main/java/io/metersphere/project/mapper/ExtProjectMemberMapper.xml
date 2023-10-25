@@ -17,7 +17,7 @@
         order by u.name
     </select>
 
-    <select id="getMemberByOrg" resultType="io.metersphere.sdk.dto.UserExtend">
+    <select id="getMemberByOrg" resultType="io.metersphere.sdk.dto.UserExtendDTO">
         select distinct u.* from user_role_relation urr join `user` u on urr.user_id = u.id
         where
             u.deleted = 0

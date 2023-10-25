@@ -10,10 +10,10 @@ import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.project.service.ProjectMemberService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.dto.UserExtendDTO;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.utils.SessionUtils;
-import io.metersphere.sdk.dto.UserExtend;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -48,8 +48,8 @@ public class ProjectMemberController {
     @GetMapping("/get-member/option/{projectId}")
     @Operation(summary = "项目管理-成员-获取成员下拉选项")
     @RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
-    public List<UserExtend> getMemberOption(@PathVariable String projectId,
-                                            @Schema(description = "查询关键字，根据邮箱和用户名查询")
+    public List<UserExtendDTO> getMemberOption(@PathVariable String projectId,
+                                               @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                             @RequestParam(value = "keyword", required = false) String keyword) {
         return projectMemberService.getMemberOption(projectId, keyword);
     }

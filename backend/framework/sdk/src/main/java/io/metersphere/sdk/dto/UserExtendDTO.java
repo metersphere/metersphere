@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class UserExtend extends User implements Serializable {
+public class UserExtendDTO extends User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
