@@ -5,7 +5,7 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="receiver" jdbcType="VARCHAR" property="receiver" />
-    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="subject" jdbcType="VARCHAR" property="subject" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="operator" jdbcType="VARCHAR" property="operator" />
@@ -13,6 +13,9 @@
     <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
     <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
     <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.project.domain.Notification">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,9 +76,28 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `type`, receiver, title, `status`, create_time, `operator`, `operation`, resource_id, 
+    id, `type`, receiver, subject, `status`, create_time, `operator`, `operation`, resource_id, 
     resource_type, resource_name
   </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.project.domain.NotificationExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from notification
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.NotificationExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -90,9 +112,11 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
     from notification
     where id = #{id,jdbcType=BIGINT}
   </select>
@@ -108,13 +132,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.Notification">
     insert into notification (id, `type`, receiver, 
-      title, `status`, create_time, 
+      subject, `status`, create_time, 
       `operator`, `operation`, resource_id, 
-      resource_type, resource_name)
+      resource_type, resource_name, content
+      )
     values (#{id,jdbcType=BIGINT}, #{type,jdbcType=VARCHAR}, #{receiver,jdbcType=VARCHAR}, 
-      #{title,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{subject,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{operator,jdbcType=VARCHAR}, #{operation,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
-      #{resourceType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR})
+      #{resourceType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.Notification">
     insert into notification
@@ -128,8 +154,8 @@
       <if test="receiver != null">
         receiver,
       </if>
-      <if test="title != null">
-        title,
+      <if test="subject != null">
+        subject,
       </if>
       <if test="status != null">
         `status`,
@@ -152,6 +178,9 @@
       <if test="resourceName != null">
         resource_name,
       </if>
+      <if test="content != null">
+        content,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -163,8 +192,8 @@
       <if test="receiver != null">
         #{receiver,jdbcType=VARCHAR},
       </if>
-      <if test="title != null">
-        #{title,jdbcType=VARCHAR},
+      <if test="subject != null">
+        #{subject,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -187,6 +216,9 @@
       <if test="resourceName != null">
         #{resourceName,jdbcType=VARCHAR},
       </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.project.domain.NotificationExample" resultType="java.lang.Long">
@@ -207,8 +239,8 @@
       <if test="record.receiver != null">
         receiver = #{record.receiver,jdbcType=VARCHAR},
       </if>
-      <if test="record.title != null">
-        title = #{record.title,jdbcType=VARCHAR},
+      <if test="record.subject != null">
+        subject = #{record.subject,jdbcType=VARCHAR},
       </if>
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
@@ -231,7 +263,28 @@
       <if test="record.resourceName != null">
         resource_name = #{record.resourceName,jdbcType=VARCHAR},
       </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update notification
+    set id = #{record.id,jdbcType=BIGINT},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      receiver = #{record.receiver,jdbcType=VARCHAR},
+      subject = #{record.subject,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      `operator` = #{record.operator,jdbcType=VARCHAR},
+      `operation` = #{record.operation,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      resource_name = #{record.resourceName,jdbcType=VARCHAR},
+      content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,7 +294,7 @@
     set id = #{record.id,jdbcType=BIGINT},
       `type` = #{record.type,jdbcType=VARCHAR},
       receiver = #{record.receiver,jdbcType=VARCHAR},
-      title = #{record.title,jdbcType=VARCHAR},
+      subject = #{record.subject,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       `operator` = #{record.operator,jdbcType=VARCHAR},
@@ -262,8 +315,8 @@
       <if test="receiver != null">
         receiver = #{receiver,jdbcType=VARCHAR},
       </if>
-      <if test="title != null">
-        title = #{title,jdbcType=VARCHAR},
+      <if test="subject != null">
+        subject = #{subject,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
@@ -286,14 +339,32 @@
       <if test="resourceName != null">
         resource_name = #{resourceName,jdbcType=VARCHAR},
       </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.Notification">
+    update notification
+    set `type` = #{type,jdbcType=VARCHAR},
+      receiver = #{receiver,jdbcType=VARCHAR},
+      subject = #{subject,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      `operator` = #{operator,jdbcType=VARCHAR},
+      `operation` = #{operation,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR},
+      resource_name = #{resourceName,jdbcType=VARCHAR},
+      content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.Notification">
     update notification
     set `type` = #{type,jdbcType=VARCHAR},
       receiver = #{receiver,jdbcType=VARCHAR},
-      title = #{title,jdbcType=VARCHAR},
+      subject = #{subject,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       `operator` = #{operator,jdbcType=VARCHAR},
@@ -305,14 +376,15 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into notification
-    (id, `type`, receiver, title, `status`, create_time, `operator`, `operation`, resource_id, 
-      resource_type, resource_name)
+    (id, `type`, receiver, subject, `status`, create_time, `operator`, `operation`, resource_id, 
+      resource_type, resource_name, content)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=BIGINT}, #{item.type,jdbcType=VARCHAR}, #{item.receiver,jdbcType=VARCHAR}, 
-        #{item.title,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.subject,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.operator,jdbcType=VARCHAR}, #{item.operation,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
-        #{item.resourceType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR})
+        #{item.resourceType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -334,8 +406,8 @@
         <if test="'receiver'.toString() == column.value">
           #{item.receiver,jdbcType=VARCHAR}
         </if>
-        <if test="'title'.toString() == column.value">
-          #{item.title,jdbcType=VARCHAR}
+        <if test="'subject'.toString() == column.value">
+          #{item.subject,jdbcType=VARCHAR}
         </if>
         <if test="'status'.toString() == column.value">
           #{item.status,jdbcType=VARCHAR}
@@ -357,6 +429,9 @@
         </if>
         <if test="'resource_name'.toString() == column.value">
           #{item.resourceName,jdbcType=VARCHAR}
+        </if>
+        <if test="'content'.toString() == column.value">
+          #{item.content,jdbcType=LONGVARCHAR}
         </if>
       </foreach>
       )

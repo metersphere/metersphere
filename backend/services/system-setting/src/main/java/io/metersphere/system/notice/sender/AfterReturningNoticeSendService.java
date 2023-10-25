@@ -3,8 +3,8 @@ package io.metersphere.system.notice.sender;
 
 import io.metersphere.sdk.dto.BaseSystemConfigDTO;
 import io.metersphere.sdk.dto.SessionUser;
-import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.NoticeModel;
+import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import io.metersphere.system.service.NoticeSendService;
@@ -14,9 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class AfterReturningNoticeSendService {
@@ -45,6 +43,8 @@ public class AfterReturningNoticeSendService {
 
             String subject = getSubject(sendNotice);
 
+            List<String> relatedUsers = getRelatedUsers(resource.get("relatedUsers"));
+
             NoticeModel noticeModel = NoticeModel.builder()
                     .operator(sessionUser.getId())
                     .context(context)
@@ -53,15 +53,26 @@ public class AfterReturningNoticeSendService {
                     .event(sendNotice.event())
                     .status((String) paramMap.get("status"))
                     .excludeSelf(true)
+                    .relatedUsers(relatedUsers)
                     .build();
             noticeSendService.send(sendNotice.taskType(), noticeModel);
         }
+    }
+
+    private List<String> getRelatedUsers(Object relatedUsers) {
+        String relatedUser = (String) relatedUsers;
+        List<String> relatedUserList = new ArrayList<>();
+        if (StringUtils.isNotBlank(relatedUser)) {
+            relatedUserList = Arrays.asList(relatedUser.split(","));
+        }
+        return relatedUserList;
     }
 
     private String getSubject(SendNotice sendNotice) {
         Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
         return defaultTemplateTitleMap.get(sendNotice.taskType() + "_" + sendNotice.event());
     }
+
 
     /**
      * 有些默认的值，避免通知里出现 ${key}

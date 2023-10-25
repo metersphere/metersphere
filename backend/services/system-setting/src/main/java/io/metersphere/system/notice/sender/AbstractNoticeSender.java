@@ -137,19 +137,22 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 default -> toUsers.add(new Receiver(userId, NotificationConstants.Type.MENTIONED_ME.name()));
             }
             //TODO：接口同步时通知的接收人特殊处理（v2接口同步的通知，v3这里待讨论）
-            //处理评论人
-            if (messageDetail.getTaskType().contains("AT_COMMENT")) {
-                if (CollectionUtils.isNotEmpty(noticeModel.getRelatedUsers())) {
-                    for (String relatedUser : noticeModel.getRelatedUsers()) {
-                        toUsers.add(new Receiver(relatedUser, NotificationConstants.Type.MENTIONED_ME.name()));
-                    }
+
+        }
+        //处理评论人
+        if (event.contains(NoticeConstants.Event.AT) || event.contains(NoticeConstants.Event.REPLAY)) {
+            if (CollectionUtils.isNotEmpty(noticeModel.getRelatedUsers())) {
+                for (String relatedUser : noticeModel.getRelatedUsers()) {
+                    toUsers.add(new Receiver(relatedUser, NotificationConstants.Type.MENTIONED_ME.name()));
                 }
             }
         }
+
         // 去重复
-        return toUsers.stream()
-                .distinct()
-                .collect(Collectors.toList());
+        List<String> userIds = toUsers.stream().map(Receiver::getUserId).distinct().toList();
+        List<User> users = getUsers(userIds);
+        List<String> realUserIds = users.stream().map(User::getId).toList();
+        return toUsers.stream().filter(t -> realUserIds.contains(t.getUserId())).toList();
     }
 
     private List<Receiver> handleFollows(MessageDetail messageDetail, NoticeModel noticeModel) {
