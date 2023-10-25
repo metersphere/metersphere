@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <MsSplitBox @expand-change="handleCollapse">
+    <MsSplitBox v-model:width="leftWidth" @expand-change="handleCollapse">
       <template #left>
         <UserGroupLeft ref="ugLeftRef" @handle-select="handleSelect" @add-user-success="handleAddMember" />
       </template>
@@ -37,21 +37,15 @@
               :keyword="currentKeyword"
               :current="currentUserGroupItem"
             />
-            <AuthTable v-if="currentTable === 'auth' && couldShowAuth" ref="authRef" :current="currentUserGroupItem" />
+            <AuthTable
+              v-if="currentTable === 'auth' && couldShowAuth"
+              :current="currentUserGroupItem"
+              :width="bottomWidth"
+            />
           </div>
         </div>
       </template>
     </MsSplitBox>
-  </div>
-  <div
-    v-if="currentTable === 'auth'"
-    class="fixed bottom-[16px] right-[16px] z-[999] flex justify-between bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
-    :style="{ width: `calc(100% - ${menuWidth + 16}px)` }"
-  >
-    <ms-button class="btn" :disabled="!canSave" @click="handleReset">{{ t('system.userGroup.reset') }}</ms-button>
-    <a-button class="btn" :disabled="!canSave" type="primary" @click="handleSave">{{
-      t('system.userGroup.save')
-    }}</a-button>
   </div>
 </template>
 
@@ -61,7 +55,6 @@
    */
   import { computed, nextTick, onMounted, provide, ref, watchEffect } from 'vue';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import AuthTable from '@/components/business/ms-user-group-comp/authTable.vue';
   import UserGroupLeft from '@/components/business/ms-user-group-comp/msUserGroupLeft.vue';
@@ -69,6 +62,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import { addPixelValues } from '@/utils/css';
 
   import { CurrentUserGroupItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';
@@ -79,6 +73,7 @@
   const { t } = useI18n();
   const currentKeyword = ref('');
   const ugLeftRef = ref();
+
   const currentUserGroupItem = ref<CurrentUserGroupItem>({
     id: '',
     name: '',
@@ -86,15 +81,17 @@
     internal: true,
   });
 
-  const leftCollapse = ref(true);
-
-  const authRef = ref<{
-    handleReset: () => void;
-    handleSave: () => void;
-    canSave: boolean;
-  }>();
   const userRef = ref();
   const appStore = useAppStore();
+  const leftCollapse = ref(true);
+  const leftWidth = ref('300px');
+  const bottomWidth = computed(() => {
+    const width = appStore.menuCollapse ? '86px' : `${appStore.menuWidth}px`;
+    if (leftCollapse.value) {
+      return `calc(100% - ${addPixelValues(width, leftWidth.value, '20px')})`;
+    }
+    return `calc(100% - ${addPixelValues(width, '16px')})`;
+  });
 
   const tableSearch = () => {
     if (currentTable.value === 'user' && userRef.value) {
@@ -128,32 +125,14 @@
   const couldShowUser = computed(() => currentUserGroupItem.value.type === AuthScopeEnum.SYSTEM);
   const couldShowAuth = computed(() => currentUserGroupItem.value.id !== 'admin');
   const handleCollapse = (collapse: boolean) => {
+    leftCollapse.value = collapse;
     if (collapse) {
+      leftWidth.value = '300px';
       nextTick(() => {
         ugLeftRef.value?.initData(currentUserGroupItem.value.id);
       });
     }
   };
-  const menuWidth = computed(() => {
-    const width = appStore.menuCollapse ? 86 : appStore.menuWidth;
-    if (leftCollapse.value) {
-      return width + 300;
-    }
-    return width;
-  });
-
-  const handleReset = () => {
-    authRef.value?.handleReset();
-  };
-  const handleSave = () => {
-    authRef.value?.handleSave();
-  };
-  const canSave = computed(() => {
-    if (currentTable.value === 'auth') {
-      return authRef.value?.canSave;
-    }
-    return true;
-  });
   watchEffect(() => {
     if (!couldShowAuth.value) {
       currentTable.value = 'user';
@@ -176,29 +155,5 @@
     height: calc(100vh - 88px);
     border-radius: var(--border-radius-large);
     box-shadow: 0 0 10px rgb(120 56 135 / 5%);
-  }
-  .user-group-left {
-    position: relative;
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding-right: 6px;
-    padding-bottom: 24px;
-    width: 300px;
-    min-width: 300px;
-    height: 100%;
-    border-right: 1px solid var(--color-border-1);
-  }
-  .usergroup-collapse {
-    position: absolute;
-    top: 50%;
-    z-index: 101;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 16px;
-    height: 36px;
-    background-color: var(--color-text-n8);
-    flex-shrink: 0;
-    cursor: pointer;
   }
 </style>

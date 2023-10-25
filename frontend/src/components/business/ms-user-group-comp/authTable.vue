@@ -47,11 +47,22 @@
       </template>
     </a-table>
   </div>
+  <div
+    class="fixed bottom-[16px] right-[16px] z-[999] flex justify-between bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+    :style="{ width: props.width }"
+  >
+    <ms-button class="btn" :disabled="!canSave" @click="handleReset">{{ t('system.userGroup.reset') }}</ms-button>
+    <a-button class="btn" :disabled="!canSave" type="primary" @click="handleSave">{{
+      t('system.userGroup.save')
+    }}</a-button>
+  </div>
 </template>
 
 <script setup lang="ts">
   import { computed, inject, ref, RenderFunction, VNodeChild, watchEffect } from 'vue';
   import { Message, type TableColumnData, type TableData } from '@arco-design/web-vue';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
 
   import { getAuthByUserGroup, saveProjectUGSetting } from '@/api/modules/project-management/usergroup';
   import {
@@ -84,6 +95,7 @@
 
   const props = defineProps<{
     current: CurrentUserGroupItem;
+    width?: string;
   }>();
 
   const systemType = inject<AuthScopeEnum>('systemType');
@@ -333,11 +345,6 @@
     if (props.current.id) {
       initData(props.current.id, props.current.internal);
     }
-  });
-  defineExpose({
-    handleReset,
-    handleSave,
-    canSave,
   });
 </script>
 
