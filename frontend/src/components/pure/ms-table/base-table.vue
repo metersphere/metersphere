@@ -224,7 +224,7 @@
     (e: 'batchAction', value: BatchActionParams, queryParams: BatchActionQueryParams): void;
     (e: 'pageChange', value: number): void;
     (e: 'pageSizeChange', value: number): void;
-    (e: 'rowNameChange', value: TableData): void;
+    (e: 'rowNameChange', value: TableData, cb: (v: boolean) => void): void;
     (e: 'rowSelectChange', key: string): void;
     (e: 'selectAllChange', value: SelectAllEnum): void;
     (e: 'sorterChange', value: { [key: string]: string }): void;
@@ -349,9 +349,14 @@
       currentEditValue.value = '';
     } else {
       // 触发的是Enter
-      emit('rowNameChange', record);
-      isEnter.value = true;
-      editActiveKey.value = '';
+      emit('rowNameChange', record, (v: boolean) => {
+        if (!v) {
+          // 如果接口报错，没有成功的修改，恢复旧值
+          record[dataIndex] = currentEditValue.value;
+        }
+        isEnter.value = true;
+        editActiveKey.value = '';
+      });
     }
   };
 

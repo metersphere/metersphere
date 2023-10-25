@@ -62,10 +62,10 @@
   import UserDrawer from './userDrawer.vue';
 
   import {
-    createOrUpdateProject,
     deleteProject,
     enableOrDisableProject,
     postProjectTable,
+    renameProject,
     revokeDeleteProject,
   } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
@@ -148,10 +148,11 @@
 
   const handleNameChange = async (record: OrgProjectTableItem) => {
     try {
-      await createOrUpdateProject(record);
+      await renameProject({ id: record.id, name: record.name, organizationId: record.organizationId });
       Message.success(t('common.updateSuccess'));
+      return true;
     } catch (error) {
-      Message.error(t('common.updateFailed'));
+      return false;
     }
   };
 

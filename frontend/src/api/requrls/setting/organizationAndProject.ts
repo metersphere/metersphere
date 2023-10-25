@@ -1,6 +1,8 @@
 // 系统-组织
 // 修改组织
 export const postModifyOrgUrl = '/system/organization/update';
+// 修改组织名称
+export const postModifyOrgNameUrl = '/system/organization/rename';
 // 获取系统下所有组织-下拉选项
 export const postOrgOptionsUrl = '/system/organization/option/all';
 // 获取系统下所有组织-Table
@@ -35,6 +37,8 @@ export const postProjectTableUrl = '/system/project/page';
 export const postProjectMemberUrl = '/system/project/member-list';
 // 添加项目
 export const postAddProjectUrl = '/system/project/add';
+// 修改项目名称
+export const postModifyProjectNameUrl = '/system/project/rename';
 // 添加项目成员
 export const postAddProjectMemberUrl = '/system/project/add-member';
 // 撤销项目
@@ -67,6 +71,8 @@ export const postProjectTableByOrgIdUrl = '/organization/project/page';
 // 获取项目下的成员列表
 export const postProjectMemberByOrgIdUrl = '/organization/project/member-list';
 // 添加项目
+// 修改项目名称
+export const postModifyProjectNameByOrgUrl = '/organization/project/rename';
 export const postAddProjectByOrgUrl = '/organization/project/add';
 // 添加项目成员
 export const postAddProjectMemberByOrgUrl = '/organization/project/add-members';

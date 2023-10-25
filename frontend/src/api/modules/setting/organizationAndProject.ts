@@ -29,6 +29,11 @@ export function createOrUpdateOrg(data: CreateOrUpdateSystemOrgParams | CreateOr
   return MSR.post({ url: data.id ? orgUrl.postModifyOrgUrl : orgUrl.postAddOrgUrl, data });
 }
 
+// 修改组织名称
+export function modifyOrgName(data: { id: string; name: string }) {
+  return MSR.post({ url: orgUrl.postModifyOrgNameUrl, data });
+}
+
 // 删除组织
 export function deleteOrg(id: string) {
   return MSR.get({ url: `${orgUrl.getDeleteOrgUrl}${id}` });
@@ -104,6 +109,10 @@ export function getSystemOrgOption() {
 export function createOrUpdateProject(data: Partial<OrgProjectTableItem>) {
   return MSR.post({ url: data.id ? orgUrl.postModifyProjectUrl : orgUrl.postAddProjectUrl, data });
 }
+// 修改项目名称
+export function renameProject(data: { id: string; name: string; organizationId: string }) {
+  return MSR.post({ url: orgUrl.postModifyProjectNameUrl, data });
+}
 
 // 创建项目或组织时获取所有用户
 export function getAllUser() {
@@ -139,6 +148,11 @@ export function revokeDeleteProjectByOrg(id: string) {
 // 组织-创建或更新项目
 export function createOrUpdateProjectByOrg(data: CreateOrUpdateOrgProjectParams) {
   return MSR.post({ url: data.id ? orgUrl.postModifyProjectByOrgUrl : orgUrl.postAddProjectByOrgUrl, data });
+}
+
+// 修改项目名称
+export function renameProjectByOrg(data: { id: string; name: string; organizationId: string }) {
+  return MSR.post({ url: orgUrl.postModifyProjectNameByOrgUrl, data });
 }
 
 // 组织-获取项目下的成员列表
