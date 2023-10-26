@@ -139,7 +139,7 @@ public interface NoticeConstants {
         String AT = "AT";
 
         @Schema(description = "message.replay")
-        String REPLAY = "REPLAY";
+        String REPLY = "REPLY";
 
         @Schema(description = "message.review_passed")
         String REVIEW_PASSED = "REVIEW_PASSED";

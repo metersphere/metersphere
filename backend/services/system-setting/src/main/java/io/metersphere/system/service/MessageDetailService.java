@@ -112,10 +112,14 @@ public class MessageDetailService {
             if (!messageTask.getUseDefaultSubject() && StringUtils.isNotBlank(messageTask.getSubject())) {
                 messageDetail.setSubject(messageTask.getSubject());
             } else {
-                String subject = getSubject(messageTask.getTaskType(), messageTask.getEvent());
-                messageDetail.setSubject(subject);
+                if (StringUtils.equals(projectRobot.getPlatform(),"MAIL")) {
+                    String subject = getMailSubject(messageTask.getTaskType(), messageTask.getEvent());
+                    messageDetail.setSubject(subject);
+                } else {
+                    String subject = getSubject(messageTask.getTaskType(), messageTask.getEvent());
+                    messageDetail.setSubject(subject);
+                }
             }
-
             MessageTaskBlob messageTaskBlob = messageTaskBlobMap.get(messageTask.getId());
             if (!messageTask.getUseDefaultTemplate() && StringUtils.isNotBlank(messageTaskBlob.getTemplate())) {
                 messageDetail.setTemplate(messageTaskBlob.getTemplate());
@@ -132,12 +136,15 @@ public class MessageDetailService {
         return defaultTemplateMap.get(taskType + "_" + event);
     }
 
-    private String getSubject(String taskType, String event) {
+    private String getMailSubject(String taskType, String event) {
         Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
         return "MeterSphere " + defaultTemplateTitleMap.get(taskType + "_" + event);
     }
 
-
+    private String getSubject(String taskType, String event) {
+        Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
+        return defaultTemplateTitleMap.get(taskType + "_" + event);
+    }
     /**
      * 根据用例ID获取所有该用例的定时任务的任务通知
      *
