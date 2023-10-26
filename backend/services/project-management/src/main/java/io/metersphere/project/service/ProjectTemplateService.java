@@ -31,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static io.metersphere.project.enums.result.ProjectResultCode.PROJECT_TEMPLATE_PERMISSION;
@@ -139,6 +141,26 @@ public class ProjectTemplateService extends BaseTemplateService {
         }
         return getTemplateDTO(template);
     }
+
+
+    /**
+     * 获取模板自定义字段
+     * @param templateId
+     * @param projectId
+     * @param scene
+     * @return
+     */
+    public TemplateDTO getTemplateDTOById(String templateId, String projectId, String scene) {
+        AtomicReference<TemplateDTO> templateDTO = new AtomicReference<>(new TemplateDTO());
+        Template template = templateMapper.selectByPrimaryKey(templateId);
+        Optional.ofNullable(template).ifPresentOrElse(item -> {
+            templateDTO.set(super.getTemplateDTO(template));
+        }, () -> {
+            templateDTO.set(getDefaultTemplateDTO(projectId, scene));
+        });
+        return templateDTO.get();
+    }
+
 
     /**
      * 获取内置模板
@@ -264,7 +286,6 @@ public class ProjectTemplateService extends BaseTemplateService {
 
     /**
      * 获取模板以及字段
-     * !提供给其他模块调用
      * @param id
      * @return
      */

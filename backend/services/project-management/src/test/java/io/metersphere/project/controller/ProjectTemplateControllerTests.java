@@ -30,6 +30,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
@@ -434,5 +436,13 @@ public class ProjectTemplateControllerTests extends BaseTest {
                 organizationParameterMapper.insert(organizationParameter);
             }
         }
+    }
+
+    @Test
+    @Order(2)
+    @Sql(scripts = {"/dml/init_test_template.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void getTemplateDTOById() throws Exception {
+        projectTemplateService.getTemplateDTOById("test_template_id", DEFAULT_PROJECT_ID, TemplateScene.FUNCTIONAL.name());
+        projectTemplateService.getTemplateDTOById("test_template_id_1", "test_project_id_1", TemplateScene.FUNCTIONAL.name());
     }
 }
