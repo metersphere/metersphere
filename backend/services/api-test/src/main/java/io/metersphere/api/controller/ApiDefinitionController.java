@@ -1,8 +1,8 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
-import io.metersphere.api.service.APIDefinitionLogService;
-import io.metersphere.api.service.APIDefinitionService;
+import io.metersphere.api.service.ApiDefinitionLogService;
+import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -22,12 +22,12 @@ import java.util.List;
 @RequestMapping(value = "/api/definition")
 public class ApiDefinitionController {
     @Resource
-    private APIDefinitionService apiDefinitionService;
+    private ApiDefinitionService apiDefinitionService;
 
     @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_ADD_API)
     // 添加接口Log示例
-    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = APIDefinitionLogService.class)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDefinitionLogService.class)
     public ApiDefinitionDTO add(@Validated({Created.class}) @RequestBody ApiDefinitionDTO request,
                                 @RequestParam(value = "files") List<MultipartFile> bodyFiles) {
         return apiDefinitionService.create(request, bodyFiles);
@@ -36,7 +36,7 @@ public class ApiDefinitionController {
     @PostMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_ADD_API)
     // 添加修改Log示例
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = APIDefinitionLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDefinitionLogService.class)
     public ApiDefinitionDTO update(@Validated({Updated.class}) @RequestBody ApiDefinitionDTO request) {
         return request;
     }
@@ -44,20 +44,20 @@ public class ApiDefinitionController {
     @PostMapping(value = "/batch-update", consumes = MediaType.APPLICATION_JSON_VALUE)
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_ADD_API)
     // 添加修改Log示例
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateLog(#ids)", msClass = APIDefinitionLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateLog(#ids)", msClass = ApiDefinitionLogService.class)
     public ApiDefinitionDTO batchUpdate(@RequestBody List<String> ids) {
         return null;
     }
 
     @PostMapping(value = "/delete")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.delLog(#id)", msClass = APIDefinitionLogService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.delLog(#id)", msClass = ApiDefinitionLogService.class)
     public void batchDelete(@RequestBody String id) {
 
     }
     @PostMapping(value = "/batch-del")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDelLog(#ids)", msClass = APIDefinitionLogService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDelLog(#ids)", msClass = ApiDefinitionLogService.class)
     public void batchDelete(@RequestBody List<String> ids) {
         apiDefinitionService.batchDelete(ids);
     }

@@ -1,6 +1,6 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.event.APIEventSource;
+import io.metersphere.api.event.ApiEventSource;
 import io.metersphere.sdk.listener.Event;
 import io.metersphere.sdk.listener.EventListener;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -23,7 +23,7 @@ public class EventSourceTests {
     public void eventSourceTest() throws Exception {
         // 注册所有监听源
         LogUtils.info("初始化接口事件源");
-        APIEventSource apiEventSource = CommonBeanFactory.getBean(APIEventSource.class);
+        ApiEventSource apiEventSource = CommonBeanFactory.getBean(ApiEventSource.class);
         assert apiEventSource != null;
         apiEventSource.addListener(new EventListener<Event>() {
             @Override

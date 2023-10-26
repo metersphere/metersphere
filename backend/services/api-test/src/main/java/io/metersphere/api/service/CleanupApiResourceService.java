@@ -5,7 +5,7 @@ import io.metersphere.system.service.CleanupProjectResourceService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CleanupAPIResourceService implements CleanupProjectResourceService {
+public class CleanupApiResourceService implements CleanupProjectResourceService {
 
     @Override
     public void deleteResources(String projectId) {

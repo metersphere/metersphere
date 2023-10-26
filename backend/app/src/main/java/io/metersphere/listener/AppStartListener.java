@@ -1,6 +1,6 @@
 package io.metersphere.listener;
 
-import io.metersphere.api.event.APIEventSource;
+import io.metersphere.api.event.ApiEventSource;
 import io.metersphere.plan.listener.ExecEventListener;
 import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -21,7 +21,7 @@ public class AppStartListener implements ApplicationRunner {
         LogUtils.info("================= 应用启动 =================");
         // 注册所有监听源
         LogUtils.info("初始化接口事件源");
-        APIEventSource apiEventSource = CommonBeanFactory.getBean(APIEventSource.class);
+        ApiEventSource apiEventSource = CommonBeanFactory.getBean(ApiEventSource.class);
         LogUtils.info("初始化性能测试事件源");
         //LoadEventSource loadEventSource = CommonBeanFactory.getBean(LoadEventSource.class);
         //todo: 注册其他事件源

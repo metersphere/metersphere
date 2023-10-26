@@ -1,6 +1,6 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.service.CleanupAPIResourceService;
+import io.metersphere.api.service.CleanupApiResourceService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @AutoConfigureMockMvc
 public class CleanupResourceTests {
     @Resource
-    private CleanupAPIResourceService resourceService;
+    private CleanupApiResourceService resourceService;
 
     @Test
     @Order(1)
