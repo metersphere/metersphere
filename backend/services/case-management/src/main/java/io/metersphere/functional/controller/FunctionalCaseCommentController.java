@@ -3,10 +3,7 @@ package io.metersphere.functional.controller;
 import io.metersphere.functional.domain.FunctionalCaseComment;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.functional.service.FunctionalCaseCommentService;
-import io.metersphere.functional.service.FunctionalCaseNoticeService;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.notice.annotation.SendNotice;
-import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,7 +27,6 @@ public class FunctionalCaseCommentController {
     @PostMapping("/save")
     @Operation(summary = "用例管理-功能用例-用例评论-创建评论")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_COMMENT_READ_ADD)
-    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.AT,  target = "#targetClass.getRelatedUsers(#functionalCaseCommentRequest)", targetClass = FunctionalCaseNoticeService.class)
     public FunctionalCaseComment saveComment(@Validated({Created.class}) @RequestBody FunctionalCaseCommentRequest functionalCaseCommentRequest) {
         return functionalCaseCommentService.saveComment(functionalCaseCommentRequest, SessionUtils.getUserId());
     }

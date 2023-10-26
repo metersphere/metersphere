@@ -14,7 +14,7 @@ public class FunctionalCaseCommentRequest {
     @NotBlank(message = "{functional_case_comment.case_id.not_blank}", groups = {Created.class})
     private String caseId;
 
-    @Schema(description =  "评论@的人, 多个以';'隔开")
+    @Schema(description =  "评论@的人的Id, 多个以';'隔开")
     private String  notifier;
 
     @Schema(description =  "回复人")
@@ -26,5 +26,9 @@ public class FunctionalCaseCommentRequest {
     @Schema(description =  "内容", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_comment.content.not_blank}", groups = {Created.class})
     private String content;
+
+    @Schema(description =  "任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_comment.event.not_blank}", groups = {Created.class})
+    private String event;
 
 }
