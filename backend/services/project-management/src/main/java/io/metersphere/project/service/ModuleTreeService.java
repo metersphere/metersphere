@@ -1,14 +1,15 @@
 package io.metersphere.project.service;
 
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.dto.BaseModule;
 import io.metersphere.sdk.dto.BaseTreeNode;
-import io.metersphere.sdk.dto.request.NodeMoveRequest;
 import io.metersphere.sdk.util.Translator;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,9 +27,13 @@ public abstract class ModuleTreeService {
     }
 
 
-    public List<BaseTreeNode> traverseToBuildTree(List<BaseTreeNode> traverseList, @NotNull List<ModuleCountDTO> moduleCountDTOList, boolean haveVirtualRootNode) {
-        List<BaseTreeNode> baseTreeNodeList = this.traverseToBuildTree(traverseList, haveVirtualRootNode);
+    //构建树结构，并为每个节点计算资源数量
+    public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, @NotNull List<ModuleCountDTO> moduleCountDTOList, boolean haveVirtualRootNode) {
+        //构建模块树
+        List<BaseTreeNode> baseTreeNodeList = this.buildTreeAndCountResource(traverseList, haveVirtualRootNode);
+        //构建模块节点统计的数据结构
         Map<String, Integer> resourceCountMap = moduleCountDTOList.stream().collect(Collectors.toMap(ModuleCountDTO::getModuleId, ModuleCountDTO::getDataCount));
+        //为每个节点赋值资源数量
         this.sumModuleResourceCount(baseTreeNodeList, resourceCountMap);
         return baseTreeNodeList;
     }
@@ -38,9 +43,8 @@ public abstract class ModuleTreeService {
      *
      * @param traverseList        要遍历的节点集合（会被清空）
      * @param haveVirtualRootNode 是否包含虚拟跟节点
-     * @return
      */
-    public List<BaseTreeNode> traverseToBuildTree(List<BaseTreeNode> traverseList, boolean haveVirtualRootNode) {
+    public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, boolean haveVirtualRootNode) {
         List<BaseTreeNode> baseTreeNodeList = new ArrayList<>();
         if (haveVirtualRootNode) {
             BaseTreeNode defaultNode = this.getDefaultModule();
@@ -78,13 +82,14 @@ public abstract class ModuleTreeService {
     /**
      * 模块树排序
      */
-    public void sort(NodeMoveRequest nodeMoveRequest) {
+    public void sort(@Validated NodeSortDTO nodeMoveDTO) {
         // 获取相邻节点
-        BaseModule previousNode = getNode(nodeMoveRequest.getPreviousNodeId());
-        BaseModule nextNode = getNode(nodeMoveRequest.getNextNodeId());
+        BaseModule previousNode = nodeMoveDTO.getPreviousNode();
+        BaseModule nextNode = nodeMoveDTO.getNextNode();
+
         if (previousNode == null && nextNode == null) {
             // 没有相邻节点，pos为0
-            updatePos(nodeMoveRequest.getNodeId(), 0);
+            updatePos(nodeMoveDTO.getNode().getId(), 0);
         } else {
             boolean refreshPos = false;
             int pos;
@@ -103,24 +108,19 @@ public abstract class ModuleTreeService {
                 pos = previousNode.getPos() + quantityDifference;
             }
 
-            updatePos(nodeMoveRequest.getNodeId(), pos);
+            updatePos(nodeMoveDTO.getNode().getId(), pos);
             if (refreshPos) {
-                refreshPos(nodeMoveRequest.getParentId());
+                refreshPos(nodeMoveDTO.getParent().getId());
             }
         }
     }
-
-    public abstract BaseModule getNode(String id);
 
     public abstract void updatePos(String id, int pos);
 
     public abstract void refreshPos(String parentId);
 
     /**
-     * 通过深度遍历的方式，将资源数量复制到节点上，并将子节点上的资源数量统计到父节点上
-     *
-     * @param baseTreeNodeList
-     * @param resourceCountMap
+     * 通过深度遍历的方式，在为节点赋值资源统计数量的同时，同步计算其子节点的资源数量，并添加到父节点上
      */
     private void sumModuleResourceCount(List<BaseTreeNode> baseTreeNodeList, Map<String, Integer> resourceCountMap) {
         for (BaseTreeNode node : baseTreeNodeList) {

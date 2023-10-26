@@ -114,6 +114,17 @@ public class FileManagementControllerTests extends BaseTest {
         Assertions.assertEquals(result.getCurrent(), request.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= request.getPageSize());
+
+        //此时该接口数量应该为空
+        List<String> fileTypes = this.getFileType();
+        Assertions.assertTrue(fileTypes.isEmpty());
+    }
+
+    private List<String> getFileType() throws Exception {
+        MvcResult fileTypeResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE_TYPE, project.getId()));
+        String returnData = fileTypeResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), String.class);
     }
 
     @Test
@@ -362,6 +373,8 @@ public class FileManagementControllerTests extends BaseTest {
     public void fileUploadTestSuccess() throws Exception {
         this.preliminaryData();
 
+        List<String> uploadedFileTypes = new ArrayList<>();
+
         FileUploadRequest fileUploadRequest = new FileUploadRequest();
         fileUploadRequest.setProjectId(project.getId());
 
@@ -375,6 +388,14 @@ public class FileManagementControllerTests extends BaseTest {
         String returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
         FILE_ID_PATH.put(returnId, filePath);
+        uploadedFileTypes.add("JPG");
+
+        //检查文件类型获取接口有没有获取到数据
+        List<String> fileTypes = this.getFileType();
+        Assertions.assertEquals(fileTypes.size(), uploadedFileTypes.size());
+        for (String fileType : fileTypes) {
+            Assertions.assertTrue(uploadedFileTypes.contains(fileType));
+        }
 
         //文件上传到a1-a1节点
         BaseTreeNode a1a1Node = FileManagementBaseUtils.getNodeByName(preliminaryTreeNodes, "a1-a1");
@@ -382,7 +403,7 @@ public class FileManagementControllerTests extends BaseTest {
         fileUploadRequest.setProjectId(project.getId());
         fileUploadRequest.setModuleId(a1a1Node.getId());
         filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/txtFile.txt")).getPath();
-        file = new MockMultipartFile("file", "txtFile.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
+        file = new MockMultipartFile("file", "txtFile.txt", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", file);
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
@@ -390,6 +411,15 @@ public class FileManagementControllerTests extends BaseTest {
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
         FILE_ID_PATH.put(returnId, filePath);
+        uploadedFileTypes.add("txt");
+
+        //检查文件类型获取接口有没有获取到数据
+        fileTypes = this.getFileType();
+        Assertions.assertEquals(fileTypes.size(), uploadedFileTypes.size());
+        for (String fileType : fileTypes) {
+            Assertions.assertTrue(uploadedFileTypes.contains(fileType));
+        }
+
         //没后缀的文件 (同时上传到a1-a1节点)
         filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/noSuffixFile")).getPath();
         file = new MockMultipartFile("file", "noSuffixFile", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
@@ -400,6 +430,14 @@ public class FileManagementControllerTests extends BaseTest {
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
         FILE_ID_PATH.put(returnId, filePath);
+        uploadedFileTypes.add(StringUtils.EMPTY);
+
+        //检查文件类型获取接口有没有获取到数据
+        fileTypes = this.getFileType();
+        Assertions.assertEquals(fileTypes.size(), uploadedFileTypes.size());
+        for (String fileType : fileTypes) {
+            Assertions.assertTrue(uploadedFileTypes.contains(fileType));
+        }
     }
 
     @Test
@@ -888,18 +926,18 @@ public class FileManagementControllerTests extends BaseTest {
         //父节点内移动-移动到首位 a1挪到a3后面
         NodeMoveRequest request = new NodeMoveRequest();
         {
-            request.setNodeId(a1Node.getId());
-            request.setPreviousNodeId(a3Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a1Node.getId());
+            request.setDropNodeId(a3Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a3Node.getId(), a1Node.getId(), null, false);
         }
         //父节点内移动-移动到末位  在上面的基础上，a1挪到a2上面
         {
             request = new NodeMoveRequest();
-            request.setNodeId(a1Node.getId());
-            request.setNextNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a1Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(-1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a1Node.getId(), a2Node.getId(), null, false);
         }
@@ -907,17 +945,16 @@ public class FileManagementControllerTests extends BaseTest {
         //父节点内移动-移动到中位 a1移动到a2-a3中间
         {
             request = new NodeMoveRequest();
-            request.setNodeId(a1Node.getId());
-            request.setPreviousNodeId(a2Node.getId());
-            request.setNextNodeId(a3Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a1Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a2Node.getId(), a1Node.getId(), a3Node.getId(), false);
             //移动回去
             request = new NodeMoveRequest();
-            request.setNodeId(a1Node.getId());
-            request.setNextNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a1Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(-1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a1Node.getId(), a2Node.getId(), null, false);
         }
@@ -925,16 +962,16 @@ public class FileManagementControllerTests extends BaseTest {
         //跨节点移动-移动到首位   a3移动到a1-b1前面，然后移动回来;
         {
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setNextNodeId(a1b1Node.getId());
-            request.setParentId(a1Node.getId());
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a1b1Node.getId());
+            request.setDropPosition(-1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a3Node.getId(), a1b1Node.getId(), null, false);
             //移动回去
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a2Node.getId(), a3Node.getId(), null, false);
         }
@@ -942,16 +979,16 @@ public class FileManagementControllerTests extends BaseTest {
         //跨节点移动-移动到末尾   a3移动到a1-a1后面，然后移动回来;
         {
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a1a1Node.getId());
-            request.setParentId(a1Node.getId());
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a1a1Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a1a1Node.getId(), a3Node.getId(), null, false);
             //移动回去
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a2Node.getId(), a3Node.getId(), null, false);
         }
@@ -959,17 +996,16 @@ public class FileManagementControllerTests extends BaseTest {
         //跨节点移动-移动到中位   a3移动到a1-b1和a1-a1中间，然后移动回来;
         {
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a1b1Node.getId());
-            request.setNextNodeId(a1a1Node.getId());
-            request.setParentId(a1Node.getId());
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a1b1Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a1b1Node.getId(), a3Node.getId(), a1a1Node.getId(), false);
             //移动回去
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a2Node.getId(), a3Node.getId(), null, false);
         }
@@ -984,17 +1020,17 @@ public class FileManagementControllerTests extends BaseTest {
 
             //开始移动
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setNextNodeId(a1Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a1Node.getId());
+            request.setDropPosition(-1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a3Node.getId(), a1Node.getId(), null, true);
 
             //移动回去
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a2Node.getId(), a3Node.getId(), null, false);
         }
@@ -1012,18 +1048,17 @@ public class FileManagementControllerTests extends BaseTest {
 
             //开始移动
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a1Node.getId());
-            request.setNextNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a1Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a1Node.getId(), a3Node.getId(), a2Node.getId(), true);
 
             //移动回去
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a2Node.getId(), a3Node.getId(), null, false);
         }
@@ -1037,17 +1072,17 @@ public class FileManagementControllerTests extends BaseTest {
 
             //开始移动
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setNextNodeId(a1b1Node.getId());
-            request.setParentId(a1Node.getId());
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a1b1Node.getId());
+            request.setDropPosition(-1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a3Node.getId(), a1b1Node.getId(), null, true);
 
             //移动回去
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a2Node.getId(), a3Node.getId(), null, false);
         }
@@ -1064,18 +1099,17 @@ public class FileManagementControllerTests extends BaseTest {
 
             //开始移动
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a1b1Node.getId());
-            request.setNextNodeId(a1a1Node.getId());
-            request.setParentId(a1Node.getId());
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a1a1Node.getId());
+            request.setDropPosition(-1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a1b1Node.getId(), a3Node.getId(), a1a1Node.getId(), true);
 
             //移动回去
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a2Node.getId(), a3Node.getId(), null, false);
         }
@@ -1083,17 +1117,18 @@ public class FileManagementControllerTests extends BaseTest {
         {
             //开始移动
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setParentId(a2Node.getId());
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(0);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             FileModule a3Module = fileModuleMapper.selectByPrimaryKey(a3Node.getId());
             Assertions.assertEquals(a3Module.getParentId(), a2Node.getId());
 
             //移动回去
             request = new NodeMoveRequest();
-            request.setNodeId(a3Node.getId());
-            request.setPreviousNodeId(a2Node.getId());
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(a3Node.getId());
+            request.setDropNodeId(a2Node.getId());
+            request.setDropPosition(1);
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a2Node.getId(), a3Node.getId(), null, false);
         }
@@ -1102,6 +1137,60 @@ public class FileManagementControllerTests extends BaseTest {
         checkLog(a3Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE);
     }
 
+    @Test
+    @Order(81)
+    public void moveTestError() throws Exception {
+        this.preliminaryData();
+        BaseTreeNode a1Node = FileManagementBaseUtils.getNodeByName(preliminaryTreeNodes, "a1");
+        BaseTreeNode a2Node = FileManagementBaseUtils.getNodeByName(preliminaryTreeNodes, "a2");
+        //drag节点为空
+        NodeMoveRequest request = new NodeMoveRequest();
+        request.setDragNodeId(null);
+        request.setDropNodeId(a1Node.getId());
+        request.setDropPosition(1);
+        this.requestPost(FileManagementRequestUtils.URL_MODULE_MOVE, request).andExpect(status().isBadRequest());
+        //drag节点不存在
+        request = new NodeMoveRequest();
+        request.setDragNodeId(IDGenerator.nextStr());
+        request.setDropNodeId(a1Node.getId());
+        request.setDropPosition(1);
+        this.requestPost(FileManagementRequestUtils.URL_MODULE_MOVE, request).andExpect(status().is5xxServerError());
+
+        //drop节点为空
+        request = new NodeMoveRequest();
+        request.setDragNodeId(a1Node.getId());
+        request.setDropNodeId(null);
+        request.setDropPosition(1);
+        this.requestPost(FileManagementRequestUtils.URL_MODULE_MOVE, request).andExpect(status().isBadRequest());
+
+        //drop节点不存在
+        request = new NodeMoveRequest();
+        request.setDragNodeId(a1Node.getId());
+        request.setDropNodeId(IDGenerator.nextStr());
+        request.setDropPosition(1);
+        this.requestPost(FileManagementRequestUtils.URL_MODULE_MOVE, request).andExpect(status().is5xxServerError());
+
+        //position为0的时候节点不存在
+        request = new NodeMoveRequest();
+        request.setDragNodeId(a1Node.getId());
+        request.setDropNodeId(IDGenerator.nextStr());
+        request.setDropPosition(0);
+        this.requestPost(FileManagementRequestUtils.URL_MODULE_MOVE, request).andExpect(status().is5xxServerError());
+
+        //dragNode和dropNode一样
+        request = new NodeMoveRequest();
+        request.setDragNodeId(a1Node.getId());
+        request.setDropNodeId(a1Node.getId());
+        request.setDropPosition(1);
+        this.requestPost(FileManagementRequestUtils.URL_MODULE_MOVE, request).andExpect(status().is5xxServerError());
+
+        //position不是-1 0 1
+        request = new NodeMoveRequest();
+        request.setDragNodeId(a1Node.getId());
+        request.setDropNodeId(a2Node.getId());
+        request.setDropPosition(4);
+        this.requestPost(FileManagementRequestUtils.URL_MODULE_MOVE, request).andExpect(status().is5xxServerError());
+    }
     @Test
     @Order(90)
     public void deleteModuleTestSuccess() throws Exception {
@@ -1126,6 +1215,9 @@ public class FileManagementControllerTests extends BaseTest {
 
         //service层判断：测试删除空集合
         fileModuleService.deleteModule(new ArrayList<>());
+
+        //service层判断：测试删除项目
+        fileModuleService.deleteResources(project.getId());
     }
 
     private void checkModuleIsEmpty(String id) {

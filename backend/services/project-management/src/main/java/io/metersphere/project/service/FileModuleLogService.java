@@ -2,12 +2,13 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.FileModule;
 import io.metersphere.project.domain.Project;
+import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.dto.BaseModule;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.builder.LogDTOBuilder;
-import io.metersphere.sdk.dto.request.NodeMoveRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -16,6 +17,7 @@ import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -79,24 +81,11 @@ public class FileModuleLogService {
         operationLogService.add(dto);
     }
 
-    public void saveMoveLog(NodeMoveRequest request, String operator) {
-        FileModule moveNode;
-        FileModule previousNode = null;
-        FileModule nextNode = null;
-        FileModule parentModule;
-        moveNode = fileModuleMapper.selectByPrimaryKey(request.getNodeId());
-        if (request.getPreviousNodeId() != null) {
-            previousNode = fileModuleMapper.selectByPrimaryKey(request.getPreviousNodeId());
-        }
-        if (request.getNextNodeId() != null) {
-            nextNode = fileModuleMapper.selectByPrimaryKey(request.getNextNodeId());
-        }
-
-        parentModule = fileModuleMapper.selectByPrimaryKey(request.getParentId());
-        if (parentModule == null) {
-            parentModule = new FileModule();
-            parentModule.setName(Translator.get("file.module.root"));
-        }
+    public void saveMoveLog(@Validated NodeSortDTO request, String operator) {
+        BaseModule moveNode = request.getNode();
+        BaseModule previousNode = request.getPreviousNode();
+        BaseModule nextNode = request.getNextNode();
+        BaseModule parentModule = request.getParent();
 
         Project project = projectMapper.selectByPrimaryKey(moveNode.getProjectId());
         String logContent;

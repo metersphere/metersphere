@@ -37,5 +37,29 @@
         SELECT id FROM file_module WHERE parent_id  = #{0}
         ORDER BY pos ASC
     </select>
+    <select id="getLastModuleByParentId" resultType="io.metersphere.project.domain.FileModule">
+        SELECT *
+        FROM file_module
+        WHERE parent_id = #{0}
+        ORDER BY pos DESC
+        LIMIT 1
+    </select>
+    <select id="getNextModuleInParentId" resultType="io.metersphere.project.domain.FileModule">
+        SELECT *
+        from file_module
+        WHERE parent_id = #{parentId}
+          AND pos &gt; #{pos}
+        order by pos asc
+        limit 1
+    </select>
+    <select id="getPreviousModuleInParentId" resultType="io.metersphere.project.domain.FileModule">
+        SELECT *
+        from file_module
+        WHERE parent_id = #{parentId}
+          AND pos &lt; #{pos}
+        order by pos
+                desc
+        limit 1
+    </select>
 
 </mapper>

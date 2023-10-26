@@ -3,6 +3,7 @@ package io.metersphere.project.service;
 import io.metersphere.project.domain.FileModule;
 import io.metersphere.project.domain.FileModuleExample;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.mapper.ExtFileModuleMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.request.filemanagement.FileModuleCreateRequest;
@@ -43,13 +44,13 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectBaseByProjectId(projectId);
-        return this.traverseToBuildTree(fileModuleList, true);
+        return super.buildTreeAndCountResource(fileModuleList, true);
     }
 
-    //节点内容只有Id和parentId
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
+        //节点内容只有Id和parentId
         List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectIdAndParentIdByProjectId(projectId);
-        return this.traverseToBuildTree(fileModuleList, moduleCountDTOList, true);
+        return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true);
     }
 
     public String add(FileModuleCreateRequest request, String operator) {
@@ -150,28 +151,92 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
     }
 
     public void moveNode(NodeMoveRequest request, String currentUser) {
+        BaseModule module;
+        BaseModule parentModule;
+        BaseModule previousNode = null;
+        BaseModule nextNode = null;
+
+        FileModule dragNode = fileModuleMapper.selectByPrimaryKey(request.getDragNodeId());
+        if (dragNode == null) {
+            throw new MSException("file_module.not.exist:" + request.getDragNodeId());
+        } else {
+            module = new BaseModule(dragNode.getId(), dragNode.getName(), dragNode.getPos(), dragNode.getProjectId(), dragNode.getParentId());
+        }
+
+        if (StringUtils.equals(request.getDragNodeId(), request.getDropNodeId())) {
+            //两种节点不能一样
+            throw new MSException(Translator.get("invalid_parameter"));
+        }
+
+        FileModule dropNode = fileModuleMapper.selectByPrimaryKey(request.getDropNodeId());
+        if (dropNode == null) {
+            throw new MSException("file_module.not.exist:" + request.getDropNodeId());
+        }
+
+        if (request.getDropPosition() == 0) {
+            //dropPosition=0: 放到dropNode节点内，最后一个节点之后
+            parentModule = new BaseModule(dropNode.getId(), dropNode.getName(), dropNode.getPos(), dropNode.getProjectId(), dropNode.getParentId());
+            FileModule previousModule = extFileModuleMapper.getLastModuleByParentId(parentModule.getId());
+            if (previousModule != null) {
+                previousNode = new BaseModule(previousModule.getId(), previousModule.getName(), previousModule.getPos(), previousModule.getProjectId(), previousModule.getParentId());
+            }
+        } else {
+            if (StringUtils.equals(dropNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                parentModule = new BaseModule(ModuleConstants.ROOT_NODE_PARENT_ID, ModuleConstants.ROOT_NODE_PARENT_ID, 0, module.getProjectId(), ModuleConstants.ROOT_NODE_PARENT_ID);
+            } else {
+                FileModule parent = fileModuleMapper.selectByPrimaryKey(dropNode.getParentId());
+                parentModule = new BaseModule(parent.getId(), parent.getName(), parent.getPos(), parent.getProjectId(), parent.getParentId());
+            }
+
+            if (request.getDropPosition() == 1) {
+                //dropPosition=1: 放到dropNode节点后，原dropNode后面的节点之前
+                previousNode = new BaseModule(dropNode.getId(), dropNode.getName(), dropNode.getPos(), dropNode.getProjectId(), dropNode.getParentId());
+                FileModule nextModule = extFileModuleMapper.getNextModuleInParentId(previousNode.getParentId(), previousNode.getPos());
+                if (nextModule != null) {
+                    nextNode = new BaseModule(nextModule.getId(), nextModule.getName(), nextModule.getPos(), nextModule.getProjectId(), nextModule.getParentId());
+                }
+            } else if (request.getDropPosition() == -1) {
+                //dropPosition=-1: 放到dropNode节点前，原dropNode前面的节点之后
+                nextNode = new BaseModule(dropNode.getId(), dropNode.getName(), dropNode.getPos(), dropNode.getProjectId(), dropNode.getParentId());
+                FileModule previousModule = extFileModuleMapper.getPreviousModuleInParentId(nextNode.getParentId(), nextNode.getPos());
+                if (previousModule != null) {
+                    previousNode = new BaseModule(previousModule.getId(), previousModule.getName(), previousModule.getPos(), previousModule.getProjectId(), previousModule.getParentId());
+                }
+            } else {
+                throw new MSException(Translator.get("invalid_parameter"));
+            }
+        }
+
         FileModuleExample example = new FileModuleExample();
-        example.createCriteria().andParentIdEqualTo(request.getParentId()).andIdEqualTo(request.getNodeId());
+        example.createCriteria().andParentIdEqualTo(parentModule.getId()).andIdEqualTo(module.getId());
+        //节点换到了别的节点下,要先更新parent节点.
         if (fileModuleMapper.countByExample(example) == 0) {
-            //节点换到了别的节点下
             FileModule fileModule = new FileModule();
-            fileModule.setId(request.getNodeId());
-            fileModule.setParentId(request.getParentId());
+            fileModule.setId(module.getId());
+            fileModule.setParentId(parentModule.getId());
             fileModuleMapper.updateByPrimaryKeySelective(fileModule);
         }
-        this.sort(request);
+
+        NodeSortDTO nodeMoveDTO = new NodeSortDTO(module, parentModule, previousNode, nextNode);
+        super.sort(nodeMoveDTO);
 
         //记录日志
-        fileModuleLogService.saveMoveLog(request, currentUser);
+        fileModuleLogService.saveMoveLog(nodeMoveDTO, currentUser);
     }
 
+    /**
+     * 查找当前项目下模块每个节点对应的资源统计
+     *
+     * @param projectId
+     * @param moduleCountDTOList
+     * @return
+     */
     public Map<String, Long> getModuleCountMap(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
-        //构建模块树，然后统计每个节点下的所有数量（包含子节点）
-        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, moduleCountDTOList);
         Map<String, Long> returnMap = new HashMap<>();
-
-        List<BaseTreeNode> whileList = new ArrayList<>(treeNodeList);
+        //构建模块树，并计算每个节点下的所有数量（包含子节点）
+        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, moduleCountDTOList);
         //通过广度遍历的方式构建返回值
+        List<BaseTreeNode> whileList = new ArrayList<>(treeNodeList);
         while (CollectionUtils.isNotEmpty(whileList)) {
             List<BaseTreeNode> childList = new ArrayList<>();
             for (BaseTreeNode treeNode : whileList) {
@@ -183,15 +248,6 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         return returnMap;
     }
 
-    @Override
-    public BaseModule getNode(String id) {
-        FileModule module = fileModuleMapper.selectByPrimaryKey(id);
-        if (module == null) {
-            return null;
-        } else {
-            return new BaseModule(module.getId(), module.getName(), module.getPos(), module.getProjectId(), module.getParentId());
-        }
-    }
 
     @Override
     public void updatePos(String id, int pos) {
