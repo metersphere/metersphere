@@ -180,19 +180,15 @@ export default {
         });
       }
       if (this.response && this.response.responseResult && this.response.responseResult.contentType) {
-        switch (this.response.responseResult.contentType) {
-          case 'application/json':
-             this.mode = BODY_FORMAT.JSON;
-             break;
-          case 'text/html':
-             this.mode = BODY_FORMAT.HTML;
-            break;
-          case 'text/xml':
-             this.mode = BODY_FORMAT.XML;
-            break;
-          default:
-             this.mode = BODY_FORMAT.TEXT;
-            break;
+        let contentType = this.response.responseResult.contentType;
+        if (contentType.includes('application/json')) {
+          this.mode = BODY_FORMAT.JSON;
+        } else if (contentType.includes('text/html')) {
+          this.mode = BODY_FORMAT.HTML;
+        } else if (contentType.includes('text/xml')) {
+          this.mode = BODY_FORMAT.XML;
+        } else {
+          this.mode = BODY_FORMAT.TEXT;
         }
       }
       this.msCodeReload();

@@ -126,19 +126,15 @@ export default {
       this.srcUrl = 'data:' + this.response.contentType + ';base64,' + this.response.imageUrl;
     }
     if (this.response && this.response.contentType) {
-      switch (this.response.contentType) {
-        case 'application/json':
-          this.mode = BODY_FORMAT.JSON;
-          break;
-        case 'text/html':
-          this.mode = BODY_FORMAT.HTML;
-          break;
-        case 'text/xml':
-          this.mode = BODY_FORMAT.XML;
-          break;
-        default:
-          this.mode = BODY_FORMAT.TEXT;
-          break;
+      let contentType = this.response.contentType;
+      if (contentType.includes('application/json')) {
+        this.mode = BODY_FORMAT.JSON;
+      } else if (contentType.includes('text/html')) {
+        this.mode = BODY_FORMAT.HTML;
+      } else if (contentType.includes('text/xml')) {
+        this.mode = BODY_FORMAT.XML;
+      } else {
+        this.mode = BODY_FORMAT.TEXT;
       }
     }
   },
