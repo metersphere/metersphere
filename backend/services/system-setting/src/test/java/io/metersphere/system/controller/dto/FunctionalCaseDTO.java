@@ -1,4 +1,4 @@
-package io.metersphere.functional.dto;
+package io.metersphere.system.controller.dto;
 
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.system.dto.sdk.OptionDTO;

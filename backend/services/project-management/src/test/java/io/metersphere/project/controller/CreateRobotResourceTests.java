@@ -1,8 +1,11 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.domain.MessageTask;
+import io.metersphere.project.domain.MessageTaskExample;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectRobot;
 import io.metersphere.project.dto.MessageTaskDTO;
+import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
@@ -42,6 +45,9 @@ public class CreateRobotResourceTests extends BaseTest {
     @Resource
     private ProjectMapper projectMapper;
 
+    @Resource
+    private MessageTaskMapper messageTaskMapper;
+
     @Test
     @Order(1)
     public void testCreateResource() throws Exception {
@@ -60,6 +66,10 @@ public class CreateRobotResourceTests extends BaseTest {
         List<ProjectRobot> projectRobotAfters = getList(id);
         Assertions.assertEquals(2, projectRobotAfters.size());
         List<MessageTaskDTO> messageList = getMessageList(id);
+        MessageTaskExample messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria().andProjectIdEqualTo(id).andEventLike("AT");
+        List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
+        Assertions.assertTrue(messageTasks.size() > 0);
         Assertions.assertTrue(messageList.size() > 0);
     }
 

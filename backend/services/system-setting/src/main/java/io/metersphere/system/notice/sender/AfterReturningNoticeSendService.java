@@ -4,7 +4,6 @@ package io.metersphere.system.notice.sender;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.notice.NoticeModel;
-import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import io.metersphere.system.service.NoticeSendService;
@@ -24,7 +23,7 @@ public class AfterReturningNoticeSendService {
     private NoticeSendService noticeSendService;
 
     @Async
-    public void sendNotice(SendNotice sendNotice, List<Map> resources, SessionUser sessionUser, String currentProjectId) {
+    public void sendNotice(String taskType, String event, List<Map> resources, SessionUser sessionUser, String currentProjectId) {
 
         // 有批量操作发送多次
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
@@ -39,9 +38,9 @@ public class AfterReturningNoticeSendService {
             // 占位符
             handleDefaultValues(paramMap);
 
-            String context = getContext(sendNotice);
+            String context = getContext(taskType, event);
 
-            String subject = getSubject(sendNotice);
+            String subject = getSubject(taskType, event);
 
             List<String> relatedUsers = getRelatedUsers(resource.get("relatedUsers"));
 
@@ -50,12 +49,12 @@ public class AfterReturningNoticeSendService {
                     .context(context)
                     .subject(subject)
                     .paramMap(paramMap)
-                    .event(sendNotice.event())
+                    .event(event)
                     .status((String) paramMap.get("status"))
                     .excludeSelf(true)
                     .relatedUsers(relatedUsers)
                     .build();
-            noticeSendService.send(sendNotice.taskType(), noticeModel);
+            noticeSendService.send(taskType, noticeModel);
         }
     }
 
@@ -63,14 +62,14 @@ public class AfterReturningNoticeSendService {
         String relatedUser = (String) relatedUsers;
         List<String> relatedUserList = new ArrayList<>();
         if (StringUtils.isNotBlank(relatedUser)) {
-            relatedUserList = Arrays.asList(relatedUser.split(","));
+            relatedUserList = Arrays.asList(relatedUser.split(";"));
         }
         return relatedUserList;
     }
 
-    private String getSubject(SendNotice sendNotice) {
+    private String getSubject(String taskType, String event) {
         Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
-        return defaultTemplateTitleMap.get(sendNotice.taskType() + "_" + sendNotice.event());
+        return defaultTemplateTitleMap.get(taskType + "_" + event);
     }
 
 
@@ -81,8 +80,8 @@ public class AfterReturningNoticeSendService {
         paramMap.put("planShareUrl", StringUtils.EMPTY); // 占位符
     }
 
-    private String getContext(SendNotice sendNotice) {
+    private String getContext(String taskType, String event) {
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
-        return defaultTemplateMap.get(sendNotice.taskType() + "_" + sendNotice.event());
+        return defaultTemplateMap.get(taskType + "_" + event);
     }
 }
