@@ -2,13 +2,23 @@ package io.metersphere.functional.controller;
 
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.functional.domain.FunctionalCaseComment;
+import io.metersphere.functional.domain.FunctionalCaseCommentExample;
+import io.metersphere.functional.domain.FunctionalCaseCustomField;
+import io.metersphere.functional.mapper.FunctionalCaseCommentMapper;
+import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;
 import io.metersphere.project.mapper.NotificationMapper;
+import io.metersphere.sdk.constants.CustomFieldType;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,17 +43,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class FunctionalCaseCommentControllerTests {
+
     @Resource
     private MockMvc mockMvc;
 
     @Resource
     private NotificationMapper notificationMapper;
 
+    @Resource
+    private FunctionalCaseCommentMapper functionalCaseCommentMapper;
+
+    @Resource
+    private CustomFieldMapper customFieldMapper;
+
+    @Resource
+    private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
+
     public static final String SAVE_URL = "/functional/case/comment/save";
 
     private static String sessionId;
     private static String csrfToken;
-    private static String projectId = "100001100001";
+    private static final String projectId = "100001100001";
 
     @Test
     @Order(0)
@@ -61,25 +81,17 @@ public class FunctionalCaseCommentControllerTests {
 
     @Test
     @Order(1)
-    public void saveCommentSuccess() throws Exception {
+    public void saveCommentATSuccess() throws Exception {
         FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
         functionalCaseCommentRequest.setCaseId("xiaomeinvGTest");
         functionalCaseCommentRequest.setNotifier("default-project-member-user-guo-1");
         functionalCaseCommentRequest.setContent("评论你好");
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(SAVE_URL).header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .header(SessionConstants.CURRENT_PROJECT, projectId)
-                        .content(JSON.toJSONString(functionalCaseCommentRequest))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
-        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        FunctionalCaseComment functionalCaseComment = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalCaseComment.class);
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.AT);
+        FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest);
         NotificationExample notificationExample = new NotificationExample();
         notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTest").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
         List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
-        Assertions.assertTrue(notifications.size() > 0);
+        Assertions.assertFalse(notifications.isEmpty());
         Assertions.assertTrue(StringUtils.equals(notifications.get(0).getReceiver(), "default-project-member-user-guo-1"));
         System.out.println(notifications.get(0).getContent());
         Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTest"));
@@ -89,31 +101,248 @@ public class FunctionalCaseCommentControllerTests {
 
     @Test
     @Order(2)
-    public void saveCommentFalse() throws Exception {
+    public void saveCommentATFalse() throws Exception {
         FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
         functionalCaseCommentRequest.setCaseId("xiaomeinvGTestNo");
         functionalCaseCommentRequest.setNotifier("default-project-member-user-guo-1");
         functionalCaseCommentRequest.setContent("评论你好");
-        mockMvc.perform(MockMvcRequestBuilders.post(SAVE_URL).header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .header(SessionConstants.CURRENT_PROJECT, projectId)
-                        .content(JSON.toJSONString(functionalCaseCommentRequest))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.AT);
+        ResultHolder resultHolder = postFalse(functionalCaseCommentRequest);
+        String jsonString = JSON.toJSONString(resultHolder.getData());
+        System.out.println(jsonString);
         NotificationExample notificationExample = new NotificationExample();
         notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTestNo").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
         List<Notification> notifications = notificationMapper.selectByExample(notificationExample);
         Assertions.assertTrue(CollectionUtils.isEmpty(notifications));
     }
 
+    private ResultHolder postFalse(FunctionalCaseCommentRequest functionalCaseCommentRequest) throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(SAVE_URL).header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .content(JSON.toJSONString(functionalCaseCommentRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        return JSON.parseObject(contentAsString, ResultHolder.class);
+    }
+
     @Test
     @Order(3)
-    public void saveCommentExcludeSelfSuccess() throws Exception {
+    public void saveCommentATExcludeSelfSuccess() throws Exception {
         FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
         functionalCaseCommentRequest.setCaseId("xiaomeinvGTest");
         functionalCaseCommentRequest.setNotifier("default-project-member-user-guo");
         functionalCaseCommentRequest.setContent("这个好");
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.AT);
+        FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest);
+        NotificationExample notificationExample = new NotificationExample();
+        notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTest").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK).andReceiverEqualTo("default-project-member-user-guo");
+        List<Notification> notifications = notificationMapper.selectByExample(notificationExample);
+        Assertions.assertTrue(CollectionUtils.isEmpty(notifications));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTest"));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getNotifier(), "default-project-member-user-guo"));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getContent(), "这个好"));
+    }
+
+    @Test
+    @Order(4)
+    public void saveCommentATNoNotifierSuccess() throws Exception {
+        FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
+        functionalCaseCommentRequest.setCaseId("xiaomeinvGTestOne");
+        functionalCaseCommentRequest.setContent("这个好");
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.AT);
+        FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest);
+        NotificationExample notificationExample = new NotificationExample();
+        notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTestOne").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
+        List<Notification> notifications = notificationMapper.selectByExample(notificationExample);
+        Assertions.assertTrue(CollectionUtils.isEmpty(notifications));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTestOne"));
+        Assertions.assertTrue(StringUtils.isBlank(functionalCaseComment.getNotifier()));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getContent(), "这个好"));
+    }
+
+
+    @Test
+    @Order(5)
+    public void saveOnlyCommentSuccess() throws Exception {
+        FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
+        functionalCaseCommentRequest.setCaseId("xiaomeinvGTestOne");
+        functionalCaseCommentRequest.setContent("评论你好");
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.COMMENT);
+        FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest);
+        NotificationExample notificationExample = new NotificationExample();
+        notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTestOne").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
+        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        Assertions.assertFalse(notifications.isEmpty());
+        System.out.println(JSON.toJSONString(notifications));
+        Assertions.assertTrue(StringUtils.equals(notifications.get(0).getReceiver(), "gyq"));
+        System.out.println(notifications.get(0).getContent());
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTestOne"));
+        Assertions.assertTrue(StringUtils.isBlank(functionalCaseComment.getNotifier()));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getContent(), "评论你好"));
+    }
+
+    @Test
+    @Order(6)
+    public void saveCommentReplySuccess() throws Exception {
+        FunctionalCaseComment functionalCaseComment1 = getFunctionalCaseComment();
+        FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
+        functionalCaseCommentRequest.setCaseId("xiaomeinvGTestOne");
+        functionalCaseCommentRequest.setContent("评论你好");
+        functionalCaseCommentRequest.setReplyUser("default-project-member-user-guo");
+        functionalCaseCommentRequest.setParentId(functionalCaseComment1.getId());
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.REPLY);
+        FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest);
+        NotificationExample notificationExample = new NotificationExample();
+        notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTestOne").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
+        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        Assertions.assertFalse(notifications.isEmpty());
+        System.out.println(JSON.toJSONString(notifications));
+        Assertions.assertTrue(StringUtils.equals(notifications.get(0).getReceiver(), "gyq"));
+        System.out.println(notifications.get(0).getContent());
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTestOne"));
+        Assertions.assertTrue(StringUtils.isBlank(functionalCaseComment.getNotifier()));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getContent(), "评论你好"));
+    }
+
+    @Test
+    @Order(7)
+    public void saveCommentReplyNoParentId() throws Exception {
+        FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
+        functionalCaseCommentRequest.setCaseId("xiaomeinvGTestOne");
+        functionalCaseCommentRequest.setContent("评论你好");
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.REPLY);
+        ResultHolder resultHolder = postFalse(functionalCaseCommentRequest);
+        String message = resultHolder.getMessage();
+        Assertions.assertTrue(StringUtils.equals(message, Translator.get("case_comment.parent_id_is_null")));
+
+    }
+
+    @Test
+    @Order(8)
+    public void saveCommentReplyNoParent() throws Exception {
+        FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
+        functionalCaseCommentRequest.setCaseId("xiaomeinvGTestOne");
+        functionalCaseCommentRequest.setContent("评论你好");
+        functionalCaseCommentRequest.setParentId("noComment");
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.REPLY);
+        ResultHolder resultHolder = postFalse(functionalCaseCommentRequest);
+        String message = resultHolder.getMessage();
+        Assertions.assertTrue(StringUtils.equals(message, Translator.get("case_comment.parent_case_is_null")));
+
+
+    }
+
+    @Test
+    @Order(9)
+    public void saveCommentReplyNotifierSuccess() throws Exception {
+        FunctionalCaseComment functionalCaseComment1 = getFunctionalCaseComment();
+        FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
+        functionalCaseCommentRequest.setCaseId("xiaomeinvGTest");
+        functionalCaseCommentRequest.setContent("评论你好");
+        functionalCaseCommentRequest.setNotifier("default-project-member-user-guo-2");
+        functionalCaseCommentRequest.setReplyUser("default-project-member-user-guo");
+        functionalCaseCommentRequest.setParentId(functionalCaseComment1.getId());
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.REPLY);
+        FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest);
+        NotificationExample notificationExample = new NotificationExample();
+        notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTest").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
+        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        Assertions.assertFalse(notifications.isEmpty());
+        System.out.println(JSON.toJSONString(notifications));
+        Assertions.assertTrue(StringUtils.equals(notifications.get(1).getReceiver(), "default-project-member-user-guo-2"));
+        System.out.println(notifications.get(0).getContent());
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTest"));
+        Assertions.assertTrue(StringUtils.isNotBlank(functionalCaseComment.getNotifier()));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getContent(), "评论你好"));
+    }
+
+    @Test
+    @Order(10)
+    public void saveCommentReplyNoReply() throws Exception {
+        FunctionalCaseComment functionalCaseComment1 = getFunctionalCaseComment();
+        FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
+        functionalCaseCommentRequest.setCaseId("xiaomeinvGTestOne");
+        functionalCaseCommentRequest.setContent("评论你好");
+        functionalCaseCommentRequest.setParentId(functionalCaseComment1.getId());
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.REPLY);
+        ResultHolder resultHolder = postFalse(functionalCaseCommentRequest);
+        String message = resultHolder.getMessage();
+        Assertions.assertTrue(StringUtils.equals(message, Translator.get("case_comment.reply_user_is_null")));
+    }
+
+
+    @Test
+    @Order(11)
+    public void saveCommentWidthCustomFields() throws Exception {
+        CustomField customField = new CustomField();
+        customField.setId("gyq_custom_field_one");
+        customField.setName("testLevel");
+        customField.setType(CustomFieldType.INPUT.toString());
+        customField.setScene(TemplateScene.FUNCTIONAL.name());
+        customField.setCreateUser("gyq");
+        customField.setCreateTime(System.currentTimeMillis());
+        customField.setUpdateTime(System.currentTimeMillis());
+        customField.setRefId("gyq_custom_field_one");
+        customField.setScopeId(projectId);
+        customField.setScopeType(TemplateScopeType.PROJECT.name());
+        customField.setInternal(false);
+        customField.setEnableOptionKey(false);
+        customField.setRemark("1");
+        customFieldMapper.insertSelective(customField);
+        FunctionalCaseCustomField functionalCaseCustomField = new FunctionalCaseCustomField();
+        functionalCaseCustomField.setCaseId("xiaomeinvGTest");
+        functionalCaseCustomField.setFieldId("gyq_custom_field_one");
+        functionalCaseCustomField.setValue("1");
+        functionalCaseCustomFieldMapper.insertSelective(functionalCaseCustomField);
+
+        FunctionalCaseComment functionalCaseComment1 = getFunctionalCaseComment();
+        FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
+        functionalCaseCommentRequest.setCaseId("xiaomeinvGTest");
+        functionalCaseCommentRequest.setNotifier("default-project-member-user-guo-3;default-project-member-user-guo-4;");
+        functionalCaseCommentRequest.setContent("评论你好");
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.REPLY);
+        functionalCaseCommentRequest.setReplyUser("default-project-member-user-guo");
+        functionalCaseCommentRequest.setParentId(functionalCaseComment1.getId());
+        FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest);
+        NotificationExample notificationExample = new NotificationExample();
+        notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTest").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
+        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        Assertions.assertFalse(notifications.isEmpty());
+       // Assertions.assertTrue(StringUtils.equals(notifications.get(0).getReceiver(), "default-project-member-user-guo-1"));
+        System.out.println(JSON.toJSONString(notifications));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTest"));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getNotifier(), "default-project-member-user-guo-3;default-project-member-user-guo-4;"));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getContent(), "评论你好"));
+    }
+
+    @Test
+    @Order(12)
+    public void saveCommentATWidthReplyUser() throws Exception {
+        FunctionalCaseComment functionalCaseComment1 = getFunctionalCaseComment();
+        FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
+        functionalCaseCommentRequest.setCaseId("xiaomeinvGTest");
+        functionalCaseCommentRequest.setNotifier("default-project-member-user-guo;default-project-member-user-guo-4;");
+        functionalCaseCommentRequest.setContent("评论你好哇");
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.AT);
+        functionalCaseCommentRequest.setReplyUser("default-project-member-user-guo");
+        functionalCaseCommentRequest.setParentId(functionalCaseComment1.getId());
+        FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest);
+        NotificationExample notificationExample = new NotificationExample();
+        notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTest").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
+        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        Assertions.assertFalse(notifications.isEmpty());
+        // Assertions.assertTrue(StringUtils.equals(notifications.get(0).getReceiver(), "default-project-member-user-guo-1"));
+        System.out.println(JSON.toJSONString(notifications));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTest"));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getNotifier(), "default-project-member-user-guo;default-project-member-user-guo-4;"));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getContent(), "评论你好哇"));
+    }
+
+
+    private FunctionalCaseComment getFunctionalCaseComment(FunctionalCaseCommentRequest functionalCaseCommentRequest) throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(SAVE_URL).header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, projectId)
@@ -123,14 +352,14 @@ public class FunctionalCaseCommentControllerTests {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        FunctionalCaseComment functionalCaseComment = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalCaseComment.class);
-        NotificationExample notificationExample = new NotificationExample();
-        notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTest").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK).andReceiverEqualTo("default-project-member-user-guo");
-        List<Notification> notifications = notificationMapper.selectByExample(notificationExample);
-        Assertions.assertTrue(CollectionUtils.isEmpty(notifications));
-        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTest"));
-        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getNotifier(), "default-project-member-user-guo"));
-        Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getContent(), "这个好"));
+        return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalCaseComment.class);
+    }
+
+    private FunctionalCaseComment getFunctionalCaseComment() {
+        FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
+        functionalCaseCommentExample.createCriteria().andCaseIdEqualTo("xiaomeinvGTest");
+        List<FunctionalCaseComment> functionalCaseComments = functionalCaseCommentMapper.selectByExample(functionalCaseCommentExample);
+        return functionalCaseComments.get(0);
     }
 
 }
