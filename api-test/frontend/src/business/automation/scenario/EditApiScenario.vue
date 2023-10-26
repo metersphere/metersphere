@@ -1970,10 +1970,14 @@ export default {
         }
         this.projectIds.add(this.projectId);
         if (this.projectIds.size > 1) {
-          getApiScenarioEnv(Array.from(this.projectIds)).then((res) => {
-            this.projectIds = new Set(res.data.projectIds);
-            resolve();
+          let projects = [];
+          this.projectIds.forEach((item) => {
+            if (this.projectList.filter(project => project.id === item).length > 0) {
+              projects.push(item);
+            }
           });
+          this.projectIds = projects;
+          resolve();
         } else {
           resolve();
         }
