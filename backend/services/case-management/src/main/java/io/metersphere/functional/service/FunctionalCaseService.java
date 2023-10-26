@@ -2,16 +2,19 @@ package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseBlob;
+import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
+import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
-import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
-import io.metersphere.sdk.constants.FunctionalCaseReviewStatus;
-import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.functional.result.FunctionalCaseResultCode;
+import io.metersphere.project.service.ProjectTemplateService;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.sdk.dto.TemplateCustomFieldDTO;
+import io.metersphere.sdk.dto.TemplateDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
@@ -57,6 +60,9 @@ public class FunctionalCaseService {
 
     @Resource
     private FunctionalCaseAttachmentService functionalCaseAttachmentService;
+
+    @Resource
+    private ProjectTemplateService projectTemplateService;
 
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
@@ -146,6 +152,52 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.saveCaseAttachment(fileId, file, caseId, isLocal, userId);
         });
 
+    }
+
+
+    /**
+     * 查看用例获取详情
+     *
+     * @param functionalCaseId
+     * @return
+     */
+    public FunctionalCaseDetailDTO getFunctionalCaseDetail(String functionalCaseId) {
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(functionalCaseId);
+        if (functionalCase == null) {
+            throw new MSException(FunctionalCaseResultCode.FUNCTIONAL_CASE_NOT_FOUND);
+        }
+        FunctionalCaseDetailDTO functionalCaseDetailDTO = new FunctionalCaseDetailDTO();
+        BeanUtils.copyBean(functionalCaseDetailDTO, functionalCase);
+        FunctionalCaseBlob caseBlob = functionalCaseBlobMapper.selectByPrimaryKey(functionalCaseId);
+        BeanUtils.copyBean(functionalCaseDetailDTO, caseBlob);
+
+        //模板校验 获取自定义字段
+        functionalCaseDetailDTO = checkTemplateCustomField(functionalCaseDetailDTO, functionalCase);
+
+        return functionalCaseDetailDTO;
+
+    }
+
+
+    /**
+     * 获取模板自定义字段
+     *
+     * @param functionalCase
+     */
+    private FunctionalCaseDetailDTO checkTemplateCustomField(FunctionalCaseDetailDTO functionalCaseDetailDTO, FunctionalCase functionalCase) {
+        TemplateDTO templateDTO = projectTemplateService.getTemplateDTOById(functionalCase.getTemplateId(), functionalCase.getProjectId(), TemplateScene.FUNCTIONAL.name());
+        if (CollectionUtils.isNotEmpty(templateDTO.getCustomFields())) {
+            List<TemplateCustomFieldDTO> customFields = templateDTO.getCustomFields();
+            customFields.forEach(item -> {
+                FunctionalCaseCustomField caseCustomField = functionalCaseCustomFieldService.getCustomField(item.getFieldId(), functionalCase.getId());
+                Optional.ofNullable(caseCustomField).ifPresentOrElse(customField -> {
+                    item.setDefaultValue(customField.getValue());
+                }, () -> {
+                });
+            });
+            functionalCaseDetailDTO.setCustomFields(customFields);
+        }
+        return functionalCaseDetailDTO;
     }
 
 

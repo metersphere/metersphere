@@ -2,6 +2,7 @@ package io.metersphere.functional.controller;
 
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
+import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -27,19 +28,21 @@ import java.util.Objects;
 @AutoConfigureMockMvc
 public class FunctionalCaseControllerTests extends BaseTest {
 
-    public static final String FUNCTIONAL_CASE_URL = "/functional/case/add";
+    public static final String FUNCTIONAL_CASE_ADD_URL = "/functional/case/add";
+    public static final String DEFAULT_TEMPLATE_FIELD_URL = "/functional/case/default/template/field/";
+    public static final String FUNCTIONAL_CASE_DETAIL_URL = "/functional/case//detail/";
 
     @Test
     @Order(1)
     @Sql(scripts = {"/dml/init_file_metadata_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
-    public void testTestPlanShare() throws Exception {
+    public void testFunctionalCaseAdd() throws Exception {
         //新增
         FunctionalCaseAddRequest request = creatFunctionalCase();
         LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         List<MockMultipartFile> files = new ArrayList<>();
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("files", files);
-        MvcResult mvcResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_URL, paramMap);
+        MvcResult mvcResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -61,7 +64,32 @@ public class FunctionalCaseControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("files", files);
 
-        this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_URL, paramMap);
+        this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
+    }
+
+
+    @Test
+    @Order(2)
+    public void testDefaultTemplateField() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(DEFAULT_TEMPLATE_FIELD_URL + DEFAULT_PROJECT_ID);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    @Test
+    @Order(3)
+    public void testFunctionalCaseDetail() throws Exception {
+        assertErrorCode(this.requestGet(FUNCTIONAL_CASE_DETAIL_URL + "ERROR_TEST_FUNCTIONAL_CASE_ID"), FunctionalCaseResultCode.FUNCTIONAL_CASE_NOT_FOUND);
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL_URL + "TEST_FUNCTIONAL_CASE_ID");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
     }
 
     private List<CaseCustomsFieldDTO> creatCustomsFields() {
