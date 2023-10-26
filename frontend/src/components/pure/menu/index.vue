@@ -275,7 +275,6 @@
 
         color: var(--color-text-1) !important;
         &:hover,
-        .arco-menu-indent-list:hover,
         .arco-icon:hover {
           background-color: rgb(var(--primary-1)) !important;
         }

@@ -1,5 +1,8 @@
 <template>
-  <div class="ms-base-table">
+  <div :class="['ms-base-table', $slots.quickCreate ? 'ms-base-table--hasQuickCreate' : '']">
+    <div v-if="$slots.quickCreate" class="ms-base-table-quickCreate">
+      <slot name="quickCreate"></slot>
+    </div>
     <a-table
       v-bind="$attrs"
       :row-class="getRowClass"
@@ -450,6 +453,24 @@
           }
         }
       }
+    }
+  }
+  .ms-base-table--hasQuickCreate {
+    :deep(.arco-table-body) {
+      padding-top: 54px;
+    }
+    :deep(.arco-table-tr:first-child) {
+      .arco-table-td {
+        border-top: 1px solid var(--color-text-n8);
+      }
+    }
+    .ms-base-table-quickCreate {
+      @apply absolute left-0 flex w-full items-center;
+
+      top: 55px;
+      z-index: 11;
+      padding: 16px;
+      background-color: var(--color-text-n9);
     }
   }
   :deep(.ms-table-select-all) {

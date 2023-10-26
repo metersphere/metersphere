@@ -1,7 +1,7 @@
-import { TableChangeExtra, TableColumnData, TableData, TableDraggable } from '@arco-design/web-vue';
-
-import { TableQueryParams } from '@/models/common';
+import type { TableQueryParams } from '@/models/common';
 import { ColumnEditTypeEnum, SelectAllEnum } from '@/enums/tableEnum';
+
+import type { TableChangeExtra, TableColumnData, TableData, TableDraggable } from '@arco-design/web-vue';
 
 export interface MsPaginationI {
   current: number;

@@ -23,6 +23,8 @@ const useAsyncTaskStore = defineStore('asyncTask', {
       isBackstageUpload: false, // 是否后台上传，后台上传会展示全局提示类型的进度提示
       isHideMessage: false, // 后台上传时展示的消息提示在点击关闭后无需再弹
       fileList: [], // 文件总队列，包含已经上传的历史记录（不做持久化存储，刷新丢失）
+      uploadFunc: undefined, // 上传文件时，自定义上传方法
+      requestParams: undefined, // 上传文件时，额外的请求参数
       uploadQueue: [], // 每次添加的上传队列，用于展示每次任务的进度使用
       eachTaskQueue: [], // 上传队列，每个文件上传完成后会从队列中移除，初始值为上传队列的副本
       singleProgress: 0, // 单个上传文件的上传进度，非总进度，是每个文件在上传时的模拟进度
@@ -67,6 +69,14 @@ const useAsyncTaskStore = defineStore('asyncTask', {
     },
   },
   actions: {
+    setUploadFunc(uploadFunc: (params: any) => Promise<any>, requestParams?: Record<string, any>) {
+      this.$patch({
+        uploadFileTask: {
+          uploadFunc,
+          requestParams,
+        },
+      });
+    },
     beforeEachUpload(fileItem?: MsFileItem, route?: string, routeQuery?: Record<string, any>) {
       const { t } = useI18n();
       const { uploadFileTask } = this;
@@ -161,6 +171,8 @@ const useAsyncTaskStore = defineStore('asyncTask', {
           uploadFileTask: {
             isBackstageUpload: false,
             isHideMessage: false,
+            uploadFunc: undefined,
+            requestParams: undefined,
           },
         });
       }
@@ -168,12 +180,14 @@ const useAsyncTaskStore = defineStore('asyncTask', {
     async uploadFileFromQueue(fileItem?: MsFileItem, route?: string, routeQuery?: Record<string, any>) {
       this.beforeEachUpload(fileItem, route, routeQuery);
       try {
-        // TODO: 模拟上传，待接口联调后替换为真实上传逻辑
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(null);
-          }, 3000);
-        });
+        if (this.uploadFileTask.uploadFunc) {
+          await this.uploadFileTask.uploadFunc({
+            request: { ...this.uploadFileTask.requestParams },
+            file: unref(fileItem)?.file,
+          });
+        } else {
+          throw new Error('uploadFunc is not defined');
+        }
         if (fileItem) {
           fileItem.status = UploadStatus.done;
           fileItem.uploadedTime = Date.now();
@@ -219,6 +233,8 @@ const useAsyncTaskStore = defineStore('asyncTask', {
           fileList: [],
           uploadQueue: [],
           singleProgress: 0,
+          uploadFunc: undefined,
+          requestParams: undefined,
         },
       });
     },

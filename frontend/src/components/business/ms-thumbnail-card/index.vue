@@ -4,11 +4,17 @@
       <div class="ms-thumbnail-card-more">
         <MsTableMoreAction v-if="props.moreActions" :list="props.moreActions" @select="handleMoreActionSelect" />
       </div>
-      <img v-if="fileType === 'image'" :src="props.url" class="absolute top-0" />
-      <MsIcon v-else :type="FileIconMap[fileType][UploadStatus.done]" class="absolute top-0 h-full w-full p-[24px]" />
-      <div class="ms-thumbnail-card-footer">
-        {{ props.footerText }}
-      </div>
+      <a-image v-if="fileType === 'image'" :src="props.url" class="absolute top-0 h-full w-full" :preview="false" />
+      <MsIcon
+        v-else
+        :type="FileIconMap[fileType][UploadStatus.done]"
+        class="absolute top-0 h-full w-full p-[24px] text-[var(--color-text-4)]"
+      />
+      <a-tooltip :content="props.footerText" :mouse-enter-delay="300" position="bl" mini>
+        <div class="ms-thumbnail-card-footer one-line-text">
+          {{ props.footerText }}
+        </div>
+      </a-tooltip>
     </div>
   </div>
 </template>
@@ -58,14 +64,14 @@
 
 <style lang="less" scoped>
   .ms-thumbnail-card {
-    @apply relative w-full;
+    @apply relative w-full overflow-hidden;
 
+    border-radius: var(--border-radius-small);
     aspect-ratio: 1/1;
     .ms-thumbnail-card-content {
-      @apply absolute bottom-0 left-0 right-0 top-0 inline-block flex-grow cursor-pointer overflow-hidden;
+      @apply absolute bottom-0 left-0 right-0 top-0 inline-block flex-grow cursor-pointer;
 
       min-width: 102px;
-      border-radius: var(--border-radius-small);
       background-color: var(--color-text-n9);
       transition: all 0.2s;
       &::before {
@@ -96,7 +102,7 @@
       @apply absolute w-full text-center;
 
       bottom: 0;
-      padding: 2px 0;
+      padding: 2px 4px;
       font-size: 12px;
       font-weight: 500;
       color: #ffffff;

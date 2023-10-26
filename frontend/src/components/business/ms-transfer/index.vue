@@ -54,7 +54,6 @@
         title: 'title',
         children: 'children',
         disabled: 'disabled',
-        isLeaf: 'isLeaf',
       }),
     }
   );
