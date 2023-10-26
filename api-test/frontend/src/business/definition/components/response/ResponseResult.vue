@@ -130,7 +130,7 @@ export default {
         'image/webp',
         'image/svg+xml',
         'image/apng',
-        'image/avif'
+        'image/avif',
       ],
       srcUrl: '',
     };
@@ -140,15 +140,6 @@ export default {
       this.setBodyType();
       this.setReqMessage();
       this.showPicture();
-    },
-    activeName: {
-      handler() {
-        setTimeout(() => {
-          // 展开动画大概是 300ms 左右，使视觉效果更流畅
-          this.$refs.codeEdit?.$el.querySelector('.ace_text-input')?.focus();
-        }, 300);
-      },
-      immediate: true,
     },
   },
   methods: {
@@ -182,16 +173,16 @@ export default {
       if (this.response && this.response.responseResult && this.response.responseResult.contentType) {
         switch (this.response.responseResult.contentType) {
           case 'application/json':
-             this.mode = BODY_FORMAT.JSON;
-             break;
+            this.mode = BODY_FORMAT.JSON;
+            break;
           case 'text/html':
-             this.mode = BODY_FORMAT.HTML;
+            this.mode = BODY_FORMAT.HTML;
             break;
           case 'text/xml':
-             this.mode = BODY_FORMAT.XML;
+            this.mode = BODY_FORMAT.XML;
             break;
           default:
-             this.mode = BODY_FORMAT.TEXT;
+            this.mode = BODY_FORMAT.TEXT;
             break;
         }
       }
