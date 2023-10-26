@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.jmeter.processors;
+package io.metersphere.api.dto.request.processors;
 
 import io.metersphere.plugin.api.annotation.PluginSubType;
 import io.metersphere.plugin.api.dto.TestElementDTO;

@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.jmeter.post.extract;
+package io.metersphere.api.dto.request.post.extract;
 
 import lombok.Data;
 
