@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class APIDefinitionLogService {
+public class ApiDefinitionLogService {
 
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;

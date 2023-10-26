@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
-public class APIDefinitionService {
+public class ApiDefinitionService {
 
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;

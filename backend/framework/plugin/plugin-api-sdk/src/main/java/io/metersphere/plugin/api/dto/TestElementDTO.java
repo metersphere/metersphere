@@ -14,14 +14,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "polymorphicName")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class TestElementDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
-    // 组件类型
-    private String type;
 
     // 当前组件唯一标示
     private String uuid;
@@ -40,18 +37,6 @@ public abstract class TestElementDTO implements Serializable {
 
     // 子组件
     private LinkedList<TestElementDTO> children;
-
-    /**
-     * 预加载数据
-     */
-    public void preload(List<TestElementDTO> children, BaseConfigDTO config) throws Exception {
-        PluginLogUtils.info("TestElementDTO preload");
-        if (children != null && !children.isEmpty()) {
-            for (TestElementDTO el : children) {
-                el.preload(el.children, config);
-            }
-        }
-    }
 
     /**
      * 自组件重新这个方法

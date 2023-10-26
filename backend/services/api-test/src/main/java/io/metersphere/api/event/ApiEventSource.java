@@ -6,7 +6,7 @@ import io.metersphere.sdk.listener.EventSource;
 import org.springframework.stereotype.Component;
 
 @Component
-public class APIEventSource implements EventSource {
+public class ApiEventSource implements EventSource {
     private EventListener<Event> listener;
 
     @Override
