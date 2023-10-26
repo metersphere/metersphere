@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.jmeter.assertion;
+package io.metersphere.api.dto.request.assertion;
 
 import lombok.Data;
 

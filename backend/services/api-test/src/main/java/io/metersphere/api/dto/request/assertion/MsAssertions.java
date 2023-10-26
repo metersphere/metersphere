@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.jmeter.assertion;
+package io.metersphere.api.dto.request.assertion;
 
 import io.metersphere.plugin.api.annotation.PluginSubType;
 import io.metersphere.plugin.api.dto.TestElementDTO;

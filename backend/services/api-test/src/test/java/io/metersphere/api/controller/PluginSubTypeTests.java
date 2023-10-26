@@ -1,7 +1,7 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.dto.jmeter.post.processors.MsPostJSR223Processor;
-import io.metersphere.api.dto.jmeter.sampler.MsDebugSampler;
+import io.metersphere.api.dto.request.post.processors.MsPostJSR223Processor;
+import io.metersphere.api.dto.request.sampler.MsDebugSampler;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.dto.TestElementDTO;
 import io.metersphere.system.uid.IDGenerator;

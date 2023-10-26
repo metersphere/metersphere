@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.jmeter.logic.controller;
+package io.metersphere.api.dto.request.logic.controller;
 
 import io.metersphere.plugin.api.annotation.PluginSubType;
 import io.metersphere.plugin.api.dto.TestElementDTO;

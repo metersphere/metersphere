@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.jmeter.sampler;
+package io.metersphere.api.dto.request.sampler;
 
 import io.metersphere.plugin.api.annotation.PluginSubType;
 import io.metersphere.plugin.api.dto.TestElementDTO;
