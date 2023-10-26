@@ -10,6 +10,7 @@ export default {
   'project.fileManagement.nameNotNull': 'name cannot be empty',
   'project.fileManagement.namePlaceholder': 'Please enter the group name and press Enter to save',
   'project.fileManagement.renameSuccess': 'Rename successful',
+  'project.fileManagement.updateDescSuccess': 'File description updated successfully',
   'project.fileManagement.addSubModuleSuccess': 'Added successfully',
   'project.fileManagement.nameExist': 'This module name already exists at this level',
   'project.fileManagement.module': 'Module',
@@ -123,4 +124,5 @@ export default {
   'project.fileManagement.batchMoveSearchPlaceholder': 'Please enter the module name to search',
   'project.fileManagement.batchMoveConfirm': 'Move to selected module',
   'project.fileManagement.batchMoveSuccess': 'File moved successfully',
+  'project.fileManagement.moduleMoveSuccess': 'Module moved successfully',
 };

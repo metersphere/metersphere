@@ -10,6 +10,9 @@
       props.mask ? '' : 'ms-drawer-no-mask',
       props.noContentPadding ? 'ms-drawer-no-content-padding' : '',
     ]"
+    :drawer-style="{
+      minWidth: props.minWidth,
+    }"
     @cancel="handleCancel"
     @close="handleClose"
   >
@@ -88,7 +91,8 @@
     cancelText?: string;
     saveContinueText?: string;
     showContinue?: boolean;
-    width: number;
+    width: number | string;
+    minWidth?: string; // 最小宽度
     noContentPadding?: boolean; // 是否没有内容内边距
   }
 

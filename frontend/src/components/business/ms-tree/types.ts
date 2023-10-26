@@ -4,7 +4,6 @@ export interface MsTreeFieldNames extends TreeFieldNames {
   key: string;
   title: string;
   children: string;
-  isLeaf: string;
   [key: string]: any;
 }
 

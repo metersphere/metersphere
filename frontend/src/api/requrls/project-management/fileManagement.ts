@@ -1,2 +1,13 @@
-export const FileListUrl = '/project/member/get-member/option';
-export const FileDetailUrl = '/project/member/get-member/option';
+export const UploadFileUrl = '/project/file/upload'; // 上传文件
+export const UpdateFileUrl = '/project/file/update'; // 更新文件
+export const ReuploadFileUrl = '/project/file/re-upload'; // 重新上传文件
+export const FilePageUrl = '/project/file/page'; // 分页查询文件列表
+export const DeleteFileUrl = '/project/file/delete'; // 删除文件
+export const DownloadFileUrl = '/project/file/download'; // 下载文件
+export const BatchDownloadFileUrl = '/project/file/batch-download'; // 批量下载文件
+export const UpdateModuleUrl = '/project/file-module/update'; // 更新模块
+export const MoveModuleUrl = '/project/file-module/move'; // 移动模块
+export const AddModuleUrl = '/project/file-module/add'; // 添加模块
+export const GetModuleUrl = '/project/file-module/tree'; // 查找模块
+export const DeleteModuleUrl = '/project/file-module/delete'; // 删除模块
+export const GetModuleCountUrl = '/project/file/module/count'; // 模块统计文件数量

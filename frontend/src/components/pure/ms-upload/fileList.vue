@@ -113,6 +113,8 @@
 
   const props = defineProps<{
     fileList: MsFileItem[];
+    uploadFunc: (params: any) => Promise<any>; // 上传文件时，自定义上传方法
+    requestParams?: Record<string, any>; // 上传文件时，额外的请求参数
     route?: string; // 用于后台上传文件时，查看详情跳转的路由
     routeQuery?: Record<string, string>; // 用于后台上传文件时，查看详情跳转的路由参数
     handleDelete?: (item: MsFileItem) => void;
@@ -183,6 +185,7 @@
    */
   function startUpload() {
     emit('start');
+    asyncTaskStore.setUploadFunc(props.uploadFunc, props.requestParams);
     asyncTaskStore.startUpload(innerFileList.value, props.route, props.routeQuery);
   }
 
@@ -234,7 +237,7 @@
     if (typeof props.handleReupload === 'function') {
       props.handleReupload(item);
     } else {
-      item.status = UploadStatus.init;
+      item.status = UploadStatus.init; // 重置状态
       if (asyncTaskStore.uploadFileTask.uploadQueue.length > 0) {
         // 此时队列中还有任务，则 push 入队列末尾
         asyncTaskStore.uploadFileTask.uploadQueue.push(item);

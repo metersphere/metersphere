@@ -51,7 +51,9 @@
   import { ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
+  import { addModule, updateFile, updateModule } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import type { FieldRule, FormInstance } from '@arco-design/web-vue';
 
@@ -64,16 +66,19 @@
   }
 
   const props = defineProps<{
-    mode: 'add' | 'rename';
+    mode: 'add' | 'rename' | 'fileRename' | 'fileUpdateDesc';
     visible?: boolean;
     title?: string;
     allNames: string[];
     popupContainer?: string;
     fieldConfig?: FieldConfig;
+    parentId?: string; // 父节点 id
+    nodeId?: string; // 节点 id
   }>();
 
-  const emit = defineEmits(['update:visible', 'close']);
+  const emit = defineEmits(['update:visible', 'close', 'addFinish', 'renameFinish', 'updateDescFinish']);
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const innerVisible = ref(props.visible || false);
@@ -113,9 +118,38 @@
         try {
           loading.value = true;
           if (props.mode === 'add') {
+            // 添加根级模块
+            await addModule({
+              projectId: appStore.currentProjectId,
+              parentId: props.parentId || '',
+              name: form.value.field,
+            });
             Message.success(t('project.fileManagement.addSubModuleSuccess'));
-          } else {
+            emit('addFinish', form.value.field);
+          } else if (props.mode === 'rename') {
+            // 模块重命名
+            await updateModule({
+              id: props.nodeId || '',
+              name: form.value.field,
+            });
             Message.success(t('project.fileManagement.renameSuccess'));
+            emit('renameFinish', form.value.field);
+          } else if (props.mode === 'fileRename') {
+            // 文件重命名
+            await updateFile({
+              id: props.nodeId || '',
+              name: form.value.field,
+            });
+            Message.success(t('project.fileManagement.renameSuccess'));
+            emit('renameFinish', form.value.field);
+          } else if (props.mode === 'fileUpdateDesc') {
+            // 更新文件描述
+            await updateFile({
+              id: props.nodeId || '',
+              description: form.value.field,
+            });
+            Message.success(t('project.fileManagement.updateDescSuccess'));
+            emit('updateDescFinish', form.value.field);
           }
           if (done) {
             done(true);
@@ -123,7 +157,11 @@
             innerVisible.value = false;
           }
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
+          if (done) {
+            done(false);
+          }
         } finally {
           loading.value = false;
         }

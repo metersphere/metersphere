@@ -211,7 +211,12 @@
 
   // 使用正则表达式替换 {{name}} 为高亮的关键字
   function replacePreviewName(str: string) {
-    return str.replace(/{{(.*?)}}/g, `<span style='color: rgb(var(--primary-6))'><$1></span>`).replace(/\n/g, '<br>');
+    return str
+      .replace(/<|>/g, (match) => {
+        return match === '<' ? '&lt;' : '&gt;';
+      })
+      .replace(/{{(.*?)}}/g, `<span style='color: rgb(var(--primary-6))'>&lt;$1&gt;</span>`)
+      .replace(/\n/g, '<br>');
   }
 
   const subject = computed(() => {

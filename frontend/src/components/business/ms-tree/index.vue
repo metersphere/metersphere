@@ -109,7 +109,7 @@
   const emit = defineEmits<{
     (e: 'select', selectedKeys: Array<string | number>, node: MsTreeNodeData): void;
     (
-      e: 'dragOver',
+      e: 'drop',
       tree: MsTreeNodeData[],
       dragNode: MsTreeNodeData, // 被拖拽的节点
       dropNode: MsTreeNodeData, // 放入的节点
@@ -137,14 +137,13 @@
         node.icon = () => h('span', { class: 'hidden' });
       }
       if (
-        node[props.fieldNames.isLeaf] ||
+        node[props.fieldNames.isLeaf || 'isLeaf'] ||
         !node[props.fieldNames.children] ||
         node[props.fieldNames.children]?.length === 0
       ) {
         // 设置子节点图标，会覆盖 icon。当展示连接线时，需要设置 switcherIcon 以覆盖组件的默认图标；不展示连接线则是 icon
         node[props.showLine ? 'switcherIcon' : 'icon'] = () => h('span', { class: 'hidden' });
       }
-      node.disabled = false;
       return node;
     });
     nextTick(() => {
@@ -268,7 +267,7 @@
         arr.splice(dropPosition < 0 ? index : index + 1, 0, dragNode);
       });
     }
-    emit('dragOver', originalTreeData.value, dragNode, dropNode, dropPosition);
+    emit('drop', originalTreeData.value, dragNode, dropNode, dropPosition);
   }
 
   /**
@@ -304,7 +303,7 @@
     () => innerFocusNodeKey.value,
     (val) => {
       if (val.toString() !== '') {
-        focusEl.value = treeRef.value?.$el.querySelector(`[data-key=${val}]`);
+        focusEl.value = treeRef.value?.$el.querySelector(`[data-key="${val}"]`);
         if (focusEl.value) {
           focusEl.value.style.backgroundColor = 'rgb(var(--primary-1))';
         }
@@ -362,6 +361,9 @@
         &:hover {
           background-color: rgb(var(--primary-1));
         }
+        .arco-tree-node-indent-block {
+          width: 1px;
+        }
         .arco-tree-node-minus-icon,
         .arco-tree-node-plus-icon {
           border: 1px solid var(--color-text-4);
@@ -379,6 +381,9 @@
             color: var(--color-text-4);
           }
         }
+        .arco-tree-node-title-highlight {
+          background-color: transparent;
+        }
         .arco-tree-node-title {
           &:hover {
             background-color: rgb(var(--primary-1));
@@ -386,7 +391,11 @@
               @apply block;
             }
           }
+          .arco-tree-node-title-text {
+            width: calc(100% - 8px);
+          }
           .arco-tree-node-drag-icon {
+            right: 4px;
             .arco-icon {
               font-size: 14px;
             }

@@ -5,36 +5,66 @@
     allow-clear
     class="mb-[16px]"
   ></a-input>
-  <MsTree
-    v-model:focus-node-key="focusNodeKey"
-    :selected-keys="props.selectedKeys"
-    :data="folderTree"
-    :keyword="moduleKeyword"
-    :node-more-actions="folderMoreActions"
-    :expand-all="props.isExpandAll"
-    :empty-text="t('project.fileManagement.noFolder')"
-    :draggable="!props.isModal"
-    :virtual-list-props="virtualListProps"
-    block-node
-    @select="folderNodeSelect"
-    @more-action-select="handleFolderMoreSelect"
-    @more-actions-close="moreActionsClose"
-  >
-    <template #title="nodeData">
-      <span class="text-[var(--color-text-1)]">{{ nodeData.title }}</span>
-      <span v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count }})</span>
-    </template>
-    <template v-if="!props.isModal" #extra="nodeData">
-      <popConfirm mode="add" :all-names="[]" @close="resetFocusNodeKey">
-        <MsButton type="icon" size="mini" class="ms-tree-node-extra__btn !mr-0" @click="setFocusNodeKe(nodeData)">
-          <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
-        </MsButton>
-      </popConfirm>
-      <popConfirm mode="rename" :field-config="{ field: renameFolderTitle }" :all-names="[]" @close="resetFocusNodeKey">
-        <span :id="`renameSpan${nodeData.key}`" class="relative"></span>
-      </popConfirm>
-    </template>
-  </MsTree>
+  <a-spin class="min-h-[400px] w-full" :loading="loading">
+    <MsTree
+      v-model:focus-node-key="focusNodeKey"
+      :selected-keys="props.selectedKeys"
+      :data="folderTree"
+      :keyword="moduleKeyword"
+      :node-more-actions="folderMoreActions"
+      :expand-all="props.isExpandAll"
+      :empty-text="t('project.fileManagement.noFolder')"
+      :draggable="!props.isModal"
+      :virtual-list-props="virtualListProps"
+      :field-names="{
+        title: 'name',
+        key: 'id',
+        children: 'children',
+        count: 'count',
+      }"
+      block-node
+      @select="folderNodeSelect"
+      @more-action-select="handleFolderMoreSelect"
+      @more-actions-close="moreActionsClose"
+      @drop="handleDrop"
+    >
+      <template #title="nodeData">
+        <div class="inline-flex w-full">
+          <a-tooltip :content="nodeData.name" :mouse-enter-delay="300" position="left">
+            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+          </a-tooltip>
+          <div v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+        </div>
+      </template>
+      <template v-if="!props.isModal" #extra="nodeData">
+        <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块 -->
+        <popConfirm
+          v-if="nodeData.id !== 'root'"
+          mode="add"
+          :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
+          :parent-id="nodeData.id"
+          @close="resetFocusNodeKey"
+          @add-finish="() => initModules()"
+        >
+          <MsButton type="icon" size="mini" class="ms-tree-node-extra__btn !mr-0" @click="setFocusNodeKey(nodeData)">
+            <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
+          </MsButton>
+        </popConfirm>
+        <popConfirm
+          v-if="nodeData.id !== 'root'"
+          mode="rename"
+          :parent-id="nodeData.id"
+          :node-id="nodeData.id"
+          :field-config="{ field: renameFolderTitle }"
+          :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
+          @close="resetFocusNodeKey"
+          @rename-finish="(val) => (nodeData.name = val)"
+        >
+          <span :id="`renameSpan${nodeData.id}`" class="relative"></span>
+        </popConfirm>
+      </template>
+    </MsTree>
+  </a-spin>
 </template>
 
 <script setup lang="ts">
@@ -48,16 +78,27 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import popConfirm from './popConfirm.vue';
 
+  import {
+    deleteModule,
+    getModules,
+    getModulesCount,
+    moveModule,
+  } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useAppStore from '@/store/modules/app';
+  import { mapTree } from '@/utils';
+
+  import { FileListQueryParams, ModuleTreeNode } from '@/models/projectManagement/file';
 
   const props = defineProps<{
     isExpandAll: boolean;
     selectedKeys?: Array<string | number>; // 选中的节点 key
     isModal?: boolean; // 是否是弹窗模式
   }>();
-  const emit = defineEmits(['update:selectedKeys', 'folderNodeSelect']);
+  const emit = defineEmits(['update:selectedKeys', 'init', 'folderNodeSelect']);
 
+  const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -68,111 +109,16 @@
       };
     }
     return {
-      height: 'calc(100vh - 320px)',
+      height: 'calc(100vh - 325px)',
     };
   });
   const moduleKeyword = ref('');
-  const folderTree = ref([
-    {
-      title: 'Trunk',
-      key: 'node1',
-      count: 18,
-      children: [
-        {
-          title: 'Leaf',
-          key: 'node2',
-          count: 28,
-        },
-        {
-          title: 'Leaf',
-          key: 'node4',
-          count: 138,
-        },
-        {
-          title: 'Leaf',
-          key: 'node5',
-          count: 108,
-        },
-        {
-          title: 'Leaf',
-          key: 'node4',
-          count: 138,
-        },
-        {
-          title: 'Leaf',
-          key: 'node5',
-          count: 108,
-        },
-        {
-          title: 'Leaf',
-          key: 'node4',
-          count: 138,
-        },
-        {
-          title: 'Leaf',
-          key: 'node5',
-          count: 108,
-        },
-      ],
-    },
-    {
-      title: 'Trunk',
-      key: 'node3',
-      count: 180,
-      children: [
-        {
-          title: 'Leaf',
-          key: 'node4',
-          count: 138,
-        },
-        {
-          title: 'Leaf',
-          key: 'node5',
-          count: 108,
-        },
-        {
-          title: 'Leaf',
-          key: 'node4',
-          count: 138,
-        },
-        {
-          title: 'Leaf',
-          key: 'node5',
-          count: 108,
-        },
-        {
-          title: 'Leaf',
-          key: 'node4',
-          count: 138,
-        },
-        {
-          title: 'Leaf',
-          key: 'node5',
-          count: 108,
-        },
-        {
-          title: 'Leaf',
-          key: 'node4',
-          count: 138,
-        },
-        {
-          title: 'Leaf',
-          key: 'node5',
-          count: 108,
-        },
-      ],
-    },
-    {
-      title: 'Trunk',
-      key: 'node6',
-      children: [],
-      count: 0,
-    },
-  ]);
+  const folderTree = ref<ModuleTreeNode[]>([]);
   const focusNodeKey = ref<string | number>('');
+  const loading = ref(false);
 
-  function setFocusNodeKe(node: MsTreeNodeData) {
-    focusNodeKey.value = node.key || '';
+  function setFocusNodeKey(node: MsTreeNodeData) {
+    focusNodeKey.value = node.id || '';
   }
 
   const folderMoreActions: ActionsItem[] = [
@@ -188,6 +134,50 @@
   ];
   const renamePopVisible = ref(false);
 
+  const selectedKeys = ref(props.selectedKeys || []);
+
+  watch(
+    () => props.selectedKeys,
+    (val) => {
+      selectedKeys.value = val || [];
+    }
+  );
+
+  watch(
+    () => selectedKeys.value,
+    (val) => {
+      emit('update:selectedKeys', val);
+    }
+  );
+
+  /**
+   * 初始化模块树
+   * @param isSetDefaultKey 是否设置第一个节点为选中节点
+   */
+  async function initModules(isSetDefaultKey = false) {
+    try {
+      loading.value = true;
+      const res = await getModules(appStore.currentProjectId);
+      folderTree.value = res.map((e) => ({
+        ...e,
+        hideMoreAction: e.id === 'root',
+        draggable: e.id !== 'root',
+      }));
+      if (isSetDefaultKey) {
+        selectedKeys.value = [folderTree.value[0].id];
+      }
+      emit(
+        'init',
+        folderTree.value.map((e) => e.name)
+      );
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   /**
    * 删除文件夹
    * @param node 节点信息
@@ -195,7 +185,7 @@
   function deleteFolder(node: MsTreeNodeData) {
     openModal({
       type: 'error',
-      title: t('project.fileManagement.deleteFolderTipTitle', { name: node.title }),
+      title: t('project.fileManagement.deleteFolderTipTitle', { name: node.name }),
       content: t('project.fileManagement.deleteFolderTipContent'),
       okText: t('project.fileManagement.deleteConfirm'),
       okButtonProps: {
@@ -204,8 +194,11 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
+          await deleteModule(node.id);
           Message.success(t('project.fileManagement.deleteSuccess'));
+          initModules(selectedKeys.value[0] === node.id);
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -224,8 +217,8 @@
   /**
    * 处理文件夹树节点选中事件
    */
-  function folderNodeSelect(selectedKeys: (string | number)[]) {
-    emit('folderNodeSelect', selectedKeys);
+  function folderNodeSelect(_selectedKeys: (string | number)[]) {
+    emit('folderNodeSelect', _selectedKeys);
   }
 
   /**
@@ -239,12 +232,42 @@
         resetFocusNodeKey();
         break;
       case 'rename':
-        renameFolderTitle.value = node.title || '';
+        renameFolderTitle.value = node.name || '';
         renamePopVisible.value = true;
-        document.querySelector(`#renameSpan${node.key}`)?.dispatchEvent(new Event('click'));
+        document.querySelector(`#renameSpan${node.id}`)?.dispatchEvent(new Event('click'));
         break;
       default:
         break;
+    }
+  }
+
+  /**
+   * 处理文件夹树节点拖拽事件
+   * @param tree 树数据
+   * @param dragNode 拖拽节点
+   * @param dropNode 释放节点
+   * @param dropPosition 释放位置
+   */
+  async function handleDrop(
+    tree: MsTreeNodeData[],
+    dragNode: MsTreeNodeData,
+    dropNode: MsTreeNodeData,
+    dropPosition: number
+  ) {
+    try {
+      loading.value = true;
+      await moveModule({
+        dragNodeId: dragNode.id as string,
+        dropNodeId: dropNode.id || '',
+        dropPosition,
+      });
+      Message.success(t('project.fileManagement.moduleMoveSuccess'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      initModules();
+    } finally {
+      loading.value = false;
     }
   }
 
@@ -255,21 +278,32 @@
     }
   }
 
-  const selectedKeys = ref(props.selectedKeys || []);
+  onBeforeMount(() => {
+    initModules();
+  });
 
-  watch(
-    () => props.selectedKeys,
-    (val) => {
-      selectedKeys.value = val || [];
+  /**
+   * 初始化模块文件数量
+   */
+  async function initModulesCount(params: FileListQueryParams) {
+    try {
+      const res = await getModulesCount(params);
+      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
+        return {
+          ...node,
+          count: res[node.id] || 0,
+        };
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
-  );
+  }
 
-  watch(
-    () => selectedKeys.value,
-    (val) => {
-      emit('update:selectedKeys', val);
-    }
-  );
+  defineExpose({
+    initModules,
+    initModulesCount,
+  });
 </script>
 
 <style lang="less" scoped></style>

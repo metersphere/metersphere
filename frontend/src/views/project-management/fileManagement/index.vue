@@ -37,7 +37,12 @@
                   <a-doption value="storage">{{ t('project.fileManagement.addStorage') }}</a-doption>
                 </template>
               </a-dropdown>
-              <popConfirm mode="add" :all-names="[]">
+              <popConfirm
+                mode="add"
+                :all-names="rootModulesName"
+                parent-id="none"
+                @add-finish="handleAddRootModuleFinish"
+              >
                 <span id="allPlus" class="invisible"></span>
               </popConfirm>
             </div>
@@ -49,8 +54,10 @@
           </a-radio-group>
           <div v-show="showType === 'Module'">
             <FolderTree
+              ref="folderTreeRef"
               v-model:selected-keys="selectedKeys"
               :is-expand-all="isExpandAll"
+              @init="setRootModules"
               @folder-node-select="folderNodeSelect"
             />
           </div>
@@ -64,7 +71,7 @@
         </div>
       </template>
       <template #right>
-        <rightBox :active-folder="activeFolder" :active-folder-type="activeFolderType" />
+        <rightBox :active-folder="activeFolder" :active-folder-type="activeFolderType" @init="handleModuleTableInit" />
       </template>
     </MsSplitBox>
   </div>
@@ -87,6 +94,8 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { FileListQueryParams } from '@/models/projectManagement/file';
+
   const { t } = useI18n();
 
   const myFileCount = ref(0);
@@ -94,6 +103,7 @@
   const isExpandAll = ref(false);
   const activeFolderType = ref<'folder' | 'module' | 'storage'>('folder');
   const storageDrawerVisible = ref(false);
+  const rootModulesName = ref<string[]>([]); // 根模块名称列表
 
   function changeExpand() {
     isExpandAll.value = !isExpandAll.value;
@@ -111,7 +121,7 @@
     }
   }
 
-  const activeFolder = ref<string | number>('all');
+  const activeFolder = ref<string>('all');
   const selectedKeys = computed({
     get: () => [activeFolder.value],
     set: (val) => val,
@@ -140,7 +150,7 @@
   /**
    * 处理文件夹树节点选中事件
    */
-  function folderNodeSelect(keys: (string | number)[]) {
+  function folderNodeSelect(keys: string[]) {
     [activeFolder.value] = keys;
     activeFolderType.value = 'module';
   }
@@ -148,9 +158,36 @@
   /**
    * 处理存储库列表项选中事件
    */
-  function storageItemSelect(key: string | number) {
+  function storageItemSelect(key: string) {
     activeFolder.value = key;
     activeFolderType.value = 'storage';
+  }
+
+  /**
+   * 设置根模块名称列表
+   * @param names 根模块名称列表
+   */
+  function setRootModules(names: string[]) {
+    rootModulesName.value = names;
+  }
+
+  const folderTreeRef = ref<InstanceType<typeof FolderTree>>();
+  /**
+   * 添加根模块后，若当前展示的是模块，则刷新模块树
+   */
+  function handleAddRootModuleFinish() {
+    if (showType.value === 'Module') {
+      folderTreeRef.value?.initModules();
+    }
+  }
+
+  /**
+   * 右侧表格数据刷新后，若当前展示的是模块，则刷新模块树的统计数量
+   */
+  function handleModuleTableInit(params: FileListQueryParams) {
+    if (showType.value === 'Module') {
+      folderTreeRef.value?.initModulesCount(params);
+    }
   }
 </script>
 

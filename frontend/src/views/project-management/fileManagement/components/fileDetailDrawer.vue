@@ -1,12 +1,13 @@
 <template>
   <MsDetailDrawer
+    ref="detailDrawerRef"
     v-model:visible="innerVisible"
     :width="960"
     :footer="false"
     :title="t('project.fileManagement.detail')"
     :detail-id="props.fileId"
     :detail-index="props.activeFileIndex"
-    :get-detail-func="getFileDetail"
+    :get-detail-func="async () => ({})"
     :pagination="props.pagination"
     :table-data="props.tableData"
     :page-change="props.pageChange"
@@ -56,13 +57,15 @@
           </a-skeleton>
           <template v-else>
             <div class="mb-[16px] w-[102px]">
-              <MsPreviewCard
-                mode="hover"
-                :type="detail?.type"
-                :url="detail?.url"
-                :footer-text="t('project.fileManagement.replaceFile')"
-                @click="handleFileIconClick"
-              />
+              <a-spin :loading="replaceLoading">
+                <MsPreviewCard
+                  mode="hover"
+                  :type="detail?.type"
+                  :url="detail?.url"
+                  :footer-text="t('project.fileManagement.replaceFile')"
+                  @click="handleFileIconClick"
+                />
+              </a-spin>
             </div>
             <MsDescription
               :descriptions="fileDescriptions"
@@ -87,9 +90,10 @@
                   </a-tooltip>
                   <template v-if="item.key === 'name'">
                     <popConfirm
-                      mode="rename"
+                      mode="fileRename"
                       :field-config="{ placeholder: t('project.fileManagement.fileNamePlaceholder') }"
                       :all-names="[]"
+                      @rename-finish="detailDrawerRef?.initDetail"
                     >
                       <MsButton class="!mr-0 ml-[8px]">{{ t('common.rename') }}</MsButton>
                     </popConfirm>
@@ -105,7 +109,7 @@
                   </template>
                   <template v-if="item.key === 'desc'">
                     <popConfirm
-                      mode="rename"
+                      mode="fileUpdateDesc"
                       :title="t('project.fileManagement.desc')"
                       :field-config="{
                         field: detail.desc,
@@ -114,6 +118,7 @@
                         isTextArea: true,
                       }"
                       :all-names="[]"
+                      @update-desc-finish="detailDrawerRef?.initDetail"
                     >
                       <MsButton class="ml-[8px]"><MsIcon type="icon-icon_edit_outlined"></MsIcon></MsButton>
                     </popConfirm>
@@ -142,7 +147,7 @@
             </a-input-search>
           </div>
           <div class="p-[16px]">
-            <ms-base-table
+            <!-- <ms-base-table
               v-if="activeTab === 'case'"
               v-bind="caseTableProps"
               no-disable
@@ -161,7 +166,7 @@
               no-disable
               v-on="versionTableEvent"
             >
-            </ms-base-table>
+            </ms-base-table> -->
           </div>
         </div>
       </div>
@@ -187,7 +192,7 @@
   import MsPreviewCard from '@/components/business/ms-thumbnail-card/index.vue';
   import popConfirm from './popConfirm.vue';
 
-  import { getFileCases, getFileDetail, getFileVersions } from '@/api/modules/project-management/fileManagement';
+  import { reuploadFile, updateFile } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
   import { downloadUrlFile } from '@/utils';
@@ -196,7 +201,7 @@
 
   const props = defineProps<{
     visible: boolean;
-    fileId: string | number;
+    fileId: string;
     activeFileIndex: number;
     tableData: any[];
     pagination?: MsPaginationI;
@@ -211,6 +216,7 @@
 
   const innerVisible = ref(false);
   const fileDescriptions = ref<Description[]>([]);
+  const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
 
   watch(
     () => props.visible,
@@ -242,8 +248,8 @@
   const fileType = ref('unknown');
 
   function loadedFile(detail: any) {
-    if (detail.type) {
-      fileType.value = getFileEnum(`/${detail.type.toLowerCase()}`);
+    if (detail.fileType) {
+      fileType.value = getFileEnum(`/${detail.fileType.toLowerCase()}`);
     }
     fileDescriptions.value = [
       {
@@ -258,7 +264,7 @@
       },
       {
         label: t('project.fileManagement.type'),
-        value: detail.type,
+        value: detail.fileType,
       },
       {
         label: t('project.fileManagement.size'),
@@ -307,11 +313,27 @@
     }
   }
 
+  const replaceLoading = ref(false);
   watch(
     () => newFile.value,
-    (data) => {
+    async (data) => {
       if (data) {
-        Message.success(t('project.fileManagement.replaceFileSuccess'));
+        try {
+          replaceLoading.value = true;
+          await reuploadFile({
+            request: {
+              fileId: props.fileId,
+            },
+            file: data,
+          });
+          Message.success(t('project.fileManagement.replaceFileSuccess'));
+          detailDrawerRef.value?.initDetail();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          replaceLoading.value = false;
+        }
       }
     }
   );
@@ -328,117 +350,116 @@
   const previewVisible = ref(false);
 
   async function addFileTag(val: string) {
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true);
-      }, 2000);
+    await updateFile({
+      id: props.fileId,
+      tags: [val],
     });
   }
 
   const activeTab = ref('case');
 
-  const caseColumns: MsTableColumn = [
-    {
-      title: 'project.fileManagement.id',
-      dataIndex: 'id',
-      width: 100,
-    },
-    {
-      title: 'project.fileManagement.name',
-      dataIndex: 'name',
-      showTooltip: true,
-      width: 200,
-    },
-    {
-      title: 'project.fileManagement.type',
-      dataIndex: 'type',
-    },
-    {
-      title: 'project.fileManagement.fileVersion',
-      dataIndex: 'fileVersion',
-    },
-    {
-      title: 'common.operation',
-      slotName: 'action',
-      fixed: 'right',
-      width: 130,
-    },
-  ];
-  const {
-    propsRes: caseTableProps,
-    propsEvent: caseTableEvent,
-    loadList: loadCaseList,
-    setKeyword,
-  } = useTable(getFileCases, {
-    tableKey: TableKeyEnum.FILE_MANAGEMENT_CASE,
-    scroll: { x: 800 },
-    columns: caseColumns,
-    selectable: true,
-    showSelectAll: true,
-    size: 'default',
-  });
+  // const caseColumns: MsTableColumn = [
+  //   {
+  //     title: 'project.fileManagement.id',
+  //     dataIndex: 'id',
+  //     width: 100,
+  //   },
+  //   {
+  //     title: 'project.fileManagement.name',
+  //     dataIndex: 'name',
+  //     showTooltip: true,
+  //     width: 200,
+  //   },
+  //   {
+  //     title: 'project.fileManagement.type',
+  //     dataIndex: 'type',
+  //   },
+  //   {
+  //     title: 'project.fileManagement.fileVersion',
+  //     dataIndex: 'fileVersion',
+  //   },
+  //   {
+  //     title: 'common.operation',
+  //     slotName: 'action',
+  //     fixed: 'right',
+  //     width: 130,
+  //   },
+  // ];
+  // const {
+  //   propsRes: caseTableProps,
+  //   propsEvent: caseTableEvent,
+  //   loadList: loadCaseList,
+  //   setKeyword,
+  // } = useTable(getFileCases, {
+  //   tableKey: TableKeyEnum.FILE_MANAGEMENT_CASE,
+  //   scroll: { x: 800 },
+  //   columns: caseColumns,
+  //   selectable: true,
+  //   showSelectAll: true,
+  //   size: 'default',
+  // });
 
-  const caseBatchActions = {
-    baseAction: [
-      {
-        label: 'project.fileManagement.updateCaseFile',
-        eventTag: 'updateCaseFile',
-      },
-    ],
-  };
+  // const caseBatchActions = {
+  //   baseAction: [
+  //     {
+  //       label: 'project.fileManagement.updateCaseFile',
+  //       eventTag: 'updateCaseFile',
+  //     },
+  //   ],
+  // };
 
   const keyword = ref('');
 
   function searchCase() {
-    setKeyword(keyword.value);
-    loadCaseList();
+    // setKeyword(keyword.value);
+    // loadCaseList();
   }
 
   function updateCase(record: any) {
     console.log(record);
   }
 
-  const versionColumns: MsTableColumn = [
-    {
-      title: 'project.fileManagement.fileVersion',
-      dataIndex: 'fileVersion',
-    },
-    {
-      title: 'project.fileManagement.record',
-      dataIndex: 'record',
-      showTooltip: true,
-    },
-    {
-      title: 'project.fileManagement.creator',
-      dataIndex: 'creator',
-      showTooltip: true,
-    },
-    {
-      title: 'project.fileManagement.createTime',
-      dataIndex: 'createTime',
-      width: 180,
-    },
-  ];
-  const {
-    propsRes: versionTableProps,
-    propsEvent: versionTableEvent,
-    loadList: loadVersionList,
-  } = useTable(getFileVersions, {
-    tableKey: TableKeyEnum.FILE_MANAGEMENT_VERSION,
-    scroll: { x: '100%' },
-    columns: versionColumns,
-    selectable: false,
-  });
+  // const versionColumns: MsTableColumn = [
+  //   {
+  //     title: 'project.fileManagement.fileVersion',
+  //     dataIndex: 'fileVersion',
+  //   },
+  //   {
+  //     title: 'project.fileManagement.record',
+  //     dataIndex: 'record',
+  //     showTooltip: true,
+  //   },
+  //   {
+  //     title: 'project.fileManagement.creator',
+  //     dataIndex: 'creator',
+  //     showTooltip: true,
+  //   },
+  //   {
+  //     title: 'project.fileManagement.createTime',
+  //     dataIndex: 'createTime',
+  //     width: 180,
+  //   },
+  // ];
+  // const {
+  //   propsRes: versionTableProps,
+  //   propsEvent: versionTableEvent,
+  //   loadList: loadVersionList,
+  // } = useTable(getFileVersions, {
+  //   tableKey: TableKeyEnum.FILE_MANAGEMENT_VERSION,
+  //   scroll: { x: '100%' },
+  //   columns: versionColumns,
+  //   selectable: false,
+  // });
 
-  watchEffect(() => {
-    if (innerVisible.value) {
-      if (activeTab.value === 'case') {
-        loadCaseList();
-      } else {
-        loadVersionList();
-      }
-    }
-  });
+  // watchEffect(() => {
+  //   if (innerVisible.value) {
+  //     if (activeTab.value === 'case') {
+  //       loadCaseList();
+  //     } else {
+  //       loadVersionList();
+  //     }
+  //   }
+  // });
 </script>
 
 <style lang="less" scoped>
