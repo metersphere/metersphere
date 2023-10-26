@@ -6,6 +6,7 @@
   import { ref, watch } from 'vue';
   import { debounce } from 'lodash-es';
 
+  import JiraKey from './comp/jiraKey.vue';
   import PassWord from './formcreate-password.vue';
   import SearchSelect from './searchSelect.vue';
 
@@ -21,6 +22,7 @@
 
   formCreate.component('PassWord', PassWord);
   formCreate.component('SearchSelect', SearchSelect);
+  formCreate.component('JiraKey', JiraKey);
 
   const FormCreate = formCreate.$form();
   const option = {

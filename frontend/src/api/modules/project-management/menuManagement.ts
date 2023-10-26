@@ -1,3 +1,5 @@
+import { FormItem } from '@/components/pure/ms-form-create/types';
+
 import MSR from '@/api/http/index';
 import * as Url from '@/api/requrls/project-management/menuManagement';
 
@@ -115,9 +117,9 @@ export function getPlatformOptions(organizationId: string, type: MenuEnum) {
  */
 export function getPlatformInfo(pluginId: string, type: MenuEnum) {
   if (type === MenuEnum.bugManagement) {
-    return MSR.get<unknown>({ url: `${Url.getPluginInfoByBug}${pluginId}` });
+    return MSR.get<{ formItems: FormItem[] }>({ url: `${Url.getPluginInfoByBug}${pluginId}` });
   }
-  return MSR.get<unknown>({ url: `${Url.getPluginInfoByCase}${pluginId}` });
+  return MSR.get<{ formItems: FormItem[] }>({ url: `${Url.getPluginInfoByCase}${pluginId}` });
 }
 
 /**

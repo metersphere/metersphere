@@ -40,7 +40,7 @@
         <!-- 同步缺陷 -->
         <span>{{ t('project.menu.row2') }}</span>
         <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{
-          t('project.menu.sd')
+          t('project.menu.BUG_SYNC')
         }}</div>
       </template>
       <div v-if="record.type === 'CASE_PUBLIC'">
@@ -50,8 +50,8 @@
       <div v-if="record.type === 'CASE_RELATED'" class="flex flex-row">
         <!-- 用例 关联需求 -->
         <div>{{ t('project.menu.row4') }}</div>
-        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{
-          t('project.menu.rr')
+        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showRelatedCaseDrawer">{{
+          t('project.menu.CASE_RELATED')
         }}</div>
       </div>
       <div v-if="record.type === 'CASE_RE_REVIEW'">
@@ -127,7 +127,7 @@
           </a-input-number>
         </div>
         <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="pushFar">{{
-          t('project.menu.far')
+          t('project.menu.API_ERROR_REPORT_RULE')
         }}</div>
         <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
           <div>
@@ -313,6 +313,7 @@
     </template>
   </MsBaseTable>
   <DefectSync v-model:visible="defectDrawerVisible" @cancel="defectDrawerVisible = false" />
+  <RelatedCase v-model:visible="relatedCaseDrawerVisible" @cancel="relatedCaseDrawerVisible = false" />
 </template>
 
 <script setup lang="ts">
@@ -327,6 +328,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTimeSelectorVue from '@/components/pure/ms-time-selector/MsTimeSelector.vue';
   import DefectSync from './components/defectSync.vue';
+  import RelatedCase from './components/relatedCase.vue';
 
   import {
     getAuditorOptions,
@@ -347,6 +349,7 @@
   const currentProjectId = computed(() => appStore.currentProjectId);
   const { t } = useI18n();
   const defectDrawerVisible = ref(false);
+  const relatedCaseDrawerVisible = ref(false);
   const apiPoolOption = ref<PoolOption[]>([]);
   const uiPoolOption = ref<PoolOption[]>([]);
   const apiAuditorOption = ref<PoolOption[]>([]);
@@ -619,8 +622,13 @@
     await loadList();
   };
 
+  // 打开同步缺陷
   const showDefectDrawer = () => {
     defectDrawerVisible.value = true;
+  };
+  // 打开关联需求
+  const showRelatedCaseDrawer = () => {
+    relatedCaseDrawerVisible.value = true;
   };
   // 跳转到误报规则列表页
   const pushFar = () => {
