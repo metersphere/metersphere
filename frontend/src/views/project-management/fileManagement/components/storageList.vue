@@ -31,6 +31,7 @@
     <template #itemAction="{ item }">
       <popConfirm
         mode="rename"
+        :parent-id="item.key"
         :field-config="{ field: renameStorageTitle }"
         :all-names="[]"
         @close="resetFocusItemKey"
@@ -619,7 +620,7 @@
     }
   }
 
-  async function saveStorage(isContinue: boolean) {}
+  // async function saveStorage(isContinue: boolean) {}
 
   /**
    * 处理抽屉确认
@@ -628,7 +629,7 @@
   function handleDrawerConfirm(isContinue: boolean) {
     storageFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
       if (!errors) {
-        saveStorage(isContinue);
+        // saveStorage(isContinue);
       }
     });
   }

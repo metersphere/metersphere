@@ -25,7 +25,6 @@
           title: 'name',
           children: 'children',
           disabled: 'disabled',
-          isLeaf: 'leafNode',
         }"
         show-search
       />

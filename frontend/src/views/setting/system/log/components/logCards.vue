@@ -492,11 +492,17 @@
   }
 
   function handleNameClick(record: LogItem) {
-    const routeQuery = {
+    const routeQuery: Record<string, any> = {
       organizationId: record.organizationId,
       projectId: record.projectId,
       id: record.sourceId,
     };
+    if (record.organizationId === 'SYSTEM') {
+      delete routeQuery.organizationId;
+    }
+    if (record.projectId === 'SYSTEM' || record.projectId === 'ORGANIZATION') {
+      delete routeQuery.projectId;
+    }
     jumpRouteByMapKey(record.module, routeQuery, true);
   }
 

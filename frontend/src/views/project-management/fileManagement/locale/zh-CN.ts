@@ -10,6 +10,7 @@ export default {
   'project.fileManagement.nameNotNull': '名字不能为空',
   'project.fileManagement.namePlaceholder': '请输入分组名称，按回车键保存',
   'project.fileManagement.renameSuccess': '重命名成功',
+  'project.fileManagement.updateDescSuccess': '文件描述更新成功',
   'project.fileManagement.addSubModuleSuccess': '添加成功',
   'project.fileManagement.nameExist': '该层级已有此模块名称',
   'project.fileManagement.module': '模块',
@@ -115,4 +116,5 @@ export default {
   'project.fileManagement.batchMoveSearchPlaceholder': '请输入模块名称进行搜索',
   'project.fileManagement.batchMoveConfirm': '移动至所选模块',
   'project.fileManagement.batchMoveSuccess': '文件移动成功',
+  'project.fileManagement.moduleMoveSuccess': '模块移动成功',
 };

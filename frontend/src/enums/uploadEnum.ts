@@ -4,6 +4,7 @@ export enum UploadAcceptEnum {
   pdf = '.pdf',
   ppt = '.pptx,.ppt',
   txt = '.txt',
+  plain = '.plain',
   video = '.mp4',
   sql = '.sql',
   csv = '.csv',

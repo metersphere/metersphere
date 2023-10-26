@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, nextTick, onMounted, type Ref, ref, watch, watchEffect } from 'vue';
+  import { nextTick, onMounted, type Ref, ref, watch, watchEffect } from 'vue';
   import { useResizeObserver } from '@vueuse/core';
   import { debounce } from 'lodash-es';
 
@@ -95,13 +95,12 @@
   const listPage = ref(0);
   const listTotal = ref(0);
   const remoteList = ref<any[]>([]);
-  const noMore = computed(() => {
-    return listSize.value * (listPage.value - 1) + remoteList.value.length >= listTotal.value;
-  });
+  const noMore = ref(false);
   const isInit = ref(false);
 
   const topLoading = ref(false);
   const bottomLoading = ref(false);
+  const isLoadError = ref(false); // 是否加载失败 TODO:加载失败重试
 
   /**
    * 加载上一页
@@ -129,23 +128,30 @@
 
   /**
    * 加载下一页
+   * @param isReload 是否重新加载列表
    */
-  async function loadNextList() {
+  async function loadNextList(isReload = false) {
     try {
       if (props.mode === 'remote' && typeof props.remoteFunc === 'function') {
         bottomLoading.value = true;
         listPage.value += 1;
+        if (isReload) {
+          listPage.value = 1;
+        }
         const res = await props.remoteFunc({
           current: listPage.value,
           pageSize: listSize.value,
+          ...(props.remoteParams || {}),
         });
-        remoteList.value = res.list;
+        remoteList.value = isReload ? res.list : remoteList.value.concat(res.list);
         listTotal.value = res.total;
         bottomLoading.value = false;
+        noMore.value = listSize.value * (listPage.value - 1) + remoteList.value.length >= listTotal.value;
       }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+      isLoadError.value = true;
     } finally {
       bottomLoading.value = false;
     }
@@ -188,7 +194,7 @@
     debounce((entries) => {
       const entry = entries[0];
       const { width, height } = entry.contentRect;
-      if (isInit.value) {
+      if (isInit.value && !isLoadError.value && !noMore.value) {
         computedListSize(width, height);
       }
     }, 300)
@@ -207,11 +213,25 @@
       if (isArrivedTop.value && !isArrivedBottom.value && listPage.value > 1 && !topLoading.value) {
         // 滚动到顶部且未滚动到底部（也就是数据量大于 1 页），且不是第一页，且不是正在加载上一页，则加载上一页
         loadPrevList();
-      } else if (isArrivedBottom.value && !isArrivedTop.value && !noMore.value && !bottomLoading.value) {
+      } else if (
+        isArrivedBottom.value &&
+        !isArrivedTop.value &&
+        !noMore.value &&
+        !bottomLoading.value &&
+        !isLoadError.value
+      ) {
         // 滚动到底部且未滚动到顶部（也就是数据量大于 1 页），且不是正在加载下一页，则加载下一页
         loadNextList();
       }
     }
+  });
+
+  function reload() {
+    loadNextList(true);
+  }
+
+  defineExpose({
+    reload,
   });
 </script>
 

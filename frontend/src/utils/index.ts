@@ -77,6 +77,7 @@ export const rgbToHex = (rgb: string) => {
 
 /**
  * 字符串内容文件下载
+ * @param type 文件类型
  * @param content 文件内容
  * @param fileName 文件名
  */
@@ -190,7 +191,7 @@ export function mapTree<T>(
   tree: TreeNode<T> | TreeNode<T>[] | T | T[],
   customNodeFn: (node: TreeNode<T>) => TreeNode<T> | null = (node) => node,
   customChildrenKey = 'children'
-): TreeNode<T>[] {
+): T[] {
   if (!Array.isArray(tree)) {
     tree = [tree];
   }
@@ -307,4 +308,26 @@ export const getGenerateId = () => {
     .padStart(4, '0');
   const generateId = timestamp + randomDigits;
   return generateId.substring(0, 16);
+};
+
+/**
+ * 下载文件
+ * @param byte 字节流
+ * @param fileName 文件名
+ */
+export const downloadByteFile = (byte: BlobPart, fileName: string) => {
+  // 创建一个Blob对象
+  const blob = new Blob([byte], { type: 'application/octet-stream' });
+  // 创建一个URL对象，用于生成下载链接
+  const url = window.URL.createObjectURL(blob);
+  // 创建一个虚拟的<a>标签来触发下载
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName; // 设置下载文件的名称
+  document.body.appendChild(link);
+  link.click();
+
+  // 释放URL对象
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(link);
 };

@@ -25,64 +25,74 @@
           <a-radio value="module" class="show-type-icon">{{ t('project.fileManagement.module') }}</a-radio>
           <a-radio value="storage" class="show-type-icon">{{ t('project.fileManagement.storage') }}</a-radio>
         </a-radio-group>
-        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
+        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type">
           <a-radio value="list" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_view-list_outlined" /></a-radio>
           <a-radio value="card" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_card_outlined" /></a-radio>
         </a-radio-group>
       </div>
     </div>
-    <ms-base-table
-      v-if="showType === 'list'"
-      v-bind="propsRes"
-      :action-config="fileType === 'module' ? moduleFileBatchActions : storageFileBatchActions"
-      no-disable
-      v-on="propsEvent"
-      @selected-change="handleTableSelect"
-      @batch-action="handleTableBatch"
-    >
-      <template #name="{ record, rowIndex }">
-        <a-button type="text" class="px-0" @click="openFileDetail(record.id, rowIndex)">{{ record.name }}</a-button>
-      </template>
-      <template #tag="{ record }">
-        <MsTagGroup theme="outline" :tag-list="record.tag" is-string-tag />
-      </template>
-      <template #action="{ record }">
-        <MsButton type="text" class="mr-[8px]" @click="downloadFile(record.url, record.name)">
-          {{ t('project.fileManagement.download') }}
-        </MsButton>
-        <MsTableMoreAction
-          :list="record.type === 'JAR' ? jarFileActions : normalFileActions"
-          @select="handleMoreActionSelect($event, record)"
-        />
-      </template>
-      <template v-if="keyword.trim() === ''" #empty>
-        <div class="flex items-center justify-center p-[8px] text-[var(--color-text-4)]">
-          {{ t('project.fileManagement.tableNoFile') }}
-          <MsButton class="ml-[8px]" @click="handleAddClick">
-            {{ t('project.fileManagement.addFile') }}
+    <a-spin class="w-full" :loading="loading">
+      <ms-base-table
+        v-if="showType === 'list'"
+        v-bind="propsRes"
+        :action-config="fileType === 'module' ? moduleFileBatchActions : storageFileBatchActions"
+        no-disable
+        v-on="propsEvent"
+        @selected-change="handleTableSelect"
+        @batch-action="handleTableBatch"
+      >
+        <template #name="{ record, rowIndex }">
+          <a-tooltip :content="record.name">
+            <a-button type="text" class="px-0" @click="openFileDetail(record.id, rowIndex)">
+              <div class="one-line-text max-w-[168px]">{{ record.name }}</div>
+            </a-button>
+          </a-tooltip>
+        </template>
+        <template #action="{ record }">
+          <MsButton type="text" class="mr-[8px]" @click="handleDownload(record)">
+            {{ t('project.fileManagement.download') }}
           </MsButton>
-        </div>
-      </template>
-    </ms-base-table>
-    <MsCardList
-      v-else-if="showType === 'card'"
-      mode="remote"
-      :remote-func="getFileList"
-      :shadow-limit="50"
-      :card-min-width="102"
-      class="flex-1"
-    >
-      <template #item="{ item, index }">
-        <MsThumbnailCard
-          :type="item.type"
-          :url="item.url"
-          :footer-text="item.name"
-          :more-actions="item.type === 'JAR' ? jarFileActions : normalFileActions"
-          @click="openFileDetail(item.id, index)"
-          @action-select="handleMoreActionSelect($event, item)"
-        />
-      </template>
-    </MsCardList>
+          <MsTableMoreAction
+            :list="record.fileType === 'jar' ? jarFileActions : normalFileActions"
+            @select="handleMoreActionSelect($event, record)"
+          />
+        </template>
+        <template v-if="keyword.trim() === ''" #empty>
+          <div class="flex items-center justify-center p-[8px] text-[var(--color-text-4)]">
+            {{ t('project.fileManagement.tableNoFile') }}
+            <MsButton class="ml-[8px]" @click="handleAddClick">
+              {{ t('project.fileManagement.addFile') }}
+            </MsButton>
+          </div>
+        </template>
+      </ms-base-table>
+      <MsCardList
+        v-else-if="showType === 'card'"
+        ref="cardListRef"
+        mode="remote"
+        :remote-func="getFileList"
+        :remote-params="{
+          projectId: appStore.currentProjectId,
+          moduleId: props.activeFolder,
+          fileType: tableFileType,
+          keyword,
+        }"
+        :shadow-limit="50"
+        :card-min-width="102"
+        class="flex-1"
+      >
+        <template #item="{ item, index }">
+          <MsThumbnailCard
+            :type="item.fileType"
+            :url="`http://172.16.200.18:8081${item.previewSrc}.${item.fileType}`"
+            :footer-text="item.name"
+            :more-actions="item.fileType === 'JAR' ? jarFileActions : normalFileActions"
+            @click="openFileDetail(item.id, index)"
+            @action-select="handleMoreActionSelect($event, item)"
+          />
+        </template>
+      </MsCardList>
+    </a-spin>
   </div>
   <MsDrawer v-model:visible="uploadDrawerVisible" :title="t('project.fileManagement.addFile')" :width="680">
     <div class="mb-[8px] flex items-center justify-between text-[var(--color-text-1)]">
@@ -126,6 +136,11 @@
     <MsFileList
       ref="fileListRef"
       v-model:file-list="fileList"
+      :upload-func="uploadFile"
+      :request-params="{
+        projectId: appStore.currentProjectId,
+        moduleId: ['my', 'all'].includes(props.activeFolder) ? 'root' : props.activeFolder, // 模块id, my/all为根目录
+      }"
       :route="RouteEnum.PROJECT_MANAGEMENT_FILE_MANAGEMENT"
       :route-query="{ position: 'uploadDrawer' }"
       @start="handleUploadStart"
@@ -256,11 +271,10 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { BatchActionParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem, UploadType } from '@/components/pure/ms-upload/types';
@@ -270,13 +284,23 @@
   import fileDetailDrawerVue from './fileDetailDrawer.vue';
   import folderTree from './folderTree.vue';
 
-  import { getFileList } from '@/api/modules/project-management/fileManagement';
+  import {
+    batchDownloadFile,
+    deleteFile,
+    downloadFile,
+    getFileList,
+    updateFile,
+    uploadFile,
+  } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useAppStore from '@/store/modules/app';
   import useAsyncTaskStore from '@/store/modules/app/asyncTask';
   import useTableStore from '@/store/modules/ms-table';
-  import { characterLimit, downloadUrlFile } from '@/utils';
+  import useUserStore from '@/store/modules/user';
+  import { characterLimit, downloadByteFile } from '@/utils';
 
+  import type { FileItem, FileListQueryParams } from '@/models/projectManagement/file';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { UploadStatus } from '@/enums/uploadEnum';
@@ -284,18 +308,27 @@
   import type { FormInstance } from '@arco-design/web-vue';
 
   const props = defineProps<{
-    activeFolder: string | number;
+    activeFolder: string;
     activeFolderType: 'folder' | 'module' | 'storage';
+  }>();
+  const emit = defineEmits<{
+    (e: 'init', params: FileListQueryParams): void;
   }>();
 
   const route = useRoute();
   const { t } = useI18n();
+  const appStore = useAppStore();
+  const userStore = useUserStore();
   const asyncTaskStore = useAsyncTaskStore();
   const { openModal } = useModal();
 
   const fileType = ref('module'); // 当前查看的文件类型，模块/存储库
   const acceptType = ref<UploadType>('none'); // 模块-上传文件类型
   const isUploading = ref(false);
+  const keyword = ref('');
+  const tableFileType = ref('');
+  const tableFileTypeOptions = ref(['JPG', 'PNG']);
+  const loading = ref(false);
 
   watch(
     () => props.activeFolderType,
@@ -311,8 +344,6 @@
   function changeFileType() {}
 
   const showType = ref<'list' | 'card'>('list'); // 文件列表展示形式
-
-  function changeShowType() {}
 
   function getCardClass(type: 'none' | 'jar') {
     if (acceptType.value !== type && isUploading.value) {
@@ -363,16 +394,16 @@
       title: 'project.fileManagement.name',
       slotName: 'name',
       dataIndex: 'name',
-      showTooltip: true,
+      width: 200,
     },
     {
       title: 'project.fileManagement.type',
-      dataIndex: 'type',
+      dataIndex: 'fileType',
       width: 90,
     },
     {
       title: 'project.fileManagement.tag',
-      dataIndex: 'tag',
+      dataIndex: 'tags',
       slotName: 'tag',
       isTag: true,
     },
@@ -383,7 +414,7 @@
     },
     {
       title: 'project.fileManagement.updater',
-      dataIndex: 'updater',
+      dataIndex: 'updateUser',
       showTooltip: true,
     },
     {
@@ -452,17 +483,61 @@
     tableSelected.value = arr;
   }
 
-  function batchDownload() {}
+  /**
+   * 批量下载文件
+   * @param params 批量操作参数
+   */
+  async function batchDownload(params: BatchActionQueryParams) {
+    try {
+      loading.value = true;
+      const res = await batchDownloadFile({
+        selectIds: params?.selectedIds || [],
+        selectAll: !!params?.selectAll,
+        excludeIds: params?.excludeIds || [],
+        condition: { keyword: keyword.value },
+        projectId: appStore.currentProjectId,
+        fileType: tableFileType.value,
+        moduleIds: [props.activeFolder],
+      });
+      downloadByteFile(res, 'files.zip');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function emitTableParams() {
+    emit('init', {
+      keyword: keyword.value,
+      fileType: tableFileType.value,
+      moduleIds: ['all', 'my'].includes(props.activeFolder) ? [] : [props.activeFolder],
+      projectId: appStore.currentProjectId,
+      current: propsRes.value.msPagination?.current,
+      pageSize: propsRes.value.msPagination?.pageSize,
+      comebine:
+        props.activeFolder === 'my'
+          ? {
+              createUser: userStore.id,
+            }
+          : {},
+    });
+  }
+
+  const cardListRef = ref<InstanceType<typeof MsCardList>>();
 
   /**
    * 删除文件
    */
-  function delFile(record: any, isBatch?: boolean) {
+  function delFile(record: FileItem | null, isBatch: boolean, params?: BatchActionQueryParams) {
     let title = t('project.fileManagement.deleteFileTipTitle', { name: characterLimit(record?.name) });
-    let selectIds = [record?.id];
+    let selectIds = [record?.id || ''];
     if (isBatch) {
-      title = t('project.fileManagement.batchDeleteFileTipTitle', { count: tableSelected.value.length });
-      selectIds = tableSelected.value as string[];
+      title = t('project.fileManagement.batchDeleteFileTipTitle', {
+        count: params?.currentSelectCount || params?.selectedIds?.length,
+      });
+      selectIds = params?.selectedIds || [];
     }
     openModal({
       type: 'error',
@@ -476,11 +551,24 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          console.log(selectIds);
-
+          await deleteFile({
+            selectIds,
+            selectAll: !!params?.selectAll,
+            excludeIds: params?.excludeIds || [],
+            condition: { keyword: keyword.value },
+            projectId: appStore.currentProjectId,
+            fileType: tableFileType.value,
+            moduleIds: [props.activeFolder],
+          });
           Message.success(t('common.deleteSuccess'));
-          loadList();
+          if (showType.value === 'card') {
+            cardListRef.value?.reload();
+          } else {
+            loadList();
+          }
+          emitTableParams();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -491,7 +579,7 @@
   const moveModalVisible = ref(false); // 移动文件弹窗
   const selectedModuleKeys = ref<(string | number)[]>([]); // 移动文件搜索关键字
   const isBatchMove = ref(false); // 是否批量移动文件
-  const activeFile = ref<any>(null); // 当前查看的文件信息
+  const activeFile = ref<FileItem | null>(null); // 当前查看的文件信息
 
   /**
    * 处理文件夹树节点选中事件
@@ -504,17 +592,18 @@
    * 处理表格选中后批量操作
    * @param event 批量操作事件对象
    */
-  function handleTableBatch(event: BatchActionParams) {
+  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    tableSelected.value = params?.selectedIds || [];
     switch (event.eventTag) {
       case 'download':
-        batchDownload();
+        batchDownload(params);
         break;
       case 'move':
         moveModalVisible.value = true;
         isBatchMove.value = true;
         break;
       case 'delete':
-        delFile(null, true);
+        delFile(null, true, params);
         break;
       default:
         break;
@@ -538,7 +627,12 @@
       } else {
         activeFile.value = null;
       }
-      loadList();
+      if (showType.value === 'card') {
+        cardListRef.value?.reload();
+      } else {
+        loadList();
+      }
+      emitTableParams();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -552,16 +646,25 @@
     selectedModuleKeys.value = [];
   }
 
-  const keyword = ref('');
-  const tableFileType = ref('');
-  const tableFileTypeOptions = ref(['JPG', 'PNG']);
-
   const searchList = debounce(() => {
     setLoadListParams({
-      fileType: tableFileType.value,
       keyword: keyword.value,
+      fileType: tableFileType.value,
+      moduleIds: ['all', 'my'].includes(props.activeFolder) ? [] : [props.activeFolder],
+      projectId: appStore.currentProjectId,
+      comebine:
+        props.activeFolder === 'my'
+          ? {
+              createUser: userStore.id,
+            }
+          : {},
     });
-    loadList();
+    if (showType.value === 'card') {
+      cardListRef.value?.reload();
+    } else {
+      loadList();
+    }
+    emitTableParams();
   }, 300);
 
   watch(
@@ -580,14 +683,27 @@
     }
   );
 
-  function downloadFile(url: string, name: string) {
-    downloadUrlFile(url, name);
+  /**
+   * 下载单个文件
+   * @param record 表格数据项
+   */
+  async function handleDownload(record: FileItem) {
+    try {
+      loading.value = true;
+      const res = await downloadFile(record.id);
+      downloadByteFile(res, `${record.name}.${record.fileType}`);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
   }
 
   /**
    * 禁用 jar 文件
    */
-  function disabledFile(record: any) {
+  function disabledFile(record: FileItem) {
     openModal({
       type: 'warning',
       title: t('project.fileManagement.disabledFileTipTitle', { name: characterLimit(record.name) }),
@@ -598,8 +714,13 @@
       onBeforeOk: async () => {
         try {
           Message.success(t('common.disableSuccess'));
-          loadList();
+          if (showType.value === 'card') {
+            cardListRef.value?.reload();
+          } else {
+            loadList();
+          }
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -611,7 +732,7 @@
    * 处理表格更多按钮事件
    * @param item
    */
-  function handleMoreActionSelect(item: ActionsItem, record: any) {
+  function handleMoreActionSelect(item: ActionsItem, record: FileItem) {
     switch (item.eventTag) {
       case 'move':
         isBatchMove.value = false;
@@ -619,7 +740,7 @@
         moveModalVisible.value = true;
         break;
       case 'delete':
-        delFile(record);
+        delFile(record, false);
         break;
       case 'disabled':
         disabledFile(record);
@@ -630,10 +751,10 @@
   }
 
   const showDetailDrawer = ref(false);
-  const activeFileId = ref<string | number>('');
+  const activeFileId = ref<string>('');
   const activeFileIndex = ref(0);
 
-  async function openFileDetail(id: string | number, index: number) {
+  async function openFileDetail(id: string, index: number) {
     showDetailDrawer.value = true;
     activeFileId.value = id;
     activeFileIndex.value = index;
@@ -721,6 +842,7 @@
             fileList.value = [];
             isUploading.value = false;
           } catch (error) {
+            // eslint-disable-next-line no-console
             console.log(error);
           }
         },
@@ -754,6 +876,21 @@
     (val) => {
       if (!val && route.query.position === 'uploadDrawer') {
         uploadDrawerVisible.value = true;
+      }
+    }
+  );
+
+  watch(
+    () => asyncTaskStore.uploadFileTask.finishedTime,
+    () => {
+      if (asyncTaskStore.uploadFileTask.finishedTime) {
+        // 上传任务完成后刷新文件列表
+        if (showType.value === 'card') {
+          cardListRef.value?.reload();
+        } else {
+          loadList();
+        }
+        emitTableParams();
       }
     }
   );
@@ -796,7 +933,11 @@
     if (!isContinue) {
       storageDialogVisible.value = false;
     }
-    loadList();
+    if (showType.value === 'card') {
+      cardListRef.value?.reload();
+    } else {
+      loadList();
+    }
   }
 
   /**

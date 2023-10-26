@@ -38,8 +38,8 @@
                   v-model.trim="addTagInput"
                   size="mini"
                   :error="!!tagInputError"
-                  @keyup.enter="handleAdd(item)"
-                  @blur="handleAdd(item)"
+                  @keyup.enter="handleAddTag(item)"
+                  @blur="handleAddTag(item)"
                 >
                   <template #suffix>
                     <icon-loading v-if="tagInputLoading" class="text-[rgb(var(--primary-5))]" />
@@ -159,7 +159,11 @@
   const tagInputLoading = ref(false);
   const tagInputError = ref('');
 
-  async function handleAdd(item: Description) {
+  /**
+   * 添加标签
+   * @param item 当前标签项
+   */
+  async function handleAddTag(item: Description) {
     if (Array.isArray(item.value) && item.value.includes(addTagInput.value)) {
       tagInputError.value = t('ms.description.addTagRepeat');
       return;
@@ -169,12 +173,17 @@
       tagInputLoading.value = true;
       if (props.addTagFunc && typeof props.addTagFunc === 'function') {
         await props.addTagFunc(addTagInput.value);
+        if (Array.isArray(item.value)) {
+          item.value.push(addTagInput.value);
+        } else {
+          item.value = [addTagInput.value];
+        }
       } else {
         emit('addTag', addTagInput.value);
       }
       showTagInput.value = false;
     } catch (error) {
-      // eslint-disable-next-line prettier/prettier
+      // eslint-disable-next-line no-console
       console.log(error);
       tagInputError.value = (error as Error).message;
     } finally {

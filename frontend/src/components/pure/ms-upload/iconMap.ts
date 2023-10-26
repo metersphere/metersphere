@@ -32,6 +32,10 @@ export const FileIconMap: FileIconMapping = {
     [UploadStatus.init]: 'icon-icon_file-sql_colorful_ash',
     [UploadStatus.done]: 'icon-icon_file-sql_colorful1',
   },
+  plain: {
+    [UploadStatus.init]: 'icon-icon_file-text_colorful_ash',
+    [UploadStatus.done]: 'icon-icon_file-text_colorful1',
+  },
   txt: {
     [UploadStatus.init]: 'icon-icon_file-text_colorful_ash',
     [UploadStatus.done]: 'icon-icon_file-text_colorful1',

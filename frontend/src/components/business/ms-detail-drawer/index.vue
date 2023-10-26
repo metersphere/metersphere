@@ -100,11 +100,6 @@
   async function initDetail() {
     try {
       loading.value = true;
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(true);
-        }, 3000);
-      });
       detail.value = await props.getDetailFunc(activeDetailId.value);
       emit('loaded', detail.value);
     } catch (error) {
@@ -195,6 +190,12 @@
       initDetail();
     }
   );
+
+  defineExpose({
+    initDetail,
+    openPrevDetail,
+    openNextDetail,
+  });
 </script>
 
 <style lang="less" scoped></style>
