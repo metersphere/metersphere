@@ -1,24 +1,20 @@
 package io.metersphere.sdk.dto.request;
 
-import io.metersphere.sdk.constants.ModuleConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
 public class NodeMoveRequest {
-    @Schema(description = "模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "被拖拽的节点", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{node.not_blank}")
-    private String nodeId;
+    private String dragNodeId;
 
-    @Schema(description = "父模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "{parent.node.not_blank}")
-    private String parentId = ModuleConstants.ROOT_NODE_PARENT_ID;
+    @Schema(description = "放入的节点", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotEmpty(message = "{node.not_blank}")
+    private String dropNodeId;
 
-    @Schema(description = "前一个节点ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String previousNodeId;
-
-    @Schema(description = "后一个节点ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String nextNodeId;
+    @Schema(description = "放入的位置（取值：-1，,0，,1。  -1：dropNodeId节点之前。 0:dropNodeId节点内。 1：dropNodeId节点后）", requiredMode = Schema.RequiredMode.REQUIRED)
+    private int dropPosition;
 }
 

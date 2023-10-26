@@ -294,14 +294,14 @@ public class FileMetadataService {
 
     //获取模块统计
     public Map<String, Long> moduleCount(FileMetadataTableRequest request, String operator) {
-        //查出每个模块节点下的资源数量
+        //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
         FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
+        pageDTO.setModuleIds(null);
         List<ModuleCountDTO> moduleCountDTOList = extFileMetadataMapper.countModuleIdByKeywordAndFileType(pageDTO);
         long allCount = fileModuleService.getAllCount(moduleCountDTOList);
-
+        //查出我的文件数量
         pageDTO.setOperator(operator);
         long myFileCount = extFileMetadataMapper.countMyFile(pageDTO);
-
         Map<String, Long> moduleCountMap = fileModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
         moduleCountMap.put(FILE_MODULE_COUNT_MY, myFileCount);
         moduleCountMap.put(FILE_MODULE_COUNT_ALL, allCount);
@@ -330,5 +330,9 @@ public class FileMetadataService {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + this.getFileName(fileMetadata.getName(), fileMetadata.getType()) + "\"")
                 .body(bytes);
+    }
+
+    public List<String> getFileType(String projectId) {
+        return extFileMetadataMapper.selectFileTypeByProjectId(projectId);
     }
 }

@@ -130,8 +130,10 @@ public class FileManagementPermissionControllerTests extends BaseTest {
 
         {
             NodeMoveRequest request = new NodeMoveRequest();
-            request.setNodeId(TEST_ID);
-            request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDragNodeId(TEST_ID);
+            request.setDropNodeId(ModuleConstants.ROOT_NODE_PARENT_ID);
+            request.setDropPosition(0);
+
             this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE, request);
         }
     }

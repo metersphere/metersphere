@@ -14,6 +14,8 @@ public class FileManagementRequestUtils {
 
     //文件上传
     public static final String URL_FILE_UPLOAD = "/project/file/upload";
+    //获取文件类型
+    public static final String URL_FILE_TYPE = "/project/file/type/%s";
     //文件列表查询
     public static final String URL_FILE_PAGE = "/project/file/page";
     //文件列表查询对应的模块统计

@@ -26,4 +26,5 @@ public interface ExtFileMetadataMapper {
 
     List<FileMetadata> selectRefIdByModuleIds(@Param("moduleIds") List<String> moduleIds);
 
+    List<String> selectFileTypeByProjectId(String projectId);
 }

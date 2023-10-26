@@ -31,12 +31,20 @@ public class FileManagementController {
     @Resource
     private FileManagementService fileManagementService;
 
+    @GetMapping(value = "/type/{projectId}")
+    @Operation(summary = "项目管理-文件管理-获取已存在的文件类型")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
+    public List<String> getFileType(@PathVariable String projectId) {
+        return fileMetadataService.getFileType(projectId);
+    }
+
     @PostMapping("/page")
     @Operation(summary = "项目管理-文件管理-表格分页查询文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
     public Pager<List<FileInformationDTO>> page(@Validated @RequestBody FileMetadataTableRequest request) {
         return fileMetadataService.page(request);
     }
+
 
     @PostMapping("/module/count")
     @Operation(summary = "项目管理-文件管理-表格分页查询文件")

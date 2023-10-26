@@ -60,12 +60,7 @@ public class FileModuleController {
     @PostMapping("/move")
     @Operation(summary = "项目管理-文件管理-模块-移动模块")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
-    public void moveNode(@RequestBody NodeMoveRequest request) {
-        /**
-         * 拖拽操作。  两种：同级移动 和 跨级移动
-         *  1.判断移动后的parentID，判断是否是移动到其余的目录下
-         *  2.拖拽后的前后ID。 用于排序。
-         */
+    public void moveNode(@Validated @RequestBody NodeMoveRequest request) {
         fileModuleService.moveNode(request, SessionUtils.getUserId());
     }
 }

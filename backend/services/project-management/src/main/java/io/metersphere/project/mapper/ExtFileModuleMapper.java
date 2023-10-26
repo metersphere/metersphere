@@ -1,5 +1,6 @@
 package io.metersphere.project.mapper;
 
+import io.metersphere.project.domain.FileModule;
 import io.metersphere.sdk.dto.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,4 +20,10 @@ public interface ExtFileModuleMapper {
     Integer getMaxPosByParentId(String parentId);
 
     List<String> selectIdsByProjectId(String projectId);
+
+    FileModule getLastModuleByParentId(String id);
+
+    FileModule getNextModuleInParentId(@Param("parentId") String parentId, @Param("pos") int pos);
+
+    FileModule getPreviousModuleInParentId(@Param("parentId") String parentId, @Param("pos") int pos);
 }
