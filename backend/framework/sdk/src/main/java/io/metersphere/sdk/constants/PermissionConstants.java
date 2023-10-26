@@ -214,6 +214,8 @@ public class PermissionConstants {
     public static final String FUNCTIONAL_CASE_READ = "FUNCTIONAL_CASE:READ";
     public static final String FUNCTIONAL_CASE_READ_ADD = "FUNCTIONAL_CASE:READ+ADD";
     public static final String FUNCTIONAL_CASE_COMMENT_READ_ADD = "FUNCTIONAL_CASE_COMMENT:READ+ADD";
+    public static final String FUNCTIONAL_CASE_COMMENT_READ_DELETE = "FUNCTIONAL_CASE_COMMENT:READ+DELETE";
+
 
     /*------ end: FUNCTIONAL_CASE ------*/
 }

@@ -29,7 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class CreateRobotResourceService implements CreateProjectResourceService {
@@ -77,6 +79,7 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
     public void setMessageTask(String projectId, String defaultRobotId) {
         StringBuilder jsonStr = new StringBuilder();
         InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
+        assert inputStream != null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line;
         try {
@@ -91,15 +94,21 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         MessageTaskMapper mapper = sqlSession.getMapper(MessageTaskMapper.class);
         MessageTaskBlobMapper blobMapper = sqlSession.getMapper(MessageTaskBlobMapper.class);
+        //生成消息管理默认显示数据
+        setTemplateMessageTask(projectId, defaultRobotId, jsonStr, mapper, blobMapper);
+        //生成 内置at 的消息管理数据
+        setAtMessageTask(projectId, defaultRobotId, mapper, blobMapper);
 
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    private static void setTemplateMessageTask(String projectId, String defaultRobotId, StringBuilder jsonStr, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper) {
         List<MessageTaskDTO> messageTaskDTOList = JSON.parseArray(jsonStr.toString(), MessageTaskDTO.class);
         for (MessageTaskDTO messageTaskDTO : messageTaskDTOList) {
             List<MessageTaskTypeDTO> messageTaskTypeDTOList = messageTaskDTO.getMessageTaskTypeDTOList();
             for (MessageTaskTypeDTO messageTaskTypeDTO : messageTaskTypeDTOList) {
                 String taskType = messageTaskTypeDTO.getTaskType();
-                if (taskType.contains("AT")) {
-                    continue;
-                }
                 List<MessageTaskDetailDTO> messageTaskDetailDTOList = messageTaskTypeDTO.getMessageTaskDetailDTOList();
                 for (MessageTaskDetailDTO messageTaskDetailDTO : messageTaskDetailDTOList) {
                     String event = messageTaskDetailDTO.getEvent();
@@ -134,8 +143,45 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
                 }
             }
         }
+    }
 
-        sqlSession.flushStatements();
-        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    private static void setAtMessageTask(String projectId, String defaultRobotId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper) {
+        Map<String,List<String>> taskTypeEventMap = new HashMap<>();
+        List<String>bugEventList = new ArrayList<>();
+        bugEventList.add(NoticeConstants.Event.AT);
+        bugEventList.add(NoticeConstants.Event.REPLY);
+        taskTypeEventMap.put(NoticeConstants.TaskType.BUG_TASK,bugEventList);
+        List<String>funcationalCaseEventList = new ArrayList<>();
+        funcationalCaseEventList.add(NoticeConstants.Event.AT);
+        funcationalCaseEventList.add(NoticeConstants.Event.REPLY);
+        funcationalCaseEventList.add(NoticeConstants.Event.REVIEW_AT);
+        funcationalCaseEventList.add(NoticeConstants.Event.EXECUTE_AT);
+        taskTypeEventMap.put(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK,funcationalCaseEventList);
+        taskTypeEventMap.forEach((taskType, eventList)->{
+            for (String event : eventList) {
+                String id = IDGenerator.nextStr();
+                MessageTask messageTask = new MessageTask();
+                messageTask.setId(id);
+                messageTask.setEvent(event);
+                messageTask.setTaskType(taskType);
+                messageTask.setReceiver("NONE");
+                messageTask.setProjectId(projectId);
+                messageTask.setProjectRobotId(defaultRobotId);
+                messageTask.setEnable(true);
+                messageTask.setTestId("NONE");
+                messageTask.setCreateUser("admin");
+                messageTask.setCreateTime(System.currentTimeMillis());
+                messageTask.setUpdateUser("admin");
+                messageTask.setUpdateTime(System.currentTimeMillis());
+                messageTask.setSubject("");
+                messageTask.setUseDefaultSubject(true);
+                messageTask.setUseDefaultTemplate(true);
+                MessageTaskBlob messageTaskBlob = new MessageTaskBlob();
+                messageTaskBlob.setId(id);
+                messageTaskBlob.setTemplate("");
+                mapper.insert(messageTask);
+                blobMapper.insert(messageTaskBlob);
+            }
+        });
     }
 }
