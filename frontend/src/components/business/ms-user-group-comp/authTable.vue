@@ -48,6 +48,7 @@
     </a-table>
   </div>
   <div
+    v-if="props.showBottom"
     class="fixed bottom-[16px] right-[16px] z-[999] flex justify-between bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
     :style="{ width: props.width }"
   >
@@ -93,10 +94,16 @@
     isLastLeftFixed?: boolean;
   }
 
-  const props = defineProps<{
-    current: CurrentUserGroupItem;
-    width?: string;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      current: CurrentUserGroupItem;
+      width?: string;
+      showBottom?: boolean;
+    }>(),
+    {
+      showBottom: true,
+    }
+  );
 
   const systemType = inject<AuthScopeEnum>('systemType');
 
@@ -345,6 +352,9 @@
     if (props.current.id) {
       initData(props.current.id, props.current.internal);
     }
+  });
+  defineExpose({
+    canSave,
   });
 </script>
 
