@@ -145,6 +145,17 @@ export const TEXTAREA = {
     },
   },
 };
+export const JIRAKEY = {
+  type: 'JiraKey',
+  field: 'jiraKey',
+  title: '',
+  value: '',
+  props: {
+    moduleValue: '',
+    placeholder: '请输入',
+    instructionsIcon: '',
+  },
+};
 
 export const FieldTypeFormRules: Record<string, FormRule> = {
   INPUT,
@@ -160,4 +171,5 @@ export const FieldTypeFormRules: Record<string, FormRule> = {
   FLOAT,
   MULTIPLE_INPUT,
   TEXTAREA,
+  JIRAKEY,
 };

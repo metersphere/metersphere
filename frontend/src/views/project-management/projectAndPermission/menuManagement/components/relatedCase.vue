@@ -1,7 +1,7 @@
 <template>
   <MsDrawer
     v-model:visible="currentVisible"
-    :title="t('project.menu.BUG_SYNC')"
+    :title="t('project.menu.CASE_RELATED')"
     :destroy-on-close="true"
     :closable="true"
     :mask-closable="false"
