@@ -21,7 +21,6 @@ import io.metersphere.plan.domain.TestPlanFollowerExample;
 import io.metersphere.plan.mapper.TestPlanFollowerMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.mapper.CustomFieldMapper;
@@ -33,7 +32,6 @@ import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.constants.NotificationConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import jakarta.annotation.Resource;
-import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -91,16 +89,13 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             }
             if (CollectionUtils.isNotEmpty(fields)) {
                 for (Object o : fields) {
-                    Map jsonObject = new BeanMap(o);
-                    String id = (String) jsonObject.get("id");
-                    CustomField customField = customFieldMapper.selectByPrimaryKey(id);
-                    if (customField == null) {
-                        continue;
-                    }
-                    Object value = jsonObject.get("value");
-                    if (value instanceof String && StringUtils.isNotEmpty((String) value)) {
+                    String jsonFields =  JSON.toJSONString(o);
+                    Map<?, ?> jsonObject = JSON.parseObject(jsonFields, Map.class);
+                    String customFieldName = (String) jsonObject.get("id");
+                    Object value = jsonObject.get("name");
+                    if (value instanceof String && StringUtils.isNotBlank((String) value)) {
                         String v = StringUtils.unwrap((String) value, "\"");
-                        noticeModel.getParamMap().put(customField.getName(), v); // 处理人
+                        noticeModel.getParamMap().put(customFieldName, v); // 处理人
                     }
                 }
             }
@@ -115,7 +110,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         for (String userId : messageDetail.getReceiverIds()) {
             switch (userId) {
                 case NoticeConstants.RelatedUser.CREATE_USER -> {
-                    String createUser = (String) paramMap.get(NoticeConstants.RelatedUser.CREATE_USER);
+                    String createUser = (String) paramMap.get("createUser");
                     if (StringUtils.isNotBlank(createUser)) {
                         toUsers.add(new Receiver(createUser, NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
@@ -140,7 +135,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
 
         }
         //处理评论人
-        if (event.contains(NoticeConstants.Event.AT) || event.contains(NoticeConstants.Event.REPLAY)) {
+        if (event.contains(NoticeConstants.Event.AT) || event.contains(NoticeConstants.Event.REPLY)) {
             if (CollectionUtils.isNotEmpty(noticeModel.getRelatedUsers())) {
                 for (String relatedUser : noticeModel.getRelatedUsers()) {
                     toUsers.add(new Receiver(relatedUser, NotificationConstants.Type.MENTIONED_ME.name()));

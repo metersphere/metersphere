@@ -89,14 +89,14 @@ public class SendNoticeAspect {
             String[] params = discoverer.getParameterNames(method);
             //获取操作
             SendNotice sendNotice = method.getAnnotation(SendNotice.class);
+            EvaluationContext context = new StandardEvaluationContext();
+            for (int len = 0; len < params.length; len++) {
+                context.setVariable(params[len], args[len]);
+            }
             // 再次从数据库查询一次内容，方便获取最新参数
-
             if (StringUtils.isNotEmpty(sendNotice.target())) {
                 //将参数纳入Spring管理
-                EvaluationContext context = new StandardEvaluationContext();
-                for (int len = 0; len < params.length; len++) {
-                    context.setVariable(params[len], args[len]);
-                }
+
                 context.setVariable("targetClass", CommonBeanFactory.getBean(sendNotice.targetClass()));
 
                 String target = sendNotice.target();
@@ -124,10 +124,32 @@ public class SendNoticeAspect {
             } else {
                 resources.add(new BeanMap(retValue));
             }
+            String taskType = sendNotice.taskType();
+            // taskType
+            if (StringUtils.isNotEmpty(sendNotice.taskType())) {
+                try {
+                    Expression titleExp = parser.parseExpression(taskType);
+                    taskType = titleExp.getValue(resources, String.class);
+
+                } catch (Exception e) {
+                    LogUtils.info("使用原值");
+                }
+            }
+            String event = sendNotice.event();
+            // event
+            if (StringUtils.isNotEmpty(sendNotice.event())) {
+                try {
+                    Expression titleExp = parser.parseExpression(event);
+                    event = titleExp.getValue(context, String.class);
+                } catch (Exception e) {
+                    LogUtils.info("使用原值");
+                }
+            }
 
             SessionUser sessionUser = SessionUtils.getUser();
             String currentProjectId = SessionUtils.getCurrentProjectId();
-            afterReturningNoticeSendService.sendNotice(sendNotice, resources, sessionUser, currentProjectId);
+            LogUtils.info("event:"+event);
+            afterReturningNoticeSendService.sendNotice(taskType,event, resources, sessionUser, currentProjectId);
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
         } finally {
