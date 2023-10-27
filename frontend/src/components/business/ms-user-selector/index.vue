@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { debounce } from 'lodash-es';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -68,7 +68,7 @@
 
   const allOptions = ref<MsUserSelectorOption[]>([]);
   const currentLoadParams = ref<Record<string, any>>(props.loadOptionParams || {});
-  const loading = ref(false);
+  const loading = ref(true);
 
   const currentValue = computed(() => {
     return allOptions.value.filter((item) => props.modelValue.includes(item.id)) || [];
@@ -137,7 +137,7 @@
     );
   };
 
-  onMounted(async () => {
+  onBeforeMount(async () => {
     await loadList();
   });
 </script>

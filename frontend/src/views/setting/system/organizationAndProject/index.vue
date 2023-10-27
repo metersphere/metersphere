@@ -26,7 +26,7 @@
     </div>
     <div>
       <SystemOrganization v-if="currentTable === 'organization'" ref="orgTableRef" :keyword="currentKeyword" />
-      <SystemProject v-if="currentTable === 'project'" ref="projectTabeRef" :keyword="currentKeyword" />
+      <SystemProject v-if="currentTable === 'project'" ref="projectTableRef" :keyword="currentKeyword" />
     </div>
   </MsCard>
   <AddOrganizationModal :visible="organizationVisible" @submit="tableSearch" @cancel="handleAddOrganizationCancel" />
@@ -55,7 +55,7 @@
   const projectCount = ref(0);
   const currentKeyword = ref('');
   const orgTableRef = ref();
-  const projectTabeRef = ref();
+  const projectTableRef = ref();
   const projectVisible = ref(false);
 
   // 初始化项目数量和组织数量
@@ -79,11 +79,11 @@
           orgTableRef.value?.fetchData();
         });
       }
-    } else if (projectTabeRef.value) {
-      projectTabeRef.value.fetchData();
+    } else if (projectTableRef.value) {
+      projectTableRef.value.fetchData();
     } else {
       nextTick(() => {
-        projectTabeRef.value?.fetchData();
+        projectTableRef.value?.fetchData();
       });
     }
     initOrgAndProjectCount();
