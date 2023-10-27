@@ -111,6 +111,17 @@
             <version>${pagehelper.version}</version>
         </dependency>
         <!--  end mysql 相关      -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+        <!-- redisson 配置-->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>${redisson-starter.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
