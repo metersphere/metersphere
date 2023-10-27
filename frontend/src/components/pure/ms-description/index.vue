@@ -57,9 +57,9 @@
               </MsTag>
             </div>
           </template>
-          <a-button v-else-if="item.isButton" type="text" :size="item.buttonSize" @click="handleItemClick(item)">
+          <MsButton v-else-if="item.isButton" type="text" @click="handleItemClick(item)">
             {{ item.value }}
-          </a-button>
+          </MsButton>
           <template v-else>
             <slot name="value" :item="item">
               {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
@@ -108,7 +108,6 @@
     isTag?: boolean; // 是否标签
     showTagAdd?: boolean; // 是否显示添加标签
     isButton?: boolean;
-    buttonSize?: 'small' | 'mini' | 'large' | 'medium';
     showCopy?: boolean;
     copyTimer?: any | null;
     onClick?: () => void;

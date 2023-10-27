@@ -2,7 +2,7 @@
   <a-drawer
     v-bind="props"
     v-model:visible="visible"
-    :width="props.width"
+    :width="drawerWidth"
     :footer="props.footer"
     :mask="props.mask"
     :class="[
@@ -10,9 +10,6 @@
       props.mask ? '' : 'ms-drawer-no-mask',
       props.noContentPadding ? 'ms-drawer-no-content-padding' : '',
     ]"
-    :drawer-style="{
-      minWidth: props.minWidth,
-    }"
     @cancel="handleCancel"
     @close="handleClose"
   >
@@ -25,6 +22,9 @@
         </div>
       </slot>
     </template>
+    <div class="handle" @mousedown="startResize">
+      <icon-drag-dot-vertical class="absolute left-[-3px] top-[50%] w-[14px]" size="14" />
+    </div>
     <a-scrollbar class="overflow-y-auto" :style="{ height: `calc(100vh - ${contentExtraHeight}px)` }">
       <div class="ms-drawer-body">
         <slot>
@@ -91,8 +91,7 @@
     cancelText?: string;
     saveContinueText?: string;
     showContinue?: boolean;
-    width: number | string;
-    minWidth?: string; // 最小宽度
+    width: number;
     noContentPadding?: boolean; // 是否没有内容内边距
   }
 
@@ -138,6 +137,42 @@
     visible.value = false;
     emit('update:visible', false);
   };
+
+  const resizing = ref(false); // 是否正在拖拽
+  const drawerWidth = ref(props.width); // 抽屉初始宽度
+
+  /**
+   * 鼠标单击开始监听拖拽移动
+   */
+  const startResize = (event: MouseEvent) => {
+    resizing.value = true;
+    const startX = event.clientX;
+    const initialWidth = drawerWidth.value;
+
+    // 计算鼠标移动距离
+    const handleMouseMove = (_event: MouseEvent) => {
+      if (resizing.value) {
+        const newWidth = initialWidth + (startX - _event.clientX); // 新的宽度等于当前抽屉宽度+鼠标移动的距离
+        if (newWidth >= (props.width || 480) && newWidth <= window.innerWidth * 0.8) {
+          // 最大最小宽度限制，最小宽度为传入的width或480，最大宽度为视图窗口宽度的80%
+          drawerWidth.value = newWidth;
+        }
+      }
+    };
+
+    // 松开鼠标按键，拖拽结束
+    const handleMouseUp = () => {
+      if (resizing.value) {
+        // 如果当前是在拖拽，则重置拖拽状态，且移除鼠标监听事件
+        resizing.value = false;
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
 </script>
 
 <style lang="less">
@@ -176,5 +211,12 @@
     .arco-drawer-body {
       @apply p-0;
     }
+  }
+  .handle {
+    @apply absolute left-0 top-0 flex h-full items-center;
+
+    width: 8px;
+    background-color: var(--color-neutral-3);
+    cursor: col-resize;
   }
 </style>
