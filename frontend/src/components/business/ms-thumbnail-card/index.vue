@@ -4,7 +4,13 @@
       <div class="ms-thumbnail-card-more">
         <MsTableMoreAction v-if="props.moreActions" :list="props.moreActions" @select="handleMoreActionSelect" />
       </div>
-      <a-image v-if="fileType === 'image'" :src="props.url" class="absolute top-0 h-full w-full" :preview="false" />
+      <a-image
+        v-if="fileType === 'image'"
+        :src="props.url"
+        class="absolute top-0 h-full w-full"
+        :preview="false"
+        hide-footer
+      />
       <MsIcon
         v-else
         :type="FileIconMap[fileType][UploadStatus.done]"

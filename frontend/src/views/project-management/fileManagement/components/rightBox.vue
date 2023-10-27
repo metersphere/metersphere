@@ -84,7 +84,7 @@
         <template #item="{ item, index }">
           <MsThumbnailCard
             :type="item.fileType"
-            :url="`http://172.16.200.18:8081${item.previewSrc}.${item.fileType}`"
+            :url="item.url || `${PreviewImgUrl}/${item.id}`"
             :footer-text="item.name"
             :more-actions="item.fileType === 'JAR' ? jarFileActions : normalFileActions"
             @click="openFileDetail(item.id, index)"
@@ -129,6 +129,7 @@
       :auto-upload="false"
       :sub-text="acceptType === 'jar' ? '' : t('project.fileManagement.normalFileSubText', { size: 50 })"
       multiple
+      draggable
       size-unit="MB"
       class="mb-[16px] w-full"
       @change="handleFileChange"
@@ -292,6 +293,7 @@
     updateFile,
     uploadFile,
   } from '@/api/modules/project-management/fileManagement';
+  import { PreviewImgUrl } from '@/api/requrls/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
