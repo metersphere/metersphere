@@ -1,0 +1,17 @@
+name: sync-to-gitee
+on: [push]
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror the Github repos to Gitee.
+        uses: Yikun/hub-mirror-action@master
+        with:
+          src: github/metersphere
+          dst: gitee/fit2cloud-feizhiyun
+          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
+          dst_token: ${{ secrets.GITEE_TOKEN }}
+          static_list: 'MeterSphere'
+          force_update: true
+          account_type: org
