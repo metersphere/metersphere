@@ -13,7 +13,7 @@
   "tabBar": false,
   "serverMenu": [],
   "pageSize": 10,
-  "showPageSize": true,
+  "showPageSize": false,
   "showTotal": true,
   "showJumper": true,
   "hideOnSinglePage": false

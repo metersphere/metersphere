@@ -61,4 +61,5 @@ export default {
   'common.setting': 'Setting',
   'common.resetDefault': 'Restore default',
   'common.pleaseSelect': 'Please Select',
+  'common.quickAddMember': 'Quick Add Member',
 };

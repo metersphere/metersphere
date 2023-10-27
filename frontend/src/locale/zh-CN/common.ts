@@ -65,4 +65,5 @@ export default {
   'common.tagPlaceholder': '添加标签回车结束',
   'common.batchModify': '批量修改',
   'common.pleaseSelect': '请选择',
+  'common.quickAddMember': '快速添加成员',
 };

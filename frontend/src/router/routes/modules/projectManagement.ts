@@ -150,18 +150,16 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () =>
         import('@/views/project-management/projectAndPermission/menuManagement/components/falseAlermRule.vue'),
       meta: {
-        locale: 'project.menu.far',
+        locale: 'project.menu.API_ERROR_REPORT_RULE',
         roles: ['*'],
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
-            locale: 'project.permission.menuManagement',
+            locale: 'project.projectManagement.menuManagement',
           },
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MENU_MANAGEMENT_ERROR_REPORT_RULE,
             locale: 'menu.projectManagement.menuManagementErrorReportRule',
-            editTag: 'id',
-            editLocale: 'project.menu.far',
           },
         ],
       },
