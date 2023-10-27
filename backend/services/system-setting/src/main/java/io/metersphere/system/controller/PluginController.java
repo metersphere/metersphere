@@ -1,9 +1,11 @@
 package io.metersphere.system.controller;
 
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.request.PlatformOptionRequest;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.dto.PluginDTO;
@@ -91,4 +93,12 @@ public class PluginController {
             HttpServletResponse response) throws IOException {
         pluginService.getPluginImg(pluginId, imagePath, response);
     }
+
+    @PostMapping("/options")
+    @Operation(summary = "获取插件下拉选项")
+    public List<SelectOption> getPluginOptions(@RequestBody PlatformOptionRequest request) {
+        return pluginService.getPluginOptions(request);
+    }
+
+
 }

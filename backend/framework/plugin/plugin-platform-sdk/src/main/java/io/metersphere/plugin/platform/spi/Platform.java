@@ -1,6 +1,8 @@
 package io.metersphere.plugin.platform.spi;
 
 import io.metersphere.plugin.platform.dto.PlatformCustomFieldItemDTO;
+import io.metersphere.plugin.platform.dto.PluginOptionsRequest;
+import io.metersphere.plugin.platform.dto.SelectOption;
 import org.pf4j.ExtensionPoint;
 
 import java.util.List;
@@ -35,4 +37,11 @@ public interface Platform extends ExtensionPoint {
      * @return
      */
     List<PlatformCustomFieldItemDTO> getThirdPartCustomField(String projectConfig);
+
+    /**
+     * 获取第三方联级下拉options
+     * @param optionsRequest
+     * @return
+     */
+    List<SelectOption> getPluginOptions(PluginOptionsRequest optionsRequest);
 }

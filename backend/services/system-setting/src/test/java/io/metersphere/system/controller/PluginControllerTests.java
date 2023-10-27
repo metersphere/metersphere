@@ -1,28 +1,37 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.service.UserLoginService;
-import io.metersphere.system.service.JdbcDriverPluginService;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.base.BasePluginTestService;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.PluginUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.PluginDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.PluginOrganizationMapper;
 import io.metersphere.system.mapper.PluginScriptMapper;
+import io.metersphere.system.request.PlatformOptionRequest;
 import io.metersphere.system.request.PluginUpdateRequest;
+import io.metersphere.system.service.JdbcDriverPluginService;
 import io.metersphere.system.service.OrganizationService;
+import io.metersphere.system.service.PluginService;
+import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.model.Header;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.MultiValueMap;
 
 import java.io.File;
@@ -32,6 +41,8 @@ import java.util.stream.Collectors;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.FILE_NAME_ILLEGAL;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -59,6 +70,19 @@ public class PluginControllerTests extends BaseTest {
     private JdbcDriverPluginService jdbcDriverPluginService;
     private static Plugin addPlugin;
     private static Plugin anotherAddPlugin;
+
+    @Resource
+    private PluginService pluginService;
+    public static final String PLUGIN_OPTIONS_URL = "/plugin/options";
+    @Resource
+    private MockServerClient mockServerClient;
+    @Value("${embedded.mockserver.host}")
+    private String mockServerHost;
+    @Value("${embedded.mockserver.port}")
+    private int mockServerHostPort;
+
+    @Resource
+    private BasePluginTestService basePluginTestService;
 
     @Override
     protected String getBasePath() {
@@ -324,5 +348,42 @@ public class PluginControllerTests extends BaseTest {
                 .stream()
                 .map(PluginScript::getScriptId)
                 .toList();
+    }
+
+
+    @Test
+    @Order(7)
+    public void getPluginOptions() throws Exception {
+        Plugin plugin = basePluginTestService.addJiraPlugin();
+        PlatformOptionRequest optionsRequest = new PlatformOptionRequest();
+        optionsRequest.setPluginId(plugin.getId());
+        optionsRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        optionsRequest.setOptionMethod("getBugTypeId");
+        optionsRequest.setProjectConfig("{\"jiraKey\":\"TES2\"}");
+        this.requestPostTest(PLUGIN_OPTIONS_URL, optionsRequest);
+        basePluginTestService.addServiceIntegration("100001100001");
+        mockServerClient
+                .when(
+                        request()
+                                .withMethod("GET")
+                                .withPath("/issuetype/project?projectId=TES2"))
+                .respond(
+                        response()
+                                .withStatusCode(200)
+                                .withHeaders(
+                                        new Header("Content-Type", "application/json; charset=utf-8"),
+                                        new Header("Cache-Control", "public, max-age=86400"))
+                                .withBody("{\"id\":\"123456\",\"name\":\"test\"}")
+                );
+        this.requestPostTest(PLUGIN_OPTIONS_URL, optionsRequest);
+        // 获取返回值
+    }
+
+    private void requestPostTest(String url, Object param) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post(url)
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .content(JSON.toJSONString(param))
+                .contentType(MediaType.APPLICATION_JSON));
     }
 }
