@@ -4,8 +4,8 @@ import com.fit2cloud.quartz.anno.QuartzScheduled;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.Redisson;
 import org.redisson.api.RIdGenerator;
@@ -23,20 +23,11 @@ public class NumGenerator {
     private static StringRedisTemplate stringRedisTemplate;
     private static ProjectMapper projectMapper;
 
-    public NumGenerator(StringRedisTemplate stringRedisTemplate, ProjectMapper projectMapper) {
-        NumGenerator.stringRedisTemplate = stringRedisTemplate;
-        NumGenerator.projectMapper = projectMapper;
-    }
-
     /**
      * @param prefix 前缀: PROJECT_ID, 或者 PROJECT_ID + "_" + DOMAIN 例如接口用例的前缀为: 100001_12345
      * @param scope  用例类型
      */
     public static long nextNum(String prefix, ApplicationNumScope scope) {
-        // 初始化
-        if (redisson == null) {
-            redisson = CommonBeanFactory.getBean(Redisson.class);
-        }
         RIdGenerator idGenerator = redisson.getIdGenerator(prefix + "_" + scope.name());
         // 每次都尝试初始化，容量为1，只有一个线程可以初始化成功
         if (scope.equals(ApplicationNumScope.API_TEST_CASE)) {
@@ -77,4 +68,18 @@ public class NumGenerator {
         }
     }
 
+    @Resource
+    public void setRedisson(Redisson redisson) {
+        NumGenerator.redisson = redisson;
+    }
+
+    @Resource
+    public void setStringRedisTemplate(StringRedisTemplate stringRedisTemplate) {
+        NumGenerator.stringRedisTemplate = stringRedisTemplate;
+    }
+
+    @Resource
+    public void setProjectMapper(ProjectMapper projectMapper) {
+        NumGenerator.projectMapper = projectMapper;
+    }
 }
