@@ -29,10 +29,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -368,5 +365,20 @@ public class ProjectTemplateService extends BaseTemplateService {
         if (isOrganizationTemplateEnable(project.getOrganizationId(), scene)) {
             throw new MSException(PROJECT_TEMPLATE_PERMISSION);
         }
+    }
+
+    /**
+     * 一个接口返回各个模板是否启用项目模板
+     * @param projectId
+     * @return
+     */
+    public Map<String, Boolean> getProjectTemplateEnableConfig(String projectId) {
+        ProjectService.checkResourceExist(projectId);
+        ProjectDTO project = projectService.getProjectById(projectId);
+        HashMap<String, Boolean> templateEnableConfig = new HashMap<>();
+        Arrays.stream(TemplateScene.values())
+                .forEach(scene ->
+                        templateEnableConfig.put(scene.name(), !isOrganizationTemplateEnable(project.getOrganizationId(), scene.name())));
+        return templateEnableConfig;
     }
 }

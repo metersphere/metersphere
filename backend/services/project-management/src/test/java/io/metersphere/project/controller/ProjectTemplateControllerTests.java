@@ -56,6 +56,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
     private static final String BASE_PATH = "/project/template/";
     private static final String LIST = "list/{0}/{1}";
     private static final String SET_DEFAULT = "set-default/{0}/{1}";
+    protected static final String PROJECT_TEMPLATE_ENABLE_CONFIG = "enable/config/{0}";
 
     @Resource
     private TemplateMapper templateMapper;
@@ -382,7 +383,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
         // @@校验日志
         checkLog(addTemplate.getId(), OperationLogType.UPDATE);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, SET_DEFAULT, DEFAULT_PROJECT_ID, addTemplate.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, SET_DEFAULT, DEFAULT_PROJECT_ID, addTemplate.getId());
     }
 
     @Test
@@ -416,6 +417,27 @@ public class ProjectTemplateControllerTests extends BaseTest {
         checkLog(addTemplate.getId(), OperationLogType.DELETE);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_DELETE, DEFAULT_DELETE, addTemplate.getId());
+    }
+
+    @Test
+    @Order(7)
+    public void getProjectTemplateEnableConfig() throws Exception {
+        changeOrgTemplateEnable(true);
+        // @@请求成功
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_TEMPLATE_ENABLE_CONFIG, DEFAULT_PROJECT_ID);
+        Map resultData = getResultData(mvcResult, Map.class);
+        Assertions.assertEquals(resultData.size(), TemplateScene.values().length);
+        Assertions.assertFalse((Boolean) resultData.get(TemplateScene.FUNCTIONAL.name()));
+        changeOrgTemplateEnable(false);
+        mvcResult = this.requestGetWithOkAndReturn(PROJECT_TEMPLATE_ENABLE_CONFIG, DEFAULT_PROJECT_ID);
+        Assertions.assertTrue((Boolean) getResultData(mvcResult, Map.class).get(TemplateScene.FUNCTIONAL.name()));
+        changeOrgTemplateEnable(true);
+
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(PROJECT_TEMPLATE_ENABLE_CONFIG,"1111"), NOT_FOUND);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_READ, PROJECT_TEMPLATE_ENABLE_CONFIG, DEFAULT_PROJECT_ID);
     }
 
     private void assertSetDefaultTemplate(Template template) {

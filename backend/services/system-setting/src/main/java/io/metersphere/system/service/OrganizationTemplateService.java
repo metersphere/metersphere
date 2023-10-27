@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
@@ -17,7 +18,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.metersphere.system.controller.result.SystemResultCode.ORGANIZATION_TEMPLATE_PERMISSION;
 
@@ -174,5 +178,19 @@ public class OrganizationTemplateService extends BaseTemplateService {
             organizationParameter.setParamValue(BooleanUtils.toStringTrueFalse(false));
             baseOrganizationParameterService.add(organizationParameter);
         }
+    }
+
+    /**
+     * 一个接口返回各个模板是否启用组织模板
+     * @param organizationId
+     * @return
+     */
+    public Map<String, Boolean> getOrganizationTemplateEnableConfig(String organizationId) {
+        OrganizationService.checkResourceExist(organizationId);
+        HashMap<String, Boolean> templateEnableConfig = new HashMap<>();
+        Arrays.stream(TemplateScene.values())
+                .forEach(scene ->
+                        templateEnableConfig.put(scene.name(), isOrganizationTemplateEnable(organizationId, scene.name())));
+        return templateEnableConfig;
     }
 }

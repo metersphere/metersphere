@@ -21,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author : jianxing
@@ -88,10 +89,10 @@ public class OrganizationTemplateController {
         organizationTemplateService.disableOrganizationTemplate(organizationId, scene);
     }
 
-    @GetMapping("/is-enable/{organizationId}/{scene}")
+    @GetMapping("/enable/config/{organizationId}")
     @Operation(summary = "是否启用组织模版")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_READ)
-    public boolean isOrganizationTemplateEnable(@PathVariable String organizationId, @PathVariable String scene) {
-        return organizationTemplateService.isOrganizationTemplateEnable(organizationId, scene);
+    public Map<String, Boolean> getOrganizationTemplateEnableConfig(@PathVariable String organizationId) {
+        return organizationTemplateService.getOrganizationTemplateEnableConfig(organizationId);
     }
 }
