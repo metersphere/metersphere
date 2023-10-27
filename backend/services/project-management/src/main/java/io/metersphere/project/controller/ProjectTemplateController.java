@@ -22,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author : jianxing
@@ -82,10 +83,17 @@ public class ProjectTemplateController {
     }
 
     @GetMapping("/set-default/{projectId}/{id}")
-    @Operation(summary = "设置模板模板")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
+    @Operation(summary = "设置默认模板")
+    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.setDefaultTemplateLog(#id)", msClass = ProjectTemplateLogService.class)
     public void setDefaultTemplate(@PathVariable String projectId, @PathVariable String id) {
         projectTemplateservice.setDefaultTemplate(projectId, id);
+    }
+
+    @GetMapping("/enable/config/{projectId}")
+    @Operation(summary = "是否启用组织模版")
+    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ)
+    public Map<String, Boolean> getProjectTemplateEnableConfig(@PathVariable String projectId) {
+        return projectTemplateservice.getProjectTemplateEnableConfig(projectId);
     }
 }

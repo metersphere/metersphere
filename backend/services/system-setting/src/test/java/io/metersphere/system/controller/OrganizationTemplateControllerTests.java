@@ -45,7 +45,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     private static final String BASE_PATH = "/organization/template/";
     private static final String LIST = "list/{0}/{1}";
     private static final String DISABLE_ORG_TEMPLATE = "disable/{0}/{1}";
-    protected static final String IS_ORGANIZATION_TEMPLATE_ENABLE = "is-enable/{0}/{1}";
+    protected static final String ORGANIZATION_TEMPLATE_ENABLE_CONFIG = "enable/config/{0}";
 
     @Resource
     private TemplateMapper templateMapper;
@@ -157,12 +157,6 @@ public class OrganizationTemplateControllerTests extends BaseTest {
             Assertions.assertEquals(refTemplate.getCreateUser(), template.getCreateUser());
             Assertions.assertEquals(refTemplate.getScopeType(), TemplateScopeType.PROJECT.name());
         });
-    }
-
-    private List<Template> getTemplateByScopeId(String scopeId) {
-        TemplateExample example = new TemplateExample();
-        example.createCriteria().andScopeIdEqualTo(scopeId);
-        return templateMapper.selectByExample(example);
     }
 
     private void changeOrgTemplateEnable(boolean enable) {
@@ -386,17 +380,22 @@ public class OrganizationTemplateControllerTests extends BaseTest {
 
     @Test
     @Order(8)
-    public void isOrganizationTemplateEnable() throws Exception {
+    public void getOrganizationTemplateEnableConfig() throws Exception {
         // @@请求成功
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(IS_ORGANIZATION_TEMPLATE_ENABLE, DEFAULT_ORGANIZATION_ID, TemplateScene.FUNCTIONAL.name());
-        Assertions.assertTrue(getResultData(mvcResult, Boolean.class));
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(ORGANIZATION_TEMPLATE_ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);
+        Map resultData = getResultData(mvcResult, Map.class);
+        Assertions.assertEquals(resultData.size(), TemplateScene.values().length);
+        Assertions.assertTrue((Boolean) resultData.get(TemplateScene.FUNCTIONAL.name()));
         changeOrgTemplateEnable(false);
-        mvcResult = this.requestGetWithOkAndReturn(IS_ORGANIZATION_TEMPLATE_ENABLE, DEFAULT_ORGANIZATION_ID, TemplateScene.FUNCTIONAL.name());
-        Assertions.assertFalse(getResultData(mvcResult, Boolean.class));
+        mvcResult = this.requestGetWithOkAndReturn(ORGANIZATION_TEMPLATE_ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);
+        Assertions.assertFalse((Boolean) getResultData(mvcResult, Map.class).get(TemplateScene.FUNCTIONAL.name()));
         changeOrgTemplateEnable(true);
 
+        // @@校验 NOT_FOUND 异常
+        assertErrorCode(this.requestGet(ORGANIZATION_TEMPLATE_ENABLE_CONFIG,"1111"), NOT_FOUND);
+
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, IS_ORGANIZATION_TEMPLATE_ENABLE, DEFAULT_ORGANIZATION_ID, TemplateScene.FUNCTIONAL.name());
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, ORGANIZATION_TEMPLATE_ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);
     }
 
     /**
