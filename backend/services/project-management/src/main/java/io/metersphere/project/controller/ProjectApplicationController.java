@@ -105,7 +105,7 @@ public class ProjectApplicationController {
     @Operation(summary = "性能测试-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_READ)
     public Map<String, Object> getPerformanceTest(@Validated @RequestBody ProjectApplicationRequest request) {
-        List<String> types = Arrays.asList(ProjectApplicationType.PERFORMANCE_TEST.values()).stream().map(ProjectApplicationType.PERFORMANCE_TEST::name).collect(Collectors.toList());
+        List<String> types = Arrays.asList(ProjectApplicationType.LOAD_TEST.values()).stream().map(ProjectApplicationType.LOAD_TEST::name).collect(Collectors.toList());
         return projectApplicationService.get(request, types);
     }
 
