@@ -5,7 +5,6 @@ import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.dto.BaseModule;
 import io.metersphere.sdk.dto.BaseTreeNode;
-import io.metersphere.sdk.util.Translator;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,16 +20,16 @@ public abstract class ModuleTreeService {
 
     protected static final int LIMIT_POS = 64;
 
-    public BaseTreeNode getDefaultModule() {
+    public BaseTreeNode getDefaultModule(String name) {
         //默认模块下不允许创建子模块。  它本身也就是叶子节点。
-        return new BaseTreeNode(ModuleConstants.DEFAULT_NODE_ID, Translator.get("default.module"), ModuleConstants.NODE_TYPE_DEFAULT, ModuleConstants.ROOT_NODE_PARENT_ID);
+        return new BaseTreeNode(ModuleConstants.DEFAULT_NODE_ID, name, ModuleConstants.NODE_TYPE_DEFAULT, ModuleConstants.ROOT_NODE_PARENT_ID);
     }
 
 
     //构建树结构，并为每个节点计算资源数量
-    public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, @NotNull List<ModuleCountDTO> moduleCountDTOList, boolean haveVirtualRootNode) {
+    public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, @NotNull List<ModuleCountDTO> moduleCountDTOList, boolean haveVirtualRootNode, String virtualRootName) {
         //构建模块树
-        List<BaseTreeNode> baseTreeNodeList = this.buildTreeAndCountResource(traverseList, haveVirtualRootNode);
+        List<BaseTreeNode> baseTreeNodeList = this.buildTreeAndCountResource(traverseList, haveVirtualRootNode, virtualRootName);
         //构建模块节点统计的数据结构
         Map<String, Integer> resourceCountMap = moduleCountDTOList.stream().collect(Collectors.toMap(ModuleCountDTO::getModuleId, ModuleCountDTO::getDataCount));
         //为每个节点赋值资源数量
@@ -44,10 +43,10 @@ public abstract class ModuleTreeService {
      * @param traverseList        要遍历的节点集合（会被清空）
      * @param haveVirtualRootNode 是否包含虚拟跟节点
      */
-    public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, boolean haveVirtualRootNode) {
+    public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, boolean haveVirtualRootNode, String virtualRootName) {
         List<BaseTreeNode> baseTreeNodeList = new ArrayList<>();
         if (haveVirtualRootNode) {
-            BaseTreeNode defaultNode = this.getDefaultModule();
+            BaseTreeNode defaultNode = this.getDefaultModule(virtualRootName);
             baseTreeNodeList.add(defaultNode);
         }
         int lastSize = 0;
