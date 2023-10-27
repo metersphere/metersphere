@@ -29,8 +29,7 @@
   </MsCard>
   <MsDrawer
     v-model:visible="showDetailDrawer"
-    width="40vw"
-    min-width="480px"
+    :width="480"
     :title="activePool?.name"
     :title-tag="activePool?.enable ? t('system.resourcePool.tableEnable') : t('system.resourcePool.tableDisable')"
     :title-tag-color="activePool?.enable ? 'green' : 'gray'"
