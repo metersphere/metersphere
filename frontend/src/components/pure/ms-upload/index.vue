@@ -2,7 +2,11 @@
   <a-upload
     v-bind="{ ...props }"
     v-model:file-list="fileList"
-    :accept="UploadAcceptEnum[props.accept]"
+    :accept="
+      [UploadAcceptEnum.none, UploadAcceptEnum.unknown].includes(UploadAcceptEnum[props.accept])
+        ? '*'
+        : UploadAcceptEnum[props.accept]
+    "
     :multiple="props.multiple"
     :disabled="props.disabled"
     @change="handleChange"
@@ -75,6 +79,7 @@
     maxSize: number; // 文件大小限制，单位 MB
     sizeUnit: 'MB' | 'KB'; // 文件大小单位
     isLimit: boolean; // 是否限制文件大小
+    draggable: boolean; // 是否支持拖拽上传
   }> & {
     accept: UploadType;
     fileList: MsFileItem[];

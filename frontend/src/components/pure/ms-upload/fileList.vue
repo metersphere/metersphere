@@ -16,13 +16,7 @@
         <a-list-item-meta>
           <template #avatar>
             <a-avatar shape="square" class="rounded-[var(--border-radius-mini)] bg-[var(--color-text-n9)]">
-              <a-image
-                v-if="item.file.type.includes('image/')"
-                :src="item.url"
-                :alt="item.file.name"
-                width="40"
-                height="40"
-              />
+              <a-image v-if="item.file.type.includes('image/')" :src="item.url" width="40" height="40" hide-footer />
               <MsIcon
                 v-else
                 :type="getFileIcon(item)"

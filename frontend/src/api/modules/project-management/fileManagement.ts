@@ -62,12 +62,12 @@ export function deleteFile(data: BatchFileApiParams) {
 
 // 下载文件
 export function downloadFile(id: string) {
-  return MSR.get({ url: DownloadFileUrl, params: id }, { isTransformResponse: false });
+  return MSR.get({ url: DownloadFileUrl, params: id, responseType: 'blob' }, { isTransformResponse: false });
 }
 
 // 批量下载文件
 export function batchDownloadFile(data: BatchFileApiParams) {
-  return MSR.post({ url: BatchDownloadFileUrl, data }, { isTransformResponse: false });
+  return MSR.post({ url: BatchDownloadFileUrl, data, responseType: 'blob' }, { isTransformResponse: false });
 }
 
 // 更新模块
