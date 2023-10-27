@@ -1,6 +1,6 @@
 package io.metersphere.system.dto;
 
-import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.domain.Plugin;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

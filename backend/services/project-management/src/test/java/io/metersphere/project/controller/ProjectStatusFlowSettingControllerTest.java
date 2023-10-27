@@ -1,10 +1,10 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.sdk.constants.*;
-import io.metersphere.sdk.dto.request.StatusDefinitionUpdateRequest;
-import io.metersphere.sdk.dto.request.StatusFlowUpdateRequest;
-import io.metersphere.sdk.dto.request.StatusItemAddRequest;
-import io.metersphere.sdk.dto.request.StatusItemUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
+import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.OrganizationStatusFlowSettingControllerTest;

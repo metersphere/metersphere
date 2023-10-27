@@ -1,12 +1,12 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.UserRoleEnum;
-import io.metersphere.sdk.dto.Permission;
-import io.metersphere.sdk.dto.PermissionDefinitionItem;
-import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.dto.permission.Permission;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.PermissionCache;
+import io.metersphere.system.config.PermissionCache;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;

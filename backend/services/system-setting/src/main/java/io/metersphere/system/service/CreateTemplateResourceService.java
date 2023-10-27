@@ -4,7 +4,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
-import io.metersphere.sdk.dto.request.TemplateCustomFieldRequest;
+import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.*;
 import jakarta.annotation.Resource;

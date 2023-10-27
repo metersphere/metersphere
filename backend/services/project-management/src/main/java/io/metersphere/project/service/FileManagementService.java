@@ -10,7 +10,7 @@ import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.request.filemanagement.FileBatchProcessDTO;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.system.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.TempFileUtils;
 import jakarta.annotation.Resource;

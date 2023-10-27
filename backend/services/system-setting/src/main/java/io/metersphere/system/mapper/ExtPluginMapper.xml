@@ -9,7 +9,7 @@
     </select>
 
 
-    <select id="selectPluginOptions" resultType="io.metersphere.sdk.dto.OptionDTO">
+    <select id="selectPluginOptions" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         SELECT id, name
         FROM plugin
         WHERE id IN

@@ -1,6 +1,6 @@
 package io.metersphere.system.ldap.vo;
 
-import io.metersphere.sdk.dto.LoginRequest;
+import io.metersphere.system.dto.sdk.LoginRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

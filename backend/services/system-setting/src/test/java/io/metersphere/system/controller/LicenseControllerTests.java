@@ -1,7 +1,7 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.dto.LicenseDTO;
+import io.metersphere.system.dto.sdk.LicenseDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;

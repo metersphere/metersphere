@@ -1,6 +1,6 @@
 package io.metersphere.project.request;
 
-import io.metersphere.sdk.dto.BasePageRequest;
+import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

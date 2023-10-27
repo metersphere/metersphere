@@ -2,8 +2,8 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.sdk.dto.PermissionDefinitionItem;
-import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;

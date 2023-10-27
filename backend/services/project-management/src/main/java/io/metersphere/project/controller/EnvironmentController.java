@@ -10,7 +10,7 @@ import io.metersphere.project.service.EnvironmentLogService;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.Environment;
-import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;

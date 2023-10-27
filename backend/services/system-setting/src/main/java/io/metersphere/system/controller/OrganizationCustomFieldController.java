@@ -2,8 +2,8 @@ package io.metersphere.system.controller;
 
 
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.CustomFieldDTO;
-import io.metersphere.sdk.dto.request.CustomFieldUpdateRequest;
+import io.metersphere.system.dto.sdk.CustomFieldDTO;
+import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;

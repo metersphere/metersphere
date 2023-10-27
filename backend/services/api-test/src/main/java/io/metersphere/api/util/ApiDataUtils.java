@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.type.CollectionType;
-import io.metersphere.api.dto.request.post.processors.MsPostJSR223Processor;
-import io.metersphere.api.dto.request.sampler.MsDebugSampler;
+import io.metersphere.sdk.dto.api.request.post.processors.MsPostJSR223Processor;
+import io.metersphere.sdk.dto.api.request.sampler.MsDebugSampler;
 import io.metersphere.sdk.exception.MSException;
 
 import java.io.IOException;

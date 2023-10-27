@@ -2,7 +2,7 @@ package io.metersphere.system.base.param;
 
 
 import io.metersphere.sdk.constants.ValueEnum;
-import io.metersphere.sdk.valid.EnumValue;
+import io.metersphere.system.valid.EnumValue;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

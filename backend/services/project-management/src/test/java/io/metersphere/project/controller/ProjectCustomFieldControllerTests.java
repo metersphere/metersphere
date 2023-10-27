@@ -1,9 +1,9 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.sdk.constants.*;
-import io.metersphere.sdk.dto.CustomFieldDTO;
-import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
-import io.metersphere.sdk.dto.request.CustomFieldUpdateRequest;
+import io.metersphere.system.dto.sdk.CustomFieldDTO;
+import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
+import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;

@@ -1,9 +1,9 @@
 package io.metersphere.system.config;
 
 
-import io.metersphere.sdk.file.FileCenter;
-import io.metersphere.sdk.file.FileRepository;
-import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.system.file.FileCenter;
+import io.metersphere.system.file.FileRepository;
+import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.sdk.util.RsaKey;
 import io.metersphere.sdk.util.RsaUtils;

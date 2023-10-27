@@ -1,7 +1,7 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.LicenseDTO;
+import io.metersphere.system.dto.sdk.LicenseDTO;
 import io.metersphere.system.service.LicenseService;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.utils.SessionUtils;

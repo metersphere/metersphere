@@ -2,9 +2,9 @@ package io.metersphere.system.utils.user;
 
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.sdk.dto.BasePageRequest;
+import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.utils.Pager;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;

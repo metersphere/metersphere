@@ -21,7 +21,7 @@
                           FROM user_role
                           WHERE type = 'SYSTEM' AND scope_id = 'global')
     </select>
-    <select id="listGlobal" resultType="io.metersphere.sdk.dto.UserRoleRelationUserDTO">
+    <select id="listGlobal" resultType="io.metersphere.system.dto.user.UserRoleRelationUserDTO">
         select urr.id, u.id as userId, u.name, u.email, u.phone
         from user_role_relation urr
         inner join user u on urr.user_id = u.id and urr.role_id = #{request.roleId} and u.deleted = 0

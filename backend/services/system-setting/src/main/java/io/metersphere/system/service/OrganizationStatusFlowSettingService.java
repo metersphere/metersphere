@@ -1,10 +1,10 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.TemplateScopeType;
-import io.metersphere.sdk.dto.request.StatusDefinitionUpdateRequest;
-import io.metersphere.sdk.dto.request.StatusFlowUpdateRequest;
-import io.metersphere.sdk.dto.request.StatusItemAddRequest;
-import io.metersphere.sdk.dto.request.StatusItemUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
+import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.StatusDefinition;

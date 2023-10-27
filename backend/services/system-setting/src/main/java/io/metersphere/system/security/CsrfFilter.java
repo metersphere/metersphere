@@ -2,7 +2,7 @@ package io.metersphere.system.security;
 
 
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.dto.SessionUser;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.sdk.util.CodingUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.utils.SessionUtils;

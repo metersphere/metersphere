@@ -2,7 +2,7 @@ package io.metersphere.system.utils;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import io.metersphere.sdk.dto.ExcelParseDTO;
+import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;

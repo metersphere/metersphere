@@ -1,6 +1,6 @@
 package io.metersphere.project.dto.environment;
 
-import io.metersphere.sdk.dto.TableBatchProcessDTO;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

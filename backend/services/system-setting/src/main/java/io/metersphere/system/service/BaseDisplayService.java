@@ -1,8 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.file.MinioRepository;
+import io.metersphere.system.file.FileRequest;
+import io.metersphere.system.file.MinioRepository;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.domain.SystemParameter;
 import io.metersphere.system.mapper.SystemParameterMapper;

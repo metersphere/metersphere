@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.domain.UserRolePermission;
 import io.metersphere.system.domain.UserRolePermissionExample;
 import io.metersphere.system.mapper.UserRolePermissionMapper;

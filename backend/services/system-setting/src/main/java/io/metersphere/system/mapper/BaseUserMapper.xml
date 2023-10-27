@@ -9,14 +9,14 @@
             `email`     = id
         WHERE `id` = #{id}
     </update>
-    <select id="selectById" resultType="io.metersphere.sdk.dto.UserDTO">
+    <select id="selectById" resultType="io.metersphere.system.dto.user.UserDTO">
         SELECT *
         FROM user
                  LEFT JOIN user_extend ON user.id = user_extend.id
         WHERE user.id = #{id}
     </select>
 
-    <select id="selectDTOByKeyword" resultType="io.metersphere.sdk.dto.UserDTO">
+    <select id="selectDTOByKeyword" resultType="io.metersphere.system.dto.user.UserDTO">
         SELECT *
         FROM user
                  LEFT JOIN user_extend ON user.id = user_extend.id
@@ -88,7 +88,7 @@
         </foreach>
     </select>
 
-    <select id="selectUserOptionByIds" resultType="io.metersphere.sdk.dto.OptionDTO">
+    <select id="selectUserOptionByIds" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         SELECT id, name
         FROM user
         WHERE id IN
@@ -97,7 +97,7 @@
             #{id}
         </foreach>
     </select>
-    <select id="getExcludeSelectOptionWithLimit" resultType="io.metersphere.sdk.dto.UserExcludeOptionDTO">
+    <select id="getExcludeSelectOptionWithLimit" resultType="io.metersphere.system.dto.user.UserExcludeOptionDTO">
         select id, name, email
         from user
         where deleted = 0
@@ -106,7 +106,7 @@
         </if>
         limit 100
     </select>
-    <select id="getSelectOptionByIdsWithDeleted" resultType="io.metersphere.sdk.dto.OptionDTO">
+    <select id="getSelectOptionByIdsWithDeleted" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         SELECT id, name
         FROM user
         WHERE id IN

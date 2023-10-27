@@ -1,9 +1,9 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.PermissionDefinitionItem;
-import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
-import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.dto.sdk.request.UserRoleUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;

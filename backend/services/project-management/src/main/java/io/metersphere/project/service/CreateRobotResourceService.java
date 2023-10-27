@@ -10,7 +10,7 @@ import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.mapper.MessageTaskBlobMapper;
 import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
-import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.CreateProjectResourceService;

@@ -5,7 +5,7 @@ import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.request.NodeMoveRequest;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import org.junit.jupiter.api.MethodOrderer;

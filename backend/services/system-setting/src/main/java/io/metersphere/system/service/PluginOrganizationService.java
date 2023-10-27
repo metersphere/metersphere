@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.domain.PluginOrganization;
 import io.metersphere.system.domain.PluginOrganizationExample;
 import io.metersphere.system.mapper.ExtOrganizationMapper;

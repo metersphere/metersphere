@@ -4,7 +4,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.environment.GlobalParamsRequest;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.domain.ProjectParameters;
-import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.system.log.dto.LogDTO;
 
 import io.metersphere.sdk.mapper.ProjectParametersMapper;
 import io.metersphere.sdk.util.JSON;

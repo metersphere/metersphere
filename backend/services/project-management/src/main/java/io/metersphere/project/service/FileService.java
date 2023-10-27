@@ -1,7 +1,7 @@
 package io.metersphere.project.service;
 
-import io.metersphere.sdk.file.FileCenter;
-import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.system.file.FileCenter;
+import io.metersphere.system.file.FileRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

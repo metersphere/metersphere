@@ -8,7 +8,7 @@ import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.log.constants.OperationLogType;

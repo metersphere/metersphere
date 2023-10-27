@@ -1,7 +1,7 @@
 package io.metersphere.system.notice.sender;
 
 
-import io.metersphere.sdk.dto.SessionUser;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;

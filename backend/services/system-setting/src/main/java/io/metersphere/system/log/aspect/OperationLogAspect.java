@@ -1,6 +1,6 @@
 package io.metersphere.system.log.aspect;
 
-import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.service.OperationLogService;

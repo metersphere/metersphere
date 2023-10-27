@@ -1,7 +1,5 @@
 package io.metersphere.system.request;
 
-import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.sdk.valid.EnumValue;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;

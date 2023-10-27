@@ -1,10 +1,10 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.UserRoleScope;
-import io.metersphere.sdk.dto.TableBatchProcessResponse;
-import io.metersphere.sdk.dto.UserExcludeOptionDTO;
-import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
-import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
+import io.metersphere.system.dto.table.TableBatchProcessResponse;
+import io.metersphere.system.dto.user.UserExcludeOptionDTO;
+import io.metersphere.system.dto.user.UserRoleRelationUserDTO;
+import io.metersphere.system.dto.sdk.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.BeanUtils;

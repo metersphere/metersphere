@@ -1,7 +1,7 @@
 package io.metersphere.project.mapper;
 
 import io.metersphere.project.request.ProjectMemberRequest;
-import io.metersphere.sdk.dto.UserExtendDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

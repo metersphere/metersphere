@@ -1,9 +1,9 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
-import io.metersphere.sdk.dto.LogDTO;
-import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
-import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.dto.sdk.request.UserRoleUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;

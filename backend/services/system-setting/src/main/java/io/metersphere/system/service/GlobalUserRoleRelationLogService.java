@@ -1,10 +1,10 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
-import io.metersphere.sdk.dto.LogDTO;
-import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.UserDTO;
-import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.dto.sdk.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.BaseUserMapper;

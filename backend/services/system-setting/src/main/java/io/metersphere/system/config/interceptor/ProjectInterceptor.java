@@ -3,7 +3,7 @@ package io.metersphere.system.config.interceptor;
 import io.metersphere.project.domain.CustomFunctionBlob;
 import io.metersphere.project.domain.FileMetadataRepository;
 import io.metersphere.sdk.util.CompressUtils;
-import io.metersphere.sdk.util.MybatisInterceptorConfig;
+import io.metersphere.system.utils.MybatisInterceptorConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

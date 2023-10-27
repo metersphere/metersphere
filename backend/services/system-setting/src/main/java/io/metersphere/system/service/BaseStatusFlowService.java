@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.dto.request.StatusFlowUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.StatusFlow;
 import io.metersphere.system.domain.StatusFlowExample;

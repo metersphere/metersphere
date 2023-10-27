@@ -1,8 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.project.domain.Project;
-import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.UserExtendDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.*;
 import io.metersphere.system.log.constants.OperationLogModule;
