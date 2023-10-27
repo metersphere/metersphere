@@ -1,6 +1,9 @@
 <template>
-  <a-button type="primary" @click="handleAddUser">{{ t('system.userGroup.quickAddUser') }}</a-button>
   <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
+    <template #quickCreate>
+      <!-- <a-button type="primary" @click="handleAddUser">{{ t('system.userGroup.quickAddUser') }}</a-button> -->
+      <MsConfirmUserSelector :ok-loading="okLoading" v-bind="userSelectorProps" @confirm="handleAddMember" />
+    </template>
     <template #action="{ record }">
       <MsRemoveButton
         :title="t('system.userGroup.removeName', { name: record.name })"
@@ -9,19 +12,20 @@
       />
     </template>
   </MsBaseTable>
-  <AddUserModal :current-id="props.current.id" :visible="userVisible" @cancel="handleAddUserModalCancel" />
 </template>
 
 <script lang="ts" setup>
-  import { computed, inject, ref, watchEffect } from 'vue';
+  import { computed, ref, watchEffect } from 'vue';
+  import { Message } from '@arco-design/web-vue';
 
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
-  import AddUserModal from './addUserModal.vue';
 
   import {
+    addOrgUserToUserGroup,
+    addUserToUserGroup,
     deleteOrgUserFromUserGroup,
     deleteUserFromUserGroup,
     postOrgUserByUserGroup,
@@ -33,16 +37,38 @@
   import { CurrentUserGroupItem, UserTableItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';
 
-  const systemType = inject<AuthScopeEnum>('systemType');
+  import { MsConfirmUserSelector } from '../ms-user-selector';
+  import { UserRequestTypeEnum } from '../ms-user-selector/utils';
 
+  const systemType = inject<AuthScopeEnum>('systemType');
   const { t } = useI18n();
   const appStore = useAppStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
-  const userVisible = ref(false);
+  const okLoading = ref(false);
   const props = defineProps<{
     keyword: string;
     current: CurrentUserGroupItem;
   }>();
+
+  const userSelectorProps = computed(() => {
+    if (systemType === AuthScopeEnum.SYSTEM) {
+      return {
+        type: UserRequestTypeEnum.SYSTEM_USER_GROUP,
+        loadOptionParams: {
+          roleId: props.current.id,
+        },
+        disabledKey: 'exclude',
+      };
+    }
+    return {
+      type: UserRequestTypeEnum.ORGANIZATION_USER_GROUP,
+      loadOptionParams: {
+        roleId: props.current.id,
+        organizationId: currentOrgId.value,
+      },
+      disabledKey: 'checkRoleFlag',
+    };
+  });
 
   const userGroupUsercolumns: MsTableColumn = [
     {
@@ -101,22 +127,42 @@
           userIds: [record.id],
         });
       }
-      // TODO 项目-用户组
       await fetchData();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
   };
-  const handleAddUser = () => {
-    userVisible.value = true;
-  };
-  const handleAddUserModalCancel = (shouldSearch: boolean) => {
-    if (shouldSearch) {
-      fetchData();
+
+  /**
+   * 添加成员
+   * @param userIds 用户ids
+   */
+  const handleAddMember = async (userIds: string[], callback: (v: boolean) => void) => {
+    try {
+      okLoading.value = true;
+      if (systemType === AuthScopeEnum.SYSTEM) {
+        await addUserToUserGroup({ roleId: props.current.id, userIds });
+      }
+      if (systemType === AuthScopeEnum.ORGANIZATION) {
+        await addOrgUserToUserGroup({
+          userRoleId: props.current.id,
+          userIds,
+          organizationId: currentOrgId.value,
+        });
+      }
+      Message.success(t('common.addSuccess'));
+      await fetchData();
+      callback(true);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
+      callback(false);
+    } finally {
+      okLoading.value = false;
     }
-    userVisible.value = false;
   };
+
   watchEffect(() => {
     if (props.current.id && currentOrgId.value) {
       if (systemType === AuthScopeEnum.SYSTEM) {

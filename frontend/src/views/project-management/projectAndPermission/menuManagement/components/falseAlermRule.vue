@@ -1,5 +1,5 @@
 <template>
-  <MsCard simple>
+  <MsCard has-breadcrumb>
     <div class="mb-4 flex items-center justify-between">
       <a-button type="primary" @click="showAddRule(undefined)">{{ t('project.menu.addFalseAlertRules') }}</a-button>
       <a-input-search
