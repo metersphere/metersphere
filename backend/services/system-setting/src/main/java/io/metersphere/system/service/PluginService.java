@@ -2,7 +2,10 @@ package io.metersphere.system.service;
 
 
 import io.metersphere.plugin.api.spi.AbstractApiPlugin;
+import io.metersphere.plugin.platform.dto.PluginOptionsRequest;
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
+import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.plugin.sdk.spi.MsPlugin;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
@@ -17,6 +20,7 @@ import io.metersphere.system.dto.PluginDTO;
 import io.metersphere.system.dto.PluginNotifiedDTO;
 import io.metersphere.system.mapper.ExtPluginMapper;
 import io.metersphere.system.mapper.PluginMapper;
+import io.metersphere.system.request.PlatformOptionRequest;
 import io.metersphere.system.request.PluginUpdateRequest;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -64,6 +68,8 @@ public class PluginService {
     private KafkaTemplate<String, String> kafkaTemplate;
     @Resource
     private UserLoginService userLoginService;
+    @Resource
+    private PlatformPluginService platformPluginService;
 
     public List<PluginDTO> list() {
         List<PluginDTO> plugins = extPluginMapper.getPlugins();
@@ -285,6 +291,18 @@ public class PluginService {
                 response.getOutputStream().write(buffer, 0, bytesRead);
             }
             out.flush();
+        }
+    }
+
+    public List<SelectOption> getPluginOptions(PlatformOptionRequest request) {
+        try {
+        Platform platform = platformPluginService.getPlatform(request.getPluginId(), request.getOrganizationId());
+        PluginOptionsRequest optionsRequest = new PluginOptionsRequest();
+        optionsRequest.setOptionMethod(request.getOptionMethod());
+        optionsRequest.setProjectConfig(request.getProjectConfig());
+        return platform.getPluginOptions(optionsRequest);
+        }catch (Exception e){
+            return new ArrayList<>();
         }
     }
 }
