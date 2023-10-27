@@ -1,7 +1,7 @@
 package io.metersphere.project.mapper;
 
 import io.metersphere.project.domain.FileModule;
-import io.metersphere.sdk.dto.BaseTreeNode;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

@@ -56,7 +56,7 @@
         where id = #{id}
     </update>
 
-    <select id="listMember" resultType="io.metersphere.sdk.dto.UserExtendDTO">
+    <select id="listMember" resultType="io.metersphere.system.dto.user.UserExtendDTO">
         select temp.*, max(if(temp.role_id = 'org_admin', true, false)) as adminFlag
         from (
         select u.*, urr.role_id
@@ -124,7 +124,7 @@
         order by create_time desc
     </select>
 
-    <select id="getOptionsByIds" resultType="io.metersphere.sdk.dto.OptionDTO">
+    <select id="getOptionsByIds" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         select id, name from organization where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}

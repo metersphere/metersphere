@@ -1,6 +1,6 @@
 package io.metersphere.system.response.user;
 
-import io.metersphere.sdk.dto.ExcelParseDTO;
+import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;

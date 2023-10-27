@@ -1,7 +1,7 @@
 package io.metersphere.system.interceptor;
 
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.MybatisInterceptorConfig;
+import io.metersphere.system.utils.MybatisInterceptorConfig;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.cache.CacheKey;

@@ -1,7 +1,7 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.PluginScenarioType;
-import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.Plugin;

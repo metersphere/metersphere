@@ -1,6 +1,6 @@
 package io.metersphere.functional.dto;
 
-import io.metersphere.sdk.dto.TemplateCustomFieldDTO;
+import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

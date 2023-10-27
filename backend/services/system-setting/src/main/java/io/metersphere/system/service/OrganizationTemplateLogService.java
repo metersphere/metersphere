@@ -1,8 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
-import io.metersphere.sdk.dto.LogDTO;
-import io.metersphere.sdk.dto.request.TemplateUpdateRequest;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;

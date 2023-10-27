@@ -2,8 +2,8 @@ package io.metersphere.system.utils.user;
 
 import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.sdk.dto.BasePageRequest;
-import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.system.dto.sdk.BasePageRequest;
+import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.dto.UserBatchCreateDTO;

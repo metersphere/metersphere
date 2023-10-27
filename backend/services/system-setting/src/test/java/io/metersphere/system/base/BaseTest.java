@@ -8,7 +8,7 @@ import io.metersphere.sdk.exception.IResultCode;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.base.param.InvalidateParamInfo;
 import io.metersphere.system.base.param.ParamGeneratorFactory;
 import io.metersphere.system.domain.User;

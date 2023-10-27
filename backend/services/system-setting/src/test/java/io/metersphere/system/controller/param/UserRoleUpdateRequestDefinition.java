@@ -1,7 +1,7 @@
 package io.metersphere.system.controller.param;
 
 import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.sdk.valid.EnumValue;
+import io.metersphere.system.valid.EnumValue;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import jakarta.validation.constraints.NotBlank;

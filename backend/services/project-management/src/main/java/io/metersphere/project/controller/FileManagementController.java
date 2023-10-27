@@ -6,7 +6,7 @@ import io.metersphere.project.service.FileManagementService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;

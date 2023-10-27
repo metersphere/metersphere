@@ -14,7 +14,7 @@
         from user_role_relation
         where role_id = #{roleId}
     </select>
-    <select id="getSelectOption" resultType="io.metersphere.sdk.dto.ExcludeOptionDTO">
+    <select id="getSelectOption" resultType="io.metersphere.system.dto.sdk.ExcludeOptionDTO">
         select user_id as id, user_name as name
         from user
     </select>

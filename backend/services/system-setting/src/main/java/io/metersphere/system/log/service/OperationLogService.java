@@ -2,8 +2,8 @@ package io.metersphere.system.log.service;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.domain.OperationLogBlob;
-import io.metersphere.sdk.dto.LogDTO;
-import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.log.vo.OperationLogRequest;
 import io.metersphere.system.log.vo.OperationLogResponse;

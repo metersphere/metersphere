@@ -2,9 +2,9 @@ package io.metersphere.functional.utils;
 
 import io.metersphere.project.dto.filemanagement.FileInformationDTO;
 import io.metersphere.project.request.filemanagement.FileMetadataTableRequest;
-import io.metersphere.sdk.dto.BaseTreeNode;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.utils.Pager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;

@@ -1,8 +1,8 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.TemplateDTO;
-import io.metersphere.sdk.dto.request.TemplateUpdateRequest;
+import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.domain.Template;

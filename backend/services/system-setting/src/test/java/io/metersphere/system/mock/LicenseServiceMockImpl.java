@@ -1,6 +1,6 @@
 package io.metersphere.system.mock;
 
-import io.metersphere.sdk.dto.LicenseDTO;
+import io.metersphere.system.dto.sdk.LicenseDTO;
 import io.metersphere.system.service.LicenseService;
 import org.springframework.stereotype.Service;
 @Service

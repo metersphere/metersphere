@@ -1,7 +1,7 @@
 package io.metersphere.system.service;
 
 
-import io.metersphere.sdk.dto.LicenseDTO;
+import io.metersphere.system.dto.sdk.LicenseDTO;
 
 public interface LicenseService {
 

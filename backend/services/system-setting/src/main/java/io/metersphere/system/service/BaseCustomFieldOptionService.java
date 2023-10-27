@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
+import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.domain.CustomFieldOptionExample;

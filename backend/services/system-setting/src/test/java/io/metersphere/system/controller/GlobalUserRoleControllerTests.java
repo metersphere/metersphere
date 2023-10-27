@@ -2,10 +2,10 @@ package io.metersphere.system.controller;
 
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.sdk.dto.Permission;
-import io.metersphere.sdk.dto.PermissionDefinitionItem;
-import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
-import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
+import io.metersphere.system.dto.permission.Permission;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.dto.sdk.request.UserRoleUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.BaseUserRolePermissionService;
 import io.metersphere.system.service.BaseUserRoleRelationService;

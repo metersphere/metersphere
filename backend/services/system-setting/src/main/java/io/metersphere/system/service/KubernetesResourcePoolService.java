@@ -1,7 +1,7 @@
 package io.metersphere.system.service;
 
 
-import io.metersphere.sdk.dto.TestResourceDTO;
+import io.metersphere.system.dto.pool.TestResourceDTO;
 
 public interface KubernetesResourcePoolService {
 

@@ -1,7 +1,7 @@
 package io.metersphere.system.utils;
 
 import io.metersphere.project.domain.Project;
-import io.metersphere.sdk.dto.BaseTreeNode;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.domain.Organization;
 
 import java.util.ArrayList;

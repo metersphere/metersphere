@@ -2,8 +2,8 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.TemplateScopeType;
-import io.metersphere.sdk.dto.CustomFieldDTO;
-import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
+import io.metersphere.system.dto.sdk.CustomFieldDTO;
+import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.service.BaseCustomFieldService;

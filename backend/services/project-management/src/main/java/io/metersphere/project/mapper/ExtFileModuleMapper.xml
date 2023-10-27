@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.ExtFileModuleMapper">
-    <select id="selectBaseByProjectId" resultType="io.metersphere.sdk.dto.BaseTreeNode">
+    <select id="selectBaseByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         SELECT id, name, parent_id AS parentId, 'module' AS type
         FROM file_module
         WHERE project_id = #{0}
         ORDER BY pos
     </select>
-    <select id="selectIdAndParentIdByProjectId" resultType="io.metersphere.sdk.dto.BaseTreeNode">
+    <select id="selectIdAndParentIdByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         SELECT id, parent_id AS parentId
         FROM file_module
         WHERE project_id = #{0}

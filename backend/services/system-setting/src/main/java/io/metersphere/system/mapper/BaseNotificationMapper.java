@@ -2,7 +2,7 @@ package io.metersphere.system.mapper;
 
 
 import io.metersphere.project.domain.Notification;
-import io.metersphere.sdk.dto.request.NotificationRequest;
+import io.metersphere.system.dto.sdk.request.NotificationRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

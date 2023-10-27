@@ -1,11 +1,11 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
-import io.metersphere.sdk.dto.LogDTO;
-import io.metersphere.sdk.dto.request.StatusDefinitionUpdateRequest;
-import io.metersphere.sdk.dto.request.StatusFlowUpdateRequest;
-import io.metersphere.sdk.dto.request.StatusItemAddRequest;
-import io.metersphere.sdk.dto.request.StatusItemUpdateRequest;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
+import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.StatusItem;

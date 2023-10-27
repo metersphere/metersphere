@@ -1,6 +1,6 @@
 package io.metersphere.system.mapper;
 
-import io.metersphere.sdk.dto.UserExtendDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.domain.User;
 import org.apache.ibatis.annotations.Param;
 

@@ -6,7 +6,7 @@ import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentBlob;
-import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.system.log.dto.LogDTO;
 
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;

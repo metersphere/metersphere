@@ -1,7 +1,7 @@
 package io.metersphere.project.service;
 
-import io.metersphere.sdk.dto.LogDTO;
-import io.metersphere.sdk.dto.request.TemplateUpdateRequest;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Template;

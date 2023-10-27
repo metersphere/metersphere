@@ -1,9 +1,9 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.file.FileCenter;
-import io.metersphere.sdk.file.FileRepository;
-import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.file.MinioRepository;
+import io.metersphere.system.file.FileCenter;
+import io.metersphere.system.file.FileRepository;
+import io.metersphere.system.file.FileRequest;
+import io.metersphere.system.file.MinioRepository;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.dto.UserExcludeOptionDTO;
+import io.metersphere.system.dto.user.UserExcludeOptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.mapper.BaseUserRoleRelationMapper;
 import io.metersphere.system.domain.UserRole;

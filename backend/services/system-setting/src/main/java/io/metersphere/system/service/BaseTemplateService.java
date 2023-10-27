@@ -2,9 +2,9 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
-import io.metersphere.sdk.dto.TemplateCustomFieldDTO;
-import io.metersphere.sdk.dto.TemplateDTO;
-import io.metersphere.sdk.dto.request.TemplateCustomFieldRequest;
+import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
+import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;

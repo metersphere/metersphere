@@ -1,6 +1,6 @@
 package io.metersphere.bug;
 
-import io.metersphere.sdk.config.MinioProperties;
+import io.metersphere.system.config.MinioProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration;

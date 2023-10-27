@@ -3,7 +3,7 @@ package io.metersphere.system.service;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleScope;
-import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.service.OperationLogService;

@@ -5,10 +5,10 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
 import io.metersphere.project.domain.Notification;
-import io.metersphere.sdk.dto.request.NotificationRequest;
+import io.metersphere.system.dto.sdk.request.NotificationRequest;
 import io.metersphere.system.service.NotificationService;
-import io.metersphere.sdk.util.PageUtils;
-import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

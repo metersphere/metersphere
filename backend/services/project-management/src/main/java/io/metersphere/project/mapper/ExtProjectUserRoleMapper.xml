@@ -44,7 +44,7 @@
         order by u.create_time desc
     </select>
 
-    <select id="getProjectUserSelectList" resultType="io.metersphere.sdk.dto.OptionDTO">
+    <select id="getProjectUserSelectList" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         select u.id,
                u.name
         from user_role_relation urr

@@ -5,7 +5,7 @@ import com.github.pagehelper.PageInterceptor;
 import com.zaxxer.hikari.HikariDataSource;
 import io.metersphere.system.interceptor.MybatisInterceptor;
 import io.metersphere.system.interceptor.UserDesensitizationInterceptor;
-import io.metersphere.sdk.util.MybatisInterceptorConfig;
+import io.metersphere.system.utils.MybatisInterceptorConfig;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;

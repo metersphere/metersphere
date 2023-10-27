@@ -1,6 +1,6 @@
 package io.metersphere.project.dto;
 
-import io.metersphere.sdk.dto.BaseModule;
+import io.metersphere.system.dto.sdk.BaseModule;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

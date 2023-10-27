@@ -1,7 +1,7 @@
 package io.metersphere.system.base.param;
 
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.valid.EnumValue;
+import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.apache.commons.lang3.StringUtils;

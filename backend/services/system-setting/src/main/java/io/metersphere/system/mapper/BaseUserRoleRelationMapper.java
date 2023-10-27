@@ -1,6 +1,6 @@
 package io.metersphere.system.mapper;
 
-import io.metersphere.sdk.dto.ExcludeOptionDTO;
+import io.metersphere.system.dto.sdk.ExcludeOptionDTO;
 import io.metersphere.system.domain.UserRoleRelation;
 import org.apache.ibatis.annotations.Param;
 

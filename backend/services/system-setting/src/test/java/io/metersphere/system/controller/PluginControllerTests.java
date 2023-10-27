@@ -3,7 +3,7 @@ package io.metersphere.system.controller;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
-import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.service.JdbcDriverPluginService;

@@ -1,7 +1,7 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.dto.OptionDTO;
-import io.metersphere.sdk.dto.UserExtendDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;

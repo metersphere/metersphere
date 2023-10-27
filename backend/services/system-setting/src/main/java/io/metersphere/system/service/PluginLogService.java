@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.sdk.util.JSON;
 import org.springframework.transaction.annotation.Transactional;
 import io.metersphere.system.request.PluginUpdateRequest;

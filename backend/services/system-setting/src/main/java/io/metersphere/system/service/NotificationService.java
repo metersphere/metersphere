@@ -5,7 +5,7 @@ package io.metersphere.system.service;
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;
 import io.metersphere.project.mapper.NotificationMapper;
-import io.metersphere.sdk.dto.request.NotificationRequest;
+import io.metersphere.system.dto.sdk.request.NotificationRequest;
 import io.metersphere.system.mapper.BaseNotificationMapper;
 import io.metersphere.system.notice.constants.NotificationConstants;
 import jakarta.annotation.Resource;

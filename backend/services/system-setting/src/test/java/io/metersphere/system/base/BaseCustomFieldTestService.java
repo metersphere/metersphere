@@ -3,7 +3,7 @@ package io.metersphere.system.base;
 import io.metersphere.sdk.constants.CustomFieldType;
 import io.metersphere.sdk.constants.InternalUser;
 import io.metersphere.sdk.constants.TemplateScene;
-import io.metersphere.sdk.dto.request.CustomFieldOptionRequest;
+import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.CustomField;
