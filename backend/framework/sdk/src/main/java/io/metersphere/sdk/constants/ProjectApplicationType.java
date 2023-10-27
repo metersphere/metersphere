@@ -20,27 +20,25 @@ public class ProjectApplicationType {
     }
 
 
-
     //UI测试
-    public enum UI{
+    public enum UI {
         UI_CLEAN_REPORT,
         UI_SHARE_REPORT,
         UI_RESOURCE_POOL_ID,
     }
 
 
-
     //性能测试
-    public enum PERFORMANCE_TEST{
-       PERFORMANCE_TEST_CLEAN_REPORT,
-       PERFORMANCE_TEST_SHARE_REPORT,
-       PERFORMANCE_TEST_SCRIPT_REVIEWER_ENABLE,
-       PERFORMANCE_TEST_SCRIPT_REVIEWER_ID,
+    public enum LOAD_TEST {
+        LOAD_TEST_CLEAN_REPORT,
+        LOAD_TEST_SHARE_REPORT,
+        LOAD_TEST_SCRIPT_REVIEWER_ENABLE,
+        LOAD_TEST_SCRIPT_REVIEWER_ID,
     }
 
 
     //接口测试
-    public enum API{
+    public enum API {
         API_URL_REPEATABLE,
         API_CLEAN_REPORT,
         API_SHARE_REPORT,
@@ -53,40 +51,40 @@ public class ProjectApplicationType {
 
 
     //用例管理
-    public enum CASE{
+    public enum CASE {
         CASE_PUBLIC,
         CASE_RE_REVIEW,
     }
 
     //用例管理-关联需求
-    public enum CASE_RELATED_CONFIG{
+    public enum CASE_RELATED_CONFIG {
         CASE_RELATED,
         CASE_ENABLE,
     }
 
 
     //缺陷管理
-    public enum BUG{
+    public enum BUG {
         BUG_SYNC
     }
 
 
     //缺陷管理-同步配置项
-    public enum BUG_SYNC_CONFIG{
+    public enum BUG_SYNC_CONFIG {
         CRON_EXPRESSION,
         SYNC_ENABLE,
         MECHANISM,
     }
 
     // 版本管理-配置项
-    public enum VERSION{
+    public enum VERSION {
         VERSION_ENABLE
     }
 
     /**
      * 记录项目中配置的默认模板
      */
-    public enum DEFAULT_TEMPLATE{
+    public enum DEFAULT_TEMPLATE {
         FUNCTIONAL_DEFAULT_TEMPLATE,
         BUG_DEFAULT_TEMPLATE,
         API_DEFAULT_TEMPLATE,

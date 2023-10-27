@@ -177,7 +177,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(7)
     public void testPerformanceClean() throws Exception {
         //新增
-        ProjectApplication request = creatRequest(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_CLEAN_REPORT.name(), TIME_TYPE_VALUE);
+        ProjectApplication request = creatRequest(ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name(), TIME_TYPE_VALUE);
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
         //更新
         request.setTypeValue("4M");
@@ -192,7 +192,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(8)
     public void testPerformanceShare() throws Exception {
         //新增
-        ProjectApplication request = creatRequest(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_SHARE_REPORT.name(), TIME_TYPE_VALUE);
+        ProjectApplication request = creatRequest(ProjectApplicationType.LOAD_TEST.LOAD_TEST_SHARE_REPORT.name(), TIME_TYPE_VALUE);
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
         //更新
         request.setTypeValue("5M");
@@ -204,7 +204,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(9)
     public void testPerformanceReviewer() throws Exception {
         //新增
-        ProjectApplication request = creatRequest(ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_SCRIPT_REVIEWER_ENABLE.name(), "admin");
+        ProjectApplication request = creatRequest(ProjectApplicationType.LOAD_TEST.LOAD_TEST_SCRIPT_REVIEWER_ENABLE.name(), "admin");
         this.requestPost(PERFORMANCE_UPDATE_URL, request);
     }
 

@@ -108,7 +108,7 @@ public class ProjectApplicationService {
         String type = application.getType();
         if (StringUtils.equals(type, ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.UI.UI_CLEAN_REPORT.name())
-                || StringUtils.equals(type, ProjectApplicationType.PERFORMANCE_TEST.PERFORMANCE_TEST_CLEAN_REPORT.name())
+                || StringUtils.equals(type, ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.API.API_CLEAN_REPORT.name())) {
             //清除 测试计划/UI测试/性能测试/接口测试 报告 定时任务
             this.doHandleSchedule(application, currentUser);
