@@ -1,6 +1,6 @@
 <template>
   <a-select
-    v-model="selectValue"
+    v-model:model-value="selectValue"
     :placeholder="t(props.placeholder || 'common.pleaseSelect')"
     allow-search
     :multiple="props.multiple"
@@ -14,7 +14,18 @@
   import { ref } from 'vue';
   import { debounce } from 'lodash-es';
 
+  import { getPluginOptions } from '@/api/modules/setting/pluginManger';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
+  import useFormCreateStore from '@/store/modules/form-create/form-create';
+
+  import type { OptionsParams } from '@/models/setting/plugin';
+  import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
+
+  const appStore = useAppStore();
+
+  const attrs = useAttrs();
+  const formCreateStore = useFormCreateStore();
 
   const { t } = useI18n();
   const props = withDefaults(
@@ -35,54 +46,70 @@
   );
 
   const emit = defineEmits(['update:model-value']);
-  const selectValue = ref([]);
+  const selectValue = ref<string[] | string>();
 
   const optionsList = ref<{ label: string; value: string }[]>([]);
 
-  // 内部的关键词
-  const innerKeyword = ref<string | undefined>('');
-  async function getOptionsList() {
-    if (props.inputSearch && props.optionMethod) {
+  const params = ref<OptionsParams>();
+
+  async function getLinksItem() {
+    const { formKey } = attrs;
+    const formRulesList = formCreateStore.formRuleMap.get(formKey as FormCreateKeyEnum[keyof FormCreateKeyEnum]);
+    if (formRulesList && props.optionMethod) {
+      params.value = {
+        pluginId: props.keyword as string,
+        organizationId: appStore.currentOrgId,
+        projectConfig: formRulesList,
+        optionMethod: props.optionMethod,
+      };
+      // 请求参数
+      // console.log(selectValue.value, props.keyword, props.modelValue);
       try {
-        setTimeout(() => {
-          // console.log('模拟请求');
-          optionsList.value = [
-            {
-              value: '111',
-              label: '测试测试测试111111',
-            },
-          ];
-        }, 1000);
+        const res = await getPluginOptions(params.value);
+        optionsList.value = res.map((item) => {
+          return {
+            label: item.text,
+            value: item.value,
+          };
+        });
       } catch (error) {
         console.log(error);
       }
     }
   }
-  const searchHandler = debounce(async (inputVal: string) => {
+  // 内部的关键词
+  const innerKeyword = ref<string | undefined>('');
+  const searchHandler = debounce((inputVal: string) => {
     innerKeyword.value = inputVal;
-    getOptionsList();
   }, 300);
 
   watch(
     () => props.modelValue,
     (val) => {
-      selectValue.value = val as any;
-    }
+      if (val) {
+        selectValue.value = val as any;
+      }
+    },
+    { immediate: true }
   );
+
   watch(
     () => props.keyword,
     (val) => {
       if (val) {
         innerKeyword.value = val;
-        getOptionsList();
+        if (props.inputSearch && props.optionMethod) {
+          getLinksItem();
+        }
       }
     }
   );
 
   watch(
     () => selectValue.value,
-    (val) => {
-      emit('update:model-value', val);
+    async (val) => {
+      selectValue.value = val;
+      await emit('update:model-value', val);
     }
   );
 

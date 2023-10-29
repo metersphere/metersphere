@@ -1,6 +1,6 @@
 <template>
   <div>项目版本 waiting for development </div>
-  <MsFormCreate :form-rule="formRules" :form-create-key="FormCreateKeyEnum.ORGANIZE_TEMPLATE" />
+  <MsFormCreate v-model:form-rule="formRules" :form-create-key="FormCreateKeyEnum.ORGANIZE_TEMPLATE" />
   <br />
   <br />
 </template>
@@ -15,14 +15,23 @@
 
   const formRules = ref<FormItem[]>([
     {
-      type: 'INPUT',
+      type: 'SELECT',
       name: 'name',
       label: '姓名',
       value: '',
       subDesc: '请输入姓名',
       required: true,
+      options: [
+        {
+          value: '1001',
+          text: '单选',
+        },
+        {
+          value: '1002',
+          text: '多选',
+        },
+      ],
     },
-
     {
       type: 'MULTIPLE_SELECT',
       name: 'gender',
@@ -32,13 +41,12 @@
       optionMethod: 'getGenderOptions',
       inputSearch: true,
       required: true,
-      couplingConfig: [
-        {
-          type: 'initOptions',
-          cascade: 'name',
-          matchRule: 'includes',
-        },
-      ],
+      couplingConfig: {
+        type: 'initOptions',
+        cascade: 'name',
+        matchRule: 'includes',
+      },
+
       options: [
         {
           value: '1',
@@ -51,7 +59,7 @@
       ],
     },
     {
-      type: 'INPUT',
+      type: 'TEXTAREA',
       name: 'member',
       label: '成员',
       value: '',
@@ -76,7 +84,7 @@
     },
     {
       type: 'INT',
-      name: 'birthday',
+      name: 'birthday1',
       label: '出生日期',
       value: 0,
       subDesc: '请选择出生日期',
@@ -108,13 +116,11 @@
           text: '多选',
         },
       ],
-      couplingConfig: [
-        {
-          type: 'initOptions',
-          cascade: 'member',
-          matchRule: 'includes',
-        },
-      ],
+      couplingConfig: {
+        type: 'initOptions',
+        cascade: 'member',
+        matchRule: 'includes',
+      },
     },
     {
       type: 'SELECT',
@@ -134,13 +140,11 @@
           text: '多选',
         },
       ],
-      couplingConfig: [
-        {
-          type: 'initOptions',
-          cascade: 'member',
-          matchRule: 'includes',
-        },
-      ],
+      couplingConfig: {
+        type: 'initOptions',
+        cascade: 'member',
+        matchRule: 'includes',
+      },
     },
   ]);
 

@@ -20,6 +20,7 @@ export const SELECT = {
     multiple: false,
     placeholder: '请选择',
     options: [],
+    modelValue: '',
   },
 };
 
@@ -33,6 +34,7 @@ export const MULTIPLE_SELECT = {
     multiple: true,
     placeholder: '请选择',
     options: [],
+    modelValue: [],
   },
 };
 
@@ -61,6 +63,7 @@ export const MEMBER = {
   props: {
     multiple: false,
     placeholder: '请选择',
+    modelValue: '',
   },
 };
 
@@ -74,6 +77,7 @@ export const MULTIPLE_MEMBER = {
     multiple: true,
     placeholder: '请选择',
     options: [],
+    modelValue: [],
   },
 };
 

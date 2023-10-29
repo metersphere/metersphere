@@ -1,3 +1,5 @@
+import { FormItem } from '@/components/pure/ms-form-create/types';
+
 export interface organizationItem {
   id?: string;
   num: number;
@@ -91,4 +93,12 @@ export interface DrawerReqParams {
 }
 export interface PluginState {
   doNotShowAgain: boolean;
+}
+
+// 定义统一插件下拉选项请求参数
+export interface OptionsParams {
+  pluginId: string;
+  organizationId: string;
+  optionMethod: string;
+  projectConfig: Record<string, any>[] | FormItem[];
 }

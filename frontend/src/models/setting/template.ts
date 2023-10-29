@@ -49,6 +49,7 @@ export interface DefinedFieldItem {
   required?: boolean | undefined;
   fApi?: any; // 表单值
   formRules?: FormRuleItem[] | FormItem[] | FormRule[]; // 表单列表
+  [key: string]: any;
 }
 
 // 创建自定义字段
@@ -67,6 +68,7 @@ export interface AddOrUpdateField {
   remark: string; // 备注
   scopeId: string; // 组织或项目ID
   options?: FieldOption[];
+  enableOptionKey: boolean;
 }
 
 export interface fieldIconAndNameModal {
@@ -98,7 +100,7 @@ export interface CustomField {
   fieldId: string;
   required: boolean; // 是否必填
   apiFieldId: string; // api字段名
-  defaultValue: string; // 默认值
+  defaultValue: string | string[] | null | number; // 默认值
 }
 
 export interface ActionTemplateManage {
@@ -107,6 +109,6 @@ export interface ActionTemplateManage {
   remark: string;
   scopeId: string;
   enableThirdPart?: boolean; // 是否开启api字段名配置
-  scene: SeneType;
-  customFields: CustomField[];
+  scene?: SeneType;
+  customFields?: CustomField[];
 }

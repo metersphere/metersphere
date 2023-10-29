@@ -88,7 +88,11 @@
       </a-form>
     </div>
     <div class="preview-right px-4">
-      <MsFormCreate :form-rule="formRules" :form-create-key="FormCreateKeyEnum.ORGANIZE_TEMPLATE_PREVIEW_TEMPLATE" />
+      <MsFormCreate
+        ref="formCreateRef"
+        :form-rule="formRules"
+        :form-create-key="FormCreateKeyEnum.ORGANIZE_TEMPLATE_PREVIEW_TEMPLATE"
+      />
     </div>
   </div>
 </template>
@@ -116,7 +120,7 @@
   const tableStore = useTableStore();
 
   const props = defineProps<{
-    selectField: DefinedFieldItem[];
+    selectField: DefinedFieldItem[]; // 选择模板字段
   }>();
 
   const templateFieldColumns: MsTableColumn = [
@@ -151,6 +155,7 @@
       showDrag: false,
     },
   ];
+
   tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_STEP, templateFieldColumns, 'drawer');
   const { propsRes, propsEvent, setProps } = useTable(undefined, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_STEP,
@@ -186,8 +191,9 @@
       eventTag: 'delete',
     },
   ];
-
+  const addStep = () => {};
   const handlerDelete = () => {};
+
   // 更多操作
   const handleMoreActionSelect = (item: ActionsItem) => {
     if (item.eventTag === 'delete') {
@@ -195,10 +201,10 @@
     }
   };
 
-  const addStep = () => {};
-
   const formRuleField = ref<FormItem[][]>([]);
   const formRules = ref<FormItem[]>([]);
+  const formCreateRef = ref();
+
   // 处理表单格式
   const getFormRules = () => {
     if (props.selectField && props.selectField.length) {
@@ -217,6 +223,10 @@
             value: rule.value,
             options: optionsItem,
             required: item.required,
+            props: {
+              modelValue: rule.value,
+              options: optionsItem,
+            },
           };
         });
         formRuleField.value.push(currentFormItem as FormItem[]);

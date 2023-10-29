@@ -2,7 +2,7 @@
   <MsCard
     :loading="loading"
     :title="title"
-    :is-edit="isEdit"
+    :is-edit="isEdit && route.params.mode !== 'copy'"
     has-breadcrumb
     @save="saveHandler"
     @save-and-continue="saveHandler(true)"
@@ -40,12 +40,21 @@
             class="max-w-[732px]"
           ></a-textarea>
         </a-form-item>
+        <a-form-item field="remark" label="" asterisk-position="end"
+          ><a-checkbox v-model="templateForm.enableThirdPart">{{ t('system.orgTemplate.thirdParty') }}</a-checkbox>
+        </a-form-item>
       </a-form>
       <!-- 已有字段表 -->
-      <TemplateManagementTable ref="templateFieldTableRef" :custom-list="tableFiledDetailList" :is-edit="isEdit" />
+      <TemplateManagementTable
+        ref="templateFieldTableRef"
+        v-model:select-data="selectData"
+        :data="(totalTemplateField as DefinedFieldItem[])"
+        :enable-third-part="templateForm.enableThirdPart"
+        @update="updateHandler"
+      />
     </div>
     <!-- 预览模式 -->
-    <PreviewTemplate v-else :select-field="selectFiledToTem" />
+    <PreviewTemplate v-else :select-field="(selectData as DefinedFieldItem[])" />
   </MsCard>
 </template>
 
@@ -56,54 +65,92 @@
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
   import TemplateManagementTable from './templateManagementTable.vue';
   import PreviewTemplate from './viewTemplate.vue';
 
   import {
     createOrganizeTemplateInfo,
+    getFieldList,
     getOrganizeTemplateInfo,
     updateOrganizeTemplateInfo,
   } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import { useAppStore } from '@/store';
-  import useTemplateStore from '@/store/modules/setting/template';
   import { sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
-  import type { ActionTemplateManage, CustomField } from '@/models/setting/template';
+  import type { ActionTemplateManage, CustomField, DefinedFieldItem } from '@/models/setting/template';
   import { SettingRouteEnum } from '@/enums/routeEnum';
+
+  import { cardList } from './fieldSetting';
 
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
   const appStore = useAppStore();
-  const templateStore = useTemplateStore();
-  useLeaveUnSaveTip();
+  // useLeaveUnSaveTip();
 
   const title = ref('');
   const loading = ref(false);
 
-  const initTemplateForm = {
+  const initTemplateForm: ActionTemplateManage = {
+    id: '',
     name: '',
     remark: '',
+    scopeId: appStore.currentOrgId,
+    enableThirdPart: false,
   };
 
-  const templateForm = ref({ ...initTemplateForm });
+  const templateForm = ref<ActionTemplateManage>({ ...initTemplateForm });
 
-  const tableFiledDetailList = ref([]);
+  const selectData = ref<DefinedFieldItem[]>([]); // 表格已选择字段
+  const selectFiled = ref<DefinedFieldItem[]>([]);
+
+  const formRef = ref<FormInstance>();
+  const totalTemplateField = ref<DefinedFieldItem[]>([]);
+  const isEdit = computed(() => !!route.query.id);
+  const currentOrd = appStore.currentOrgId;
+  const isEditField = ref<boolean>(false);
+
   // 获取模板详情
   const getTemplateInfo = async () => {
     try {
       loading.value = true;
       const res = await getOrganizeTemplateInfo(route.query.id as string);
-      const { name, remark, customFields, scoped, enableThirdPart, scene } = res;
-      templateForm.value.name = name;
-      templateForm.value.remark = remark;
-      // 处理 字段列表
-      tableFiledDetailList.value = customFields;
+      const { name, customFields } = res;
+      templateForm.value = {
+        ...res,
+        name: route.params.mode === 'copy' ? `${name}_copy` : name,
+      };
+      if (route.params.mode === 'copy') {
+        templateForm.value.id = undefined;
+      }
+      // 处理字段列表
+      const customFieldsIds = customFields.map((index: any) => index.fieldId);
+      const result = totalTemplateField.value.filter((item) => {
+        const currentCustomFieldIndex = customFieldsIds.findIndex((it: any) => it === item.id);
+        if (customFieldsIds.indexOf(item.id) > -1) {
+          const currentForm = item.formRules?.map((it: any) => {
+            it.props.modelValue = customFields[currentCustomFieldIndex].defaultValue;
+            return {
+              ...it,
+              value: customFields[currentCustomFieldIndex].defaultValue,
+            };
+          });
+          const formItem = item;
+          formItem.formRules = cloneDeep(currentForm);
+          formItem.apiFieldId = customFields[currentCustomFieldIndex].apiFieldId;
+          formItem.required = customFields[currentCustomFieldIndex].required;
+          return true;
+        }
+        return false;
+      });
+      selectData.value = result;
     } catch (error) {
       console.log(error);
     } finally {
@@ -111,29 +158,88 @@
     }
   };
 
-  const isEdit = ref(false);
-  const templateFieldTableRef = ref();
-  watchEffect(() => {
-    if (route.query.id) {
+  // 处理表单数据格式
+  const getFieldOptionList = () => {
+    totalTemplateField.value = totalTemplateField.value.map((item: any) => {
+      const currentFormRules = FieldTypeFormRules[item.type];
+      let selectOptions: any = [];
+      if (item.options && item.options.length) {
+        selectOptions = item.options.map((optionItem: any) => {
+          return {
+            label: optionItem.text,
+            value: optionItem.value,
+          };
+        });
+        currentFormRules.options = selectOptions;
+      }
+      return {
+        ...item,
+        formRules: [
+          { ...currentFormRules, value: item.value, props: { ...currentFormRules.props, options: selectOptions } },
+        ],
+        fApi: null,
+        required: item.internal,
+      };
+    });
+    // 创建默认系统字段
+    if (!isEdit.value && !isEditField.value) {
+      selectData.value = totalTemplateField.value.filter((item) => item.internal);
+    }
+  };
+
+  // 获取字段列表数据
+  const getClassifyField = async () => {
+    try {
+      totalTemplateField.value = await getFieldList({ organizationId: currentOrd, scene: route.query.type });
+      getFieldOptionList();
+      // 编辑字段就需要单独处理过滤
+      if (isEditField.value) {
+        selectData.value = totalTemplateField.value.filter(
+          (item) => selectFiled.value.map((it) => it.id).indexOf(item.id) > -1
+        );
+      }
+      if (isEdit.value) {
+        getTemplateInfo();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  watchEffect(async () => {
+    if (isEdit.value && route.params.mode === 'copy') {
+      title.value = t('system.orgTemplate.copyTemplate');
+      getClassifyField();
+    } else if (isEdit.value) {
       title.value = t('menu.settings.organization.templateManagementEdit');
-      isEdit.value = true;
-      getTemplateInfo();
+      getClassifyField();
     } else {
       title.value = t('menu.settings.organization.templateManagementDetail');
-      isEdit.value = false;
     }
   });
 
-  const formRef = ref<FormInstance>();
-
   // 获取模板参数
   function getTemplateParams(): ActionTemplateManage {
-    const result: CustomField[] = templateFieldTableRef.value.getCustomFields();
-    const { name, remark } = templateForm.value;
+    const result = selectData.value.map((item) => {
+      if (item.formRules?.length) {
+        const { value } = item.formRules[0];
+        return {
+          fieldId: item.id,
+          required: item.required,
+          apiFieldId: item.apiFieldId,
+          defaultValue: value,
+        };
+      }
+      return [];
+    });
+
+    const { name, remark, enableThirdPart, id } = templateForm.value;
     return {
+      id,
       name,
       remark,
-      customFields: result,
+      enableThirdPart,
+      customFields: result as CustomField[],
       scopeId: appStore.currentOrgId,
       scene: route.query.type,
     };
@@ -145,13 +251,14 @@
 
   const isContinueFlag = ref(false);
 
+  // 保存回调
   async function save() {
     try {
       loading.value = true;
       const params = getTemplateParams();
-      if (isEdit.value) {
+      if (isEdit.value && route.params.mode !== 'copy') {
         await updateOrganizeTemplateInfo(params);
-        Message.success(t('system.resourcePool.updateSuccess'));
+        Message.success(t('system.orgTemplate.updateSuccess'));
       } else {
         await createOrganizeTemplateInfo(params);
         Message.success(t('system.orgTemplate.addSuccess'));
@@ -160,7 +267,7 @@
         resetForm();
       } else {
         await sleep(300);
-        router.push({ name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL });
+        router.push({ name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT, query: route.query });
       }
     } catch (error) {
       console.log(error);
@@ -170,30 +277,57 @@
   }
 
   // 保存
-  async function saveHandler(isContinue = false) {
+  function saveHandler(isContinue = false) {
     isContinueFlag.value = isContinue;
-    formRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
-      if (!errors) {
-        save();
-      } else {
-        return scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
+    formRef.value?.validate().then((res) => {
+      if (!res) {
+        return save();
       }
+      return scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
     });
   }
 
-  const selectFiledToTem = ref([]); // 非预览模式模板已选择字段
   // 是否预览模式
   const isPreview = ref<boolean>(true); // 默认非预览模式
   function togglePreview() {
     isPreview.value = !isPreview.value;
-    if (!isPreview.value) {
-      selectFiledToTem.value = templateFieldTableRef.value.getSelectFiled();
-      templateStore.setPreviewHandler(selectFiledToTem.value);
-    }
   }
 
+  // 计算当前级别title
+  const breadTitle = computed(() => {
+    const firstBreadTitle = cardList.find((item) => item.key === route.query.type)?.name;
+    const ThirdBreadTitle = title.value;
+    return {
+      firstBreadTitle,
+      ThirdBreadTitle,
+    };
+  });
+
+  // 更新面包屑标题
+  const setBreadText = () => {
+    const { breadcrumbList } = appStore;
+    const { firstBreadTitle, ThirdBreadTitle } = breadTitle.value;
+    if (firstBreadTitle) {
+      breadcrumbList[0].locale = firstBreadTitle;
+      if (appStore.breadcrumbList.length > 2) {
+        breadcrumbList[2].locale = ThirdBreadTitle;
+      }
+      appStore.setBreadcrumbList(breadcrumbList);
+    }
+  };
+  // 字段表编辑更新表
+  const updateHandler = (flag: boolean) => {
+    isEditField.value = flag;
+    selectFiled.value = selectData.value;
+    getClassifyField();
+  };
+
   onMounted(() => {
-    templateFieldTableRef.value.setDefaultField();
+    setBreadText();
+    getClassifyField();
+    if (!isEdit.value) {
+      selectData.value = totalTemplateField.value.filter((item) => item.internal);
+    }
   });
 </script>
 

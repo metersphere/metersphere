@@ -5,6 +5,14 @@
       <span class="ml-2">{{ record.name }}</span>
       <span v-if="record.internal" class="system-flag">{{ t('system.orgTemplate.isSystem') }}</span>
     </template>
+    <template #apiFieldId="{ record }">
+      <a-input
+        v-model="record.apiFieldId"
+        class="min-w-[200px] max-w-[300px]"
+        :placeholder="t('system.orgTemplate.apiInputPlaceholder')"
+        allow-clear
+      />
+    </template>
     <template #defaultValue="{ record }">
       <div class="form-create-wrapper w-full">
         <MsFormCreate v-model:api="record.fApi" :rule="record.formRules" :option="configOptions" />
@@ -27,11 +35,10 @@
   <AddFieldToTemplateDrawer
     ref="fieldSelectRef"
     v-model:visible="showDrawer"
-    :system-data="(systemData as DefinedFieldItem[])"
-    :custom-data="(customData as DefinedFieldItem[])"
-    :selected-data="(templateStore.previewList as DefinedFieldItem[])"
+    :total-data="(totalData as DefinedFieldItem[])"
+    :table-select-data="(selectList as DefinedFieldItem[])"
     @confirm="confirmHandler"
-    @update="updateFieldHandler"
+    @update-data="updateFieldHandler"
   />
   <a-button class="mt-3 px-0" type="text" @click="addField">
     <template #icon>
@@ -47,7 +54,6 @@
   import { useRoute } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -55,40 +61,46 @@
   import AddFieldToTemplateDrawer from './addFieldToTemplateDrawer.vue';
   import EditFieldDrawer from './editFieldDrawer.vue';
 
-  import { getFieldList } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore, useTableStore } from '@/store';
-  import useTemplateStore from '@/store/modules/setting/template';
+  import { useTableStore } from '@/store';
 
-  import type { CustomField, DefinedFieldItem } from '@/models/setting/template';
+  import type { DefinedFieldItem } from '@/models/setting/template';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { getIconType } from './fieldSetting';
 
   const tableStore = useTableStore();
   const { t } = useI18n();
-  const appStore = useAppStore();
-  const templateStore = useTemplateStore();
-  const route = useRoute();
 
-  const props = defineProps<{
-    customList: CustomField[]; // 用于回显表格当前选择字段
-    isEdit: boolean; // 是否编辑
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      enableThirdPart: boolean; // 是否对接第三方平台
+      data: DefinedFieldItem[]; // 总字段数据
+      selectData: Record<string, any>[]; // 选择数据
+    }>(),
+    {
+      enableThirdPart: false,
+    }
+  );
 
-  const templateFieldColumns: MsTableColumn = [
+  const emit = defineEmits(['update:select-data', 'update']);
+
+  const columns = ref<MsTableColumn>([
     {
       title: 'system.orgTemplate.name',
       slotName: 'name',
       dataIndex: 'name',
       width: 300,
+      fixed: 'left',
       showDrag: true,
       showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.orgTemplate.defaultValue',
       dataIndex: 'defaultValue',
       slotName: 'defaultValue',
+      width: 300,
       showDrag: true,
       showInTable: true,
     },
@@ -105,6 +117,7 @@
       dataIndex: 'remark',
       showDrag: true,
       showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.orgTemplate.operation',
@@ -114,18 +127,28 @@
       showInTable: true,
       showDrag: false,
     },
-  ];
+  ]);
 
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, templateFieldColumns, 'drawer');
+  function getApiColumns() {
+    return {
+      title: 'system.orgTemplate.apiFieldId',
+      dataIndex: 'apiFieldId',
+      slotName: 'apiFieldId',
+      showDrag: true,
+      showInTable: true,
+      width: 300,
+    };
+  }
+
+  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, columns.value, 'drawer');
   const { propsRes, propsEvent, setProps } = useTable(undefined, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD,
-    scroll: { x: '1000px' },
+    scroll: { x: '1800px' },
     selectable: false,
     noDisable: true,
     size: 'default',
     showSetting: true,
     showPagination: false,
-    heightUsed: 560,
     enableDrag: true,
   });
 
@@ -148,52 +171,17 @@
     },
   });
   const showDrawer = ref<boolean>(false);
+  const totalData = ref<DefinedFieldItem[]>([]);
 
-  const data = ref<DefinedFieldItem[]>([]);
-  const systemData = ref<DefinedFieldItem[]>([]);
-  const customData = ref<DefinedFieldItem[]>([]);
-  const totalTemplateField = ref<DefinedFieldItem[]>([]);
-  const currentOrd = appStore.currentOrgId;
+  watchEffect(() => {
+    totalData.value = props.data;
+  });
 
-  // 处理表单数据格式
-  const getFieldOptionList = () => {
-    totalTemplateField.value = totalTemplateField.value.map((item: any) => {
-      const currentFormRules = FieldTypeFormRules[item.type];
-      let selectOptions: any = [];
-      if (item.options && item.options.length) {
-        selectOptions = item.options.map((optionItem: any) => {
-          return {
-            label: optionItem.text,
-            value: optionItem.value,
-          };
-        });
-        currentFormRules.options = selectOptions;
-      }
-      return {
-        ...item,
-        formRules: [{ ...currentFormRules, value: item.value, props: { options: selectOptions } }],
-        fApi: null,
-        required: item.internal,
-      };
-    });
-  };
-
-  // 获取当前用例模版下所有已存在字段
-  const getClassifyField = async () => {
-    try {
-      totalTemplateField.value = await getFieldList({ organizationId: currentOrd, scene: route.query.type });
-      getFieldOptionList();
-      systemData.value = totalTemplateField.value.filter((item: any) => item.internal);
-      customData.value = totalTemplateField.value.filter((item: any) => !item.internal);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const selectList = ref<DefinedFieldItem[]>([]);
 
   // 确定处理字段表单数据
   const confirmHandler = (dataList: DefinedFieldItem[]) => {
-    data.value = dataList;
-    setProps({ data: data.value });
+    selectList.value = dataList;
   };
 
   const showFieldDrawer = ref<boolean>(false);
@@ -205,77 +193,77 @@
     fieldDrawerRef.value.editHandler(record);
   };
 
-  const fieldSelectRef = ref();
   // 添加字段
   const addField = async () => {
     showDrawer.value = true;
-    await getClassifyField();
-    fieldSelectRef.value.showSelectField();
   };
 
   // 编辑更新已选择字段
-  const updateFieldHandler = async () => {
-    await getClassifyField();
-    data.value =
-      totalTemplateField.value.filter((item) => data.value.some((dataItem) => item.id === dataItem.id)) || [];
-    if (data.value.length > 0) {
-      setProps({ data: data.value });
-    }
+  const updateFieldHandler = async (isEdit: boolean) => {
+    emit('update', isEdit);
   };
 
   // 删除已选择字段
   const deleteSelectedField = (record: DefinedFieldItem) => {
-    data.value = data.value.filter((item) => item.id !== record.id);
-    setProps({ data: data.value });
-  };
-
-  // 获取table内字段customFields
-  const getCustomFields = () => {
-    return data.value.map((item) => {
-      return {
-        fieldId: item.id,
-        fieldName: item.name,
-        required: item.required,
-        apiFieldId: '',
-        defaultValue: item.fApi.formData().fieldName,
-      };
-    });
-  };
-  // 外界获取表格字段进行存储
-  const getSelectFiled = () => {
-    return data.value;
+    selectList.value = selectList.value.filter((item) => item.id !== record.id);
   };
 
   watch(
-    () => data.value,
+    () => selectList.value,
     (val) => {
-      templateStore.setPreviewHandler(val as DefinedFieldItem[]);
-      setProps({ data: templateStore.previewList });
+      if (val) {
+        emit('update:select-data', val);
+      }
     },
     { deep: true }
   );
 
-  const setDefaultField = async () => {
-    await getClassifyField();
-    data.value = systemData.value;
-  };
+  watch(
+    () => props.selectData,
+    (val) => {
+      if (val) {
+        selectList.value = val as DefinedFieldItem[];
+        setProps({ data: selectList.value });
+      }
+    },
+    { immediate: true }
+  );
 
-  const showDetailFields = () => {};
-
-  onMounted(() => {
-    if (props.isEdit) {
-      showDetailFields();
-    } else {
-      data.value = templateStore.previewList;
-      setProps({ data: templateStore.previewList });
+  watch(
+    () => props.data,
+    (val) => {
+      totalData.value = props.data;
     }
+  );
+  const tableRef = ref();
+
+  // 是否开启三方API
+  watch(
+    () => props.enableThirdPart,
+    () => {
+      if (props.enableThirdPart) {
+        const result = [...columns.value.slice(0, 1), getApiColumns(), ...columns.value.slice(1)];
+        tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, result, 'drawer');
+        tableRef.value.initColumn();
+      } else {
+        tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, columns.value, 'drawer');
+        tableRef.value.initColumn();
+      }
+    }
+  );
+
+  // 获取拖拽数据
+  const dragTableData = computed(() => {
+    return propsRes.value.data;
   });
 
-  defineExpose({
-    getCustomFields,
-    getSelectFiled,
-    setDefaultField,
-  });
+  watch(
+    () => dragTableData.value,
+    (val) => {
+      selectList.value = dragTableData.value as DefinedFieldItem[];
+      emit('update:select-data', val);
+    }
+  );
 </script>
 
 <style scoped lang="less">
@@ -286,5 +274,9 @@
     :deep(.arco-picker) {
       width: 100% !important;
     }
+  }
+  .system-flag {
+    background: var(--color-text-n8);
+    @apply ml-2 rounded p-1 text-xs;
   }
 </style>

@@ -4,7 +4,7 @@
     :title="isEdit ? t('system.orgTemplate.update') : t('system.orgTemplate.addField')"
     :ok-text="t(isEdit ? 'system.orgTemplate.update' : 'system.orgTemplate.addField')"
     :ok-loading="drawerLoading"
-    :width="680"
+    :width="800"
     :show-continue="!isEdit"
     @confirm="handleDrawerConfirm"
     @continue="handleDrawerConfirm(true)"
@@ -36,9 +36,9 @@
             }"
           ></a-textarea>
         </a-form-item>
-        <a-form-item field="type" :label="t('system.orgTemplate.fieldType')" asterisk-position="end">
+        <a-form-item field="type" :label="t('system.orgTemplate.fieldType')" asterisk-position="end" :required="true">
           <a-select
-            v-model="fieldType"
+            v-model="fieldForm.type"
             class="w-[260px]"
             :placeholder="t('system.orgTemplate.fieldTypePlaceholder')"
             allow-clear
@@ -53,7 +53,7 @@
           </a-select>
         </a-form-item>
         <a-form-item
-          v-if="fieldType === 'MEMBER'"
+          v-if="fieldForm.type === 'MEMBER'"
           field="type"
           :label="t('system.orgTemplate.allowMultiMember')"
           asterisk-position="end"
@@ -63,18 +63,28 @@
         <!-- 选项选择器 -->
         <a-form-item
           v-if="showOptionsSelect"
-          field="options"
+          field="optionsModels"
           :label="t('system.orgTemplate.optionContent')"
           asterisk-position="end"
           :rules="[{ message: t('system.orgTemplate.optionContentRules') }]"
+          class="relative"
+          :class="[!fieldForm?.enableOptionKey ? 'max-w-[340px]' : 'w-full']"
         >
+          <div v-if="sceneType === 'BUG'" class="optionsKey">
+            <a-checkbox v-model="fieldForm.enableOptionKey"
+              >选项KEY值
+              <a-tooltip :content="t('system.orgTemplate.thirdPartyPlatforms')"
+                ><icon-question-circle
+                  :style="{ 'font-size': '16px' }"
+                  class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]" /></a-tooltip></a-checkbox
+          ></div>
           <MsBatchForm
             ref="batchFormRef"
             :models="optionsModels"
             form-mode="create"
             add-text="system.orgTemplate.addOptions"
             :is-show-drag="true"
-            form-width="340px"
+            :form-width="!fieldForm?.enableOptionKey ? '340px' : ''"
             :default-vals="fieldDefaultValues"
           />
         </a-form-item>
@@ -82,7 +92,9 @@
         <a-form-item
           v-if="showDateOrNumber"
           field="selectFormat"
-          :label="fieldType === 'NUMBER' ? t('system.orgTemplate.numberFormat') : t('system.orgTemplate.dateFormat')"
+          :label="
+            fieldForm.type === 'NUMBER' ? t('system.orgTemplate.numberFormat') : t('system.orgTemplate.dateFormat')
+          "
           asterisk-position="end"
         >
           <a-select
@@ -106,6 +118,7 @@
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import type { FormItemType } from '@/components/pure/ms-form-create/types';
@@ -124,7 +137,7 @@
   const { t } = useI18n();
   const route = useRoute();
   const appStore = useAppStore();
-
+  const sceneType = route.query.type;
   const props = defineProps<{
     visible: boolean;
   }>();
@@ -136,14 +149,15 @@
   const fieldFormRef = ref<FormInstance>();
   const initFieldForm: AddOrUpdateField = {
     name: '',
-    type: 'INPUT',
+    type: undefined,
     remark: '',
     scopeId: '',
     scene: 'FUNCTIONAL',
     options: [],
+    enableOptionKey: false,
   };
   const fieldForm = ref<AddOrUpdateField>({ ...initFieldForm });
-  const isEdit = computed(() => !!fieldForm.value.id);
+  const isEdit = ref<boolean>(false);
   const selectFormat = ref<FormItemType>(); // 选择格式
   const isMultipleSelectMember = ref<boolean | undefined>(false); // 成员多选
   const fieldType = ref<FormItemType>(); // 整体字段类型
@@ -151,12 +165,12 @@
   // 是否展示选项添加面板
   const showOptionsSelect = computed(() => {
     const showOptionsType: FormItemType[] = ['RADIO', 'CHECKBOX', 'SELECT', 'MULTIPLE_SELECT'];
-    return showOptionsType.includes(fieldType.value as FormItemType);
+    return showOptionsType.includes(fieldForm.value.type as FormItemType);
   });
 
   // 是否展示日期或数值
   const showDateOrNumber = computed(() => {
-    if (fieldType.value) return getFieldType(fieldType.value);
+    if (fieldForm.value.type) return getFieldType(fieldForm.value.type);
   });
 
   // 批量表单-1.仅选项情况
@@ -164,12 +178,43 @@
     filed: 'text',
     type: 'input',
     label: '',
-    rules: [{ required: true, message: t('system.orgTemplate.optionContentRules') }],
+    rules: [
+      { required: true, message: t('system.orgTemplate.optionContentRules') },
+      { notRepeat: true, message: t('system.orgTemplate.optionsContentNoRepeat') },
+    ],
     placeholder: t('system.orgTemplate.optionsPlaceholder'),
     hideAsterisk: true,
     hideLabel: true,
   });
-  const optionsModels: Ref<FormItemModel[]> = ref([{ ...onlyOptions.value }]);
+
+  // 批量表单-2 缺陷情况
+  const bugBatchFormRules = ref<FormItemModel[]>([
+    {
+      filed: 'text',
+      type: 'input',
+      label: '',
+      rules: [
+        { required: true, message: t('system.orgTemplate.optionContentRules') },
+        { notRepeat: true, message: t('system.orgTemplate.optionsContentNoRepeat') },
+      ],
+      placeholder: 'system.orgTemplate.optionsPlaceholder',
+      hideAsterisk: true,
+      hideLabel: true,
+    },
+    {
+      filed: 'value',
+      type: 'input',
+      label: '',
+      rules: [
+        { required: true, message: t('system.orgTemplate.optionsIdTip') },
+        { notRepeat: true, message: t('system.orgTemplate.optionsIdNoRepeat') },
+      ],
+      placeholder: 'system.orgTemplate.optionsIdPlaceholder',
+      hideAsterisk: true,
+      hideLabel: true,
+    },
+  ]);
+  const optionsModels: Ref<FormItemModel[]> = ref([]);
   const batchFormRef = ref<MsBatchFormInstance | null>(null);
 
   const resetForm = () => {
@@ -190,42 +235,49 @@
   const confirmHandler = async (isContinue: boolean) => {
     try {
       drawerLoading.value = true;
-      if (fieldType.value) {
-        fieldForm.value.type = fieldType.value;
-      }
 
-      fieldForm.value.scene = route.query.type;
-      fieldForm.value.scopeId = appStore.currentOrgId;
+      const formCopy = cloneDeep(fieldForm.value);
+
+      formCopy.scene = route.query.type;
+      formCopy.scopeId = appStore.currentOrgId;
 
       // 如果选择是日期或者数值
       if (selectFormat.value) {
-        fieldForm.value.type = selectFormat.value;
+        formCopy.type = selectFormat.value;
       }
 
       // 如果选择是成员（单选||多选）
       if (isMultipleSelectMember.value) {
-        fieldForm.value.type = isMultipleSelectMember.value ? 'MULTIPLE_MEMBER' : 'MEMBER';
+        formCopy.type = isMultipleSelectMember.value ? 'MULTIPLE_MEMBER' : 'MEMBER';
       }
 
       // 如果选择是日期或者是数值
       if (selectFormat.value) {
-        fieldForm.value.type = selectFormat.value;
+        formCopy.type = selectFormat.value;
       }
 
       // 处理参数
-      const { id, name, options, scopeId, scene, type, remark } = fieldForm.value;
-      const params: AddOrUpdateField = { name, options, scopeId, scene, type, remark };
+      const { id, name, options, scopeId, scene, type, remark, enableOptionKey } = formCopy;
 
-      if (isEdit) {
+      const params: AddOrUpdateField = {
+        name,
+        options,
+        scopeId,
+        scene,
+        type,
+        remark,
+        enableOptionKey,
+      };
+      if (id) {
         params.id = id;
       }
       await addOrUpdateOrdField(params);
-      Message.success(isEdit ? t('common.addSuccess') : t('common.updateSuccess'));
+      Message.success(isEdit.value ? t('common.updateSuccess') : t('common.addSuccess'));
       if (!isContinue) {
         handleDrawerCancel();
       }
       resetForm();
-      emit('success');
+      emit('success', isEdit.value);
     } catch (error) {
       console.log(error);
     } finally {
@@ -241,7 +293,7 @@
           fieldForm.value.options = (batchFormRef.value?.getFormResult() || []).map((item: any) => {
             return {
               ...item,
-              value: getGenerateId(),
+              value: fieldForm.value.enableOptionKey ? item.value : getGenerateId(),
             };
           });
         }
@@ -291,13 +343,12 @@
   const editHandler = (item: AddOrUpdateField) => {
     showDrawer.value = true;
     isMultipleSelectMember.value = item.type === 'MULTIPLE_MEMBER';
-    if (isEdit && item.id) {
+    if (item.id) {
       getFieldDetail(item.id);
       fieldForm.value = {
         ...item,
         type: getSpecialHandler(item.type),
       };
-      fieldType.value = fieldForm.value.type;
     }
   };
 
@@ -320,6 +371,27 @@
       showDrawer.value = val;
     }
   );
+
+  watchEffect(() => {
+    if (fieldForm.value.id) {
+      isEdit.value = true;
+    } else {
+      isEdit.value = false;
+    }
+  });
+
+  // 监视是否显示KEY值
+  watch(
+    () => fieldForm.value.enableOptionKey,
+    (val) => {
+      if (val && sceneType === 'BUG') {
+        optionsModels.value = cloneDeep(bugBatchFormRules.value);
+      } else {
+        optionsModels.value = [{ ...onlyOptions.value }];
+      }
+    },
+    { immediate: true }
+  );
   onMounted(() => {
     const excludeOptions = ['MULTIPLE_MEMBER', 'DATETIME', 'SYSTEM', 'INT', 'FLOAT'];
     fieldOptions.value = fieldIconAndName.filter((item: any) => excludeOptions.indexOf(item.key) < 0);
@@ -330,4 +402,10 @@
   });
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  .optionsKey {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+</style>
