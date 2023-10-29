@@ -18,7 +18,8 @@ export type FormItemType =
   | 'MULTIPLE_INPUT'
   | 'INT'
   | 'FLOAT'
-  | 'NUMBER';
+  | 'NUMBER'
+  | undefined;
 
 // 表单选项
 export interface FormItemComplexCommonConfig {
@@ -51,10 +52,10 @@ export interface FormItem {
   // 表单联动配置
   couplingConfig?: {
     // 联动类型，visible：显示隐藏，disabled：禁用启用，filterOptions：过滤选项，disabledOptions：禁用选项，initOptions：初始化选项。都由联动的表单项触发
-    type: 'visible' | 'disabled' | 'filterOptions' | 'disabledOptions' | 'initOptions'; // 目前初始化选项
-    cascade: string; // 联动表单项名称
-    matchRule: 'same' | 'includes' | 'excludes' | RegExp; // 联动匹配规则，same：值相同，includes：值包含，excludes：值不包含， RegExp：自定义匹配正则表达式 // 场景 目前只考虑等于情况
-  }[];
+    type?: 'initOptions'; // 目前初始化选项
+    cascade?: string; // 联动表单项名称
+    matchRule?: 'same' | 'includes' | 'excludes' | RegExp; // 联动匹配规则，same：值相同，includes：值包含，excludes：值不包含， RegExp：自定义匹配正则表达式 // 场景 目前只考虑等于情况
+  };
   // 表单布局
   wrap?: Record<string, any>;
 }

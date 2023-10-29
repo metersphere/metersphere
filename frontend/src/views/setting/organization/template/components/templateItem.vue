@@ -17,14 +17,14 @@
             </span>
             <span class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="templateManagement">{{ t('system.orgTemplate.TemplateManagement') }}</span>
-              <a-divider v-if="props.cardItem.key == 'BUG'" direction="vertical" />
+              <a-divider v-if="!props.cardItem.enable || props.cardItem.key === 'BUG'" direction="vertical" />
             </span>
             <span v-if="props.cardItem.key === 'BUG'" class="operation hover:text-[rgb(var(--primary-5))]">
               <span>{{ t('system.orgTemplate.workflowSetup') }}</span>
-              <a-divider v-if="!props.cardItem.enable" direction="vertical" />
+              <a-divider v-if="!props.cardItem.enable && props.cardItem.key === 'BUG'" direction="vertical" />
             </span>
             <span v-if="!props.cardItem.enable" class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]">
-              <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect"
+              <MsTableMoreAction :list="moreActions" @select="(item) => handleMoreActionSelect"
             /></span>
           </div>
         </div>
@@ -36,15 +36,19 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
+  import { Message } from '@arco-design/web-vue';
 
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
+  import { isEnableTemplate } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
 
   import { SettingRouteEnum } from '@/enums/routeEnum';
 
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const props = defineProps<{
     cardItem: Record<string, any>;
@@ -60,7 +64,21 @@
     },
   ]);
 
-  const handleMoreActionSelect = (item: ActionsItem) => {};
+  // 启用模板
+  const enableHandler = async () => {
+    try {
+      await isEnableTemplate(appStore.currentOrgId);
+      Message.success(t('system.orgTemplate.enabledSuccessfully'));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleMoreActionSelect = (item: ActionsItem) => {
+    if (item.eventTag === 'enable') {
+      enableHandler();
+    }
+  };
 
   // 字段设置
   const fieldSetting = () => {

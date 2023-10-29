@@ -62,7 +62,7 @@
     isShowTip.value = !getIsVisited();
   };
   onBeforeMount(() => {
-    templateStore.setStatus();
+    templateStore.getStatus();
   });
 
   onMounted(() => {

@@ -46,8 +46,12 @@ export function updateOrganizeTemplateInfo(data: ActionTemplateManage) {
   return MSR.post({ url: `${UpdateOrganizeTemplateUrl}`, data });
 }
 // 是否启用组织XX模板
-export function isEnableTemplate(organizationId: string, scene: string) {
-  return MSR.get<boolean>({ url: `${isEnableTemplateUrl}/${organizationId}/${scene}` });
+export function isEnableTemplate(organizationId: string) {
+  return MSR.get<Record<string, boolean>>({ url: `${isEnableTemplateUrl}/${organizationId}` });
+}
+// 删除模板
+export function deleteOrdTemplate(id: string) {
+  return MSR.get({ url: `${DeleteOrganizeTemplateUrl}/${id}` });
 }
 
 /** *

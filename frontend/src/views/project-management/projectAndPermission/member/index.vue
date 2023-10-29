@@ -108,7 +108,7 @@
   } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { useTableStore, useUserStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
 
   import type {
@@ -121,10 +121,10 @@
 
   const { t } = useI18n();
   const { openModal } = useModal();
+  const appStore = useAppStore();
 
   const tableStore = useTableStore();
-  const userStore = useUserStore();
-  const lastProjectId = userStore?.$state?.lastProjectId;
+  const lastProjectId = appStore.getCurrentProjectId;
 
   const columns: MsTableColumn = [
     {
@@ -187,7 +187,6 @@
 
   const handleTableSelect = (selectArr: (string | number)[]) => {
     tableSelected.value = selectArr;
-    console.log(selectArr, 'selectArrselectArrselectArr');
   };
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getProjectMemberList, {

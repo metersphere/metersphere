@@ -28,7 +28,7 @@ const useFormCreateStore = defineStore('form-create', {
         // 当前类型
         let fieldType;
         const currentTypeForm = Object.keys(FieldTypeFormRules).find(
-          (formItemType: any) => item.type.toUpperCase() === formItemType
+          (formItemType: any) => item.type?.toUpperCase() === formItemType
         );
         if (currentTypeForm) {
           fieldType = FieldTypeFormRules[currentTypeForm].type;
@@ -39,17 +39,18 @@ const useFormCreateStore = defineStore('form-create', {
               value: optionsItem.value,
             };
           });
-          return {
+          const ruleItem = {
             type: fieldType, // 表单类型
             field: item.name, // 字段
             title: item.label, // label 表单标签
-            value: FieldTypeFormRules[currentTypeForm].value, // 目前的值
+            value: item.value || FieldTypeFormRules[currentTypeForm].value, // 目前的值
             effect: {
               required: item.required, // 是否必填
             },
             // 级联关联到某一个form上 可能存在多个级联
             options: !item.optionMethod ? currentOptions : [],
-            link: item.couplingConfig?.map((cascadeItem: any) => cascadeItem.cascade),
+            // link: item.couplingConfig?.map((cascadeItem: any) => cascadeItem.cascade),
+            link: item.couplingConfig?.cascade,
             rule: item.validate || [],
             // 梳理表单所需要属性
             props: {
@@ -67,8 +68,18 @@ const useFormCreateStore = defineStore('form-create', {
               'keyword': '',
               'modelValue': item.value,
               'options': currentOptions,
+              'formKey': key,
             },
           };
+          // 如果不存在关联name删除link关联属性
+          if (ruleItem.link === '') {
+            delete ruleItem.link;
+          }
+          // 如果不是等于下拉多选或者单选等
+          if (ruleItem.type !== 'SearchSelect') {
+            delete ruleItem.props.inputSearch;
+          }
+          return ruleItem;
         }
         return {};
       });

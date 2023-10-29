@@ -2,35 +2,31 @@ import { defineStore } from 'pinia';
 
 import { isEnableTemplate } from '@/api/modules/setting/template';
 
-import type { DefinedFieldItem } from '@/models/setting/template';
-
 import useAppStore from '../app';
+
+const appStore = useAppStore();
 
 const useTemplateStore = defineStore('template', {
   persist: true,
-  state: (): { templateStatus: Record<string, boolean>; previewList: DefinedFieldItem[] } => ({
+  state: (): {
+    templateStatus: Record<string, boolean>;
+  } => ({
     templateStatus: {
-      FUNCTIONAL: false,
-      API: false,
-      UI: false,
-      TEST_PLAN: false,
-      BUG: false,
+      FUNCTIONAL: true,
+      API: true,
+      UI: true,
+      TEST_PLAN: true,
+      BUG: true,
     },
-    previewList: [],
   }),
   actions: {
     // 模板列表的状态
-    setStatus() {
-      // 需要调整接口
-      // const appStore = useAppStore();
-      // Object.keys(this.templateStatus).forEach(async (item) => {
-      //   const sceneStatus = await isEnableTemplate(appStore.currentOrgId, item);
-      //   this.templateStatus[item] = sceneStatus;
-      // });
-    },
-    // 预览存储表数据
-    setPreviewHandler(filedData: DefinedFieldItem[]) {
-      this.previewList = filedData;
+    async getStatus() {
+      try {
+        this.templateStatus = await isEnableTemplate(appStore.currentOrgId);
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 });

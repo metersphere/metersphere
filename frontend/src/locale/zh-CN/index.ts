@@ -56,6 +56,7 @@ export default {
     'menu.settings.organization.templateFieldSetting': '字段设置',
     'menu.settings.organization.templateManagementList': '模版列表',
     'menu.settings.organization.templateManagementDetail': '创建模版',
+    'menu.settings.organization.templateManagementCopy': '复制模版',
     'menu.settings.organization.templateManagementEdit': '更新模板',
     'menu.settings.organization.log': '日志',
     'navbar.action.locale': '切换为中文',

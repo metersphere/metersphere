@@ -232,7 +232,7 @@ const Setting: AppRouteRecordRaw = {
         },
         // 模板列表-模板管理-创建&编辑模版
         {
-          path: 'templateManagementDetail',
+          path: 'templateManagementDetail/:mode?',
           name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
           component: () => import('@/views/setting/organization/template/components/templateDetail.vue'),
           meta: {

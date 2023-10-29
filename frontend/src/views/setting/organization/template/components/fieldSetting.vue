@@ -5,7 +5,7 @@
     }}</a-alert>
     <div class="mb-4 flex items-center justify-between">
       <span v-if="isEnable" class="font-medium">{{ t('system.orgTemplate.fieldList') }}</span>
-      <a-button v-else type="primary" :disabled="totalData.length > 20" @click="fieldHandler('add')">
+      <a-button v-else type="primary" :disabled="isDisabled" @click="fieldHandler">
         {{ t('system.orgTemplate.addField') }}
       </a-button>
       <a-input-search
@@ -99,6 +99,7 @@
       width: 300,
       showDrag: true,
       showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.orgTemplate.columnFieldType',
@@ -154,15 +155,24 @@
       console.log(error);
     }
   };
-  const scene = ref<SeneType>('');
+  const scene = ref<SeneType>(route.query.type);
+
+  // 获取字段列表数据
   const fetchData = async () => {
     scene.value = route.query.type;
     setLoadListParams({ organizationId: currentOrd, scene });
     await loadList();
+    totalData.value = await getFieldList({ organizationId: currentOrd, scene: route.query.type });
   };
 
+  const isDisabled = computed(() => {
+    return totalData.value.length > 20;
+  });
+
   const tableRef = ref();
-  const isEnable = ref<boolean>(templateStore.templateStatus[scene.value as string]); // 开始默认未启用
+  const isEnable = computed(() => {
+    return templateStore.templateStatus[scene.value as string];
+  }); // 开始默认未启用
 
   // 切换模版是否启用展示操作列
   const isEnableOperation = () => {
@@ -218,13 +228,12 @@
   const showDrawer = ref<boolean>(false);
 
   const fieldDrawerRef = ref();
-  const fieldHandler = (type: string, record?: AddOrUpdateField) => {
+  const fieldHandler = () => {
     showDrawer.value = true;
-    if (type === 'edit' && record) fieldDrawerRef.value.editHandler(record);
   };
 
   const handleOk = (record: AddOrUpdateField) => {
-    fieldHandler('edit', record);
+    fieldDrawerRef.value.editHandler(record);
   };
 
   const successHandler = () => {
@@ -242,9 +251,9 @@
   };
 
   onMounted(() => {
-    fetchData();
-    isEnableOperation();
     updateBreadcrumbList();
+    isEnableOperation();
+    fetchData();
   });
 </script>
 

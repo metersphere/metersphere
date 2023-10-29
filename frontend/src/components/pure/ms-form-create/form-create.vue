@@ -1,5 +1,5 @@
 <template>
-  <FormCreate v-model:api="formApi" :rule="formRules" :option="props.options || option"></FormCreate>
+  <FormCreate v-model:api="formApi" :rule="formRuleList" :option="props.options || option"></FormCreate>
 </template>
 
 <script setup lang="ts">
@@ -16,7 +16,7 @@
 
   import type { FormItem } from './types';
   import { FormRuleItem } from './types';
-  import formCreate, { FormRule } from '@form-create/arco-design';
+  import formCreate from '@form-create/arco-design';
 
   const formCreateStore = useFormCreateStore();
 
@@ -49,9 +49,9 @@
     formCreateKey: FormCreateKeyEnum[keyof FormCreateKeyEnum]; // 唯一表单Key
   }>();
 
-  const formApi = ref<any>({});
+  const emit = defineEmits(['update:form-rule']);
 
-  const formRules = ref<FormRule | undefined>([]);
+  const formApi = ref<any>({});
 
   // 计算被级联的项
   const cascadeItem = computed(() => {
@@ -97,10 +97,61 @@
   );
 
   watchEffect(() => {
-    formCreateStore.setInitFormCreate(props.formCreateKey, props.formRule);
-    formCreateStore.initFormCreateFormRules(props.formCreateKey);
-    formRules.value = formCreateStore.formCreateRuleMap.get(props.formCreateKey);
+    // formRules.value = cloneDeep(props.formRule);
+    // formCreateStore.setInitFormCreate(props.formCreateKey, props.formRule);
+    // formCreateStore.initFormCreateFormRules(props.formCreateKey);
   });
+
+  const formRuleList = ref<FormRuleItem[]>([]); // 存放转换格式后
+  const formRules = ref<FormItem[]>([]);
+  watch(
+    () => props.formRule,
+    (val) => {
+      formRules.value = props.formRule;
+      formCreateStore.setInitFormCreate(props.formCreateKey, props.formRule);
+      formCreateStore.initFormCreateFormRules(props.formCreateKey);
+      formRuleList.value = formCreateStore.formCreateRuleMap.get(props.formCreateKey) as FormRuleItem[];
+    },
+    { deep: true, immediate: true }
+  );
+
+  const formData = computed(() => {
+    return formCreateStore.formRuleMap.get(props.formCreateKey);
+  });
+
+  watch(
+    () => formData.value,
+    (val) => {
+      formRuleList.value = formCreateStore.formCreateRuleMap.get(props.formCreateKey) as FormRuleItem[];
+    }
+  );
+
+  watch(
+    () => formRuleList.value,
+    () => {
+      // 处理数据格式更新
+      const result = formRuleList.value.map((item: any) => {
+        const type = props.formRule.find((it) => it.name === item.field)?.type;
+        const formItemRule = {
+          name: item.field,
+          type,
+          label: item.title,
+          value: item.value,
+          required: item?.effect?.required,
+          inputSearch: item.props.inputSearch || false,
+          instructionsIcon: item.props.instructionsIcon || '',
+          optionMethod: item.props.optionMethod || '',
+          couplingConfig: {
+            type: item.props.couplingConfig.type,
+            cascade: item.link,
+          },
+        };
+        return formItemRule;
+      });
+      formCreateStore.setInitFormCreate(props.formCreateKey, result as FormItem[]);
+    },
+    { deep: true }
+  );
 
   defineExpose({
     formApi, // 对外暴漏用于表单校验和清除校验状态 具体参考form-create文档API
