@@ -90,7 +90,6 @@ import MsCodeEdit from '../MsCodeEdit';
 import MsDropdown from '../../../../business/commons/MsDropdown';
 import { BODY_FORMAT } from '../../model/ApiTestModel';
 import MsSqlResultTable from './SqlResultTable';
-import { downloadByURL } from 'fit2cloud-ui/src/tools/utils';
 
 export default {
   name: 'MsResponseResult',
@@ -140,6 +139,14 @@ export default {
       this.setBodyType();
       this.setReqMessage();
       this.showPicture();
+    },
+    activeName: {
+      handler() {
+        setTimeout(() => {
+          this.$refs.codeEdit?.$el.querySelector('.ace_text-input')?.focus();
+        }, 0);
+      },
+      immediate: true,
     },
   },
   methods: {
