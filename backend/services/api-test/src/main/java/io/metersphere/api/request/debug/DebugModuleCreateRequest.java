@@ -1,4 +1,4 @@
-package io.metersphere.api.request;
+package io.metersphere.api.request.debug;
 
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.validation.groups.Created;

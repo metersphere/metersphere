@@ -77,7 +77,7 @@
                 desc
         limit 1
     </select>
-    <select id="selectApiDebugByProtocolAndUser" resultType="io.metersphere.api.request.ApiTreeNode">
+    <select id="selectApiDebugByProtocolAndUser" resultType="io.metersphere.api.request.debug.ApiTreeNode">
         SELECT id,
                NAME,
                module_id AS parentId,
