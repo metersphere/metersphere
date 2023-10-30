@@ -79,6 +79,7 @@ export interface MsTableProps<T> {
   showExpand?: boolean; // 是否显示展开行
   expandedKeys?: string[]; // 显示的展开行、子树（受控模式）
   emptyDataShowLine?: boolean; // 空数据是否显示 "-"
+  showJumpMethod?: boolean; // 是否展示跳转方法
   [key: string]: any;
 }
 

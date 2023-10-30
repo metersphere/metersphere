@@ -5,6 +5,7 @@ import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/typ
 
 import { SpecialColumnEnum } from '@/enums/tableEnum';
 
+import useAppStore from '../app';
 import { MsTableState, TableOpenDetailMode } from './types';
 
 const msTableStore = defineStore('msTable', {
@@ -112,7 +113,7 @@ const msTableStore = defineStore('msTable', {
         if (state.pageSizeMap[key]) {
           return state.pageSizeMap[key];
         }
-        return 10;
+        return useAppStore().pageSize;
       };
     },
   },
