@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCaseAttachment">
-    <id column="case_id" jdbcType="VARCHAR" property="caseId" />
-    <id column="file_id" jdbcType="VARCHAR" property="fileId" />
-    <result column="id" jdbcType="VARCHAR" property="id" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="case_id" jdbcType="VARCHAR" property="caseId" />
+    <result column="file_id" jdbcType="VARCHAR" property="fileId" />
     <result column="file_name" jdbcType="VARCHAR" property="fileName" />
     <result column="size" jdbcType="BIGINT" property="size" />
     <result column="local" jdbcType="BIT" property="local" />
@@ -70,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    case_id, file_id, id, file_name, `size`, `local`, create_user, create_time
+    id, case_id, file_id, file_name, `size`, `local`, create_user, create_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachmentExample" resultMap="BaseResultMap">
     select
@@ -86,17 +86,15 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from functional_case_attachment
-    where case_id = #{caseId,jdbcType=VARCHAR}
-      and file_id = #{fileId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="map">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from functional_case_attachment
-    where case_id = #{caseId,jdbcType=VARCHAR}
-      and file_id = #{fileId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachmentExample">
     delete from functional_case_attachment
@@ -105,24 +103,24 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachment">
-    insert into functional_case_attachment (case_id, file_id, id, 
+    insert into functional_case_attachment (id, case_id, file_id, 
       file_name, `size`, `local`, create_user, 
       create_time)
-    values (#{caseId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{id,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
       #{fileName,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{local,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachment">
     insert into functional_case_attachment
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="caseId != null">
         case_id,
       </if>
       <if test="fileId != null">
         file_id,
-      </if>
-      <if test="id != null">
-        id,
       </if>
       <if test="fileName != null">
         file_name,
@@ -141,14 +139,14 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
       <if test="caseId != null">
         #{caseId,jdbcType=VARCHAR},
       </if>
       <if test="fileId != null">
         #{fileId,jdbcType=VARCHAR},
-      </if>
-      <if test="id != null">
-        #{id,jdbcType=VARCHAR},
       </if>
       <if test="fileName != null">
         #{fileName,jdbcType=VARCHAR},
@@ -176,14 +174,14 @@
   <update id="updateByExampleSelective" parameterType="map">
     update functional_case_attachment
     <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
       <if test="record.caseId != null">
         case_id = #{record.caseId,jdbcType=VARCHAR},
       </if>
       <if test="record.fileId != null">
         file_id = #{record.fileId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.fileName != null">
         file_name = #{record.fileName,jdbcType=VARCHAR},
@@ -207,9 +205,9 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update functional_case_attachment
-    set case_id = #{record.caseId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
+      case_id = #{record.caseId,jdbcType=VARCHAR},
       file_id = #{record.fileId,jdbcType=VARCHAR},
-      id = #{record.id,jdbcType=VARCHAR},
       file_name = #{record.fileName,jdbcType=VARCHAR},
       `size` = #{record.size,jdbcType=BIGINT},
       `local` = #{record.local,jdbcType=BIT},
@@ -222,8 +220,11 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachment">
     update functional_case_attachment
     <set>
-      <if test="id != null">
-        id = #{id,jdbcType=VARCHAR},
+      <if test="caseId != null">
+        case_id = #{caseId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null">
+        file_id = #{fileId,jdbcType=VARCHAR},
       </if>
       <if test="fileName != null">
         file_name = #{fileName,jdbcType=VARCHAR},
@@ -241,26 +242,25 @@
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
     </set>
-    where case_id = #{caseId,jdbcType=VARCHAR}
-      and file_id = #{fileId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachment">
     update functional_case_attachment
-    set id = #{id,jdbcType=VARCHAR},
+    set case_id = #{caseId,jdbcType=VARCHAR},
+      file_id = #{fileId,jdbcType=VARCHAR},
       file_name = #{fileName,jdbcType=VARCHAR},
       `size` = #{size,jdbcType=BIGINT},
       `local` = #{local,jdbcType=BIT},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT}
-    where case_id = #{caseId,jdbcType=VARCHAR}
-      and file_id = #{fileId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into functional_case_attachment
-    (case_id, file_id, id, file_name, `size`, `local`, create_user, create_time)
+    (id, case_id, file_id, file_name, `size`, `local`, create_user, create_time)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.caseId,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, #{item.id,jdbcType=VARCHAR}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, 
         #{item.fileName,jdbcType=VARCHAR}, #{item.size,jdbcType=BIGINT}, #{item.local,jdbcType=BIT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT})
     </foreach>
@@ -275,14 +275,14 @@
     <foreach collection="list" item="item" separator=",">
       (
       <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
         <if test="'case_id'.toString() == column.value">
           #{item.caseId,jdbcType=VARCHAR}
         </if>
         <if test="'file_id'.toString() == column.value">
           #{item.fileId,jdbcType=VARCHAR}
-        </if>
-        <if test="'id'.toString() == column.value">
-          #{item.id,jdbcType=VARCHAR}
         </if>
         <if test="'file_name'.toString() == column.value">
           #{item.fileName,jdbcType=VARCHAR}

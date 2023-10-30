@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,23 +30,23 @@ public class FunctionalCaseAddRequest implements Serializable {
     @NotBlank(message = "{functional_case.name.not_blank}")
     private String name;
 
-    @Schema(description = "前置条件")
+    @Schema(description = "前置条件", defaultValue = "")
     private String prerequisite;
 
     @Schema(description = "编辑模式", allowableValues = {"STEP", "TEXT"})
     @NotBlank(message = "{functional_case.case_edit_type.not_blank}")
     private String caseEditType;
 
-    @Schema(description = "用例步骤")
+    @Schema(description = "用例步骤", defaultValue = "")
     private String steps;
 
-    @Schema(description = "步骤描述")
+    @Schema(description = "步骤描述", defaultValue = "")
     private String textDescription;
 
-    @Schema(description = "预期结果")
+    @Schema(description = "预期结果", defaultValue = "")
     private String expectedResult;
 
-    @Schema(description = "备注")
+    @Schema(description = "备注", defaultValue = "")
     private String description;
 
     @Schema(description = "是否公共用例库")
@@ -70,7 +69,7 @@ public class FunctionalCaseAddRequest implements Serializable {
 
 
     @Schema(description = "关联文件ID集合")
-    private List<String> relateFileMetaIds = new ArrayList<>();
+    private List<String> relateFileMetaIds;
 
 
 }

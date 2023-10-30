@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS functional_case_attachment(
     `local` BIT(1) NOT NULL   COMMENT '是否本地' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-    PRIMARY KEY (case_id,file_id)
+    PRIMARY KEY (id)
     )  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '功能用例和附件的中间表';

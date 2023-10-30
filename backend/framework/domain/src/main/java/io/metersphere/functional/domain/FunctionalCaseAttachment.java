@@ -12,6 +12,11 @@ import lombok.Data;
 
 @Data
 public class FunctionalCaseAttachment implements Serializable {
+    @Schema(description =  "id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_attachment.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{functional_case_attachment.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
+
     @Schema(description =  "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_attachment.case_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{functional_case_attachment.case_id.length_range}", groups = {Created.class, Updated.class})
@@ -21,11 +26,6 @@ public class FunctionalCaseAttachment implements Serializable {
     @NotBlank(message = "{functional_case_attachment.file_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{functional_case_attachment.file_id.length_range}", groups = {Created.class, Updated.class})
     private String fileId;
-
-    @Schema(description =  "id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_attachment.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{functional_case_attachment.id.length_range}", groups = {Created.class, Updated.class})
-    private String id;
 
     @Schema(description =  "文件名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_attachment.file_name.not_blank}", groups = {Created.class})
@@ -51,9 +51,9 @@ public class FunctionalCaseAttachment implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public enum Column {
+        id("id", "id", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
         fileId("file_id", "fileId", "VARCHAR", false),
-        id("id", "id", "VARCHAR", false),
         fileName("file_name", "fileName", "VARCHAR", false),
         size("size", "size", "BIGINT", true),
         local("local", "local", "BIT", true),
