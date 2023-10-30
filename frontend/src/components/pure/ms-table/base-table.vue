@@ -53,7 +53,13 @@
           :tooltip="item.tooltip"
         >
           <template #title>
-            <div v-if="props.showSetting && idx === lastColumnIndex" class="flex flex-row flex-nowrap items-center">
+            <div
+              v-if="
+                props.showSetting &&
+                (item.slotName === SpecialColumnEnum.OPERATION || item.slotName === SpecialColumnEnum.ACTION)
+              "
+              class="flex flex-row flex-nowrap items-center"
+            >
               <slot :name="item.titleSlotName">
                 <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
               </slot>
@@ -240,8 +246,6 @@
     (e: 'clearSelector'): void;
   }>();
   const attrs = useAttrs();
-  const lastColumnIndex = computed(() => currentColumns.value.length - 1);
-
   // 全选按钮-总条数
   const selectTotal = computed(() => {
     const { selectorStatus } = props;
@@ -300,14 +304,19 @@
     return undefined;
   });
 
-  const initColumn = (arr?: MsTableColumn) => {
-    let tmpArr: MsTableColumn = [];
-    if (props.showSetting) {
-      tmpArr = tableStore.getShowInTableColumns(attrs.tableKey as string) || [];
-    } else {
-      tmpArr = props.columns;
+  const initColumn = async (arr?: MsTableColumn) => {
+    try {
+      let tmpArr: MsTableColumn = [];
+      if (props.showSetting) {
+        tmpArr = await tableStore.getShowInTableColumns(attrs.tableKey as string);
+      } else {
+        tmpArr = props.columns;
+      }
+      currentColumns.value = arr || tmpArr;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('InitColumn failed', error);
     }
-    currentColumns.value = arr || tmpArr;
   };
 
   // 全选change事件
@@ -415,8 +424,8 @@
     }
   };
 
-  const handleColumnSelectorClose = () => {
-    initColumn();
+  const handleColumnSelectorClose = async () => {
+    await initColumn();
   };
 
   function getRowClass(record: TableData, rowIndex: number) {
@@ -429,8 +438,8 @@
     }
   }
 
-  onMounted(() => {
-    initColumn();
+  onMounted(async () => {
+    await initColumn();
     batchLeft.value = getBatchLeft();
   });
 
