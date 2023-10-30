@@ -10,7 +10,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -54,5 +57,46 @@ public class FunctionalCaseCustomFieldService {
             return functionalCaseCustomFields.get(0);
         }
         return null;
+    }
+
+
+    /**
+     * 更新自定义字段
+     *
+     * @param caseId
+     * @param customsFields
+     */
+    public void updateCustomField(String caseId, List<CaseCustomsFieldDTO> customsFields) {
+        List<String> fieldIds = customsFields.stream().map(CaseCustomsFieldDTO::getFieldId).collect(Collectors.toList());
+        FunctionalCaseCustomFieldExample example = new FunctionalCaseCustomFieldExample();
+        example.createCriteria().andFieldIdIn(fieldIds).andCaseIdEqualTo(caseId);
+        List<FunctionalCaseCustomField> defaultFields = functionalCaseCustomFieldMapper.selectByExample(example);
+        Map<String, FunctionalCaseCustomField> collect = defaultFields.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getFieldId, (item) -> item));
+        List<CaseCustomsFieldDTO> addFields = new ArrayList<>();
+        List<CaseCustomsFieldDTO> updateFields = new ArrayList<>();
+        customsFields.forEach(customsField -> {
+            if (collect.containsKey(customsField.getFieldId())) {
+                updateFields.add(customsField);
+            } else {
+                addFields.add(customsField);
+            }
+        });
+        if (CollectionUtils.isNotEmpty(addFields)) {
+            saveCustomField(caseId, addFields);
+        }
+        ;
+        if (CollectionUtils.isNotEmpty(updateFields)) {
+            updateField(caseId, updateFields);
+        }
+    }
+
+    private void updateField(String caseId, List<CaseCustomsFieldDTO> updateFields) {
+        updateFields.forEach(customsField -> {
+            FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
+            customField.setCaseId(caseId);
+            customField.setFieldId(customsField.getFieldId());
+            customField.setValue(customsField.getValue());
+            functionalCaseCustomFieldMapper.updateByPrimaryKeySelective(customField);
+        });
     }
 }

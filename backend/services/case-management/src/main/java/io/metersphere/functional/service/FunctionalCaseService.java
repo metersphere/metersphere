@@ -1,6 +1,7 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseAttachment;
 import io.metersphere.functional.domain.FunctionalCaseBlob;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
@@ -9,20 +10,21 @@ import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
+import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
-import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.file.FileRequest;
-import io.metersphere.system.file.MinioRepository;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.MsFileUtils;
+import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
+import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.file.FileRequest;
+import io.metersphere.system.file.MinioRepository;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -68,17 +70,13 @@ public class FunctionalCaseService {
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
         String caseId = IDGenerator.nextStr();
         //添加功能用例
-        FunctionalCase functionalCase = addTestCase(caseId, request, userId);
+        FunctionalCase functionalCase = addCase(caseId, request, userId);
 
         //上传文件
-        if (CollectionUtils.isNotEmpty(files)) {
-            uploadFile(request, caseId, files, true, userId);
-        }
+        uploadFile(request, caseId, files, true, userId);
 
         //关联附件
-        if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
-            functionalCaseAttachmentService.relateFileMeta(request.getRelateFileMetaIds(), caseId, userId);
-        }
+        functionalCaseAttachmentService.relateFileMeta(request.getRelateFileMetaIds(), caseId, userId);
         return functionalCase;
     }
 
@@ -87,7 +85,7 @@ public class FunctionalCaseService {
      *
      * @param request
      */
-    private FunctionalCase addTestCase(String caseId, FunctionalCaseAddRequest request, String userId) {
+    private FunctionalCase addCase(String caseId, FunctionalCaseAddRequest request, String userId) {
         FunctionalCase functionalCase = new FunctionalCase();
         BeanUtils.copyBean(functionalCase, request);
         functionalCase.setId(caseId);
@@ -137,21 +135,22 @@ public class FunctionalCaseService {
      * @param files
      */
     public void uploadFile(FunctionalCaseAddRequest request, String caseId, List<MultipartFile> files, Boolean isLocal, String userId) {
-        files.forEach(file -> {
-            String fileId = IDGenerator.nextStr();
-            FileRequest fileRequest = new FileRequest();
-            fileRequest.setFileName(file.getName());
-            fileRequest.setProjectId(request.getProjectId());
-            fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_ATTACHMENT_DIR + fileId);
-            fileRequest.setStorage(StorageType.MINIO.name());
-            try {
-                minioRepository.saveFile(file, fileRequest);
-            } catch (Exception e) {
-                throw new MSException("save file error");
-            }
-            functionalCaseAttachmentService.saveCaseAttachment(fileId, file, caseId, isLocal, userId);
-        });
-
+        if (CollectionUtils.isNotEmpty(files)) {
+            files.forEach(file -> {
+                String fileId = IDGenerator.nextStr();
+                FileRequest fileRequest = new FileRequest();
+                fileRequest.setFileName(file.getName());
+                fileRequest.setProjectId(request.getProjectId());
+                fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_ATTACHMENT_DIR + "/" + fileId);
+                fileRequest.setStorage(StorageType.MINIO.name());
+                try {
+                    minioRepository.saveFile(file, fileRequest);
+                } catch (Exception e) {
+                    throw new MSException("save file error");
+                }
+                functionalCaseAttachmentService.saveCaseAttachment(fileId, file, caseId, isLocal, userId);
+            });
+        }
     }
 
 
@@ -173,6 +172,9 @@ public class FunctionalCaseService {
 
         //模板校验 获取自定义字段
         functionalCaseDetailDTO = checkTemplateCustomField(functionalCaseDetailDTO, functionalCase);
+
+        //获取附件信息
+        functionalCaseAttachmentService.getAttachmentInfo(functionalCaseDetailDTO);
 
         return functionalCaseDetailDTO;
 
@@ -202,6 +204,72 @@ public class FunctionalCaseService {
 
 
     /**
+     * 更新用例 基本信息
+     *
+     * @param request
+     * @param files
+     * @param userId
+     * @return
+     */
+    public FunctionalCase updateFunctionalCase(FunctionalCaseEditRequest request, List<MultipartFile> files, String userId) {
+        //基本信息
+        FunctionalCase functionalCase = new FunctionalCase();
+        BeanUtils.copyBean(functionalCase, request);
+        updateCase(request, userId, functionalCase);
+
+        //处理删除文件id
+        if (CollectionUtils.isNotEmpty(request.getDeleteFileMetaIds())) {
+            this.deleteFile(request.getDeleteFileMetaIds(), request);
+        }
+
+        //上传新文件
+        uploadFile(request, request.getId(), files, true, userId);
+
+        //关联新附件
+        functionalCaseAttachmentService.relateFileMeta(request.getRelateFileMetaIds(), request.getId(), userId);
+        return functionalCase;
+
+    }
+
+    private void deleteFile(List<String> deleteFileMetaIds, FunctionalCaseEditRequest request) {
+        List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentService.deleteCaseAttachment(deleteFileMetaIds, request.getId());
+        if (CollectionUtils.isNotEmpty(caseAttachments)) {
+            //删除本地上传的minio文件
+            deleteMinioFile(caseAttachments, request.getProjectId());
+        }
+    }
+
+    private void deleteMinioFile(List<FunctionalCaseAttachment> files, String projectId) {
+        files.forEach(file -> {
+            FileRequest fileRequest = new FileRequest();
+            fileRequest.setFileName(file.getFileName());
+            fileRequest.setProjectId(projectId);
+            fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_ATTACHMENT_DIR + "/" + file.getFileId());
+            fileRequest.setStorage(StorageType.MINIO.name());
+            try {
+                minioRepository.delete(fileRequest);
+            } catch (Exception e) {
+                throw new MSException("delete file error");
+            }
+        });
+    }
+
+    private void updateCase(FunctionalCaseEditRequest request, String userId, FunctionalCase functionalCase) {
+        //更新用例
+        functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+        //更新附属表信息
+        FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
+        BeanUtils.copyBean(functionalCaseBlob, request);
+        functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+
+        //更新自定义字段
+        functionalCaseCustomFieldService.updateCustomField(request.getId(), request.getCustomsFields());
+    }
+
+
+
+    //TODO 日志
+    /**
      * 新增用例 日志
      *
      * @param requests
@@ -221,6 +289,31 @@ public class FunctionalCaseService {
         dto.setPath("/functional/case/add");
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(requests));
+        return dto;
+    }
+
+
+    /**
+     * 更新用例 日志
+     *
+     * @param requests
+     * @param files
+     * @return
+     */
+    public LogDTO updateFunctionalCaseLog(FunctionalCaseAddRequest requests, List<MultipartFile> files) {
+        //TODO 获取原值
+        LogDTO dto = new LogDTO(
+                requests.getProjectId(),
+                null,
+                null,
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.FUNCTIONAL_CASE,
+                requests.getName());
+
+        dto.setPath("/functional/case/update");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setModifiedValue(JSON.toJSONBytes(requests));
         return dto;
     }
 }

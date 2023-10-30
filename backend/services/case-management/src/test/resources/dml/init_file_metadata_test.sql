@@ -9,3 +9,9 @@ INSERT INTO functional_case_blob(id, steps, text_description, expected_result, p
 
 
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('TEST_FUNCTIONAL_CASE_ID', '100548878725546079', '22');
+
+
+INSERT INTO functional_case_attachment(id, case_id, file_id, file_name, size, local, create_user, create_time) VALUES ('TEST_CASE_ATTACHMENT_ID', 'TEST_FUNCTIONAL_CASE_ID', '100548878725546079', '测试', 1, b'1', 'admin', 1698058347559);
+INSERT INTO functional_case_attachment(id, case_id, file_id, file_name, size, local, create_user, create_time) VALUES ('TEST_CASE_ATTACHMENT_ID_1', 'TEST_FUNCTIONAL_CASE_ID', 'relate_file_meta_id_1', '测试1', 1, b'0', 'admin', 1698058347559);
+INSERT INTO functional_case_attachment(id, case_id, file_id, file_name, size, local, create_user, create_time) VALUES ('TEST_CASE_ATTACHMENT_ID_2', 'TEST_FUNCTIONAL_CASE_ID', 'delete_file_meta_id_1', '测试删除', 1, b'1', 'admin', 1698058347559);
+

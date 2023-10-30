@@ -74,5 +74,6 @@ public class FunctionalCaseDetailDTO implements Serializable {
     @Schema(description = "自定义字段属性")
     private List<TemplateCustomFieldDTO> customFields;
 
-
+    @Schema(description = "附件信息")
+    private List<FunctionalCaseAttachmentDTO> attachments;
 }

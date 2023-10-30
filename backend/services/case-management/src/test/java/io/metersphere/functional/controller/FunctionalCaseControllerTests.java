@@ -2,6 +2,7 @@ package io.metersphere.functional.controller;
 
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
+import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
 import io.metersphere.sdk.util.JSON;
@@ -30,7 +31,8 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
     public static final String FUNCTIONAL_CASE_ADD_URL = "/functional/case/add";
     public static final String DEFAULT_TEMPLATE_FIELD_URL = "/functional/case/default/template/field/";
-    public static final String FUNCTIONAL_CASE_DETAIL_URL = "/functional/case//detail/";
+    public static final String FUNCTIONAL_CASE_DETAIL_URL = "/functional/case/detail/";
+    public static final String FUNCTIONAL_CASE_UPDATE_URL = "/functional/case/update";
 
     @Test
     @Order(1)
@@ -112,4 +114,57 @@ public class FunctionalCaseControllerTests extends BaseTest {
     }
 
 
+    @Test
+    @Order(3)
+    public void testUpdateFunctionalCase() throws Exception {
+        FunctionalCaseEditRequest request = creatEditRequest();
+        //设置自定义字段
+        List<CaseCustomsFieldDTO> list = updateCustomsFields(request);
+        request.setCustomsFields(list);
+        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        List<MockMultipartFile> files = new ArrayList<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", files);
+        MvcResult mvcResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_UPDATE_URL, paramMap);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+        //设置删除文件id
+        request.setDeleteFileMetaIds(Arrays.asList("delete_file_meta_id_1"));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", files);
+        MvcResult updateResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_UPDATE_URL, paramMap);
+        String updateReturnData = updateResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder updateResultHolder = JSON.parseObject(updateReturnData, ResultHolder.class);
+        Assertions.assertNotNull(updateResultHolder);
+
+    }
+
+    private List<CaseCustomsFieldDTO> updateCustomsFields(FunctionalCaseEditRequest editRequest) {
+        List<CaseCustomsFieldDTO> list = new ArrayList<>() {{
+            add(new CaseCustomsFieldDTO() {{
+                setFieldId("customs_field_id_1");
+                setValue("测试更新");
+            }});
+            add(new CaseCustomsFieldDTO() {{
+                setFieldId("customs_field_id_2");
+                setValue("更新时存在新字段");
+            }});
+        }};
+        return list;
+    }
+
+    private FunctionalCaseEditRequest creatEditRequest() {
+        FunctionalCaseEditRequest editRequest = new FunctionalCaseEditRequest();
+        editRequest.setProjectId(DEFAULT_PROJECT_ID);
+        editRequest.setTemplateId("default_template_id");
+        editRequest.setName("测试用例编辑");
+        editRequest.setCaseEditType("STEP");
+        editRequest.setModuleId("default_module_id");
+        editRequest.setId("TEST_FUNCTIONAL_CASE_ID");
+        editRequest.setSteps("");
+        return editRequest;
+    }
 }
