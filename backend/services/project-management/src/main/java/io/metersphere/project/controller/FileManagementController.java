@@ -60,7 +60,6 @@ public class FileManagementController {
         return fileMetadataService.moduleCount(request, SessionUtils.getUserId());
     }
 
-
     @PostMapping("/upload")
     @Operation(summary = "项目管理-文件管理-上传文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
@@ -102,6 +101,13 @@ public class FileManagementController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
     public void update(@Validated @RequestBody FileUpdateRequest request) throws Exception {
         fileMetadataService.update(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping(value = "/jar-file-status/{fileId}/{enable}")
+    @Operation(summary = "项目管理-文件管理-下载文件")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
+    public void changeJarFileStatus(@PathVariable String fileId, @PathVariable boolean enable) {
+        fileMetadataService.changeJarFileStatus(fileId, enable, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/batch-download")

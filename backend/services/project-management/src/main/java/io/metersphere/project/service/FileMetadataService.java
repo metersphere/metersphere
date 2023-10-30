@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class FileMetadataService {
+    private static final String JAR_FILE_PREFIX = "jar";
+
     @Resource
     private FileMetadataMapper fileMetadataMapper;
     @Resource
@@ -128,6 +130,7 @@ public class FileMetadataService {
         fileMetadata.setSize(uploadFile.getSize());
         fileMetadata.setLatest(true);
         fileMetadata.setRefId(fileMetadata.getId());
+        fileMetadata.setEnable(false);
         fileMetadataMapper.insert(fileMetadata);
 
         //记录日志
@@ -222,6 +225,12 @@ public class FileMetadataService {
             if (CollectionUtils.isNotEmpty(request.getTags())) {
                 updateExample.setTags(JSON.toJSONString(request.getTags()));
             }
+            if (request.getEnable() != null) {
+                if (!StringUtils.equalsIgnoreCase(fileMetadata.getType(), JAR_FILE_PREFIX)) {
+                    throw new MSException(Translator.get("file.not.jar"));
+                }
+                updateExample.setEnable(request.getEnable());
+            }
             updateExample.setUpdateUser(operator);
             updateExample.setUpdateTime(System.currentTimeMillis());
             fileMetadataMapper.updateByPrimaryKeySelective(updateExample);
@@ -309,6 +318,7 @@ public class FileMetadataService {
         fileMetadata.setUpdateUser(operator);
         fileMetadata.setSize(uploadFile.getSize());
         fileMetadata.setRefId(oldFile.getRefId());
+        fileMetadata.setEnable(oldFile.getEnable());
         fileMetadata.setLatest(true);
         fileMetadataMapper.insert(fileMetadata);
 
@@ -368,5 +378,20 @@ public class FileMetadataService {
 
     public List<String> getFileType(String projectId) {
         return extFileMetadataMapper.selectFileTypeByProjectId(projectId);
+    }
+
+    public void changeJarFileStatus(String fileId, boolean enable, String operator) {
+        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
+        if (fileMetadata == null) {
+            throw new MSException(Translator.get("file.not.exist"));
+        }
+        if (!StringUtils.equalsIgnoreCase(fileMetadata.getType(), JAR_FILE_PREFIX)) {
+            throw new MSException(Translator.get("file.not.jar"));
+        }
+        FileMetadata updateModel = new FileMetadata();
+        updateModel.setId(fileMetadata.getId());
+        updateModel.setEnable(enable);
+        fileMetadataMapper.updateByPrimaryKeySelective(updateModel);
+        fileMetadataLogService.saveChangeJarFileStatusLog(fileMetadata, enable, operator);
     }
 }

@@ -17,6 +17,7 @@
     <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
     <result column="path" jdbcType="VARCHAR" property="path" />
     <result column="latest" jdbcType="BIT" property="latest" />
+    <result column="enable" jdbcType="BIT" property="enable" />
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="file_version" jdbcType="VARCHAR" property="fileVersion" />
   </resultMap>
@@ -80,7 +81,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, `type`, `size`, create_time, update_time, project_id, `storage`, create_user, 
-    update_user, tags, description, module_id, `path`, latest, ref_id, file_version
+    update_user, tags, description, module_id, `path`, latest, `enable`, ref_id, file_version
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.FileMetadataExample" resultMap="BaseResultMap">
     select
@@ -118,13 +119,15 @@
       project_id, `storage`, create_user, 
       update_user, tags, description, 
       module_id, `path`, latest, 
-      ref_id, file_version)
+      `enable`, ref_id, file_version
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{projectId,jdbcType=VARCHAR}, #{storage,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{updateUser,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
       #{moduleId,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, 
-      #{refId,jdbcType=VARCHAR}, #{fileVersion,jdbcType=VARCHAR})
+      #{enable,jdbcType=BIT}, #{refId,jdbcType=VARCHAR}, #{fileVersion,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileMetadata">
     insert into file_metadata
@@ -173,6 +176,9 @@
       </if>
       <if test="latest != null">
         latest,
+      </if>
+      <if test="enable != null">
+        `enable`,
       </if>
       <if test="refId != null">
         ref_id,
@@ -226,6 +232,9 @@
       </if>
       <if test="latest != null">
         #{latest,jdbcType=BIT},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
       </if>
       <if test="refId != null">
         #{refId,jdbcType=VARCHAR},
@@ -289,6 +298,9 @@
       <if test="record.latest != null">
         latest = #{record.latest,jdbcType=BIT},
       </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
+      </if>
       <if test="record.refId != null">
         ref_id = #{record.refId,jdbcType=VARCHAR},
       </if>
@@ -317,6 +329,7 @@
       module_id = #{record.moduleId,jdbcType=VARCHAR},
       `path` = #{record.path,jdbcType=VARCHAR},
       latest = #{record.latest,jdbcType=BIT},
+      `enable` = #{record.enable,jdbcType=BIT},
       ref_id = #{record.refId,jdbcType=VARCHAR},
       file_version = #{record.fileVersion,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -368,6 +381,9 @@
       <if test="latest != null">
         latest = #{latest,jdbcType=BIT},
       </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
+      </if>
       <if test="refId != null">
         ref_id = #{refId,jdbcType=VARCHAR},
       </if>
@@ -393,6 +409,7 @@
       module_id = #{moduleId,jdbcType=VARCHAR},
       `path` = #{path,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT},
+      `enable` = #{enable,jdbcType=BIT},
       ref_id = #{refId,jdbcType=VARCHAR},
       file_version = #{fileVersion,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -400,7 +417,7 @@
   <insert id="batchInsert" parameterType="map">
     insert into file_metadata
     (id, `name`, `type`, `size`, create_time, update_time, project_id, `storage`, create_user, 
-      update_user, tags, description, module_id, `path`, latest, ref_id, file_version
+      update_user, tags, description, module_id, `path`, latest, `enable`, ref_id, file_version
       )
     values
     <foreach collection="list" item="item" separator=",">
@@ -409,7 +426,8 @@
         #{item.projectId,jdbcType=VARCHAR}, #{item.storage,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.updateUser,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, 
         #{item.moduleId,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}, #{item.latest,jdbcType=BIT}, 
-        #{item.refId,jdbcType=VARCHAR}, #{item.fileVersion,jdbcType=VARCHAR})
+        #{item.enable,jdbcType=BIT}, #{item.refId,jdbcType=VARCHAR}, #{item.fileVersion,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -466,6 +484,9 @@
         </if>
         <if test="'latest'.toString() == column.value">
           #{item.latest,jdbcType=BIT}
+        </if>
+        <if test="'enable'.toString() == column.value">
+          #{item.enable,jdbcType=BIT}
         </if>
         <if test="'ref_id'.toString() == column.value">
           #{item.refId,jdbcType=VARCHAR}

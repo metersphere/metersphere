@@ -10,9 +10,9 @@ import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.request.filemanagement.FileBatchProcessDTO;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.TempFileUtils;
+import io.metersphere.system.file.FileRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -101,18 +101,21 @@ public class FileManagementService {
 
     public List<FileMetadata> getProcessList(FileBatchProcessDTO request) {
         List<String> processIds = request.getSelectIds();
-        List<FileMetadata> refFileList = new ArrayList<>();
+        List<FileMetadata> processFileList = new ArrayList<>();
         if (request.isSelectAll()) {
             FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
-            refFileList = extFileMetadataMapper.selectByKeywordAndFileType(pageDTO);
+            processFileList = extFileMetadataMapper.selectByKeywordAndFileType(pageDTO);
+            //去除未选择的文件
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                refFileList = refFileList.stream().filter(fileMetadata -> !request.getExcludeIds().contains(fileMetadata.getId())).collect(Collectors.toList());
+                processFileList = processFileList.stream().filter(fileMetadata -> !request.getExcludeIds().contains(fileMetadata.getId())).collect(Collectors.toList());
             }
         } else if (CollectionUtils.isNotEmpty(processIds)) {
-            refFileList = extFileMetadataMapper.selectRefIdByIds(processIds);
+            FileMetadataExample example = new FileMetadataExample();
+            example.createCriteria().andIdIn(processIds);
+            processFileList = fileMetadataMapper.selectByExample(example);
         }
 
-        return refFileList;
+        return processFileList;
     }
 
     public void deleteByModuleIds(List<String> deleteModuleIds) {

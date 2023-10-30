@@ -25,4 +25,7 @@ public class FileUpdateRequest {
 
     @Schema(description = "模块ID")
     private String moduleId;
+
+    @Schema(description = "开启/关闭(目前用于jar文件)")
+    private Boolean enable;
 }
