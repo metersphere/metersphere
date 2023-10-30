@@ -15,6 +15,7 @@ import router from './router';
 import store from './store';
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 import '@/assets/style/global.less';
+import localforage from 'localforage';
 
 async function bootstrap() {
   const app = createApp(App);
@@ -27,6 +28,14 @@ async function bootstrap() {
   app.use(ArcoVueIcon);
   app.component('SvgIcon', SvgIcon);
   app.component('MsIcon', MsIcon);
+
+  // 初始化本地存储
+  localforage.config({
+    driver: localforage.INDEXEDDB, // 选择后端存储，这里使用 IndexedDB
+    name: 'MeterSphere', // 数据库名称
+    version: 1.0, // 数据库版本
+    storeName: 'msTable', // 存储空间名称
+  });
 
   app.use(directive);
 

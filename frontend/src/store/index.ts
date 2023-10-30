@@ -1,8 +1,9 @@
 import { createPinia } from 'pinia';
 
+import useTableStore from '@/hooks/useTableStore';
+
 import useAppStore from './modules/app';
 import useVisitStore from './modules/app/visit';
-import useTableStore from './modules/ms-table';
 import useUserStore from './modules/user';
 import { debouncePlugin } from './plugins';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';

@@ -111,8 +111,11 @@ export default function useTableProps<T>(
 
   // 如果表格设置了tableKey，设置缓存的分页大小
   if (propsRes.value.msPagination && typeof propsRes.value.msPagination === 'object' && propsRes.value.tableKey) {
-    const pageSize = tableStore.getPageSize(propsRes.value.tableKey);
-    propsRes.value.msPagination.pageSize = pageSize;
+    tableStore.getPageSize(propsRes.value.tableKey).then((res) => {
+      if (propsRes.value.msPagination && res) {
+        propsRes.value.msPagination.pageSize = res;
+      }
+    });
   }
 
   /**
@@ -162,12 +165,17 @@ export default function useTableProps<T>(
     if (propsRes.value.showPagination) {
       const { current, pageSize } = propsRes.value.msPagination as Pagination;
       const { rowKey, selectorStatus, excludeKeys } = propsRes.value;
+      let currentPageSize = pageSize;
+      if (propsRes.value.tableKey) {
+        // 如果表格设置了tableKey，缓存分页大小
+        currentPageSize = await tableStore.getPageSize(propsRes.value.tableKey);
+      }
       try {
         if (loadListFunc) {
           setLoading(true);
           const data = await loadListFunc({
             current,
-            pageSize,
+            pageSize: currentPageSize,
             sort: sortItem.value,
             filter: filterItem.value,
             keyword: keyword.value,

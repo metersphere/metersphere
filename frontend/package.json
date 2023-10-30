@@ -50,6 +50,7 @@
     "hotbox-minder": "1.0.15",
     "jsencrypt": "^3.3.2",
     "jsonpath-picker-vanilla": "^1.2.4",
+    "localforage": "^1.10.0",
     "lodash-es": "^4.17.21",
     "mitt": "^3.0.1",
     "monaco-editor": "^0.39.0",
