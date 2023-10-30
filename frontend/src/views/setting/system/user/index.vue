@@ -282,6 +282,7 @@
       size: 'default',
       selectable: true,
       showSetting: true,
+      showJumpMethod: true,
     },
     (record) => ({
       ...record,

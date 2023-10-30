@@ -53,14 +53,17 @@
           :tooltip="item.tooltip"
         >
           <template #title>
-            <div
-              v-if="props.showSetting && idx === currentColumns.length - 1"
-              class="flex flex-row flex-nowrap items-center"
-            >
+            <div v-if="props.showSetting && idx === lastColumnIndex" class="flex flex-row flex-nowrap items-center">
               <slot :name="item.titleSlotName">
                 <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
               </slot>
-              <ColumnSelector :table-key="(attrs.tableKey as string)" @close="handleColumnSelectorClose" />
+              <ColumnSelector
+                :show-jump-method="(attrs.showJumpMethod as boolean)"
+                :table-key="(attrs.tableKey as string)"
+                :show-pagination="attrs.showPagination as boolean"
+                @close="handleColumnSelectorClose"
+                @page-size-change="pageSizeChange"
+              />
             </div>
             <slot v-else :name="item.titleSlotName">
               <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
@@ -235,6 +238,7 @@
     (e: 'clearSelector'): void;
   }>();
   const attrs = useAttrs();
+  const lastColumnIndex = computed(() => currentColumns.value.length - 1);
 
   // 全选按钮-总条数
   const selectTotal = computed(() => {

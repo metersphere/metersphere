@@ -63,6 +63,8 @@ export default function useTableProps<T>(
     /** 展开行相关 */
     showExpand: false, // 是否显示展开行
     emptyDataShowLine: true, // 空数据是否显示 "-"
+    /** Column Selector */
+    showJumpMethod: false, // 是否显示跳转方法
     ...props,
   };
 

@@ -27,6 +27,7 @@ export default {
       nonSort: 'The above properties cannot be sorted',
       tooltipContentDrawer: 'Drawer: open a new page as a drawer',
       tooltipContentWindow: 'New Window: open a new page with a new page',
+      pageSize: 'Number of items per page',
     },
     cancel: 'Cancel',
     confirm: 'Confirm',

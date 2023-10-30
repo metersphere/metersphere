@@ -9,34 +9,44 @@
     @cancel="handleCancel"
   >
     <div class="ms-table-column-seletor">
-      <div class="mb-2 flex items-center">
-        <span class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.mode') }}</span>
-        <a-tooltip :content="t('msTable.columnSetting.tooltipContent')">
-          <template #content>
-            <span>{{ t('msTable.columnSetting.tooltipContentDrawer') }}</span
-            ><br />
-            <span>{{ t('msTable.columnSetting.tooltipContentWindow') }}</span>
-          </template>
-          <span class="inline-block align-middle"
-            ><icon-question-circle
-              class="ml-[4px] mt-[3px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
-          /></span>
-        </a-tooltip>
-      </div>
-      <a-radio-group :model-value="currentMode" type="button" @change="handleModeChange">
-        <a-radio value="drawer">
-          <div class="mode-button">
-            <MsIcon :class="{ 'active-color': currentMode === 'drawer' }" type="icon-icon_drawer" />
-            <span class="mode-button-title">{{ t('msTable.columnSetting.drawer') }}</span>
-          </div>
-        </a-radio>
-        <a-radio value="new_window">
-          <div class="mode-button">
-            <MsIcon :class="{ 'active-color': currentMode === 'new_window' }" type="icon-icon_into-item_outlined" />
-            <span class="mode-button-title">{{ t('msTable.columnSetting.newWindow') }}</span>
-          </div>
-        </a-radio>
-      </a-radio-group>
+      <template v-if="showJumpMethod">
+        <div class="mb-2 flex items-center">
+          <span class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.mode') }}</span>
+          <a-tooltip :content="t('msTable.columnSetting.tooltipContent')">
+            <template #content>
+              <span>{{ t('msTable.columnSetting.tooltipContentDrawer') }}</span
+              ><br />
+              <span>{{ t('msTable.columnSetting.tooltipContentWindow') }}</span>
+            </template>
+            <span class="inline-block align-middle"
+              ><icon-question-circle
+                class="ml-[4px] mt-[3px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+            /></span>
+          </a-tooltip>
+        </div>
+        <a-radio-group class="mb-2" :model-value="currentMode" type="button" @change="handleModeChange">
+          <a-radio value="drawer">
+            <div class="mode-button">
+              <MsIcon :class="{ 'active-color': currentMode === 'drawer' }" type="icon-icon_drawer" />
+              <span class="mode-button-title">{{ t('msTable.columnSetting.drawer') }}</span>
+            </div>
+          </a-radio>
+          <a-radio value="new_window">
+            <div class="mode-button">
+              <MsIcon :class="{ 'active-color': currentMode === 'new_window' }" type="icon-icon_into-item_outlined" />
+              <span class="mode-button-title">{{ t('msTable.columnSetting.newWindow') }}</span>
+            </div>
+          </a-radio>
+        </a-radio-group>
+      </template>
+      <tmplate v-if="props.showPagination">
+        <div class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.pageSize') }} </div>
+        <PageSizeSelector
+          v-model:model-value="pageSize"
+          class="mt-2"
+          @page-size-change="(v: number) => emit('pageSizeChange',v)"
+        />
+      </tmplate>
       <a-divider />
       <div class="mb-2 flex items-center justify-between">
         <div class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.header') }}</div>
@@ -78,9 +88,10 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import PageSizeSelector from './comp/pageSizeSelector.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { useTableStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
   import { TableOpenDetailMode } from '@/store/modules/ms-table/types';
 
   import { MsTableColumn } from './type';
@@ -89,6 +100,8 @@
   const tableStore = useTableStore();
   const { t } = useI18n();
   const currentMode = ref('');
+  const appStore = useAppStore();
+  const pageSize = ref(appStore.pageSize);
   // 不能拖拽的列
   const nonSortColumn = ref<MsTableColumn>([]);
   // 可以拖拽的列
@@ -98,10 +111,13 @@
 
   const emit = defineEmits<{
     (e: 'close'): void;
+    (e: 'pageSizeChange', value: number): void;
   }>();
 
   const props = defineProps<{
     tableKey: string;
+    showJumpMethod: boolean;
+    showPagination: boolean;
   }>();
 
   const visible = ref(false);
