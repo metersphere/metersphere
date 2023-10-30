@@ -60,8 +60,8 @@
               <a-spin :loading="replaceLoading">
                 <MsPreviewCard
                   mode="hover"
-                  :type="detail?.type"
-                  :url="detail?.url"
+                  :type="detail?.fileType"
+                  :url="`${CompressImgUrl}/${userStore.id}/${detail.id}`"
                   :footer-text="t('project.fileManagement.replaceFile')"
                   @click="handleFileIconClick"
                 />
@@ -170,7 +170,7 @@
           </div>
         </div>
       </div>
-      <a-image-preview v-model:visible="previewVisible" :src="detail?.url" />
+      <a-image-preview v-model:visible="previewVisible" :src="`${OriginImgUrl}/${userStore.id}/${detail.id}`" />
     </template>
   </MsDetailDrawer>
 </template>
@@ -193,8 +193,10 @@
   import popConfirm from './popConfirm.vue';
 
   import { reuploadFile, updateFile } from '@/api/modules/project-management/fileManagement';
+  import { CompressImgUrl, OriginImgUrl } from '@/api/requrls/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
+  import useUserStore from '@/store/modules/user';
   import { downloadUrlFile } from '@/utils';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -213,6 +215,7 @@
   const { file: newFile, open } = useFileSystemAccess();
   const { t } = useI18n();
   const { currentLocale } = useLocale();
+  const userStore = useUserStore();
 
   const innerVisible = ref(false);
   const fileDescriptions = ref<Description[]>([]);

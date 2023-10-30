@@ -25,12 +25,6 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
-      <template #organization="{ record }">
-        <MsTagGroup theme="outline" :tag-list="record.organizationList"> </MsTagGroup>
-      </template>
-      <template #userRole="{ record }">
-        <MsTagGroup :tag-list="record.userRoleList" type="primary" theme="outline"> </MsTagGroup>
-      </template>
       <template #action="{ record }">
         <template v-if="!record.enable">
           <MsButton @click="enableUser(record)">{{ t('system.user.enable') }}</MsButton>
@@ -249,15 +243,13 @@
     },
     {
       title: 'system.user.tableColumnOrg',
-      slotName: 'organization',
-      dataIndex: 'organization',
+      dataIndex: 'organizationList',
       isTag: true,
     },
     {
       title: 'system.user.tableColumnUserGroup',
-      slotName: 'userRole',
       isTag: true,
-      dataIndex: 'userRole',
+      dataIndex: 'userRoleList',
     },
     {
       title: 'system.user.tableColumnStatus',

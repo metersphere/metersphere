@@ -3,7 +3,7 @@
     <div class="header">
       <a-button type="primary" @click="handleAddClick">{{ t('project.fileManagement.addFile') }}</a-button>
       <div class="header-right">
-        <a-select v-model="tableFileType" class="w-[240px]" @change="searchList">
+        <a-select v-model="tableFileType" class="w-[240px]" :loading="fileTypeLoading" @change="searchList">
           <a-option key="" value="">{{ t('common.all') }}</a-option>
           <a-option v-for="item of tableFileTypeOptions" :key="item" :value="item">
             {{ item }}
@@ -14,6 +14,8 @@
           :placeholder="t('project.fileManagement.folderSearchPlaceholder')"
           allow-clear
           class="w-[240px]"
+          @search="searchList"
+          @press-enter="searchList"
         />
         <a-radio-group
           v-if="props.activeFolderType === 'folder'"
@@ -84,7 +86,7 @@
         <template #item="{ item, index }">
           <MsThumbnailCard
             :type="item.fileType"
-            :url="item.url || `${PreviewImgUrl}/${item.id}`"
+            :url="`${CompressImgUrl}/${userStore.id}/${item.id}`"
             :footer-text="item.name"
             :more-actions="item.fileType === 'JAR' ? jarFileActions : normalFileActions"
             @click="openFileDetail(item.id, index)"
@@ -290,10 +292,11 @@
     deleteFile,
     downloadFile,
     getFileList,
+    getFileTypes,
     updateFile,
     uploadFile,
   } from '@/api/modules/project-management/fileManagement';
-  import { PreviewImgUrl } from '@/api/requrls/project-management/fileManagement';
+  import { CompressImgUrl } from '@/api/requrls/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
@@ -328,22 +331,23 @@
   const acceptType = ref<UploadType>('none'); // 模块-上传文件类型
   const isUploading = ref(false);
   const keyword = ref('');
-  const tableFileType = ref('');
-  const tableFileTypeOptions = ref(['JPG', 'PNG']);
   const loading = ref(false);
 
-  watch(
-    () => props.activeFolderType,
-    (val) => {
-      if (val === 'folder') {
-        fileType.value = 'module';
-      } else {
-        fileType.value = val;
-      }
-    }
-  );
+  const tableFileType = ref('');
+  const tableFileTypeOptions = ref<string[]>([]);
+  const fileTypeLoading = ref(false);
 
-  function changeFileType() {}
+  async function initFileTypes() {
+    try {
+      fileTypeLoading.value = true;
+      const res = await getFileTypes(appStore.currentProjectId);
+      tableFileTypeOptions.value = res;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      fileTypeLoading.value = false;
+    }
+  }
 
   const showType = ref<'list' | 'card'>('list'); // 文件列表展示形式
 
@@ -406,7 +410,6 @@
     {
       title: 'project.fileManagement.tag',
       dataIndex: 'tags',
-      slotName: 'tag',
       isTag: true,
     },
     {
@@ -648,19 +651,42 @@
     selectedModuleKeys.value = [];
   }
 
-  const searchList = debounce(() => {
+  function setTableParams() {
+    const combine: Record<string, any> = {};
+    if (props.activeFolder === 'my') {
+      combine.createUser = userStore.id;
+    }
+    if (fileType.value === 'storage') {
+      combine.storage = 'git';
+    }
     setLoadListParams({
       keyword: keyword.value,
       fileType: tableFileType.value,
       moduleIds: ['all', 'my'].includes(props.activeFolder) ? [] : [props.activeFolder],
       projectId: appStore.currentProjectId,
-      comebine:
-        props.activeFolder === 'my'
-          ? {
-              createUser: userStore.id,
-            }
-          : {},
+      comebine: combine,
     });
+  }
+
+  function changeFileType() {
+    setTableParams();
+    loadList();
+  }
+
+  watch(
+    () => props.activeFolderType,
+    (val) => {
+      if (val === 'folder') {
+        fileType.value = 'module';
+      } else {
+        fileType.value = val;
+      }
+      setTableParams();
+    }
+  );
+
+  const searchList = debounce(() => {
+    setTableParams();
     if (showType.value === 'card') {
       cardListRef.value?.reload();
     } else {
@@ -676,13 +702,6 @@
       searchList();
     },
     { immediate: true }
-  );
-
-  watch(
-    () => keyword.value,
-    () => {
-      searchList();
-    }
   );
 
   /**
@@ -858,6 +877,7 @@
   type RouteQueryPosition = 'uploadDrawer' | null;
 
   onBeforeMount(() => {
+    initFileTypes();
     if (route.query.position) {
       switch (
         route.query.position as RouteQueryPosition // 定位到上传文件抽屉，自动打开

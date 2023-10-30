@@ -6,6 +6,7 @@ import {
   DeleteModuleUrl,
   DownloadFileUrl,
   FilePageUrl,
+  GetFileTypesUrl,
   GetModuleCountUrl,
   GetModuleUrl,
   MoveModuleUrl,
@@ -93,4 +94,9 @@ export function getModules(id: string) {
 // 删除模块
 export function deleteModule(id: string) {
   return MSR.get({ url: DeleteModuleUrl, params: id });
+}
+
+// 获取文件类型集合
+export function getFileTypes(id: string) {
+  return MSR.get<string[]>({ url: GetFileTypesUrl, params: id });
 }
