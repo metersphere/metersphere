@@ -26,4 +26,6 @@ public interface ExtFileModuleMapper {
     FileModule getNextModuleInParentId(@Param("parentId") String parentId, @Param("pos") int pos);
 
     FileModule getPreviousModuleInParentId(@Param("parentId") String parentId, @Param("pos") int pos);
+
+    String selectNameById(String moduleId);
 }

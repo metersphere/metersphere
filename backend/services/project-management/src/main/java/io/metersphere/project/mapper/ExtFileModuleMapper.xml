@@ -61,5 +61,10 @@
                 desc
         limit 1
     </select>
+    <select id="selectNameById" resultType="java.lang.String">
+        SELECT name
+        FROM file_module
+        WHERE id = #{0}
+    </select>
 
 </mapper>

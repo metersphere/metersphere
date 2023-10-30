@@ -9,11 +9,11 @@ import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.request.filemanagement.FileModuleCreateRequest;
 import io.metersphere.project.request.filemanagement.FileModuleUpdateRequest;
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
-import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.service.CleanupProjectResourceService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -284,5 +285,20 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
     @Override
     public void cleanReportResources(String projectId) {
         // nothing to do
+    }
+
+    public Map<String, String> getModuleNameMapByIds(List<String> moduleIds) {
+        if (CollectionUtils.isEmpty(moduleIds)) {
+            return new HashMap<>();
+        } else {
+            FileModuleExample example = new FileModuleExample();
+            example.createCriteria().andIdIn(moduleIds);
+            List<FileModule> moduleList = fileModuleMapper.selectByExample(example);
+            return moduleList.stream().collect(Collectors.toMap(FileModule::getId, FileModule::getName));
+        }
+    }
+
+    public String getModuleName(String moduleId) {
+        return extFileModuleMapper.selectNameById(moduleId);
     }
 }

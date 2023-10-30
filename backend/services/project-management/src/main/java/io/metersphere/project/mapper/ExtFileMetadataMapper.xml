@@ -6,18 +6,22 @@
             resultType="io.metersphere.project.domain.FileMetadata">
         SELECT
         f.id,
+        updateUser.name as updateUser,
+        createUser.name AS createUser,
+        f.module_id,
             f.name,
             f.type,
             f.tags,
             f.description,
-            u.name as update_user,
+        f.create_time,
             f.update_time,
             f.path,
             f.project_id,
             f.size,
             f.storage
         FROM file_metadata f
-        INNER JOIN user u ON f.update_user = u.id
+        INNER JOIN user updateUser ON f.update_user = updateUser.id
+        INNER JOIN user createUser ON f.create_user = createUser.id
         <include refid="file_page_request"/>
     </select>
 
@@ -28,7 +32,8 @@
         f.id,
         f.ref_id
         FROM file_metadata f
-        INNER JOIN user u ON f.update_user = u.id
+        INNER JOIN user updateUser ON f.update_user = updateUser.id
+        INNER JOIN user createUser ON f.create_user = createUser.id
         <include refid="file_page_request"/>
     </select>
 
@@ -37,7 +42,8 @@
             resultType="io.metersphere.project.dto.ModuleCountDTO">
         SELECT f.module_id AS moduleId, count(f.id) AS dataCount
         FROM file_metadata f
-        INNER JOIN user u ON f.update_user = u.id
+        INNER JOIN user updateUser ON f.update_user = updateUser.id
+        INNER JOIN user createUser ON f.create_user = createUser.id
         <include refid="file_page_request"/>
         GROUP BY f.module_id
     </select>
@@ -47,7 +53,8 @@
             resultType="java.lang.Long">
         SELECT count(f.id)
         FROM file_metadata f
-        INNER JOIN user u ON f.update_user = u.id
+        INNER JOIN user updateUser ON f.update_user = updateUser.id
+        INNER JOIN user createUser ON f.create_user = createUser.id
         <include refid="file_page_request"/>
     </select>
     <sql id="file_page_request">
@@ -121,6 +128,27 @@
         SELECT DISTINCT f.type
         FROM file_metadata f
         WHERE f.project_id = #{projectId}
+    </select>
+    <select id="getById" resultType="io.metersphere.project.domain.FileMetadata">
+        SELECT f.id,
+               f.module_id,
+               f.create_time,
+               f.update_time,
+               updateUser.name as updateUser,
+               createUser.name AS createUser,
+               f.name,
+               f.type,
+               f.tags,
+               f.description,
+               f.update_time,
+               f.path,
+               f.project_id,
+               f.size,
+               f.storage
+        FROM file_metadata f
+                 INNER JOIN user updateUser ON f.update_user = updateUser.id
+                 INNER JOIN user createUser ON f.create_user = createUser.id
+        WHERE f.id = #{id}
     </select>
 
 
