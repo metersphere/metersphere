@@ -3,6 +3,7 @@ package io.metersphere.functional.controller;
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
+import io.metersphere.functional.request.FunctionalCaseFollowerRequest;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
 import io.metersphere.sdk.util.JSON;
@@ -33,6 +34,8 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String DEFAULT_TEMPLATE_FIELD_URL = "/functional/case/default/template/field/";
     public static final String FUNCTIONAL_CASE_DETAIL_URL = "/functional/case/detail/";
     public static final String FUNCTIONAL_CASE_UPDATE_URL = "/functional/case/update";
+    public static final String FUNCTIONAL_CASE_EDIT_FOLLOWER_URL = "/functional/case/edit/follower";
+    public static final String FUNCTIONAL_CASE_FOLLOWER_URL = "/functional/case/follower/";
 
     @Test
     @Order(1)
@@ -166,5 +169,35 @@ public class FunctionalCaseControllerTests extends BaseTest {
         editRequest.setId("TEST_FUNCTIONAL_CASE_ID");
         editRequest.setSteps("");
         return editRequest;
+    }
+
+
+    @Test
+    @Order(4)
+    public void testEditFollower() throws Exception {
+        FunctionalCaseFollowerRequest functionalCaseFollowerRequest = new FunctionalCaseFollowerRequest();
+        functionalCaseFollowerRequest.setFunctionalCaseId("TEST_FUNCTIONAL_CASE_ID");
+        functionalCaseFollowerRequest.setUserId("admin");
+        //关注
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_EDIT_FOLLOWER_URL, functionalCaseFollowerRequest);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+        //获取关注人
+        MvcResult followerMvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_FOLLOWER_URL + "TEST_FUNCTIONAL_CASE_ID");
+        String followerReturnData = followerMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder followerResultHolder = JSON.parseObject(followerReturnData, ResultHolder.class);
+        Assertions.assertNotNull(followerResultHolder);
+
+        //取消关注
+        MvcResult editMvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_EDIT_FOLLOWER_URL, functionalCaseFollowerRequest);
+        String editReturnData = editMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder editResultHolder = JSON.parseObject(editReturnData, ResultHolder.class);
+        Assertions.assertNotNull(editResultHolder);
+        //获取关注人
+        MvcResult editFollowerMvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_FOLLOWER_URL + "TEST_FUNCTIONAL_CASE_ID");
+        String editFollowerReturnData = editFollowerMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder editFollowerResultHolder = JSON.parseObject(editFollowerReturnData, ResultHolder.class);
+        Assertions.assertNotNull(editFollowerResultHolder);
     }
 }
