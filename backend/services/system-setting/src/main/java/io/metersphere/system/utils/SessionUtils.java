@@ -3,11 +3,11 @@ package io.metersphere.system.utils;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRolePermission;
+import io.metersphere.system.dto.sdk.SessionUser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -168,7 +168,7 @@ public class SessionUtils {
         return systemPermissions.contains(permission);
     }
 
-    private static Set<String> getSystemPermissions(Map<String, List<UserRolePermission>> userRolePermissions, Map<String, UserRole> role, SessionUser user) {
+    public static Set<String> getSystemPermissions(Map<String, List<UserRolePermission>> userRolePermissions, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
                 .filter(ug -> role.get(ug.getId()) != null && StringUtils.equalsIgnoreCase(role.get(ug.getId()).getType(), UserRoleType.SYSTEM.name()))
                 .filter(ug -> StringUtils.equalsIgnoreCase(ug.getSourceId(), UserRoleScope.SYSTEM))
@@ -177,7 +177,7 @@ public class SessionUtils {
                 .collect(Collectors.toSet());
     }
 
-    private static Set<String> getCurrentOrganizationPermissions(Map<String, List<UserRolePermission>> userRolePermissions, String organizationId, Map<String, UserRole> role, SessionUser user) {
+    public static Set<String> getCurrentOrganizationPermissions(Map<String, List<UserRolePermission>> userRolePermissions, String organizationId, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
                 .filter(ug -> role.get(ug.getId()) != null && StringUtils.equalsIgnoreCase(role.get(ug.getId()).getType(), UserRoleType.ORGANIZATION.name()))
                 .filter(ug -> StringUtils.equalsIgnoreCase(ug.getSourceId(), organizationId))
@@ -186,7 +186,7 @@ public class SessionUtils {
                 .collect(Collectors.toSet());
     }
 
-    private static Set<String> getCurrentProjectPermissions(Map<String, List<UserRolePermission>> userRolePermissions, String projectId, Map<String, UserRole> role, SessionUser user) {
+    public static Set<String> getCurrentProjectPermissions(Map<String, List<UserRolePermission>> userRolePermissions, String projectId, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
                 .filter(ug -> role.get(ug.getId()) != null && StringUtils.equalsIgnoreCase(role.get(ug.getId()).getType(), UserRoleType.PROJECT.name()))
                 .filter(ug -> StringUtils.equalsIgnoreCase(ug.getSourceId(), projectId))

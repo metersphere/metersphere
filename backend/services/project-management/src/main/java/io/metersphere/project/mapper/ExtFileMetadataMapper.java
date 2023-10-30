@@ -16,6 +16,8 @@ public interface ExtFileMetadataMapper {
 
     long countMyFile(FileManagementPageDTO fileManagementPageDTO);
 
+    FileMetadata getById(String id);
+
     List<String> selectIdByRefIdList(@Param("refIdList") List<String> refIdList);
 
     List<FileMetadata> selectDeleteFileInfoByIds(@Param("ids") List<String> ids);
