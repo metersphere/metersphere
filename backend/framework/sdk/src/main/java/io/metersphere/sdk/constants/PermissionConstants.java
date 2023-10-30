@@ -220,4 +220,13 @@ public class PermissionConstants {
 
 
     /*------ end: FUNCTIONAL_CASE ------*/
+
+    /*------ start: API_DEBUG ------*/
+    public static final String PROJECT_API_DEBUG_READ = "PROJECT_API_DEBUG:READ";
+    public static final String PROJECT_API_DEBUG_READ_ADD = "PROJECT_API_DEBUG:READ+ADD";
+    public static final String PROJECT_API_DEBUG_READ_UPDATE = "PROJECT_API_DEBUG:READ+UPDATE";
+    public static final String PROJECT_API_DEBUG_READ_DELETE = "PROJECT_API_DEBUG:READ+DELETE";
+    public static final String PROJECT_API_DEBUG_READ_IMPORT = "PROJECT_API_DEBUG:READ+IMPORT";
+    public static final String PROJECT_API_DEBUG_READ_EXECUTE = "PROJECT_API_DEBUG:READ+EXECUTE";
+    /*------ end: API_DEBUG ------*/
 }

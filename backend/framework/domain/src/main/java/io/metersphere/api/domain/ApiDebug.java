@@ -36,7 +36,9 @@ public class ApiDebug implements Serializable {
     @Size(min = 1, max = 50, message = "{api_debug.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description = "模块fk")
+    @Schema(description = "模块fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_debug.module_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_debug.module_id.length_range}", groups = {Created.class, Updated.class})
     private String moduleId;
 
     @Schema(description = "创建时间")

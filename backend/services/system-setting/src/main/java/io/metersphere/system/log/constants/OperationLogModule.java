@@ -97,4 +97,7 @@ public class OperationLogModule {
 
     //用例
     public static final String FUNCTIONAL_CASE = "FUNCTIONAL_CASE";
+
+    //接口调试
+    public static final String API_DEBUG = "API_DEBUG";
 }

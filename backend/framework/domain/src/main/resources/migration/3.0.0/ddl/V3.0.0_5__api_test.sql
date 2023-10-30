@@ -9,7 +9,7 @@ CREATE TABLE api_debug(
     `method` VARCHAR(20)    COMMENT 'http协议类型post/get/其它协议则是协议名(mqtt)' ,
     `path` VARCHAR(500)    COMMENT 'http协议路径/其它协议则为空' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-    `module_id` VARCHAR(50)   DEFAULT 'NONE' COMMENT '模块fk' ,
+    `module_id` VARCHAR(50)  NOT NULL DEFAULT 'root' COMMENT '模块fk' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
@@ -41,10 +41,9 @@ DROP TABLE IF EXISTS api_debug_module;
 CREATE TABLE api_debug_module(
     `id` VARCHAR(50) NOT NULL   COMMENT '接口模块pk' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
-    `protocol` VARCHAR(64) NOT NULL   COMMENT '协议' ,
+    `protocol` VARCHAR(20) NOT NULL   COMMENT '协议' ,
     `parent_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父级fk' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-    `level` INT NOT NULL  DEFAULT 1 COMMENT '树节点级别' ,
     `pos` INT NOT NULL   COMMENT '排序' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
@@ -58,6 +57,7 @@ CREATE TABLE api_debug_module(
 CREATE INDEX idx_project_id ON api_debug_module(project_id);
 CREATE INDEX idx_protocol ON api_debug_module(protocol);
 CREATE INDEX idx_pos ON api_debug_module(pos);
+CREATE INDEX idx_create_user ON api_debug_module(create_user);
 
 
 DROP TABLE IF EXISTS api_definition;
