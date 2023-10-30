@@ -70,6 +70,7 @@ VALUES (UUID(), 'default-project-member-user-guo', 'project_admin', '10000110000
 INSERT INTO user_role_permission(id, role_id, permission_id)
 VALUES ('user_role_guo_permission1', 'project_admin', 'FUNCTIONAL_CASE_COMMENT:READ+ADD'),
        ('user_role_guo_permission2', 'project_admin', 'FUNCTIONAL_CASE_COMMENT:READ+DELETE'),
-       ('user_role_guo_permission3', 'project_admin', 'FUNCTIONAL_CASE:READ+ADD');
+       ('user_role_guo_permission3', 'project_admin', 'FUNCTIONAL_CASE:READ+ADD'),
+       ('user_role_guo_permission4', 'project_admin', 'FUNCTIONAL_CASE_COMMENT:READ');
 
 

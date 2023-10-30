@@ -1,6 +1,7 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCaseComment;
+import io.metersphere.functional.dto.FunctionalCaseCommentDTO;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.functional.service.FunctionalCaseCommentService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -12,6 +13,8 @@ import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "用例管理-功能用例-用例评论")
 @RestController
@@ -33,5 +36,12 @@ public class FunctionalCaseCommentController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_COMMENT_READ_DELETE)
     public void deleteComment(@PathVariable String commentId) {
         functionalCaseCommentService.deleteComment(commentId);
+    }
+
+    @GetMapping("/get/list/{caseId}")
+    @Operation(summary = "用例管理-功能用例-用例评论-获取用例评论")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_COMMENT_READ)
+    public List<FunctionalCaseCommentDTO> getCommentList(@PathVariable String caseId) {
+       return functionalCaseCommentService.getCommentList(caseId);
     }
 }
