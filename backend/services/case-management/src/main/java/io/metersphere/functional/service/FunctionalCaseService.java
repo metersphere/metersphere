@@ -1,13 +1,11 @@
 package io.metersphere.functional.service;
 
-import io.metersphere.functional.domain.FunctionalCase;
-import io.metersphere.functional.domain.FunctionalCaseAttachment;
-import io.metersphere.functional.domain.FunctionalCaseBlob;
-import io.metersphere.functional.domain.FunctionalCaseCustomField;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
+import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
@@ -16,16 +14,13 @@ import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.MsFileUtils;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.file.MinioRepository;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,8 +28,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author wx
@@ -66,6 +64,8 @@ public class FunctionalCaseService {
     @Resource
     private ProjectTemplateService projectTemplateService;
 
+    @Resource
+    private FunctionalCaseFollowerMapper functionalCaseFollowerMapper;
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
         String caseId = IDGenerator.nextStr();
@@ -119,13 +119,9 @@ public class FunctionalCaseService {
     }
 
     public int getNextNum(String projectId) {
-        //TODO 获取下一个num方法(暂时直接查询数据库)
-        FunctionalCase testCase = extFunctionalCaseMapper.getMaxNumByProjectId(projectId);
-        if (testCase == null || testCase.getNum() == null) {
-            return 100001;
-        } else {
-            return Optional.ofNullable(testCase.getNum() + 1).orElse(100001);
-        }
+        long nextNum = NumGenerator.nextNum(projectId, ApplicationNumScope.CASE_MANAGEMENT);
+        BigDecimal bigDecimal = new BigDecimal(nextNum);
+        return bigDecimal.intValue();
     }
 
     /**
@@ -267,53 +263,42 @@ public class FunctionalCaseService {
     }
 
 
-
-    //TODO 日志
     /**
-     * 新增用例 日志
+     * 关注/取消关注用例
      *
-     * @param requests
-     * @param files
-     * @return
+     * @param functionalCaseId
+     * @param userId
      */
-    public LogDTO addFunctionalCaseLog(FunctionalCaseAddRequest requests, List<MultipartFile> files) {
-        LogDTO dto = new LogDTO(
-                requests.getProjectId(),
-                null,
-                null,
-                null,
-                OperationLogType.ADD.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
-                requests.getName());
-
-        dto.setPath("/functional/case/add");
-        dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(requests));
-        return dto;
+    public void editFollower(String functionalCaseId, String userId) {
+        FunctionalCaseFollowerExample example = new FunctionalCaseFollowerExample();
+        example.createCriteria().andCaseIdEqualTo(functionalCaseId).andUserIdEqualTo(userId);
+        if (functionalCaseFollowerMapper.countByExample(example) > 0) {
+            functionalCaseFollowerMapper.deleteByPrimaryKey(functionalCaseId, userId);
+        } else {
+            FunctionalCaseFollower functionalCaseFollower = new FunctionalCaseFollower();
+            functionalCaseFollower.setCaseId(functionalCaseId);
+            functionalCaseFollower.setUserId(userId);
+            functionalCaseFollowerMapper.insert(functionalCaseFollower);
+        }
     }
 
 
     /**
-     * 更新用例 日志
+     * 获取用例关注人
      *
-     * @param requests
-     * @param files
+     * @param functionalCaseId
      * @return
      */
-    public LogDTO updateFunctionalCaseLog(FunctionalCaseAddRequest requests, List<MultipartFile> files) {
-        //TODO 获取原值
-        LogDTO dto = new LogDTO(
-                requests.getProjectId(),
-                null,
-                null,
-                null,
-                OperationLogType.UPDATE.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
-                requests.getName());
-
-        dto.setPath("/functional/case/update");
-        dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setModifiedValue(JSON.toJSONBytes(requests));
-        return dto;
+    public List<String> getFollower(String functionalCaseId) {
+        FunctionalCaseFollowerExample example = new FunctionalCaseFollowerExample();
+        example.createCriteria().andCaseIdEqualTo(functionalCaseId);
+        List<FunctionalCaseFollower> caseFollowers = functionalCaseFollowerMapper.selectByExample(example);
+        List<String> followers = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(caseFollowers)) {
+            followers = caseFollowers.stream().map(FunctionalCaseFollower::getUserId).distinct().collect(Collectors.toList());
+        }
+        return followers;
     }
+
+
 }
