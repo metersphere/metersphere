@@ -7,7 +7,6 @@
     <result column="protocol" jdbcType="VARCHAR" property="protocol" />
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="level" jdbcType="INTEGER" property="level" />
     <result column="pos" jdbcType="INTEGER" property="pos" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
@@ -73,8 +72,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, protocol, parent_id, project_id, `level`, pos, create_time, update_time, 
-    update_user, create_user
+    id, `name`, protocol, parent_id, project_id, pos, create_time, update_time, update_user, 
+    create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDebugModuleExample" resultMap="BaseResultMap">
     select
@@ -108,13 +107,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiDebugModule">
     insert into api_debug_module (id, `name`, protocol, 
-      parent_id, project_id, `level`, 
-      pos, create_time, update_time, 
-      update_user, create_user)
+      parent_id, project_id, pos, 
+      create_time, update_time, update_user, 
+      create_user)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, 
-      #{pos,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{updateUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR})
+      #{parentId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{pos,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDebugModule">
     insert into api_debug_module
@@ -133,9 +132,6 @@
       </if>
       <if test="projectId != null">
         project_id,
-      </if>
-      <if test="level != null">
-        `level`,
       </if>
       <if test="pos != null">
         pos,
@@ -168,9 +164,6 @@
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
-      </if>
-      <if test="level != null">
-        #{level,jdbcType=INTEGER},
       </if>
       <if test="pos != null">
         #{pos,jdbcType=INTEGER},
@@ -213,9 +206,6 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
-      <if test="record.level != null">
-        `level` = #{record.level,jdbcType=INTEGER},
-      </if>
       <if test="record.pos != null">
         pos = #{record.pos,jdbcType=INTEGER},
       </if>
@@ -243,7 +233,6 @@
       protocol = #{record.protocol,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      `level` = #{record.level,jdbcType=INTEGER},
       pos = #{record.pos,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
@@ -267,9 +256,6 @@
       </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
-      </if>
-      <if test="level != null">
-        `level` = #{level,jdbcType=INTEGER},
       </if>
       <if test="pos != null">
         pos = #{pos,jdbcType=INTEGER},
@@ -295,7 +281,6 @@
       protocol = #{protocol,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
-      `level` = #{level,jdbcType=INTEGER},
       pos = #{pos,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
@@ -305,14 +290,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_debug_module
-    (id, `name`, protocol, parent_id, project_id, `level`, pos, create_time, update_time, 
-      update_user, create_user)
+    (id, `name`, protocol, parent_id, project_id, pos, create_time, update_time, update_user, 
+      create_user)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.protocol,jdbcType=VARCHAR}, 
-        #{item.parentId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.level,jdbcType=INTEGER}, 
-        #{item.pos,jdbcType=INTEGER}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.updateUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR})
+        #{item.parentId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.pos,jdbcType=INTEGER}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, 
+        #{item.createUser,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -339,9 +324,6 @@
         </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
-        </if>
-        <if test="'level'.toString() == column.value">
-          #{item.level,jdbcType=INTEGER}
         </if>
         <if test="'pos'.toString() == column.value">
           #{item.pos,jdbcType=INTEGER}

@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -26,6 +28,9 @@ public class BaseTreeNode {
     @Schema(description = "子节点")
     private List<BaseTreeNode> children = new ArrayList<>();
 
+    @Schema(description = "附加信息")
+    private Map<String, String> attachInfo = new HashMap<>();
+
     @Schema(description = "节点资源数量（多数情况下不会随着节点信息返回，视接口而定）")
     private long count = 0;
 
@@ -44,5 +49,9 @@ public class BaseTreeNode {
 
     public void addChild(BaseTreeNode node) {
         children.add(node);
+    }
+
+    public void putAttachInfo(String key, String value) {
+        attachInfo.put(key, value);
     }
 }

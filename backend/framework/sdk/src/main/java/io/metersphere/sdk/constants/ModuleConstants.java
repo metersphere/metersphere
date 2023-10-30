@@ -13,4 +13,6 @@ public class ModuleConstants {
     public static final String NODE_TYPE_GITEE = "Gitee";
     //GitLab节点类型
     public static final String NODE_TYPE_GITLAB = "GitLab";
+
+    public static final String NODE_PROTOCOL_HTTP = "HTTP";
 }
