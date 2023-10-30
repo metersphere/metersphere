@@ -39,9 +39,7 @@ public class FunctionalCaseNoticeService {
     public FunctionalCaseDTO getFunctionalCaseDTO(FunctionalCaseCommentRequest functionalCaseCommentRequest){
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(functionalCaseCommentRequest.getCaseId());
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
-        if (functionalCase!=null) {
-            BeanUtils.copyBean(functionalCaseDTO,functionalCase);
-        }
+        BeanUtils.copyBean(functionalCaseDTO,functionalCase);
         setNotifier(functionalCaseCommentRequest, functionalCaseDTO);
         List<OptionDTO> customFields = getCustomFields(functionalCaseCommentRequest.getCaseId());
         functionalCaseDTO.setFields(customFields);

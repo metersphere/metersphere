@@ -1,6 +1,7 @@
 package io.metersphere.functional.request;
 
 import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -9,6 +10,10 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class FunctionalCaseCommentRequest {
+
+    @Schema(description =  "评论ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_comment.id.not_blank}", groups = {Updated.class})
+    private String id;
 
     @Schema(description =  "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_comment.case_id.not_blank}", groups = {Created.class})
