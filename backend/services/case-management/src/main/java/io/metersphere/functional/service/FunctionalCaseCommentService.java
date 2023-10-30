@@ -114,6 +114,10 @@ public class FunctionalCaseCommentService {
         functionalCaseCommentMapper.insert(functionalCaseComment);
         FunctionalCaseDTO functionalCaseDTO = functionalCaseNoticeService.getFunctionalCaseDTO(functionalCaseCommentRequest);
         sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTO);
+        if (StringUtils.isBlank(functionalCaseCommentRequest.getParentId()) && !StringUtils.equals(functionalCaseCommentRequest.getEvent(),NoticeConstants.Event.COMMENT)) {
+            functionalCaseCommentRequest.setEvent(NoticeConstants.Event.COMMENT);
+            sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTO);
+        }
         return functionalCaseComment;
     }
 
@@ -124,14 +128,7 @@ public class FunctionalCaseCommentService {
      * @return FunctionalCaseComment
      */
     public FunctionalCaseComment saveCommentWidthNotice(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
-        checkParentId(functionalCaseCommentRequest, functionalCaseComment);
-        if (StringUtils.isBlank(functionalCaseCommentRequest.getReplyUser())) {
-            throw new MSException(Translator.get("case_comment.reply_user_is_null"));
-        }
-        functionalCaseCommentRequest.setReplyUser(functionalCaseCommentRequest.getReplyUser());
-        if (StringUtils.isNotBlank(functionalCaseCommentRequest.getNotifier())) {
-            functionalCaseComment.setNotifier(functionalCaseCommentRequest.getNotifier());
-        }
+        setOther(functionalCaseCommentRequest, functionalCaseComment);
         functionalCaseCommentMapper.insert(functionalCaseComment);
         FunctionalCaseDTO functionalCaseDTOReply = functionalCaseNoticeService.getFunctionalCaseDTO(functionalCaseCommentRequest);
         sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTOReply);
@@ -140,6 +137,19 @@ public class FunctionalCaseCommentService {
         //发通知
         sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTO);
         return functionalCaseComment;
+    }
+
+    private void setOther(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment) {
+        checkParentId(functionalCaseCommentRequest, functionalCaseComment);
+        if (StringUtils.isBlank(functionalCaseCommentRequest.getReplyUser())) {
+            throw new MSException(Translator.get("case_comment.reply_user_is_null"));
+        }
+        functionalCaseCommentRequest.setReplyUser(functionalCaseCommentRequest.getReplyUser());
+        if (StringUtils.isNotBlank(functionalCaseCommentRequest.getNotifier())) {
+            functionalCaseComment.setNotifier(functionalCaseCommentRequest.getNotifier());
+        } else {
+            functionalCaseComment.setNotifier("");
+        }
     }
 
     @Async
@@ -287,4 +297,51 @@ public class FunctionalCaseCommentService {
         return userIds;
     }
 
+    public FunctionalCaseComment updateComment(FunctionalCaseCommentRequest functionalCaseCommentRequest, String userId) {
+        checkCase(functionalCaseCommentRequest.getCaseId());
+        FunctionalCaseComment functionalCaseComment = getFunctionalCaseCommentByUpdate(functionalCaseCommentRequest);
+        if (StringUtils.equals(functionalCaseCommentRequest.getEvent(), NoticeConstants.Event.REPLY)) {
+            return updateCommentWidthNotice(functionalCaseCommentRequest, functionalCaseComment, userId);
+        } else {
+            return updateCommentWidthOutNotice(functionalCaseCommentRequest, functionalCaseComment, userId);
+        }
+    }
+
+    private FunctionalCaseComment updateCommentWidthOutNotice(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
+        if (StringUtils.isNotBlank(functionalCaseCommentRequest.getNotifier())) {
+            functionalCaseComment.setNotifier(functionalCaseCommentRequest.getNotifier());
+        } else {
+            functionalCaseComment.setNotifier("");
+        }
+        functionalCaseCommentMapper.updateByPrimaryKeySelective(functionalCaseComment);
+        FunctionalCaseDTO functionalCaseDTO = functionalCaseNoticeService.getFunctionalCaseDTO(functionalCaseCommentRequest);
+        if (StringUtils.isNotBlank(functionalCaseCommentRequest.getNotifier()) && StringUtils.equals(functionalCaseCommentRequest.getEvent(),NoticeConstants.Event.AT)) {
+            sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTO);
+        }
+        return  functionalCaseComment;
+    }
+
+    private FunctionalCaseComment updateCommentWidthNotice(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
+        setOther(functionalCaseCommentRequest, functionalCaseComment);
+        functionalCaseCommentMapper.updateByPrimaryKeySelective(functionalCaseComment);
+        functionalCaseCommentRequest.setEvent(NoticeConstants.Event.AT);
+        FunctionalCaseDTO functionalCaseDTO = functionalCaseNoticeService.getFunctionalCaseDTO(functionalCaseCommentRequest);
+        //发通知
+        if (StringUtils.isNotBlank(functionalCaseCommentRequest.getNotifier())) {
+            sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTO);
+        }
+        return functionalCaseComment;
+    }
+
+    private FunctionalCaseComment getFunctionalCaseCommentByUpdate(FunctionalCaseCommentRequest functionalCaseCommentRequest) {
+        FunctionalCaseComment functionalCaseComment = new FunctionalCaseComment();
+        functionalCaseComment.setId(functionalCaseCommentRequest.getId());
+        functionalCaseComment.setCaseId(functionalCaseCommentRequest.getCaseId());
+        functionalCaseComment.setContent(functionalCaseCommentRequest.getContent());
+        functionalCaseComment.setCreateUser(null);
+        functionalCaseComment.setCreateTime(null);
+        functionalCaseComment.setUpdateTime(System.currentTimeMillis());
+        functionalCaseComment.setType(CommentEnum.CASE.toString());
+        return functionalCaseComment;
+    }
 }

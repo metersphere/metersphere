@@ -7,6 +7,7 @@ import io.metersphere.functional.service.FunctionalCaseCommentService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -26,21 +27,28 @@ public class FunctionalCaseCommentController {
 
     @PostMapping("/save")
     @Operation(summary = "用例管理-功能用例-用例评论-创建评论")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_COMMENT_READ_ADD)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
     public FunctionalCaseComment saveComment(@Validated({Created.class}) @RequestBody FunctionalCaseCommentRequest functionalCaseCommentRequest) {
         return functionalCaseCommentService.saveComment(functionalCaseCommentRequest, SessionUtils.getUserId());
     }
 
+    @PostMapping("/update")
+    @Operation(summary = "用例管理-功能用例-用例评论-修改评论")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
+    public FunctionalCaseComment updateComment(@Validated({Updated.class}) @RequestBody FunctionalCaseCommentRequest functionalCaseCommentRequest) {
+        return functionalCaseCommentService.updateComment(functionalCaseCommentRequest, SessionUtils.getUserId());
+    }
+
     @GetMapping("/delete/{commentId}")
     @Operation(summary = "用例管理-功能用例-用例评论-删除评论")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_COMMENT_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
     public void deleteComment(@PathVariable String commentId) {
         functionalCaseCommentService.deleteComment(commentId);
     }
 
     @GetMapping("/get/list/{caseId}")
     @Operation(summary = "用例管理-功能用例-用例评论-获取用例评论")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_COMMENT_READ)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
     public List<FunctionalCaseCommentDTO> getCommentList(@PathVariable String caseId) {
        return functionalCaseCommentService.getCommentList(caseId);
     }
