@@ -86,11 +86,12 @@
                 </slot>
               </template>
               <template v-else-if="item.isTag">
-                <div class="one-line-text max-w-[456px]">
-                  <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
-                    {{ record[item.dataIndex as string] || (attrs.emptyDataShowLine ? '-' : '') }}
-                  </slot>
-                </div>
+                <span
+                  v-if="!record[item.dataIndex as string] || (Array.isArray(record[item.dataIndex as string]) && record[item.dataIndex as string].length === 0)"
+                >
+                  <slot :name="item.slotName" v-bind="{ record, rowIndex, column }"> - </slot>
+                </span>
+                <MsTagGroup v-else :tag-list="record[item.dataIndex as string]" type="primary" theme="outline" />
               </template>
               <template v-else-if="item.slotName === SpecialColumnEnum.OPERATION">
                 <slot name="operation" v-bind="{ record, rowIndex }" />
@@ -187,6 +188,7 @@
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsCheckbox from '../ms-checkbox/MsCheckbox.vue';
   import BatchAction from './batchAction.vue';
   import ColumnSelector from './columnSelector.vue';
@@ -371,9 +373,9 @@
   const handleSortChange = (dataIndex: string, direction: string) => {
     const regex = /^__arco_data_index_(\d+)$/;
     const match = dataIndex.match(regex);
-    const lastDigit = match && (match[1] as unknown as number);
-    if (lastDigit) {
-      dataIndex = currentColumns.value[lastDigit - 1].dataIndex as string;
+    const lastDigit = match && Number(match[1]);
+    if (lastDigit && !Number.isNaN(lastDigit)) {
+      dataIndex = currentColumns.value[lastDigit].dataIndex as string;
     }
     let sortOrder = '';
     if (direction === 'ascend') {

@@ -57,6 +57,7 @@
               ref="folderTreeRef"
               v-model:selected-keys="selectedKeys"
               :is-expand-all="isExpandAll"
+              :modules-count="modulesCount"
               @init="setRootModules"
               @folder-node-select="folderNodeSelect"
             />
@@ -92,14 +93,14 @@
   import rightBox from './components/rightBox.vue';
   import StorageList from './components/storageList.vue';
 
+  import { getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import { mapTree } from '@/utils';
 
-  import { FileListQueryParams } from '@/models/projectManagement/file';
+  import { FileListQueryParams, ModuleTreeNode } from '@/models/projectManagement/file';
 
   const { t } = useI18n();
 
-  const myFileCount = ref(0);
-  const allFileCount = ref(0);
   const isExpandAll = ref(false);
   const activeFolderType = ref<'folder' | 'module' | 'storage'>('folder');
   const storageDrawerVisible = ref(false);
@@ -181,12 +182,30 @@
     }
   }
 
+  const modulesCount = ref<Record<string, number>>({});
+  const myFileCount = ref(0);
+  const allFileCount = ref(0);
+
+  /**
+   * 初始化模块文件数量
+   */
+  async function initModulesCount(params: FileListQueryParams) {
+    try {
+      modulesCount.value = await getModulesCount(params);
+      myFileCount.value = modulesCount.value.my || 0;
+      allFileCount.value = modulesCount.value.all || 0;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   /**
    * 右侧表格数据刷新后，若当前展示的是模块，则刷新模块树的统计数量
    */
   function handleModuleTableInit(params: FileListQueryParams) {
     if (showType.value === 'Module') {
-      folderTreeRef.value?.initModulesCount(params);
+      initModulesCount(params);
     }
   }
 </script>

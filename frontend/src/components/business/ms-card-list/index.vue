@@ -24,6 +24,11 @@
         <a-spin :loading="bottomLoading"></a-spin>
       </div>
     </div>
+    <a-empty
+      v-if="!topLoading && !bottomLoading && (remoteList.length === 0 || props.list?.length === 0)"
+      :description="t('common.noData')"
+      class="h-[200px] justify-center"
+    />
   </div>
 </template>
 
@@ -33,6 +38,7 @@
   import { debounce } from 'lodash-es';
 
   import useContainerShadow from '@/hooks/useContainerShadow';
+  import { useI18n } from '@/hooks/useI18n';
 
   import type { CommonList } from '@/models/common';
 
@@ -54,6 +60,8 @@
       isProportional: true,
     }
   );
+
+  const { t } = useI18n();
 
   const msCardListRef: Ref<HTMLElement | null> = ref(null);
   const msCardListContainerRef: Ref<HTMLElement | null> = ref(null);
@@ -254,5 +262,8 @@
         padding: 8px;
       }
     }
+  }
+  :deep(.arco-icon-empty) {
+    font-size: 48px;
   }
 </style>

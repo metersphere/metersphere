@@ -95,6 +95,7 @@
     isExpandAll: boolean;
     selectedKeys?: Array<string | number>; // 选中的节点 key
     isModal?: boolean; // 是否是弹窗模式
+    modulesCount?: Record<string, number>; // 模块数量统计对象
   }>();
   const emit = defineEmits(['update:selectedKeys', 'init', 'folderNodeSelect']);
 
@@ -265,9 +266,9 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-      initModules();
     } finally {
       loading.value = false;
+      initModules();
     }
   }
 
@@ -285,24 +286,20 @@
   /**
    * 初始化模块文件数量
    */
-  async function initModulesCount(params: FileListQueryParams) {
-    try {
-      const res = await getModulesCount(params);
+  watch(
+    () => props.modulesCount,
+    (obj) => {
       folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
         return {
           ...node,
-          count: res[node.id] || 0,
+          count: obj?.[node.id] || 0,
         };
       });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
     }
-  }
+  );
 
   defineExpose({
     initModules,
-    initModulesCount,
   });
 </script>
 
