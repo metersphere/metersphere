@@ -1,8 +1,8 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.request.ApiDebugRequest;
-import io.metersphere.api.request.DebugModuleCreateRequest;
-import io.metersphere.api.request.DebugModuleUpdateRequest;
+import io.metersphere.api.request.debug.ApiDebugRequest;
+import io.metersphere.api.request.debug.DebugModuleCreateRequest;
+import io.metersphere.api.request.debug.DebugModuleUpdateRequest;
 import io.metersphere.api.service.ApiDebugModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
