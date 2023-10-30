@@ -12,7 +12,7 @@
       <template v-if="showJumpMethod">
         <div class="mb-2 flex items-center">
           <span class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.mode') }}</span>
-          <a-tooltip :content="t('msTable.columnSetting.tooltipContent')">
+          <a-tooltip>
             <template #content>
               <span>{{ t('msTable.columnSetting.tooltipContentDrawer') }}</span
               ><br />
@@ -39,14 +39,14 @@
           </a-radio>
         </a-radio-group>
       </template>
-      <tmplate v-if="props.showPagination">
+      <template v-if="props.showPagination">
         <div class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.pageSize') }} </div>
         <PageSizeSelector
           v-model:model-value="pageSize"
           class="mt-2"
           @page-size-change="(v: number) => emit('pageSizeChange',v)"
         />
-      </tmplate>
+      </template>
       <a-divider />
       <div class="mb-2 flex items-center justify-between">
         <div class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.header') }}</div>
@@ -91,7 +91,7 @@
   import PageSizeSelector from './comp/pageSizeSelector.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore, useTableStore } from '@/store';
+  import { useTableStore } from '@/store';
   import { TableOpenDetailMode } from '@/store/modules/ms-table/types';
 
   import { MsTableColumn } from './type';
@@ -100,8 +100,7 @@
   const tableStore = useTableStore();
   const { t } = useI18n();
   const currentMode = ref('');
-  const appStore = useAppStore();
-  const pageSize = ref(appStore.pageSize);
+  const pageSize = ref();
   // 不能拖拽的列
   const nonSortColumn = ref<MsTableColumn>([]);
   // 可以拖拽的列
@@ -126,8 +125,8 @@
     visible.value = true;
   };
 
-  const handleCancel = () => {
-    tableStore.setColumns(
+  const handleCancel = async () => {
+    await tableStore.setColumns(
       props.tableKey,
       [...nonSortColumn.value, ...couldSortColumn.value],
       currentMode.value as TableOpenDetailMode
@@ -137,9 +136,11 @@
   };
 
   const loadColumn = (key: string) => {
-    const { nonSort, couldSort } = tableStore.getColumns(key);
-    nonSortColumn.value = nonSort;
-    couldSortColumn.value = couldSort;
+    tableStore.getColumns(key).then((res) => {
+      const { nonSort, couldSort } = res;
+      nonSortColumn.value = nonSort;
+      couldSortColumn.value = couldSort;
+    });
   };
 
   const handleReset = () => {
@@ -153,7 +154,12 @@
 
   onBeforeMount(() => {
     if (props.tableKey) {
-      currentMode.value = tableStore.getMode(props.tableKey);
+      tableStore.getMode(props.tableKey).then((res) => {
+        currentMode.value = res;
+      });
+      tableStore.getPageSize(props.tableKey).then((res) => {
+        pageSize.value = res;
+      });
       loadColumn(props.tableKey);
     }
   });

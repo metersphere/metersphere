@@ -51,7 +51,6 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRoute } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
@@ -232,7 +231,7 @@
   watch(
     () => props.data,
     (val) => {
-      totalData.value = props.data;
+      totalData.value = val;
     }
   );
   const tableRef = ref();

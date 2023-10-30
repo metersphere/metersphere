@@ -10,9 +10,6 @@ import { MsTableState, TableOpenDetailMode } from './types';
 
 const msTableStore = defineStore('msTable', {
   // 开启数据持久化
-  persist: {
-    paths: ['selectorColumnMap', 'pageSizeMap'],
-  },
   state: (): MsTableState => ({
     selectorColumnMap: {},
     baseSortIndex: 10,
