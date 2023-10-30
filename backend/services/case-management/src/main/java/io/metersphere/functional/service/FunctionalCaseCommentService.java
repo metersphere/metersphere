@@ -1,16 +1,20 @@
 package io.metersphere.functional.service;
 
+
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseComment;
 import io.metersphere.functional.domain.FunctionalCaseCommentExample;
 import io.metersphere.functional.dto.CommentEnum;
+import io.metersphere.functional.dto.FunctionalCaseCommentDTO;
 import io.metersphere.functional.dto.FunctionalCaseDTO;
 import io.metersphere.functional.mapper.FunctionalCaseCommentMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.constants.NoticeConstants;
@@ -22,8 +26,13 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.apache.commons.collections.CollectionUtils;
+
+
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author guoyuqi
@@ -55,7 +64,7 @@ public class FunctionalCaseCommentService {
      * @return FunctionalCaseComment
      */
     public FunctionalCaseComment saveComment(FunctionalCaseCommentRequest functionalCaseCommentRequest, String userId) {
-        checkCase(functionalCaseCommentRequest);
+        checkCase(functionalCaseCommentRequest.getCaseId());
         FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest, userId);
         if (StringUtils.equals(functionalCaseCommentRequest.getEvent(), NoticeConstants.Event.REPLY)) {
             return saveCommentWidthNotice(functionalCaseCommentRequest, functionalCaseComment, userId);
@@ -85,8 +94,8 @@ public class FunctionalCaseCommentService {
         return functionalCaseComment;
     }
 
-    private void checkCase(FunctionalCaseCommentRequest functionalCaseCommentRequest) {
-        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(functionalCaseCommentRequest.getCaseId());
+    private void checkCase(String caseId) {
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(caseId);
         if (functionalCase == null) {
             throw new MSException(Translator.get("case_comment.case_is_null"));
         }
@@ -198,4 +207,84 @@ public class FunctionalCaseCommentService {
         functionalCaseCommentExample.createCriteria().andIdIn(commentIds);
         functionalCaseCommentMapper.deleteByExample(functionalCaseCommentExample);
     }
+
+    public List<FunctionalCaseCommentDTO> getCommentList(String caseId) {
+        checkCase(caseId);
+        //查询出当前用例下的所有数据
+        FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
+        functionalCaseCommentExample.createCriteria().andCaseIdEqualTo(caseId);
+        List<FunctionalCaseComment> functionalCaseComments = functionalCaseCommentMapper.selectByExampleWithBLOBs(functionalCaseCommentExample);
+        List<String> userIds = getUserIds(functionalCaseComments);
+        Map<String, User> userMap = getUserMap(userIds);
+        return buildData(functionalCaseComments, userMap);
+    }
+
+    /**
+     * 组装需要返回前端的数据结构
+     * @param functionalCaseComments 查出来的所有当前用例的评论信息
+     * @param userMap 用户信息
+     */
+    private List<FunctionalCaseCommentDTO> buildData(List<FunctionalCaseComment> functionalCaseComments, Map<String, User> userMap) {
+        List<FunctionalCaseCommentDTO>list = new ArrayList<>();
+        List<FunctionalCaseComment> rootList = functionalCaseComments.stream().filter(t -> StringUtils.isBlank(t.getParentId())).toList();
+        List<FunctionalCaseComment> replyList = functionalCaseComments.stream().filter(t -> StringUtils.isNotBlank(t.getParentId())).toList();
+        Map<String, List<FunctionalCaseComment>> commentMap = replyList.stream().collect(Collectors.groupingBy(FunctionalCaseComment::getParentId));
+        for (FunctionalCaseComment functionalCaseComment : rootList) {
+            FunctionalCaseCommentDTO functionalCaseCommentDTO = new FunctionalCaseCommentDTO();
+            BeanUtils.copyBean(functionalCaseCommentDTO,functionalCaseComment);
+            functionalCaseCommentDTO.setUserName(userMap.get(functionalCaseComment.getCreateUser()).getName());
+            List<FunctionalCaseComment> replyComments = commentMap.get(functionalCaseComment.getId());
+            if (CollectionUtils.isNotEmpty(replyComments)) {
+                List<FunctionalCaseCommentDTO> replies = getReplies(userMap, functionalCaseComment, replyComments);
+                functionalCaseCommentDTO.setReplies(replies);
+            }
+            list.add(functionalCaseCommentDTO);
+        }
+        return list;
+    }
+
+    private List<FunctionalCaseCommentDTO> getReplies(Map<String, User> userMap, FunctionalCaseComment functionalCaseComment, List<FunctionalCaseComment> replyComments) {
+        List<FunctionalCaseCommentDTO> replies = new ArrayList<>();
+        for (FunctionalCaseComment replyComment : replyComments) {
+            FunctionalCaseCommentDTO functionalCaseCommentDTOReply = new FunctionalCaseCommentDTO();
+            BeanUtils.copyBean(functionalCaseCommentDTOReply,replyComment);
+            functionalCaseCommentDTOReply.setUserName(userMap.get(replyComment.getCreateUser()).getName());
+            if (StringUtils.isBlank(replyComment.getReplyUser())) {
+                functionalCaseCommentDTOReply.setReplyUserName(userMap.get(functionalCaseComment.getCreateUser()).getName());
+            } else {
+                functionalCaseCommentDTOReply.setReplyUserName(userMap.get(replyComment.getReplyUser()).getName());
+            }
+            replies.add(functionalCaseCommentDTOReply);
+        }
+        return replies.stream().sorted(Comparator.comparing(FunctionalCaseComment::getCreateTime).reversed()).toList();
+    }
+
+    /**
+     * 根据userIds 获取user信息
+     * @param userIds userIds
+     * @return Map<String, User>
+     */
+    private Map<String, User> getUserMap(List<String> userIds) {
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(userIds);
+        List<User> users = userMapper.selectByExample(userExample);
+       return users.stream().collect(Collectors.toMap(User::getId, item -> item));
+    }
+
+    /**
+     * 获取评论里所有人员信息
+     * @param functionalCaseComments 评论集合
+     * @return List<String>userIds
+     */
+    private static List<String> getUserIds(List<FunctionalCaseComment> functionalCaseComments) {
+        List<String> userIds = new ArrayList<>(functionalCaseComments.stream().flatMap(functionalCaseComment -> Stream.of(functionalCaseComment.getCreateUser(), functionalCaseComment.getReplyUser())).toList());
+        List<String> notifierList = functionalCaseComments.stream().map(FunctionalCaseComment::getNotifier).filter(StringUtils::isNotBlank).toList();
+        for (String notifierStr : notifierList) {
+            List<String> notifiers = Arrays.asList(notifierStr.split(";"));
+            userIds.addAll(notifiers);
+        }
+        userIds = userIds.stream().distinct().toList();
+        return userIds;
+    }
+
 }

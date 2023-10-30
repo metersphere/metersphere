@@ -1,7 +1,7 @@
 package io.metersphere.functional.service;
 
 
-import io.metersphere.functional.dto.CaseReviewDto;
+import io.metersphere.functional.dto.CaseReviewDTO;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 public class CaseReviewService {
 
 
-    public CaseReviewDto get(String id) {
-        CaseReviewDto caseReviewDto = new CaseReviewDto();
+    public CaseReviewDTO get(String id) {
+        CaseReviewDTO caseReviewDto = new CaseReviewDTO();
         return caseReviewDto;
     }
 }

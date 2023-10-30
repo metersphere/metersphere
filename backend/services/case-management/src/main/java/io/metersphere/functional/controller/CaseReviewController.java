@@ -1,6 +1,6 @@
 package io.metersphere.functional.controller;
 
-import io.metersphere.functional.dto.CaseReviewDto;
+import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.functional.service.CaseReviewService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,7 @@ public class CaseReviewController {
 
 
     @GetMapping("/get/{id}")
-    public CaseReviewDto get(@PathVariable String id) {
+    public CaseReviewDTO get(@PathVariable String id) {
         return caseReviewService.get(id);
     }
 }

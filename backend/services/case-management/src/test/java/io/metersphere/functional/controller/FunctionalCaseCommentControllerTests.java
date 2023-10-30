@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import io.metersphere.functional.domain.FunctionalCaseComment;
 import io.metersphere.functional.domain.FunctionalCaseCommentExample;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
+import io.metersphere.functional.dto.FunctionalCaseCommentDTO;
 import io.metersphere.functional.mapper.FunctionalCaseCommentMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
@@ -61,6 +62,7 @@ public class FunctionalCaseCommentControllerTests {
 
     public static final String SAVE_URL = "/functional/case/comment/save";
     public static final String DELETE_URL = "/functional/case/comment/delete/";
+    public static final String GET_URL = "/functional/case/comment/get/list/";
 
 
     private static String sessionId;
@@ -345,6 +347,33 @@ public class FunctionalCaseCommentControllerTests {
 
     @Test
     @Order(13)
+    public void getCommentSuccess() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(GET_URL + "xiaomeinvGTest").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<FunctionalCaseCommentDTO> list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalCaseCommentDTO.class);
+        System.out.println(JSON.toJSONString(list));
+    }
+
+    @Test
+    @Order(14)
+    public void getCommentFalse() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(GET_URL + "xiaomeinvGTestNo").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+    }
+
+
+    @Test
+    @Order(15)
     public void deleteCommentSuccess() throws Exception {
         FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
         functionalCaseCommentExample.createCriteria().andCaseIdEqualTo("xiaomeinvGTest").andNotifierEqualTo("default-project-member-user-guo;default-project-member-user-guo-4;");
@@ -363,7 +392,7 @@ public class FunctionalCaseCommentControllerTests {
     }
 
     @Test
-    @Order(14)
+    @Order(16)
     public void deleteNoCommentSuccess() throws Exception {
         delFunctionalCaseComment("no_comment");
         FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
@@ -371,6 +400,19 @@ public class FunctionalCaseCommentControllerTests {
         List<FunctionalCaseComment> functionalCaseComments1 = functionalCaseCommentMapper.selectByExample(functionalCaseCommentExample);
         Assertions.assertTrue(functionalCaseComments1.isEmpty());
         FunctionalCaseComment functionalCaseComment = functionalCaseCommentMapper.selectByPrimaryKey("no_comment");
+        Assertions.assertNull(functionalCaseComment);
+
+    }
+
+    @Test
+    @Order(17)
+    public void deleteCommentFirstSuccess() throws Exception {
+        delFunctionalCaseComment("xiaomeinvGTest");
+        FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
+        functionalCaseCommentExample.createCriteria().andParentIdEqualTo("xiaomeinvGTest");
+        List<FunctionalCaseComment> functionalCaseComments1 = functionalCaseCommentMapper.selectByExample(functionalCaseCommentExample);
+        Assertions.assertTrue(functionalCaseComments1.isEmpty());
+        FunctionalCaseComment functionalCaseComment = functionalCaseCommentMapper.selectByPrimaryKey("xiaomeinvGTest");
         Assertions.assertNull(functionalCaseComment);
 
     }
