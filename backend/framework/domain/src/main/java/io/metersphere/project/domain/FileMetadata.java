@@ -1,16 +1,12 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class FileMetadata implements Serializable {
@@ -69,6 +65,9 @@ public class FileMetadata implements Serializable {
     @NotNull(message = "{file_metadata.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
+    @Schema(description = "启用/禁用;启用禁用（一般常用于jar文件）")
+    private Boolean enable;
+
     @Schema(description = "同版本数据关联的ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_metadata.ref_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{file_metadata.ref_id.length_range}", groups = {Created.class, Updated.class})
@@ -95,6 +94,7 @@ public class FileMetadata implements Serializable {
         moduleId("module_id", "moduleId", "VARCHAR", false),
         path("path", "path", "VARCHAR", true),
         latest("latest", "latest", "BIT", false),
+        enable("enable", "enable", "BIT", true),
         refId("ref_id", "refId", "VARCHAR", false),
         fileVersion("file_version", "fileVersion", "VARCHAR", false);
 

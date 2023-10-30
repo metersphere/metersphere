@@ -5,9 +5,10 @@ import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.uid.IDGenerator;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -38,7 +39,6 @@ public class FileManagementPermissionControllerTests extends BaseTest {
     }
 
     @Test
-
     @Order(2)
     public void updateModuleTestSuccess() throws Exception {
         FileModuleUpdateRequest updateRequest = new FileModuleUpdateRequest();
@@ -93,6 +93,7 @@ public class FileManagementPermissionControllerTests extends BaseTest {
     }
 
     @Test
+    @Order(6)
     void moduleCountTestSuccess() throws Exception {
         FileMetadataTableRequest request = new FileMetadataTableRequest() {{
             this.setCurrent(1);
@@ -103,6 +104,7 @@ public class FileManagementPermissionControllerTests extends BaseTest {
     }
 
     @Test
+    @Order(7)
     public void fileDeleteSuccess() throws Exception {
         FileBatchProcessDTO fileBatchProcessDTO = new FileBatchProcessDTO();
         fileBatchProcessDTO.setProjectId(DEFAULT_PROJECT_ID);
@@ -113,6 +115,7 @@ public class FileManagementPermissionControllerTests extends BaseTest {
     }
 
     @Test
+    @Order(8)
     public void fileUpdateSuccess() throws Exception {
 
         FileUpdateRequest updateRequest = new FileUpdateRequest();
@@ -126,16 +129,37 @@ public class FileManagementPermissionControllerTests extends BaseTest {
 
 
     @Test
+    @Order(9)
     public void moveTest() throws Exception {
-
-        {
             NodeMoveRequest request = new NodeMoveRequest();
             request.setDragNodeId(TEST_ID);
             request.setDropNodeId(ModuleConstants.ROOT_NODE_PARENT_ID);
             request.setDropPosition(0);
-
             this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE, request);
-        }
+    }
+
+    @Test
+    @Order(10)
+    public void moduleTreeTest() throws Exception {
+        this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ, String.format(FileManagementRequestUtils.URL_MODULE_TREE, DEFAULT_PROJECT_ID));
+    }
+
+    @Test
+    @Order(11)
+    public void fileTypeTest() throws Exception {
+        this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ, String.format(FileManagementRequestUtils.URL_FILE_TYPE, DEFAULT_PROJECT_ID));
+    }
+
+    @Test
+    @Order(12)
+    public void fileInfoTest() throws Exception {
+        this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ, String.format(FileManagementRequestUtils.URL_FILE, DEFAULT_PROJECT_ID));
+    }
+
+    @Test
+    @Order(13)
+    public void changeJarStatusTest() throws Exception {
+        this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE, String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, IDGenerator.nextNum(), true));
     }
 
     @Test
@@ -143,6 +167,5 @@ public class FileManagementPermissionControllerTests extends BaseTest {
     public void deleteModuleTestSuccess() throws Exception {
         this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DELETE, String.format(FileManagementRequestUtils.URL_MODULE_DELETE, TEST_ID));
     }
-
 
 }

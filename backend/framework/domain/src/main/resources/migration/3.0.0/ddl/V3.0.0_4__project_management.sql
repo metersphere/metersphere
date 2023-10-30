@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS file_metadata
     `module_id`    VARCHAR(50) COMMENT '文件所属模块',
     `path`         VARCHAR(1000) COMMENT '文件存储路径',
     `latest`       BIT          NOT NULL DEFAULT 1 COMMENT '是否是最新版',
+    `enable` BIT NOT NULL DEFAULT 0 COMMENT '启用/禁用;启用禁用（一般常用于jar文件）',
     `ref_id`       VARCHAR(50)  NOT NULL COMMENT '同版本数据关联的ID',
     `file_version` VARCHAR(50) COMMENT '文件版本号',
     PRIMARY KEY (id)

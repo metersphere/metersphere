@@ -24,14 +24,16 @@ public class FileManagementRequestUtils {
     public static final String URL_FILE_MODULE_COUNT = "/project/file/module/count";
     //文件重传
     public static final String URL_FILE_RE_UPLOAD = "/project/file/re-upload";
-    //文件下载
+    //文件下载（权限判断需要提前上传文件，所以放在了主测试类里）
     public static final String URL_FILE_DOWNLOAD = "/project/file/download/%s";
     //文件预览缩略图下载
     public static final String URL_FILE_PREVIEW_COMPRESSED = "/file/preview/compressed/%s/%s";
     //文件预览原图下载
     public static final String URL_FILE_PREVIEW_ORIGINAL = "/file/preview/original/%s/%s";
-    //文件批量下载
+    //文件批量下载 （权限判断需要提前上传文件，所以放在了主测试类里）
     public static final String URL_FILE_BATCH_DOWNLOAD = "/project/file/batch-download";
+    //启用/禁用jar文件
+    public static final String URL_CHANGE_JAR_ENABLE = "/project/file/jar-file-status/%s/%s";
     //文件批量删除
     public static final String URL_FILE_DELETE = "/project/file/delete";
     //文件信息修改

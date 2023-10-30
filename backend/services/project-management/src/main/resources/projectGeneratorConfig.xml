@@ -70,22 +70,22 @@
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="custom_function"/>
-        <table tableName="fake_error"/>
+        <!--        <table tableName="custom_function"/>-->
+        <!--        <table tableName="fake_error"/>-->
         <table tableName="file_metadata"/>
-        <table tableName="file_module"/>
-        <table tableName="project"/>
-        <table tableName="project_application"/>
-        <table tableName="project_version"/>
-        <table tableName="file_module_blob"/>
-        <table tableName="custom_function_blob"/>
-        <table tableName="fake_error_blob"/>
-        <table tableName="file_metadata_blob"/>
-        <table tableName="project_extend"/>
-        <table tableName="message_task"/>
-        <table tableName="message_task_blob"/>
-        <table tableName="notification"/>
-        <table tableName="project_test_resource_pool"/>
+        <!--        <table tableName="file_module"/>-->
+        <!--        <table tableName="project"/>-->
+        <!--        <table tableName="project_application"/>-->
+        <!--        <table tableName="project_version"/>-->
+        <!--        <table tableName="file_module_blob"/>-->
+        <!--        <table tableName="custom_function_blob"/>-->
+        <!--        <table tableName="fake_error_blob"/>-->
+        <!--        <table tableName="file_metadata_blob"/>-->
+        <!--        <table tableName="project_extend"/>-->
+        <!--        <table tableName="message_task"/>-->
+        <!--        <table tableName="message_task_blob"/>-->
+        <!--        <table tableName="notification"/>-->
+        <!--        <table tableName="project_test_resource_pool"/>-->
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">
              <ignoreColumn column="follow_people"/>

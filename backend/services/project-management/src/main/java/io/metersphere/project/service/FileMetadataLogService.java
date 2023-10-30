@@ -5,12 +5,12 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -100,5 +100,22 @@ public class FileMetadataLogService {
         }
 
         operationLogService.batchAdd(list);
+    }
+
+    public void saveChangeJarFileStatusLog(FileMetadata module, boolean enable, String operator) {
+        Project project = projectMapper.selectByPrimaryKey(module.getProjectId());
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(project.getId())
+                .organizationId(project.getOrganizationId())
+                .type(OperationLogType.UPDATE.name())
+                .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .method(HttpMethodConstants.POST.name())
+                .path("/project/file/jar-file-status")
+                .sourceId(module.getId())
+                .content(Translator.get("change.jar.enable") + ":" + enable)
+                .originalValue(JSON.toJSONBytes(module))
+                .createUser(operator)
+                .build().getLogDTO();
+        operationLogService.add(dto);
     }
 }

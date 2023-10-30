@@ -10,6 +10,7 @@ import io.metersphere.project.service.FileModuleService;
 import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.util.JSON;
@@ -58,7 +59,7 @@ public class FileManagementControllerTests extends BaseTest {
     private static String reUploadFileId;
 
     private static String picFileId;
-    private static String txtFileId;
+    private static String jarFileId;
 
     @Resource
     private FileModuleService fileModuleService;
@@ -401,6 +402,26 @@ public class FileManagementControllerTests extends BaseTest {
             Assertions.assertTrue(uploadedFileTypes.contains(fileType));
         }
 
+        //在来个jar文件
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test-jar.jar")).getPath();
+        file = new MockMultipartFile("file", "test-jar.jar", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(fileUploadRequest));
+        mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
+        returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
+        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        FILE_ID_PATH.put(returnId, filePath);
+        jarFileId = returnId;
+        uploadedFileTypes.add("jar");
+
+        //检查文件类型获取接口有没有获取到数据
+        fileTypes = this.getFileType();
+        Assertions.assertEquals(fileTypes.size(), uploadedFileTypes.size());
+        for (String fileType : fileTypes) {
+            Assertions.assertTrue(uploadedFileTypes.contains(fileType));
+        }
+
         //文件上传到a1-a1节点
         BaseTreeNode a1a1Node = FileManagementBaseUtils.getNodeByName(preliminaryTreeNodes, "a1-a1");
         fileUploadRequest = new FileUploadRequest();
@@ -415,7 +436,6 @@ public class FileManagementControllerTests extends BaseTest {
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
         FILE_ID_PATH.put(returnId, filePath);
-        txtFileId = returnId;
         uploadedFileTypes.add("txt");
 
         //检查文件类型获取接口有没有获取到数据
@@ -562,6 +582,9 @@ public class FileManagementControllerTests extends BaseTest {
             String downloadMD5 = FileManagementBaseUtils.getFileMD5(fileBytes);
             Assertions.assertEquals(fileMD5, downloadMD5);
         }
+
+        //测试权限
+        this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD, String.format(FileManagementRequestUtils.URL_FILE_DOWNLOAD, picFileId));
     }
 
     @Test
@@ -698,12 +721,22 @@ public class FileManagementControllerTests extends BaseTest {
         if (MapUtils.isEmpty(FILE_ID_PATH)) {
             this.fileReUploadTestSuccess();
         }
-        //下载全部文件
+
+        //通过ID下载文件
         FileBatchProcessDTO batchProcessDTO = new FileBatchProcessDTO();
-        batchProcessDTO.setSelectAll(true);
+        batchProcessDTO.setSelectAll(false);
         batchProcessDTO.setProjectId(project.getId());
+        batchProcessDTO.setSelectIds(new ArrayList<>(FILE_ID_PATH.keySet()));
         MvcResult mvcResult = this.batchDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, batchProcessDTO);
         byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
+        Assertions.assertTrue(fileBytes.length > 0);
+
+        //下载全部文件
+        batchProcessDTO = new FileBatchProcessDTO();
+        batchProcessDTO.setSelectAll(true);
+        batchProcessDTO.setProjectId(project.getId());
+        mvcResult = this.batchDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, batchProcessDTO);
+        fileBytes = mvcResult.getResponse().getContentAsByteArray();
         Assertions.assertTrue(fileBytes.length > 0);
 
         //全部文件大小超过默认配置(600M)的限制  事先存储20个大小为50M的数据，过后删除
@@ -726,6 +759,7 @@ public class FileManagementControllerTests extends BaseTest {
             fileMetadata.setSize(52428800L);
             fileMetadata.setLatest(true);
             fileMetadata.setRefId(fileMetadata.getId());
+            fileMetadata.setEnable(false);
             fileMetadataMapper.insert(fileMetadata);
         }
 
@@ -748,6 +782,14 @@ public class FileManagementControllerTests extends BaseTest {
 
         mockMvc.perform(getPostRequestBuilder(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, batchProcessDTO))
                 .andExpect(status().is5xxServerError());
+
+
+        //权限判断
+        batchProcessDTO = new FileBatchProcessDTO();
+        batchProcessDTO.setSelectAll(false);
+        batchProcessDTO.setProjectId(DEFAULT_PROJECT_ID);
+        batchProcessDTO.setSelectIds(new ArrayList<>(FILE_ID_PATH.keySet()));
+        this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD, FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, batchProcessDTO);
     }
 
     @Test
@@ -895,6 +937,12 @@ public class FileManagementControllerTests extends BaseTest {
         Assertions.assertTrue(list.size() == 1);
         Assertions.assertTrue(StringUtils.equals(list.get(0), "tag1"));
 
+        //判断更改jar文件的启用禁用
+        updateRequest = new FileUpdateRequest();
+        updateRequest.setId(jarFileId);
+        updateRequest.setEnable(true);
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
+
         //判断什么也不改
         updateRequest = new FileUpdateRequest();
         updateRequest.setId(updateFileId);
@@ -923,6 +971,12 @@ public class FileManagementControllerTests extends BaseTest {
         updateRequest.setId(IDGenerator.nextStr());
         this.requestPost(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest).andExpect(status().is5xxServerError());
 
+        //判断更改非jar文件的启用禁用
+        updateRequest = new FileUpdateRequest();
+        updateRequest.setId(picFileId);
+        updateRequest.setEnable(true);
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
+
         //模块不存在
         if (MapUtils.isEmpty(FILE_ID_PATH)) {
             this.fileReUploadTestSuccess();
@@ -948,6 +1002,22 @@ public class FileManagementControllerTests extends BaseTest {
         Assertions.assertTrue(StringUtils.isEmpty(dto.getId()));
     }
 
+    @Test
+    @Order(24)
+    public void changeJarEnableTest() throws Exception {
+        if (MapUtils.isEmpty(FILE_ID_PATH)) {
+            this.fileReUploadTestSuccess();
+        }
+        //测试启用
+        this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, jarFileId, true));
+        this.checkLog(jarFileId, OperationLogType.UPDATE, "/project/file/jar-file-status");
+        //测试禁用
+        this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, jarFileId, false));
+        //文件不存在
+        this.requestGet(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, IDGenerator.nextNum(), true));
+        //文件不是jar文件
+        this.requestGet(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, picFileId, true));
+    }
     @Test
     @Order(80)
     public void moveTest() throws Exception {
