@@ -48,13 +48,14 @@
 
   import { addOrUpdateProjectMember, getProjectMemberOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
-  import { useUserStore } from '@/store';
+  import { useAppStore } from '@/store';
 
   import type { AddProjectMember, ProjectUserOption } from '@/models/projectManagement/projectAndPermission';
 
   const { t } = useI18n();
-  const userStore = useUserStore();
-  const lastProjectId = userStore.$state?.lastProjectId;
+  const appStore = useAppStore();
+
+  const lastProjectId = appStore.currentProjectId;
 
   const props = defineProps<{
     userGroupOptions: ProjectUserOption[];

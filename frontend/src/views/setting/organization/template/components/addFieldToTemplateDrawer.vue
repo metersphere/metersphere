@@ -4,7 +4,7 @@
     :title="t('system.orgTemplate.createField')"
     :ok-text="t('system.orgTemplate.save')"
     :ok-loading="drawerLoading"
-    width="65%"
+    :width="800"
     min-width="800px"
     unmount-on-close
     :show-continue="false"
