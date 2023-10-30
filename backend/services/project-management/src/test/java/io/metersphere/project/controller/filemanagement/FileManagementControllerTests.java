@@ -12,15 +12,15 @@ import io.metersphere.project.utils.FileManagementRequestUtils;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.StorageType;
-import io.metersphere.system.dto.sdk.BaseTreeNode;
-import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.sdk.util.TempFileUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -56,6 +56,9 @@ public class FileManagementControllerTests extends BaseTest {
     private static final Map<String, String> FILE_VERSIONS_ID_MAP = new HashMap<>();
 
     private static String reUploadFileId;
+
+    private static String picFileId;
+    private static String txtFileId;
 
     @Resource
     private FileModuleService fileModuleService;
@@ -388,6 +391,7 @@ public class FileManagementControllerTests extends BaseTest {
         String returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
         FILE_ID_PATH.put(returnId, filePath);
+        picFileId = returnId;
         uploadedFileTypes.add("JPG");
 
         //检查文件类型获取接口有没有获取到数据
@@ -411,6 +415,7 @@ public class FileManagementControllerTests extends BaseTest {
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
         FILE_ID_PATH.put(returnId, filePath);
+        txtFileId = returnId;
         uploadedFileTypes.add("txt");
 
         //检查文件类型获取接口有没有获取到数据
@@ -700,6 +705,7 @@ public class FileManagementControllerTests extends BaseTest {
         MvcResult mvcResult = this.batchDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, batchProcessDTO);
         byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
         Assertions.assertTrue(fileBytes.length > 0);
+
         //全部文件大小超过默认配置(600M)的限制  事先存储20个大小为50M的数据，过后删除
         for (int i = 0; i < 20; i++) {
             String id = "test_" + i;
@@ -764,8 +770,10 @@ public class FileManagementControllerTests extends BaseTest {
                 Pager.class);
         List<FileInformationDTO> fileList = JSON.parseArray(JSON.toJSONString(pageResult.getList()), FileInformationDTO.class);
         for (FileInformationDTO fileDTO : fileList) {
-            MvcResult mvcResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_PREVIEW_IMG_FILE_DOWNLOAD, fileDTO.getId()));
-            byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
+            MvcResult originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()));
+            Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
+            MvcResult compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+            byte[] fileBytes = compressedResult.getResponse().getContentAsByteArray();
             if (TempFileUtils.isImage(fileDTO.getFileType())) {
                 if (StringUtils.equals(reUploadFileId, fileDTO.getId())) {
                     //重新上传的文件并不是图片
@@ -773,12 +781,43 @@ public class FileManagementControllerTests extends BaseTest {
                 } else {
                     Assertions.assertTrue(fileBytes.length > 0);
                 }
-
             } else {
                 Assertions.assertEquals(fileBytes.length, 0);
             }
         }
+        //测试重复获取
+        for (FileInformationDTO fileDTO : fileList) {
+            MvcResult originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()));
+            Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
+            MvcResult compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+            byte[] fileBytes = compressedResult.getResponse().getContentAsByteArray();
+            if (TempFileUtils.isImage(fileDTO.getFileType())) {
+                if (StringUtils.equals(reUploadFileId, fileDTO.getId())) {
+                    //重新上传的文件并不是图片
+                    Assertions.assertEquals(fileBytes.length, 0);
+                } else {
+                    Assertions.assertTrue(fileBytes.length > 0);
+                }
+            } else {
+                Assertions.assertEquals(fileBytes.length, 0);
+            }
+        }
+        
+        //文件不存在（原图、缩略图两个接口校验）
+        mockMvc.perform(getRequestBuilder(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", IDGenerator.nextNum())))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError());
+        mockMvc.perform(getRequestBuilder(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", IDGenerator.nextNum())))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError());
 
+        //用户不存在（原图、缩略图两个接口校验）
+        mockMvc.perform(getRequestBuilder(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, IDGenerator.nextNum(), picFileId)))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError());
+        mockMvc.perform(getRequestBuilder(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, IDGenerator.nextNum(), picFileId)))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -894,6 +933,16 @@ public class FileManagementControllerTests extends BaseTest {
         updateRequest.setModuleId(IDGenerator.nextStr());
         this.requestPost(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest).andExpect(status().is5xxServerError());
 
+    }
+
+    @Test
+    @Order(23)
+    public void fileInformationTest() throws Exception {
+        MvcResult fileTypeResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE, IDGenerator.nextNum()));
+        String returnData = fileTypeResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        FileInformationDTO dto = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FileInformationDTO.class);
+        Assertions.assertTrue(StringUtils.isEmpty(dto.getId()));
     }
 
     @Test

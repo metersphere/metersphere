@@ -14,8 +14,11 @@ import io.metersphere.project.utils.FileDownloadUtils;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.TempFileUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.file.FileRequest;
-import io.metersphere.sdk.util.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -36,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -56,6 +60,13 @@ public class FileMetadataService {
     @Value("${metersphere.file.batch-download-max:600MB}")
     private DataSize maxFileSize;
 
+    public FileInformationDTO get(String id) {
+        FileMetadata fileMetadata = extFileMetadataMapper.getById(id);
+        FileInformationDTO dto = new FileInformationDTO(fileMetadata);
+        initModuleName(dto);
+        return dto;
+    }
+
     public List<FileInformationDTO> list(FileMetadataTableRequest request) {
         List<FileInformationDTO> returnList = new ArrayList<>();
         FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
@@ -64,7 +75,28 @@ public class FileMetadataService {
             FileInformationDTO fileInformationDTO = new FileInformationDTO(fileMetadata);
             returnList.add(fileInformationDTO);
         });
+        this.initModuleName(returnList);
         return returnList;
+    }
+
+    private void initModuleName(List<FileInformationDTO> returnList) {
+        List<String> moduleIds = returnList.stream().map(FileInformationDTO::getModuleId).distinct().collect(Collectors.toList());
+        Map<String, String> moduleNameMap = fileModuleService.getModuleNameMapByIds(moduleIds);
+        for (FileInformationDTO dto : returnList) {
+            if (StringUtils.equals(dto.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
+                dto.setModuleName(Translator.get("default.module"));
+            } else {
+                dto.setModuleName(moduleNameMap.get(dto.getModuleId()));
+            }
+        }
+    }
+
+    private void initModuleName(FileInformationDTO dto) {
+        if (StringUtils.equals(dto.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
+            dto.setModuleName(Translator.get("default.module"));
+        } else {
+            dto.setModuleName(fileModuleService.getModuleName(dto.getModuleId()));
+        }
     }
 
     public String upload(FileUploadRequest request, String operator, MultipartFile uploadFile) throws Exception {

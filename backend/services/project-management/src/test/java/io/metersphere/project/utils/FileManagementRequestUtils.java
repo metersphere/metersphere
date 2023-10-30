@@ -16,6 +16,8 @@ public class FileManagementRequestUtils {
     public static final String URL_FILE_UPLOAD = "/project/file/upload";
     //获取文件类型
     public static final String URL_FILE_TYPE = "/project/file/type/%s";
+    //获取文件
+    public static final String URL_FILE = "/project/file/get/%s";
     //文件列表查询
     public static final String URL_FILE_PAGE = "/project/file/page";
     //文件列表查询对应的模块统计
@@ -24,8 +26,10 @@ public class FileManagementRequestUtils {
     public static final String URL_FILE_RE_UPLOAD = "/project/file/re-upload";
     //文件下载
     public static final String URL_FILE_DOWNLOAD = "/project/file/download/%s";
-    //文件预览下载
-    public static final String URL_PREVIEW_IMG_FILE_DOWNLOAD = "/project/file/download/preview-img/%s";
+    //文件预览缩略图下载
+    public static final String URL_FILE_PREVIEW_COMPRESSED = "/file/preview/compressed/%s/%s";
+    //文件预览原图下载
+    public static final String URL_FILE_PREVIEW_ORIGINAL = "/file/preview/original/%s/%s";
     //文件批量下载
     public static final String URL_FILE_BATCH_DOWNLOAD = "/project/file/batch-download";
     //文件批量删除

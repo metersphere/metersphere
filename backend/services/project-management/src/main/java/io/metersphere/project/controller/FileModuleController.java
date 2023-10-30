@@ -2,13 +2,10 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.request.filemanagement.FileModuleCreateRequest;
 import io.metersphere.project.request.filemanagement.FileModuleUpdateRequest;
-import io.metersphere.project.service.FileModuleLogService;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
-import io.metersphere.system.log.annotation.Log;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,7 +49,6 @@ public class FileModuleController {
     @GetMapping("/delete/{deleteId}")
     @Operation(summary = "项目管理-文件管理-模块-删除模块")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#deleteId)", msClass = FileModuleLogService.class)
     public void deleteNode(@PathVariable String deleteId) {
         fileModuleService.deleteModule(deleteId, SessionUtils.getUserId());
     }

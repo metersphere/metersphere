@@ -6,8 +6,8 @@ import io.metersphere.project.service.FileManagementService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,6 +43,13 @@ public class FileManagementController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
     public Pager<List<FileInformationDTO>> page(@Validated @RequestBody FileMetadataTableRequest request) {
         return fileMetadataService.page(request);
+    }
+
+    @GetMapping("/get/{id}")
+    @Operation(summary = "项目管理-文件管理-查看文件详情")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
+    public FileInformationDTO page(@PathVariable String id) {
+        return fileMetadataService.get(id);
     }
 
 
@@ -81,13 +88,6 @@ public class FileManagementController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)
     public ResponseEntity<byte[]> download(@PathVariable String id) {
         return fileMetadataService.downloadById(id);
-    }
-
-    @GetMapping(value = "/download/preview-img/{id}")
-    @Operation(summary = "项目管理-文件管理-下载图片预览文件")
-    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)
-    public ResponseEntity<byte[]> downloadPreview(@PathVariable String id) {
-        return fileMetadataService.downloadPreviewImgById(id);
     }
 
     @PostMapping(value = "/delete")
