@@ -1,4 +1,4 @@
-package io.metersphere.api.request.debug;
+package io.metersphere.api.dto.debug;
 
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.swagger.v3.oas.annotations.media.Schema;

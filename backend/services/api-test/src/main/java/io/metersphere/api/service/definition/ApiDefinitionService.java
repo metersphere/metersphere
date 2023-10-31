@@ -1,4 +1,4 @@
-package io.metersphere.api.service;
+package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionExample;
