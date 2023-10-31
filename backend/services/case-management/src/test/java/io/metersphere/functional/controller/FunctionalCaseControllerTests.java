@@ -3,6 +3,7 @@ package io.metersphere.functional.controller;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
+import io.metersphere.functional.request.FunctionalCaseDeleteRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.request.FunctionalCaseFollowerRequest;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
@@ -47,6 +48,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_UPDATE_URL = "/functional/case/update";
     public static final String FUNCTIONAL_CASE_EDIT_FOLLOWER_URL = "/functional/case/edit/follower";
     public static final String FUNCTIONAL_CASE_FOLLOWER_URL = "/functional/case/follower/";
+    public static final String FUNCTIONAL_CASE_DELETE_URL = "/functional/case/delete";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -249,5 +251,24 @@ public class FunctionalCaseControllerTests extends BaseTest {
         String editFollowerReturnData = editFollowerMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder editFollowerResultHolder = JSON.parseObject(editFollowerReturnData, ResultHolder.class);
         Assertions.assertNotNull(editFollowerResultHolder);
+    }
+
+    @Test
+    @Order(5)
+    public void testDeleteFunctionalCase() throws Exception {
+        FunctionalCaseDeleteRequest request = new FunctionalCaseDeleteRequest();
+        request.setId("TEST_FUNCTIONAL_CASE_ID");
+        request.setDeleteAll(false);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_DELETE_URL, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+        request.setId("TEST_FUNCTIONAL_CASE_ID_1");
+        request.setDeleteAll(false);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_DELETE_URL, request);
+        request.setId("TEST_FUNCTIONAL_CASE_ID_1");
+        request.setDeleteAll(true);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_DELETE_URL, request);
     }
 }
