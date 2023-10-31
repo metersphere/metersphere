@@ -299,9 +299,9 @@
   import { CompressImgUrl } from '@/api/requrls/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import useAsyncTaskStore from '@/store/modules/app/asyncTask';
-  import useTableStore from '@/store/modules/ms-table';
   import useUserStore from '@/store/modules/user';
   import { characterLimit, downloadByteFile } from '@/utils';
 

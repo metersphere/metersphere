@@ -4,6 +4,7 @@ import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/typ
 
 import { useAppStore } from '@/store';
 import { PageSizeMap, SelectorColumnMap, TableOpenDetailMode } from '@/store/modules/ms-table/types';
+import { isArraysEqualWithOrder } from '@/utils/equal';
 
 import { SpecialColumnEnum } from '@/enums/tableEnum';
 
@@ -42,41 +43,55 @@ export default function useTableStore() {
     }
   };
 
+  const columnsTransform = (columns: MsTableColumn) => {
+    columns.forEach((item, idx) => {
+      if (item.sortIndex === undefined) {
+        // 如果没有设置sortIndex，则默认按照顺序排序
+        item.sortIndex = state.baseSortIndex + idx;
+      }
+      if (item.showDrag === undefined) {
+        // 默认不可以拖拽
+        item.showDrag = false;
+      }
+      if (item.showInTable === undefined) {
+        // 默认在表格中展示
+        item.showInTable = true;
+      }
+      if (item.dataIndex === SpecialColumnEnum.ID) {
+        // dataIndex 为 id 的列默认不排序，且展示在列的最前面
+        item.showDrag = false;
+        item.sortIndex = 0;
+      } else if (item.dataIndex === SpecialColumnEnum.NAME) {
+        // dataIndex 为 name 的列默认不排序，且展示在列的第二位
+        item.showDrag = false;
+        item.sortIndex = 1;
+      } else if (item.dataIndex === SpecialColumnEnum.OPERATION || item.dataIndex === SpecialColumnEnum.ACTION) {
+        // dataIndex 为 operation 或 action  的列默认不排序，且展示在列的最后面
+        item.showDrag = false;
+        item.sortIndex = state.operationBaseIndex;
+      }
+    });
+    return columns;
+  };
+
   async function initColumn(tableKey: string, column: MsTableColumn, mode: TableOpenDetailMode) {
     try {
       const selectorColumnMap = await getSelectorColumnMap();
       if (!selectorColumnMap[tableKey]) {
-        column.forEach((item, idx) => {
-          if (item.sortIndex === undefined) {
-            // 如果没有设置sortIndex，则默认按照顺序排序
-            item.sortIndex = state.baseSortIndex + idx;
-          }
-          if (item.showDrag === undefined) {
-            // 默认不可以拖拽
-            item.showDrag = false;
-          }
-          if (item.showInTable === undefined) {
-            // 默认在表格中展示
-            item.showInTable = true;
-          }
-          if (item.dataIndex === SpecialColumnEnum.ID) {
-            // dataIndex 为 id 的列默认不排序，且展示在列的最前面
-            item.showDrag = false;
-            item.sortIndex = 0;
-          }
-          if (item.dataIndex === SpecialColumnEnum.NAME) {
-            // dataIndex 为 name 的列默认不排序，且展示在列的第二位
-            item.showDrag = false;
-            item.sortIndex = 1;
-          }
-          if (item.dataIndex === SpecialColumnEnum.OPERATION || item.dataIndex === SpecialColumnEnum.ACTION) {
-            // dataIndex 为 operation 或 action  的列默认不排序，且展示在列的最后面
-            item.showDrag = false;
-            item.sortIndex = state.operationBaseIndex;
-          }
-        });
-        selectorColumnMap[tableKey] = { mode, column };
+        // 如果没有在indexDB里初始化
+        column = columnsTransform(column);
+        selectorColumnMap[tableKey] = { mode, column, columnBackup: JSON.parse(JSON.stringify(column)) };
         await localforage.setItem('selectorColumnMap', selectorColumnMap);
+      } else {
+        // 初始化过了，但是可能有新变动，如列的顺序，列的显示隐藏，列的拖拽
+        column = columnsTransform(column);
+        const { columnBackup: oldColumn } = selectorColumnMap[tableKey];
+        const isEqual = isArraysEqualWithOrder<MsTableColumnData>(oldColumn, column);
+        if (!isEqual) {
+          // 如果不相等，说明有变动将新的column存入indexDB
+          selectorColumnMap[tableKey] = { mode, column, columnBackup: JSON.parse(JSON.stringify(column)) };
+          await localforage.setItem('selectorColumnMap', selectorColumnMap);
+        }
       }
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -109,8 +124,11 @@ export default function useTableStore() {
       if (!selectorColumnMap) {
         return;
       }
-
-      selectorColumnMap[key] = { mode, column: JSON.parse(JSON.stringify(columns)) };
+      selectorColumnMap[key] = {
+        mode,
+        column: JSON.parse(JSON.stringify(columns)),
+        columnBackup: JSON.parse(JSON.stringify(columns)),
+      };
       await localforage.setItem('selectorColumnMap', selectorColumnMap);
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -134,8 +152,17 @@ export default function useTableStore() {
     const selectorColumnMap = await getSelectorColumnMap();
     if (selectorColumnMap[key]) {
       const tmpArr = selectorColumnMap[key].column;
-      const nonSortableColumns = tmpArr.filter((item: MsTableColumnData) => !item.showDrag);
-      const couldSortableColumns = tmpArr.filter((item: MsTableColumnData) => !!item.showDrag);
+      const { nonSortableColumns, couldSortableColumns } = tmpArr.reduce(
+        (result: { nonSortableColumns: MsTableColumnData[]; couldSortableColumns: MsTableColumnData[] }, item) => {
+          if (item.showDrag) {
+            result.couldSortableColumns.push(item);
+          } else {
+            result.nonSortableColumns.push(item);
+          }
+          return result;
+        },
+        { nonSortableColumns: [], couldSortableColumns: [] }
+      );
       return { nonSort: nonSortableColumns, couldSort: couldSortableColumns };
     }
     return { nonSort: [], couldSort: [] };
