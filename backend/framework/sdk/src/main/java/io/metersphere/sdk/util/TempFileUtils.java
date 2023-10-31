@@ -52,9 +52,15 @@ public class TempFileUtils {
                 dir.mkdirs();
             }
 
+            int width = originalImage.getWidth();
+            int height = originalImage.getHeight();
+            
+            //计算压缩系数
+            int compressFactor = getCompressFactor(width, height);
+
             // 指定预览图像的宽度和高度
-            int previewWidth = originalImage.getWidth() / 10;
-            int previewHeight = originalImage.getHeight() / 10;
+            int previewWidth = width / compressFactor;
+            int previewHeight = height / compressFactor;
             // 创建一个缩小后的图像
             BufferedImage previewImage = new BufferedImage(previewWidth, previewHeight, BufferedImage.TYPE_INT_RGB);
             Graphics2D g2d = previewImage.createGraphics();
@@ -66,6 +72,16 @@ public class TempFileUtils {
             // 保存预览图像到文件
             ImageIO.write(previewImage, "JPEG", new File(compressPicAbsolutePath));
         }
+    }
+
+    private static int getCompressFactor(int width, int height) {
+        int compressFactor = 1;
+
+        int maxSize = width > height ? width : height;
+        if (maxSize > 999) {
+            compressFactor = maxSize / 999;
+        }
+        return compressFactor;
     }
 
 

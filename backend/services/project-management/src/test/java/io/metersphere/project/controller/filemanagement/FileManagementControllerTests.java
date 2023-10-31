@@ -415,6 +415,18 @@ public class FileManagementControllerTests extends BaseTest {
         jarFileId = returnId;
         uploadedFileTypes.add("jar");
 
+
+        //小型图片文件，用于测试预览图下载
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/1182937072541700.jpg")).getPath();
+        file = new MockMultipartFile("file", "1182937072541700.jpg", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(fileUploadRequest));
+        mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
+        returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
+        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        FILE_ID_PATH.put(returnId, filePath);
+
         //检查文件类型获取接口有没有获取到数据
         fileTypes = this.getFileType();
         Assertions.assertEquals(fileTypes.size(), uploadedFileTypes.size());
