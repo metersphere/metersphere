@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +28,6 @@ public class FilePreviewController {
 
     @GetMapping(value = "/original/{userId}/{fileId}")
     @Operation(summary = "预览原图")
-    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)
     public ResponseEntity<byte[]> originalImg(@PathVariable String userId,@PathVariable String fileId) {
         FileInformationDTO fileInformationDTO = fileMetadataService.get(fileId);
         if (StringUtils.isEmpty(fileInformationDTO.getId())) {

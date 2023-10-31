@@ -29,7 +29,7 @@
             #{id}
         </foreach>
     </delete>
-    <select id="getMaxPosByParentId" resultType="java.lang.Integer">
+    <select id="getMaxPosByParentId" resultType="java.lang.Long">
         SELECT max(pos) FROM file_module
         WHERE parent_id = #{0}
     </select>
@@ -66,5 +66,4 @@
         FROM file_module
         WHERE id = #{0}
     </select>
-
 </mapper>

@@ -17,15 +17,15 @@ public interface ExtFileModuleMapper {
 
     void deleteByIds(@Param("ids") List<String> deleteId);
 
-    Integer getMaxPosByParentId(String parentId);
+    Long getMaxPosByParentId(String parentId);
 
     List<String> selectIdsByProjectId(String projectId);
 
     FileModule getLastModuleByParentId(String id);
 
-    FileModule getNextModuleInParentId(@Param("parentId") String parentId, @Param("pos") int pos);
+    FileModule getNextModuleInParentId(@Param("parentId") String parentId, @Param("pos") long pos);
 
-    FileModule getPreviousModuleInParentId(@Param("parentId") String parentId, @Param("pos") int pos);
+    FileModule getPreviousModuleInParentId(@Param("parentId") String parentId, @Param("pos") long pos);
 
     String selectNameById(String moduleId);
 }

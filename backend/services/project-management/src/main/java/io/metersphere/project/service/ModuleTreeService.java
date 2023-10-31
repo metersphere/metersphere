@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public abstract class ModuleTreeService {
 
-    protected static final int LIMIT_POS = 64;
+    protected static final long LIMIT_POS = 64;
 
     public BaseTreeNode getDefaultModule(String name) {
         //默认模块下不允许创建子模块。  它本身也就是叶子节点。
@@ -91,7 +91,7 @@ public abstract class ModuleTreeService {
             updatePos(nodeMoveDTO.getNode().getId(), 0);
         } else {
             boolean refreshPos = false;
-            int pos;
+            long pos;
             if (nextNode == null) {
                 pos = previousNode.getPos() + LIMIT_POS;
             } else if (previousNode == null) {
@@ -100,7 +100,7 @@ public abstract class ModuleTreeService {
                     refreshPos = true;
                 }
             } else {
-                int quantityDifference = (nextNode.getPos() - previousNode.getPos()) / 2;
+                long quantityDifference = (nextNode.getPos() - previousNode.getPos()) / 2;
                 if (quantityDifference <= 2) {
                     refreshPos = true;
                 }
@@ -114,7 +114,7 @@ public abstract class ModuleTreeService {
         }
     }
 
-    public abstract void updatePos(String id, int pos);
+    public abstract void updatePos(String id, long pos);
 
     public abstract void refreshPos(String parentId);
 

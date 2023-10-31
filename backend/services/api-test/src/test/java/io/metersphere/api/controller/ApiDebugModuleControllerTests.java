@@ -518,7 +518,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
             //更改pos
             ApiDebugModule updateModule = new ApiDebugModule();
             updateModule.setId(a1Node.getId());
-            updateModule.setPos(2);
+            updateModule.setPos(2L);
             apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动
@@ -543,10 +543,10 @@ public class ApiDebugModuleControllerTests extends BaseTest {
             //更改pos
             ApiDebugModule updateModule = new ApiDebugModule();
             updateModule.setId(a1Node.getId());
-            updateModule.setPos(3 * 64);
+            updateModule.setPos(3 * 64L);
             apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
             updateModule.setId(a2Node.getId());
-            updateModule.setPos(3 * 64 + 2);
+            updateModule.setPos(3 * 64 + 2L);
             apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动
@@ -570,7 +570,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
             //更改pos
             ApiDebugModule updateModule = new ApiDebugModule();
             updateModule.setId(a1b1Node.getId());
-            updateModule.setPos(2);
+            updateModule.setPos(2L);
             apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动
@@ -594,10 +594,10 @@ public class ApiDebugModuleControllerTests extends BaseTest {
             //更改pos
             ApiDebugModule updateModule = new ApiDebugModule();
             updateModule.setId(a1b1Node.getId());
-            updateModule.setPos(3 * 64);
+            updateModule.setPos(3 * 64L);
             apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
             updateModule.setId(a1a1Node.getId());
-            updateModule.setPos(3 * 64 + 2);
+            updateModule.setPos(3 * 64 + 2L);
             apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动

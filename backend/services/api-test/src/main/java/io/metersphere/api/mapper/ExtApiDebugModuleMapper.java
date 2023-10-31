@@ -20,15 +20,15 @@ public interface ExtApiDebugModuleMapper {
 
     void deleteByIds(@Param("ids") List<String> deleteId);
 
-    Integer getMaxPosByParentId(String parentId);
+    Long getMaxPosByParentId(String parentId);
 
     List<String> selectIdsByProjectId(String projectId);
 
     ApiDebugModule getLastModuleByParentId(String id);
 
-    ApiDebugModule getNextModuleInParentId(@Param("parentId") String parentId, @Param("pos") int pos);
+    ApiDebugModule getNextModuleInParentId(@Param("parentId") String parentId, @Param("pos") long pos);
 
-    ApiDebugModule getPreviousModuleInParentId(@Param("parentId") String parentId, @Param("pos") int pos);
+    ApiDebugModule getPreviousModuleInParentId(@Param("parentId") String parentId, @Param("pos") long pos);
 
     List<ApiTreeNode> selectApiDebugByProtocolAndUser(String protocol, String userId);
 

@@ -16,7 +16,7 @@ public class BaseModule {
     private String name;
 
     @Schema(description = "排序单位")
-    private int pos;
+    private long pos;
 
     @Schema(description = "项目ID")
     private String projectId;

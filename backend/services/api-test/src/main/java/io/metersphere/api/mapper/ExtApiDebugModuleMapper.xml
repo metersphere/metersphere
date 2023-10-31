@@ -40,7 +40,7 @@
             #{id}
         </foreach>
     </delete>
-    <select id="getMaxPosByParentId" resultType="java.lang.Integer">
+    <select id="getMaxPosByParentId" resultType="java.lang.Long">
         SELECT max(pos)
         FROM api_debug_module
         WHERE parent_id = #{0}

@@ -1,15 +1,12 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class FileModule implements Serializable {
@@ -37,8 +34,9 @@ public class FileModule implements Serializable {
     @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description = "排序用的标识")
-    private Integer pos;
+    @Schema(description = "排序用的标识", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{file_module.pos.not_blank}", groups = {Created.class})
+    private Long pos;
 
     @Schema(description = "修改人")
     private String updateUser;
@@ -58,7 +56,7 @@ public class FileModule implements Serializable {
         parentId("parent_id", "parentId", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        pos("pos", "pos", "INTEGER", false),
+        pos("pos", "pos", "BIGINT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         moduleType("module_type", "moduleType", "VARCHAR", false);

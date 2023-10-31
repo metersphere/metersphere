@@ -72,8 +72,8 @@
         <!--要生成的数据库表 -->
         <!--        <table tableName="custom_function"/>-->
         <!--        <table tableName="fake_error"/>-->
-        <table tableName="file_metadata"/>
-        <!--        <table tableName="file_module"/>-->
+        <!--        <table tableName="file_metadata"/>-->
+        <table tableName="file_module"/>
         <!--        <table tableName="project"/>-->
         <!--        <table tableName="project_application"/>-->
         <!--        <table tableName="project_version"/>-->

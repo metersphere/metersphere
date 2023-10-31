@@ -74,8 +74,8 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         return fileModule.getId();
     }
 
-    private Integer countPos(String parentId) {
-        Integer maxPos = extFileModuleMapper.getMaxPosByParentId(parentId);
+    private Long countPos(String parentId) {
+        Long maxPos = extFileModuleMapper.getMaxPosByParentId(parentId);
         if (maxPos == null) {
             return LIMIT_POS;
         } else {
@@ -251,7 +251,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
 
 
     @Override
-    public void updatePos(String id, int pos) {
+    public void updatePos(String id, long pos) {
         FileModule updateModule = new FileModule();
         updateModule.setPos(pos);
         updateModule.setId(id);

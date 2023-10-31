@@ -41,7 +41,7 @@ public class ApiDebugModule implements Serializable {
 
     @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_debug_module.pos.not_blank}", groups = {Created.class})
-    private Integer pos;
+    private Long pos;
 
     @Schema(description = "创建时间")
     private Long createTime;
@@ -63,7 +63,7 @@ public class ApiDebugModule implements Serializable {
         protocol("protocol", "protocol", "VARCHAR", false),
         parentId("parent_id", "parentId", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
-        pos("pos", "pos", "INTEGER", false),
+        pos("pos", "pos", "BIGINT", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
