@@ -5,6 +5,7 @@
     :width="drawerWidth"
     :footer="props.footer"
     :mask="props.mask"
+    :popup-container="props.popupContainer"
     :class="[
       'ms-drawer',
       props.mask ? '' : 'ms-drawer-no-mask',
@@ -93,6 +94,7 @@
     showContinue?: boolean;
     width: number;
     noContentPadding?: boolean; // 是否没有内容内边距
+    popupContainer?: string;
   }
 
   const props = withDefaults(defineProps<DrawerProps>(), {
@@ -100,6 +102,7 @@
     mask: true,
     showSkeleton: false,
     showContinue: false,
+    popupContainer: 'body',
   });
   const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue']);
 

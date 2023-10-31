@@ -53,27 +53,19 @@
           :tooltip="item.tooltip"
         >
           <template #title>
-            <div
-              v-if="
-                props.showSetting &&
-                (item.slotName === SpecialColumnEnum.OPERATION || item.slotName === SpecialColumnEnum.ACTION)
-              "
-              class="flex flex-row flex-nowrap items-center"
-            >
+            <div class="flex flex-row flex-nowrap items-center">
               <slot :name="item.titleSlotName">
                 <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
               </slot>
-              <ColumnSelector
-                :show-jump-method="(attrs.showJumpMethod as boolean)"
-                :table-key="(attrs.tableKey as string)"
-                :show-pagination="attrs.showPagination as boolean"
-                @close="handleColumnSelectorClose"
-                @page-size-change="pageSizeChange"
+              <icon-settings
+                v-if="
+                  props.showSetting &&
+                  (item.slotName === SpecialColumnEnum.OPERATION || item.slotName === SpecialColumnEnum.ACTION)
+                "
+                class="setting-icon"
+                @click="handleShowSetting"
               />
             </div>
-            <slot v-else :name="item.titleSlotName">
-              <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
-            </slot>
           </template>
           <template #cell="{ column, record, rowIndex }">
             <div class="flex flex-row flex-nowrap items-center">
@@ -186,6 +178,14 @@
         @page-size-change="pageSizeChange"
       />
     </div>
+    <ColumnSelector
+      v-model:visible="columnSelectorVisible"
+      :show-jump-method="(attrs.showJumpMethod as boolean)"
+      :table-key="(attrs.tableKey as string)"
+      :show-pagination="(attrs.showPagination as boolean)"
+      @init-data="handleInitColumn"
+      @page-size-change="pageSizeChange"
+    ></ColumnSelector>
   </div>
 </template>
 
@@ -220,6 +220,7 @@
   const tableStore = useTableStore();
   const currentColumns = ref<MsTableColumn>([]);
   const appStore = useAppStore();
+  const columnSelectorVisible = ref(false);
 
   const props = defineProps<{
     selectedKeys: Set<string>;
@@ -424,7 +425,7 @@
     }
   };
 
-  const handleColumnSelectorClose = async () => {
+  const handleInitColumn = async () => {
     await initColumn();
   };
 
@@ -437,6 +438,9 @@
       return 'ms-table-row-disabled';
     }
   }
+  const handleShowSetting = () => {
+    columnSelectorVisible.value = true;
+  };
 
   onMounted(async () => {
     await initColumn();
@@ -467,6 +471,15 @@
             }
           }
         }
+      }
+    }
+    .setting-icon {
+      margin-left: 16px;
+      color: var(--color-text-4);
+      background-color: var(--color-text-10);
+      cursor: pointer;
+      &:hover {
+        color: rgba(var(--primary-5));
       }
     }
   }
