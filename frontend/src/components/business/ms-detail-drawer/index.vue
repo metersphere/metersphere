@@ -65,12 +65,12 @@
     visible: boolean;
     title: string;
     width: number;
-    detailId: string | number; // 详情 id
+    detailId: string; // 详情 id
     detailIndex: number; // 详情 下标
     tableData: any[]; // 表格数据
     pagination?: MsPaginationI; // 分页器对象
     pageChange: (page: number) => Promise<void>; // 分页变更函数
-    getDetailFunc: (id: string | number) => Promise<any>; // 获取详情的请求函数
+    getDetailFunc: (id: string) => Promise<any>; // 获取详情的请求函数
   }>();
 
   const emit = defineEmits(['update:visible', 'loaded']);
@@ -95,7 +95,7 @@
   const loading = ref(false);
   const detail = ref<any>({});
 
-  const activeDetailId = ref<string | number>(props.detailId);
+  const activeDetailId = ref<string>(props.detailId);
 
   async function initDetail() {
     try {

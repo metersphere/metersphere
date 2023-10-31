@@ -6,11 +6,13 @@ import {
   DeleteModuleUrl,
   DownloadFileUrl,
   FilePageUrl,
+  GetFileDetailUrl,
   GetFileTypesUrl,
   GetModuleCountUrl,
   GetModuleUrl,
   MoveModuleUrl,
   ReuploadFileUrl,
+  ToggleJarFileUrl,
   UpdateFileUrl,
   UpdateModuleUrl,
   UploadFileUrl,
@@ -20,6 +22,7 @@ import type { CommonList } from '@/models/common';
 import type {
   AddModuleParams,
   BatchFileApiParams,
+  FileDetail,
   FileItem,
   FileListQueryParams,
   ModuleCount,
@@ -99,4 +102,14 @@ export function deleteModule(id: string) {
 // 获取文件类型集合
 export function getFileTypes(id: string) {
   return MSR.get<string[]>({ url: GetFileTypesUrl, params: id });
+}
+
+// 获取文件详情
+export function getFileDetail(id: string) {
+  return MSR.get<FileDetail>({ url: GetFileDetailUrl, params: id });
+}
+
+// jar文件启用禁用
+export function toggleJarFileStatus(id: string, status: boolean) {
+  return MSR.get({ url: `${ToggleJarFileUrl}/${id}/${status}` });
 }

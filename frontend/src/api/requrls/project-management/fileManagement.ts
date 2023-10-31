@@ -14,3 +14,5 @@ export const GetModuleCountUrl = '/project/file/module/count'; // 模块统计�
 export const OriginImgUrl = '/file/preview/original'; // 预览图片文件接口-原图
 export const CompressImgUrl = '/file/preview/compressed'; // 预览图片文件接口-缩略图
 export const GetFileTypesUrl = '/project/file/type'; // 获取文件类型集合
+export const GetFileDetailUrl = '/project/file/get'; // 查看文件详情
+export const ToggleJarFileUrl = '/project/file/jar-file-status'; // jar 文件启用禁用
