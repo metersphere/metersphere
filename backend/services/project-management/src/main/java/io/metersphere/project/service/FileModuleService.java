@@ -11,7 +11,6 @@ import io.metersphere.project.request.filemanagement.FileModuleUpdateRequest;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.sdk.BaseModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.service.CleanupProjectResourceService;
@@ -152,77 +151,23 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
     }
 
     public void moveNode(NodeMoveRequest request, String currentUser) {
-        BaseModule module;
-        BaseModule parentModule;
-        BaseModule previousNode = null;
-        BaseModule nextNode = null;
 
-        FileModule dragNode = fileModuleMapper.selectByPrimaryKey(request.getDragNodeId());
-        if (dragNode == null) {
-            throw new MSException("file_module.not.exist:" + request.getDragNodeId());
-        } else {
-            module = new BaseModule(dragNode.getId(), dragNode.getName(), dragNode.getPos(), dragNode.getProjectId(), dragNode.getParentId());
-        }
-
-        if (StringUtils.equals(request.getDragNodeId(), request.getDropNodeId())) {
-            //两种节点不能一样
-            throw new MSException(Translator.get("invalid_parameter"));
-        }
-
-        FileModule dropNode = fileModuleMapper.selectByPrimaryKey(request.getDropNodeId());
-        if (dropNode == null) {
-            throw new MSException("file_module.not.exist:" + request.getDropNodeId());
-        }
-
-        if (request.getDropPosition() == 0) {
-            //dropPosition=0: 放到dropNode节点内，最后一个节点之后
-            parentModule = new BaseModule(dropNode.getId(), dropNode.getName(), dropNode.getPos(), dropNode.getProjectId(), dropNode.getParentId());
-            FileModule previousModule = extFileModuleMapper.getLastModuleByParentId(parentModule.getId());
-            if (previousModule != null) {
-                previousNode = new BaseModule(previousModule.getId(), previousModule.getName(), previousModule.getPos(), previousModule.getProjectId(), previousModule.getParentId());
-            }
-        } else {
-            if (StringUtils.equals(dropNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-                parentModule = new BaseModule(ModuleConstants.ROOT_NODE_PARENT_ID, ModuleConstants.ROOT_NODE_PARENT_ID, 0, module.getProjectId(), ModuleConstants.ROOT_NODE_PARENT_ID);
-            } else {
-                FileModule parent = fileModuleMapper.selectByPrimaryKey(dropNode.getParentId());
-                parentModule = new BaseModule(parent.getId(), parent.getName(), parent.getPos(), parent.getProjectId(), parent.getParentId());
-            }
-
-            if (request.getDropPosition() == 1) {
-                //dropPosition=1: 放到dropNode节点后，原dropNode后面的节点之前
-                previousNode = new BaseModule(dropNode.getId(), dropNode.getName(), dropNode.getPos(), dropNode.getProjectId(), dropNode.getParentId());
-                FileModule nextModule = extFileModuleMapper.getNextModuleInParentId(previousNode.getParentId(), previousNode.getPos());
-                if (nextModule != null) {
-                    nextNode = new BaseModule(nextModule.getId(), nextModule.getName(), nextModule.getPos(), nextModule.getProjectId(), nextModule.getParentId());
-                }
-            } else if (request.getDropPosition() == -1) {
-                //dropPosition=-1: 放到dropNode节点前，原dropNode前面的节点之后
-                nextNode = new BaseModule(dropNode.getId(), dropNode.getName(), dropNode.getPos(), dropNode.getProjectId(), dropNode.getParentId());
-                FileModule previousModule = extFileModuleMapper.getPreviousModuleInParentId(nextNode.getParentId(), nextNode.getPos());
-                if (previousModule != null) {
-                    previousNode = new BaseModule(previousModule.getId(), previousModule.getName(), previousModule.getPos(), previousModule.getProjectId(), previousModule.getParentId());
-                }
-            } else {
-                throw new MSException(Translator.get("invalid_parameter"));
-            }
-        }
+        NodeSortDTO nodeSortDTO = super.getNodeSortDTO(request,
+                extFileModuleMapper::selectBaseModuleById,
+                extFileModuleMapper::selectModuleByParentIdAndPosOperator);
 
         FileModuleExample example = new FileModuleExample();
-        example.createCriteria().andParentIdEqualTo(parentModule.getId()).andIdEqualTo(module.getId());
-        //节点换到了别的节点下,要先更新parent节点.
+        example.createCriteria().andParentIdEqualTo(nodeSortDTO.getParent().getId()).andIdEqualTo(request.getDragNodeId());
+        //节点换到了别的节点下,要先更新parent节点再计算sort
         if (fileModuleMapper.countByExample(example) == 0) {
             FileModule fileModule = new FileModule();
-            fileModule.setId(module.getId());
-            fileModule.setParentId(parentModule.getId());
+            fileModule.setId(request.getDragNodeId());
+            fileModule.setParentId(nodeSortDTO.getParent().getId());
             fileModuleMapper.updateByPrimaryKeySelective(fileModule);
         }
-
-        NodeSortDTO nodeMoveDTO = new NodeSortDTO(module, parentModule, previousNode, nextNode);
-        super.sort(nodeMoveDTO);
-
+        super.sort(nodeSortDTO);
         //记录日志
-        fileModuleLogService.saveMoveLog(nodeMoveDTO, currentUser);
+        fileModuleLogService.saveMoveLog(nodeSortDTO, currentUser);
     }
 
     /**
