@@ -1,4 +1,4 @@
-import { filter, orderBy } from 'lodash-es';
+import { filter, orderBy, sortBy } from 'lodash-es';
 
 import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
 
@@ -163,7 +163,7 @@ export default function useTableStore() {
         },
         { nonSortableColumns: [], couldSortableColumns: [] }
       );
-      return { nonSort: nonSortableColumns, couldSort: couldSortableColumns };
+      return { nonSort: nonSortableColumns, couldSort: sortBy(couldSortableColumns, 'sortedIndex') };
     }
     return { nonSort: [], couldSort: [] };
   }

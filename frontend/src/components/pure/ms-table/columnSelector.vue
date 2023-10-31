@@ -1,8 +1,7 @@
 <template>
-  <icon-settings class="icon" @click="handleClick" />
   <MsDrawer
+    :visible="props.visible"
     :width="480"
-    :visible="visible"
     unmount-on-close
     :footer="false"
     :title="t('msTable.columnSetting.display')"
@@ -59,6 +58,7 @@
             v-model="item.showInTable"
             size="small"
             :disabled="item.dataIndex === 'name' || item.dataIndex === 'operation'"
+            @change="handleSwitchChange"
           />
         </div>
       </div>
@@ -67,14 +67,14 @@
           t('msTable.columnSetting.nonSort')
         }}</span></a-divider
       >
-      <Draggable tag="div" :list="couldSortColumn" ghost-class="ghost" item-key="dateIndex">
+      <Draggable tag="div" :list="couldSortColumn" ghost-class="ghost" item-key="dateIndex" @change="handleDragChange">
         <template #item="{ element }">
           <div class="column-drag-item">
             <div class="flex w-[90%] items-center">
               <MsIcon type="icon-icon_drag" class="text-[16px] text-[var(--color-text-4)]" />
               <span class="ml-[8px]">{{ t(element.title as string) }}</span>
             </div>
-            <a-switch v-model="element.showInTable" size="small" />
+            <a-switch v-model="element.showInTable" size="small" @change="handleSwitchChange" />
           </div>
         </template>
       </Draggable>
@@ -109,21 +109,17 @@
   const hasChange = ref(false);
 
   const emit = defineEmits<{
-    (e: 'close'): void;
+    (e: 'initData'): void;
     (e: 'pageSizeChange', value: number): void;
+    (e: 'update:visible', value: boolean): void;
   }>();
 
   const props = defineProps<{
+    visible: boolean;
     tableKey: string;
     showJumpMethod: boolean;
     showPagination: boolean;
   }>();
-
-  const visible = ref(false);
-
-  const handleClick = () => {
-    visible.value = true;
-  };
 
   const handleCancel = async () => {
     await tableStore.setColumns(
@@ -131,8 +127,8 @@
       [...nonSortColumn.value, ...couldSortColumn.value],
       currentMode.value as TableOpenDetailMode
     );
-    visible.value = false;
-    emit('close');
+    emit('update:visible', false);
+    emit('initData');
   };
 
   const loadColumn = (key: string) => {
@@ -150,6 +146,14 @@
   const handleModeChange = (value: string | number | boolean) => {
     currentMode.value = value as string;
     tableStore.setMode(props.tableKey, value as TableOpenDetailMode);
+  };
+
+  const handleSwitchChange = () => {
+    hasChange.value = true;
+  };
+
+  const handleDragChange = () => {
+    hasChange.value = true;
   };
 
   onBeforeMount(() => {
@@ -172,15 +176,6 @@
   }
   :deep(.arco-divider-text) {
     padding: 0 8px;
-  }
-  .icon {
-    margin-left: 16px;
-    color: var(--color-text-4);
-    background-color: var(--color-text-10);
-    cursor: pointer;
-    &:hover {
-      color: rgba(var(--primary-5));
-    }
   }
   .mode-button {
     display: flex;
