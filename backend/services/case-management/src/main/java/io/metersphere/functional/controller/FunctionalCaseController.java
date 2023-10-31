@@ -2,7 +2,9 @@ package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
+import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
+import io.metersphere.functional.request.FunctionalCaseDeleteRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.request.FunctionalCaseFollowerRequest;
 import io.metersphere.functional.service.FunctionalCaseLogService;
@@ -31,7 +33,7 @@ import java.util.List;
 /**
  * @author wx
  */
-@Tag(name = "功能测试-功能用例")
+@Tag(name = "用例管理-功能用例")
 @RestController
 @RequestMapping("/functional/case")
 public class FunctionalCaseController {
@@ -43,6 +45,8 @@ public class FunctionalCaseController {
     private ProjectTemplateService projectTemplateService;
 
     //TODO 获取模板列表(多模板功能暂时不做)
+
+    //TODO 附件操作：文件删除/文件下载/文件预览/文件转存/文件更新
 
     @GetMapping("/default/template/field/{projectId}")
     @Operation(summary = "功能用例-获取默认模板自定义字段")
@@ -57,18 +61,18 @@ public class FunctionalCaseController {
     @Operation(summary = "功能用例-新增用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.CREATE,target = "#targetClass.getMainFunctionalCaseDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainFunctionalCaseDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
     public FunctionalCase addFunctionalCase(@Validated @RequestPart("request") FunctionalCaseAddRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
         return functionalCaseService.addFunctionalCase(request, files, userId);
     }
 
 
-    @GetMapping("/detail/{functionalCaseId}")
+    @GetMapping("/detail/{id}")
     @Operation(summary = "功能用例-查看用例详情")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    public FunctionalCaseDetailDTO getFunctionalCaseDetail(@PathVariable String functionalCaseId) {
-        return functionalCaseService.getFunctionalCaseDetail(functionalCaseId);
+    public FunctionalCaseDetailDTO getFunctionalCaseDetail(@PathVariable String id) {
+        return functionalCaseService.getFunctionalCaseDetail(id);
     }
 
 
@@ -85,17 +89,35 @@ public class FunctionalCaseController {
     @PostMapping("/edit/follower")
     @Operation(summary = "功能用例-关注/取消关注用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.editFollower(#request)", msClass = FunctionalCaseLogService.class)
     public void editFollower(@Validated @RequestBody FunctionalCaseFollowerRequest request) {
-        functionalCaseService.editFollower(request.getFunctionalCaseId(), request.getUserId());
+        String userId = SessionUtils.getUserId();
+        functionalCaseService.editFollower(request.getFunctionalCaseId(), userId);
     }
 
 
-    @GetMapping("/follower/{functionalCaseId}")
+    @GetMapping("/follower/{id}")
     @Operation(summary = "功能用例-获取用例关注人")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    public List<String> getFollower(@PathVariable @NotBlank(message = "{functional_case.id.not_blank}") String functionalCaseId) {
-        return functionalCaseService.getFollower(functionalCaseId);
+    public List<String> getFollower(@PathVariable @NotBlank(message = "{functional_case.id.not_blank}") String id) {
+        return functionalCaseService.getFollower(id);
+    }
+
+
+    @GetMapping("/version/{id}")
+    @Operation(summary = "功能用例-版本信息(用例是否存在多版本)")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    public List<FunctionalCaseVersionDTO> getVersion(@PathVariable @NotBlank(message = "{functional_case.id.not_blank}") String id) {
+        return functionalCaseService.getFunctionalCaseVersion(id);
+    }
+
+
+    @PostMapping("/delete")
+    @Operation(summary = "功能用例-删除用例")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
+    public void deleteFunctionalCase(@Validated @RequestBody FunctionalCaseDeleteRequest request) {
+        String userId = SessionUtils.getUserId();
+        functionalCaseService.deleteFunctionalCase(request, userId);
     }
 
 }

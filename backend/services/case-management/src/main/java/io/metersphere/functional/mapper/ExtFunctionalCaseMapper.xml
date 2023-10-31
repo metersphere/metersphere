@@ -27,4 +27,23 @@
             LIMIT 1;
     </select>
 
+
+    <update id="updateFunctionalCaseModule">
+        UPDATE functional_case
+        SET module_id = #{moduleId}
+        WHERE
+            ref_id = #{refId}
+    </update>
+
+
+    <select id="getFunctionalCaseByRefId" resultType="io.metersphere.functional.dto.FunctionalCaseVersionDTO">
+        SELECT
+            id,
+            NAME,
+            version_id
+        FROM
+            functional_case
+        WHERE
+            ref_id = #{refId}
+    </select>
 </mapper>
