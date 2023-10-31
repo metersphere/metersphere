@@ -6,6 +6,7 @@ import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.request.FunctionalCaseFollowerRequest;
 import io.metersphere.functional.service.FunctionalCaseLogService;
+import io.metersphere.functional.service.FunctionalCaseNoticeService;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -13,6 +14,8 @@ import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.notice.annotation.SendNotice;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,6 +57,7 @@ public class FunctionalCaseController {
     @Operation(summary = "功能用例-新增用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.CREATE,target = "#targetClass.getMainFunctionalCaseDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
     public FunctionalCase addFunctionalCase(@Validated @RequestPart("request") FunctionalCaseAddRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
         return functionalCaseService.addFunctionalCase(request, files, userId);
