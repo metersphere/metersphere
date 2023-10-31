@@ -13,6 +13,7 @@ import io.metersphere.system.domain.StatusItem;
 import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,6 +98,7 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
                             statusDefinition.setStatusId(refFieldMap.get(item.getStatusId()));
                             return statusDefinition;
                         })
+                        .filter(item -> StringUtils.isNotBlank(item.getStatusId()))
                         .toList();
                 statusDefinitions.addAll(projectStatusDefinitions);
             }
