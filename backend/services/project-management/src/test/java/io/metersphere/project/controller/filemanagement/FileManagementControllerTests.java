@@ -735,7 +735,7 @@ public class FileManagementControllerTests extends BaseTest {
         }
 
         //通过ID下载文件
-        FileBatchProcessDTO batchProcessDTO = new FileBatchProcessDTO();
+        FileBatchProcessRequest batchProcessDTO = new FileBatchProcessRequest();
         batchProcessDTO.setSelectAll(false);
         batchProcessDTO.setProjectId(project.getId());
         batchProcessDTO.setSelectIds(new ArrayList<>(FILE_ID_PATH.keySet()));
@@ -744,7 +744,7 @@ public class FileManagementControllerTests extends BaseTest {
         Assertions.assertTrue(fileBytes.length > 0);
 
         //下载全部文件
-        batchProcessDTO = new FileBatchProcessDTO();
+        batchProcessDTO = new FileBatchProcessRequest();
         batchProcessDTO.setSelectAll(true);
         batchProcessDTO.setProjectId(project.getId());
         mvcResult = this.batchDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, batchProcessDTO);
@@ -785,7 +785,7 @@ public class FileManagementControllerTests extends BaseTest {
             fileMetadataMapper.deleteByExample(example);
         }
         //下载空文件
-        batchProcessDTO = new FileBatchProcessDTO();
+        batchProcessDTO = new FileBatchProcessRequest();
         batchProcessDTO.setSelectAll(false);
         batchProcessDTO.setProjectId(project.getId());
         batchProcessDTO.setSelectIds(new ArrayList<>() {{
@@ -797,7 +797,7 @@ public class FileManagementControllerTests extends BaseTest {
 
 
         //权限判断
-        batchProcessDTO = new FileBatchProcessDTO();
+        batchProcessDTO = new FileBatchProcessRequest();
         batchProcessDTO.setSelectAll(false);
         batchProcessDTO.setProjectId(DEFAULT_PROJECT_ID);
         batchProcessDTO.setSelectIds(new ArrayList<>(FILE_ID_PATH.keySet()));
@@ -883,18 +883,18 @@ public class FileManagementControllerTests extends BaseTest {
         if (MapUtils.isEmpty(FILE_VERSIONS_ID_MAP)) {
             this.fileReUploadTestSuccess();
         }
-        FileBatchProcessDTO fileBatchProcessDTO;
+        FileBatchProcessRequest fileBatchProcessRequest;
         //删除指定文件
         for (Map.Entry<String, String> entry : FILE_VERSIONS_ID_MAP.entrySet()) {
             String fileMetadataId = entry.getKey();
             String refId = entry.getValue();
 
-            fileBatchProcessDTO = new FileBatchProcessDTO();
-            fileBatchProcessDTO.setProjectId(project.getId());
-            fileBatchProcessDTO.setSelectIds(new ArrayList<>() {{
+            fileBatchProcessRequest = new FileBatchProcessRequest();
+            fileBatchProcessRequest.setProjectId(project.getId());
+            fileBatchProcessRequest.setSelectIds(new ArrayList<>() {{
                 this.add(fileMetadataId);
             }});
-            this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessDTO);
+            this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
 
             this.checkFileIsDeleted(fileMetadataId, refId);
             checkLog(fileMetadataId, OperationLogType.DELETE, FileManagementRequestUtils.URL_FILE_DELETE);
@@ -902,16 +902,16 @@ public class FileManagementControllerTests extends BaseTest {
         FILE_VERSIONS_ID_MAP.clear();
 
         //全部删除
-        fileBatchProcessDTO = new FileBatchProcessDTO();
-        fileBatchProcessDTO.setSelectAll(true);
-        fileBatchProcessDTO.setProjectId(project.getId());
-        fileBatchProcessDTO.setExcludeIds(new ArrayList<>() {{
+        fileBatchProcessRequest = new FileBatchProcessRequest();
+        fileBatchProcessRequest.setSelectAll(true);
+        fileBatchProcessRequest.setProjectId(project.getId());
+        fileBatchProcessRequest.setExcludeIds(new ArrayList<>() {{
             this.add(IDGenerator.nextStr());
         }});
-        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessDTO);
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andProjectIdEqualTo(project.getId());
-        Assertions.assertTrue(fileMetadataMapper.countByExample(example) == 0);
+        Assertions.assertEquals(fileMetadataMapper.countByExample(example), 0);
         //重新上传，用于后续的测试
         this.fileUploadTestSuccess();
     }
@@ -928,6 +928,7 @@ public class FileManagementControllerTests extends BaseTest {
             updateFileId = id;
         }
 
+
         FileUpdateRequest updateRequest = new FileUpdateRequest();
         updateRequest.setId(updateFileId);
         updateRequest.setName("update_" + updateFileId);
@@ -938,36 +939,38 @@ public class FileManagementControllerTests extends BaseTest {
         BaseTreeNode a1a1Node = FileManagementBaseUtils.getNodeByName(preliminaryTreeNodes, "a1-a1");
         updateRequest.setModuleId(a1a1Node.getId());
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
+        this.checkFileInformation(updateFileId, updateRequest);
         checkLog(updateRequest.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_UPDATE);
 
-        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
-        Assertions.assertNotNull(fileMetadata);
-        Assertions.assertEquals(updateRequest.getName(), fileMetadata.getName());
-        Assertions.assertEquals(updateRequest.getDescription(), fileMetadata.getDescription());
-        Assertions.assertEquals(updateRequest.getModuleId(), fileMetadata.getModuleId());
-        List<String> list = JSON.parseArray(fileMetadata.getTags(), String.class);
-        Assertions.assertTrue(list.size() == 1);
-        Assertions.assertTrue(StringUtils.equals(list.get(0), "tag1"));
+        //只改描述
+        updateRequest = new FileUpdateRequest();
+        updateRequest.setId(updateFileId);
+        updateRequest.setDescription("UPDATE DESC AGAIN");
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
+        this.checkFileInformation(updateFileId, updateRequest);
 
         //判断更改jar文件的启用禁用
         updateRequest = new FileUpdateRequest();
         updateRequest.setId(jarFileId);
         updateRequest.setEnable(true);
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
+        this.checkFileInformation(jarFileId, updateRequest);
 
         //判断什么也不改
+        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
         updateRequest = new FileUpdateRequest();
         updateRequest.setId(updateFileId);
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
+        this.checkFileInformation(updateFileId, updateRequest);
 
+        //检查数据是否没有更改
         FileMetadata fileMetadata2 = fileMetadataMapper.selectByPrimaryKey(updateFileId);
         Assertions.assertNotNull(fileMetadata2);
         Assertions.assertEquals(fileMetadata2.getName(), fileMetadata.getName());
         Assertions.assertEquals(fileMetadata2.getDescription(), fileMetadata.getDescription());
         Assertions.assertEquals(fileMetadata2.getModuleId(), fileMetadata.getModuleId());
-        List<String> list2 = JSON.parseArray(fileMetadata2.getTags(), String.class);
-        Assertions.assertTrue(list.size() == 1);
-        Assertions.assertTrue(StringUtils.equals(list2.get(0), "tag1"));
+        Assertions.assertEquals(fileMetadata2.getEnable(), fileMetadata.getEnable());
+        Assertions.assertTrue(CollectionUtils.isEqualCollection(JSON.parseArray(fileMetadata2.getTags(), String.class), JSON.parseArray(fileMetadata.getTags(), String.class)));
 
     }
 
@@ -987,7 +990,7 @@ public class FileManagementControllerTests extends BaseTest {
         updateRequest = new FileUpdateRequest();
         updateRequest.setId(picFileId);
         updateRequest.setEnable(true);
-        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
+        this.requestPost(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest).andExpect(status().is5xxServerError());
 
         //模块不存在
         if (MapUtils.isEmpty(FILE_ID_PATH)) {
@@ -1022,14 +1025,17 @@ public class FileManagementControllerTests extends BaseTest {
         }
         //测试启用
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, jarFileId, true));
+        this.checkFileEnable(jarFileId, true);
         this.checkLog(jarFileId, OperationLogType.UPDATE, "/project/file/jar-file-status");
         //测试禁用
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, jarFileId, false));
+        this.checkFileEnable(jarFileId, false);
         //文件不存在
         this.requestGet(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, IDGenerator.nextNum(), true));
         //文件不是jar文件
         this.requestGet(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, picFileId, true));
     }
+
     @Test
     @Order(80)
     public void moveTest() throws Exception {
@@ -1271,6 +1277,65 @@ public class FileManagementControllerTests extends BaseTest {
         checkLog(a3Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE);
     }
 
+
+    @Test
+    @Order(81)
+    public void moveFileTest() throws Exception {
+        if (MapUtils.isEmpty(FILE_ID_PATH)) {
+            this.fileUploadTestSuccess();
+        }
+        BaseTreeNode a1a1c1Node = FileManagementBaseUtils.getNodeByName(preliminaryTreeNodes, "a1-a1-c1");
+        //部分文件批量移动
+        FileBatchMoveRequest moveRequest = new FileBatchMoveRequest();
+        moveRequest.setMoveModuleId(a1a1c1Node.getId());
+        moveRequest.setProjectId(project.getId());
+        moveRequest.setSelectIds(new ArrayList<>() {{
+            this.add(picFileId);
+        }});
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_BATCH_UPDATE, moveRequest);
+        this.checkFileModule(picFileId, a1a1c1Node.getId());
+        checkLog(picFileId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_BATCH_UPDATE);
+        //所有文件批量移动
+        moveRequest = new FileBatchMoveRequest();
+        moveRequest.setMoveModuleId(a1a1c1Node.getId());
+        moveRequest.setProjectId(project.getId());
+        moveRequest.setSelectAll(true);
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_BATCH_UPDATE, moveRequest);
+        this.checkFileModuleInProject(project.getId(), a1a1c1Node.getId());
+        //所有文件再批量移动到相同目录
+        moveRequest = new FileBatchMoveRequest();
+        moveRequest.setMoveModuleId(a1a1c1Node.getId());
+        moveRequest.setProjectId(project.getId());
+        moveRequest.setSelectAll(true);
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_BATCH_UPDATE, moveRequest);
+        this.checkFileModuleInProject(project.getId(), a1a1c1Node.getId());
+        //没有要移动的文件
+        moveRequest = new FileBatchMoveRequest();
+        moveRequest.setMoveModuleId(a1a1c1Node.getId());
+        moveRequest.setProjectId(project.getId());
+        moveRequest.setSelectAll(false);
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_BATCH_UPDATE, moveRequest);
+        //模块不存在
+        moveRequest = new FileBatchMoveRequest();
+        moveRequest.setMoveModuleId(IDGenerator.nextStr());
+        moveRequest.setProjectId(project.getId());
+        moveRequest.setSelectAll(true);
+        this.requestPost(FileManagementRequestUtils.URL_FILE_BATCH_UPDATE, moveRequest).andExpect(status().is5xxServerError());
+        //项目ID不填写
+        moveRequest = new FileBatchMoveRequest();
+        moveRequest.setMoveModuleId(IDGenerator.nextStr());
+        this.requestPost(FileManagementRequestUtils.URL_FILE_BATCH_UPDATE, moveRequest).andExpect(status().isBadRequest());
+        //模块ID不填写
+        moveRequest = new FileBatchMoveRequest();
+        moveRequest.setProjectId(project.getId());
+        this.requestPost(FileManagementRequestUtils.URL_FILE_BATCH_UPDATE, moveRequest).andExpect(status().isBadRequest());
+        //权限设置
+        moveRequest = new FileBatchMoveRequest();
+        moveRequest.setMoveModuleId(IDGenerator.nextStr());
+        moveRequest.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE, FileManagementRequestUtils.URL_FILE_BATCH_UPDATE, moveRequest);
+    }
+
     @Test
     @Order(81)
     public void moveTestError() throws Exception {
@@ -1357,24 +1422,24 @@ public class FileManagementControllerTests extends BaseTest {
     private void checkModuleIsEmpty(String id) {
         FileModuleExample example = new FileModuleExample();
         example.createCriteria().andParentIdEqualTo(id);
-        Assertions.assertTrue(fileModuleMapper.countByExample(example) == 0);
+        Assertions.assertEquals(fileModuleMapper.countByExample(example), 0);
 
         FileMetadataExample metadataExample = new FileMetadataExample();
         example = new FileModuleExample();
         example.createCriteria().andIdEqualTo(id);
-        Assertions.assertTrue(fileModuleMapper.countByExample(example) == 0);
+        Assertions.assertEquals(fileModuleMapper.countByExample(example), 0);
         metadataExample.createCriteria().andModuleIdEqualTo(id);
-        Assertions.assertTrue(fileMetadataMapper.countByExample(metadataExample) == 0);
+        Assertions.assertEquals(fileMetadataMapper.countByExample(metadataExample), 0);
     }
 
     private void checkFileIsDeleted(String fileId, String refId) {
         FileMetadataExample metadataExample = new FileMetadataExample();
         metadataExample.createCriteria().andIdEqualTo(fileId);
-        Assertions.assertTrue(fileMetadataMapper.countByExample(metadataExample) == 0);
+        Assertions.assertEquals(fileMetadataMapper.countByExample(metadataExample), 0);
 
         metadataExample = new FileMetadataExample();
         metadataExample.createCriteria().andRefIdEqualTo(refId);
-        Assertions.assertTrue(fileMetadataMapper.countByExample(metadataExample) == 0);
+        Assertions.assertEquals(fileMetadataMapper.countByExample(metadataExample), 0);
     }
 
     public MvcResult responseFile(String url, MockMultipartFile file, Object param) throws Exception {
@@ -1443,7 +1508,7 @@ public class FileManagementControllerTests extends BaseTest {
                 |   |
                 |   *a1-a1   +（创建的时候是a1，通过修改改为a1-a1）
                 |   |        |
-                |   |        ·a1-a1-c1
+                |   |        ·a1-a1-c1(用于测试文件移动)
                 |
                 ·a2
                 |
@@ -1470,5 +1535,47 @@ public class FileManagementControllerTests extends BaseTest {
                 Assertions.assertEquals(0, thirdModule.getPos() % limitPos);
             }
         }
+    }
+
+    private void checkFileEnable(String fileId, boolean enable) {
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdEqualTo(fileId).andEnableEqualTo(enable);
+        Assertions.assertTrue(fileMetadataMapper.countByExample(example) > 0);
+    }
+
+    private void checkFileModule(String picFileId, String moduleId) {
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdEqualTo(picFileId).andModuleIdEqualTo(moduleId);
+        Assertions.assertTrue(fileMetadataMapper.countByExample(example) > 0);
+    }
+
+    private void checkFileInformation(String updateFileId, FileUpdateRequest updateRequest) {
+        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
+
+        if (StringUtils.isNotEmpty(updateRequest.getDescription())) {
+            Assertions.assertTrue(StringUtils.equals(fileMetadata.getDescription(), updateRequest.getDescription()));
+        }
+
+        if (StringUtils.isNotEmpty(updateRequest.getName())) {
+            Assertions.assertTrue(StringUtils.equals(fileMetadata.getName(), updateRequest.getName()));
+        }
+
+        if (StringUtils.isNotEmpty(updateRequest.getModuleId())) {
+            Assertions.assertTrue(StringUtils.equals(fileMetadata.getModuleId(), updateRequest.getModuleId()));
+        }
+
+        if (updateRequest.getEnable() != null) {
+            Assertions.assertEquals(fileMetadata.getEnable(), updateRequest.getEnable());
+        }
+
+        if (CollectionUtils.isNotEmpty(updateRequest.getTags())) {
+            Assertions.assertTrue(CollectionUtils.isEqualCollection(JSON.parseArray(fileMetadata.getTags(), String.class), updateRequest.getTags()));
+        }
+    }
+
+    private void checkFileModuleInProject(String projectId, String moduleId) {
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andModuleIdNotEqualTo(moduleId).andLatestEqualTo(true);
+        Assertions.assertEquals(fileMetadataMapper.countByExample(example), 0);
     }
 }

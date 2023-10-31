@@ -106,12 +106,12 @@ public class FileManagementPermissionControllerTests extends BaseTest {
     @Test
     @Order(7)
     public void fileDeleteSuccess() throws Exception {
-        FileBatchProcessDTO fileBatchProcessDTO = new FileBatchProcessDTO();
-        fileBatchProcessDTO.setProjectId(DEFAULT_PROJECT_ID);
-        fileBatchProcessDTO.setSelectIds(new ArrayList<>() {{
+        FileBatchProcessRequest fileBatchProcessRequest = new FileBatchProcessRequest();
+        fileBatchProcessRequest.setProjectId(DEFAULT_PROJECT_ID);
+        fileBatchProcessRequest.setSelectIds(new ArrayList<>() {{
             this.add(TEST_ID);
         }});
-        this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DELETE, FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessDTO);
+        this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DELETE, FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
     }
 
     @Test

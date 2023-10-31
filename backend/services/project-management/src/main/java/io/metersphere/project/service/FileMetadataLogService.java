@@ -109,7 +109,7 @@ public class FileMetadataLogService {
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.UPDATE.name())
                 .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
-                .method(HttpMethodConstants.POST.name())
+                .method(HttpMethodConstants.GET.name())
                 .path("/project/file/jar-file-status")
                 .sourceId(module.getId())
                 .content(Translator.get("change.jar.enable") + ":" + enable)
@@ -117,5 +117,26 @@ public class FileMetadataLogService {
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);
+    }
+
+    public void saveFileMoveLog(List<FileMetadata> logList, String projectId, String operator) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        List<LogDTO> list = new ArrayList<>();
+        for (FileMetadata fileMetadata : logList) {
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(projectId)
+                    .organizationId(project.getOrganizationId())
+                    .type(OperationLogType.UPDATE.name())
+                    .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                    .method(HttpMethodConstants.POST.name())
+                    .path("/project/file/batch-move")
+                    .sourceId(fileMetadata.getId())
+                    .content(Translator.get("file.log.change_file_module") + ":" + fileMetadata.getName())
+                    .createUser(operator)
+                    .build().getLogDTO();
+            list.add(dto);
+        }
+
+        operationLogService.batchAdd(list);
     }
 }

@@ -63,7 +63,7 @@
             f.latest = true
             AND f.project_id = #{projectId}
             <if test="keyword != null and keyword != ''">
-                AND f.name = #{keyword}
+                AND f.name like concat('%', #{keyword}, '%')
             </if>
             <if test="moduleIds != null and moduleIds.size() != 0">
                 AND f.module_id IN
@@ -140,6 +140,7 @@
                f.name,
                f.type,
                f.tags,
+               f.enable,
                f.description,
                f.update_time,
                f.path,

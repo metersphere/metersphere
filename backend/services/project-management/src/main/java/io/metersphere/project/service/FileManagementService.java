@@ -7,7 +7,7 @@ import io.metersphere.project.dto.filemanagement.FileManagementPageDTO;
 import io.metersphere.project.mapper.ExtFileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
-import io.metersphere.project.request.filemanagement.FileBatchProcessDTO;
+import io.metersphere.project.request.filemanagement.FileBatchProcessRequest;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -34,10 +33,8 @@ public class FileManagementService {
     private FileService fileService;
     @Resource
     private FileMetadataLogService fileMetadataLogService;
-
     @Resource
     private ExtFileMetadataMapper extFileMetadataMapper;
-
 
     public void checkModule(String moduleId, String nodeTypeDefault) {
         if (!StringUtils.equals(moduleId, ModuleConstants.DEFAULT_NODE_ID)) {
@@ -49,9 +46,9 @@ public class FileManagementService {
         }
     }
 
-    public void delete(FileBatchProcessDTO request, String operator) {
+    public void delete(FileBatchProcessRequest request, String operator) {
         List<FileMetadata> deleteList = this.getDeleteList(request);
-        List<String> deleteIds = deleteList.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        List<String> deleteIds = deleteList.stream().map(FileMetadata::getId).toList();
         if (CollectionUtils.isNotEmpty(deleteIds)) {
             FileMetadataExample example = new FileMetadataExample();
             example.createCriteria().andIdIn(deleteIds);
@@ -77,20 +74,20 @@ public class FileManagementService {
         }
     }
 
-    public List<FileMetadata> getDeleteList(FileBatchProcessDTO request) {
+    public List<FileMetadata> getDeleteList(FileBatchProcessRequest request) {
         List<String> processIds = request.getSelectIds();
         List<FileMetadata> refFileList = new ArrayList<>();
         FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
         if (request.isSelectAll()) {
             refFileList = extFileMetadataMapper.selectRefIdByKeywordAndFileType(pageDTO);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                refFileList = refFileList.stream().filter(fileMetadata -> !request.getExcludeIds().contains(fileMetadata.getId())).collect(Collectors.toList());
+                refFileList = refFileList.stream().filter(fileMetadata -> !request.getExcludeIds().contains(fileMetadata.getId())).toList();
             }
         } else if (CollectionUtils.isNotEmpty(processIds)) {
             refFileList = extFileMetadataMapper.selectRefIdByIds(processIds);
         }
 
-        List<String> refIdList = refFileList.stream().map(FileMetadata::getRefId).collect(Collectors.toList());
+        List<String> refIdList = refFileList.stream().map(FileMetadata::getRefId).toList();
         if (CollectionUtils.isNotEmpty(refIdList)) {
             processIds = extFileMetadataMapper.selectIdByRefIdList(refIdList);
             return extFileMetadataMapper.selectDeleteFileInfoByIds(processIds);
@@ -99,7 +96,7 @@ public class FileManagementService {
         }
     }
 
-    public List<FileMetadata> getProcessList(FileBatchProcessDTO request) {
+    public List<FileMetadata> getProcessList(FileBatchProcessRequest request) {
         List<String> processIds = request.getSelectIds();
         List<FileMetadata> processFileList = new ArrayList<>();
         if (request.isSelectAll()) {
@@ -107,7 +104,7 @@ public class FileManagementService {
             processFileList = extFileMetadataMapper.selectByKeywordAndFileType(pageDTO);
             //去除未选择的文件
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                processFileList = processFileList.stream().filter(fileMetadata -> !request.getExcludeIds().contains(fileMetadata.getId())).collect(Collectors.toList());
+                processFileList = processFileList.stream().filter(fileMetadata -> !request.getExcludeIds().contains(fileMetadata.getId())).toList();
             }
         } else if (CollectionUtils.isNotEmpty(processIds)) {
             FileMetadataExample example = new FileMetadataExample();
@@ -121,14 +118,14 @@ public class FileManagementService {
     public void deleteByModuleIds(List<String> deleteModuleIds) {
         //获取要删除的文件引用ID
         List<FileMetadata> refFileList = extFileMetadataMapper.selectRefIdByModuleIds(deleteModuleIds);
-        List<String> refIdList = refFileList.stream().map(FileMetadata::getRefId).collect(Collectors.toList());
+        List<String> refIdList = refFileList.stream().map(FileMetadata::getRefId).toList();
         if (CollectionUtils.isNotEmpty(refIdList)) {
             //获取要删除的所有文件ID
             List<FileMetadata> deleteList = extFileMetadataMapper.selectDeleteFileInfoByRefIdList(refIdList);
             if (CollectionUtils.isNotEmpty(deleteList)) {
                 FileMetadataExample example = new FileMetadataExample();
                 example.createCriteria().andIdIn(
-                        deleteList.stream().map(FileMetadata::getId).collect(Collectors.toList()));
+                        deleteList.stream().map(FileMetadata::getId).toList());
                 fileMetadataMapper.deleteByExample(example);
 
                 deleteList.forEach(fileMetadata -> {

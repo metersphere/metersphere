@@ -67,6 +67,7 @@ public class FileInformationDTO {
             if (StringUtils.isNotBlank(fileMetadata.getTags())) {
                 tags = JSON.parseArray(fileMetadata.getTags(), String.class);
             }
+            this.enable = fileMetadata.getEnable();
             this.createTime = fileMetadata.getCreateTime();
             this.createUser = fileMetadata.getCreateUser();
             this.updateUser = fileMetadata.getUpdateUser();

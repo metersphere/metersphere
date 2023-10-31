@@ -39,7 +39,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -82,7 +81,7 @@ public class FileMetadataService {
     }
 
     private void initModuleName(List<FileInformationDTO> returnList) {
-        List<String> moduleIds = returnList.stream().map(FileInformationDTO::getModuleId).distinct().collect(Collectors.toList());
+        List<String> moduleIds = returnList.stream().map(FileInformationDTO::getModuleId).distinct().toList();
         Map<String, String> moduleNameMap = fileModuleService.getModuleNameMapByIds(moduleIds);
         for (FileInformationDTO dto : returnList) {
             if (StringUtils.equals(dto.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
@@ -158,7 +157,7 @@ public class FileMetadataService {
             example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId).andIdNotEqualTo(id);
         }
         if (fileMetadataMapper.countByExample(example) > 0) {
-            throw new MSException(Translator.get("file.name.exist"));
+            throw new MSException(Translator.get("file.name.exist") + ":" + fileName);
         }
     }
 
@@ -213,7 +212,7 @@ public class FileMetadataService {
         }
 
         //检查是否是空参数
-        if (!StringUtils.isAllBlank(request.getName(), request.getDescription(), request.getModuleId()) && CollectionUtils.isNotEmpty(request.getTags())) {
+        if (!StringUtils.isAllBlank(request.getName(), request.getDescription(), request.getModuleId()) || request.getEnable() != null || CollectionUtils.isNotEmpty(request.getTags())) {
             FileMetadata updateExample = new FileMetadata();
             updateExample.setId(request.getId());
             updateExample.setDescription(request.getDescription());
@@ -245,7 +244,7 @@ public class FileMetadataService {
         return PageUtils.setPageInfo(page, this.list(request));
     }
 
-    public ResponseEntity<byte[]> batchDownload(FileBatchProcessDTO request) {
+    public ResponseEntity<byte[]> batchDownload(FileBatchProcessRequest request) {
         List<FileMetadata> fileMetadataList = fileManagementService.getProcessList(request);
         this.checkDownloadSize(fileMetadataList);
         try {
@@ -391,7 +390,34 @@ public class FileMetadataService {
         FileMetadata updateModel = new FileMetadata();
         updateModel.setId(fileMetadata.getId());
         updateModel.setEnable(enable);
+        updateModel.setUpdateTime(System.currentTimeMillis());
+        updateModel.setUpdateUser(operator);
         fileMetadataMapper.updateByPrimaryKeySelective(updateModel);
         fileMetadataLogService.saveChangeJarFileStatusLog(fileMetadata, enable, operator);
+    }
+
+    public void batchMove(FileBatchMoveRequest request, String operator) {
+        //检查模块的合法性
+        fileManagementService.checkModule(request.getMoveModuleId(), ModuleConstants.NODE_TYPE_DEFAULT);
+        List<FileMetadata> fileMetadataList = fileManagementService.getProcessList(request);
+        List<String> updateFileId = new ArrayList<>();
+        List<FileMetadata> logList = new ArrayList<>();
+        for (FileMetadata fileMetadata : fileMetadataList) {
+            if (!StringUtils.equals(fileMetadata.getModuleId(), request.getMoveModuleId())) {
+                updateFileId.add(fileMetadata.getId());
+                logList.add(fileMetadata);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(updateFileId)) {
+            FileMetadataExample example = new FileMetadataExample();
+            example.createCriteria().andIdIn(updateFileId);
+            FileMetadata updateModel = new FileMetadata();
+            updateModel.setModuleId(request.getMoveModuleId());
+            updateModel.setUpdateTime(System.currentTimeMillis());
+            updateModel.setUpdateUser(operator);
+            fileMetadataMapper.updateByExampleSelective(updateModel, example);
+            //记录日志
+            fileMetadataLogService.saveFileMoveLog(logList, request.getProjectId(), operator);
+        }
     }
 }
