@@ -30,9 +30,13 @@ public class FunctionalCaseModule implements Serializable {
     @Size(min = 1, max = 50, message = "{functional_case_module.parent_id.length_range}", groups = {Created.class, Updated.class})
     private String parentId;
 
-    @Schema(description = "节点的层级", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case_module.level.not_blank}", groups = {Created.class})
-    private Integer level;
+    @Schema(description = "同一节点下的顺序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{functional_case_module.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
+    @Schema(description = "是否在回收站：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{functional_case_module.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
 
     @Schema(description = "创建时间")
     private Long createTime;
@@ -40,19 +44,11 @@ public class FunctionalCaseModule implements Serializable {
     @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description = "同一节点下的顺序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case_module.pos.not_blank}", groups = {Created.class})
-    private Long pos;
-
     @Schema(description = "创建人")
     private String createUser;
 
     @Schema(description = "更新人")
     private String updateUser;
-
-    @Schema(description = "是否在回收站：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case_module.deleted.not_blank}", groups = {Created.class})
-    private Boolean deleted;
 
     private static final long serialVersionUID = 1L;
 
@@ -61,13 +57,12 @@ public class FunctionalCaseModule implements Serializable {
         projectId("project_id", "projectId", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
         parentId("parent_id", "parentId", "VARCHAR", false),
-        level("level", "level", "INTEGER", true),
+        pos("pos", "pos", "BIGINT", false),
+        deleted("deleted", "deleted", "BIT", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        pos("pos", "pos", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
-        updateUser("update_user", "updateUser", "VARCHAR", false),
-        deleted("deleted", "deleted", "BIT", false);
+        updateUser("update_user", "updateUser", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

@@ -6,13 +6,12 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
-    <result column="level" jdbcType="INTEGER" property="level" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="pos" jdbcType="BIGINT" property="pos" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
-    <result column="deleted" jdbcType="BIT" property="deleted" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,8 +72,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, parent_id, `level`, create_time, update_time, pos, create_user, 
-    update_user, deleted
+    id, project_id, `name`, parent_id, pos, deleted, create_time, update_time, create_user, 
+    update_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseModuleExample" resultMap="BaseResultMap">
     select
@@ -108,13 +107,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseModule">
     insert into functional_case_module (id, project_id, `name`, 
-      parent_id, `level`, create_time, 
-      update_time, pos, create_user, 
-      update_user, deleted)
+      parent_id, pos, deleted, 
+      create_time, update_time, create_user, 
+      update_user)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{updateUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT})
+      #{parentId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{deleted,jdbcType=BIT}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{updateUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseModule">
     insert into functional_case_module
@@ -131,8 +130,11 @@
       <if test="parentId != null">
         parent_id,
       </if>
-      <if test="level != null">
-        `level`,
+      <if test="pos != null">
+        pos,
+      </if>
+      <if test="deleted != null">
+        deleted,
       </if>
       <if test="createTime != null">
         create_time,
@@ -140,17 +142,11 @@
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="pos != null">
-        pos,
-      </if>
       <if test="createUser != null">
         create_user,
       </if>
       <if test="updateUser != null">
         update_user,
-      </if>
-      <if test="deleted != null">
-        deleted,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -166,8 +162,11 @@
       <if test="parentId != null">
         #{parentId,jdbcType=VARCHAR},
       </if>
-      <if test="level != null">
-        #{level,jdbcType=INTEGER},
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -175,17 +174,11 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="pos != null">
-        #{pos,jdbcType=BIGINT},
-      </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="updateUser != null">
         #{updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="deleted != null">
-        #{deleted,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -210,8 +203,11 @@
       <if test="record.parentId != null">
         parent_id = #{record.parentId,jdbcType=VARCHAR},
       </if>
-      <if test="record.level != null">
-        `level` = #{record.level,jdbcType=INTEGER},
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -219,17 +215,11 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=BIGINT},
-      </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
       <if test="record.updateUser != null">
         update_user = #{record.updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.deleted != null">
-        deleted = #{record.deleted,jdbcType=BIT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -242,13 +232,12 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
-      `level` = #{record.level,jdbcType=INTEGER},
+      pos = #{record.pos,jdbcType=BIGINT},
+      deleted = #{record.deleted,jdbcType=BIT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      pos = #{record.pos,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      update_user = #{record.updateUser,jdbcType=VARCHAR},
-      deleted = #{record.deleted,jdbcType=BIT}
+      update_user = #{record.updateUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -265,8 +254,11 @@
       <if test="parentId != null">
         parent_id = #{parentId,jdbcType=VARCHAR},
       </if>
-      <if test="level != null">
-        `level` = #{level,jdbcType=INTEGER},
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -274,17 +266,11 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="pos != null">
-        pos = #{pos,jdbcType=BIGINT},
-      </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="updateUser != null">
         update_user = #{updateUser,jdbcType=VARCHAR},
-      </if>
-      <if test="deleted != null">
-        deleted = #{deleted,jdbcType=BIT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -294,25 +280,24 @@
     set project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
-      `level` = #{level,jdbcType=INTEGER},
+      pos = #{pos,jdbcType=BIGINT},
+      deleted = #{deleted,jdbcType=BIT},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      pos = #{pos,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
-      update_user = #{updateUser,jdbcType=VARCHAR},
-      deleted = #{deleted,jdbcType=BIT}
+      update_user = #{updateUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into functional_case_module
-    (id, project_id, `name`, parent_id, `level`, create_time, update_time, pos, create_user, 
-      update_user, deleted)
+    (id, project_id, `name`, parent_id, pos, deleted, create_time, update_time, create_user, 
+      update_user)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
-        #{item.parentId,jdbcType=VARCHAR}, #{item.level,jdbcType=INTEGER}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.pos,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.updateUser,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT})
+        #{item.parentId,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.updateUser,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -337,8 +322,11 @@
         <if test="'parent_id'.toString() == column.value">
           #{item.parentId,jdbcType=VARCHAR}
         </if>
-        <if test="'level'.toString() == column.value">
-          #{item.level,jdbcType=INTEGER}
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
@@ -346,17 +334,11 @@
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
         </if>
-        <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=BIGINT}
-        </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
         </if>
         <if test="'update_user'.toString() == column.value">
           #{item.updateUser,jdbcType=VARCHAR}
-        </if>
-        <if test="'deleted'.toString() == column.value">
-          #{item.deleted,jdbcType=BIT}
         </if>
       </foreach>
       )
