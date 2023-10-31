@@ -1,10 +1,8 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,44 +10,45 @@ import lombok.Data;
 
 @Data
 public class FunctionalCaseModule implements Serializable {
-    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_module.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{functional_case_module.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_module.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{functional_case_module.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description =  "名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_module.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 100, message = "{functional_case_module.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description =  "父节点ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "父节点ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_module.parent_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{functional_case_module.parent_id.length_range}", groups = {Created.class, Updated.class})
     private String parentId;
 
-    @Schema(description =  "节点的层级", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_module.level.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{functional_case_module.level.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "节点的层级", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{functional_case_module.level.not_blank}", groups = {Created.class})
     private Integer level;
 
-    @Schema(description =  "创建时间")
+    @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "更新时间")
+    @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description =  "同一节点下的顺序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_module.pos.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{functional_case_module.pos.length_range}", groups = {Created.class, Updated.class})
-    private Long pos;
+    @Schema(description = "同一节点下的顺序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{functional_case_module.pos.not_blank}", groups = {Created.class})
+    private Integer pos;
 
-    @Schema(description =  "创建人")
+    @Schema(description = "创建人")
     private String createUser;
+
+    @Schema(description = "更新人")
+    private String updateUser;
 
     private static final long serialVersionUID = 1L;
 
@@ -61,8 +60,9 @@ public class FunctionalCaseModule implements Serializable {
         level("level", "level", "INTEGER", true),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        pos("pos", "pos", "BIGINT", false),
-        createUser("create_user", "createUser", "VARCHAR", false);
+        pos("pos", "pos", "INTEGER", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
+        updateUser("update_user", "updateUser", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
