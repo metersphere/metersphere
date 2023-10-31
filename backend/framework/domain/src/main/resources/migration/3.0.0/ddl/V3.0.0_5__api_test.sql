@@ -44,7 +44,7 @@ CREATE TABLE api_debug_module(
     `protocol` VARCHAR(20) NOT NULL   COMMENT '协议' ,
     `parent_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父级fk' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-    `pos` INT NOT NULL   COMMENT '排序' ,
+    `pos` BIGINT NOT NULL   COMMENT '排序' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
     `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,

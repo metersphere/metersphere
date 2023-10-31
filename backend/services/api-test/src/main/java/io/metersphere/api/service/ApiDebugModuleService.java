@@ -113,8 +113,8 @@ public class ApiDebugModuleService extends ModuleTreeService {
         return apiDebugModule.getId();
     }
 
-    private Integer countPos(String parentId) {
-        Integer maxPos = extApiDebugModuleMapper.getMaxPosByParentId(parentId);
+    private Long countPos(String parentId) {
+        Long maxPos = extApiDebugModuleMapper.getMaxPosByParentId(parentId);
         if (maxPos == null) {
             return LIMIT_POS;
         } else {
@@ -297,7 +297,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
 
 
     @Override
-    public void updatePos(String id, int pos) {
+    public void updatePos(String id, long pos) {
         ApiDebugModule updateModule = new ApiDebugModule();
         updateModule.setPos(pos);
         updateModule.setId(id);

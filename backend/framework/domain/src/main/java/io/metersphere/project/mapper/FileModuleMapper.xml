@@ -8,7 +8,7 @@
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="pos" jdbcType="INTEGER" property="pos" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="module_type" jdbcType="VARCHAR" property="moduleType" />
@@ -112,7 +112,7 @@
       module_type)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{parentId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{pos,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{pos,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{moduleType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileModule">
@@ -169,7 +169,7 @@
         #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="pos != null">
-        #{pos,jdbcType=INTEGER},
+        #{pos,jdbcType=BIGINT},
       </if>
       <if test="updateUser != null">
         #{updateUser,jdbcType=VARCHAR},
@@ -210,7 +210,7 @@
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
       <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=INTEGER},
+        pos = #{record.pos,jdbcType=BIGINT},
       </if>
       <if test="record.updateUser != null">
         update_user = #{record.updateUser,jdbcType=VARCHAR},
@@ -234,7 +234,7 @@
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      pos = #{record.pos,jdbcType=INTEGER},
+      pos = #{record.pos,jdbcType=BIGINT},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       module_type = #{record.moduleType,jdbcType=VARCHAR}
@@ -261,7 +261,7 @@
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="pos != null">
-        pos = #{pos,jdbcType=INTEGER},
+        pos = #{pos,jdbcType=BIGINT},
       </if>
       <if test="updateUser != null">
         update_user = #{updateUser,jdbcType=VARCHAR},
@@ -282,7 +282,7 @@
       parent_id = #{parentId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      pos = #{pos,jdbcType=INTEGER},
+      pos = #{pos,jdbcType=BIGINT},
       update_user = #{updateUser,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       module_type = #{moduleType,jdbcType=VARCHAR}
@@ -296,7 +296,7 @@
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
         #{item.parentId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.pos,jdbcType=INTEGER}, #{item.updateUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.pos,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.moduleType,jdbcType=VARCHAR})
     </foreach>
   </insert>
@@ -329,7 +329,7 @@
           #{item.updateTime,jdbcType=BIGINT}
         </if>
         <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=INTEGER}
+          #{item.pos,jdbcType=BIGINT}
         </if>
         <if test="'update_user'.toString() == column.value">
           #{item.updateUser,jdbcType=VARCHAR}

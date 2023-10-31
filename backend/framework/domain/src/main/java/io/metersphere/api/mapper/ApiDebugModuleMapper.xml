@@ -7,7 +7,7 @@
     <result column="protocol" jdbcType="VARCHAR" property="protocol" />
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="pos" jdbcType="INTEGER" property="pos" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
@@ -111,7 +111,7 @@
       create_time, update_time, update_user, 
       create_user)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{pos,jdbcType=INTEGER}, 
+      #{parentId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR})
   </insert>
@@ -166,7 +166,7 @@
         #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="pos != null">
-        #{pos,jdbcType=INTEGER},
+        #{pos,jdbcType=BIGINT},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -207,7 +207,7 @@
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=INTEGER},
+        pos = #{record.pos,jdbcType=BIGINT},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -233,7 +233,7 @@
       protocol = #{record.protocol,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      pos = #{record.pos,jdbcType=INTEGER},
+      pos = #{record.pos,jdbcType=BIGINT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
@@ -258,7 +258,7 @@
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="pos != null">
-        pos = #{pos,jdbcType=INTEGER},
+        pos = #{pos,jdbcType=BIGINT},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -281,7 +281,7 @@
       protocol = #{protocol,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
-      pos = #{pos,jdbcType=INTEGER},
+      pos = #{pos,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       update_user = #{updateUser,jdbcType=VARCHAR},
@@ -295,7 +295,7 @@
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.protocol,jdbcType=VARCHAR}, 
-        #{item.parentId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.pos,jdbcType=INTEGER}, 
+        #{item.parentId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, 
         #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, 
         #{item.createUser,jdbcType=VARCHAR})
     </foreach>
@@ -326,7 +326,7 @@
           #{item.projectId,jdbcType=VARCHAR}
         </if>
         <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=INTEGER}
+          #{item.pos,jdbcType=BIGINT}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}

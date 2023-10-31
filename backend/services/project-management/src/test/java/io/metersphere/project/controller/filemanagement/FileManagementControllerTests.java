@@ -1137,7 +1137,7 @@ public class FileManagementControllerTests extends BaseTest {
             //更改pos
             FileModule updateModule = new FileModule();
             updateModule.setId(a1Node.getId());
-            updateModule.setPos(2);
+            updateModule.setPos(2L);
             fileModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动
@@ -1162,10 +1162,10 @@ public class FileManagementControllerTests extends BaseTest {
             //更改pos
             FileModule updateModule = new FileModule();
             updateModule.setId(a1Node.getId());
-            updateModule.setPos(3 * 64);
+            updateModule.setPos(3 * 64L);
             fileModuleMapper.updateByPrimaryKeySelective(updateModule);
             updateModule.setId(a2Node.getId());
-            updateModule.setPos(3 * 64 + 2);
+            updateModule.setPos(3 * 64 + 2L);
             fileModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动
@@ -1189,7 +1189,7 @@ public class FileManagementControllerTests extends BaseTest {
             //更改pos
             FileModule updateModule = new FileModule();
             updateModule.setId(a1b1Node.getId());
-            updateModule.setPos(2);
+            updateModule.setPos(2L);
             fileModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动
@@ -1213,10 +1213,10 @@ public class FileManagementControllerTests extends BaseTest {
             //更改pos
             FileModule updateModule = new FileModule();
             updateModule.setId(a1b1Node.getId());
-            updateModule.setPos(3 * 64);
+            updateModule.setPos(3 * 64L);
             fileModuleMapper.updateByPrimaryKeySelective(updateModule);
             updateModule.setId(a1a1Node.getId());
-            updateModule.setPos(3 * 64 + 2);
+            updateModule.setPos(3 * 64 + 2L);
             fileModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动

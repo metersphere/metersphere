@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS file_module
     `parent_id`   VARCHAR(50) COMMENT '父级ID',
     `create_time` BIGINT      NOT NULL COMMENT '创建时间',
     `update_time` BIGINT      NOT NULL COMMENT '更新时间',
-    `pos`         INT NOT NULL DEFAULT 0 COMMENT '排序用的标识',
+    `pos` BIGINT NOT NULL DEFAULT 0 COMMENT '排序用的标识',
     `update_user` VARCHAR(50) COMMENT '修改人',
     `create_user` VARCHAR(50) COMMENT '创建人',
     `module_type` VARCHAR(20) DEFAULT 'module' COMMENT '模块类型: module/repository',
