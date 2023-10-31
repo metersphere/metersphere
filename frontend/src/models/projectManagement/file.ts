@@ -21,6 +21,15 @@ export interface FileItem {
   updateTime: number;
   previewSrc: string; // 预览地址
   size: number;
+  enable: boolean; // jar文件启用禁用
+}
+// 文件详情
+export interface FileDetail extends FileItem {
+  projectId: string;
+  moduleName: string; // 所属模块名
+  moduleId: string;
+  createUser: string;
+  createTime: number;
 }
 // 上传文件参数
 export interface UploadFileParams {

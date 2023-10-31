@@ -7,7 +7,7 @@
     :title="t('project.fileManagement.detail')"
     :detail-id="props.fileId"
     :detail-index="props.activeFileIndex"
-    :get-detail-func="async () => ({})"
+    :get-detail-func="getFileDetail"
     :pagination="props.pagination"
     :table-data="props.tableData"
     :page-change="props.pageChange"
@@ -56,9 +56,9 @@
             </a-space>
           </a-skeleton>
           <template v-else>
-            <div class="mb-[16px] w-[102px]">
-              <a-spin :loading="replaceLoading">
-                <MsPreviewCard
+            <div class="mb-[16px] h-[102px] w-[102px]">
+              <a-spin class="h-full w-full" :loading="replaceLoading">
+                <MsThumbnailCard
                   mode="hover"
                   :type="detail?.fileType"
                   :url="`${CompressImgUrl}/${userStore.id}/${detail.id}`"
@@ -75,7 +75,7 @@
               <template #value="{ item }">
                 <div class="flex flex-wrap items-center">
                   <a-tooltip
-                    :content="(item.value as string)"
+                    :content="`${item.value}`"
                     :mouse-enter-delay="300"
                     :disabled="item.value === undefined || item.value === null || item.value?.toString() === ''"
                     mini
@@ -91,7 +91,11 @@
                   <template v-if="item.key === 'name'">
                     <popConfirm
                       mode="fileRename"
-                      :field-config="{ placeholder: t('project.fileManagement.fileNamePlaceholder') }"
+                      :field-config="{
+                        field: detail.name,
+                        placeholder: t('project.fileManagement.fileNamePlaceholder'),
+                      }"
+                      :node-id="detail.id"
                       :all-names="[]"
                       @rename-finish="detailDrawerRef?.initDetail"
                     >
@@ -117,6 +121,7 @@
                         maxLength: 250,
                         isTextArea: true,
                       }"
+                      :node-id="detail.id"
                       :all-names="[]"
                       @update-desc-finish="detailDrawerRef?.initDetail"
                     >
@@ -189,15 +194,15 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
-  import MsPreviewCard from '@/components/business/ms-thumbnail-card/index.vue';
+  import MsThumbnailCard from '@/components/business/ms-thumbnail-card/index.vue';
   import popConfirm from './popConfirm.vue';
 
-  import { reuploadFile, updateFile } from '@/api/modules/project-management/fileManagement';
+  import { getFileDetail, reuploadFile, updateFile } from '@/api/modules/project-management/fileManagement';
   import { CompressImgUrl, OriginImgUrl } from '@/api/requrls/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
   import useUserStore from '@/store/modules/user';
-  import { downloadUrlFile } from '@/utils';
+  import { downloadUrlFile, formatFileSize } from '@/utils';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -249,11 +254,13 @@
   }
 
   const fileType = ref('unknown');
+  const renameTitle = ref(''); // 重命名的文件名称
 
   function loadedFile(detail: any) {
     if (detail.fileType) {
       fileType.value = getFileEnum(`/${detail.fileType.toLowerCase()}`);
     }
+    renameTitle.value = detail.name;
     fileDescriptions.value = [
       {
         label: t('project.fileManagement.name'),
@@ -271,15 +278,15 @@
       },
       {
         label: t('project.fileManagement.size'),
-        value: detail.size,
+        value: formatFileSize(detail.size),
       },
       {
         label: t('project.fileManagement.creator'),
-        value: detail.creator,
+        value: detail.createUser,
       },
       {
         label: t('project.fileManagement.fileModule'),
-        value: detail.fileModule,
+        value: detail.moduleName,
         key: 'fileModule',
       },
       {

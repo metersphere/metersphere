@@ -50,12 +50,15 @@
             </a-button>
           </a-tooltip>
         </template>
+        <template #size="{ record }">
+          <span>{{ formatFileSize(record.size) }}</span>
+        </template>
         <template #action="{ record }">
           <MsButton type="text" class="mr-[8px]" @click="handleDownload(record)">
             {{ t('project.fileManagement.download') }}
           </MsButton>
           <MsTableMoreAction
-            :list="record.fileType === 'jar' ? jarFileActions : normalFileActions"
+            :list="record.fileType === 'jar' ? getJarFileActions(record) : normalFileActions"
             @select="handleMoreActionSelect($event, record)"
           />
         </template>
@@ -88,7 +91,7 @@
             :type="item.fileType"
             :url="`${CompressImgUrl}/${userStore.id}/${item.id}`"
             :footer-text="item.name"
-            :more-actions="item.fileType === 'JAR' ? jarFileActions : normalFileActions"
+            :more-actions="item.fileType === 'JAR' ? getJarFileActions(item) : normalFileActions"
             @click="openFileDetail(item.id, index)"
             @action-select="handleMoreActionSelect($event, item)"
           />
@@ -293,6 +296,7 @@
     downloadFile,
     getFileList,
     getFileTypes,
+    toggleJarFileStatus,
     updateFile,
     uploadFile,
   } from '@/api/modules/project-management/fileManagement';
@@ -303,7 +307,7 @@
   import useAppStore from '@/store/modules/app';
   import useAsyncTaskStore from '@/store/modules/app/asyncTask';
   import useUserStore from '@/store/modules/user';
-  import { characterLimit, downloadByteFile } from '@/utils';
+  import { characterLimit, downloadByteFile, formatFileSize } from '@/utils';
 
   import type { FileItem, FileListQueryParams } from '@/models/projectManagement/file';
   import { RouteEnum } from '@/enums/routeEnum';
@@ -343,6 +347,7 @@
       const res = await getFileTypes(appStore.currentProjectId);
       tableFileTypeOptions.value = res;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       fileTypeLoading.value = false;
@@ -376,24 +381,34 @@
     },
   ];
 
-  const jarFileActions: ActionsItem[] = [
-    {
-      label: 'project.fileManagement.move',
-      eventTag: 'move',
-    },
-    {
-      label: 'common.disable',
-      eventTag: 'disabled',
-    },
-    {
-      isDivider: true,
-    },
-    {
-      label: 'project.fileManagement.delete',
-      eventTag: 'delete',
-      danger: true,
-    },
-  ];
+  function getJarFileActions(record: FileItem) {
+    const jarFileActions: ActionsItem[] = [
+      {
+        label: 'project.fileManagement.move',
+        eventTag: 'move',
+      },
+      {
+        label: 'common.enable',
+        eventTag: 'toggle',
+      },
+      {
+        label: 'common.disable',
+        eventTag: 'toggle',
+      },
+      {
+        isDivider: true,
+      },
+      {
+        label: 'project.fileManagement.delete',
+        eventTag: 'delete',
+        danger: true,
+      },
+    ];
+    if (record.enable) {
+      return jarFileActions.filter((e) => e.label !== 'common.enable');
+    }
+    return jarFileActions.filter((e) => e.label !== 'common.disable');
+  }
 
   const columns: MsTableColumn = [
     {
@@ -406,6 +421,11 @@
       title: 'project.fileManagement.type',
       dataIndex: 'fileType',
       width: 90,
+    },
+    {
+      title: 'project.fileManagement.size',
+      dataIndex: 'size',
+      slotName: 'size',
     },
     {
       title: 'project.fileManagement.tag',
@@ -722,31 +742,48 @@
   }
 
   /**
-   * 禁用 jar 文件
+   * 启用/禁用 jar 文件
    */
-  function disabledFile(record: FileItem) {
-    openModal({
-      type: 'warning',
-      title: t('project.fileManagement.disabledFileTipTitle', { name: characterLimit(record.name) }),
-      content: t('project.fileManagement.disabledFileTipContent'),
-      okText: t('common.confirmDisable'),
-      cancelText: t('common.cancel'),
-      maskClosable: false,
-      onBeforeOk: async () => {
-        try {
-          Message.success(t('common.disableSuccess'));
-          if (showType.value === 'card') {
-            cardListRef.value?.reload();
-          } else {
-            loadList();
+  async function toggleJarFile(record: FileItem) {
+    if (record.enable) {
+      // 禁用
+      openModal({
+        type: 'warning',
+        title: t('project.fileManagement.disabledFileTipTitle', { name: characterLimit(record.name) }),
+        content: t('project.fileManagement.disabledFileTipContent'),
+        okText: t('common.confirmDisable'),
+        cancelText: t('common.cancel'),
+        maskClosable: false,
+        onBeforeOk: async () => {
+          try {
+            await toggleJarFileStatus(record.id, !record.enable);
+            Message.success(t('common.disableSuccess'));
+            if (showType.value === 'card') {
+              cardListRef.value?.reload();
+            } else {
+              loadList();
+            }
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
           }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
+        },
+        hideCancel: false,
+      });
+    } else {
+      try {
+        await toggleJarFileStatus(record.id, !record.enable);
+        Message.success(t('common.enableSuccess'));
+        if (showType.value === 'card') {
+          cardListRef.value?.reload();
+        } else {
+          loadList();
         }
-      },
-      hideCancel: false,
-    });
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    }
   }
 
   /**
@@ -763,8 +800,8 @@
       case 'delete':
         delFile(record, false);
         break;
-      case 'disabled':
-        disabledFile(record);
+      case 'toggle':
+        toggleJarFile(record);
         break;
       default:
         break;

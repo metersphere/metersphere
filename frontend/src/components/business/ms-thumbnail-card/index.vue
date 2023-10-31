@@ -7,8 +7,11 @@
       <a-image
         v-if="fileType === 'image'"
         :src="props.url"
+        fit="contain"
         class="absolute top-0 h-full w-full"
         :preview="false"
+        width="100%"
+        height="100%"
         hide-footer
       />
       <MsIcon

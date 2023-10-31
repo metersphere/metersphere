@@ -92,6 +92,9 @@
     () => props.fieldConfig?.field,
     (val) => {
       form.value.field = val || '';
+    },
+    {
+      deep: true,
     }
   );
 
@@ -177,9 +180,11 @@
     }
   }
 
-  function reset() {
-    form.value.field = '';
-    formRef.value?.resetFields();
+  function reset(val: boolean) {
+    if (!val) {
+      form.value.field = '';
+      formRef.value?.resetFields();
+    }
   }
 </script>
 
