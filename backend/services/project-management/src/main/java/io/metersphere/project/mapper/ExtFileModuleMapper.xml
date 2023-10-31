@@ -37,32 +37,33 @@
         SELECT id FROM file_module WHERE parent_id  = #{0}
         ORDER BY pos ASC
     </select>
-    <select id="getLastModuleByParentId" resultType="io.metersphere.project.domain.FileModule">
-        SELECT *
+
+    <select id="selectModuleByParentIdAndPosOperator"
+            parameterType="io.metersphere.project.dto.NodeSortQueryParam"
+            resultType="io.metersphere.system.dto.sdk.BaseModule">
+        SELECT id, name, pos, project_Id, parent_id
         FROM file_module
-        WHERE parent_id = #{0}
-        ORDER BY pos DESC
+        WHERE parent_id = #{parentId}
+        <if test="operator == 'moreThan'">
+            AND pos &gt; #{pos}
+        </if>
+        <if test="operator == 'lessThan'">
+            AND pos &lt; #{pos}
+        </if>
+        ORDER BY pos
+        <if test="operator == 'lessThan' or operator == 'latest'">
+            DESC
+        </if>
         LIMIT 1
     </select>
-    <select id="getNextModuleInParentId" resultType="io.metersphere.project.domain.FileModule">
-        SELECT *
-        from file_module
-        WHERE parent_id = #{parentId}
-          AND pos &gt; #{pos}
-        order by pos asc
-        limit 1
-    </select>
-    <select id="getPreviousModuleInParentId" resultType="io.metersphere.project.domain.FileModule">
-        SELECT *
-        from file_module
-        WHERE parent_id = #{parentId}
-          AND pos &lt; #{pos}
-        order by pos
-                desc
-        limit 1
-    </select>
+
     <select id="selectNameById" resultType="java.lang.String">
         SELECT name
+        FROM file_module
+        WHERE id = #{0}
+    </select>
+    <select id="selectBaseModuleById" resultType="io.metersphere.system.dto.sdk.BaseModule">
+        SELECT id, name, pos, project_Id, parent_id
         FROM file_module
         WHERE id = #{0}
     </select>

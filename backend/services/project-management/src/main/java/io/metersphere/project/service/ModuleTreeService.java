@@ -2,9 +2,13 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
+import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class ModuleTreeService {
@@ -76,6 +81,78 @@ public abstract class ModuleTreeService {
             baseTreeNodeMap.get(treeNode.getParentId()).addChild(node);
         });
         return baseTreeNodeList;
+    }
+
+    private static final String MOVE_POS_OPERATOR_LESS = "lessThan";
+    private static final String MOVE_POS_OPERATOR_MORE = "moreThan";
+    private static final String MOVE_POS_OPERATOR_LATEST = "latest";
+
+
+    /**
+     * 构建节点排序的参数
+     *
+     * @param request           拖拽的前端请求参数
+     * @param selectIdNodeFunc  通过id查询节点的函数
+     * @param selectPosNodeFunc 通过parentId和pos运算符查询节点的函数
+     * @return
+     */
+    public NodeSortDTO getNodeSortDTO(NodeMoveRequest request, Function<String, BaseModule> selectIdNodeFunc, Function<NodeSortQueryParam, BaseModule> selectPosNodeFunc) {
+        if (StringUtils.equals(request.getDragNodeId(), request.getDropNodeId())) {
+            //两种节点不能一样
+            throw new MSException(Translator.get("invalid_parameter"));
+        }
+        
+        BaseModule dragNode = selectIdNodeFunc.apply(request.getDragNodeId());
+        if (dragNode == null) {
+            throw new MSException("drag_node.not.exist" + ":" + request.getDragNodeId());
+        }
+
+        BaseModule dropNode = selectIdNodeFunc.apply(request.getDropNodeId());
+        if (dropNode == null) {
+            throw new MSException("drop_node.not.exist" + ":" + request.getDropNodeId());
+
+        }
+        BaseModule parentModule;
+        BaseModule previousNode = null;
+        BaseModule nextNode = null;
+        if (request.getDropPosition() == 0) {
+            //dropPosition=0: 放到dropNode节点内，最后一个节点之后
+            parentModule = new BaseModule(dropNode.getId(), dropNode.getName(), dropNode.getPos(), dropNode.getProjectId(), dropNode.getParentId());
+
+            NodeSortQueryParam sortParam = new NodeSortQueryParam();
+            sortParam.setParentId(dropNode.getId());
+            sortParam.setOperator(MOVE_POS_OPERATOR_LATEST);
+            previousNode = selectPosNodeFunc.apply(sortParam);
+        } else {
+            if (StringUtils.equals(dropNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                parentModule = new BaseModule(ModuleConstants.ROOT_NODE_PARENT_ID, ModuleConstants.ROOT_NODE_PARENT_ID, 0, dragNode.getProjectId(), ModuleConstants.ROOT_NODE_PARENT_ID);
+            } else {
+                parentModule = selectIdNodeFunc.apply(dropNode.getParentId());
+            }
+            if (request.getDropPosition() == 1) {
+                //dropPosition=1: 放到dropNode节点后，原dropNode后面的节点之前
+                previousNode = dropNode;
+
+                NodeSortQueryParam sortParam = new NodeSortQueryParam();
+                sortParam.setParentId(parentModule.getId());
+                sortParam.setPos(previousNode.getPos());
+                sortParam.setOperator(MOVE_POS_OPERATOR_MORE);
+                nextNode = selectPosNodeFunc.apply(sortParam);
+            } else if (request.getDropPosition() == -1) {
+                //dropPosition=-1: 放到dropNode节点前，原dropNode前面的节点之后
+                nextNode = dropNode;
+
+                NodeSortQueryParam sortParam = new NodeSortQueryParam();
+                sortParam.setParentId(parentModule.getId());
+                sortParam.setPos(nextNode.getPos());
+                sortParam.setOperator(MOVE_POS_OPERATOR_LESS);
+                previousNode = selectPosNodeFunc.apply(sortParam);
+            } else {
+                throw new MSException(Translator.get("invalid_parameter"));
+            }
+        }
+
+        return new NodeSortDTO(dragNode, parentModule, previousNode, nextNode);
     }
 
     /**
