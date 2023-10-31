@@ -261,6 +261,7 @@ public class BaseTemplateService {
                     request.setFieldId(refFieldMap.get(item.getFieldId()));
                     return request;
                 })
+                .filter(item -> StringUtils.isNotBlank(item.getFieldId()))
                 .toList();
     }
 
