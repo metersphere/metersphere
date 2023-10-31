@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class ApiDebugModuleService extends ModuleTreeService {
     private static final String UNPLANNED = "api_debug_module.unplanned_request";
+    private static final String MODULE_NO_EXIST = "api_module.not.exist";
     private static final String METHOD = "method";
     private static final String DEBUG_MODULE_COUNT_ALL = "all";
     @Resource
@@ -151,7 +152,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
     public void update(DebugModuleUpdateRequest request, String userId, String projectId) {
         ApiDebugModule module = apiDebugModuleMapper.selectByPrimaryKey(request.getId());
         if (module == null) {
-            throw new MSException("file_module.not.exist");
+            throw new MSException(Translator.get(MODULE_NO_EXIST));
         }
         ApiDebugModule updateModule = new ApiDebugModule();
         updateModule.setId(request.getId());
@@ -209,7 +210,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
 
         ApiDebugModule dragNode = apiDebugModuleMapper.selectByPrimaryKey(request.getDragNodeId());
         if (dragNode == null) {
-            throw new MSException("file_module.not.exist:" + request.getDragNodeId());
+            throw new MSException(Translator.get(MODULE_NO_EXIST) + ": " + request.getDragNodeId());
         } else {
             module = new BaseModule(dragNode.getId(), dragNode.getName(), dragNode.getPos(), dragNode.getProjectId(), dragNode.getParentId());
         }
@@ -221,7 +222,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
 
         ApiDebugModule dropNode = apiDebugModuleMapper.selectByPrimaryKey(request.getDropNodeId());
         if (dropNode == null) {
-            throw new MSException("file_module.not.exist:" + request.getDropNodeId());
+            throw new MSException(Translator.get(MODULE_NO_EXIST) + ": " + request.getDropNodeId());
         }
 
         if (request.getDropPosition() == 0) {
