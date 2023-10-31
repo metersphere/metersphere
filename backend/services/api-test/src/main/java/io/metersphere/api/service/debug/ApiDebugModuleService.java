@@ -1,14 +1,14 @@
-package io.metersphere.api.service;
+package io.metersphere.api.service.debug;
 
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.debug.ApiDebugRequest;
+import io.metersphere.api.dto.debug.ApiTreeNode;
+import io.metersphere.api.dto.debug.DebugModuleCreateRequest;
+import io.metersphere.api.dto.debug.DebugModuleUpdateRequest;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.mapper.ApiDebugModuleMapper;
 import io.metersphere.api.mapper.ExtApiDebugModuleMapper;
-import io.metersphere.api.request.debug.ApiDebugRequest;
-import io.metersphere.api.request.debug.ApiTreeNode;
-import io.metersphere.api.request.debug.DebugModuleCreateRequest;
-import io.metersphere.api.request.debug.DebugModuleUpdateRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.service.ModuleTreeService;

@@ -1,8 +1,8 @@
 package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiDebugModule;
-import io.metersphere.api.request.debug.ApiDebugRequest;
-import io.metersphere.api.request.debug.ApiTreeNode;
+import io.metersphere.api.dto.debug.ApiDebugRequest;
+import io.metersphere.api.dto.debug.ApiTreeNode;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;

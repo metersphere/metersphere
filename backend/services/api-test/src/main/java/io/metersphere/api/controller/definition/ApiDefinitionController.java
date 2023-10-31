@@ -1,8 +1,8 @@
-package io.metersphere.api.controller;
+package io.metersphere.api.controller.definition;
 
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
-import io.metersphere.api.service.ApiDefinitionLogService;
-import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.definition.ApiDefinitionLogService;
+import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;

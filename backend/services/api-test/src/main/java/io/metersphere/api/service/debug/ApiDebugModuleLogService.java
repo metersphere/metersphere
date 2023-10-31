@@ -1,4 +1,4 @@
-package io.metersphere.api.service;
+package io.metersphere.api.service.debug;
 
 import io.metersphere.api.domain.ApiDebugModule;
 import io.metersphere.project.domain.Project;
