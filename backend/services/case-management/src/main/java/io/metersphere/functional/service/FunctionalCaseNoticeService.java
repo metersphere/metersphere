@@ -3,9 +3,11 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.domain.FunctionalCaseCustomFieldExample;
+import io.metersphere.functional.dto.CaseCustomsFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDTO;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.CustomField;
@@ -13,6 +15,7 @@ import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -114,6 +117,30 @@ public class FunctionalCaseNoticeService {
         }
         return optionDTOList;
     }
+
+    public FunctionalCaseDTO getMainFunctionalCaseDTO(FunctionalCaseAddRequest request) {
+        String userId = SessionUtils.getUserId();
+        FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
+        functionalCaseDTO.setName(request.getName());
+        functionalCaseDTO.setCaseEditType(request.getCaseEditType());
+        functionalCaseDTO.setCreateUser(userId);
+        List<OptionDTO>fields = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(request.getCustomsFields())){
+            for (CaseCustomsFieldDTO customsFieldDTO : request.getCustomsFields()) {
+                OptionDTO optionDTO = new OptionDTO();
+                CustomField customField = customFieldMapper.selectByPrimaryKey(customsFieldDTO.getFieldId());
+                if (customField == null) {
+                    continue;
+                }
+                optionDTO.setId(customField.getName());
+                optionDTO.setName(customsFieldDTO.getValue());
+                fields.add(optionDTO);
+            }
+        }
+        functionalCaseDTO.setFields(fields);
+        return functionalCaseDTO;
+    }
+
 
 
 }

@@ -1,14 +1,25 @@
 package io.metersphere.functional.controller;
 
+import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.request.FunctionalCaseFollowerRequest;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
+import io.metersphere.project.domain.Notification;
+import io.metersphere.project.domain.NotificationExample;
+import io.metersphere.project.mapper.NotificationMapper;
+import io.metersphere.sdk.constants.CustomFieldType;
+import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.mapper.CustomFieldMapper;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +47,12 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_UPDATE_URL = "/functional/case/update";
     public static final String FUNCTIONAL_CASE_EDIT_FOLLOWER_URL = "/functional/case/edit/follower";
     public static final String FUNCTIONAL_CASE_FOLLOWER_URL = "/functional/case/follower/";
+
+    @Resource
+    private NotificationMapper notificationMapper;
+
+    @Resource
+    private CustomFieldMapper customFieldMapper;
 
     @Test
     @Order(1)
@@ -69,7 +86,17 @@ public class FunctionalCaseControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("files", files);
 
-        this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
+        MvcResult functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
+
+        String functionalCaseData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder functionalCaseResultHolder = JSON.parseObject(functionalCaseData, ResultHolder.class);
+        FunctionalCase functionalCase = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCase.class);
+
+        NotificationExample notificationExample = new NotificationExample();
+        notificationExample.createCriteria().andResourceNameEqualTo(functionalCase.getName()).andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
+        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        String jsonString = JSON.toJSONString(notifications);
+        System.out.println(jsonString);
     }
 
 
@@ -98,12 +125,35 @@ public class FunctionalCaseControllerTests extends BaseTest {
     }
 
     private List<CaseCustomsFieldDTO> creatCustomsFields() {
+        insertCustomField();
         List<CaseCustomsFieldDTO> list = new ArrayList<>();
         CaseCustomsFieldDTO customsFieldDTO = new CaseCustomsFieldDTO();
         customsFieldDTO.setFieldId("customs_field_id_1");
         customsFieldDTO.setValue("customs_field_value_1");
         list.add(customsFieldDTO);
+        CaseCustomsFieldDTO customsFieldDTO2 = new CaseCustomsFieldDTO();
+        customsFieldDTO2.setFieldId("customs_field_id_2");
+        customsFieldDTO2.setValue("customs_field_value_2");
+        list.add(customsFieldDTO2);
         return list;
+    }
+
+    private void insertCustomField() {
+        CustomField customField = new CustomField();
+        customField.setId("customs_field_id_1");
+        customField.setName("test_customs_field_id_1");
+        customField.setType(CustomFieldType.INPUT.toString());
+        customField.setScene(TemplateScene.FUNCTIONAL.name());
+        customField.setCreateUser("gyq");
+        customField.setCreateTime(System.currentTimeMillis());
+        customField.setUpdateTime(System.currentTimeMillis());
+        customField.setRefId("test_customs_field_id_1");
+        customField.setScopeId(DEFAULT_PROJECT_ID);
+        customField.setScopeType(TemplateScopeType.PROJECT.name());
+        customField.setInternal(false);
+        customField.setEnableOptionKey(false);
+        customField.setRemark("1");
+        customFieldMapper.insertSelective(customField);
     }
 
     private FunctionalCaseAddRequest creatFunctionalCase() {
