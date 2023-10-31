@@ -7,6 +7,8 @@ export interface MsTableSelectorItem {
   mode: TableOpenDetailMode;
   // 列配置
   column: MsTableColumn;
+  // 列配置的备份，用于比较当前定义的列配置是否和备份的列配置相同
+  columnBackup: MsTableColumn;
 }
 
 export interface SelectorColumnMap {

@@ -146,8 +146,8 @@
   import { MENU_LEVEL } from '@/config/pathMap';
   import { useI18n } from '@/hooks/useI18n';
   import usePathMap from '@/hooks/usePathMap';
+  import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
-  import useTableStore from '@/store/modules/ms-table';
 
   import type { CommonList } from '@/models/common';
   import type { LogItem, LogOptions } from '@/models/setting/log';
