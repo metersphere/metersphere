@@ -1,12 +1,16 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class FunctionalCaseModule implements Serializable {
@@ -42,7 +46,7 @@ public class FunctionalCaseModule implements Serializable {
 
     @Schema(description = "同一节点下的顺序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{functional_case_module.pos.not_blank}", groups = {Created.class})
-    private Integer pos;
+    private Long pos;
 
     @Schema(description = "创建人")
     private String createUser;
@@ -60,7 +64,7 @@ public class FunctionalCaseModule implements Serializable {
         level("level", "level", "INTEGER", true),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        pos("pos", "pos", "INTEGER", false),
+        pos("pos", "pos", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         updateUser("update_user", "updateUser", "VARCHAR", false);
 
