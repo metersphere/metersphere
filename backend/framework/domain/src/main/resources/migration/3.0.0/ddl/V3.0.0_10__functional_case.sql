@@ -83,20 +83,28 @@ CREATE TABLE IF NOT EXISTS functional_case_module(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
     `name` VARCHAR(100) NOT NULL   COMMENT '名称' ,
-    `parent_id` VARCHAR(50) NOT NULL   COMMENT '父节点ID' ,
+    `parent_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父节点ID' ,
     `level` INT NOT NULL  DEFAULT 1 COMMENT '节点的层级' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-    `pos` BIGINT(10) NOT NULL  DEFAULT 0 COMMENT '同一节点下的顺序' ,
+    `pos` BIGINT NOT NULL  DEFAULT 0 COMMENT '同一节点下的顺序' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
+    `deleted` BIT NOT NULL  DEFAULT 0 COMMENT '是否在回收站：0-否，1-是' ,
     PRIMARY KEY (id)
-    )  ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci COMMENT = '功能用例模块';
+    )  COMMENT = '功能用例模块';
 
 
 CREATE INDEX idx_project_id ON functional_case_module(project_id);
 CREATE INDEX idx_name ON functional_case_module(name);
+CREATE INDEX idx_pos ON functional_case_module(pos);
+CREATE INDEX idx_parent_id ON functional_case_module(parent_id);
+CREATE INDEX idx_level ON functional_case_module(level);
+CREATE INDEX idx_create_user ON functional_case_module(create_user);
+CREATE INDEX idx_update_user ON functional_case_module(update_user);
+CREATE INDEX idx_create_time ON functional_case_module(create_time);
+CREATE INDEX idx_update_time ON functional_case_module(update_time);
+CREATE INDEX idx_delete ON functional_case_module(deleted);
 
 
 CREATE TABLE IF NOT EXISTS functional_case_attachment(

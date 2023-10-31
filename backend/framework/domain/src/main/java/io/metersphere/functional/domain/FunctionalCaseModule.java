@@ -1,16 +1,12 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class FunctionalCaseModule implements Serializable {
@@ -54,6 +50,10 @@ public class FunctionalCaseModule implements Serializable {
     @Schema(description = "更新人")
     private String updateUser;
 
+    @Schema(description = "是否在回收站：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{functional_case_module.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -66,7 +66,8 @@ public class FunctionalCaseModule implements Serializable {
         updateTime("update_time", "updateTime", "BIGINT", false),
         pos("pos", "pos", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
-        updateUser("update_user", "updateUser", "VARCHAR", false);
+        updateUser("update_user", "updateUser", "VARCHAR", false),
+        deleted("deleted", "deleted", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
