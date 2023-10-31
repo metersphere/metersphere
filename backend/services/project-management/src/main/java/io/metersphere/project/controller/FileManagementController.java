@@ -92,7 +92,7 @@ public class FileManagementController {
     @PostMapping(value = "/delete")
     @Operation(summary = "项目管理-文件管理-删除文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DELETE)
-    public void delete(@Validated @RequestBody FileBatchProcessDTO request) throws Exception {
+    public void delete(@Validated @RequestBody FileBatchProcessRequest request) throws Exception {
         fileManagementService.delete(request, SessionUtils.getUserId());
     }
 
@@ -104,7 +104,7 @@ public class FileManagementController {
     }
 
     @GetMapping(value = "/jar-file-status/{fileId}/{enable}")
-    @Operation(summary = "项目管理-文件管理-下载文件")
+    @Operation(summary = "项目管理-文件管理-Jar文件启用禁用操作")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
     public void changeJarFileStatus(@PathVariable String fileId, @PathVariable boolean enable) {
         fileMetadataService.changeJarFileStatus(fileId, enable, SessionUtils.getUserId());
@@ -113,7 +113,14 @@ public class FileManagementController {
     @PostMapping(value = "/batch-download")
     @Operation(summary = "项目管理-文件管理-批量下载文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)
-    public ResponseEntity<byte[]> downloadBodyFiles(@Validated @RequestBody FileBatchProcessDTO request) {
+    public ResponseEntity<byte[]> downloadBodyFiles(@Validated @RequestBody FileBatchProcessRequest request) {
         return fileMetadataService.batchDownload(request);
+    }
+
+    @PostMapping(value = "/batch-move")
+    @Operation(summary = "项目管理-文件管理-批量移动文件")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
+    public void batchMoveFiles(@Validated @RequestBody FileBatchMoveRequest request) {
+        fileMetadataService.batchMove(request, SessionUtils.getUserId());
     }
 }

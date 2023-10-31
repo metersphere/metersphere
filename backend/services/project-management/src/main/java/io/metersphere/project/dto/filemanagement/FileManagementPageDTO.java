@@ -1,6 +1,6 @@
 package io.metersphere.project.dto.filemanagement;
 
-import io.metersphere.project.request.filemanagement.FileBatchProcessDTO;
+import io.metersphere.project.request.filemanagement.FileBatchProcessRequest;
 import io.metersphere.project.request.filemanagement.FileMetadataTableRequest;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ public class FileManagementPageDTO {
     public String fileType;
     public String operator;
 
-    public FileManagementPageDTO(FileBatchProcessDTO batchProcessDTO) {
+    public FileManagementPageDTO(FileBatchProcessRequest batchProcessDTO) {
         this.projectId = batchProcessDTO.getProjectId();
         this.keyword = batchProcessDTO.getCondition().getKeyword();
         this.moduleIds = batchProcessDTO.getModuleIds();

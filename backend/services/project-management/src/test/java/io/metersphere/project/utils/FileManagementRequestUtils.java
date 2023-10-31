@@ -38,5 +38,7 @@ public class FileManagementRequestUtils {
     public static final String URL_FILE_DELETE = "/project/file/delete";
     //文件信息修改
     public static final String URL_FILE_UPDATE = "/project/file/update";
+    //文件批量移动（权限判断需要提前上传文件，所以放在了主测试类里）
+    public static final String URL_FILE_BATCH_UPDATE = "/project/file/batch-move";
 
 }

@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class FileBatchProcessDTO extends TableBatchProcessDTO {
+public class FileBatchProcessRequest extends TableBatchProcessDTO {
 
     @Schema(description = "项目ID")
     @NotBlank(message = "{id must not be blank}")
