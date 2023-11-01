@@ -157,8 +157,8 @@ CREATE INDEX target_id_index ON functional_case_relationship_edge(target_id);
 CREATE TABLE IF NOT EXISTS functional_case_test(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `case_id` VARCHAR(50) NOT NULL   COMMENT '功能用例ID' ,
-    `test_id` VARCHAR(50) NOT NULL   COMMENT '其他类型用例ID' ,
-    `test_type` VARCHAR(64) NOT NULL   COMMENT '用例类型：接口用例/场景用例/性能用例/UI用例' ,
+    `source_id` VARCHAR(50) NOT NULL   COMMENT '其他类型用例ID' ,
+    `source_type` VARCHAR(64) NOT NULL   COMMENT '用例类型：接口用例/场景用例/性能用例/UI用例' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
     PRIMARY KEY (id)
@@ -167,8 +167,8 @@ CREATE TABLE IF NOT EXISTS functional_case_test(
     COLLATE = utf8mb4_general_ci COMMENT = '功能用例和其他用例的中间表';
 
 
-CREATE UNIQUE INDEX uk_case_id_test_id ON functional_case_test(case_id,test_id);
-CREATE INDEX idx_test_id ON functional_case_test(test_id);
+CREATE INDEX idx_case_id ON functional_case_test(case_id);
+CREATE INDEX idx_source_id ON functional_case_test(source_id);
 
 
 CREATE TABLE IF NOT EXISTS functional_minder_extra_node(

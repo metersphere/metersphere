@@ -24,4 +24,6 @@ public class FunctionalCaseVersionDTO implements Serializable {
     @Schema(description = "版本id")
     private String versionId;
 
+    @Schema(description = "项目id")
+    private String projectId;
 }

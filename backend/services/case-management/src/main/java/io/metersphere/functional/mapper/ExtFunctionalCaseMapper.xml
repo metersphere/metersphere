@@ -40,10 +40,20 @@
         SELECT
             id,
             NAME,
-            version_id
+            version_id,
+            project_id
         FROM
             functional_case
         WHERE
             ref_id = #{refId}
+    </select>
+
+    <select id="getFunctionalCaseIds" resultType="java.lang.String">
+        SELECT
+            id
+        FROM
+            functional_case
+        WHERE
+            project_id = #{projectId}
     </select>
 </mapper>

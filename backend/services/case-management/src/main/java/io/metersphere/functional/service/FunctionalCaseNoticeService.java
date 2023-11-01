@@ -7,7 +7,6 @@ import io.metersphere.functional.dto.CaseCustomsFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDTO;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
-import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.CustomField;
@@ -21,10 +20,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,10 +35,10 @@ public class FunctionalCaseNoticeService {
     @Resource
     private CustomFieldMapper customFieldMapper;
 
-    public FunctionalCaseDTO getFunctionalCaseDTO(FunctionalCaseCommentRequest functionalCaseCommentRequest){
+    public FunctionalCaseDTO getFunctionalCaseDTO(FunctionalCaseCommentRequest functionalCaseCommentRequest) {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(functionalCaseCommentRequest.getCaseId());
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
-        BeanUtils.copyBean(functionalCaseDTO,functionalCase);
+        BeanUtils.copyBean(functionalCaseDTO, functionalCase);
         setNotifier(functionalCaseCommentRequest, functionalCaseDTO);
         List<OptionDTO> customFields = getCustomFields(functionalCaseCommentRequest.getCaseId());
         functionalCaseDTO.setFields(customFields);
@@ -50,11 +46,11 @@ public class FunctionalCaseNoticeService {
     }
 
     /**
-     *
      * 如果是REPLAY事件，需要判断有无@的人，如果有@的人且当前被回复的人不是同一人，这里只要被回复的人,如果是同一人，这里通知人为空，走AT事件
      * 如果不是REPLAY事件，需要判断有无被回复的人，如果被回复的人不在被@人里，则用页面参数传递的通知人，如果在，则排除这个人,如果没有被回复的人，用页面数据
+     *
      * @param functionalCaseCommentRequest 页面参数
-     * @param functionalCaseDTO  发通知需要解析字段集合
+     * @param functionalCaseDTO            发通知需要解析字段集合
      */
     private void setNotifier(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseDTO functionalCaseDTO) {
         String notifier = functionalCaseCommentRequest.getNotifier();
@@ -70,7 +66,7 @@ public class FunctionalCaseNoticeService {
             }
         } else {
             if (StringUtils.isNotBlank(replyUser)) {
-                StringBuilder notifierStr  = new StringBuilder();
+                StringBuilder notifierStr = new StringBuilder();
                 if (StringUtils.isNotBlank(notifier)) {
                     List<String> notifierList = Arrays.asList(notifier.split(";"));
                     if (notifierList.contains(replyUser)) {
@@ -79,8 +75,7 @@ public class FunctionalCaseNoticeService {
                                 notifierStr.append(notifierId).append(";");
                             }
                         }
-                    }
-                     else {
+                    } else {
                         notifierStr = new StringBuilder(notifier);
                     }
                     functionalCaseDTO.setRelatedUsers(notifierStr.toString());
@@ -94,21 +89,21 @@ public class FunctionalCaseNoticeService {
     /**
      * 根据用例id获取当前用例在使用的自定义的字段及其值
      *
-     * @param caseId  用例Id
+     * @param caseId 用例Id
      * @return 返回 字段以及字段值的组合
      */
     private List<OptionDTO> getCustomFields(String caseId) {
         FunctionalCaseCustomFieldExample functionalCaseCustomFieldExample = new FunctionalCaseCustomFieldExample();
         functionalCaseCustomFieldExample.createCriteria().andCaseIdEqualTo(caseId);
         List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(functionalCaseCustomFieldExample);
-        List<OptionDTO>optionDTOList = new ArrayList<>();
+        List<OptionDTO> optionDTOList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(functionalCaseCustomFields)) {
             Map<String, String> fieldValueMap = functionalCaseCustomFields.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getFieldId, FunctionalCaseCustomField::getValue));
             List<String> fieldIds = functionalCaseCustomFields.stream().map(FunctionalCaseCustomField::getFieldId).distinct().toList();
             CustomFieldExample customFieldExample = new CustomFieldExample();
             customFieldExample.createCriteria().andIdIn(fieldIds);
             List<CustomField> customFields = customFieldMapper.selectByExample(customFieldExample);
-            customFields.forEach(t->{
+            customFields.forEach(t -> {
                 OptionDTO optionDTO = new OptionDTO();
                 optionDTO.setId(t.getName());
                 optionDTO.setName(fieldValueMap.get(t.getId()));
@@ -118,15 +113,15 @@ public class FunctionalCaseNoticeService {
         return optionDTOList;
     }
 
-    public FunctionalCaseDTO getMainFunctionalCaseDTO(FunctionalCaseAddRequest request) {
+    public FunctionalCaseDTO getMainFunctionalCaseDTO(String name, String caseEditType, List<CaseCustomsFieldDTO> customsFields) {
         String userId = SessionUtils.getUserId();
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
-        functionalCaseDTO.setName(request.getName());
-        functionalCaseDTO.setCaseEditType(request.getCaseEditType());
+        functionalCaseDTO.setName(name);
+        functionalCaseDTO.setCaseEditType(caseEditType);
         functionalCaseDTO.setCreateUser(userId);
-        List<OptionDTO>fields = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(request.getCustomsFields())){
-            for (CaseCustomsFieldDTO customsFieldDTO : request.getCustomsFields()) {
+        List<OptionDTO> fields = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(customsFields)) {
+            for (CaseCustomsFieldDTO customsFieldDTO : customsFields) {
                 OptionDTO optionDTO = new OptionDTO();
                 CustomField customField = customFieldMapper.selectByPrimaryKey(customsFieldDTO.getFieldId());
                 if (customField == null) {
@@ -142,5 +137,19 @@ public class FunctionalCaseNoticeService {
     }
 
 
+    public FunctionalCaseDTO getDeleteFunctionalCaseDTO(String id){
+        String userId = SessionUtils.getUserId();
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(id);
+        FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
+        Optional.ofNullable(functionalCase).ifPresent(functional -> {
+            functionalCaseDTO.setName(functionalCase.getName());
+            functionalCaseDTO.setCaseEditType(functionalCase.getCaseEditType());
+            functionalCaseDTO.setCreateUser(userId);
+            List<OptionDTO> customFields = getCustomFields(id);
+            functionalCaseDTO.setFields(customFields);
+
+        });
+        return functionalCaseDTO;
+    }
 
 }

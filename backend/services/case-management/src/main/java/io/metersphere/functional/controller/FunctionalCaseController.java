@@ -61,7 +61,7 @@ public class FunctionalCaseController {
     @Operation(summary = "功能用例-新增用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainFunctionalCaseDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainFunctionalCaseDTO(#request.name, #request.caseEditType, #request.customsFields)", targetClass = FunctionalCaseNoticeService.class)
     public FunctionalCase addFunctionalCase(@Validated @RequestPart("request") FunctionalCaseAddRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
         return functionalCaseService.addFunctionalCase(request, files, userId);
@@ -80,6 +80,7 @@ public class FunctionalCaseController {
     @Operation(summary = "功能用例-更新用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainFunctionalCaseDTO(#request.name, #request.caseEditType, #request.customsFields)", targetClass = FunctionalCaseNoticeService.class)
     public FunctionalCase updateFunctionalCase(@Validated @RequestPart("request") FunctionalCaseEditRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
         return functionalCaseService.updateFunctionalCase(request, files, userId);
@@ -115,6 +116,7 @@ public class FunctionalCaseController {
     @Operation(summary = "功能用例-删除用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getDeleteFunctionalCaseDTO(#request.id)", targetClass = FunctionalCaseNoticeService.class)
     public void deleteFunctionalCase(@Validated @RequestBody FunctionalCaseDeleteRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.deleteFunctionalCase(request, userId);

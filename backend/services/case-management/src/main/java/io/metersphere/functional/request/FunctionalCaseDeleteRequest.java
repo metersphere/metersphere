@@ -22,4 +22,8 @@ public class FunctionalCaseDeleteRequest implements Serializable {
     @Schema(description = "删除列表版本/删除全部版本")
     private Boolean deleteAll;
 
+    @Schema(description = "项目id")
+    @NotBlank(message = "{functional_case.project_id.not_blank}")
+    private String projectId;
+
 }

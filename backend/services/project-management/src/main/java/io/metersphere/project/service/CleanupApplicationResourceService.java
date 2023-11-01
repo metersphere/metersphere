@@ -1,5 +1,7 @@
 package io.metersphere.project.service;
 
+import io.metersphere.project.domain.ProjectApplicationExample;
+import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.sechedule.ScheduleService;
 import io.metersphere.system.service.CleanupProjectResourceService;
@@ -14,10 +16,15 @@ public class CleanupApplicationResourceService implements CleanupProjectResource
 
     @Resource
     private ScheduleService scheduleService;
+    @Resource
+    private ProjectApplicationMapper projectApplicationMapper;
 
     @Override
     public void deleteResources(String projectId) {
         scheduleService.deleteByProjectId(projectId);
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        projectApplicationMapper.deleteByExample(example);
     }
 
     @Override
