@@ -41,12 +41,12 @@
             #{id}
        </foreach>
     </select>
-    <delete id="removeToTrashByIds" parameterType="java.lang.String">
+    <update id="removeToTrashByIds" parameterType="java.lang.String">
         UPDATE functional_case_module SET deleted = true WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
-    </delete>
+    </update>
     <select id="getMaxPosByParentId" resultType="java.lang.Long">
         SELECT max(pos) FROM functional_case_module
         WHERE parent_id = #{0}

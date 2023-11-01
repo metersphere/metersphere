@@ -19,4 +19,6 @@ public interface ExtFunctionalCaseMapper {
     List<FunctionalCaseVersionDTO> getFunctionalCaseByRefId(@Param("refId") String refId);
 
     List<String> getFunctionalCaseIds(@Param("projectId") String projectId);
+
+    void removeToTrashByModuleIds(@Param("moduleIds") List<String> deleteIds);
 }
