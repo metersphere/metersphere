@@ -197,7 +197,7 @@ public class ProjectApplicationController {
     @Operation(summary = "用例管理-选择平台获取平台信息")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_READ)
     public Object getCasePlatformInfo(@PathVariable String pluginId) {
-        return projectApplicationService.getPluginScript(pluginId);
+        return projectApplicationService.getDemandPluginScript(pluginId);
     }
 
 
@@ -276,7 +276,7 @@ public class ProjectApplicationController {
     @Operation(summary = "缺陷管理-选择平台获取平台信息")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_READ)
     public Object getBugPlatformInfo(@PathVariable String pluginId) {
-        return projectApplicationService.getPluginScript(pluginId);
+        return projectApplicationService.getBugPluginScript(pluginId);
     }
 
 

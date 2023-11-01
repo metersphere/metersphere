@@ -212,10 +212,16 @@ public class ProjectApplicationService {
         return options;
     }
 
-    public Object getPluginScript(String pluginId) {
+    public Object getBugPluginScript(String pluginId) {
         this.checkResourceExist(pluginId);
         AbstractPlatformPlugin platformPlugin = (AbstractPlatformPlugin) pluginLoadService.getMsPluginManager().getPlugin(pluginId).getPlugin();
-        return pluginLoadService.getPluginScriptContent(pluginId, platformPlugin.getProjectScriptId());
+        return pluginLoadService.getPluginScriptContent(pluginId, platformPlugin.getProjectBugScriptId());
+    }
+
+    public Object getDemandPluginScript(String pluginId) {
+        this.checkResourceExist(pluginId);
+        AbstractPlatformPlugin platformPlugin = (AbstractPlatformPlugin) pluginLoadService.getMsPluginManager().getPlugin(pluginId).getPlugin();
+        return pluginLoadService.getPluginScriptContent(pluginId, platformPlugin.getProjectDemandScriptId());
     }
 
     private Plugin checkResourceExist(String id) {
@@ -378,7 +384,7 @@ public class ProjectApplicationService {
                 module,
                 content);
         dto.setOriginalValue(JSON.toJSONBytes(list));
-       return dto;
+        return dto;
     }
 
 
