@@ -5,11 +5,11 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.FileMetadataExample;
 import io.metersphere.project.dto.ModuleCountDTO;
-import io.metersphere.project.dto.filemanagement.FileInformationDTO;
-import io.metersphere.project.dto.filemanagement.FileManagementPageDTO;
+import io.metersphere.project.dto.filemanagement.FileManagementQuery;
+import io.metersphere.project.dto.filemanagement.request.*;
+import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.mapper.ExtFileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
-import io.metersphere.project.request.filemanagement.*;
 import io.metersphere.project.utils.FileDownloadUtils;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
@@ -61,29 +61,29 @@ public class FileMetadataService {
     @Value("${metersphere.file.batch-download-max:600MB}")
     private DataSize maxFileSize;
 
-    public FileInformationDTO get(String id) {
+    public FileInformationResponse get(String id) {
         FileMetadata fileMetadata = extFileMetadataMapper.getById(id);
-        FileInformationDTO dto = new FileInformationDTO(fileMetadata);
+        FileInformationResponse dto = new FileInformationResponse(fileMetadata);
         initModuleName(dto);
         return dto;
     }
 
-    public List<FileInformationDTO> list(FileMetadataTableRequest request) {
-        List<FileInformationDTO> returnList = new ArrayList<>();
-        FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
+    public List<FileInformationResponse> list(FileMetadataTableRequest request) {
+        List<FileInformationResponse> returnList = new ArrayList<>();
+        FileManagementQuery pageDTO = new FileManagementQuery(request);
         List<FileMetadata> fileMetadataList = extFileMetadataMapper.selectByKeywordAndFileType(pageDTO);
         fileMetadataList.forEach(fileMetadata -> {
-            FileInformationDTO fileInformationDTO = new FileInformationDTO(fileMetadata);
-            returnList.add(fileInformationDTO);
+            FileInformationResponse fileInformationResponse = new FileInformationResponse(fileMetadata);
+            returnList.add(fileInformationResponse);
         });
         this.initModuleName(returnList);
         return returnList;
     }
 
-    private void initModuleName(List<FileInformationDTO> returnList) {
-        List<String> moduleIds = returnList.stream().map(FileInformationDTO::getModuleId).distinct().toList();
+    private void initModuleName(List<FileInformationResponse> returnList) {
+        List<String> moduleIds = returnList.stream().map(FileInformationResponse::getModuleId).distinct().toList();
         Map<String, String> moduleNameMap = fileModuleService.getModuleNameMapByIds(moduleIds);
-        for (FileInformationDTO dto : returnList) {
+        for (FileInformationResponse dto : returnList) {
             if (StringUtils.equals(dto.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
                 dto.setModuleName(Translator.get("default.module"));
             } else {
@@ -92,7 +92,7 @@ public class FileMetadataService {
         }
     }
 
-    private void initModuleName(FileInformationDTO dto) {
+    private void initModuleName(FileInformationResponse dto) {
         if (StringUtils.equals(dto.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
             dto.setModuleName(Translator.get("default.module"));
         } else {
@@ -238,7 +238,7 @@ public class FileMetadataService {
         }
     }
 
-    public Pager<List<FileInformationDTO>> page(FileMetadataTableRequest request) {
+    public Pager<List<FileInformationResponse>> page(FileMetadataTableRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "update_time desc");
         return PageUtils.setPageInfo(page, this.list(request));
@@ -338,7 +338,7 @@ public class FileMetadataService {
     //获取模块统计
     public Map<String, Long> moduleCount(FileMetadataTableRequest request, String operator) {
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
-        FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
+        FileManagementQuery pageDTO = new FileManagementQuery(request);
         pageDTO.setModuleIds(null);
         List<ModuleCountDTO> moduleCountDTOList = extFileMetadataMapper.countModuleIdByKeywordAndFileType(pageDTO);
         long allCount = fileModuleService.getAllCount(moduleCountDTOList);
@@ -375,8 +375,8 @@ public class FileMetadataService {
                 .body(bytes);
     }
 
-    public List<String> getFileType(String projectId) {
-        return extFileMetadataMapper.selectFileTypeByProjectId(projectId);
+    public List<String> getFileType(String projectId, String storage) {
+        return extFileMetadataMapper.selectFileTypeByProjectId(projectId, storage);
     }
 
     public void changeJarFileStatus(String fileId, boolean enable, String operator) {

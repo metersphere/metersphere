@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.ExtFileMetadataMapper">
     <select id="selectByKeywordAndFileType"
-            parameterType="io.metersphere.project.dto.filemanagement.FileManagementPageDTO"
+            parameterType="io.metersphere.project.dto.filemanagement.FileManagementQuery"
             resultType="io.metersphere.project.domain.FileMetadata">
         SELECT
         f.id,
@@ -27,7 +27,7 @@
     </select>
 
     <select id="selectRefIdByKeywordAndFileType"
-            parameterType="io.metersphere.project.dto.filemanagement.FileManagementPageDTO"
+            parameterType="io.metersphere.project.dto.filemanagement.FileManagementQuery"
             resultType="io.metersphere.project.domain.FileMetadata">
         SELECT
         f.id,
@@ -39,7 +39,7 @@
     </select>
 
     <select id="countModuleIdByKeywordAndFileType"
-            parameterType="io.metersphere.project.dto.filemanagement.FileManagementPageDTO"
+            parameterType="io.metersphere.project.dto.filemanagement.FileManagementQuery"
             resultType="io.metersphere.project.dto.ModuleCountDTO">
         SELECT f.module_id AS moduleId, count(f.id) AS dataCount
         FROM file_metadata f
@@ -50,7 +50,7 @@
     </select>
 
     <select id="countMyFile"
-            parameterType="io.metersphere.project.dto.filemanagement.FileManagementPageDTO"
+            parameterType="io.metersphere.project.dto.filemanagement.FileManagementQuery"
             resultType="java.lang.Long">
         SELECT count(f.id)
         FROM file_metadata f
@@ -64,6 +64,9 @@
             AND f.project_id = #{projectId}
             <if test="keyword != null and keyword != ''">
                 AND f.name like concat('%', #{keyword}, '%')
+            </if>
+            <if test="storage != null and storage != ''">
+                AND f.storage = #{storage}
             </if>
             <if test="moduleIds != null and moduleIds.size() != 0">
                 AND f.module_id IN
@@ -129,6 +132,7 @@
         SELECT DISTINCT f.type
         FROM file_metadata f
         WHERE f.project_id = #{projectId}
+          AND f.storage = #{storage}
     </select>
     <select id="getById" resultType="io.metersphere.project.domain.FileMetadata">
         SELECT f.id,

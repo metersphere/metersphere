@@ -7,6 +7,8 @@ public class ModuleConstants {
     public static final String ROOT_NODE_PARENT_ID = "none";
     //默认节点类型
     public static final String NODE_TYPE_DEFAULT = "module";
+    //Git节点类型
+    public static final String NODE_TYPE_GIT = "git";
     //GitHub节点类型
     public static final String NODE_TYPE_GITHUB = "GitHub";
     //Gitee节点类型

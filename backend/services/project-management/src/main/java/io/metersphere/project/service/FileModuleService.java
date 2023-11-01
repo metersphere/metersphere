@@ -4,10 +4,10 @@ import io.metersphere.project.domain.FileModule;
 import io.metersphere.project.domain.FileModuleExample;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
+import io.metersphere.project.dto.filemanagement.request.FileModuleCreateRequest;
+import io.metersphere.project.dto.filemanagement.request.FileModuleUpdateRequest;
 import io.metersphere.project.mapper.ExtFileModuleMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
-import io.metersphere.project.request.filemanagement.FileModuleCreateRequest;
-import io.metersphere.project.request.filemanagement.FileModuleUpdateRequest;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
@@ -25,7 +25,10 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +46,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
     private FileManagementService fileManagementService;
 
     public List<BaseTreeNode> getTree(String projectId) {
-        List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectBaseByProjectId(projectId);
+        List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectBaseByProjectId(projectId, ModuleConstants.NODE_TYPE_DEFAULT);
         return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
     }
 
@@ -173,25 +176,13 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
     /**
      * 查找当前项目下模块每个节点对应的资源统计
      *
-     * @param projectId
-     * @param moduleCountDTOList
-     * @return
      */
     public Map<String, Long> getModuleCountMap(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
-        Map<String, Long> returnMap = new HashMap<>();
+
         //构建模块树，并计算每个节点下的所有数量（包含子节点）
         List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, moduleCountDTOList);
         //通过广度遍历的方式构建返回值
-        List<BaseTreeNode> whileList = new ArrayList<>(treeNodeList);
-        while (CollectionUtils.isNotEmpty(whileList)) {
-            List<BaseTreeNode> childList = new ArrayList<>();
-            for (BaseTreeNode treeNode : whileList) {
-                returnMap.put(treeNode.getId(), treeNode.getCount());
-                childList.addAll(treeNode.getChildren());
-            }
-            whileList = childList;
-        }
-        return returnMap;
+        return super.getIdCountMapByBreadth(treeNodeList);
     }
 
 

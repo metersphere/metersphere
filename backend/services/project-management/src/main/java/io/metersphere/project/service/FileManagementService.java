@@ -3,11 +3,11 @@ package io.metersphere.project.service;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.FileMetadataExample;
 import io.metersphere.project.domain.FileModuleExample;
-import io.metersphere.project.dto.filemanagement.FileManagementPageDTO;
+import io.metersphere.project.dto.filemanagement.FileManagementQuery;
+import io.metersphere.project.dto.filemanagement.request.FileBatchProcessRequest;
 import io.metersphere.project.mapper.ExtFileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
-import io.metersphere.project.request.filemanagement.FileBatchProcessRequest;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
@@ -77,7 +77,7 @@ public class FileManagementService {
     public List<FileMetadata> getDeleteList(FileBatchProcessRequest request) {
         List<String> processIds = request.getSelectIds();
         List<FileMetadata> refFileList = new ArrayList<>();
-        FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
+        FileManagementQuery pageDTO = new FileManagementQuery(request);
         if (request.isSelectAll()) {
             refFileList = extFileMetadataMapper.selectRefIdByKeywordAndFileType(pageDTO);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
@@ -100,7 +100,7 @@ public class FileManagementService {
         List<String> processIds = request.getSelectIds();
         List<FileMetadata> processFileList = new ArrayList<>();
         if (request.isSelectAll()) {
-            FileManagementPageDTO pageDTO = new FileManagementPageDTO(request);
+            FileManagementQuery pageDTO = new FileManagementQuery(request);
             processFileList = extFileMetadataMapper.selectByKeywordAndFileType(pageDTO);
             //去除未选择的文件
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {

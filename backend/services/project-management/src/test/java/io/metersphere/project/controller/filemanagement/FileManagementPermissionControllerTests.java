@@ -1,6 +1,6 @@
 package io.metersphere.project.controller.filemanagement;
 
-import io.metersphere.project.request.filemanagement.*;
+import io.metersphere.project.dto.filemanagement.request.*;
 import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
 import io.metersphere.sdk.constants.ModuleConstants;

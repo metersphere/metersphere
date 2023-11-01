@@ -1,9 +1,9 @@
 package io.metersphere.functional.utils;
 
-import io.metersphere.project.dto.filemanagement.FileInformationDTO;
-import io.metersphere.project.request.filemanagement.FileMetadataTableRequest;
-import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.project.dto.filemanagement.request.FileMetadataTableRequest;
+import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.utils.Pager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Assertions;
@@ -96,7 +96,7 @@ public class FileBaseUtils {
         }
     }
 
-    public static void checkFilePage(Pager<List<FileInformationDTO>> tableData, Map<String, Integer> moduleCount, FileMetadataTableRequest request, boolean hasData) {
+    public static void checkFilePage(Pager<List<FileInformationResponse>> tableData, Map<String, Integer> moduleCount, FileMetadataTableRequest request, boolean hasData) {
         //返回值的页码和当前页码相同
         Assertions.assertEquals(tableData.getCurrent(), request.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同

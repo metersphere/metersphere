@@ -4,7 +4,8 @@
     <select id="selectBaseByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         SELECT id, name, parent_id AS parentId, 'module' AS type
         FROM file_module
-        WHERE project_id = #{0}
+        WHERE project_id = #{projectId}
+          AND module_type = #{moduleType}
         ORDER BY pos
     </select>
     <select id="selectIdAndParentIdByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
