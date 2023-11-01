@@ -4,8 +4,8 @@ import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.ProjectResourcePoolDTO;
-import io.metersphere.system.request.ProjectMemberRequest;
-import io.metersphere.system.request.ProjectRequest;
+import io.metersphere.system.dto.request.ProjectMemberRequest;
+import io.metersphere.system.dto.request.ProjectRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

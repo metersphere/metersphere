@@ -1,4 +1,4 @@
-package io.metersphere.system.request;
+package io.metersphere.system.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;

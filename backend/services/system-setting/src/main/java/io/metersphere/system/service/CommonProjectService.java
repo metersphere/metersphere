@@ -25,7 +25,7 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
-import io.metersphere.system.request.ProjectAddMemberBatchRequest;
+import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;

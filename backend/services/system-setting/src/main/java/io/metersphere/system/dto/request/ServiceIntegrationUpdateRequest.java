@@ -1,5 +1,5 @@
 
-package io.metersphere.system.request;
+package io.metersphere.system.dto.request;
 
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;

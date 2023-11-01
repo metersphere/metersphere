@@ -9,7 +9,7 @@ import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.domain.AuthSourceExample;
 import io.metersphere.system.dto.AuthSourceDTO;
 import io.metersphere.system.mapper.AuthSourceMapper;
-import io.metersphere.system.request.AuthSourceRequest;
+import io.metersphere.system.dto.request.AuthSourceRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -1,4 +1,4 @@
-package io.metersphere.system.request;
+package io.metersphere.system.dto.request;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
