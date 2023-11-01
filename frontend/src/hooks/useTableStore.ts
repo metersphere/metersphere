@@ -1,4 +1,5 @@
 import { filter, orderBy, sortBy } from 'lodash-es';
+import localforage from 'localforage';
 
 import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
 
@@ -7,8 +8,6 @@ import { PageSizeMap, SelectorColumnMap, TableOpenDetailMode } from '@/store/mod
 import { isArraysEqualWithOrder } from '@/utils/equal';
 
 import { SpecialColumnEnum } from '@/enums/tableEnum';
-
-import localforage from 'localforage';
 
 export default function useTableStore() {
   const state = reactive({

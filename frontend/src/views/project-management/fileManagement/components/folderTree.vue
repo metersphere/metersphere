@@ -23,6 +23,7 @@
         count: 'count',
       }"
       block-node
+      title-tooltip-position="left"
       @select="folderNodeSelect"
       @more-action-select="handleFolderMoreSelect"
       @more-actions-close="moreActionsClose"
@@ -30,9 +31,7 @@
     >
       <template #title="nodeData">
         <div class="inline-flex w-full">
-          <a-tooltip :content="nodeData.name" :mouse-enter-delay="300" position="left">
-            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-          </a-tooltip>
+          <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
           <div v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
         </div>
       </template>
@@ -162,7 +161,7 @@
       folderTree.value = res.map((e) => ({
         ...e,
         hideMoreAction: e.id === 'root',
-        draggable: e.id !== 'root',
+        draggable: e.id !== 'root' && !props.isModal,
       }));
       if (isSetDefaultKey) {
         selectedKeys.value = [folderTree.value[0].id];
