@@ -9,6 +9,7 @@ package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.domain.FunctionalCaseModuleExample;
+import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.mapper.FunctionalCaseModuleMapper;
 import io.metersphere.functional.request.FunctionalCaseModuleCreateRequest;
@@ -44,6 +45,8 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
+    @Resource
+    private ExtFunctionalCaseMapper extFunctionalCaseMapper;
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
@@ -110,7 +113,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         if (CollectionUtils.isEmpty(deleteIds)) {
             return;
         }
-        //TODO：批量移动case到回收站
+        extFunctionalCaseMapper.removeToTrashByModuleIds(deleteIds);
         extFunctionalCaseModuleMapper.removeToTrashByIds(deleteIds);
         List<String> childrenIds = extFunctionalCaseModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {
