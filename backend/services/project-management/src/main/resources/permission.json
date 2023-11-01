@@ -13,12 +13,6 @@
           },
           {
             "id": "PROJECT:READ+UPDATE"
-          },
-          {
-            "id": "PROJECT:READ+DELETE"
-          },
-          {
-            "id": "PROJECT:READ+RECOVER"
           }
         ]
       },
