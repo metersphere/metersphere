@@ -1,4 +1,4 @@
-package io.metersphere.project.dto.filemanagement;
+package io.metersphere.project.dto.filemanagement.response;
 
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.sdk.util.JSON;
@@ -12,7 +12,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class FileInformationDTO {
+public class FileInformationResponse {
     @Schema(description = "ID")
     private String id;
 
@@ -55,7 +55,7 @@ public class FileInformationDTO {
     @Schema(description = "启用/禁用(jar文件)")
     private boolean enable;
 
-    public FileInformationDTO(FileMetadata fileMetadata) {
+    public FileInformationResponse(FileMetadata fileMetadata) {
         if (fileMetadata != null) {
             this.id = fileMetadata.getId();
             this.projectId = fileMetadata.getProjectId();

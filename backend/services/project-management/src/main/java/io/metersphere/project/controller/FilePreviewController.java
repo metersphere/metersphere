@@ -1,6 +1,6 @@
 package io.metersphere.project.controller;
 
-import io.metersphere.project.dto.filemanagement.FileInformationDTO;
+import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -29,12 +29,12 @@ public class FilePreviewController {
     @GetMapping(value = "/original/{userId}/{fileId}")
     @Operation(summary = "预览原图")
     public ResponseEntity<byte[]> originalImg(@PathVariable String userId,@PathVariable String fileId) {
-        FileInformationDTO fileInformationDTO = fileMetadataService.get(fileId);
-        if (StringUtils.isEmpty(fileInformationDTO.getId())) {
+        FileInformationResponse fileInformationResponse = fileMetadataService.get(fileId);
+        if (StringUtils.isEmpty(fileInformationResponse.getId())) {
             throw new MSException("file.not.exist");
         }
         //检查权限
-        if(permissionCheckService.userHasProjectPermission(userId,fileInformationDTO.getProjectId(),PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)){
+        if (permissionCheckService.userHasProjectPermission(userId, fileInformationResponse.getProjectId(), PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)) {
             return fileMetadataService.downloadById(fileId);
         }else {
             throw  new MSException("http_result_forbidden");
@@ -44,12 +44,12 @@ public class FilePreviewController {
     @GetMapping(value = "/compressed/{userId}/{fileId}")
     @Operation(summary = "预览缩略图")
     public ResponseEntity<byte[]> compressedImg(@PathVariable String userId,@PathVariable String fileId) {
-        FileInformationDTO fileInformationDTO = fileMetadataService.get(fileId);
-        if (StringUtils.isEmpty(fileInformationDTO.getId())) {
+        FileInformationResponse fileInformationResponse = fileMetadataService.get(fileId);
+        if (StringUtils.isEmpty(fileInformationResponse.getId())) {
             throw new MSException("file.not.exist");
         }
         //检查权限
-        if(permissionCheckService.userHasProjectPermission(userId,fileInformationDTO.getProjectId(),PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)){
+        if (permissionCheckService.userHasProjectPermission(userId, fileInformationResponse.getProjectId(), PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)) {
             return fileMetadataService.downloadPreviewImgById(fileId);
         }else {
             throw  new MSException("http_result_forbidden");

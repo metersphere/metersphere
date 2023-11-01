@@ -2,19 +2,19 @@ package io.metersphere.project.mapper;
 
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.dto.ModuleCountDTO;
-import io.metersphere.project.dto.filemanagement.FileManagementPageDTO;
+import io.metersphere.project.dto.filemanagement.FileManagementQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface ExtFileMetadataMapper {
-    List<FileMetadata> selectByKeywordAndFileType(FileManagementPageDTO fileManagementPageDTO);
+    List<FileMetadata> selectByKeywordAndFileType(FileManagementQuery fileManagementQuery);
 
-    List<FileMetadata> selectRefIdByKeywordAndFileType(FileManagementPageDTO fileManagementPageDTO);
+    List<FileMetadata> selectRefIdByKeywordAndFileType(FileManagementQuery fileManagementQuery);
 
-    List<ModuleCountDTO> countModuleIdByKeywordAndFileType(FileManagementPageDTO fileManagementPageDTO);
+    List<ModuleCountDTO> countModuleIdByKeywordAndFileType(FileManagementQuery fileManagementQuery);
 
-    long countMyFile(FileManagementPageDTO fileManagementPageDTO);
+    long countMyFile(FileManagementQuery fileManagementQuery);
 
     FileMetadata getById(String id);
 
@@ -28,5 +28,5 @@ public interface ExtFileMetadataMapper {
 
     List<FileMetadata> selectRefIdByModuleIds(@Param("moduleIds") List<String> moduleIds);
 
-    List<String> selectFileTypeByProjectId(String projectId);
+    List<String> selectFileTypeByProjectId(@Param("projectId") String projectId, @Param("storage") String storage);
 }

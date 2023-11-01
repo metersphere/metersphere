@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface ExtFileModuleMapper {
-    List<BaseTreeNode> selectBaseByProjectId(String projectId);
+    List<BaseTreeNode> selectBaseByProjectId(@Param("projectId") String projectId, @Param("moduleType") String moduleType);
 
     List<BaseTreeNode> selectIdAndParentIdByProjectId(String projectId);
 

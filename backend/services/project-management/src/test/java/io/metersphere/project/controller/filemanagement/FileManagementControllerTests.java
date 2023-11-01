@@ -1,11 +1,11 @@
 package io.metersphere.project.controller.filemanagement;
 
 import io.metersphere.project.domain.*;
-import io.metersphere.project.dto.filemanagement.FileInformationDTO;
+import io.metersphere.project.dto.filemanagement.request.*;
+import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.request.filemanagement.*;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class FileManagementControllerTests extends BaseTest {
-
+    private static final String FILE_TEST_PROJECT_ID = "1507121382013";
     private static Project project;
 
     private static List<BaseTreeNode> preliminaryTreeNodes = new ArrayList<>();
@@ -72,13 +72,17 @@ public class FileManagementControllerTests extends BaseTest {
 
     @BeforeEach
     public void initTestData() {
+        //文件管理专用项目
+        if (project == null) {
+            project = projectMapper.selectByPrimaryKey(FILE_TEST_PROJECT_ID);
+        }
         if (project == null) {
             Project initProject = new Project();
-            initProject.setId(IDGenerator.nextStr());
+            initProject.setId(FILE_TEST_PROJECT_ID);
             initProject.setNum(null);
             initProject.setOrganizationId("100001");
-            initProject.setName("建国创建的项目");
-            initProject.setDescription("建国创建的项目");
+            initProject.setName("文件管理专用项目");
+            initProject.setDescription("建国创建的文件管理专用项目");
             initProject.setCreateUser("admin");
             initProject.setUpdateUser("admin");
             initProject.setCreateTime(System.currentTimeMillis());
@@ -113,7 +117,7 @@ public class FileManagementControllerTests extends BaseTest {
         MvcResult pageResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
         String returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        Pager<List<FileInformationDTO>> result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        Pager<List<FileInformationResponse>> result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
         //返回值的页码和当前页码相同
         Assertions.assertEquals(result.getCurrent(), request.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
@@ -819,11 +823,11 @@ public class FileManagementControllerTests extends BaseTest {
         }};
         //获取第一页的所有文件（一页50）
         MvcResult fileMvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
-        Pager<List<FileInformationDTO>> pageResult = JSON.parseObject(JSON.toJSONString(
+        Pager<List<FileInformationResponse>> pageResult = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(fileMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Pager.class);
-        List<FileInformationDTO> fileList = JSON.parseArray(JSON.toJSONString(pageResult.getList()), FileInformationDTO.class);
-        for (FileInformationDTO fileDTO : fileList) {
+        List<FileInformationResponse> fileList = JSON.parseArray(JSON.toJSONString(pageResult.getList()), FileInformationResponse.class);
+        for (FileInformationResponse fileDTO : fileList) {
             MvcResult originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()));
             Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
             MvcResult compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
@@ -840,7 +844,7 @@ public class FileManagementControllerTests extends BaseTest {
             }
         }
         //测试重复获取
-        for (FileInformationDTO fileDTO : fileList) {
+        for (FileInformationResponse fileDTO : fileList) {
             MvcResult originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()));
             Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
             MvcResult compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
@@ -1013,7 +1017,7 @@ public class FileManagementControllerTests extends BaseTest {
         MvcResult fileTypeResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE, IDGenerator.nextNum()));
         String returnData = fileTypeResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        FileInformationDTO dto = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FileInformationDTO.class);
+        FileInformationResponse dto = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FileInformationResponse.class);
         Assertions.assertTrue(StringUtils.isEmpty(dto.getId()));
     }
 
@@ -1277,7 +1281,6 @@ public class FileManagementControllerTests extends BaseTest {
         checkLog(a3Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE);
     }
 
-
     @Test
     @Order(81)
     public void moveFileTest() throws Exception {
@@ -1475,7 +1478,7 @@ public class FileManagementControllerTests extends BaseTest {
 
     private void filePageRequestAndCheck(FileMetadataTableRequest request) throws Exception {
         MvcResult mvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
-        Pager<List<FileInformationDTO>> pageResult = JSON.parseObject(JSON.toJSONString(
+        Pager<List<FileInformationResponse>> pageResult = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Pager.class);
         MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_MODULE_COUNT, request);
@@ -1487,7 +1490,7 @@ public class FileManagementControllerTests extends BaseTest {
 
     private void filePageRequestAndCheck(FileMetadataTableRequest request, int fileCount) throws Exception {
         MvcResult mvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
-        Pager<List<FileInformationDTO>> pageResult = JSON.parseObject(JSON.toJSONString(
+        Pager<List<FileInformationResponse>> pageResult = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Pager.class);
         Assertions.assertEquals(pageResult.getTotal(), fileCount);

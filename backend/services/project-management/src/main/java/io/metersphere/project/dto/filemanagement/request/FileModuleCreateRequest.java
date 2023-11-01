@@ -1,4 +1,4 @@
-package io.metersphere.project.request.filemanagement;
+package io.metersphere.project.dto.filemanagement.request;
 
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.swagger.v3.oas.annotations.media.Schema;

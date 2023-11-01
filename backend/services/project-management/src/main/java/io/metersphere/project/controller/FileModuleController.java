@@ -1,7 +1,7 @@
 package io.metersphere.project.controller;
 
-import io.metersphere.project.request.filemanagement.FileModuleCreateRequest;
-import io.metersphere.project.request.filemanagement.FileModuleUpdateRequest;
+import io.metersphere.project.dto.filemanagement.request.FileModuleCreateRequest;
+import io.metersphere.project.dto.filemanagement.request.FileModuleUpdateRequest;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
