@@ -9,16 +9,10 @@
         "name": "permission.project_base_info.name",
         "permissions": [
           {
-            "id": "PROJECT:READ"
+            "id": "PROJECT_BASE_INFO:READ"
           },
           {
-            "id": "PROJECT:READ+UPDATE"
-          },
-          {
-            "id": "PROJECT:READ+DELETE"
-          },
-          {
-            "id": "PROJECT:READ+RECOVER"
+            "id": "PROJECT_BASE_INFO:READ+UPDATE"
           }
         ]
       },
