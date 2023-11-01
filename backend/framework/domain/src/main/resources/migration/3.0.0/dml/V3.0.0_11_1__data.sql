@@ -73,6 +73,9 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 
 -- 项目管理员权限
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT:READ+RECOVER');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_USER:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_USER:READ+ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_USER:READ+UPDATE');
@@ -126,8 +129,7 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ+ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ+UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_BASE_INFO:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_BASE_INFO:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT:READ+UPDATE');
 
 -- 项目成员权限
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT:READ');
@@ -181,8 +183,7 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'BUG:READ+ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'BUG:READ+UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'BUG:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BASE_INFO:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BASE_INFO:READ+UPDATE');
+
 -- 初始化当前站点配置
 INSERT into system_parameter values('base.url', 'http://127.0.0.1:8081', 'text');
 -- 初始化prometheus站点配置
