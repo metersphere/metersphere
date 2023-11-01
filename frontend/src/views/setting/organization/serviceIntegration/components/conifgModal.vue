@@ -45,15 +45,15 @@
   import { addOrUpdate, configScript, postValidate } from '@/api/modules/setting/serviceIntegration';
   import { useI18n } from '@/hooks/useI18n';
   import useLoading from '@/hooks/useLoading';
-  import { useUserStore } from '@/store';
+  import { useAppStore } from '@/store';
 
   import type { AddOrUpdateServiceModel, ServiceItem } from '@/models/setting/serviceIntegration';
 
   import { FormRule } from '@form-create/arco-design';
 
   const { t } = useI18n();
-  const userStore = useUserStore();
-  const lastOrganizationId = userStore.$state?.lastOrganizationId;
+  const appStore = useAppStore();
+  const lastOrganizationId = appStore.currentOrgId;
 
   const emits = defineEmits<{
     (event: 'update:visible', visible: boolean): void;

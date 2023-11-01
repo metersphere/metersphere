@@ -355,7 +355,7 @@
 
   const userGroupAll = ref<ProjectUserOption[]>([]);
 
-  onBeforeMount(async () => {
+  onMounted(async () => {
     initData();
     userGroupOptions.value = await getProjectUserGroup(lastProjectId as string);
     userGroupAll.value = [

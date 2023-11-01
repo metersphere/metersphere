@@ -199,16 +199,16 @@
     openModal({
       type: 'error',
       title: t('system.orgTemplate.deleteTitle', { name: characterLimit(record.name) }),
-      content: t('system.userGroup.beforeDeleteUserGroup'),
-      okText: t('system.userGroup.confirmDelete'),
-      cancelText: t('system.userGroup.cancel'),
+      content: t('system.orgTemplate.deleteFiledContent'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
       okButtonProps: {
         status: 'danger',
       },
       onBeforeOk: async () => {
         try {
           if (record.id) await deleteOrdField(record.id);
-          Message.success(t('system.user.deleteUserSuccess'));
+          Message.success(t('system.orgTemplate.deleteSuccess'));
           fetchData();
         } catch (error) {
           console.log(error);

@@ -76,13 +76,13 @@
 
   import { addOrUpdate } from '@/api/modules/setting/member';
   import { useI18n } from '@/hooks/useI18n';
-  import { useUserStore } from '@/store';
+  import { useAppStore } from '@/store';
 
   import type { LinkList, MemberItem } from '@/models/setting/member';
 
   const { t } = useI18n();
-  const userStore = useUserStore();
-  const lastOrganizationId = userStore.$state?.lastOrganizationId as string;
+  const appStore = useAppStore();
+  const lastOrganizationId = appStore.currentOrgId;
   const props = defineProps<{
     visible: boolean;
     userGroupOptions: LinkList;
@@ -105,7 +105,7 @@
   }
 
   const initFormValue: InitFromType = {
-    organizationId: userStore.$state?.lastOrganizationId,
+    organizationId: lastOrganizationId,
     userRoleIds: ['org_member'],
     memberIds: [],
     projectIds: [],

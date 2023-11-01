@@ -131,16 +131,16 @@
     getProjectList,
   } from '@/api/modules/setting/member';
   import { useI18n } from '@/hooks/useI18n';
-  import { useTableStore, useUserStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
 
   import type { AddorUpdateMemberModel, BatchAddProjectModel, LinkList, MemberItem } from '@/models/setting/member';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const tableStore = useTableStore();
+  const appStore = useAppStore();
   const { t } = useI18n();
-  const userStore = useUserStore();
-  const lastOrganizationId = userStore.$state?.lastOrganizationId;
+  const lastOrganizationId = appStore.currentOrgId;
 
   const columns: MsTableColumn = [
     {
