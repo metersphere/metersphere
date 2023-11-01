@@ -1,7 +1,7 @@
 <template>
   <div class="ms-time-selector">
     <a-input-number
-      v-model="current.value"
+      v-model:model-value="current.value"
       class="w-[120px]"
       :min="0"
       hide-button
@@ -11,7 +11,7 @@
     >
       <template #suffix>
         <a-select
-          v-model="current.type"
+          v-model:model-value="current.type"
           size="small"
           class="max-w-[64px]"
           :options="option"
@@ -87,6 +87,14 @@
       value: 'Y',
     },
   ]);
+  watch(
+    () => props.modelValue,
+    (v) => {
+      const { value, type } = parseValue(v);
+      current.value = value;
+      current.type = type;
+    }
+  );
 </script>
 
 <style lang="less" scoped>
