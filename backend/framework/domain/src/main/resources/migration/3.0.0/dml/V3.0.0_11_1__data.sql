@@ -683,5 +683,8 @@ VALUES (UUID_SHORT(), '100001100001', 'CRON', '0 0 2 * * ?', 'io.metersphere.pro
 
 -- 初始化默认项目版本配置项
 INSERT INTO project_application (`project_id`, `type`, `type_value`) VALUES ('100001100001', 'VERSION_ENABLE', 'FALSE');
+
+-- 初始化默认项目mock环境
+INSERT INTO environment (`id`, `project_id`, `name`, `create_user`, `create_time`, `update_user`, `update_time`, `mock`) VALUES (UUID_SHORT(), '100001100001', 'Mock环境', 'admin', unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000, true);
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

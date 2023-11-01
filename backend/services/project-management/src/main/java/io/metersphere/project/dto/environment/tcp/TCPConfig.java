@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Data
 public class TCPConfig implements Serializable {
     @Schema(description = "TCPClient  选项为TCPClientImpl、BinaryTCPClientImpl、LengthPrefixedBinaryTCPClientImpl")
-    private String className;
+    private String className = "TCPClientImpl";
     @Schema(description = "服务器名或IP")
     private String server;
     @Schema(description = "端口")
@@ -25,11 +25,11 @@ public class TCPConfig implements Serializable {
     @Schema(description = "So Linger")
     private String soLinger;
     @Schema(description = "Re-use connection")
-    private Boolean reUseConnection;
+    private Boolean reUseConnection = false;
     @Schema(description = "设置无延迟")
-    private Boolean nodelay;
+    private Boolean nodelay = false;
     @Schema(description = "Close Connection")
-    private Boolean closeConnection;
+    private Boolean closeConnection = false;
     @Schema(description = "行尾(EOL)字节值")
     private String eolByte;
 

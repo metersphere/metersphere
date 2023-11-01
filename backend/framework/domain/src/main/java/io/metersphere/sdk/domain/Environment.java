@@ -1,15 +1,12 @@
 package io.metersphere.sdk.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class Environment implements Serializable {
@@ -40,6 +37,10 @@ public class Environment implements Serializable {
     @Schema(description = "更新时间")
     private Long updateTime;
 
+    @Schema(description = "是否是mock环境", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{environment.mock.not_blank}", groups = {Created.class})
+    private Boolean mock;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -49,7 +50,8 @@ public class Environment implements Serializable {
         createUser("create_user", "createUser", "VARCHAR", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
-        updateTime("update_time", "updateTime", "BIGINT", false);
+        updateTime("update_time", "updateTime", "BIGINT", false),
+        mock("mock", "mock", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

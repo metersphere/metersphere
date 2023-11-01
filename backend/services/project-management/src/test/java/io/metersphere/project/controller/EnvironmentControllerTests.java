@@ -8,7 +8,6 @@ import io.metersphere.project.dto.environment.common.CommonParams;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.host.Host;
 import io.metersphere.project.dto.environment.host.HostConfig;
-import io.metersphere.project.dto.environment.http.ApplicationModule;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.script.ScriptContent;
 import io.metersphere.project.dto.environment.script.post.EnvironmentPostScript;
@@ -25,15 +24,15 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentBlob;
 import io.metersphere.sdk.domain.EnvironmentExample;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.file.FileRequest;
-import io.metersphere.system.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.file.FileRequest;
+import io.metersphere.system.file.MinioRepository;
 import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -87,6 +86,7 @@ public class EnvironmentControllerTests extends BaseTest {
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static final String DIR_PATH = "/project-management/environment/";
+    private static String MOCKID;
     @Resource
     private MockMvc mockMvc;
     @Resource
@@ -148,7 +148,7 @@ public class EnvironmentControllerTests extends BaseTest {
                 .header(SessionConstants.HEADER_TOKEN, sessionId)
                 .header(SessionConstants.CSRF_TOKEN, csrfToken)
                 .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN")
-                .header("PROJECT", projectId);
+                .header(SessionConstants.CURRENT_PROJECT, projectId);
         return mockMvc.perform(header)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
@@ -213,9 +213,7 @@ public class EnvironmentControllerTests extends BaseTest {
         keyValue.setValue("value");
         headers.add(keyValue);
         httpConfig.setHeaders(headers);
-        httpConfig.setDomain("domain");
-        httpConfig.setProtocol("https");
-        httpConfig.setSocket("socket");
+        httpConfig.setUrl("http://www.baidu.com");
 
         httpConfigs.add(httpConfig);
         return httpConfigs;
@@ -358,9 +356,7 @@ public class EnvironmentControllerTests extends BaseTest {
 
     private EnvironmentAssertions createAssertions() {
         EnvironmentAssertions assertions = new EnvironmentAssertions();
-        ApplicationModule applicationModule = new ApplicationModule();
-        applicationModule.setApiTest(true);
-        assertions.setModule(applicationModule);
+        assertions.setApiTest(true);
         List<EnvAssertionRegex> regex = new ArrayList<>();
         assertions.setRegex(regex);
         List<EnvAssertionJsonPath> jsonPath = new ArrayList<>();
@@ -765,6 +761,7 @@ public class EnvironmentControllerTests extends BaseTest {
         environment.setUpdateUser("updateUser");
         environment.setUpdateTime(System.currentTimeMillis());
         environment.setCreateUser("createUser");
+        environment.setMock(false);
         environment.setCreateTime(System.currentTimeMillis());
         environmentMapper.insert(environment);
         EnvironmentBlob environmentBlob = new EnvironmentBlob();
@@ -777,6 +774,11 @@ public class EnvironmentControllerTests extends BaseTest {
         Assertions.assertEquals("environmentId1", response.getId());
         //校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, get + "projectId");
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
+        List<Environment> environmentList = environmentMapper.selectByExample(environmentExample);
+        MOCKID = environmentList.get(0).getId();
+        this.responseGet(get + MOCKID);
     }
 
     @Test
@@ -959,6 +961,8 @@ public class EnvironmentControllerTests extends BaseTest {
 
         //删除环境不存在的
         this.requestGet(delete + "environmentId2", ERROR_REQUEST_MATCHER);
+
+        this.requestGet(delete + MOCKID, ERROR_REQUEST_MATCHER);
 
         //删除包含文件的环境
         example = new EnvironmentExample();

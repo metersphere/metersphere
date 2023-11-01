@@ -1,7 +1,9 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.domain.ProjectVersionExample;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectVersionMapper;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
@@ -30,6 +32,8 @@ public class ProjectVersionResourceTests extends BaseTest {
     private ProjectVersionMapper projectVersionMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     @Autowired
     public ProjectVersionResourceTests(ProjectServiceInvoker serviceInvoker) {
@@ -39,6 +43,19 @@ public class ProjectVersionResourceTests extends BaseTest {
     @Test
     @Order(1)
     public void test() {
+        Project initProject = new Project();
+        initProject.setId(TEST_PROJECT_ID);
+        initProject.setNum(null);
+        initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        initProject.setName("测试项目版本");
+        initProject.setDescription("测试项目版本");
+        initProject.setCreateUser("admin");
+        initProject.setUpdateUser("admin");
+        initProject.setCreateTime(System.currentTimeMillis());
+        initProject.setUpdateTime(System.currentTimeMillis());
+        initProject.setEnable(true);
+        initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
+        projectMapper.insertSelective(initProject);
         ProjectVersionExample example = new ProjectVersionExample();
         example.createCriteria().andProjectIdEqualTo(TEST_PROJECT_ID);
         // 默认为空

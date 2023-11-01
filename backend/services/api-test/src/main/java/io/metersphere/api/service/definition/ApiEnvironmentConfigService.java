@@ -3,6 +3,7 @@ package io.metersphere.api.service.definition;
 import io.metersphere.api.domain.ApiEnvironmentConfig;
 import io.metersphere.api.domain.ApiEnvironmentConfigExample;
 import io.metersphere.api.mapper.ApiEnvironmentConfigMapper;
+import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.system.uid.IDGenerator;
@@ -41,8 +42,11 @@ public class ApiEnvironmentConfigService {
                 }
             }
         }
-        //为空的  默认显示mock环境  TODO
-        return null;
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andProjectIdEqualTo(projectId).andMockEqualTo(true);
+        List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+        list.get(0).setEnvironmentId(environments.get(0).getId());
+        return list.get(0);
     }
 
     public String add(String envId, String userId, String projectId) {

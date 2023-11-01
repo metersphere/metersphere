@@ -573,6 +573,66 @@ public class EnvironmentExample {
             addCriterion("update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }
+
+        public Criteria andMockIsNull() {
+            addCriterion("mock is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockIsNotNull() {
+            addCriterion("mock is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockEqualTo(Boolean value) {
+            addCriterion("mock =", value, "mock");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockNotEqualTo(Boolean value) {
+            addCriterion("mock <>", value, "mock");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockGreaterThan(Boolean value) {
+            addCriterion("mock >", value, "mock");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("mock >=", value, "mock");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockLessThan(Boolean value) {
+            addCriterion("mock <", value, "mock");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockLessThanOrEqualTo(Boolean value) {
+            addCriterion("mock <=", value, "mock");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockIn(List<Boolean> values) {
+            addCriterion("mock in", values, "mock");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockNotIn(List<Boolean> values) {
+            addCriterion("mock not in", values, "mock");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockBetween(Boolean value1, Boolean value2) {
+            addCriterion("mock between", value1, value2, "mock");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("mock not between", value1, value2, "mock");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
