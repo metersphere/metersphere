@@ -15,7 +15,6 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -46,9 +45,9 @@ public class EnvironmentConfig implements Serializable {
 
     public EnvironmentConfig() {
         this.commonParams = new CommonParams();
-        this.commonVariables = new ArrayList<>();
-        this.httpConfig = new ArrayList<>();
-        this.dataSources = new ArrayList<>();
+        this.commonVariables = List.of(new CommonVariables());
+        this.httpConfig = List.of(new HttpConfig());
+        this.dataSources = List.of(new DataSource());
         this.hostConfig = new HostConfig();
         this.tcpConfig = new TCPConfig();
         this.authConfig = new AuthConfig();

@@ -104,15 +104,15 @@ public class ApiEnvironmentConfigControllerTests extends BaseTest {
         Assertions.assertNotNull(environmentConfig);
         Assertions.assertEquals(environmentConfig.getEnvironmentId(), envId);
 
-        mvcResult = responseGet(get + "1111111", "1111111");
-        environmentConfig = parseObjectFromMvcResult(mvcResult, ApiEnvironmentConfig.class);
-        Assertions.assertNull(environmentConfig);
-
         responseGet(add + "env-1111", DEFAULT_PROJECT_ID);
         ApiEnvironmentConfigExample example = new ApiEnvironmentConfigExample();
         example.createCriteria().andCreateUserEqualTo("admin");
         List<ApiEnvironmentConfig> apiEnvironmentConfigs = apiEnvironmentConfigMapper.selectByExample(example);
         Assertions.assertEquals(apiEnvironmentConfigs.get(0).getEnvironmentId(), "env-1111");
+
+        mvcResult = responseGet(get + DEFAULT_PROJECT_ID, DEFAULT_PROJECT_ID);
+        environmentConfig = parseObjectFromMvcResult(mvcResult, ApiEnvironmentConfig.class);
+        Assertions.assertNotNull(environmentConfig);
 
     }
 

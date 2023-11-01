@@ -1,7 +1,6 @@
 package io.metersphere.project.dto.environment.assertions;
 
 import io.metersphere.project.dto.environment.assertions.document.MsAssertionDocument;
-import io.metersphere.project.dto.environment.http.ApplicationModule;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -9,8 +8,10 @@ import java.util.List;
 
 @Data
 public class EnvironmentAssertions {
-    @Schema(description = "应用模块")
-    private ApplicationModule module;
+    @Schema(description = "接口测试")
+    private Boolean apiTest = true;
+    @Schema(description = "UI测试")
+    private Boolean uiTest = false;
     @Schema(description = "xpath类型 xml/html")
     private String xpathType;
     @Schema(description = "正则断言")

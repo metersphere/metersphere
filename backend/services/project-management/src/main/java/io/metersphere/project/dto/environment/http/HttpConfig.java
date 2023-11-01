@@ -12,17 +12,17 @@ import java.util.List;
 @Data
 public class HttpConfig implements Serializable {
     @Schema(description = "环境域名")
-    private String socket;
-    @Schema(description = "domain")
-    private String domain;
-    @Schema(description = "协议")
-    private String protocol = "https";
-    @Schema(description = "应用模块（接口测试、ui测试）")
-    private List<ApplicationModule> applicationModule;
+    private String url;
+    @Schema(description = "接口测试")
+    private Boolean apiTest = true;
+    @Schema(description = "UI测试")
+    private Boolean uiTest = false;
     @Schema(description = "启用条件  NONE/MODULE/PATH")
-    private String type;
-    @Schema(description = "启用条件为PATH时，需要填写的路径/ 如果是模块时需要时模块的id")
+    private String type = "NONE";
+    @Schema(description = "启用条件为PATH时，需要填写的路径/  key为equal时，value为路径，key为contain时，value为包含的路径")
     private List<KeyValue> details;
+    @Schema(description = "启用条件为MODULE时，需要模块的id")
+    private List<String> moduleIds;
     @Schema(description = "请求头")
     private List<KeyValue> headers;
     @Schema(description = "浏览器 选项为chrome/firefox")
@@ -31,5 +31,9 @@ public class HttpConfig implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public HttpConfig() {
+        this.headers = List.of(new KeyValue());
+    }
 
 }
