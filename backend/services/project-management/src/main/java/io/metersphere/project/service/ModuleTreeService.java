@@ -86,6 +86,7 @@ public abstract class ModuleTreeService {
     private static final String MOVE_POS_OPERATOR_LESS = "lessThan";
     private static final String MOVE_POS_OPERATOR_MORE = "moreThan";
     private static final String MOVE_POS_OPERATOR_LATEST = "latest";
+    private static final String DRAG_NODE_NOT_EXIST = "drag_node.not.exist";
 
 
     /**
@@ -104,12 +105,12 @@ public abstract class ModuleTreeService {
         
         BaseModule dragNode = selectIdNodeFunc.apply(request.getDragNodeId());
         if (dragNode == null) {
-            throw new MSException("drag_node.not.exist" + ":" + request.getDragNodeId());
+            throw new MSException(Translator.get(DRAG_NODE_NOT_EXIST) + ":" + request.getDragNodeId());
         }
 
         BaseModule dropNode = selectIdNodeFunc.apply(request.getDropNodeId());
         if (dropNode == null) {
-            throw new MSException("drop_node.not.exist" + ":" + request.getDropNodeId());
+            throw new MSException(Translator.get(DRAG_NODE_NOT_EXIST) + ":" + request.getDropNodeId());
 
         }
         BaseModule parentModule;

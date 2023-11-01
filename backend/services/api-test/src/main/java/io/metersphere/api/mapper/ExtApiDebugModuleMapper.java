@@ -1,9 +1,10 @@
 package io.metersphere.api.mapper;
 
-import io.metersphere.api.domain.ApiDebugModule;
 import io.metersphere.api.dto.debug.ApiDebugRequest;
 import io.metersphere.api.dto.debug.ApiTreeNode;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.system.dto.sdk.BaseModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
 
@@ -22,13 +23,9 @@ public interface ExtApiDebugModuleMapper {
 
     Long getMaxPosByParentId(String parentId);
 
-    List<String> selectIdsByProjectId(String projectId);
+    BaseModule selectBaseModuleById(String dragNodeId);
 
-    ApiDebugModule getLastModuleByParentId(String id);
-
-    ApiDebugModule getNextModuleInParentId(@Param("parentId") String parentId, @Param("pos") long pos);
-
-    ApiDebugModule getPreviousModuleInParentId(@Param("parentId") String parentId, @Param("pos") long pos);
+    BaseModule selectModuleByParentIdAndPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
     List<ApiTreeNode> selectApiDebugByProtocolAndUser(String protocol, String userId);
 
