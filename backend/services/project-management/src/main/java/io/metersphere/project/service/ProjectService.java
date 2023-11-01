@@ -8,11 +8,8 @@ import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.project.request.ProjectSwitchRequest;
-import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.ApplicationScope;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.sdk.SessionUser;
-import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -20,6 +17,9 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.SessionUser;
+import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
@@ -67,8 +67,7 @@ public class ProjectService {
         //判断用户是否是系统管理员
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ADMIN.name());
-        List<UserRoleRelation> list = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        if (CollectionUtils.isNotEmpty(list)) {
+        if (userRoleRelationMapper.countByExample(userRoleRelationExample) > 0) {
             ProjectExample example = new ProjectExample();
             example.createCriteria().andOrganizationIdEqualTo(organizationId).andEnableEqualTo(true);
             return projectMapper.selectByExample(example);

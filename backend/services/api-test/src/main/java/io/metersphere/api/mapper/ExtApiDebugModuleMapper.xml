@@ -60,23 +60,6 @@
         ORDER BY pos DESC
         LIMIT 1
     </select>
-    <select id="getNextModuleInParentId" resultType="io.metersphere.api.domain.ApiDebugModule">
-        SELECT *
-        from api_debug_module
-        WHERE parent_id = #{parentId}
-          AND pos &gt; #{pos}
-        order by pos asc
-        limit 1
-    </select>
-    <select id="getPreviousModuleInParentId" resultType="io.metersphere.api.domain.ApiDebugModule">
-        SELECT *
-        from api_debug_module
-        WHERE parent_id = #{parentId}
-          AND pos &lt; #{pos}
-        order by pos
-                desc
-        limit 1
-    </select>
     <select id="selectApiDebugByProtocolAndUser" resultType="io.metersphere.api.dto.debug.ApiTreeNode">
         SELECT id,
                NAME,
@@ -95,6 +78,30 @@
         FROM api_debug f
         <include refid="debug_page_request"/>
         GROUP BY f.module_id
+    </select>
+    <select id="selectBaseModuleById" resultType="io.metersphere.system.dto.sdk.BaseModule">
+        SELECT id, name, pos, project_Id, parent_id
+        FROM api_debug_module
+        WHERE id = #{0}
+    </select>
+
+    <select id="selectModuleByParentIdAndPosOperator"
+            parameterType="io.metersphere.project.dto.NodeSortQueryParam"
+            resultType="io.metersphere.system.dto.sdk.BaseModule">
+        SELECT id, name, pos, project_Id, parent_id
+        FROM api_debug_module
+        WHERE parent_id = #{parentId}
+        <if test="operator == 'moreThan'">
+            AND pos &gt; #{pos}
+        </if>
+        <if test="operator == 'lessThan'">
+            AND pos &lt; #{pos}
+        </if>
+        ORDER BY pos
+        <if test="operator == 'lessThan' or operator == 'latest'">
+            DESC
+        </if>
+        LIMIT 1
     </select>
 
     <sql id="debug_page_request">
