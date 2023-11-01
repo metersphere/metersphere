@@ -16,3 +16,4 @@ export const CompressImgUrl = '/file/preview/compressed'; // 预览图片文件�
 export const GetFileTypesUrl = '/project/file/type'; // 获取文件类型集合
 export const GetFileDetailUrl = '/project/file/get'; // 查看文件详情
 export const ToggleJarFileUrl = '/project/file/jar-file-status'; // jar 文件启用禁用
+export const BatchMoveFileUrl = '/project/file/batch-move'; // jar 文件启用禁用

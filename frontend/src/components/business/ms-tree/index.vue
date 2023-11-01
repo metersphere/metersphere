@@ -13,7 +13,13 @@
       @check="checked"
     >
       <template v-if="$slots['title']" #title="_props">
-        <slot name="title" v-bind="_props"></slot>
+        <a-tooltip
+          :content="_props[props.fieldNames.title]"
+          :mouse-enter-delay="500"
+          :position="props.titleTooltipPosition"
+        >
+          <slot name="title" v-bind="_props"></slot>
+        </a-tooltip>
       </template>
       <template v-if="$slots['extra']" #extra="_props">
         <div
@@ -92,11 +98,26 @@
       checkedStrategy?: 'all' | 'parent' | 'child'; // 选中节点时的策略
       checkedKeys?: Array<string | number>; // 选中的节点 key
       virtualListProps?: Record<string, unknown>; // 虚拟滚动列表的属性
+      titleTooltipPosition?:
+        | 'top'
+        | 'tl'
+        | 'tr'
+        | 'bottom'
+        | 'bl'
+        | 'br'
+        | 'left'
+        | 'lt'
+        | 'lb'
+        | 'right'
+        | 'rt'
+        | 'rb'; // 标题 tooltip 的位置
     }>(),
     {
       searchDebounce: 300,
       defaultExpandAll: false,
       selectable: true,
+      draggable: false,
+      titleTooltipPosition: 'right',
       fieldNames: () => ({
         key: 'key',
         title: 'title',
@@ -400,6 +421,9 @@
               font-size: 14px;
             }
           }
+        }
+        .arco-tree-node-title-block {
+          width: 80%;
         }
         .ms-tree-node-extra {
           @apply relative hidden;

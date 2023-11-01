@@ -4,7 +4,7 @@ export default {
   'project.fileManagement.defaultFile': 'Default files',
   'project.fileManagement.expandAll': 'Expand all submodules',
   'project.fileManagement.collapseAll': 'Collapse all submodules',
-  'project.fileManagement.addSubModule': 'Add module',
+  'project.fileManagement.addSubModule': 'Add submodule',
   'project.fileManagement.addStorage': 'Add repository',
   'project.fileManagement.rename': 'Rename',
   'project.fileManagement.nameNotNull': 'name cannot be empty',

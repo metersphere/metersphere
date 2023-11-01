@@ -10,7 +10,7 @@
         }}
       </div>
     </template>
-    <a-spin :loading="loading">
+    <a-spin class="w-full" :loading="loading">
       <a-alert v-if="batchModalMode === 'project'" class="mb-[16px]">
         {{ t('system.user.batchModalTip') }}
       </a-alert>
@@ -26,6 +26,7 @@
           children: 'children',
           disabled: 'disabled',
         }"
+        height="370px"
         show-search
       />
     </a-spin>

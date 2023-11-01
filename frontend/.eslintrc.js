@@ -95,6 +95,7 @@ module.exports = {
             '^jsencrypt$',
             '^echarts$',
             '^color$',
+            '^localforage$',
           ], // node依赖
           ['.*/assets/.*', '^@/assets$'], // 项目静态资源
           ['^@/components/pure/.*', '^@/components/business/.*', '.*\\.vue$'], // 组件

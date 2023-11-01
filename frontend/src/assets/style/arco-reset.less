@@ -532,52 +532,6 @@
   }
 }
 
-/** 穿梭框 **/
-.arco-transfer {
-  @apply grid;
-
-  grid-template-columns: 4fr 1fr 4fr;
-  .arco-transfer-view {
-    @apply w-auto;
-
-    height: 370px;
-    .arco-transfer-view-header {
-      @apply bg-white;
-    }
-  }
-  .arco-transfer-operations {
-    .arco-btn-secondary {
-      border-color: rgb(var(--primary-5));
-      border-radius: var(--border-radius-small);
-      background-color: rgb(var(--primary-1)) !important;
-      .arco-btn-icon {
-        color: rgb(var(--primary-5));
-      }
-      &:disabled {
-        border-color: var(--color-text-input-border) !important;
-        background-color: var(--color-text-n8) !important;
-        .arco-btn-icon {
-          color: var(--color-text-4);
-        }
-      }
-      &:not(:disabled):hover {
-        border-color: rgb(var(--primary-4)) !important;
-        background-color: rgb(var(--primary-1)) !important;
-        .arco-btn-icon {
-          color: rgb(var(--primary-7));
-        }
-      }
-      &:not(:disabled):active {
-        border-color: rgb(var(--primary-7)) !important;
-        background-color: rgb(var(--primary-9)) !important;
-        .arco-btn-icon {
-          color: rgb(var(--primary-7));
-        }
-      }
-    }
-  }
-}
-
 /** 滚动条 **/
 .arco-scrollbar-track-direction-horizontal {
   height: 6px;
@@ -765,22 +719,6 @@
     .arco-icon {
       font-size: 20px;
     }
-  }
-}
-
-/** 穿梭框节点溢出省略 **/
-.arco-transfer {
-  .arco-tree-node-title-text {
-    overflow: hidden;
-    width: 206px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .arco-checkbox-label {
-    overflow: hidden;
-    width: 207px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 }
 

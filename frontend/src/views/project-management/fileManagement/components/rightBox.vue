@@ -234,7 +234,7 @@
     :ok-text="t('project.fileManagement.batchMoveConfirm')"
     :ok-button-props="{ disabled: selectedModuleKeys.length === 0 }"
     :cancel-button-props="{ disabled: batchMoveFileLoading }"
-    :on-before-ok="batchMoveFile"
+    :on-before-ok="handleFileMove"
     @close="handleMoveFileModalCancel"
   >
     <template #title>
@@ -292,6 +292,7 @@
 
   import {
     batchDownloadFile,
+    batchMoveFile,
     deleteFile,
     downloadFile,
     getFileList,
@@ -341,6 +342,9 @@
   const tableFileTypeOptions = ref<string[]>([]);
   const fileTypeLoading = ref(false);
 
+  /**
+   * 初始化文件类型筛选选项
+   */
   async function initFileTypes() {
     try {
       fileTypeLoading.value = true;
@@ -464,7 +468,6 @@
   tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getFileList, {
     tableKey: TableKeyEnum.FILE_MANAGEMENT_FILE,
-    columns,
     showSetting: true,
     selectable: true,
     showSelectAll: true,
@@ -500,6 +503,13 @@
     ],
   };
   const tableSelected = ref<(string | number)[]>([]);
+  const batchParams = ref<BatchActionQueryParams>({
+    selectedIds: [],
+    selectAll: false,
+    excludeIds: [],
+    currentSelectCount: 0,
+  });
+  const combine = ref<Record<string, any>>({});
 
   /**
    * 处理表格选中
@@ -510,16 +520,15 @@
 
   /**
    * 批量下载文件
-   * @param params 批量操作参数
    */
-  async function batchDownload(params: BatchActionQueryParams) {
+  async function batchDownload() {
     try {
       loading.value = true;
       const res = await batchDownloadFile({
-        selectIds: params?.selectedIds || [],
-        selectAll: !!params?.selectAll,
-        excludeIds: params?.excludeIds || [],
-        condition: { keyword: keyword.value },
+        selectIds: batchParams.value?.selectedIds || [],
+        selectAll: !!batchParams.value?.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        condition: { keyword: keyword.value, comebine: combine.value },
         projectId: appStore.currentProjectId,
         fileType: tableFileType.value,
         moduleIds: [props.activeFolder],
@@ -555,14 +564,14 @@
   /**
    * 删除文件
    */
-  function delFile(record: FileItem | null, isBatch: boolean, params?: BatchActionQueryParams) {
+  function delFile(record: FileItem | null, isBatch: boolean) {
     let title = t('project.fileManagement.deleteFileTipTitle', { name: characterLimit(record?.name) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('project.fileManagement.batchDeleteFileTipTitle', {
-        count: params?.currentSelectCount || params?.selectedIds?.length,
+        count: batchParams.value?.currentSelectCount || batchParams.value?.selectedIds?.length,
       });
-      selectIds = params?.selectedIds || [];
+      selectIds = batchParams.value?.selectedIds || [];
     }
     openModal({
       type: 'error',
@@ -578,9 +587,9 @@
         try {
           await deleteFile({
             selectIds,
-            selectAll: !!params?.selectAll,
-            excludeIds: params?.excludeIds || [],
-            condition: { keyword: keyword.value },
+            selectAll: !!batchParams.value?.selectAll,
+            excludeIds: batchParams.value?.excludeIds || [],
+            condition: { keyword: keyword.value, comebine: combine.value },
             projectId: appStore.currentProjectId,
             fileType: tableFileType.value,
             moduleIds: [props.activeFolder],
@@ -619,16 +628,17 @@
    */
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
+    batchParams.value = params;
     switch (event.eventTag) {
       case 'download':
-        batchDownload(params);
+        batchDownload();
         break;
       case 'move':
         moveModalVisible.value = true;
         isBatchMove.value = true;
         break;
       case 'delete':
-        delFile(null, true, params);
+        delFile(null, true);
         break;
       default:
         break;
@@ -639,11 +649,18 @@
   /**
    * 单个/批量移动文件
    */
-  async function batchMoveFile() {
+  async function handleFileMove() {
     try {
       batchMoveFileLoading.value = true;
-      await new Promise((resolve) => {
-        setTimeout(() => resolve(true), 2000);
+      await batchMoveFile({
+        selectIds: batchParams.value?.selectedIds || [activeFile.value?.id || ''],
+        selectAll: !!batchParams.value?.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        condition: { keyword: keyword.value, comebine: combine.value },
+        projectId: appStore.currentProjectId,
+        fileType: tableFileType.value,
+        moduleIds: [props.activeFolder],
+        moveModuleId: selectedModuleKeys.value[0],
       });
       Message.success(t('project.fileManagement.batchMoveSuccess'));
       if (isBatchMove.value) {
@@ -672,19 +689,18 @@
   }
 
   function setTableParams() {
-    const combine: Record<string, any> = {};
     if (props.activeFolder === 'my') {
-      combine.createUser = userStore.id;
+      combine.value.createUser = userStore.id;
     }
     if (fileType.value === 'storage') {
-      combine.storage = 'git';
+      combine.value.storage = 'git';
     }
     setLoadListParams({
       keyword: keyword.value,
       fileType: tableFileType.value,
       moduleIds: ['all', 'my'].includes(props.activeFolder) ? [] : [props.activeFolder],
       projectId: appStore.currentProjectId,
-      comebine: combine,
+      comebine: combine.value,
     });
   }
 
@@ -885,6 +901,9 @@
     isUploading.value = false;
   }
 
+  /**
+   * 取消上传二次确认
+   */
   function cancelUpload() {
     if (asyncTaskStore.uploadFileTask.eachTaskQueue.length > 0 && asyncTaskStore.eachUploadTaskProgress !== 100) {
       openModal({

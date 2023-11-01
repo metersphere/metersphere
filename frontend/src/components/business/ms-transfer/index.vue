@@ -20,7 +20,13 @@
         block-node
         default-expand-all
         @check="onSelect"
-      />
+      >
+        <template #title="nodeData">
+          <div class="one-line-text">
+            {{ nodeData.title }}
+          </div>
+        </template>
+      </MsTree>
     </template>
   </a-transfer>
 </template>
@@ -45,6 +51,7 @@
       data: MsTreeNodeData[]; // 树结构数据
       treeFiled?: MsTreeFieldNames; // 自定义树结构字段
       showSearch?: boolean; // 是否显示搜索框
+      height?: string; // 穿梭框高度
       sourceInputSearchProps?: Record<string, any>;
       targetInputSearchProps?: Record<string, any>;
     }>(),
@@ -139,4 +146,46 @@
   );
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less">
+  /** 穿梭框 **/
+  .arco-transfer {
+    .arco-transfer-view {
+      width: calc(50% - 34px);
+      height: v-bind(height);
+      .arco-transfer-view-header {
+        @apply bg-white;
+      }
+    }
+    .arco-transfer-operations {
+      .arco-btn-secondary {
+        border-color: rgb(var(--primary-5));
+        border-radius: var(--border-radius-small);
+        background-color: rgb(var(--primary-1)) !important;
+        .arco-btn-icon {
+          color: rgb(var(--primary-5));
+        }
+        &:disabled {
+          border-color: var(--color-text-input-border) !important;
+          background-color: var(--color-text-n8) !important;
+          .arco-btn-icon {
+            color: var(--color-text-4);
+          }
+        }
+        &:not(:disabled):hover {
+          border-color: rgb(var(--primary-4)) !important;
+          background-color: rgb(var(--primary-1)) !important;
+          .arco-btn-icon {
+            color: rgb(var(--primary-7));
+          }
+        }
+        &:not(:disabled):active {
+          border-color: rgb(var(--primary-7)) !important;
+          background-color: rgb(var(--primary-9)) !important;
+          .arco-btn-icon {
+            color: rgb(var(--primary-7));
+          }
+        }
+      }
+    }
+  }
+</style>

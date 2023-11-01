@@ -2,6 +2,7 @@ import MSR from '@/api/http/index';
 import {
   AddModuleUrl,
   BatchDownloadFileUrl,
+  BatchMoveFileUrl,
   DeleteFileUrl,
   DeleteModuleUrl,
   DownloadFileUrl,
@@ -112,4 +113,9 @@ export function getFileDetail(id: string) {
 // jar文件启用禁用
 export function toggleJarFileStatus(id: string, status: boolean) {
   return MSR.get({ url: `${ToggleJarFileUrl}/${id}/${status}` });
+}
+
+// 批量移动文件
+export function batchMoveFile(data: BatchFileApiParams) {
+  return MSR.post({ url: BatchMoveFileUrl, data });
 }

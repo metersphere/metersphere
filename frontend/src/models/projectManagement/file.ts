@@ -59,6 +59,7 @@ export interface BatchFileApiParams extends BatchApiParams {
   projectId: string;
   fileType: string;
   moduleIds: string[];
+  moveModuleId?: string | number; // 移动的模块ID
 }
 // 更新模块参数
 export interface UpdateModuleParams {
