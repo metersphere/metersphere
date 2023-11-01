@@ -193,7 +193,6 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
@@ -245,11 +244,13 @@
       title: 'system.user.tableColumnOrg',
       dataIndex: 'organizationList',
       isTag: true,
+      width: 300,
     },
     {
       title: 'system.user.tableColumnUserGroup',
       isTag: true,
       dataIndex: 'userRoleList',
+      width: 300,
     },
     {
       title: 'system.user.tableColumnStatus',
@@ -265,7 +266,6 @@
     },
   ];
   const tableStore = useTableStore();
-  tableStore.initColumn(TableKeyEnum.SYSTEM_USER, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setKeyword, resetSelector } = useTable(
     getUserList,
     {
@@ -878,6 +878,7 @@
   function downLoadUserTemplate() {
     window.open('/templates/user_import.xlsx', '_blank');
   }
+  await tableStore.initColumn(TableKeyEnum.SYSTEM_USER, columns, 'drawer');
 </script>
 
 <style lang="less" scoped>

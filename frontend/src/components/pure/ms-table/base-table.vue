@@ -68,7 +68,7 @@
             </div>
           </template>
           <template #cell="{ column, record, rowIndex }">
-            <div class="flex flex-row flex-nowrap items-center">
+            <div :class="{ 'flex flex-row items-center': !item.isTag }">
               <template v-if="item.dataIndex === SpecialColumnEnum.ENABLE">
                 <slot name="enable" v-bind="{ record }">
                   <div v-if="record.enable" class="flex flex-row flex-nowrap items-center gap-[2px]">
@@ -84,11 +84,11 @@
                 </slot>
               </template>
               <template v-else-if="item.isTag">
-                <span
+                <template
                   v-if="!record[item.dataIndex as string] || (Array.isArray(record[item.dataIndex as string]) && record[item.dataIndex as string].length === 0)"
                 >
                   <slot :name="item.slotName" v-bind="{ record, rowIndex, column }"> - </slot>
-                </span>
+                </template>
                 <MsTagGroup v-else :tag-list="record[item.dataIndex as string]" type="primary" theme="outline" />
               </template>
               <template v-else-if="item.slotName === SpecialColumnEnum.OPERATION">
