@@ -14,7 +14,7 @@ import io.metersphere.system.utils.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
-import io.metersphere.system.request.OrganizationUserRoleEditRequest;
+import io.metersphere.system.dto.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.service.BaseUserRolePermissionService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;

@@ -8,7 +8,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.mapper.AuthSourceMapper;
-import io.metersphere.system.request.AuthSourceRequest;
+import io.metersphere.system.dto.request.AuthSourceRequest;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,4 +1,4 @@
-package io.metersphere.system.response.user;
+package io.metersphere.system.dto.response;
 
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.User;

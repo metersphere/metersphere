@@ -13,7 +13,7 @@ import io.metersphere.system.dto.ServiceIntegrationDTO;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
-import io.metersphere.system.request.ServiceIntegrationUpdateRequest;
+import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.PluginLoadService;
 import jakarta.annotation.Resource;

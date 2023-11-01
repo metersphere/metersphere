@@ -5,7 +5,7 @@ import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.dto.ServiceIntegrationDTO;
-import io.metersphere.system.request.ServiceIntegrationUpdateRequest;
+import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.system.service.ServiceIntegrationLogService;
 import io.metersphere.system.service.ServiceIntegrationService;
 import io.metersphere.validation.groups.Created;

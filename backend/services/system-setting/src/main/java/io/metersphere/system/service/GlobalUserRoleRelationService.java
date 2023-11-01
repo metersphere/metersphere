@@ -14,7 +14,7 @@ import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.request.GlobalUserRoleRelationQueryRequest;
 import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
-import io.metersphere.system.request.user.UserRoleBatchRelationRequest;
+import io.metersphere.system.dto.request.user.UserRoleBatchRelationRequest;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;

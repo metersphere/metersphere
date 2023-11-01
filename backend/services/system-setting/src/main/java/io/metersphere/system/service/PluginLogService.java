@@ -9,7 +9,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.sdk.util.JSON;
 import org.springframework.transaction.annotation.Transactional;
-import io.metersphere.system.request.PluginUpdateRequest;
+import io.metersphere.system.dto.request.PluginUpdateRequest;
 
 /**
  * @author jianxing

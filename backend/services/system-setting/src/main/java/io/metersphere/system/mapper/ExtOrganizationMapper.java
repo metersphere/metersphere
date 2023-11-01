@@ -4,8 +4,8 @@ import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.*;
-import io.metersphere.system.request.OrganizationDeleteRequest;
-import io.metersphere.system.request.OrganizationRequest;
+import io.metersphere.system.dto.request.OrganizationDeleteRequest;
+import io.metersphere.system.dto.request.OrganizationRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

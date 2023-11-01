@@ -12,7 +12,7 @@ import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.domain.ServiceIntegrationExample;
 import io.metersphere.system.dto.ServiceIntegrationDTO;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
-import io.metersphere.system.request.ServiceIntegrationUpdateRequest;
+import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

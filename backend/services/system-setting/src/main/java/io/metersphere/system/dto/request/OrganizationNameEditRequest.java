@@ -1,4 +1,4 @@
-package io.metersphere.system.request;
+package io.metersphere.system.dto.request;
 
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -9,23 +9,19 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.util.List;
 
+/**
+ * @author song-cc-rock
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class OrganizationEditRequest implements Serializable {
+public class OrganizationNameEditRequest implements Serializable {
 
-    @Schema(description =  "组织ID")
+    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Schema(description =  "组织名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{organization.name.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 100, message = "{organization.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
-
-    @Schema(description =  "描述")
-    private String description;
-
-    @Schema(description =  "成员ID集合")
-    private List<String> userIds;
 }

@@ -14,7 +14,7 @@ import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
-import io.metersphere.system.response.user.UserTableResponse;
+import io.metersphere.system.dto.response.UserTableResponse;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;

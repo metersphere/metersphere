@@ -10,7 +10,7 @@ import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.mapper.ExtUserRoleMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
-import io.metersphere.system.response.user.UserSelectOption;
+import io.metersphere.system.dto.response.UserSelectOption;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;

@@ -1,4 +1,4 @@
-package io.metersphere.system.request.user;
+package io.metersphere.system.dto.request.user;
 
 import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.validation.groups.Created;
