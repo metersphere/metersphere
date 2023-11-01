@@ -355,6 +355,8 @@
   });
   defineExpose({
     canSave,
+    handleSave,
+    handleReset,
   });
 </script>
 
