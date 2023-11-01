@@ -7,9 +7,15 @@ import io.metersphere.functional.domain.FunctionalCaseAttachmentExample;
 import io.metersphere.functional.dto.FunctionalCaseAttachmentDTO;
 import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
+import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.mapper.FileMetadataMapper;
+import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.MsFileUtils;
+import io.metersphere.system.file.FileRequest;
+import io.metersphere.system.file.MinioRepository;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -40,6 +46,9 @@ public class FunctionalCaseAttachmentService {
     @Resource
     private FileMetadataMapper fileMetadataMapper;
 
+    @Resource
+    private MinioRepository minioRepository;
+
     /**
      * 保存本地上传文件和用例关联关系
      *
@@ -52,6 +61,31 @@ public class FunctionalCaseAttachmentService {
     public void saveCaseAttachment(String fileId, MultipartFile file, String caseId, Boolean isLocal, String userId) {
         FunctionalCaseAttachment caseAttachment = creatModule(fileId, file.getName(), file.getSize(), caseId, isLocal, userId);
         functionalCaseAttachmentMapper.insertSelective(caseAttachment);
+    }
+
+
+    /**
+     * 功能用例上传附件
+     *
+     * @param request
+     * @param files
+     */
+    public void uploadFile(FunctionalCaseAddRequest request, String caseId, List<MultipartFile> files, Boolean isLocal, String userId) {
+        if (CollectionUtils.isNotEmpty(files)) {
+            files.forEach(file -> {
+                String fileId = IDGenerator.nextStr();
+                FileRequest fileRequest = new FileRequest();
+                fileRequest.setFileName(file.getName());
+                fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + request.getProjectId() + fileId);
+                fileRequest.setStorage(StorageType.MINIO.name());
+                try {
+                    minioRepository.saveFile(file, fileRequest);
+                } catch (Exception e) {
+                    throw new MSException("save file error");
+                }
+                saveCaseAttachment(fileId, file, caseId, isLocal, userId);
+            });
+        }
     }
 
 
@@ -121,13 +155,46 @@ public class FunctionalCaseAttachmentService {
      *
      * @param deleteFileMetaIds
      */
-    public List<FunctionalCaseAttachment> deleteCaseAttachment(List<String> deleteFileMetaIds, String caseId) {
+    public void deleteCaseAttachment(List<String> deleteFileMetaIds, String caseId, String projectId) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
         example.createCriteria().andFileIdIn(deleteFileMetaIds).andCaseIdEqualTo(caseId).andLocalEqualTo(true);
         List<FunctionalCaseAttachment> delAttachment = functionalCaseAttachmentMapper.selectByExample(example);
         example.clear();
         example.createCriteria().andFileIdIn(deleteFileMetaIds).andCaseIdEqualTo(caseId);
         functionalCaseAttachmentMapper.deleteByExample(example);
-        return delAttachment;
+        this.deleteMinioFile(delAttachment, projectId);
+    }
+
+
+    private void deleteMinioFile(List<FunctionalCaseAttachment> files, String projectId) {
+        if (CollectionUtils.isNotEmpty(files)) {
+            files.forEach(file -> {
+                FileRequest fileRequest = new FileRequest();
+                fileRequest.setFileName(file.getFileName());
+                fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + projectId + file.getFileId());
+                fileRequest.setStorage(StorageType.MINIO.name());
+                try {
+                    minioRepository.delete(fileRequest);
+                } catch (Exception e) {
+                    throw new MSException("delete file error");
+                }
+            });
+        }
+    }
+
+
+    /**
+     * 清理附件资源
+     *
+     * @param ids
+     */
+    public void deleteAttachmentResource(List<String> ids, String projectId) {
+        FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
+        example.createCriteria().andCaseIdIn(ids).andLocalEqualTo(true);
+        List<FunctionalCaseAttachment> localAttachment = functionalCaseAttachmentMapper.selectByExample(example);
+        example.clear();
+        example.createCriteria().andCaseIdIn(ids);
+        functionalCaseAttachmentMapper.deleteByExample(example);
+        deleteMinioFile(localAttachment, projectId);
     }
 }

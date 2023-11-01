@@ -244,143 +244,143 @@ public class FunctionalCaseTestExample {
             return (Criteria) this;
         }
 
-        public Criteria andTestIdIsNull() {
-            addCriterion("test_id is null");
+        public Criteria andSourceIdIsNull() {
+            addCriterion("source_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdIsNotNull() {
-            addCriterion("test_id is not null");
+        public Criteria andSourceIdIsNotNull() {
+            addCriterion("source_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdEqualTo(String value) {
-            addCriterion("test_id =", value, "testId");
+        public Criteria andSourceIdEqualTo(String value) {
+            addCriterion("source_id =", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdNotEqualTo(String value) {
-            addCriterion("test_id <>", value, "testId");
+        public Criteria andSourceIdNotEqualTo(String value) {
+            addCriterion("source_id <>", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdGreaterThan(String value) {
-            addCriterion("test_id >", value, "testId");
+        public Criteria andSourceIdGreaterThan(String value) {
+            addCriterion("source_id >", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdGreaterThanOrEqualTo(String value) {
-            addCriterion("test_id >=", value, "testId");
+        public Criteria andSourceIdGreaterThanOrEqualTo(String value) {
+            addCriterion("source_id >=", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdLessThan(String value) {
-            addCriterion("test_id <", value, "testId");
+        public Criteria andSourceIdLessThan(String value) {
+            addCriterion("source_id <", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdLessThanOrEqualTo(String value) {
-            addCriterion("test_id <=", value, "testId");
+        public Criteria andSourceIdLessThanOrEqualTo(String value) {
+            addCriterion("source_id <=", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdLike(String value) {
-            addCriterion("test_id like", value, "testId");
+        public Criteria andSourceIdLike(String value) {
+            addCriterion("source_id like", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdNotLike(String value) {
-            addCriterion("test_id not like", value, "testId");
+        public Criteria andSourceIdNotLike(String value) {
+            addCriterion("source_id not like", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdIn(List<String> values) {
-            addCriterion("test_id in", values, "testId");
+        public Criteria andSourceIdIn(List<String> values) {
+            addCriterion("source_id in", values, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdNotIn(List<String> values) {
-            addCriterion("test_id not in", values, "testId");
+        public Criteria andSourceIdNotIn(List<String> values) {
+            addCriterion("source_id not in", values, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdBetween(String value1, String value2) {
-            addCriterion("test_id between", value1, value2, "testId");
+        public Criteria andSourceIdBetween(String value1, String value2) {
+            addCriterion("source_id between", value1, value2, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestIdNotBetween(String value1, String value2) {
-            addCriterion("test_id not between", value1, value2, "testId");
+        public Criteria andSourceIdNotBetween(String value1, String value2) {
+            addCriterion("source_id not between", value1, value2, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeIsNull() {
-            addCriterion("test_type is null");
+        public Criteria andSourceTypeIsNull() {
+            addCriterion("source_type is null");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeIsNotNull() {
-            addCriterion("test_type is not null");
+        public Criteria andSourceTypeIsNotNull() {
+            addCriterion("source_type is not null");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeEqualTo(String value) {
-            addCriterion("test_type =", value, "testType");
+        public Criteria andSourceTypeEqualTo(String value) {
+            addCriterion("source_type =", value, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeNotEqualTo(String value) {
-            addCriterion("test_type <>", value, "testType");
+        public Criteria andSourceTypeNotEqualTo(String value) {
+            addCriterion("source_type <>", value, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeGreaterThan(String value) {
-            addCriterion("test_type >", value, "testType");
+        public Criteria andSourceTypeGreaterThan(String value) {
+            addCriterion("source_type >", value, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeGreaterThanOrEqualTo(String value) {
-            addCriterion("test_type >=", value, "testType");
+        public Criteria andSourceTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("source_type >=", value, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeLessThan(String value) {
-            addCriterion("test_type <", value, "testType");
+        public Criteria andSourceTypeLessThan(String value) {
+            addCriterion("source_type <", value, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeLessThanOrEqualTo(String value) {
-            addCriterion("test_type <=", value, "testType");
+        public Criteria andSourceTypeLessThanOrEqualTo(String value) {
+            addCriterion("source_type <=", value, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeLike(String value) {
-            addCriterion("test_type like", value, "testType");
+        public Criteria andSourceTypeLike(String value) {
+            addCriterion("source_type like", value, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeNotLike(String value) {
-            addCriterion("test_type not like", value, "testType");
+        public Criteria andSourceTypeNotLike(String value) {
+            addCriterion("source_type not like", value, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeIn(List<String> values) {
-            addCriterion("test_type in", values, "testType");
+        public Criteria andSourceTypeIn(List<String> values) {
+            addCriterion("source_type in", values, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeNotIn(List<String> values) {
-            addCriterion("test_type not in", values, "testType");
+        public Criteria andSourceTypeNotIn(List<String> values) {
+            addCriterion("source_type not in", values, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeBetween(String value1, String value2) {
-            addCriterion("test_type between", value1, value2, "testType");
+        public Criteria andSourceTypeBetween(String value1, String value2) {
+            addCriterion("source_type between", value1, value2, "sourceType");
             return (Criteria) this;
         }
 
-        public Criteria andTestTypeNotBetween(String value1, String value2) {
-            addCriterion("test_type not between", value1, value2, "testType");
+        public Criteria andSourceTypeNotBetween(String value1, String value2) {
+            addCriterion("source_type not between", value1, value2, "sourceType");
             return (Criteria) this;
         }
 

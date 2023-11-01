@@ -259,6 +259,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         FunctionalCaseDeleteRequest request = new FunctionalCaseDeleteRequest();
         request.setId("TEST_FUNCTIONAL_CASE_ID");
         request.setDeleteAll(false);
+        request.setProjectId(DEFAULT_PROJECT_ID);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_DELETE_URL, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -267,7 +268,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setId("TEST_FUNCTIONAL_CASE_ID_1");
         request.setDeleteAll(false);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_DELETE_URL, request);
-        request.setId("TEST_FUNCTIONAL_CASE_ID_1");
+        request.setId("TEST_FUNCTIONAL_CASE_ID_3");
         request.setDeleteAll(true);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_DELETE_URL, request);
     }

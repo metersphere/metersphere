@@ -23,14 +23,14 @@ public class FunctionalCaseTest implements Serializable {
     private String caseId;
 
     @Schema(description =  "其他类型用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_test.test_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{functional_case_test.test_id.length_range}", groups = {Created.class, Updated.class})
-    private String testId;
+    @NotBlank(message = "{functional_case_test.source_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{functional_case_test.source_id.length_range}", groups = {Created.class, Updated.class})
+    private String sourceId;
 
     @Schema(description =  "用例类型：接口用例/场景用例/性能用例/UI用例", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_test.test_type.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{functional_case_test.test_type.length_range}", groups = {Created.class, Updated.class})
-    private String testType;
+    @NotBlank(message = "{functional_case_test.source_type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 64, message = "{functional_case_test.source_type.length_range}", groups = {Created.class, Updated.class})
+    private String sourceType;
 
     @Schema(description =  "创建时间")
     private Long createTime;
@@ -43,8 +43,8 @@ public class FunctionalCaseTest implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
-        testId("test_id", "testId", "VARCHAR", false),
-        testType("test_type", "testType", "VARCHAR", false),
+        sourceId("source_id", "sourceId", "VARCHAR", false),
+        sourceType("source_type", "sourceType", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false);
 

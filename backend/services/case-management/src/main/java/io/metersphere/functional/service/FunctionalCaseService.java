@@ -13,14 +13,14 @@ import io.metersphere.functional.request.FunctionalCaseDeleteRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.project.service.ProjectTemplateService;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
+import io.metersphere.sdk.constants.FunctionalCaseReviewStatus;
+import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.MsFileUtils;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
-import io.metersphere.system.file.FileRequest;
-import io.metersphere.system.file.MinioRepository;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,9 +45,6 @@ import java.util.stream.Collectors;
 public class FunctionalCaseService {
 
     public static final int ORDER_STEP = 5000;
-
-    @Resource
-    private MinioRepository minioRepository;
 
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
@@ -70,7 +68,7 @@ public class FunctionalCaseService {
     private FunctionalCaseFollowerMapper functionalCaseFollowerMapper;
 
     @Resource
-    private FunctionalCaseCommentService functionalCaseCommentService;
+    private DeleteFunctionalCaseService deleteFunctionalCaseService;
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
         String caseId = IDGenerator.nextStr();
@@ -78,7 +76,7 @@ public class FunctionalCaseService {
         FunctionalCase functionalCase = addCase(caseId, request, userId);
 
         //上传文件
-        uploadFile(request, caseId, files, true, userId);
+        functionalCaseAttachmentService.uploadFile(request, caseId, files, true, userId);
 
         //关联附件
         functionalCaseAttachmentService.relateFileMeta(request.getRelateFileMetaIds(), caseId, userId);
@@ -131,30 +129,6 @@ public class FunctionalCaseService {
         long nextNum = NumGenerator.nextNum(projectId, ApplicationNumScope.CASE_MANAGEMENT);
         BigDecimal bigDecimal = new BigDecimal(nextNum);
         return bigDecimal.intValue();
-    }
-
-    /**
-     * 功能用例上传附件
-     *
-     * @param request
-     * @param files
-     */
-    public void uploadFile(FunctionalCaseAddRequest request, String caseId, List<MultipartFile> files, Boolean isLocal, String userId) {
-        if (CollectionUtils.isNotEmpty(files)) {
-            files.forEach(file -> {
-                String fileId = IDGenerator.nextStr();
-                FileRequest fileRequest = new FileRequest();
-                fileRequest.setFileName(file.getName());
-                fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + request.getProjectId() + fileId);
-                fileRequest.setStorage(StorageType.MINIO.name());
-                try {
-                    minioRepository.saveFile(file, fileRequest);
-                } catch (Exception e) {
-                    throw new MSException("save file error");
-                }
-                functionalCaseAttachmentService.saveCaseAttachment(fileId, file, caseId, isLocal, userId);
-            });
-        }
     }
 
 
@@ -243,11 +217,11 @@ public class FunctionalCaseService {
 
         //处理删除文件id
         if (CollectionUtils.isNotEmpty(request.getDeleteFileMetaIds())) {
-            this.deleteFile(request.getDeleteFileMetaIds(), request);
+            functionalCaseAttachmentService.deleteCaseAttachment(request.getDeleteFileMetaIds(), request.getId(), request.getProjectId());
         }
 
         //上传新文件
-        uploadFile(request, request.getId(), files, true, userId);
+        functionalCaseAttachmentService.uploadFile(request, request.getId(), files, true, userId);
 
         //关联新附件
         functionalCaseAttachmentService.relateFileMeta(request.getRelateFileMetaIds(), request.getId(), userId);
@@ -269,27 +243,6 @@ public class FunctionalCaseService {
         extFunctionalCaseMapper.updateFunctionalCaseModule(refId, moduleId);
     }
 
-    private void deleteFile(List<String> deleteFileMetaIds, FunctionalCaseEditRequest request) {
-        List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentService.deleteCaseAttachment(deleteFileMetaIds, request.getId());
-        if (CollectionUtils.isNotEmpty(caseAttachments)) {
-            //删除本地上传的minio文件
-            deleteMinioFile(caseAttachments, request.getProjectId());
-        }
-    }
-
-    private void deleteMinioFile(List<FunctionalCaseAttachment> files, String projectId) {
-        files.forEach(file -> {
-            FileRequest fileRequest = new FileRequest();
-            fileRequest.setFileName(file.getFileName());
-            fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + projectId + file.getFileId());
-            fileRequest.setStorage(StorageType.MINIO.name());
-            try {
-                minioRepository.delete(fileRequest);
-            } catch (Exception e) {
-                throw new MSException("delete file error");
-            }
-        });
-    }
 
     private void updateCase(FunctionalCaseEditRequest request, String userId, FunctionalCase functionalCase) {
         functionalCase.setUpdateUser(userId);
@@ -357,7 +310,8 @@ public class FunctionalCaseService {
         if (versionDTOList.size() > 1) {
             //存在多个版本
             List<String> ids = versionDTOList.stream().map(FunctionalCaseVersionDTO::getId).collect(Collectors.toList());
-            handleFunctionalCaseByVersions(request, ids, userId);
+            String projectId = versionDTOList.get(0).getProjectId();
+            handleFunctionalCaseByVersions(request, projectId, ids, userId);
         } else {
             //只有一个版本 直接放入回收站
             doDelete(request.getId(), userId);
@@ -373,25 +327,16 @@ public class FunctionalCaseService {
      * @param ids
      * @param userId
      */
-    private void handleFunctionalCaseByVersions(FunctionalCaseDeleteRequest request, List<String> ids, String userId) {
+    private void handleFunctionalCaseByVersions(FunctionalCaseDeleteRequest request, String projectId, List<String> ids, String userId) {
         if (request.getDeleteAll()) {
             //删除所有版本
             ids.forEach(id -> {
                 doDelete(id, userId);
             });
         } else {
-            //删除指定版本
-            deleteFunctionalCaseSingle(request.getId());
+            //删除指定版本(用例多版本情况下 删除单个版本用例)
+            deleteFunctionalCaseService.deleteFunctionalCaseResource(Arrays.asList(request.getId()), projectId);
         }
-    }
-
-    /**
-     * 用例多版本情况下 删除单个版本用例
-     *
-     * @param functionalCaseId
-     */
-    private void deleteFunctionalCaseSingle(String functionalCaseId) {
-        //TODO 删除各种关联关系？ 1.测试用例(接口/场景/ui/性能)？ 2.关联缺陷(是否需要同步？) 3.关联需求(是否需要同步？) 4.依赖关系？ 5.关联评审？ 6.操作记录？ 7.关联测试计划？ 8.评论？ 9.附件？ 10.自定义字段？ 11.用例基本信息(主表、附属表)？
     }
 
 

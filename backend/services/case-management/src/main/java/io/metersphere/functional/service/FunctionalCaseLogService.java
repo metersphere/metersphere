@@ -87,18 +87,21 @@ public class FunctionalCaseLogService {
      */
     public LogDTO deleteFunctionalCaseLog(FunctionalCaseDeleteRequest request) {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(request.getId());
-        LogDTO dto = new LogDTO(
-                functionalCase.getProjectId(),
-                null,
-                functionalCase.getId(),
-                null,
-                OperationLogType.DELETE.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
-                functionalCase.getName());
+        if (functionalCase != null) {
+            LogDTO dto = new LogDTO(
+                    functionalCase.getProjectId(),
+                    null,
+                    functionalCase.getId(),
+                    null,
+                    OperationLogType.DELETE.name(),
+                    OperationLogModule.FUNCTIONAL_CASE,
+                    functionalCase.getName());
 
-        dto.setPath("/functional/case/delete");
-        dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
-        return dto;
+            dto.setPath("/functional/case/delete");
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+            return dto;
+        }
+        return null;
     }
 }
