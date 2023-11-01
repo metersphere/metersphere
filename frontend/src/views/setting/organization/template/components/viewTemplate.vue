@@ -156,7 +156,6 @@
     },
   ];
 
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_STEP, templateFieldColumns, 'drawer');
   const { propsRes, propsEvent, setProps } = useTable(undefined, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_STEP,
     scroll: { x: '800px' },
@@ -235,15 +234,15 @@
       formRules.value = result;
     }
   };
+  defineExpose({
+    getFormRules,
+  });
 
   onMounted(() => {
     setProps({ data: [{ id: 1, showStep: false, showExpected: false }] });
     getFormRules();
   });
-
-  defineExpose({
-    getFormRules,
-  });
+  await tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_STEP, templateFieldColumns, 'drawer');
 </script>
 
 <style scoped lang="less">

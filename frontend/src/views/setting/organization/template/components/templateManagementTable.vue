@@ -139,7 +139,7 @@
     };
   }
 
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, columns.value, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, columns.value, 'drawer');
   const { propsRes, propsEvent, setProps } = useTable(undefined, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD,
     scroll: { x: '1800px' },

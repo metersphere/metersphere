@@ -171,7 +171,7 @@
     }
   };
 
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_PROJECT, organizationColumns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.ORGANIZATION_PROJECT, organizationColumns, 'drawer');
 
   const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(
     postProjectTableByOrg,

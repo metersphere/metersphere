@@ -204,7 +204,7 @@
       showDrag: false,
     },
   ];
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_MEMBER, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.ORGANIZATION_MEMBER, columns, 'drawer');
 
   const tableBatchActions = {
     baseAction: [

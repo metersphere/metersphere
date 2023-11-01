@@ -168,7 +168,7 @@
       showInTable: true,
     },
   ];
-  tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');
 
   const tableBatchActions = {
     baseAction: [
