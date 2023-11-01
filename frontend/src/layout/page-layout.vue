@@ -3,7 +3,9 @@
     <transition name="fade" mode="out-in" appear>
       <!-- transition内必须有且只有一个根元素，不然会导致二级路由的组件无法渲染 -->
       <div v-show="true" class="page-content">
-        <component :is="Component" v-if="!route.meta.isCache" :key="route.fullPath" />
+        <Suspense v-if="!route.meta.isCache">
+          <component :is="Component" :key="route.fullPath" />
+        </Suspense>
         <keep-alive v-else>
           <component :is="Component" :key="route.fullPath" />
         </keep-alive>

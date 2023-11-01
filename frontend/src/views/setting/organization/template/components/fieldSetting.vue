@@ -129,7 +129,7 @@
       showDrag: false,
     },
   ];
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_FIELD_SETTING, fieldColumns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_FIELD_SETTING, fieldColumns, 'drawer');
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setProps } = useTable(getFieldList, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_FIELD_SETTING,

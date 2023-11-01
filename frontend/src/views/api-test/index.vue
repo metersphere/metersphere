@@ -157,7 +157,7 @@
 
   const tableStore = useTableStore();
 
-  tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer');
 
   const { propsRes, propsEvent, loadList } = useTable(getTableList, {
     columns,

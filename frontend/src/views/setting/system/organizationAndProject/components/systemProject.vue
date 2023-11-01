@@ -156,8 +156,6 @@
     }
   };
 
-  tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
-
   const { propsRes, propsEvent, loadList, setKeyword } = useTable(
     postProjectTable,
     {
@@ -304,6 +302,8 @@
   defineExpose({
     fetchData,
   });
+
+  await tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
 </script>
 
 <style lang="scss" scoped>

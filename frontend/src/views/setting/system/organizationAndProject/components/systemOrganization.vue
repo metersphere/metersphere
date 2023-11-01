@@ -158,8 +158,6 @@
     }
   };
 
-  tableStore.initColumn(TableKeyEnum.SYSTEM_ORGANIZATION, organizationColumns, 'drawer');
-
   const { propsRes, propsEvent, loadList, setKeyword, setLoading } = useTable(
     postOrgTable,
     {
@@ -306,9 +304,15 @@
       setLoading(false);
     }
   };
+
   defineExpose({
     fetchData,
   });
+
+  onMounted(() => {
+    fetchData();
+  });
+  await tableStore.initColumn(TableKeyEnum.SYSTEM_ORGANIZATION, organizationColumns, 'drawer');
 </script>
 
 <style lang="scss" scoped>

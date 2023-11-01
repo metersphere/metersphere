@@ -107,7 +107,7 @@
     },
   ];
 
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT, fieldColumns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT, fieldColumns, 'drawer');
   const { propsRes, propsEvent, loadList, setLoadListParams, setProps } = useTable(getOrganizeTemplateList, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT,
     scroll: { x: '1000px' },
