@@ -3,9 +3,14 @@
     v-bind="attrs"
     :type="props.type"
     defer
-    :style="{ ...typeStyle, 'margin-right': tagMargin, 'max-width': '144px' }"
+    :style="{
+      ...typeStyle,
+      'margin-right': tagMargin,
+      'min-width': props.width && `${props.width}ch`,
+      'max-width: 144px': !props.width,
+    }"
     :size="props.size"
-    class="one-line-text inline-block"
+    class="inline-block"
   >
     <slot name="icon"></slot>
     <slot></slot>
@@ -26,6 +31,7 @@
       size?: Size; // tag尺寸
       theme?: Theme; // tag主题
       selfStyle?: any; // 自定义样式
+      width?: number; // tag宽度,不传入时绑定max-width
     }>(),
     {
       type: 'default',

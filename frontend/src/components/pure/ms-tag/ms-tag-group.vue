@@ -1,14 +1,14 @@
 <template>
-  <div class="flex min-h-[22px] flex-row">
-    <MsTag v-for="tag of showTagList" :key="tag.id" v-bind="attrs">
-      {{ props.isStringTag ? tag : tag[props.nameKey] }}
-    </MsTag>
-    <a-tooltip :content="tagsTooltip">
-      <MsTag v-if="props.tagList.length > props.showNum" v-bind="attrs">
+  <a-tooltip :content="tagsTooltip">
+    <div class="flex max-w-[440px] flex-row">
+      <MsTag v-for="tag of showTagList" :key="tag.id" :width="getTagWidth(tag)" v-bind="attrs">
+        {{ props.isStringTag ? tag : tag[props.nameKey] }}
+      </MsTag>
+      <MsTag v-if="props.tagList.length > props.showNum" :width="numberTagWidth" v-bind="attrs">
         +{{ props.tagList.length - props.showNum }}</MsTag
       >
-    </a-tooltip>
-  </div>
+    </div>
+  </a-tooltip>
 </template>
 
 <script setup lang="ts">
@@ -41,6 +41,18 @@
 
   const tagsTooltip = computed(() => {
     return filterTagList.value.map((e: any) => (props.isStringTag ? e : e[props.nameKey])).join('，');
+  });
+
+  const getTagWidth = (tag: { [x: string]: any }) => {
+    const tagStr = props.isStringTag ? tag : tag[props.nameKey];
+    const tagWidth = tagStr.length;
+    // 16个中文字符
+    return tagWidth < 16 ? tagWidth : 16;
+  };
+
+  const numberTagWidth = computed(() => {
+    const numberStr = `${props.tagList.length - props.showNum}`;
+    return numberStr.length + 4;
   });
 </script>
 
