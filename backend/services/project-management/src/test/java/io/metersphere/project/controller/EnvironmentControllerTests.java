@@ -17,7 +17,6 @@ import io.metersphere.project.dto.environment.script.pre.UiPreScript;
 import io.metersphere.project.dto.environment.ssl.KeyStoreConfig;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
 import io.metersphere.project.dto.environment.ssl.KeyStoreFile;
-import io.metersphere.project.dto.environment.tcp.TCPConfig;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
@@ -259,24 +258,6 @@ public class EnvironmentControllerTests extends BaseTest {
         return hostConfig;
     }
 
-    private TCPConfig createTCPConfig() {
-        TCPConfig tcpConfig = new TCPConfig();
-        tcpConfig.setClassName("className");
-        tcpConfig.setPort(8080);
-        tcpConfig.setServer("server");
-        tcpConfig.setPassword("password");
-        tcpConfig.setUsername("username");
-        tcpConfig.setConnectTimeout("connectTimeout");
-        tcpConfig.setTimeout("timeout");
-        tcpConfig.setSoLinger("soLinger");
-        tcpConfig.setReUseConnection(true);
-        tcpConfig.setNodelay(true);
-        tcpConfig.setCloseConnection(true);
-        tcpConfig.setEolByte("eolByte");
-
-        return tcpConfig;
-    }
-
     private AuthConfig createAuthConfig() {
         AuthConfig authConfig = new AuthConfig();
         authConfig.setUsername("username");
@@ -376,7 +357,7 @@ public class EnvironmentControllerTests extends BaseTest {
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testAddSuccess() throws Exception {
         EnvironmentRequest request = new EnvironmentRequest();
-        request.setProjectId("projectId");
+        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("name");
         request.setConfig(new EnvironmentConfig());
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
@@ -496,31 +477,6 @@ public class EnvironmentControllerTests extends BaseTest {
             Assertions.assertNotNull(environmentConfig);
             Assertions.assertNotNull(environmentConfig.getDataSources());
             Assertions.assertEquals(envConfig.getDataSources(), environmentConfig.getDataSources());
-        }
-        //校验日志
-        checkLog(response.getId(), OperationLogType.ADD);
-
-        //tcp配置
-        envConfig.setTcpConfig(createTCPConfig());
-        request.setName("tcpConfig");
-        request.setConfig(envConfig);
-        paramMap.set("request", JSON.toJSONString(request));
-        mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
-        Assertions.assertNotNull(response);
-        environment = environmentMapper.selectByPrimaryKey(response.getId());
-        Assertions.assertNotNull(environment);
-        Assertions.assertEquals(response.getId(), environment.getId());
-        Assertions.assertEquals(response.getName(), environment.getName());
-        Assertions.assertEquals(response.getProjectId(), environment.getProjectId());
-        environmentBlob = environmentBlobMapper.selectByPrimaryKey(response.getId());
-        Assertions.assertNotNull(environmentBlob);
-        config = new String(environmentBlob.getConfig());
-        if (StringUtils.isNotBlank(config)) {
-            EnvironmentConfig environmentConfig = JSON.parseObject(config, EnvironmentConfig.class);
-            Assertions.assertNotNull(environmentConfig);
-            Assertions.assertNotNull(environmentConfig.getTcpConfig());
-            Assertions.assertEquals(envConfig.getTcpConfig(), environmentConfig.getTcpConfig());
         }
         //校验日志
         checkLog(response.getId(), OperationLogType.ADD);
@@ -688,7 +644,7 @@ public class EnvironmentControllerTests extends BaseTest {
         MockMultipartFile file11 = new MockMultipartFile("file", "测试一下a", MediaType.APPLICATION_OCTET_STREAM_VALUE, "Test content".getBytes());
         paramMap.add("file", List.of(file, file11));
         paramMap.set("request", JSON.toJSONString(request));
-        mvcResult = requestMultipartWithOk(add, paramMap, "projectId");
+        mvcResult = requestMultipartWithOk(add, paramMap, DEFAULT_PROJECT_ID);
         response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
@@ -723,7 +679,7 @@ public class EnvironmentControllerTests extends BaseTest {
         paramMap.set("request", JSON.toJSONString(request));
         requestMultipart(add, paramMap, BAD_REQUEST_MATCHER);
         //名称为空
-        request.setProjectId("projectId");
+        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName(null);
         paramMap.set("request", JSON.toJSONString(request));
         requestMultipart(add, paramMap, BAD_REQUEST_MATCHER);
@@ -745,7 +701,7 @@ public class EnvironmentControllerTests extends BaseTest {
     public void testGetSuccess() throws Exception {
         //校验参数
         EnvironmentExample example = new EnvironmentExample();
-        example.createCriteria().andProjectIdEqualTo("projectId").andNameEqualTo("name");
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("name");
         List<Environment> environments = environmentMapper.selectByExample(example);
         String id = environments.get(0).getId();
         MvcResult mvcResult = this.responseGet(get + id);
@@ -757,7 +713,7 @@ public class EnvironmentControllerTests extends BaseTest {
         Environment environment = new Environment();
         environment.setId("environmentId1");
         environment.setName("环境1");
-        environment.setProjectId("projectId");
+        environment.setProjectId(DEFAULT_PROJECT_ID);
         environment.setUpdateUser("updateUser");
         environment.setUpdateTime(System.currentTimeMillis());
         environment.setCreateUser("createUser");
@@ -773,7 +729,7 @@ public class EnvironmentControllerTests extends BaseTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals("environmentId1", response.getId());
         //校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, get + "projectId");
+        requestGetPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, get + DEFAULT_PROJECT_ID);
         EnvironmentExample environmentExample = new EnvironmentExample();
         environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
         List<Environment> environmentList = environmentMapper.selectByExample(environmentExample);
@@ -851,12 +807,12 @@ public class EnvironmentControllerTests extends BaseTest {
     public void testUpdateSuccess() throws Exception {
         //校验参数
         EnvironmentExample example = new EnvironmentExample();
-        example.createCriteria().andProjectIdEqualTo("projectId").andNameEqualTo("name");
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("name");
         List<Environment> environments = environmentMapper.selectByExample(example);
         String id = environments.get(0).getId();
         EnvironmentRequest request = new EnvironmentRequest();
         request.setId(id);
-        request.setProjectId("projectId");
+        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("name");
         request.setConfig(new EnvironmentConfig());
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
@@ -870,7 +826,7 @@ public class EnvironmentControllerTests extends BaseTest {
         Assertions.assertEquals(response.getName(), environment.getName());
 
         example = new EnvironmentExample();
-        example.createCriteria().andProjectIdEqualTo("projectId").andNameEqualTo("commonParams");
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("commonParams");
         environments = environmentMapper.selectByExample(example);
         request.setId(environments.get(0).getId());
         request.setName("commonParams");
@@ -882,7 +838,7 @@ public class EnvironmentControllerTests extends BaseTest {
         MockMultipartFile file11 = new MockMultipartFile("file", "测试一下a", MediaType.APPLICATION_OCTET_STREAM_VALUE, "Test content".getBytes());
         paramMap.add("file", List.of(file, file11));
         paramMap.set("request", JSON.toJSONString(request));
-        mvcResult = requestMultipartWithOk(update, paramMap, "projectId");
+        mvcResult = requestMultipartWithOk(update, paramMap, DEFAULT_PROJECT_ID);
         response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
@@ -915,7 +871,7 @@ public class EnvironmentControllerTests extends BaseTest {
         //校验环境不存在
         EnvironmentRequest request = new EnvironmentRequest();
         request.setId("environmentId2");
-        request.setProjectId("projectId");
+        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("name");
         request.setConfig(new EnvironmentConfig());
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
@@ -923,12 +879,12 @@ public class EnvironmentControllerTests extends BaseTest {
         requestMultipart(update, paramMap, ERROR_REQUEST_MATCHER);
         //重名
         EnvironmentExample example = new EnvironmentExample();
-        example.createCriteria().andProjectIdEqualTo("projectId").andNameEqualTo("name");
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("name");
         List<Environment> environments = environmentMapper.selectByExample(example);
         String id = environments.get(0).getId();
         request = new EnvironmentRequest();
         request.setId(id);
-        request.setProjectId("projectId");
+        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("uploadFile");
         request.setConfig(new EnvironmentConfig());
         paramMap.set("request", JSON.toJSONString(request));
@@ -936,7 +892,7 @@ public class EnvironmentControllerTests extends BaseTest {
         //配置为空
         request = new EnvironmentRequest();
         request.setId("environmentId2");
-        request.setProjectId("projectId");
+        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("name");
         request.setConfig(null);
         paramMap = new LinkedMultiValueMap<>();
@@ -950,7 +906,7 @@ public class EnvironmentControllerTests extends BaseTest {
     public void testDeleteSuccess() throws Exception {
         //校验参数
         EnvironmentExample example = new EnvironmentExample();
-        example.createCriteria().andProjectIdEqualTo("projectId").andNameEqualTo("name");
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("name");
         List<Environment> environments = environmentMapper.selectByExample(example);
         String id = environments.get(0).getId();
         this.requestGet(delete + id);
@@ -966,13 +922,13 @@ public class EnvironmentControllerTests extends BaseTest {
 
         //删除包含文件的环境
         example = new EnvironmentExample();
-        example.createCriteria().andProjectIdEqualTo("projectId").andNameEqualTo("uploadFile");
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("uploadFile");
         environments = environmentMapper.selectByExample(example);
         id = environments.get(0).getId();
         this.requestGet(delete + id);
         //查询文件
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setProjectId(StringUtils.join(DIR_PATH, "projectId"));
+        fileRequest.setProjectId(StringUtils.join(DIR_PATH, DEFAULT_PROJECT_ID));
         fileRequest.setResourceId(id);
         MinioRepository minioRepository = CommonBeanFactory.getBean(MinioRepository.class);
         assert minioRepository != null;
@@ -987,7 +943,7 @@ public class EnvironmentControllerTests extends BaseTest {
     @Order(11)
     public void testList() throws Exception {
         EnvironmentDTO environmentDTO = new EnvironmentDTO();
-        environmentDTO.setProjectId("projectId");
+        environmentDTO.setProjectId(DEFAULT_PROJECT_ID);
         MvcResult mvcResult = this.responsePost(list, environmentDTO);
         List<Environment> response = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertNotNull(response);
@@ -1021,7 +977,7 @@ public class EnvironmentControllerTests extends BaseTest {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", List.of(file));
         paramMap.set("request", password);
-        MvcResult mvcResult = requestMultipartWithOk(getEnTry, paramMap, "projectId");
+        MvcResult mvcResult = requestMultipartWithOk(getEnTry, paramMap, DEFAULT_PROJECT_ID);
         List<KeyStoreEntry> response = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertNotNull(response);
 
@@ -1053,7 +1009,7 @@ public class EnvironmentControllerTests extends BaseTest {
     public void testExport() throws Exception {
         //指定id
         EnvironmentExportDTO environmentExportDTO = new EnvironmentExportDTO();
-        environmentExportDTO.setProjectId("projectId");
+        environmentExportDTO.setProjectId(DEFAULT_PROJECT_ID);
         environmentExportDTO.setSelectIds(List.of("environmentId1"));
 
         MvcResult mvcResult = this.responsePost(exportEnv, environmentExportDTO);

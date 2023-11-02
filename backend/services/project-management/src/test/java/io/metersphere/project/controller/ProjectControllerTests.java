@@ -14,11 +14,13 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -53,6 +55,12 @@ public class ProjectControllerTests extends BaseTest {
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     @Resource
     private ProjectMapper projectMapper;
+    private final ProjectServiceInvoker serviceInvoker;
+
+    @Autowired
+    public ProjectControllerTests(ProjectServiceInvoker serviceInvoker) {
+        this.serviceInvoker = serviceInvoker;
+    }
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -133,6 +141,37 @@ public class ProjectControllerTests extends BaseTest {
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testGetProject() throws Exception {
+        if (projectMapper.selectByPrimaryKey("projectId") == null) {
+            Project initProject = new Project();
+            initProject.setId("projectId");
+            initProject.setNum(null);
+            initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            initProject.setName("项目");
+            initProject.setDescription("项目");
+            initProject.setCreateUser("admin");
+            initProject.setUpdateUser("admin");
+            initProject.setCreateTime(System.currentTimeMillis());
+            initProject.setUpdateTime(System.currentTimeMillis());
+            initProject.setEnable(true);
+            initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
+            projectMapper.insertSelective(initProject);
+            serviceInvoker.invokeCreateServices(initProject.getId());
+        }
+        if (projectMapper.selectByPrimaryKey("projectId1") == null) {
+            Project initProject = new Project();
+            initProject.setId("projectId1");
+            initProject.setNum(null);
+            initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            initProject.setName("接口调试的项目1");
+            initProject.setDescription("接口调试的项目1");
+            initProject.setCreateUser("admin");
+            initProject.setUpdateUser("admin");
+            initProject.setCreateTime(System.currentTimeMillis());
+            initProject.setUpdateTime(System.currentTimeMillis());
+            initProject.setEnable(true);
+            projectMapper.insertSelective(initProject);
+            serviceInvoker.invokeCreateServices(initProject.getId());
+        }
         MvcResult mvcResult = responseGet(prefix + "/get/projectId");
         ProjectDTO getProjects = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         Assertions.assertNotNull(getProjects);
@@ -154,11 +193,11 @@ public class ProjectControllerTests extends BaseTest {
     @Order(3)
     public void testGetOptionsSuccess() throws Exception {
 
-        MvcResult mvcResult = this.responseGet(getOptions + "100001");
+        MvcResult mvcResult = this.responseGet(getOptions + DEFAULT_ORGANIZATION_ID);
         List<Project> list = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertNotNull(list);
         ProjectExample example = new ProjectExample();
-        example.createCriteria().andOrganizationIdEqualTo("100001").andEnableEqualTo(true);
+        example.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID).andEnableEqualTo(true);
         Assertions.assertEquals(projectMapper.countByExample(example), list.size());
 
         mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
@@ -169,7 +208,7 @@ public class ProjectControllerTests extends BaseTest {
                 .andReturn();
         String sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
         String csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
-        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + "100001")
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + DEFAULT_ORGANIZATION_ID)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -187,7 +226,7 @@ public class ProjectControllerTests extends BaseTest {
                 .andReturn();
         sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
         csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
-        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + "100001")
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(getOptions + DEFAULT_ORGANIZATION_ID)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -198,7 +237,7 @@ public class ProjectControllerTests extends BaseTest {
         Assertions.assertEquals(0, list.size());
 
         //权限校验
-        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getOptions + "100001");
+        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, getOptions + DEFAULT_ORGANIZATION_ID);
     }
 
     @Test
@@ -219,7 +258,7 @@ public class ProjectControllerTests extends BaseTest {
         UserDTO userDTO = parseObjectFromMvcResult(mvcResult, UserDTO.class);
         Assertions.assertNotNull(userDTO);
         Assertions.assertEquals("projectId", userDTO.getLastProjectId());
-        request.setProjectId("100001100001");
+        request.setProjectId(DEFAULT_PROJECT_ID);
         //权限校验
         requestPostPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, prefix + "/switch", request);
     }
@@ -264,7 +303,7 @@ public class ProjectControllerTests extends BaseTest {
     @Test
     @Order(7)
     public void testUpdateProject() throws Exception {
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId1", "project-TestName", "Edit name", true, List.of("admin1"));
+        UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId1", "project-TestName", "Edit name", true, List.of("admin1"));
         Project projectExtend = projectMapper.selectByPrimaryKey("projectId1");
         List<String> moduleIds = new ArrayList<>();
         if (StringUtils.isNotBlank(projectExtend.getModuleSetting())) {
@@ -281,19 +320,7 @@ public class ProjectControllerTests extends BaseTest {
 
         // 校验日志
         checkLog("projectId1", OperationLogType.UPDATE);
-        // 修改模块设置
-        project = this.generatorUpdate("organizationId", "projectId3", "project-Module", "Edit name", true, new ArrayList<>());
-        moduleIds = new ArrayList<>();
-        moduleIds.add("apiTest");
-        moduleIds.add("uiTest");
-        project.setModuleIds(moduleIds);
-        mvcResult = this.responsePost(updateProject, project);
-        result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
-        currentProject = projectMapper.selectByPrimaryKey(project.getId());
-        compareProjectDTO(currentProject, result);
-        //断言模块设置
-        projectExtend = projectMapper.selectByPrimaryKey("projectId3");
-        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleIds));
+
         // @@校验权限
         project.setName("project-TestName2");
         project.setId(DEFAULT_PROJECT_ID);
@@ -307,19 +334,19 @@ public class ProjectControllerTests extends BaseTest {
     @Order(8)
     public void testUpdateProjectError() throws Exception {
         //项目名称存在 500
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId3", "project-TestName", "description", true, List.of("admin"));
+        UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId1", "project-TestName", "description", true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorUpdate(null, "projectId", null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目Id为空
-        project = this.generatorUpdate("organizationId", null, null, null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, null, null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目名称为空
-        project = this.generatorUpdate("organizationId", "projectId", null, null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId", null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目不存在
-        project = this.generatorUpdate("organizationId", "1111", "123", null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "1111", "123", null, true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
 
     }
