@@ -34,7 +34,8 @@ public class ProjectStatusFlowSettingLogService {
 
 
     public LogDTO updateStatusDefinitionLog(StatusDefinitionUpdateRequest request) {
-        return updateStatusFlowSettingLog(request.getScopeId(), request.getScene());
+        StatusItem statusItem = statusItemMapper.selectByPrimaryKey(request.getStatusId());
+        return updateStatusFlowSettingLog(statusItem.getScopeId(), statusItem.getScene());
     }
 
     public LogDTO addStatusItemLog(StatusItemAddRequest request) {
@@ -52,7 +53,8 @@ public class ProjectStatusFlowSettingLogService {
     }
 
     public LogDTO updateStatusFlowLog(StatusFlowUpdateRequest request) {
-        return updateStatusFlowSettingLog(request.getScopeId(), request.getScene());
+        StatusItem statusItem = statusItemMapper.selectByPrimaryKey(request.getFromId());
+        return updateStatusFlowSettingLog(statusItem.getScopeId(), statusItem.getScene());
     }
 
     public LogDTO updateStatusFlowSettingLog(String scopeId, String scene) {

@@ -1,17 +1,21 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.BugStatusDefinitionType;
+import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.domain.StatusDefinition;
+import io.metersphere.system.domain.StatusDefinitionExample;
+import io.metersphere.system.domain.StatusFlow;
+import io.metersphere.system.domain.StatusItem;
+import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
 import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
 import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
 import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.system.domain.StatusDefinition;
-import io.metersphere.system.domain.StatusFlow;
-import io.metersphere.system.domain.StatusItem;
-import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.mapper.BaseProjectMapper;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -54,12 +59,13 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
      *
      * @param request
      */
-    @Override
     public void updateStatusDefinition(StatusDefinitionUpdateRequest request) {
-        OrganizationService.checkResourceExist(request.getScopeId());
-        organizationTemplateService.checkOrganizationTemplateEnable(request.getScopeId(), request.getScene());
-        super.updateStatusDefinition(request);
-        updateRefProjectStatusDefinition(request);
+        StatusItem statusItem = baseStatusItemService.getWithCheck(request.getStatusId());
+        OrganizationService.checkResourceExist(statusItem.getScopeId());
+        organizationTemplateService.checkOrganizationTemplateEnable(statusItem.getScopeId(), statusItem.getScene());
+        super.updateStatusDefinition(statusItem, request);
+        // 同步更新项目级别状态定义
+        updateRefProjectStatusDefinition(statusItem, request);
     }
 
     /**
@@ -68,47 +74,53 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
      * @param request
      * @return
      */
-    public void updateRefProjectStatusDefinition(StatusDefinitionUpdateRequest request) {
-        String orgId = request.getScopeId();
-        List<StatusDefinitionUpdateRequest.StatusDefinitionRequest> orgStatusDefinitions = request.getStatusDefinitions();
-        if (orgStatusDefinitions == null) {
-            return;
-        }
-
-        List<String> projectIds = baseProjectMapper.getProjectIdByOrgId(orgId);
-        SubListUtils.dealForSubList(projectIds, 200, (subProjectIds) -> {
+    public void updateRefProjectStatusDefinition(StatusItem orgStatusItem, StatusDefinitionUpdateRequest request) {
+        handleRefSingleChoice(orgStatusItem, request);
+        List<StatusItem> statusItems = baseStatusItemService.getByRefId(request.getStatusId());
+        SubListUtils.dealForSubList(statusItems, 200, (subStatusItems) -> {
             // 每次处理200条
-            List<StatusDefinition> statusDefinitions = new ArrayList<>();
-            // 查询组织下所有项目的状态项
-            List<StatusItem> statusItems = baseStatusItemService.getByScopeIdsAndScene(subProjectIds, request.getScene());
-            Map<String, List<StatusItem>> projectStatusItemMap = statusItems
-                    .stream()
-                    .collect(Collectors.groupingBy(StatusItem::getScopeId));
-
-            for (String projectId : projectStatusItemMap.keySet()) {
-                List<StatusItem> projectStatusItems = projectStatusItemMap.get(projectId);
-                // 构建map，键为组织状态ID，值为项目字状态ID
-                Map<String, String> refFieldMap = projectStatusItems
-                        .stream()
-                        .collect(Collectors.toMap(StatusItem::getRefId, StatusItem::getId));
-                // 根据组织状态ID，替换为项目状态ID
-                List<StatusDefinition> projectStatusDefinitions = orgStatusDefinitions.stream()
-                        .map(item -> {
-                            StatusDefinition statusDefinition = BeanUtils.copyBean(new StatusDefinition(), item);
-                            statusDefinition.setStatusId(refFieldMap.get(item.getStatusId()));
-                            return statusDefinition;
-                        })
-                        .filter(item -> StringUtils.isNotBlank(item.getStatusId()))
+            if (request.getEnable()) {
+                List<StatusDefinition> projectStatusDefinitions = subStatusItems.stream().map(statusItem -> {
+                    StatusDefinition statusDefinition = new StatusDefinition();
+                    statusDefinition.setStatusId(((StatusItem) statusItem).getId());
+                    statusDefinition.setDefinitionId(request.getDefinitionId());
+                    return statusDefinition;
+                }).toList();
+                baseStatusDefinitionService.batchAdd(projectStatusDefinitions);
+            } else {
+                List<String> projectStatusIds = subStatusItems.stream()
+                        .map(statusItem -> ((StatusItem) statusItem).getId())
                         .toList();
-                statusDefinitions.addAll(projectStatusDefinitions);
+                baseStatusDefinitionService.deleteByStatusIdsAndDefinitionId(projectStatusIds, request.getDefinitionId());
             }
-            // 删除项目下的状态项
-            List<String> scopeStatusItemIds = statusItems
-                    .stream()
-                    .map(StatusItem::getId)
-                    .toList();
-            updateStatusDefinition(scopeStatusItemIds, statusDefinitions);
         });
+    }
+
+
+    /**
+     * 处理单选的状态定义
+     *
+     * @param request
+     */
+    private void handleRefSingleChoice(StatusItem orgStatusItem, StatusDefinitionUpdateRequest request) {
+        if (StringUtils.equals(orgStatusItem.getScene(), TemplateScene.BUG.name())) {
+            BugStatusDefinitionType statusDefinitionType = BugStatusDefinitionType.getStatusDefinitionType(request.getDefinitionId());
+            if (!statusDefinitionType.getIsSingleChoice()) {
+                return;
+            }
+            List<String> projectIds = baseProjectMapper.getProjectIdByOrgId(orgStatusItem.getScopeId());
+            SubListUtils.dealForSubList(projectIds, 200, (subProjectIds) -> {
+                // 查询组织下所有项目的状态项
+                List<StatusItem> statusItems = baseStatusItemService.getByScopeIdsAndScene(subProjectIds, orgStatusItem.getScene());
+                List<String> statusItemIds = statusItems.stream().map(StatusItem::getId).toList();
+                StatusDefinitionExample example = new StatusDefinitionExample();
+                example.createCriteria()
+                        .andStatusIdIn(statusItemIds)
+                        .andDefinitionIdEqualTo(request.getDefinitionId());
+                // 如果是单选，需要将其他状态取消勾选
+                statusDefinitionMapper.deleteByExample(example);
+            });
+        }
     }
 
     /**
@@ -207,14 +219,14 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
      */
     public void deleteRefStatusItem(String orgStatusItemId) {
         // 删除关联的项目状态项
-        baseStatusItemService.deleteByRefId(orgStatusItemId);
         List<String> statusItemIds = baseStatusItemService.getStatusItemIdByRefId(orgStatusItemId);
-        SubListUtils.dealForSubList(statusItemIds, 100, (subProjectIds) -> {
+        SubListUtils.dealForSubList(statusItemIds, 100, (subStatusItemIds) -> {
             // 删除相关的状态定义
-            baseStatusDefinitionService.deleteByStatusIds(statusItemIds);
+            baseStatusDefinitionService.deleteByStatusIds(subStatusItemIds);
             // 删除相关的状态流
-            baseStatusFlowService.deleteByStatusIds(statusItemIds);
+            baseStatusFlowService.deleteByStatusIds(subStatusItemIds);
         });
+        baseStatusItemService.deleteByRefId(orgStatusItemId);
     }
 
     /**
@@ -223,10 +235,13 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
      * @param request
      */
     public void updateStatusFlow(StatusFlowUpdateRequest request) {
-        OrganizationService.checkResourceExist(request.getScopeId());
-        organizationTemplateService.checkOrganizationTemplateEnable(request.getScopeId(), request.getScene());
-        // 同步添加项目级别状态流
+        StatusItem fromStatusItem = baseStatusItemService.getWithCheck(request.getFromId());
+        StatusItem toStatusItem = baseStatusItemService.getWithCheck(request.getToId());
+        OrganizationService.checkResourceExist(fromStatusItem.getScopeId());
+        OrganizationService.checkResourceExist(toStatusItem.getScopeId());
+        organizationTemplateService.checkOrganizationTemplateEnable(fromStatusItem.getScopeId(), fromStatusItem.getScene());
         super.updateStatusFlow(request);
+        // 同步添加项目级别状态流
         updateRefProjectStatusFlow(request);
     }
 
@@ -237,45 +252,50 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
      * @return
      */
     public void updateRefProjectStatusFlow(StatusFlowUpdateRequest request) {
-        String orgId = request.getScopeId();
-        List<StatusFlowUpdateRequest.StatusFlowRequest> statusFlowRequests = request.getStatusFlows();
-        if (statusFlowRequests == null) {
-            return;
-        }
 
-        List<String> projectIds = baseProjectMapper.getProjectIdByOrgId(orgId);
-        SubListUtils.dealForSubList(projectIds, 100, (subProjectIds) -> {
+        // 获取from和to状态项
+        List<StatusItem> fromStatusItems = baseStatusItemService.getByRefId(request.getFromId());
+        Map<String, StatusItem> fromStatusItemMap = fromStatusItems.stream()
+                .collect(Collectors.toMap(StatusItem::getScopeId, Function.identity()));
+        List<StatusItem> toStatusItems = baseStatusItemService.getByRefId(request.getToId());
+        Map<String, StatusItem> toStatusItemMap = toStatusItems.stream()
+                .collect(Collectors.toMap(StatusItem::getScopeId, Function.identity()));
+
+        if (request.getEnable()) {
+            // 同步添加项目级别状态流
             List<StatusFlow> statusFlows = new ArrayList<>();
-
-            // 查询组织下所有项目的状态项
-            List<StatusItem> statusItems = baseStatusItemService.getByScopeIdsAndScene(subProjectIds, request.getScene());
-            Map<String, List<StatusItem>> projectStatusItemMap = statusItems
-                    .stream()
-                    .collect(Collectors.groupingBy(StatusItem::getScopeId));
-            List<String> statusItemIds = statusItems.stream().map(StatusItem::getId).toList();
-
-            for (String projectId : projectStatusItemMap.keySet()) {
-                // 构建map，键为组织状态ID，值为项目字状态ID
-                Map<String, String> refStatusItemMap = projectStatusItemMap.get(projectId)
-                        .stream()
-                        .collect(Collectors.toMap(StatusItem::getRefId, StatusItem::getId));
-                // 根据组织状态ID，替换为项目状态ID
-                List<StatusFlow> projectStatusFlows = statusFlowRequests.stream()
-                        .map(item -> {
-                            StatusFlow statusFlow = new StatusFlow();
-                            statusFlow.setToId(refStatusItemMap.get(item.getToId()));
-                            statusFlow.setFromId(refStatusItemMap.get(item.getFromId()));
-                            return statusFlow;
-                        })
-                        .filter(item -> item.getToId() != null && item.getFromId() != null)
-                        .toList();
-                statusFlows.addAll(projectStatusFlows);
+            for (String projectId : fromStatusItemMap.keySet()) {
+                String fromId = fromStatusItemMap.get(projectId).getId();
+                String toId = toStatusItemMap.get(projectId).getId();
+                if (StringUtils.isNotBlank(fromId) && StringUtils.isNotBlank(toId)) {
+                    StatusFlow statusFlow = new StatusFlow();
+                    statusFlow.setFromId(fromId);
+                    statusFlow.setToId(toId);
+                    statusFlow.setId(IDGenerator.nextStr());
+                    statusFlows.add(statusFlow);
+                }
             }
-            // 先删除
-            baseStatusFlowService.deleteByStatusIds(statusItemIds);
-            // 在添加
-            baseStatusFlowService.batchAdd(statusFlows);
-        });
+            SubListUtils.dealForSubList(statusFlows, 200, baseStatusFlowService::batchAdd);
+        } else {
+            // 同步删除项目级别状态流
+            List<String> subProjectFromIds = new ArrayList<>();
+            List<String> subProjectToIds = new ArrayList<>();
+            for (String projectId : fromStatusItemMap.keySet()) {
+                String fromId = fromStatusItemMap.get(projectId).getId();
+                String toId = toStatusItemMap.get(projectId).getId();
+                if (StringUtils.isNotBlank(fromId) && StringUtils.isNotBlank(toId)) {
+                    subProjectFromIds.add(fromId);
+                    subProjectToIds.add(toId);
+                    if (subProjectFromIds.size() > 100) {
+                        // 分批删除
+                        baseStatusFlowService.deleteByFromIdsAndToIds(subProjectFromIds, subProjectToIds);
+                        subProjectFromIds.clear();
+                        subProjectToIds.clear();
+                    }
+                }
+            }
+            baseStatusFlowService.deleteByFromIdsAndToIds(subProjectFromIds, subProjectToIds);
+        }
     }
 
     @Override
