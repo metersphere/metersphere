@@ -77,12 +77,7 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import popConfirm from './popConfirm.vue';
 
-  import {
-    deleteModule,
-    getModules,
-    getModulesCount,
-    moveModule,
-  } from '@/api/modules/project-management/fileManagement';
+  import { deleteModule, getModules, moveModule } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
@@ -92,6 +87,7 @@
 
   const props = defineProps<{
     isExpandAll: boolean;
+    activeFolder?: string; // 当前选中的文件夹，弹窗模式下需要使用
     selectedKeys?: Array<string | number>; // 选中的节点 key
     isModal?: boolean; // 是否是弹窗模式
     modulesCount?: Record<string, number>; // 模块数量统计对象
@@ -158,11 +154,14 @@
     try {
       loading.value = true;
       const res = await getModules(appStore.currentProjectId);
-      folderTree.value = res.map((e) => ({
-        ...e,
-        hideMoreAction: e.id === 'root',
-        draggable: e.id !== 'root' && !props.isModal,
-      }));
+      folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
+        return {
+          ...e,
+          hideMoreAction: e.id === 'root',
+          draggable: e.id !== 'root' && !props.isModal,
+          disabled: e.id === props.activeFolder && props.isModal,
+        };
+      });
       if (isSetDefaultKey) {
         selectedKeys.value = [folderTree.value[0].id];
       }
@@ -217,8 +216,14 @@
   /**
    * 处理文件夹树节点选中事件
    */
-  function folderNodeSelect(_selectedKeys: (string | number)[]) {
-    emit('folderNodeSelect', _selectedKeys);
+  function folderNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
+    const offspringIds: string[] = [];
+    mapTree(node.children || [], (e) => {
+      offspringIds.push(e.id);
+      return e;
+    });
+
+    emit('folderNodeSelect', _selectedKeys, offspringIds);
   }
 
   /**

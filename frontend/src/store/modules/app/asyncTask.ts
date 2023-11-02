@@ -197,6 +197,7 @@ const useAsyncTaskStore = defineStore('asyncTask', {
         console.log(error);
         if (fileItem) {
           fileItem.status = UploadStatus.error;
+          fileItem.errMsg = error as string;
         }
       } finally {
         // 上传完成/失败，重置进度和定时器

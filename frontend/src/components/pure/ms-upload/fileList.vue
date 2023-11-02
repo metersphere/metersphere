@@ -47,7 +47,7 @@
               class="w-[200px]"
             />
             <div v-else-if="item.status === UploadStatus.error" class="text-[rgb(var(--danger-6))]">
-              {{ t('ms.upload.uploadFail') }}
+              {{ item.errMsg || t('ms.upload.uploadFail') }}
             </div>
           </template>
         </a-list-item-meta>
