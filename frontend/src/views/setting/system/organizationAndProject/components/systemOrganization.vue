@@ -172,7 +172,6 @@
   );
 
   const fetchData = async () => {
-    setKeyword(props.keyword);
     await loadList();
   };
 
@@ -307,6 +306,10 @@
 
   defineExpose({
     fetchData,
+  });
+
+  watchEffect(() => {
+    setKeyword(props.keyword);
   });
 
   onMounted(() => {

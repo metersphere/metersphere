@@ -2,7 +2,7 @@
   <div class="usergroup-auth-table">
     <a-table
       :span-method="dataSpanMethod"
-      :scroll="{ y: '500px', x: '800px' }"
+      :scroll="props.scroll"
       :data="tableData"
       :loading="loading"
       :bordered="{ wrapper: true, cell: true }"
@@ -99,9 +99,21 @@
       current: CurrentUserGroupItem;
       width?: string;
       showBottom?: boolean;
+      scroll?: {
+        x?: number | string;
+        y?: number | string;
+        minWidth?: number | string;
+        maxHeight?: number | string;
+      };
     }>(),
     {
       showBottom: true,
+      scroll() {
+        return {
+          x: '800px',
+          y: 'calc(100vh - 230px)',
+        };
+      },
     }
   );
 

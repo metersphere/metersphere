@@ -132,6 +132,16 @@ export function postSaveDefectSync(data: MenuTableConfigItem, projectId: string)
   return MSR.post<MenuTableListItem>({ url: `${Url.postSyncBugConfigUrl}${projectId}`, data });
 }
 
+/**
+ * 关联用例保存
+ * @param data 缺陷同步配置项
+ * @param projectId 项目ID
+ * @returns
+ */
+export function postSaveRelatedCase(data: MenuTableConfigItem, projectId: string) {
+  return MSR.post<MenuTableListItem>({ url: `${Url.postRelatedCaseConfigUrl}${projectId}`, data });
+}
+
 // 误报规则列表查询
 export function postFakeTableList(data: TableQueryParams) {
   return MSR.post<FakeTableListItem[]>({ url: `${Url.postFakeTableUrl}`, data });

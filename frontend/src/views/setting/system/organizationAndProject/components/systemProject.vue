@@ -172,7 +172,6 @@
   );
 
   const fetchData = async () => {
-    setKeyword(props.keyword);
     await loadList();
   };
 
@@ -301,6 +300,14 @@
   };
   defineExpose({
     fetchData,
+  });
+
+  watchEffect(() => {
+    setKeyword(props.keyword);
+  });
+
+  onMounted(() => {
+    fetchData();
   });
 
   await tableStore.initColumn(TableKeyEnum.SYSTEM_PROJECT, organizationColumns, 'drawer');
