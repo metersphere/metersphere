@@ -129,11 +129,11 @@
   // 当前查看的是否是总数据的第一条数据，用当前查看数据的下标是否等于0，且当前页码是否等于1
   const activeDetailIsFirst = computed(() => activeDetailIndex.value === 0 && props.pagination?.current === 1);
   const activeDetailIsLast = computed(
-    // 当前查看的是否是总数据的最后一条数据，用当前页码*每页条数+当前查看的条数下标，是否等于总条数
+    // 当前查看的是否是总数据的最后一条数据，用(当前页码-1)*每页条数+当前查看的条数下标，是否等于总条数
     () =>
       activeDetailIndex.value === props.tableData.length - 1 &&
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      props.pagination!.current * props.pagination!.pageSize + activeDetailIndex.value >=
+      (props.pagination!.current - 1) * props.pagination!.pageSize + (activeDetailIndex.value + 1) >=
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         props.pagination!.total
   );
@@ -158,6 +158,7 @@
         activeDetailId.value = props.tableData[activeDetailIndex.value - 1].id;
         activeDetailIndex.value -= 1;
       }
+      initDetail();
     }
   }
 
@@ -181,13 +182,16 @@
         activeDetailId.value = props.tableData[activeDetailIndex.value + 1].id;
         activeDetailIndex.value += 1;
       }
+      initDetail();
     }
   }
 
   watch(
-    () => activeDetailId.value,
-    () => {
-      initDetail();
+    () => innerVisible.value,
+    (val) => {
+      if (val) {
+        initDetail();
+      }
     }
   );
 

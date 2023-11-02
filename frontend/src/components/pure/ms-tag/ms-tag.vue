@@ -3,17 +3,18 @@
     v-bind="attrs"
     :type="props.type"
     defer
+    :size="props.size"
     :style="{
       ...typeStyle,
       'margin-right': tagMargin,
       'min-width': props.width && `${props.width}ch`,
-      'max-width: 144px': !props.width,
+      'max-width': '144px',
     }"
-    :size="props.size"
-    class="inline-block"
   >
     <slot name="icon"></slot>
-    <slot></slot>
+    <div class="one-line-text">
+      <slot></slot>
+    </div>
   </a-tag>
 </template>
 

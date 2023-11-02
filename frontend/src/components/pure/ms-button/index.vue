@@ -1,11 +1,12 @@
 <template>
   <div
     :class="`ms-button ms-button-${props.type} ms-button--${props.status} ${
-      props.disabled ? 'ms-button--disabled' : ''
+      props.disabled || props.loading ? 'ms-button--disabled' : ''
     }`"
     @click="clickHandler"
   >
     <slot></slot>
+    <icon-loading v-if="props.loading" />
   </div>
 </template>
 
@@ -15,6 +16,7 @@
       type?: 'text' | 'icon' | 'button';
       status?: 'primary' | 'danger' | 'secondary';
       disabled?: boolean;
+      loading?: boolean;
     }>(),
     {
       type: 'text',

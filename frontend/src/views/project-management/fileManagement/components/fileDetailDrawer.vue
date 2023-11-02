@@ -16,7 +16,7 @@
     <template #titleRight="{ loading, detail }">
       <a-switch
         v-if="fileType === 'jar'"
-        :default-checked="detail?.enable"
+        v-model:model-value="detail.enable"
         :before-change="handleEnableIntercept"
         :disabled="loading"
         size="small"
@@ -27,7 +27,8 @@
         status="secondary"
         class="!rounded-[var(--border-radius-small)] !text-[var(--color-text-1)]"
         :disabled="loading"
-        @click="handleDownload"
+        :loading="downLoading"
+        @click="handleDownload(detail)"
       >
         <MsIcon type="icon-icon_bottom-align_outlined" class="mr-[4px]" />
         {{ t('project.fileManagement.download') }}
@@ -71,6 +72,7 @@
               :descriptions="fileDescriptions"
               :label-width="currentLocale === 'zh-CN' ? '80px' : '100px'"
               :add-tag-func="addFileTag"
+              @tag-close="handleFileTagClose"
             >
               <template #value="{ item }">
                 <div class="flex flex-wrap items-center">
@@ -197,13 +199,20 @@
   import MsThumbnailCard from '@/components/business/ms-thumbnail-card/index.vue';
   import popConfirm from './popConfirm.vue';
 
-  import { getFileDetail, reuploadFile, updateFile } from '@/api/modules/project-management/fileManagement';
+  import {
+    downloadFile,
+    getFileDetail,
+    reuploadFile,
+    toggleJarFileStatus,
+    updateFile,
+  } from '@/api/modules/project-management/fileManagement';
   import { CompressImgUrl, OriginImgUrl } from '@/api/requrls/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
   import useUserStore from '@/store/modules/user';
-  import { downloadUrlFile, formatFileSize } from '@/utils';
+  import { downloadByteFile, downloadUrlFile, formatFileSize } from '@/utils';
 
+  import { FileDetail } from '@/models/projectManagement/file';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
@@ -241,22 +250,38 @@
   );
 
   async function handleEnableIntercept(newValue: string | number | boolean) {
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true);
-      }, 1000);
-    });
-    return true;
+    try {
+      await toggleJarFileStatus(props.fileId, newValue as boolean);
+      return true;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      return false;
+    }
   }
 
-  function handleDownload(detail: any) {
-    downloadUrlFile(detail.url, detail.name);
+  const downLoading = ref(false);
+  /**
+   * 下载单个文件
+   * @param record 表格数据项
+   */
+  async function handleDownload(detail: FileDetail) {
+    try {
+      downLoading.value = true;
+      const res = await downloadFile(detail.id);
+      downloadByteFile(res, `${detail.name}.${detail.fileType}`);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      downLoading.value = false;
+    }
   }
 
   const fileType = ref('unknown');
   const renameTitle = ref(''); // 重命名的文件名称
 
-  function loadedFile(detail: any) {
+  function loadedFile(detail: FileDetail) {
     if (detail.fileType) {
       fileType.value = getFileEnum(`/${detail.fileType.toLowerCase()}`);
     }
@@ -269,7 +294,7 @@
       },
       {
         label: t('project.fileManagement.desc'),
-        value: detail.desc,
+        value: detail.description,
         key: 'desc',
       },
       {
@@ -291,9 +316,10 @@
       },
       {
         label: t('project.fileManagement.tag'),
-        value: detail.tag,
+        value: detail.tags,
         isTag: true,
         showTagAdd: true,
+        closable: true,
         key: 'tag',
       },
       {
@@ -306,18 +332,18 @@
         3,
         0,
         ...[
-          {
-            label: t('project.fileManagement.gitBranch'),
-            value: detail.gitBranch,
-          },
-          {
-            label: t('project.fileManagement.gitPath'),
-            value: detail.gitPath,
-          },
-          {
-            label: t('project.fileManagement.gitVersion'),
-            value: detail.gitVersion,
-          },
+          // {
+          //   label: t('project.fileManagement.gitBranch'),
+          //   value: detail.gitBranch,
+          // },
+          // {
+          //   label: t('project.fileManagement.gitPath'),
+          //   value: detail.gitPath,
+          // },
+          // {
+          //   label: t('project.fileManagement.gitVersion'),
+          //   value: detail.gitVersion,
+          // },
         ]
       );
     }
@@ -359,10 +385,17 @@
 
   const previewVisible = ref(false);
 
-  async function addFileTag(val: string) {
+  async function addFileTag(val: string, item: Description) {
     await updateFile({
       id: props.fileId,
-      tags: [val],
+      tags: Array.isArray(item.value) ? [...item.value, val] : [item.value, val],
+    });
+  }
+
+  async function handleFileTagClose(tag: string | number, item: Description) {
+    await updateFile({
+      id: props.fileId,
+      tags: Array.isArray(item.value) ? item.value.filter((e) => e !== tag) : [],
     });
   }
 

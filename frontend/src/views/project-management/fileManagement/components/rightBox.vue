@@ -466,12 +466,21 @@
   ];
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer');
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getFileList, {
-    tableKey: TableKeyEnum.FILE_MANAGEMENT_FILE,
-    showSetting: true,
-    selectable: true,
-    showSelectAll: true,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
+    getFileList,
+    {
+      tableKey: TableKeyEnum.FILE_MANAGEMENT_FILE,
+      showSetting: true,
+      selectable: true,
+      showSelectAll: true,
+    },
+    (item) => {
+      return {
+        ...item,
+        tags: item.tags?.map((e: string) => ({ id: e, name: e })) || [],
+      };
+    }
+  );
   const moduleFileBatchActions = {
     baseAction: [
       {
@@ -653,7 +662,7 @@
     try {
       batchMoveFileLoading.value = true;
       await batchMoveFile({
-        selectIds: batchParams.value?.selectedIds || [activeFile.value?.id || ''],
+        selectIds: isBatchMove.value ? batchParams.value?.selectedIds || [] : [activeFile.value?.id || ''],
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
         condition: { keyword: keyword.value, comebine: combine.value },
@@ -833,6 +842,15 @@
     activeFileId.value = id;
     activeFileIndex.value = index;
   }
+
+  watch(
+    () => showDetailDrawer.value,
+    (val) => {
+      if (!val) {
+        loadList();
+      }
+    }
+  );
 
   const uploadDrawerVisible = ref(false); // 模块-上传文件抽屉
   const fileList = ref<MsFileItem[]>(asyncTaskStore.uploadFileTask.fileList);

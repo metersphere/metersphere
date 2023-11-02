@@ -28,7 +28,7 @@ function setupPageGuard(router: Router) {
     }
     switch (getRouteLevelByKey(to.name as PathMapRoute)) {
       case MENU_LEVEL[1]: // 组织级别的页面，需要给页面携带上组织 ID
-        if (!urlOrgId) {
+        if (urlOrgId === undefined) {
           to.query = {
             ...to.query,
             organizationId: appStore.currentOrgId,
@@ -38,7 +38,7 @@ function setupPageGuard(router: Router) {
         }
         break;
       case MENU_LEVEL[2]: // 项目级别的页面，需要给页面携带上组织 ID和项目 ID
-        if (!urlOrgId && !urlProjectId) {
+        if (urlOrgId === undefined && urlProjectId === undefined) {
           to.query = {
             ...to.query,
             organizationId: appStore.currentOrgId,

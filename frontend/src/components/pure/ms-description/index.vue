@@ -22,11 +22,13 @@
         <slot name="item-value" :item="item">
           <template v-if="item.isTag">
             <MsTag
-              v-for="tag of item.value"
+              v-for="tag of Array.isArray(item.value) ? item.value : [item.value]"
               :key="`${tag}`"
               theme="outline"
               color="var(--color-text-n8)"
               class="mb-[8px] mr-[8px] font-normal !text-[var(--color-text-1)]"
+              :closable="item.closable"
+              @close="emit('tagClose', tag, item)"
             >
               {{ tag }}
             </MsTag>
@@ -106,6 +108,7 @@
     value: (string | number) | (string | number)[];
     key?: string;
     isTag?: boolean; // 是否标签
+    closable?: boolean; // 标签是否可关闭
     showTagAdd?: boolean; // 是否显示添加标签
     isButton?: boolean;
     showCopy?: boolean;
@@ -120,7 +123,7 @@
       column?: number;
       descriptions: Description[];
       labelWidth?: string;
-      addTagFunc?: (val: string) => Promise<void>;
+      addTagFunc?: (val: string, item: Description) => Promise<void>;
     }>(),
     {
       column: 1,
@@ -128,6 +131,7 @@
   );
   const emit = defineEmits<{
     (e: 'addTag', val: string): void;
+    (e: 'tagClose', tag: string | number, item: Description): void;
   }>();
 
   const { t } = useI18n();
@@ -163,6 +167,10 @@
    * @param item 当前标签项
    */
   async function handleAddTag(item: Description) {
+    if (addTagInput.value.trim() === '') {
+      showTagInput.value = false;
+      return;
+    }
     if (Array.isArray(item.value) && item.value.includes(addTagInput.value)) {
       tagInputError.value = t('ms.description.addTagRepeat');
       return;
@@ -171,7 +179,7 @@
     try {
       tagInputLoading.value = true;
       if (props.addTagFunc && typeof props.addTagFunc === 'function') {
-        await props.addTagFunc(addTagInput.value);
+        await props.addTagFunc(addTagInput.value, item);
         if (Array.isArray(item.value)) {
           item.value.push(addTagInput.value);
         } else {
@@ -180,6 +188,7 @@
       } else {
         emit('addTag', addTagInput.value);
       }
+      addTagInput.value = '';
       showTagInput.value = false;
     } catch (error) {
       // eslint-disable-next-line no-console
