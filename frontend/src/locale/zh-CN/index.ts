@@ -58,6 +58,7 @@ export default {
     'menu.settings.organization.templateManagementDetail': '创建模版',
     'menu.settings.organization.templateManagementCopy': '复制模版',
     'menu.settings.organization.templateManagementEdit': '更新模板',
+    'menu.settings.organization.templateManagementWorkFlow': '工作流',
     'menu.settings.organization.log': '日志',
     'navbar.action.locale': '切换为中文',
     ...sys,

@@ -137,6 +137,7 @@
   const { t } = useI18n();
   const route = useRoute();
   const appStore = useAppStore();
+  const currentOrgId = computed(() => appStore.currentOrgId);
   const sceneType = route.query.type;
   const props = defineProps<{
     visible: boolean;
@@ -239,7 +240,7 @@
       const formCopy = cloneDeep(fieldForm.value);
 
       formCopy.scene = route.query.type;
-      formCopy.scopeId = appStore.currentOrgId;
+      formCopy.scopeId = currentOrgId.value;
 
       // 如果选择是日期或者数值
       if (selectFormat.value) {

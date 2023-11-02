@@ -2,7 +2,6 @@
 export enum TemplateIconEnum {
   INPUT = 'icon-icon_input', // 输入框
   TEXTAREA = 'icon-icon_style_one', // 文本
-  RICH_TEXT = 'icon-icon_rich_text', // 富文本
   SELECT = 'icon-icon_single_choice', // 单选下拉框
   MULTIPLE_SELECT = 'icon-icon_multiple_choice', // 多选下拉框
   RADIO = 'icon-icon_radio', // 单选框

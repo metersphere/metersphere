@@ -23,6 +23,7 @@
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   const appStore = useAppStore();
+  const organizationId = computed(() => appStore.currentOrgId);
 
   const attrs = useAttrs();
   const formCreateStore = useFormCreateStore();
@@ -51,19 +52,17 @@
   const optionsList = ref<{ label: string; value: string }[]>([]);
 
   const params = ref<OptionsParams>();
-
+  const pluginId = (sessionStorage.getItem('platformKey') as string) || 'jira';
   async function getLinksItem() {
     const { formKey } = attrs;
     const formRulesList = formCreateStore.formRuleMap.get(formKey as FormCreateKeyEnum[keyof FormCreateKeyEnum]);
     if (formRulesList && props.optionMethod) {
       params.value = {
-        pluginId: props.keyword as string,
-        organizationId: appStore.currentOrgId,
-        projectConfig: formRulesList,
+        pluginId,
+        organizationId: organizationId.value,
+        projectConfig: JSON.stringify(props.formValue) as string,
         optionMethod: props.optionMethod,
       };
-      // 请求参数
-      // console.log(selectValue.value, props.keyword, props.modelValue);
       try {
         const res = await getPluginOptions(params.value);
         optionsList.value = res.map((item) => {
@@ -107,9 +106,9 @@
 
   watch(
     () => selectValue.value,
-    async (val) => {
+    (val) => {
       selectValue.value = val;
-      await emit('update:model-value', val);
+      emit('update:model-value', val);
     }
   );
 

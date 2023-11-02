@@ -57,6 +57,7 @@ export default {
     'menu.settings.organization.templateManagementList': 'Template list',
     'menu.settings.organization.templateManagementEdit': 'Update Template',
     'menu.settings.organization.templateManagementDetail': 'Create Template',
+    'menu.settings.organization.templateManagementWorkFlow': 'WorkFlow',
     'menu.settings.organization.serviceIntegration': 'Service Integration',
     'menu.settings.organization.log': 'Log',
     'navbar.action.locale': 'Switch to English',

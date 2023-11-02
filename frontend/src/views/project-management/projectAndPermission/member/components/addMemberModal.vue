@@ -55,7 +55,7 @@
   const { t } = useI18n();
   const appStore = useAppStore();
 
-  const lastProjectId = appStore.currentProjectId;
+  const lastProjectId = computed(() => appStore.currentProjectId);
 
   const props = defineProps<{
     userGroupOptions: ProjectUserOption[];
@@ -71,7 +71,7 @@
   const initFormValue: AddProjectMember = {
     roleIds: ['project_member'],
     userIds: [],
-    projectId: lastProjectId as string,
+    projectId: lastProjectId.value,
   };
 
   const form = ref<AddProjectMember>({ ...initFormValue });
@@ -108,7 +108,7 @@
   const initProjectMemberOptions = async () => {
     try {
       if (lastProjectId) {
-        const result = await getProjectMemberOptions(lastProjectId);
+        const result = await getProjectMemberOptions(lastProjectId.value);
         memberList.value = result;
       }
     } catch (error) {

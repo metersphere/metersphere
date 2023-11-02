@@ -89,7 +89,7 @@
   const route = useRoute();
   const { openModal } = useModal();
 
-  const currentOrd = appStore.currentOrgId;
+  const currentOrd = computed(() => appStore.currentOrgId);
 
   const fieldColumns: MsTableColumn = [
     {
@@ -148,7 +148,7 @@
   // 查询模板字段
   const searchFiled = async () => {
     try {
-      totalData.value = await getFieldList({ organizationId: currentOrd, scene: route.query.type });
+      totalData.value = await getFieldList({ organizationId: currentOrd.value, scene: route.query.type });
       const filterData = totalData.value.filter((item: AddOrUpdateField) => item.name.includes(keyword.value));
       setProps({ data: filterData });
     } catch (error) {
@@ -160,9 +160,9 @@
   // 获取字段列表数据
   const fetchData = async () => {
     scene.value = route.query.type;
-    setLoadListParams({ organizationId: currentOrd, scene });
+    setLoadListParams({ organizationId: currentOrd.value, scene });
     await loadList();
-    totalData.value = await getFieldList({ organizationId: currentOrd, scene: route.query.type });
+    totalData.value = await getFieldList({ organizationId: currentOrd.value, scene: route.query.type });
   };
 
   const isDisabled = computed(() => {
@@ -178,11 +178,9 @@
   const isEnableOperation = () => {
     if (isEnable.value) {
       const noOperationColumn = fieldColumns.slice(0, -1);
-      tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE_FIELD_SETTING, noOperationColumn, 'drawer');
-      tableRef.value.initColumn();
+      tableRef.value.initColumn(noOperationColumn);
     } else {
-      tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE_FIELD_SETTING, fieldColumns, 'drawer');
-      tableRef.value.initColumn();
+      tableRef.value.initColumn(fieldColumns);
     }
   };
 
@@ -199,16 +197,16 @@
     openModal({
       type: 'error',
       title: t('system.orgTemplate.deleteTitle', { name: characterLimit(record.name) }),
-      content: t('system.userGroup.beforeDeleteUserGroup'),
-      okText: t('system.userGroup.confirmDelete'),
-      cancelText: t('system.userGroup.cancel'),
+      content: t('system.orgTemplate.deleteFiledContent'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
       okButtonProps: {
         status: 'danger',
       },
       onBeforeOk: async () => {
         try {
           if (record.id) await deleteOrdField(record.id);
-          Message.success(t('system.user.deleteUserSuccess'));
+          Message.success(t('system.orgTemplate.deleteSuccess'));
           fetchData();
         } catch (error) {
           console.log(error);

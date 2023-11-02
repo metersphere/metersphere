@@ -64,6 +64,8 @@
   const { t } = useI18n();
   const appStore = useAppStore();
 
+  const currentProjectId = computed(() => appStore.currentProjectId);
+
   const updateLoading = inject('reload', (flag: boolean) => {});
 
   const projectDetail = ref<ProjectBasicInfoModel>();
@@ -71,7 +73,7 @@
   const getProjectDetail = async () => {
     updateLoading(true);
     try {
-      projectDetail.value = await getProjectInfo(appStore.currentProjectId);
+      projectDetail.value = await getProjectInfo(currentProjectId.value);
     } catch (error) {
       console.log(error);
     } finally {

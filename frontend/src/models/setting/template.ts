@@ -112,3 +112,48 @@ export interface ActionTemplateManage {
   scene?: SeneType;
   customFields?: CustomField[];
 }
+
+// 工作流列表字段
+export interface WorkFlowType {
+  id: string;
+  name: string;
+  scene: string;
+  remark: string;
+  internal: true; // 是否是内置字段
+  scopeType: string; // 组织或项目级别字段（PROJECT, ORGANIZATION)
+  refId: string; // 项目状态所关联的组织状态ID
+  scopeId: string;
+  pos: number; // 排序字段
+  statusDefinitions: string[]; // 设置初始状态
+  statusFlowTargets: string[]; // 可流转状态
+  [key: string]: any;
+}
+
+// 创建组织工作流状态
+export interface OrdWorkStatus {
+  scopeId: string;
+  id: string;
+  name: string;
+  scene: SeneType;
+  remark: string;
+  allTransferTo: boolean; // 是否允许所有状态流转到该状态
+}
+
+// 状态列表
+export type StateList = {
+  statusId: string;
+  definitionId: string;
+};
+// 设置工作流状态初始或结束
+export interface SetStateType {
+  scopeId: string;
+  scene: string;
+  statusDefinitions: StateList[];
+}
+
+// 更新流转状态
+export interface UpdateWorkFlowSetting {
+  scopeId: string;
+  scene: string;
+  statusFlows: { fromId: string; toId: string }[];
+}

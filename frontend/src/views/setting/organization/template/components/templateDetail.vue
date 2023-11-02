@@ -93,6 +93,7 @@
   const route = useRoute();
   const router = useRouter();
   const appStore = useAppStore();
+  const currentOrgId = computed(() => appStore.currentOrgId);
   // useLeaveUnSaveTip();
 
   const title = ref('');
@@ -102,7 +103,7 @@
     id: '',
     name: '',
     remark: '',
-    scopeId: appStore.currentOrgId,
+    scopeId: currentOrgId.value,
     enableThirdPart: false,
   };
 
@@ -114,7 +115,7 @@
   const formRef = ref<FormInstance>();
   const totalTemplateField = ref<DefinedFieldItem[]>([]);
   const isEdit = computed(() => !!route.query.id);
-  const currentOrd = appStore.currentOrgId;
+  const currentOrd = currentOrgId.value;
   const isEditField = ref<boolean>(false);
 
   // 获取模板详情
@@ -240,7 +241,7 @@
       remark,
       enableThirdPart,
       customFields: result as CustomField[],
-      scopeId: appStore.currentOrgId,
+      scopeId: currentOrgId.value,
       scene: route.query.type,
     };
   }
