@@ -96,6 +96,13 @@ export class MSAxios {
       const requestData = JSON.stringify(params.request);
       formData.append('request', new Blob([requestData], { type: ContentTypeEnum.JSON }));
     }
+    const transform = this.getTransform();
+
+    const { requestOptions } = this.options;
+
+    const opt = { ...requestOptions, isTransformResponse: false };
+
+    const { transformRequestHook } = transform || {};
     return new Promise((resolve, reject) => {
       this.axiosInstance
         .request<any, AxiosResponse<Result>>({
@@ -109,11 +116,6 @@ export class MSAxios {
           },
         })
         .then((res: AxiosResponse<Result>) => {
-          const transform = this.getTransform();
-          const { requestOptions } = this.options;
-          const opt = { ...requestOptions };
-
-          const { transformRequestHook } = transform || {};
           // 请求成功后的处理
           if (transformRequestHook && isFunction(transformRequestHook)) {
             try {

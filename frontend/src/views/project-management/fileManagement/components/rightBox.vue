@@ -249,15 +249,16 @@
         </div>
       </div>
     </template>
-    <folderTree
+    <FolderTree
       v-if="moveModalVisible"
       v-model:selected-keys="selectedModuleKeys"
       :is-expand-all="true"
+      :active-folder="props.activeFolder"
       is-modal
       @folder-node-select="folderNodeSelect"
     />
   </a-modal>
-  <fileDetailDrawerVue
+  <FileDetailDrawer
     v-model:visible="showDetailDrawer"
     :file-id="activeFileId"
     :active-file-index="activeFileIndex"
@@ -287,8 +288,8 @@
   import MsCardList from '@/components/business/ms-card-list/index.vue';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import MsThumbnailCard from '@/components/business/ms-thumbnail-card/index.vue';
-  import fileDetailDrawerVue from './fileDetailDrawer.vue';
-  import folderTree from './folderTree.vue';
+  import FileDetailDrawer from './fileDetailDrawer.vue';
+  import FolderTree from './folderTree.vue';
 
   import {
     batchDownloadFile,
@@ -298,7 +299,6 @@
     getFileList,
     getFileTypes,
     toggleJarFileStatus,
-    updateFile,
     uploadFile,
   } from '@/api/modules/project-management/fileManagement';
   import { CompressImgUrl } from '@/api/requrls/project-management/fileManagement';
@@ -320,6 +320,7 @@
   const props = defineProps<{
     activeFolder: string;
     activeFolderType: 'folder' | 'module' | 'storage';
+    offspringIds: string[]; // 当前选中文件夹的所有子孙节点id
   }>();
   const emit = defineEmits<{
     (e: 'init', params: FileListQueryParams): void;
@@ -466,7 +467,7 @@
   ];
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer');
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getFileList,
     {
       tableKey: TableKeyEnum.FILE_MANAGEMENT_FILE,
@@ -543,6 +544,7 @@
         moduleIds: [props.activeFolder],
       });
       downloadByteFile(res, 'files.zip');
+      resetSelector();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -608,6 +610,7 @@
             cardListRef.value?.reload();
           } else {
             loadList();
+            resetSelector();
           }
           emitTableParams();
         } catch (error) {
@@ -620,7 +623,7 @@
   }
 
   const moveModalVisible = ref(false); // 移动文件弹窗
-  const selectedModuleKeys = ref<(string | number)[]>([]); // 移动文件搜索关键字
+  const selectedModuleKeys = ref<(string | number)[]>([]); // 移动文件选中节点
   const isBatchMove = ref(false); // 是否批量移动文件
   const activeFile = ref<FileItem | null>(null); // 当前查看的文件信息
 
@@ -682,6 +685,7 @@
         cardListRef.value?.reload();
       } else {
         loadList();
+        resetSelector();
       }
       emitTableParams();
     } catch (error) {
@@ -704,10 +708,14 @@
     if (fileType.value === 'storage') {
       combine.value.storage = 'git';
     }
+    let moduleIds: string[] = [props.activeFolder, ...props.offspringIds];
+    if (['all', 'my'].includes(props.activeFolder)) {
+      moduleIds = [];
+    }
     setLoadListParams({
       keyword: keyword.value,
       fileType: tableFileType.value,
-      moduleIds: ['all', 'my'].includes(props.activeFolder) ? [] : [props.activeFolder],
+      moduleIds,
       projectId: appStore.currentProjectId,
       comebine: combine.value,
     });
@@ -745,6 +753,7 @@
     () => {
       keyword.value = '';
       searchList();
+      resetSelector();
     },
     { immediate: true }
   );

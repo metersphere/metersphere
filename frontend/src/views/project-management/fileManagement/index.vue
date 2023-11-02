@@ -72,7 +72,12 @@
         </div>
       </template>
       <template #right>
-        <rightBox :active-folder="activeFolder" :active-folder-type="activeFolderType" @init="handleModuleTableInit" />
+        <rightBox
+          :active-folder="activeFolder"
+          :active-folder-type="activeFolderType"
+          :offspring-ids="offspringIds"
+          @init="handleModuleTableInit"
+        />
       </template>
     </MsSplitBox>
   </div>
@@ -127,6 +132,7 @@
     get: () => [activeFolder.value],
     set: (val) => val,
   });
+  const offspringIds = ref<string[]>([]);
 
   function setActiveFolder(id: string) {
     activeFolder.value = id;
@@ -151,9 +157,10 @@
   /**
    * 处理文件夹树节点选中事件
    */
-  function folderNodeSelect(keys: string[]) {
+  function folderNodeSelect(keys: string[], _offspringIds: string[]) {
     [activeFolder.value] = keys;
     activeFolderType.value = 'module';
+    offspringIds.value = [..._offspringIds];
   }
 
   /**

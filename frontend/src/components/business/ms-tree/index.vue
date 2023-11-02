@@ -295,7 +295,7 @@
    * 处理树节点选中（非复选框）
    */
   function select(selectedKeys: Array<string | number>, data: MsTreeSelectedData) {
-    emit('select', selectedKeys, data.selectedNodes);
+    emit('select', selectedKeys, data.selectedNodes[0]);
   }
 
   function checked(checkedKeys: Array<string | number>) {
@@ -469,6 +469,19 @@
           color: rgb(var(--primary-5));
           * {
             color: rgb(var(--primary-5));
+          }
+        }
+      }
+      .arco-tree-node-disabled {
+        &:hover {
+          background-color: transparent;
+        }
+        * {
+          color: var(--color-text-4) !important;
+        }
+        .arco-tree-node-title {
+          &:hover {
+            background-color: transparent;
           }
         }
       }
