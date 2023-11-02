@@ -5,7 +5,7 @@ INSERT INTO project (id, num, organization_id, name, description, create_user, u
     ('default-project-for-bug', null, '100001', '测试项目(缺陷)', '系统默认创建的项目(缺陷)', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
 
 INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_time,
-                 update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tag, platform_bug_id, trash) VALUES
+                 update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tag, platform_bug_id, deleted) VALUES
     ('default-bug-id', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'bug-template-id', 'Local', 'open', 'default-tag', null, 0),
     ('default-bug-id-tapd1', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'default-bug-template-id', 'Tapd', 'open', 'default-tag', null, 0),
     ('default-bug-id-tapd2', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug-no-local', 'default-bug-template-id', 'Tapd', 'open', 'default-tag', null, 0),

@@ -47,12 +47,6 @@ public class Bug implements Serializable {
     @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description = "删除人")
-    private String deleteUser;
-
-    @Schema(description = "删除时间")
-    private Long deleteTime;
-
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{bug.project_id.length_range}", groups = {Created.class, Updated.class})
@@ -79,9 +73,15 @@ public class Bug implements Serializable {
     @Schema(description = "第三方平台缺陷ID")
     private String platformBugId;
 
-    @Schema(description = "是否回收站", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{bug.trash.not_blank}", groups = {Created.class})
-    private Boolean trash;
+    @Schema(description = "删除人")
+    private String deleteUser;
+
+    @Schema(description = "删除时间")
+    private Long deleteTime;
+
+    @Schema(description = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{bug.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
 
     private static final long serialVersionUID = 1L;
 
@@ -95,15 +95,15 @@ public class Bug implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        deleteUser("delete_user", "deleteUser", "VARCHAR", false),
-        deleteTime("delete_time", "deleteTime", "BIGINT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         templateId("template_id", "templateId", "VARCHAR", false),
         platform("platform", "platform", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         tag("tag", "tag", "VARCHAR", false),
         platformBugId("platform_bug_id", "platformBugId", "VARCHAR", false),
-        trash("trash", "trash", "BIT", false);
+        deleteUser("delete_user", "deleteUser", "VARCHAR", false),
+        deleteTime("delete_time", "deleteTime", "BIGINT", false),
+        deleted("deleted", "deleted", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

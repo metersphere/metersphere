@@ -5,21 +5,21 @@ CREATE TABLE IF NOT EXISTS bug(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `num` INT NOT NULL   COMMENT '业务ID' ,
     `title` VARCHAR(300) NOT NULL   COMMENT '缺陷标题' ,
-    `handle_users` VARCHAR(1000)    COMMENT '处理人集合; 预留字段, 后续工作台统计可能需要' ,
+    `handle_users` VARCHAR(1000)    COMMENT '处理人集合;预留字段, 后续工作台统计可能需要' ,
     `handle_user` VARCHAR(50) NOT NULL   COMMENT '处理人' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-    `delete_user` VARCHAR(50) NOT NULL   COMMENT '删除人' ,
-    `delete_time` BIGINT NOT NULL   COMMENT '删除时间' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
-    `template_id` VARCHAR(50)    COMMENT '模板ID' ,
+    `template_id` VARCHAR(50) NOT NULL   COMMENT '模板ID' ,
     `platform` VARCHAR(50) NOT NULL   COMMENT '缺陷平台' ,
     `status` VARCHAR(50) NOT NULL  DEFAULT '' COMMENT '状态' ,
     `tag` VARCHAR(1000)    COMMENT '标签' ,
     `platform_bug_id` VARCHAR(50)    COMMENT '第三方平台缺陷ID' ,
-    `trash` BIT(1) NOT NULL   COMMENT '是否回收站' ,
+    `delete_user` VARCHAR(50) NOT NULL   COMMENT '删除人' ,
+    `delete_time` BIGINT NOT NULL   COMMENT '删除时间' ,
+    `deleted` BIT(1) NOT NULL   COMMENT '删除状态' ,
     PRIMARY KEY (id)
 )  COMMENT = '缺陷';
 
@@ -34,7 +34,7 @@ CREATE INDEX idx_update_time ON bug(update_time);
 CREATE INDEX idx_project_id ON bug(project_id);
 CREATE INDEX idx_platform ON bug(platform);
 CREATE INDEX idx_status ON bug(status);
-CREATE INDEX idx_trash ON bug(trash);
+CREATE INDEX idx_deleted ON bug(deleted);
 
 
 CREATE TABLE IF NOT EXISTS bug_content(

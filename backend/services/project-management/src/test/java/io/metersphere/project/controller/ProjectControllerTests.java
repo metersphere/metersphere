@@ -3,8 +3,10 @@ package io.metersphere.project.controller;
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.request.ProjectSwitchRequest;
+import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApplicationScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
@@ -53,9 +55,13 @@ public class ProjectControllerTests extends BaseTest {
 
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
+
     @Resource
     private ProjectMapper projectMapper;
     private final ProjectServiceInvoker serviceInvoker;
+
+    @Resource
+    private ProjectService projectService;
 
     @Autowired
     public ProjectControllerTests(ProjectServiceInvoker serviceInvoker) {
@@ -368,5 +374,11 @@ public class ProjectControllerTests extends BaseTest {
 
     }
 
-
+    @Test
+    @Order(10)
+    public void testGetLatestVersion() throws Exception {
+        ProjectVersion latestVersion = projectService.getLatestVersion(DEFAULT_PROJECT_ID);
+        Assertions.assertNotNull(latestVersion);
+        Assertions.assertTrue(latestVersion.getLatest());
+    }
 }
