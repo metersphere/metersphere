@@ -2,6 +2,7 @@
   <a-input
     :value="props.modelValue"
     :placeholder="t('project.menu.pleaseInputJiraKey')"
+    v-bind="attrs"
     @change="(v: string) => emit('update:modelValue', v)"
   />
   <div class="flex flex-row items-center gap-[10px] text-[12px] leading-[20px]">
@@ -21,6 +22,8 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
 
+  const attrs = useAttrs();
+
   const props = defineProps<{
     modelValue: string;
     instructionsIcon: string;
@@ -28,6 +31,7 @@
   const emit = defineEmits<{
     (event: 'update:modelValue', value: string): void;
   }>();
+
   const { t } = useI18n();
 </script>
 

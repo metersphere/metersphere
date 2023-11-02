@@ -100,5 +100,5 @@ export interface OptionsParams {
   pluginId: string;
   organizationId: string;
   optionMethod: string;
-  projectConfig: Record<string, any>[] | FormItem[];
+  projectConfig: string;
 }

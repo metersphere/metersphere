@@ -74,7 +74,7 @@
   const { openModal } = useModal();
 
   const keyword = ref('');
-  const currentOrd = appStore.currentOrgId;
+  const currentOrd = computed(() => appStore.currentOrgId);
 
   const fieldColumns: MsTableColumn = [
     {
@@ -125,7 +125,7 @@
   // 查询字段
   const searchFiled = async () => {
     try {
-      totalList.value = await getOrganizeTemplateList({ organizationId: currentOrd, scene });
+      totalList.value = await getOrganizeTemplateList({ organizationId: currentOrd.value, scene });
       const filterData = totalList.value.filter((item: OrdTemplateManagement) => item.name.includes(keyword.value));
       setProps({ data: filterData });
     } catch (error) {
@@ -172,7 +172,7 @@
   };
 
   const fetchData = async () => {
-    setLoadListParams({ organizationId: currentOrd, scene: route.query.type });
+    setLoadListParams({ organizationId: currentOrd.value, scene: route.query.type });
     await loadList();
   };
 
@@ -231,11 +231,9 @@
   function updateColumns() {
     if (isEnable) {
       const result = fieldColumns.slice(0, fieldColumns.length - 1);
-      tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT, result, 'drawer');
-      tableRef.value.initColumn();
+      tableRef.value.initColumn(result);
     } else {
-      tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT, fieldColumns, 'drawer');
-      tableRef.value.initColumn();
+      tableRef.value.initColumn(fieldColumns);
     }
   }
 

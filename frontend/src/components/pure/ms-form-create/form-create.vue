@@ -86,21 +86,15 @@
     (val) => {
       // 监视当前改变请求获取当前方法下边的options 和获取多有的字段值
       if (val) {
-        val.forEach((item) => {
+        val.forEach(async (item) => {
           if (item.value) {
-            getOptionsRequest(item);
+            await getOptionsRequest(item);
           }
         });
       }
     },
     { deep: true, immediate: false }
   );
-
-  watchEffect(() => {
-    // formRules.value = cloneDeep(props.formRule);
-    // formCreateStore.setInitFormCreate(props.formCreateKey, props.formRule);
-    // formCreateStore.initFormCreateFormRules(props.formCreateKey);
-  });
 
   const formRuleList = ref<FormRuleItem[]>([]); // 存放转换格式后
   const formRules = ref<FormItem[]>([]);
@@ -142,8 +136,7 @@
           instructionsIcon: item.props.instructionsIcon || '',
           optionMethod: item.props.optionMethod || '',
           couplingConfig: {
-            type: item.props.couplingConfig.type,
-            cascade: item.link,
+            ...item.props.couplingConfig,
           },
         };
         return formItemRule;

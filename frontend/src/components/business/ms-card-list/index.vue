@@ -24,11 +24,7 @@
         <a-spin :loading="bottomLoading"></a-spin>
       </div>
     </div>
-    <a-empty
-      v-if="!topLoading && !bottomLoading && (remoteList.length === 0 || props.list?.length === 0)"
-      :description="t('common.noData')"
-      class="h-[200px] justify-center"
-    />
+    <a-empty v-if="isShow" :description="t('common.noData')" class="h-[200px] justify-center" />
   </div>
 </template>
 
@@ -207,6 +203,13 @@
       }
     }, 300)
   );
+
+  const isShow = computed(() => {
+    if (props.mode === 'static') {
+      return props.list?.length === 0;
+    }
+    return !topLoading.value && !bottomLoading.value && (remoteList.value.length === 0 || props.list?.length === 0);
+  });
 
   onMounted(async () => {
     if (props.mode === 'remote') {

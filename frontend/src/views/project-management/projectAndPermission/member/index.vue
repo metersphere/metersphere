@@ -124,7 +124,7 @@
   const appStore = useAppStore();
 
   const tableStore = useTableStore();
-  const lastProjectId = appStore.getCurrentProjectId;
+  const lastProjectId = computed(() => appStore.getCurrentProjectId);
 
   const columns: MsTableColumn = [
     {
@@ -203,7 +203,7 @@
     filter: {
       roleIds: [],
     },
-    projectId: lastProjectId as string,
+    projectId: lastProjectId.value,
     keyword: '',
   });
 
@@ -239,7 +239,7 @@
       onBeforeOk: async () => {
         try {
           const params: ActionProjectMember = {
-            projectId: lastProjectId,
+            projectId: lastProjectId.value,
             userIds: selectData.value,
           };
           await batchRemoveMember(params);
@@ -261,7 +261,7 @@
     deleteLoading.value = true;
     try {
       if (lastProjectId && record.id) {
-        await removeProjectMember(lastProjectId, record.id);
+        await removeProjectMember(lastProjectId.value, record.id);
         Message.success(t('project.member.deleteMemberSuccess'));
         loadList();
         resetSelector();
@@ -319,7 +319,7 @@
   // 编辑项目成员
   const editProjectMember = async (record: ProjectMemberItem) => {
     const params: ActionProjectMember = {
-      projectId: lastProjectId,
+      projectId: lastProjectId.value,
       userId: record.id,
       roleIds: record.selectUserList,
     };
@@ -355,9 +355,9 @@
 
   const userGroupAll = ref<ProjectUserOption[]>([]);
 
-  onBeforeMount(async () => {
+  onMounted(async () => {
     initData();
-    userGroupOptions.value = await getProjectUserGroup(lastProjectId as string);
+    userGroupOptions.value = await getProjectUserGroup(lastProjectId.value);
     userGroupAll.value = [
       {
         id: '',

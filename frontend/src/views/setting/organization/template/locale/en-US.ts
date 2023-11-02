@@ -103,4 +103,31 @@ export default {
   'system.orgTemplate.apiInputPlaceholder': 'Please enter a third-party API',
   'system.orgTemplate.apiFieldId': 'API field',
   'system.orgTemplate.copyTemplate': 'Copy Template',
+  'system.orgTemplate.workFlowTip':
+    'Change the properties or workflow configuration of the event will take effect immediately on the related project. Exercise caution when performing this operation',
+  'system.orgTemplate.workFlowToolTip':
+    'List the status of the defect, and "click +" in the column to add the flow status ',
+  'system.orgTemplate.workFlowToolTipHover':
+    'hover can replace the initial state, and the operation column can select the end state',
+  'system.orgTemplate.addWorkFlowStatus': 'Add State',
+  'system.orgTemplate.StateName': 'State name',
+  'system.orgTemplate.stateNameDescription':
+    'Please enter the status name, in order to display complete, try to be less than 8 characters',
+  'system.orgTemplate.stateNameNotNull': 'The status name cannot be empty',
+  'system.orgTemplate.stateColor': 'Color state',
+  'system.orgTemplate.addSuccessState': 'Add successfully',
+  'system.orgTemplate.setInitState': 'Set initial',
+  'system.orgTemplate.deleteStateTitle': 'Are you sure about the delete {name} state?',
+  'system.orgTemplate.deleteStateContent':
+    'After delete, will be effective in the project and delete irrevocable, please careful operation.',
+  'system.orgTemplate.deleteFiledContent':
+    'After deleting fields will be removed from the field list, please careful operation.',
+  'system.orgTemplate.deleteSuccess': 'Delete Successfully',
+  'system.orgTemplate.setInitStateSuccess': 'Set the initial state successfully',
+  'system.orgTemplate.setEndStateSuccess': 'Setting the end status succeeded',
+  'system.orgTemplate.noAllowDeleteInitState': 'The initial status cannot be deleted',
+  'system.orgTemplate.deleteStateStepTitle': 'Are you sure about the delete {name} step?',
+  'system.orgTemplate.deleteStateStepContent':
+    'After delete, will be effective in the project and delete irrevocable, please careful operation.',
+  'system.orgTemplate.stateDetail': '{name} State detail',
 };

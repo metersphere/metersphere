@@ -42,6 +42,8 @@
   const { t } = useI18n();
   const appStore = useAppStore();
 
+  const currentOrgId = computed(() => appStore.currentOrgId);
+
   const emits = defineEmits<{
     (e: 'update:visible', visible: boolean): void;
     (e: 'success'): void;
@@ -90,7 +92,7 @@
       id,
       name,
       description,
-      organizationId: appStore.currentOrgId,
+      organizationId: currentOrgId.value,
     };
   };
 

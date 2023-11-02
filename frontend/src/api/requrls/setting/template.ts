@@ -44,3 +44,20 @@ export const UpdateFieldUrl = '/organization/custom/field/update';
 export const GetFieldDetailUrl = '/organization/custom/field/get';
 // 删除自定义字段
 export const DeleteFieldDetailUrl = '/organization/custom/field/delete';
+
+// 系统设置-组织-获取工作流列表
+export const OrdWorkFlowUrl = '/organization/status/flow/setting/get';
+// 状态流更新
+export const OrdWorkFlowSetting = '/organization/status/flow/setting/status/update';
+// 创建工作流状态
+export const OrdCreateFlowStatusUrl = '/organization/status/flow/setting/status/add';
+// 更新工作流状态
+export const OrdUpdateFlowStatusUrl = '/organization/status/flow/setting/status/update';
+// 删除工作流状态
+export const OrdDeleteFlowStatusUrl = '/organization/status/flow/setting/status/delete';
+// 设置工作流状态为初始态或者标记结束状态
+export const OrdSetStateUrl = '/organization/status/flow/setting/status/definition/update';
+// 设置选项排序
+export const OrdStateSortUrl = '/organization/status/flow/setting/status/sort';
+// 更新状态流转
+export const OrdUpdateStateFlowUrl = '/organization/status/flow/setting/status/flow/update';

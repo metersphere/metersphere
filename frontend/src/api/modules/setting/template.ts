@@ -11,18 +11,30 @@ import {
   GetOrganizeTemplateUrl,
   GetProjectTemplateDetailUrl,
   isEnableTemplateUrl,
+  OrdCreateFlowStatusUrl,
+  OrdDeleteFlowStatusUrl,
+  OrdSetStateUrl,
+  OrdStateSortUrl,
+  OrdUpdateFlowStatusUrl,
+  OrdUpdateStateFlowUrl,
+  OrdWorkFlowUrl,
   SetOrganizeTemplateUrl,
   UpdateFieldUrl,
   UpdateOrganizeTemplateUrl,
   UpdateProjectTemplateUrl,
 } from '@/api/requrls/setting/template';
 
-import { CommonList, TableQueryParams } from '@/models/common';
+import { TableQueryParams } from '@/models/common';
 import type {
   ActionTemplateManage,
   AddOrUpdateField,
   DefinedFieldItem,
+  OrdWorkStatus,
   OrganizeTemplateItem,
+  SeneType,
+  SetStateType,
+  UpdateWorkFlowSetting,
+  WorkFlowType,
 } from '@/models/setting/template';
 
 /** *
@@ -80,4 +92,35 @@ export function getOrdFieldDetail(id: string) {
   return MSR.get({ url: GetFieldDetailUrl, params: id });
 }
 
+// 组织模板-工作流
+
+// 获取组织下边模板工作流
+export function getWorkFlowList(organizationId: string, scene: SeneType) {
+  return MSR.get<WorkFlowType[]>({ url: `${OrdWorkFlowUrl}/${organizationId}/${scene}` });
+}
+// 创建工作流状态
+export function createWorkFlowStatus(data: OrdWorkStatus) {
+  return MSR.post<WorkFlowType[]>({ url: OrdCreateFlowStatusUrl, data });
+}
+// 更新工作流状态
+export function updateWorkFlowStatus(data: OrdWorkStatus) {
+  return MSR.post<WorkFlowType[]>({ url: OrdUpdateFlowStatusUrl, data });
+}
+
+// 删除工作流状态
+export function deleteOrdWorkState(id: string) {
+  return MSR.get({ url: OrdDeleteFlowStatusUrl, params: id });
+}
+// 设置工作流状态初始态 || 结束态
+export function setOrdWorkState(data: SetStateType) {
+  return MSR.post({ url: OrdSetStateUrl, data });
+}
+// 设置工作流状态排序
+export function setOrdWorkStateSort(organizationId: string, scene: SeneType, data: string[]) {
+  return MSR.post({ url: `${OrdStateSortUrl}/${organizationId}/${scene}`, data });
+}
+// 更新工作流流转状态
+export function updateOrdWorkStateFlow(data: UpdateWorkFlowSetting) {
+  return MSR.post({ url: `${OrdUpdateStateFlowUrl}`, data });
+}
 export default {};

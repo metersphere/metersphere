@@ -3,7 +3,11 @@ import { defineStore } from 'pinia';
 import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
 import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
 
+import { useI18n } from '@/hooks/useI18n';
+
 import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
+
+const { t } = useI18n();
 
 const useFormCreateStore = defineStore('form-create', {
   persist: false,
@@ -27,6 +31,7 @@ const useFormCreateStore = defineStore('form-create', {
       const result = currentFormRule?.map((item: FormItem) => {
         // 当前类型
         let fieldType;
+        // 从总form类型里边配置：参考form-create.ts里边配置
         const currentTypeForm = Object.keys(FieldTypeFormRules).find(
           (formItemType: any) => item.type?.toUpperCase() === formItemType
         );
@@ -42,14 +47,13 @@ const useFormCreateStore = defineStore('form-create', {
           const ruleItem = {
             type: fieldType, // 表单类型
             field: item.name, // 字段
-            title: item.label, // label 表单标签
+            title: t(item.label), // label 表单标签
             value: item.value || FieldTypeFormRules[currentTypeForm].value, // 目前的值
             effect: {
               required: item.required, // 是否必填
             },
             // 级联关联到某一个form上 可能存在多个级联
             options: !item.optionMethod ? currentOptions : [],
-            // link: item.couplingConfig?.map((cascadeItem: any) => cascadeItem.cascade),
             link: item.couplingConfig?.cascade,
             rule: item.validate || [],
             // 梳理表单所需要属性
@@ -65,10 +69,10 @@ const useFormCreateStore = defineStore('form-create', {
               'optionMethod': item.inputSearch && item.optionMethod ? item.optionMethod : '',
               'inputSearch': item.inputSearch,
               'allow-search': item.inputSearch,
-              'keyword': '',
+              'keyword': '', // SearchSelect组件变化值
               'modelValue': item.value,
-              'options': currentOptions,
-              'formKey': key,
+              'options': currentOptions, // 当前已经存在的options
+              'formKey': key, // 对应pinia-form-create里边初始化的KEY
             },
           };
           // 如果不存在关联name删除link关联属性

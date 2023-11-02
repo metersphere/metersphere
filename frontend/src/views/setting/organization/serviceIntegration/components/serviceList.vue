@@ -110,7 +110,7 @@
   import { addOrUpdate, getServiceList, getValidate, resetService } from '@/api/modules/setting/serviceIntegration';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { useUserStore } from '@/store';
+  import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
 
   import type { ServiceItem, ServiceList } from '@/models/setting/serviceIntegration';
@@ -120,8 +120,8 @@
   const { t } = useI18n();
   const { openModal } = useModal();
 
-  const userStore = useUserStore();
-  const lastOrganizationId = userStore.$state?.lastOrganizationId as string;
+  const appStore = useAppStore();
+  const lastOrganizationId = appStore.currentOrgId;
 
   defineProps<{
     collapseHeight: string;

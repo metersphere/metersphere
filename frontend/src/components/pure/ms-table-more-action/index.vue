@@ -6,7 +6,9 @@
     <template #content>
       <template v-for="item of props.list">
         <a-divider v-if="item.isDivider" :key="`${item.label}-divider`" margin="4px" />
-        <a-doption v-else :key="item.label" :class="item.danger ? 'error-6' : ''">{{ t(item.label || '') }}</a-doption>
+        <a-doption v-else :key="item.label" :class="item.danger ? 'error-6' : ''" :disabled="item.disabled">{{
+          t(item.label || '')
+        }}</a-doption>
       </template>
     </template>
   </a-dropdown>

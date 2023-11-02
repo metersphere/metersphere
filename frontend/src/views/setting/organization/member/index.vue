@@ -131,16 +131,16 @@
     getProjectList,
   } from '@/api/modules/setting/member';
   import { useI18n } from '@/hooks/useI18n';
-  import { useTableStore, useUserStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
 
   import type { AddorUpdateMemberModel, BatchAddProjectModel, LinkList, MemberItem } from '@/models/setting/member';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const tableStore = useTableStore();
+  const appStore = useAppStore();
   const { t } = useI18n();
-  const userStore = useUserStore();
-  const lastOrganizationId = userStore.$state?.lastOrganizationId;
+  const lastOrganizationId = computed(() => appStore.currentOrgId);
 
   const columns: MsTableColumn = [
     {
@@ -231,7 +231,7 @@
   const selectedData = ref<string[] | undefined>([]);
 
   const initData = async () => {
-    setLoadListParams({ keyword: keyword.value, organizationId: lastOrganizationId });
+    setLoadListParams({ keyword: keyword.value, organizationId: lastOrganizationId.value });
     await loadList();
   };
   const searchHandler = () => {
@@ -253,7 +253,7 @@
   const deleteMember = async (record: MemberItem) => {
     deleteLoading.value = true;
     try {
-      if (lastOrganizationId) await deleteMemberReq(lastOrganizationId, record.id);
+      if (lastOrganizationId.value) await deleteMemberReq(lastOrganizationId.value, record.id);
       Message.success(t('organization.member.deleteMemberSuccess'));
       initData();
       resetSelector();
@@ -270,7 +270,7 @@
   const batchModalRef = ref();
 
   const getData = (callBack: any) => {
-    batchModalRef.value.getTreeList(callBack, lastOrganizationId);
+    batchModalRef.value.getTreeList(callBack, lastOrganizationId.value);
   };
 
   const showBatchModal = ref(false);
@@ -292,7 +292,7 @@
   const addProjectOrAddUserGroup = async (target: string[], type: string) => {
     const currentType = batchList.find((item) => item.type === type);
     const params: BatchAddProjectModel = {
-      organizationId: lastOrganizationId,
+      organizationId: lastOrganizationId.value,
       memberIds: selectedData.value,
     };
     if (type === 'project') {
@@ -317,7 +317,7 @@
   const updateUserOrProject = async (record: MemberItem) => {
     try {
       const params = {
-        organizationId: lastOrganizationId,
+        organizationId: lastOrganizationId.value,
         projectIds: [...record.selectProjectList],
         userRoleIds: [...record.selectUserList],
         memberId: record.id,
@@ -371,8 +371,8 @@
   const projectOptions = ref<LinkList>([]);
   const getLinkList = async () => {
     if (lastOrganizationId) {
-      userGroupOptions.value = await getGlobalUserGroup(lastOrganizationId);
-      projectOptions.value = await getProjectList(lastOrganizationId);
+      userGroupOptions.value = await getGlobalUserGroup(lastOrganizationId.value);
+      projectOptions.value = await getProjectList(lastOrganizationId.value);
     }
   };
   onBeforeMount(() => {

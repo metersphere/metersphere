@@ -84,7 +84,7 @@
 
   const emit = defineEmits(['update:select-data', 'update']);
 
-  const columns = ref<MsTableColumn>([
+  const columns: MsTableColumn = [
     {
       title: 'system.orgTemplate.name',
       slotName: 'name',
@@ -126,7 +126,7 @@
       showInTable: true,
       showDrag: false,
     },
-  ]);
+  ];
 
   function getApiColumns() {
     return {
@@ -139,7 +139,9 @@
     };
   }
 
-  await tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, columns.value, 'drawer');
+  const tableRef = ref();
+
+  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, columns, 'drawer');
   const { propsRes, propsEvent, setProps } = useTable(undefined, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD,
     scroll: { x: '1800px' },
@@ -234,19 +236,16 @@
       totalData.value = val;
     }
   );
-  const tableRef = ref();
 
   // 是否开启三方API
   watch(
     () => props.enableThirdPart,
-    () => {
-      if (props.enableThirdPart) {
-        const result = [...columns.value.slice(0, 1), getApiColumns(), ...columns.value.slice(1)];
-        tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, result, 'drawer');
-        tableRef.value.initColumn();
+    (val) => {
+      if (val) {
+        const result = [...columns.slice(0, 1), getApiColumns(), ...columns.slice(1)];
+        tableRef.value.initColumn(result);
       } else {
-        tableStore.setColumns(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, columns.value, 'drawer');
-        tableRef.value.initColumn();
+        tableRef.value.initColumn(columns);
       }
     }
   );

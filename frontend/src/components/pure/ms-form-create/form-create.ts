@@ -1,5 +1,8 @@
+import { useI18n } from '@/hooks/useI18n';
+
 import { FormRule } from '@form-create/arco-design';
 
+const { t } = useI18n();
 // 表单字段使用
 export const INPUT = {
   type: 'input',
@@ -7,7 +10,7 @@ export const INPUT = {
   field: 'fieldName',
   value: '',
   props: {
-    placeholder: '请输入',
+    placeholder: t('formCreate.PleaseEnter'),
   },
 };
 export const SELECT = {
@@ -18,7 +21,7 @@ export const SELECT = {
   options: [],
   props: {
     multiple: false,
-    placeholder: '请选择',
+    placeholder: t('formCreate.PleaseSelect'),
     options: [],
     modelValue: '',
   },
@@ -32,7 +35,7 @@ export const MULTIPLE_SELECT = {
   options: [],
   props: {
     multiple: true,
-    placeholder: '请选择',
+    placeholder: t('formCreate.PleaseSelect'),
     options: [],
     modelValue: [],
   },
@@ -62,7 +65,7 @@ export const MEMBER = {
   options: [],
   props: {
     multiple: false,
-    placeholder: '请选择',
+    placeholder: t('formCreate.PleaseSelect'),
     modelValue: '',
   },
 };
@@ -75,7 +78,7 @@ export const MULTIPLE_MEMBER = {
   options: [],
   props: {
     multiple: true,
-    placeholder: '请选择',
+    placeholder: t('formCreate.PleaseSelect'),
     options: [],
     modelValue: [],
   },
@@ -87,7 +90,7 @@ export const DATE = {
   title: '',
   value: '',
   props: {
-    'placeholder': '请选择',
+    'placeholder': t('formCreate.PleaseSelect'),
     'format': 'YYYY/MM/DD',
     'show-time': false,
   },
@@ -99,7 +102,7 @@ export const DATETIME = {
   title: '',
   value: '',
   props: {
-    'placeholder': '请选择',
+    'placeholder': t('formCreate.PleaseSelect'),
     'format': 'YYYY/MM/DD HH:mm:ss',
     'show-time': true,
   },
@@ -111,7 +114,7 @@ export const FLOAT = {
   title: '',
   value: 0,
   props: {
-    placeholder: '请输入',
+    placeholder: t('formCreate.PleaseEnter'),
   },
 };
 
@@ -122,7 +125,7 @@ export const INT = {
   value: 0,
   props: {
     precision: 0,
-    placeholder: '请输入',
+    placeholder: t('formCreate.PleaseEnter'),
   },
 };
 
@@ -132,7 +135,7 @@ export const MULTIPLE_INPUT = {
   title: '',
   value: [],
   props: {
-    placeholder: '请选择',
+    placeholder: t('formCreate.PleaseSelect'),
   },
 };
 
@@ -142,7 +145,7 @@ export const TEXTAREA = {
   title: '',
   value: '',
   props: {
-    'placeholder': '请输入',
+    'placeholder': t('formCreate.PleaseEnter'),
     'auto-size': {
       minRows: 1,
       maxRows: 3,
@@ -156,7 +159,7 @@ export const JIRAKEY = {
   value: '',
   props: {
     moduleValue: '',
-    placeholder: '请输入',
+    placeholder: t('formCreate.PleaseEnter'),
     instructionsIcon: '',
   },
 };
