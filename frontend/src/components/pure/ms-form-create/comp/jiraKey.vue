@@ -12,13 +12,7 @@
         {{ null }}
       </template>
       <template #content>
-        <img
-          class="h-[247px] w-[398px]"
-          :style="{
-            border: '1px solid red',
-          }"
-          :src="previewIcon"
-        />
+        <img class="h-[247px] w-[398px]" :src="previewIcon" />
       </template>
       <span class="cursor-pointer text-[rgb(var(--primary-5))]">{{ t('project.menu.preview') }}</span>
     </a-popover>

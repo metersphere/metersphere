@@ -10,6 +10,7 @@
       </div>
       <div class="flex items-center">
         <a-input-search
+          v-model="keyword"
           :placeholder="t('system.user.searchUser')"
           class="w-[240px]"
           allow-clear
@@ -54,6 +55,7 @@
   const organizationCount = ref(0);
   const projectCount = ref(0);
   const currentKeyword = ref('');
+  const keyword = ref('');
   const orgTableRef = ref();
   const projectTableRef = ref();
   const projectVisible = ref(false);
@@ -122,9 +124,11 @@
   watch(
     () => currentTable.value,
     () => {
-      tableSearch();
+      currentKeyword.value = '';
+      keyword.value = '';
     }
   );
+
   onBeforeMount(() => {
     tableSearch();
   });

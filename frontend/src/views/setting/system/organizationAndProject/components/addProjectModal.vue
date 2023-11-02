@@ -39,7 +39,6 @@
             :disabled="!isXpack"
             allow-search
             :options="affiliatedOrgOption"
-            :default-value="isXpack ? '' : '100001'"
             :placeholder="t('system.project.affiliatedOrgPlaceholder')"
             :field-names="{ label: 'name', value: 'id' }"
           >
@@ -189,6 +188,9 @@
     try {
       const res = await getSystemOrgOption();
       affiliatedOrgOption.value = res;
+      if (!isXpack.value) {
+        form.organizationId = affiliatedOrgOption.value[0].id;
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);

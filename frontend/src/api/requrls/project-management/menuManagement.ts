@@ -13,6 +13,8 @@ export const getPluginInfoByBug = '/project/application/bug/platform/info/';
 
 // 缺陷管理-同步缺陷配置
 export const postSyncBugConfigUrl = '/project/application/update/bug/sync/';
+// 用例管理-关联需求配置
+export const postRelatedCaseConfigUrl = '/project/application/update/case/related/';
 // 误报规则列表查询
 export const postFakeTableUrl = '/fake/error/list';
 // 误报规则列表删除
