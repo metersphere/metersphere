@@ -62,12 +62,18 @@ public class ProjectApplicationType {
         CASE_ENABLE,
     }
 
+    public enum PLATFORM_DEMAND_CONFIG{
+        DEMAND_PLATFORM_CONFIG
+    }
 
     //缺陷管理
     public enum BUG {
         BUG_SYNC
     }
 
+    public enum PLATFORM_BUG_CONFIG{
+        BUG_PLATFORM_CONFIG
+    }
 
     //缺陷管理-同步配置项
     public enum BUG_SYNC_CONFIG {

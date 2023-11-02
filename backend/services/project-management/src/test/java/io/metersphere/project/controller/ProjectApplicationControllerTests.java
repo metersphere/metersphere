@@ -536,8 +536,9 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Map<String, String> configs = new HashMap<>();
         configs.put("CRON_EXPRESSION", "0 0 0/1 * * ?");
         configs.put("SYNC_ENABLE", "true");
-        configs.put("PLATFORM", jsonConfig);
+        configs.put("BUG_PLATFORM_CONFIG", jsonConfig);
         configs.put("MECHANISM", "1");
+        configs.put("PLATFORM_KEY", "jira");
         return configs;
     }
 
@@ -610,7 +611,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     private Map<String, String> mockRelatedTestData() {
         String jsonConfig = "{\"jiraKey\":\"111\",\"jiraIssueTypeId\":\"10086\",\"jiraStoryTypeId\":\"10010\"}";
         Map<String, String> configs = new HashMap<>();
-        configs.put("PLATFORM", jsonConfig);
+        configs.put("DEMAND_PLATFORM_CONFIG", jsonConfig);
         configs.put("CASE_ENABLE", "true");
         return configs;
     }
@@ -690,7 +691,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(40)
     public void testGetProjectBugThirdPartConfig() throws Exception {
         projectApplicationService.getProjectBugThirdPartConfig(DEFAULT_PROJECT_ID);
-        projectApplicationService.getProjectBugThirdPartConfig("test_project_id");
+        projectApplicationService.getProjectBugThirdPartConfig(PROJECT_ID);
     }
 
 
@@ -698,7 +699,9 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(40)
     public void testGetProjectDemandThirdPartConfig() throws Exception {
         projectApplicationService.getProjectDemandThirdPartConfig(DEFAULT_PROJECT_ID);
-        projectApplicationService.getProjectDemandThirdPartConfig("test_project_id");
+        projectApplicationService.getProjectDemandThirdPartConfig(PROJECT_ID);
+        projectApplicationService.getPlatformName(DEFAULT_PROJECT_ID);
+        projectApplicationService.getPlatformName(PROJECT_ID);
     }
 
 }

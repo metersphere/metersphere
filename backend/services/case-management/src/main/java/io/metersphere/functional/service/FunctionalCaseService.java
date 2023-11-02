@@ -115,6 +115,7 @@ public class FunctionalCaseService {
         //保存自定义字段
         List<CaseCustomsFieldDTO> customsFields = request.getCustomsFields();
         if (CollectionUtils.isNotEmpty(customsFields)) {
+            customsFields = customsFields.stream().distinct().collect(Collectors.toList());
             functionalCaseCustomFieldService.saveCustomField(caseId, customsFields);
         }
         return functionalCase;
