@@ -28,6 +28,7 @@ export interface FileDetail extends FileItem {
   projectId: string;
   moduleName: string; // 所属模块名
   moduleId: string;
+  storage?: string; // 存储方式
   createUser: string;
   createTime: number;
 }
@@ -43,7 +44,7 @@ export interface UploadFileParams {
 export interface UpdateFileParams {
   id: string;
   name?: string;
-  tags?: string[];
+  tags?: (string | number)[];
   description?: string;
   moduleId?: string;
 }
