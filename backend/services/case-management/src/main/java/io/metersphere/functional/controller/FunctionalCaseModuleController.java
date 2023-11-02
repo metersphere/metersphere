@@ -8,6 +8,7 @@ import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -27,8 +28,9 @@ public class FunctionalCaseModuleController {
     @GetMapping("/tree/{projectId}")
     @Operation(summary = "用例管理-功能用例-模块-获取模块树")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    public List<BaseTreeNode> getTree(@PathVariable String projectId) {
-        return functionalCaseModuleService.getTree(projectId);
+    public List<BaseTreeNode> getTree(@PathVariable String projectId, @Schema(description = "是否来自回收站列表查询")
+    @RequestParam(value = "deleted") Boolean deleted) {
+        return functionalCaseModuleService.getTree(projectId, deleted);
     }
 
     @PostMapping("/add")
@@ -56,6 +58,6 @@ public class FunctionalCaseModuleController {
     @Operation(summary = "用例管理-功能用例-模块-删除模块")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     public void deleteNode(@PathVariable String moduleId) {
-        functionalCaseModuleService.deleteModule(moduleId, SessionUtils.getUserId());
+        functionalCaseModuleService.deleteModule(moduleId);
     }
 }

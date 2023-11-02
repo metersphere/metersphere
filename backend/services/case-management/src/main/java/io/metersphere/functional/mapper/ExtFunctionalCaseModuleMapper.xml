@@ -4,20 +4,15 @@
     <select id="selectBaseByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         SELECT id, name, parent_id AS parentId, 'module' AS type
         FROM functional_case_module
-        WHERE project_id = #{0}
+        WHERE deleted = #{deleted} AND project_id = #{projectId}
         ORDER BY pos
-    </select>
-    <select id="selectIdAndParentIdByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
-        SELECT id, parent_id AS parentId
-        FROM functional_case_module
-        WHERE project_id = #{0}
     </select>
     <select id="selectModuleByParentIdAndPosOperator"
             parameterType="io.metersphere.project.dto.NodeSortQueryParam"
             resultType="io.metersphere.system.dto.sdk.BaseModule">
         SELECT id, name, pos, project_Id, parent_id
         FROM functional_case_module
-        WHERE parent_id = #{parentId}
+        WHERE deleted = false AND parent_id = #{parentId}
         <if test="operator == 'moreThan'">
             AND pos &gt; #{pos}
         </if>
@@ -30,13 +25,8 @@
         </if>
         LIMIT 1
     </select>
-    <select id="selectIdsByProjectId" resultType="java.lang.String">
-        SELECT id
-        FROM functional_case_module
-        WHERE project_id = #{0}
-    </select>
     <select id="selectChildrenIdsByParentIds" resultType="java.lang.String">
-        SELECT id FROM functional_case_module WHERE parent_id IN
+        SELECT id FROM functional_case_module WHERE  deleted = false  AND parent_id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
        </foreach>
@@ -48,42 +38,16 @@
         </foreach>
     </update>
     <select id="getMaxPosByParentId" resultType="java.lang.Long">
-        SELECT max(pos) FROM functional_case_module
-        WHERE parent_id = #{0}
+        SELECT max(pos)
+        FROM functional_case_module
+        WHERE deleted = false
+          AND parent_id = #{0}
     </select>
     <select id="selectChildrenIdsSortByPos" resultType="java.lang.String">
-        SELECT id FROM functional_case_module WHERE parent_id  = #{0}
+        SELECT id FROM functional_case_module WHERE  deleted = false AND parent_id  = #{0}
         ORDER BY pos ASC
     </select>
-    <select id="getLastModuleByParentId" resultType="io.metersphere.functional.domain.FunctionalCaseModule">
-        SELECT *
-        FROM functional_case_module
-        WHERE parent_id = #{0}
-        ORDER BY pos DESC
-        LIMIT 1
-    </select>
-    <select id="getNextModuleInParentId" resultType="io.metersphere.functional.domain.FunctionalCaseModule">
-        SELECT *
-        from functional_case_module
-        WHERE parent_id = #{parentId}
-          AND pos &gt; #{pos}
-        order by pos asc
-        limit 1
-    </select>
-    <select id="getPreviousModuleInParentId" resultType="io.metersphere.functional.domain.FunctionalCaseModule">
-        SELECT *
-        from functional_case_module
-        WHERE parent_id = #{parentId}
-          AND pos &lt; #{pos}
-        order by pos
-                desc
-        limit 1
-    </select>
-    <select id="selectNameById" resultType="java.lang.String">
-        SELECT name
-        FROM functional_case_module
-        WHERE id = #{0}
-    </select>
+
     <select id="selectBaseModuleById" resultType="io.metersphere.system.dto.sdk.BaseModule">
         SELECT id, name, pos, project_Id, parent_id
         FROM functional_case_module

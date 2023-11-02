@@ -7,6 +7,7 @@
 package io.metersphere.functional.service;
 
 
+import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.domain.FunctionalCaseModuleExample;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
@@ -48,8 +49,8 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
 
-    public List<BaseTreeNode> getTree(String projectId) {
-        List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
+    public List<BaseTreeNode> getTree(String projectId, Boolean deleted) {
+        List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId, deleted);
         return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
     }
     
@@ -102,7 +103,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         super.sort(nodeSortDTO);
     }
 
-    public void deleteModule(String moduleId, String userId) {
+    public void deleteModule(String moduleId) {
         FunctionalCaseModule deleteModule = functionalCaseModuleMapper.selectByPrimaryKey(moduleId);
         if (deleteModule != null) {
             this.deleteModuleByIds(Collections.singletonList(moduleId));
@@ -113,8 +114,16 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         if (CollectionUtils.isEmpty(deleteIds)) {
             return;
         }
-        extFunctionalCaseMapper.removeToTrashByModuleIds(deleteIds);
-        extFunctionalCaseModuleMapper.removeToTrashByIds(deleteIds);
+        List<FunctionalCase> functionalCases = extFunctionalCaseMapper.checkCaseByModuleIds(deleteIds);
+        if (CollectionUtils.isNotEmpty(functionalCases)) {
+            List<String> moduleIds = functionalCases.stream().map(FunctionalCase::getModuleId).toList();
+            extFunctionalCaseMapper.removeToTrashByModuleIds(moduleIds);
+            extFunctionalCaseModuleMapper.removeToTrashByIds(moduleIds);
+        } else {
+            FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
+            functionalCaseModuleExample.createCriteria().andIdIn(deleteIds);
+            functionalCaseModuleMapper.deleteByExample(functionalCaseModuleExample);
+        }
         List<String> childrenIds = extFunctionalCaseModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {
             deleteModuleByIds(childrenIds);
