@@ -7,29 +7,31 @@ import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.system.dto.request.DefaultFunctionalCustomField;
-import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.*;
+import io.metersphere.system.dto.request.DefaultFunctionalCustomField;
+import io.metersphere.system.dto.request.ProjectAddMemberRequest;
+import io.metersphere.system.dto.request.ProjectMemberRequest;
+import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.job.CleanProjectJob;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
-import io.metersphere.system.dto.request.ProjectAddMemberRequest;
-import io.metersphere.system.dto.request.ProjectMemberRequest;
-import io.metersphere.system.dto.request.ProjectRequest;
 import io.metersphere.system.service.*;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -99,6 +101,12 @@ public class SystemProjectControllerTests extends BaseTest {
     private OrganizationParameterMapper organizationParameterMapper;
     @Resource
     private CleanProjectJob cleanProjectJob;
+    private final ProjectServiceInvoker serviceInvoker;
+
+    @Autowired
+    public SystemProjectControllerTests(ProjectServiceInvoker serviceInvoker) {
+        this.serviceInvoker = serviceInvoker;
+    }
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(url)
@@ -188,6 +196,103 @@ public class SystemProjectControllerTests extends BaseTest {
         updateProjectDTO.setUserIds(userIds);
         return updateProjectDTO;
     }
+
+    public void initData() {
+        if (projectMapper.selectByPrimaryKey("projectId") == null) {
+            Project initProject = new Project();
+            initProject.setId("projectId");
+            initProject.setNum(null);
+            initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            initProject.setName("项目");
+            initProject.setDescription("项目");
+            initProject.setCreateUser("admin");
+            initProject.setUpdateUser("admin");
+            initProject.setCreateTime(System.currentTimeMillis());
+            initProject.setUpdateTime(System.currentTimeMillis());
+            initProject.setEnable(true);
+            initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
+            projectMapper.insertSelective(initProject);
+            serviceInvoker.invokeCreateServices(initProject.getId());
+        }
+        if (projectMapper.selectByPrimaryKey("projectId1") == null) {
+            Project initProject = new Project();
+            initProject.setId("projectId1");
+            initProject.setNum(null);
+            initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            initProject.setName("项目1");
+            initProject.setDescription("项目1");
+            initProject.setCreateUser("admin");
+            initProject.setUpdateUser("admin");
+            initProject.setCreateTime(System.currentTimeMillis());
+            initProject.setUpdateTime(System.currentTimeMillis());
+            initProject.setEnable(true);
+            projectMapper.insertSelective(initProject);
+            serviceInvoker.invokeCreateServices(initProject.getId());
+        }
+        if (projectMapper.selectByPrimaryKey("projectId2") == null) {
+            Project initProject = new Project();
+            initProject.setId("projectId2");
+            initProject.setNum(null);
+            initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            initProject.setName("项目2");
+            initProject.setDescription("项目2");
+            initProject.setCreateUser("admin");
+            initProject.setUpdateUser("admin");
+            initProject.setCreateTime(System.currentTimeMillis());
+            initProject.setUpdateTime(System.currentTimeMillis());
+            initProject.setEnable(true);
+            projectMapper.insertSelective(initProject);
+            serviceInvoker.invokeCreateServices(initProject.getId());
+        }
+        if (projectMapper.selectByPrimaryKey("projectId3") == null) {
+            Project initProject = new Project();
+            initProject.setId("projectId3");
+            initProject.setNum(null);
+            initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            initProject.setName("项目3");
+            initProject.setDescription("项目3");
+            initProject.setCreateUser("admin");
+            initProject.setUpdateUser("admin");
+            initProject.setCreateTime(System.currentTimeMillis());
+            initProject.setUpdateTime(System.currentTimeMillis());
+            initProject.setEnable(true);
+            initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
+            projectMapper.insertSelective(initProject);
+            serviceInvoker.invokeCreateServices(initProject.getId());
+        }
+        if (projectMapper.selectByPrimaryKey("projectId4") == null) {
+            Project initProject = new Project();
+            initProject.setId("projectId4");
+            initProject.setNum(null);
+            initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            initProject.setName("项目4");
+            initProject.setDescription("项目4");
+            initProject.setCreateUser("admin");
+            initProject.setUpdateUser("admin");
+            initProject.setCreateTime(System.currentTimeMillis());
+            initProject.setUpdateTime(System.currentTimeMillis());
+            initProject.setEnable(true);
+            initProject.setModuleSetting("[\"apiTest\",\"uiTest\",\"loadTest\"]");
+            projectMapper.insertSelective(initProject);
+            serviceInvoker.invokeCreateServices(initProject.getId());
+        }
+        if (projectMapper.selectByPrimaryKey("projectId5") == null) {
+            Project initProject = new Project();
+            initProject.setId("projectId5");
+            initProject.setNum(null);
+            initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            initProject.setName("项目5");
+            initProject.setDescription("项目5");
+            initProject.setCreateUser("admin");
+            initProject.setUpdateUser("admin");
+            initProject.setCreateTime(System.currentTimeMillis());
+            initProject.setUpdateTime(System.currentTimeMillis());
+            initProject.setEnable(true);
+            initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
+            projectMapper.insertSelective(initProject);
+            serviceInvoker.invokeCreateServices(initProject.getId());
+        }
+    }
     @Test
     @Order(1)
     /**
@@ -197,6 +302,7 @@ public class SystemProjectControllerTests extends BaseTest {
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testAddProjectSuccess() throws Exception {
+        initData();
         AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"name", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
         ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
@@ -482,10 +588,6 @@ public class SystemProjectControllerTests extends BaseTest {
         Project getProjects = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         assert getProjects != null;
         Assertions.assertTrue(StringUtils.equals(getProjects.getId(), projectId));
-        mvcResult = this.responseGet(getProject + "projectId");
-        getProjects = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
-        assert getProjects != null;
-        Assertions.assertTrue(StringUtils.equals(getProjects.getId(), "projectId"));
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProject + projectId);
     }
@@ -541,6 +643,7 @@ public class SystemProjectControllerTests extends BaseTest {
         projectRequest.setSort(new HashMap<>() {{
             put("organizationName", "asc");
         }});
+        projectRequest.setFilter(new HashMap<>());
         mvcResult = this.responsePost(getProjectList, projectRequest);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //第一个数据的organizationName是最小的

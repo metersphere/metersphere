@@ -8,7 +8,6 @@ import io.metersphere.project.dto.environment.host.HostConfig;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.script.post.EnvironmentPostScript;
 import io.metersphere.project.dto.environment.script.pre.EnvironmentPreScript;
-import io.metersphere.project.dto.environment.tcp.TCPConfig;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -31,8 +30,6 @@ public class EnvironmentConfig implements Serializable {
     private List<DataSource> dataSources;
     @Schema(description = "Host配置")
     private HostConfig hostConfig;
-    @Schema(description = "TCP配置")
-    private TCPConfig tcpConfig;
     @Schema(description = "认证配置")
     private AuthConfig authConfig;
     @Schema(description = "全局前置脚本")
@@ -49,7 +46,6 @@ public class EnvironmentConfig implements Serializable {
         this.httpConfig = List.of(new HttpConfig());
         this.dataSources = List.of(new DataSource());
         this.hostConfig = new HostConfig();
-        this.tcpConfig = new TCPConfig();
         this.authConfig = new AuthConfig();
         this.preScript = new EnvironmentPreScript();
         this.postScript = new EnvironmentPostScript();
