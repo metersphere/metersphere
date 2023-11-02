@@ -58,9 +58,23 @@
     </select>
 
     <update id="removeToTrashByModuleIds" parameterType="java.lang.String">
-        UPDATE functional_case SET deleted = true WHERE module_id IN
+        UPDATE functional_case SET deleted = true, module_id = 'root'  WHERE module_id IN
         <foreach collection="moduleIds" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
     </update>
+
+    <select id="checkCaseByModuleIds" resultType="io.metersphere.functional.domain.FunctionalCase">
+        SELECT
+            id, module_id
+        FROM
+            functional_case
+        WHERE
+        deleted = false
+        AND
+            module_id IN
+        <foreach collection="moduleIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
