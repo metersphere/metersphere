@@ -1,12 +1,10 @@
 package io.metersphere.project.service;
 
-import io.metersphere.project.domain.Project;
-import io.metersphere.project.domain.ProjectExample;
-import io.metersphere.project.domain.ProjectTestResourcePool;
-import io.metersphere.project.domain.ProjectTestResourcePoolExample;
+import io.metersphere.project.domain.*;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
+import io.metersphere.project.mapper.ProjectVersionMapper;
 import io.metersphere.project.request.ProjectSwitchRequest;
 import io.metersphere.sdk.constants.ApplicationScope;
 import io.metersphere.sdk.constants.InternalUserRole;
@@ -42,6 +40,8 @@ import java.util.List;
 public class ProjectService {
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ProjectVersionMapper projectVersionMapper;
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
@@ -186,5 +186,17 @@ public class ProjectService {
 
     public static Project checkResourceExist(String id) {
         return ServiceUtils.checkResourceExist(CommonBeanFactory.getBean(ProjectMapper.class).selectByPrimaryKey(id), "permission.project.name");
+    }
+
+    /**
+     * 获取指定项目的最新版本
+     *
+     * @param projectId 项目ID
+     * @return 最新版本
+     */
+    public ProjectVersion getLatestVersion(String projectId) {
+        ProjectVersionExample projectVersionExample = new ProjectVersionExample();
+        projectVersionExample.createCriteria().andProjectIdEqualTo(projectId);
+        return projectVersionMapper.selectByExample(projectVersionExample).get(0);
     }
 }

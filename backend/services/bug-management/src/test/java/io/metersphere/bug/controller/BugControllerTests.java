@@ -104,6 +104,55 @@ public class BugControllerTests extends BaseTest {
         Assertions.assertEquals(pageData.getCurrent(), bugPageRequest.getCurrent());
         // 返回的数据量为0条
         Assertions.assertEquals(0, pageData.getTotal());
+        // cover filter
+        Map<String, List<String>> filter = new HashMap<>();
+        filter.put("handleUser", List.of("admin"));
+        filter.put("custom_multiple_test_field", null);
+        bugPageRequest.setFilter(filter);
+        bugPageRequest.setCombine(null);
+        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
+        // cover combine
+        bugPageRequest.setFilter(null);
+        Map<String, Object> combine = new HashMap<>();
+        List<Map<String, Object>> customs = new ArrayList<>();
+        Map<String, Object> custom = new HashMap<>();
+        custom.put("id", "test_field");
+        custom.put("operator", "in");
+        custom.put("type", "multipleMember");
+        custom.put("value", StringUtils.EMPTY);
+        customs.add(custom);
+        Map<String, Object> currentUserCustom = new HashMap<>();
+        currentUserCustom.put("id", "test_field");
+        currentUserCustom.put("operator", "current user");
+        currentUserCustom.put("type", "multipleMember");
+        currentUserCustom.put("value", "current user");
+        customs.add(currentUserCustom);
+        combine.put("customs", customs);
+        bugPageRequest.setCombine(combine);
+        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
+        custom.put("id", "custom-field");
+        custom.put("operator", "like");
+        custom.put("type", "textarea");
+        custom.put("value", "oasis");
+        customs.clear();
+        customs.add(custom);
+        combine.put("customs", customs);
+        bugPageRequest.setCombine(combine);
+        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
+        combine.put("customs", null);
+        bugPageRequest.setCombine(combine);
+        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
+        // cover combine current user
+        custom.clear();
+        custom.put("operator", "current user");
+        custom.put("value", "current user");
+        combine.put("handleUser", custom);
+        currentUserCustom.clear();
+        currentUserCustom.put("operator", "in");
+        currentUserCustom.put("value", List.of("admin"));
+        combine.put("createUser", currentUserCustom);
+        bugPageRequest.setCombine(combine);
+        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
     }
 
     @Test

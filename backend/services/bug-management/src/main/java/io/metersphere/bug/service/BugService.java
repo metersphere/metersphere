@@ -14,7 +14,6 @@ import io.metersphere.bug.mapper.*;
 import io.metersphere.bug.utils.CustomFieldUtils;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.FileMetadataExample;
-import io.metersphere.project.dto.ProjectTemplateOptionDTO;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.service.FileService;
 import io.metersphere.project.service.ProjectTemplateService;
@@ -181,7 +180,7 @@ public class BugService {
         if (StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
             Bug record = new Bug();
             record.setId(id);
-            record.setTrash(true);
+            record.setDeleted(true);
             bugMapper.updateByPrimaryKeySelective(record);
         } else {
             bugMapper.deleteByPrimaryKey(id);
@@ -201,16 +200,17 @@ public class BugService {
             // 属于系统模板
             return baseTemplateService.getTemplateDTO(template);
         } else {
-            // 不属于系统模板
-            List<ProjectTemplateOptionDTO> option = projectTemplateService.getOption(projectId, TemplateScene.BUG.name());
-            Optional<ProjectTemplateOptionDTO> isThirdPartyDefaultTemplate = option.stream().filter(projectTemplateOptionDTO -> StringUtils.equals(projectTemplateOptionDTO.getId(), templateId)).findFirst();
-            if (isThirdPartyDefaultTemplate.isPresent()) {
-                // TODO: 获取第三方平台模板
-                return null;
-            } else {
-                // 不属于系统模板&&不属于第三方平台默认模板, 则该模板已被删除
-                return projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.BUG.name());
-            }
+            // 不属于系统模板, TODO : 后续补充第三方平台模板
+//            List<ProjectTemplateOptionDTO> option = projectTemplateService.getOption(projectId, TemplateScene.BUG.name());
+//            Optional<ProjectTemplateOptionDTO> isThirdPartyDefaultTemplate = option.stream().filter(projectTemplateOptionDTO -> StringUtils.equals(projectTemplateOptionDTO.getId(), templateId)).findFirst();
+//            if (isThirdPartyDefaultTemplate.isPresent()) {
+//                // TODO: 获取第三方平台模板
+//                return null;
+//            } else {
+//                // 不属于系统模板&&不属于第三方平台默认模板, 则该模板已被删除
+//                return projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.BUG.name());
+//            }
+            return projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.BUG.name());
         }
     }
 
@@ -237,7 +237,7 @@ public class BugService {
                 bugs.stream().filter(bug -> StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())).forEach(bug -> {
                     Bug record = new Bug();
                     record.setId(bug.getId());
-                    record.setTrash(true);
+                    record.setDeleted(true);
                     bugMapper.updateByPrimaryKeySelective(record);
                 });
             }
@@ -342,7 +342,7 @@ public class BugService {
             bug.setUpdateTime(System.currentTimeMillis());
             bug.setDeleteUser(currentUser);
             bug.setDeleteTime(System.currentTimeMillis());
-            bug.setTrash(false);
+            bug.setDeleted(false);
             bugMapper.insert(bug);
             request.setId(bug.getId());
             BugContent bugContent = new BugContent();
@@ -370,7 +370,7 @@ public class BugService {
      */
     private Bug checkBugExist(String id) {
         BugExample bugExample = new BugExample();
-        bugExample.createCriteria().andIdEqualTo(id).andTrashEqualTo(false);
+        bugExample.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
         List<Bug> bugs = bugMapper.selectByExample(bugExample);
         if (CollectionUtils.isEmpty(bugs)) {
             throw new MSException(BUG_NOT_EXIST);
@@ -554,6 +554,8 @@ public class BugService {
         // 获取用户集合
         List<String> userIds = new ArrayList<>();
         userIds.addAll(bugs.stream().map(BugDTO::getCreateUser).toList());
+        userIds.addAll(bugs.stream().map(BugDTO::getUpdateUser).toList());
+        userIds.addAll(bugs.stream().map(BugDTO::getDeleteUser).toList());
         userIds.addAll(bugs.stream().map(BugDTO::getHandleUser).toList());
         List<String> distinctUserIds = userIds.stream().distinct().toList();
         List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(distinctUserIds);
@@ -565,7 +567,9 @@ public class BugService {
         bugs.forEach(bug -> {
             bug.setRelationCaseCount(countMap.get(bug.getId()));
             bug.setCreateUserName(userMap.get(bug.getCreateUser()));
-            bug.setAssignUserName(userMap.get(bug.getHandleUser()));
+            bug.setUpdateUser(userMap.get(bug.getUpdateUser()));
+            bug.setDeleteUser(userMap.get(bug.getDeleteUser()));
+            bug.setHandleUserName(userMap.get(bug.getHandleUser()));
         });
         return bugs;
     }

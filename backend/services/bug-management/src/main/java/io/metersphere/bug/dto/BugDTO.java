@@ -18,8 +18,14 @@ public class BugDTO extends Bug {
     @Schema(description = "创建人名称")
     private String createUserName;
 
-    @Schema(description = "指派人名称")
-    private String assignUserName;
+    @Schema(description = "更新人名称")
+    private String updateUserName;
+
+    @Schema(description = "删除人名称")
+    private String deleteUserName;
+
+    @Schema(description = "处理人名称")
+    private String handleUserName;
 
     @Schema(description = "状态名称")
     private String statusName;
