@@ -158,8 +158,7 @@ export const JIRAKEY = {
   title: '',
   value: '',
   props: {
-    moduleValue: '',
-    placeholder: t('formCreate.PleaseEnter'),
+    modelValue: '',
     instructionsIcon: '',
   },
 };

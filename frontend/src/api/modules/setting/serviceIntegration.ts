@@ -38,6 +38,6 @@ export function postValidate(data: any, pluginId: string) {
 export function configScript(pluginId: string) {
   return MSR.get({ url: ConfigServiceScriptUrl, params: pluginId });
 }
-export function getLogo(pluginId: string) {
-  return MSR.get({ url: getLogoUrl, params: pluginId });
+export function getLogo(pluginId: string, params: { imagePath: string }) {
+  return MSR.get({ url: `${getLogoUrl}${pluginId}`, params, responseType: 'blob' }, { isReturnNativeResponse: true });
 }

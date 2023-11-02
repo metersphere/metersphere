@@ -16,7 +16,7 @@
     <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
       <a-form-item field="platformKey" :label="t('project.menu.platformLabel')">
         <a-select
-          v-model="form.platformKey"
+          v-model="form.PLATFORM_KEY"
           allow-clear
           :disabled="platformDisabled"
           :options="platformOption"
@@ -29,6 +29,7 @@
       <!-- form-create -->
       <MsFormCreate
         v-if="platformRules && platformRules.length"
+        v-model:api="fApi"
         :form-rule="platformRules"
         :form-create-key="FormCreateKeyEnum.PROJECT_DEFECT_SYNC_TEMPLATE"
       />
@@ -76,9 +77,12 @@
         </a-select>
       </a-form-item>
     </a-form>
-    <template #footerLeft>
+    <template v-if="platformOption.length" #footerLeft>
       <div class="flex flex-row items-center gap-[4px]">
-        <a-switch size="small" />
+        <a-tooltip v-if="okDisabled" :content="t('project.menu.defect.enableAfterConfig')">
+          <a-switch size="small" disabled />
+        </a-tooltip>
+        <a-switch v-else v-model="form.SYNC_ENABLE" size="small" />
         <span class="text-[var(--color-text-1)]">
           {{ t('project.menu.status') }}
         </span>
@@ -99,7 +103,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/form-create.vue';
@@ -124,10 +128,10 @@
   const currentVisible = ref<boolean>(props.visible);
   const platformOption = ref<PoolOption[]>([]);
   const frequencyOption = ref([
-    { label: '0 0 0/1 * * ?', extra: '（每隔1小时）', value: '1H' },
-    { label: '0 0 0/6 * * ?', extra: '（每隔6小时）', value: '6H' },
-    { label: '0 0 0/12 * * ?', extra: '（每隔12小时）', value: '12H' },
-    { label: '0 0 0 * * ?', extra: '（每隔一天）', value: '1D' },
+    { label: '0 0 0/1 * * ?', extra: '（每隔1小时）', value: '0 0 0/1 * * ?' },
+    { label: '0 0 0/6 * * ?', extra: '（每隔6小时）', value: '0 0 0/6 * * ?' },
+    { label: '0 0 0/12 * * ?', extra: '（每隔12小时）', value: '0 0 0/12 * * ?' },
+    { label: '0 0 0 * * ?', extra: '（每隔一天）', value: '0 0 0 * * ?' },
   ]);
 
   const appStore = useAppStore();
@@ -140,18 +144,14 @@
   const platformRules = ref<FormItem[]>([]);
 
   const form = reactive({
-    platformKey: '',
-    MECHANISM: '', // 同步机制
+    PLATFORM_KEY: '',
+    MECHANISM: 'increment', // 同步机制
     SYNC_ENABLE: 'false', // 同步开关
-    CRON_EXPRESSION: '', // 同步频率
-    organizationId: '',
-    projectKey: '',
-    projectId: '',
-    azureId: '',
-    bugType: '',
+    CRON_EXPRESSION: '0 0 0/1 * * ?', // 同步频率
   });
 
-  const okDisabled = computed(() => !form.platformKey);
+  const okDisabled = computed(() => !form.PLATFORM_KEY);
+  const fApi = ref<any>({});
 
   const emit = defineEmits<{
     (e: 'cancel', shouldSearch: boolean): void;
@@ -159,12 +159,15 @@
 
   const handleCancel = (shouldSearch: boolean) => {
     emit('cancel', shouldSearch);
+    sessionStorage.removeItem('platformKey');
+    fApi.value.clearValidateState();
   };
   const handlePlatformChange = async (value: SelectValue) => {
     try {
       if (value) {
         const res = await getPlatformInfo(value as string, MenuEnum.bugManagement);
         platformRules.value = res.formItems;
+        sessionStorage.setItem('platformKey', value as string);
       } else {
         platformRules.value = [];
       }
@@ -175,13 +178,10 @@
   };
 
   const handleConfirm = async () => {
-    await formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
-      if (errors) {
-        return;
-      }
+    await fApi.value?.submit(async (formData: FormData) => {
       try {
         okLoading.value = true;
-        await postSaveDefectSync(form, currentProjectId.value);
+        await postSaveDefectSync({ ...form, BUG_PLATFORM_CONFIG: formData }, currentProjectId.value);
         Message.success(t('common.createSuccess'));
         handleCancel(true);
       } catch (error) {
