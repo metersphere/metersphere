@@ -12,7 +12,13 @@
         {{ null }}
       </template>
       <template #content>
-        <img class="h-[247px] w-[398px]" :src="props.instructionsIcon" />
+        <img
+          class="h-[247px] w-[398px]"
+          :style="{
+            border: '1px solid red',
+          }"
+          :src="previewIcon"
+        />
       </template>
       <span class="cursor-pointer text-[rgb(var(--primary-5))]">{{ t('project.menu.preview') }}</span>
     </a-popover>
@@ -20,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+  import { getLogo } from '@/api/modules/setting/serviceIntegration';
   import { useI18n } from '@/hooks/useI18n';
 
   const attrs = useAttrs();
@@ -28,11 +35,21 @@
     modelValue: string;
     instructionsIcon: string;
   }>();
+  const previewIcon = ref<string>('');
+
   const emit = defineEmits<{
     (event: 'update:modelValue', value: string): void;
   }>();
 
   const { t } = useI18n();
+  onMounted(() => {
+    const pluginId = sessionStorage.getItem('platformKey');
+    if (!props.instructionsIcon || !pluginId) return;
+    getLogo(pluginId, { imagePath: props.instructionsIcon }).then((res) => {
+      const { data } = res;
+      previewIcon.value = URL.createObjectURL(new Blob([data]));
+    });
+  });
 </script>
 
 <style scoped></style>

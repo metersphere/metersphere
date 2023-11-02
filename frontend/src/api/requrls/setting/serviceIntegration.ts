@@ -5,4 +5,4 @@ export const ResetServiceUrl = '/service/integration/delete';
 export const GetValidateServiceUrl = '/service/integration/validate';
 export const PostValidateServiceUrl = '/service/integration/validate/';
 export const ConfigServiceScriptUrl = '/service/integration/script';
-export const getLogoUrl = '/plugin/image';
+export const getLogoUrl = '/plugin/image/';
