@@ -932,7 +932,8 @@ public class FileManagementControllerTests extends BaseTest {
             updateFileId = id;
         }
 
-
+        //全都改
+        FileMetadata oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
         FileUpdateRequest updateRequest = new FileUpdateRequest();
         updateRequest.setId(updateFileId);
         updateRequest.setName("update_" + updateFileId);
@@ -943,39 +944,39 @@ public class FileManagementControllerTests extends BaseTest {
         BaseTreeNode a1a1Node = FileManagementBaseUtils.getNodeByName(preliminaryTreeNodes, "a1-a1");
         updateRequest.setModuleId(a1a1Node.getId());
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
-        this.checkFileInformation(updateFileId, updateRequest);
+        this.checkFileInformation(updateFileId, oldFileMetadata, updateRequest);
         checkLog(updateRequest.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_UPDATE);
 
         //只改描述
+        oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
         updateRequest = new FileUpdateRequest();
         updateRequest.setId(updateFileId);
         updateRequest.setDescription("UPDATE DESC AGAIN");
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
-        this.checkFileInformation(updateFileId, updateRequest);
+        this.checkFileInformation(updateFileId, oldFileMetadata, updateRequest);
 
         //判断更改jar文件的启用禁用
+        oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(jarFileId);
         updateRequest = new FileUpdateRequest();
         updateRequest.setId(jarFileId);
         updateRequest.setEnable(true);
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
-        this.checkFileInformation(jarFileId, updateRequest);
+        this.checkFileInformation(jarFileId, oldFileMetadata, updateRequest);
+
+        //取消标签
+        oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
+        updateRequest = new FileUpdateRequest();
+        updateRequest.setId(updateFileId);
+        updateRequest.setTags(new ArrayList<>());
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
+        this.checkFileInformation(updateFileId, oldFileMetadata, updateRequest);
 
         //判断什么也不改
-        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
+        oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
         updateRequest = new FileUpdateRequest();
         updateRequest.setId(updateFileId);
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
-        this.checkFileInformation(updateFileId, updateRequest);
-
-        //检查数据是否没有更改
-        FileMetadata fileMetadata2 = fileMetadataMapper.selectByPrimaryKey(updateFileId);
-        Assertions.assertNotNull(fileMetadata2);
-        Assertions.assertEquals(fileMetadata2.getName(), fileMetadata.getName());
-        Assertions.assertEquals(fileMetadata2.getDescription(), fileMetadata.getDescription());
-        Assertions.assertEquals(fileMetadata2.getModuleId(), fileMetadata.getModuleId());
-        Assertions.assertEquals(fileMetadata2.getEnable(), fileMetadata.getEnable());
-        Assertions.assertTrue(CollectionUtils.isEqualCollection(JSON.parseArray(fileMetadata2.getTags(), String.class), JSON.parseArray(fileMetadata.getTags(), String.class)));
-
+        this.checkFileInformation(updateFileId, oldFileMetadata, updateRequest);
     }
 
     @Test
@@ -1552,27 +1553,40 @@ public class FileManagementControllerTests extends BaseTest {
         Assertions.assertTrue(fileMetadataMapper.countByExample(example) > 0);
     }
 
-    private void checkFileInformation(String updateFileId, FileUpdateRequest updateRequest) {
+    private void checkFileInformation(String updateFileId, FileMetadata oldFileMetadata, FileUpdateRequest updateRequest) {
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
+        Assertions.assertNotNull(oldFileMetadata);
 
         if (StringUtils.isNotEmpty(updateRequest.getDescription())) {
             Assertions.assertTrue(StringUtils.equals(fileMetadata.getDescription(), updateRequest.getDescription()));
+        } else {
+            Assertions.assertEquals(oldFileMetadata.getDescription(), fileMetadata.getDescription());
         }
 
         if (StringUtils.isNotEmpty(updateRequest.getName())) {
             Assertions.assertTrue(StringUtils.equals(fileMetadata.getName(), updateRequest.getName()));
+        } else {
+            Assertions.assertEquals(oldFileMetadata.getName(), fileMetadata.getName());
         }
 
         if (StringUtils.isNotEmpty(updateRequest.getModuleId())) {
             Assertions.assertTrue(StringUtils.equals(fileMetadata.getModuleId(), updateRequest.getModuleId()));
+        } else {
+            Assertions.assertEquals(oldFileMetadata.getModuleId(), fileMetadata.getModuleId());
         }
 
         if (updateRequest.getEnable() != null) {
             Assertions.assertEquals(fileMetadata.getEnable(), updateRequest.getEnable());
+        } else {
+            Assertions.assertEquals(oldFileMetadata.getEnable(), fileMetadata.getEnable());
         }
 
-        if (CollectionUtils.isNotEmpty(updateRequest.getTags())) {
+        if (!CollectionUtils.isEmpty(updateRequest.getTags())) {
             Assertions.assertTrue(CollectionUtils.isEqualCollection(JSON.parseArray(fileMetadata.getTags(), String.class), updateRequest.getTags()));
+        } else {
+            List<String> fileTags = fileMetadata.getTags() == null ? new ArrayList<>() : JSON.parseArray(fileMetadata.getTags(), String.class);
+            List<String> oldTags = oldFileMetadata.getTags() == null ? new ArrayList<>() : JSON.parseArray(oldFileMetadata.getTags(), String.class);
+            Assertions.assertTrue(CollectionUtils.isEqualCollection(fileTags, oldTags));
         }
     }
 

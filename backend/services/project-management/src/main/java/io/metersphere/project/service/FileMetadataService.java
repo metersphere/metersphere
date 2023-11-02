@@ -212,7 +212,9 @@ public class FileMetadataService {
         }
 
         //检查是否是空参数
-        if (!StringUtils.isAllBlank(request.getName(), request.getDescription(), request.getModuleId()) || request.getEnable() != null || CollectionUtils.isNotEmpty(request.getTags())) {
+        if (!StringUtils.isAllBlank(request.getName(), request.getDescription(), request.getModuleId())
+                || request.getEnable() != null
+                || request.getTags() != null) {
             FileMetadata updateExample = new FileMetadata();
             updateExample.setId(request.getId());
             updateExample.setDescription(request.getDescription());
@@ -223,6 +225,8 @@ public class FileMetadataService {
             }
             if (CollectionUtils.isNotEmpty(request.getTags())) {
                 updateExample.setTags(JSON.toJSONString(request.getTags()));
+            } else {
+                updateExample.setTags(null);
             }
             if (request.getEnable() != null) {
                 if (!StringUtils.equalsIgnoreCase(fileMetadata.getType(), JAR_FILE_PREFIX)) {
