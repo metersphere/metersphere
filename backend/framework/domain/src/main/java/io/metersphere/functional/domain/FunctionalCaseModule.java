@@ -34,10 +34,6 @@ public class FunctionalCaseModule implements Serializable {
     @NotNull(message = "{functional_case_module.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
-    @Schema(description = "是否在回收站：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case_module.deleted.not_blank}", groups = {Created.class})
-    private Boolean deleted;
-
     @Schema(description = "创建时间")
     private Long createTime;
 
@@ -58,7 +54,6 @@ public class FunctionalCaseModule implements Serializable {
         name("name", "name", "VARCHAR", true),
         parentId("parent_id", "parentId", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),
-        deleted("deleted", "deleted", "BIT", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),

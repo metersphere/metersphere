@@ -1,13 +1,17 @@
 package io.metersphere.functional.controller;
 
+import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.domain.FunctionalCaseModuleExample;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseModuleMapper;
 import io.metersphere.functional.request.FunctionalCaseModuleCreateRequest;
 import io.metersphere.functional.request.FunctionalCaseModuleUpdateRequest;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
+import io.metersphere.sdk.constants.FunctionalCaseReviewStatus;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
@@ -53,7 +57,8 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
     private FunctionalCaseModuleService functionalCaseModuleService;
     @Resource
     private FunctionalCaseModuleMapper functionalCaseModuleMapper;
-
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private ProjectMapper projectMapper;
 
@@ -648,16 +653,23 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
     public void deleteModuleTestSuccess() throws Exception {
         this.preliminaryData();
 
-        // 删除没有文件的节点a1-b1-c1  检查是否级联删除根节点
+        // 删除没有用例的节点a1-b1-c1  检查是否级联删除根节点
         BaseTreeNode a1b1Node = getNodeByName(this.getFunctionalCaseModuleTreeNode(), "a1-b1");
         assert a1b1Node != null;
         this.requestGetWithOk(URL_MODULE_TREE_DELETE+a1b1Node.getId());
         this.checkModuleIsEmpty(a1b1Node.getId());
 
-        // 删除有文件的节点 a1-a1      检查是否级联删除根节点
+        // 删除有用例的节点 a1-a1      检查是否级联删除根节点
+        //创建数据
         BaseTreeNode a1a1Node = getNodeByName(this.getFunctionalCaseModuleTreeNode(), "a1-a1");
+        createCase(a1a1Node);
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey("gyqTestCaseId");
+        Assertions.assertNotNull(functionalCase);
         this.requestGetWithOk(URL_MODULE_TREE_DELETE+a1a1Node.getId());
         this.checkModuleIsEmpty(a1a1Node.getId());
+        FunctionalCase functionalCaseDel = functionalCaseMapper.selectByPrimaryKey("gyqTestCaseId");
+        Assertions.assertTrue(functionalCaseDel.getDeleted());
+        Assertions.assertTrue(StringUtils.equals(functionalCaseDel.getModuleId(), "root"));
 
         //删除不存在的节点
         this.requestGetWithOk(URL_MODULE_TREE_DELETE+IDGenerator.nextNum());
@@ -669,12 +681,34 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
 
     }
 
+    private void createCase(BaseTreeNode a1a1Node) {
+        FunctionalCase functionalCase = new FunctionalCase();
+        functionalCase.setName("gyqTest");
+        functionalCase.setNum(100001);
+        functionalCase.setModuleId(a1a1Node.getId());
+        functionalCase.setProjectId(project.getId());
+        functionalCase.setDeleted(false);
+        functionalCase.setTemplateId("default_template");
+        functionalCase.setId("gyqTestCaseId");
+        functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
+        functionalCase.setCaseEditType("Text");
+        functionalCase.setPos(500L);
+        functionalCase.setVersionId("12335");
+        functionalCase.setRefId("gyqTestCaseId");
+        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+        functionalCase.setPublicCase(false);
+        functionalCase.setLatest(true);
+        functionalCase.setCreateUser("gyq");
+        functionalCase.setCreateTime(System.currentTimeMillis());
+        functionalCase.setUpdateUser("gyq");
+        functionalCase.setUpdateTime(System.currentTimeMillis());
+        functionalCaseMapper.insertSelective(functionalCase);
+    }
+
     private void checkModuleIsEmpty(String id) {
         FunctionalCaseModuleExample example = new FunctionalCaseModuleExample();
-        example.createCriteria().andParentIdEqualTo(id).andDeletedEqualTo(false);
+        example.createCriteria().andParentIdEqualTo(id);
         Assertions.assertEquals(functionalCaseModuleMapper.countByExample(example), 0);
-
-
     }
 
     private List<BaseTreeNode> getFunctionalCaseModuleTreeNode() throws Exception {

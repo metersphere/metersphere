@@ -8,13 +8,11 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface ExtFunctionalCaseModuleMapper {
-    List<BaseTreeNode> selectBaseByProjectId(String projectId);
+    List<BaseTreeNode> selectBaseByProjectId(@Param("projectId")String projectId);
 
     List<String> selectChildrenIdsByParentIds(@Param("ids") List<String> deleteIds);
 
     List<String> selectChildrenIdsSortByPos(String parentId);
-
-    void removeToTrashByIds(@Param("ids") List<String> deleteIds);
 
     Long getMaxPosByParentId(String parentId);
 

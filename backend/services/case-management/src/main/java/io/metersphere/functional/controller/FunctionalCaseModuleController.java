@@ -56,6 +56,6 @@ public class FunctionalCaseModuleController {
     @Operation(summary = "用例管理-功能用例-模块-删除模块")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     public void deleteNode(@PathVariable String moduleId) {
-        functionalCaseModuleService.deleteModule(moduleId, SessionUtils.getUserId());
+        functionalCaseModuleService.deleteModule(moduleId);
     }
 }

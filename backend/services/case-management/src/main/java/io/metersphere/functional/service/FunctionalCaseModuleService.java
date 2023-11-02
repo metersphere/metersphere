@@ -60,7 +60,6 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         functionalCaseModule.setParentId(request.getParentId());
         functionalCaseModule.setProjectId(request.getProjectId());
         this.checkDataValidity(functionalCaseModule);
-        functionalCaseModule.setDeleted(false);
         functionalCaseModule.setCreateTime(System.currentTimeMillis());
         functionalCaseModule.setUpdateTime(functionalCaseModule.getCreateTime());
         functionalCaseModule.setPos(this.countPos(request.getParentId()));
@@ -102,7 +101,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         super.sort(nodeSortDTO);
     }
 
-    public void deleteModule(String moduleId, String userId) {
+    public void deleteModule(String moduleId) {
         FunctionalCaseModule deleteModule = functionalCaseModuleMapper.selectByPrimaryKey(moduleId);
         if (deleteModule != null) {
             this.deleteModuleByIds(Collections.singletonList(moduleId));
@@ -113,8 +112,10 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         if (CollectionUtils.isEmpty(deleteIds)) {
             return;
         }
+        FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
+        functionalCaseModuleExample.createCriteria().andIdIn(deleteIds);
+        functionalCaseModuleMapper.deleteByExample(functionalCaseModuleExample);
         extFunctionalCaseMapper.removeToTrashByModuleIds(deleteIds);
-        extFunctionalCaseModuleMapper.removeToTrashByIds(deleteIds);
         List<String> childrenIds = extFunctionalCaseModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {
             deleteModuleByIds(childrenIds);
