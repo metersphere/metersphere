@@ -18,22 +18,22 @@ public class FunctionalCaseAddRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "项目id")
+    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.project_id.not_blank}")
     private String projectId;
 
-    @Schema(description = "模板id")
+    @Schema(description = "模板id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.template_id.not_blank}")
     private String templateId;
 
-    @Schema(description = "用例名称")
+    @Schema(description = "用例名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.name.not_blank}")
     private String name;
 
     @Schema(description = "前置条件", defaultValue = "")
     private String prerequisite;
 
-    @Schema(description = "编辑模式", allowableValues = {"STEP", "TEXT"})
+    @Schema(description = "编辑模式", allowableValues = {"STEP", "TEXT"}, requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.case_edit_type.not_blank}")
     private String caseEditType;
 
@@ -53,7 +53,7 @@ public class FunctionalCaseAddRequest implements Serializable {
     private String publicCase;
 
 
-    @Schema(description = "模块id")
+    @Schema(description = "模块id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.module_id.not_blank}")
     private String moduleId;
 

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author wx
@@ -22,4 +23,17 @@ public class CaseCustomsFieldDTO implements Serializable {
 
     @Schema(description = "自定义字段值")
     private String value;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CaseCustomsFieldDTO that = (CaseCustomsFieldDTO) o;
+        return Objects.equals(fieldId, that.fieldId) && Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fieldId, value);
+    }
 }

@@ -543,7 +543,7 @@ public class ProjectApplicationService {
      */
     public String getProjectBugThirdPartConfig(String projectId) {
         ProjectApplicationExample example = new ProjectApplicationExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "_PLATFORM");
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.PLATFORM_BUG_CONFIG.BUG_PLATFORM_CONFIG.name());
         List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
             return list.get(0).getTypeValue();
@@ -560,7 +560,7 @@ public class ProjectApplicationService {
      */
     public String getProjectDemandThirdPartConfig(String projectId) {
         ProjectApplicationExample example = new ProjectApplicationExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_PLATFORM");
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.PLATFORM_DEMAND_CONFIG.DEMAND_PLATFORM_CONFIG.name());
         List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
             return list.get(0).getTypeValue();
@@ -575,13 +575,22 @@ public class ProjectApplicationService {
         return CollectionUtils.isEmpty(projectApplications) ? null : projectApplications.get(0);
     }
 
-//    /**
-//     * 获取项目所属平台
-//     * @param projectId 项目ID
-//     * @return 项目所属平台
-//     */
-//    public String getPlatformName(String projectId) {
-//        // TODO 需调用项目平台配置接口, 获取项目所属平台名称
-//        return null;
-//    }
+    /**
+     * 获取项目所属平台
+     *
+     * @param projectId 项目ID
+     * @return 项目所属平台
+     */
+    public String getPlatformName(String projectId) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(ProjectApplicationType.BUG.BUG_SYNC.name() + "_PLATFORM_KEY");
+        List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(list.get(0).getTypeValue());
+            MsPlugin plugin = (MsPlugin) pluginWrapper.getPlugin();
+            return plugin.getName();
+        } else {
+            return "local";
+        }
+    }
 }

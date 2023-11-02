@@ -12,9 +12,9 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class FunctionalCaseEditRequest extends FunctionalCaseAddRequest{
+public class FunctionalCaseEditRequest extends FunctionalCaseAddRequest {
 
-    @Schema(description = "用例id")
+    @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.id.not_blank}")
     private String id;
 
