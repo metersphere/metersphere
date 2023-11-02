@@ -60,4 +60,21 @@ public class CustomFieldUtils {
             });
         }
     }
+
+    /**
+     * 多选字段追加值
+     * @param originalVal 原始值
+     * @param appendVal 追加值
+     * @return 追加后的值
+     */
+    public static String appendToMultipleCustomField(String originalVal, String appendVal) {
+        if (StringUtils.isEmpty(originalVal)) {
+            return appendVal;
+        }
+        List<String> orignalList = JSON.parseArray(originalVal, String.class);
+        List<String> appendList = JSON.parseArray(appendVal, String.class);
+        orignalList.addAll(appendList);
+        // 追加后需去重
+        return JSON.toJSONString(orignalList.stream().distinct().toList());
+    }
 }

@@ -3,6 +3,8 @@ package io.metersphere.bug.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.dto.BugDTO;
+import io.metersphere.bug.dto.request.BugBatchRequest;
+import io.metersphere.bug.dto.request.BugBatchUpdateRequest;
 import io.metersphere.bug.dto.request.BugEditRequest;
 import io.metersphere.bug.dto.request.BugPageRequest;
 import io.metersphere.bug.service.BugService;
@@ -85,5 +87,19 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.BUG_READ)
     public TemplateDTO getTemplateField(@PathVariable String id, @RequestParam(value = "projectId") String projectId) {
         return bugService.getTemplate(id, projectId);
+    }
+
+    @PostMapping("/batch-delete")
+    @Operation(summary = "缺陷管理-批量删除缺陷")
+    @RequiresPermissions(PermissionConstants.BUG_DELETE)
+    public void batchDelete(@Validated @RequestBody BugBatchRequest request) {
+        bugService.batchDelete(request);
+    }
+
+    @PostMapping("/batch-update")
+    @Operation(summary = "缺陷管理-批量编辑缺陷")
+    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    public void batchUpdate(@Validated @RequestBody BugBatchUpdateRequest request) {
+        bugService.batchUpdate(request);
     }
 }

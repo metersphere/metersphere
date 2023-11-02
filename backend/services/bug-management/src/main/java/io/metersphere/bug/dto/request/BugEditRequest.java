@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.Map;
  * @author song-cc-rock
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class BugEditRequest {
 
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)

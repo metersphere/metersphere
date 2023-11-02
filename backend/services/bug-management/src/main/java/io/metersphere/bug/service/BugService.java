@@ -4,6 +4,9 @@ import io.metersphere.bug.domain.*;
 import io.metersphere.bug.dto.BugCustomFieldDTO;
 import io.metersphere.bug.dto.BugDTO;
 import io.metersphere.bug.dto.BugRelationCaseCountDTO;
+import io.metersphere.bug.dto.BugTagEditDTO;
+import io.metersphere.bug.dto.request.BugBatchRequest;
+import io.metersphere.bug.dto.request.BugBatchUpdateRequest;
 import io.metersphere.bug.dto.request.BugEditRequest;
 import io.metersphere.bug.dto.request.BugPageRequest;
 import io.metersphere.bug.enums.BugPlatform;
@@ -29,7 +32,6 @@ import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.TemplateMapper;
 import io.metersphere.system.service.BaseTemplateService;
-import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
@@ -68,8 +70,6 @@ public class BugService {
     protected TemplateMapper templateMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
-    @Resource
-    private PlatformPluginService platformPluginService;
     @Resource
     private ProjectTemplateService projectTemplateService;
     @Resource
@@ -141,7 +141,7 @@ public class BugService {
         // 缺陷基础字段
         handleAndSaveBug(request, currentUser, BugPlatform.LOCAL.getName());
         // 自定义字段
-        handleAndSaveCustomFields(request, false);
+        handleAndSaveCustomFields(request, false, false);
         // 附件
         handleAndSaveAttachments(request, files, currentUser);
     }
@@ -163,7 +163,7 @@ public class BugService {
         // 缺陷
         handleAndSaveBug(request, currentUser, BugPlatform.LOCAL.getName());
         // 自定义字段
-        handleAndSaveCustomFields(request, true);
+        handleAndSaveCustomFields(request, true, false);
         // 附件
         handleAndSaveAttachments(request, files, currentUser);
     }
@@ -211,6 +211,106 @@ public class BugService {
                 // 不属于系统模板&&不属于第三方平台默认模板, 则该模板已被删除
                 return projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.BUG.name());
             }
+        }
+    }
+
+    /**
+     * 批量删除缺陷
+     * @param request 请求参数
+     */
+    public void batchDelete(BugBatchRequest request) {
+        // 非Local直接删除, Local移入回收站
+        if (request.isSelectAll()) {
+            // 全选
+            BugPageRequest bugPageRequest = new BugPageRequest();
+            BeanUtils.copyBean(bugPageRequest, request);
+            bugPageRequest.setUseTrash(false);
+            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(bugPageRequest);
+            List<BugDTO> bugs = extBugMapper.list(bugPageRequest);
+            if (CollectionUtils.isNotEmpty(bugs)) {
+                List<String> deleteIds = bugs.stream().filter(bug -> !StringUtils.equals(BugPlatform.LOCAL.getName(), bug.getPlatform())).map(BugDTO::getId).toList();
+                if (CollectionUtils.isNotEmpty(deleteIds)) {
+                    BugExample bugExample = new BugExample();
+                    bugExample.createCriteria().andIdIn(deleteIds);
+                    bugMapper.deleteByExample(bugExample);
+                }
+                bugs.stream().filter(bug -> StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())).forEach(bug -> {
+                    Bug record = new Bug();
+                    record.setId(bug.getId());
+                    record.setTrash(true);
+                    bugMapper.updateByPrimaryKeySelective(record);
+                });
+            }
+        } else {
+            // 勾选部分
+            if (CollectionUtils.isEmpty(request.getIncludeBugIds())) {
+                throw new MSException(Translator.get("no_bug_select"));
+            }
+            // 勾选操作数据较少, 可逐条删除
+            request.getIncludeBugIds().forEach(this::delete);
+        }
+    }
+
+    /**
+     * 批量编辑缺陷
+     * @param request 请求参数
+     */
+    public void batchUpdate(BugBatchUpdateRequest request) {
+        List<String> handleIds = new ArrayList<>();
+        if (request.isSelectAll()) {
+            // 全选
+            BugPageRequest bugPageRequest = new BugPageRequest();
+            BeanUtils.copyBean(bugPageRequest, request);
+            bugPageRequest.setUseTrash(false);
+            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(bugPageRequest);
+            List<BugDTO> bugs = extBugMapper.list(bugPageRequest);
+            if (CollectionUtils.isNotEmpty(bugs)) {
+                handleIds = bugs.stream().map(BugDTO::getId).toList();
+            }
+        } else {
+            // 勾选部分
+            if (CollectionUtils.isEmpty(request.getIncludeBugIds())) {
+                throw new MSException(Translator.get("no_bug_select"));
+            }
+            handleIds = request.getIncludeBugIds();
+        }
+        if (CollectionUtils.isEmpty(handleIds)) {
+            throw new MSException(Translator.get("no_bug_select"));
+        }
+        if (request.getCustomField() == null) {
+            // 系统字段处理, TAG需单独处理追加的问题
+            if (StringUtils.isNotEmpty(request.getTag()) && request.isAppend()) {
+                // 标签(追加)
+                List<BugTagEditDTO> bugTagList = extBugMapper.getBugTagList(handleIds);
+                if (CollectionUtils.isEmpty(bugTagList)) {
+                    throw new MSException(Translator.get("bug_select_not_found"));
+                }
+                Map<String, String> bugTagMap = bugTagList.stream().collect(Collectors.toMap(BugTagEditDTO::getBugId, b -> Optional.ofNullable(b.getTag()).orElse(StringUtils.EMPTY)));
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                BugMapper batchMapper = sqlSession.getMapper(BugMapper.class);
+                bugTagMap.forEach((k, v) -> {
+                    Bug record = new Bug();
+                    record.setId(k);
+                    record.setTag(CustomFieldUtils.appendToMultipleCustomField(v, request.getTag()));
+                    batchMapper.updateByPrimaryKeySelective(record);
+                });
+                sqlSession.flushStatements();
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            } else  {
+                extBugMapper.batchUpdate(request, handleIds);
+            }
+        } else {
+            // 自定义字段处理 (第三方模板字段暂时不支持批量编辑, 涉及到同步)
+            BugCustomFieldDTO customField = request.getCustomField();
+            Map<String, String> customFieldMap = new HashMap<>(1);
+            customFieldMap.put(customField.getId(), customField.getValue());
+            handleIds.forEach(id -> {
+                BugEditRequest bugEditRequest = new BugEditRequest();
+                BeanUtils.copyBean(bugEditRequest, request);
+                bugEditRequest.setId(id);
+                bugEditRequest.setCustomFieldMap(customFieldMap);
+                handleAndSaveCustomFields(bugEditRequest, true, request.isAppend());
+            });
         }
     }
 
@@ -283,7 +383,7 @@ public class BugService {
      *
      * @param request 请求参数
      */
-    private void handleAndSaveCustomFields(BugEditRequest request,  boolean merge) {
+    private void handleAndSaveCustomFields(BugEditRequest request,  boolean merge, boolean append) {
         Map<String, String> customFieldMap = request.getCustomFieldMap();
         if (MapUtils.isEmpty(customFieldMap)) {
             return;
@@ -306,7 +406,12 @@ public class BugService {
                     // 已存在的缺陷字段关系
                     bugCustomField.setBugId(request.getId());
                     bugCustomField.setFieldId(fieldId);
-                    bugCustomField.setValue(customFieldMap.get(fieldId));
+                    if (append) {
+                        // 追加处理只存在多选类型的自定义字段
+                        bugCustomField.setValue(CustomFieldUtils.appendToMultipleCustomField(originalFieldMap.get(fieldId), customFieldMap.get(fieldId)));
+                    } else {
+                        bugCustomField.setValue(customFieldMap.get(fieldId));
+                    }
                     updateFields.add(bugCustomField);
                 }
             });
@@ -409,7 +514,9 @@ public class BugService {
                 addFiles.add(bugAttachment);
             });
         }
-        extBugAttachmentMapper.batchInsert(addFiles);
+        if (CollectionUtils.isNotEmpty(addFiles)) {
+            extBugAttachmentMapper.batchInsert(addFiles);
+        }
         // TODO: 如果是第三方平台, 需调用平台插件同步上传附件
         uploadMinioFiles.forEach((fileId, file) -> {
             FileRequest fileRequest = new FileRequest();
