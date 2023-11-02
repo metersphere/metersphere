@@ -11,6 +11,30 @@
         select max(num) from bug where project_id = #{projectId}
     </select>
 
+    <select id="getBugTagList" resultType="io.metersphere.bug.dto.BugTagEditDTO">
+        select id as bugId, tag from bug where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <update id="batchUpdate" parameterType="io.metersphere.bug.dto.request.BugBatchUpdateRequest">
+        update bug
+        <set>
+            <if test="request.handleUser != null and request.handleUser != ''">
+                handle_user = #{request.handleUser},
+                handle_users = handle_users + concat(',', #{request.handleUser}),
+            </if>
+            <if test="request.tag != null and request.tag != ''">
+                tag = #{request.tag},
+            </if>
+        </set>
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
     <sql id="queryWhereCondition">
         <where>
             <if test="request.useTrash">

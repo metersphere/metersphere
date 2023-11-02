@@ -1,6 +1,9 @@
 package io.metersphere.bug.controller;
 
+import io.metersphere.bug.dto.BugCustomFieldDTO;
 import io.metersphere.bug.dto.BugDTO;
+import io.metersphere.bug.dto.request.BugBatchRequest;
+import io.metersphere.bug.dto.request.BugBatchUpdateRequest;
 import io.metersphere.bug.dto.request.BugEditRequest;
 import io.metersphere.bug.dto.request.BugPageRequest;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
@@ -16,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.io.File;
@@ -35,6 +39,8 @@ public class BugControllerTests extends BaseTest {
     public static final String BUG_DELETE = "/bug/delete";
     public static final String BUG_TEMPLATE_OPTION = "/bug/template/option";
     public static final String BUG_TEMPLATE_DETAIL = "/bug/template";
+    public static final String BUG_BATCH_DELETE = "/bug/batch-delete";
+    public static final String BUG_BATCH_UPDATE = "/bug/batch-update";
 
     @Test
     @Order(0)
@@ -165,6 +171,11 @@ public class BugControllerTests extends BaseTest {
         File file = new File(filePath);
         MultiValueMap<String, Object> paramMap = getDefaultMultiPartParam(request, file);
         this.requestMultipartWithOkAndReturn(BUG_UPDATE, paramMap);
+        // 第二次更新, no-file
+        MultiValueMap<String, Object> noFileParamMap = new LinkedMultiValueMap<>();
+        request.setLinkFileIds(null);
+        noFileParamMap.add("request", JSON.toJSONString(request));
+        this.requestMultipartWithOkAndReturn(BUG_UPDATE, noFileParamMap);
     }
 
     @Test
@@ -191,20 +202,6 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(8)
-    public void testDeleteBugSuccess() throws Exception {
-        this.requestGet(BUG_DELETE + "/default-bug-id", status().isOk());
-        // 非Local缺陷
-        this.requestGet(BUG_DELETE + "/default-bug-id-tapd", status().isOk());
-    }
-
-    @Test
-    @Order(9)
-    public void testDeleteBugError() throws Exception {
-        this.requestGet(BUG_DELETE + "/default-bug-id-not-exist", status().is5xxServerError());
-    }
-
-    @Test
-    @Order(10)
     public void testGetBugTemplateOption() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(BUG_TEMPLATE_OPTION + "?projectId=default-project-for-bug");
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -215,7 +212,7 @@ public class BugControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(11)
+    @Order(9)
     public void testGetBugTemplateDetailSuccess() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(BUG_TEMPLATE_DETAIL + "/default-bug-template-id" + "?projectId=default-project-for-bug");
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -230,6 +227,108 @@ public class BugControllerTests extends BaseTest {
         TemplateDTO defaultTemplate = JSON.parseObject(JSON.toJSONString(defaultResultHolder.getData()), TemplateDTO.class);
         Assertions.assertNotNull(defaultTemplate);
         Assertions.assertEquals("default-bug-template-id", defaultTemplate.getId());
+    }
+
+    @Test
+    @Order(10)
+    public void testBatchUpdateBugSuccess() throws Exception {
+        BugBatchUpdateRequest request = new BugBatchUpdateRequest();
+        request.setProjectId("default-project-for-bug");
+        // 全选, 编辑所有数据
+        request.setSelectAll(true);
+        // TAG追加
+        request.setTag(JSON.toJSONString(List.of("TAG", "TEST_TAG")));
+        request.setAppend(true);
+        this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
+        // TAG覆盖
+        request.setTag(JSON.toJSONString(List.of("A", "B")));
+        request.setAppend(false);
+        this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
+        // TAG追加
+        request.setTag(JSON.toJSONString(List.of("C", "D")));
+        request.setAppend(true);
+        this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
+        // 处理人修改
+        request.setTag(null);
+        request.setHandleUser("default-admin");
+        this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
+        // 自定义字段追加
+        BugCustomFieldDTO field = new BugCustomFieldDTO();
+        field.setId("test_field");
+        field.setValue(JSON.toJSONString(List.of("test1")));
+        request.setCustomField(field);
+        this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
+        // 自定义字段覆盖
+        request.setAppend(false);
+        this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
+        // 勾选部分
+        request.setSelectAll(false);
+        request.setIncludeBugIds(List.of("default-bug-id"));
+        this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
+    }
+
+    @Test
+    @Order(11)
+    public void testBatchUpdateEmptyBugSuccess() throws Exception {
+        BugBatchUpdateRequest request = new BugBatchUpdateRequest();
+        request.setProjectId("default-project-for-bug");
+        request.setCombine(buildRequestCombine());
+        // 全选, 空数据
+        request.setSelectAll(true);
+        request.setTag(JSON.toJSONString(List.of("TAG", "TEST_TAG")));
+        request.setAppend(true);
+        this.requestPost(BUG_BATCH_UPDATE, request, status().is5xxServerError());
+        request.setSelectAll(false);
+        request.setIncludeBugIds(List.of("not-exist-bug-id"));
+        this.requestPost(BUG_BATCH_UPDATE, request, status().is5xxServerError());
+        request.setSelectAll(false);
+        request.setIncludeBugIds(null);
+        this.requestPost(BUG_BATCH_UPDATE, request, status().is5xxServerError());
+    }
+
+    @Test
+    @Order(12)
+    public void testDeleteBugSuccess() throws Exception {
+        this.requestGet(BUG_DELETE + "/default-bug-id", status().isOk());
+        // 非Local缺陷
+        this.requestGet(BUG_DELETE + "/default-bug-id-tapd1", status().isOk());
+    }
+
+    @Test
+    @Order(13)
+    public void testDeleteBugError() throws Exception {
+        this.requestGet(BUG_DELETE + "/default-bug-id-not-exist", status().is5xxServerError());
+    }
+
+    @Test
+    @Order(14)
+    public void testBatchDeleteEmptyBugSuccess() throws Exception {
+        BugBatchRequest request = new BugBatchRequest();
+        request.setProjectId("default-project-for-bug");
+        request.setCombine(buildRequestCombine());
+        // 全选, 空数据
+        request.setSelectAll(true);
+        this.requestPost(BUG_BATCH_DELETE, request, status().isOk());
+        // 勾选部分, 空数据
+        request.setSelectAll(false);
+        this.requestPost(BUG_BATCH_DELETE, request, status().is5xxServerError());
+    }
+
+    @Test
+    @Order(20)
+    public void testBatchDeleteBugSuccess() throws Exception {
+        BugBatchRequest request = new BugBatchRequest();
+        request.setProjectId("default-project-for-bug");
+        // 全选, 删除所有
+        request.setSelectAll(true);
+        this.requestPost(BUG_BATCH_DELETE, request, status().isOk());
+        // 非Local的缺陷删除
+        request.setProjectId("default-project-for-bug-no-local");
+        this.requestPost(BUG_BATCH_DELETE, request, status().isOk());
+        // 勾选部分
+        request.setSelectAll(false);
+        request.setIncludeBugIds(List.of("default-bug-id-single"));
+        this.requestPost(BUG_BATCH_DELETE, request, status().isOk());
     }
 
     /**
@@ -272,16 +371,15 @@ public class BugControllerTests extends BaseTest {
         request.setHandleUser("admin");
         request.setTemplateId("default-bug-template");
         request.setStatus("prepare");
-        request.setTag(JSON.toJSONString(List.of("TAG", "DEFAULT-TAG")));
         request.setLinkFileIds(List.of("default-bug-file-id-1", "default-bug-file-id-3"));
         Map<String, String> customFieldMap = new HashMap<>();
         customFieldMap.put("custom-field", "oasis");
+        customFieldMap.put("test_field", JSON.toJSONString(List.of("test")));
         if (isUpdate) {
             request.setId("default-bug-id");
             request.setUnLinkFileIds(List.of("default-bug-file-id-1"));
             request.setDeleteLocalFileIds(List.of("default-bug-file-id"));
             request.setLinkFileIds(List.of("default-bug-file-id-2"));
-            customFieldMap.put("test_field", JSON.toJSONString(List.of("test")));
         }
         request.setCustomFieldMap(customFieldMap);
         return request;
