@@ -1,22 +1,23 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.constants.DefaultBugStatusItem;
 import io.metersphere.sdk.constants.BugStatusDefinitionType;
+import io.metersphere.sdk.constants.DefaultBugStatusItem;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
-import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
-import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
-import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.controller.handler.result.CommonResultCode;
 import io.metersphere.system.domain.StatusDefinition;
 import io.metersphere.system.domain.StatusDefinitionExample;
 import io.metersphere.system.domain.StatusFlow;
 import io.metersphere.system.domain.StatusItem;
 import io.metersphere.system.dto.StatusItemDTO;
+import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
 import io.metersphere.system.mapper.StatusDefinitionMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -95,46 +96,42 @@ public class BaseStatusFlowSettingService {
      *
      * @param request
      */
-    public void updateStatusDefinition(StatusDefinitionUpdateRequest request) {
-        List<StatusDefinitionUpdateRequest.StatusDefinitionRequest> statusDefinitionsRequests = request.getStatusDefinitions();
-        List<StatusDefinition> statusDefinitions = statusDefinitionsRequests.stream()
-                .map(statusFlowRequest -> BeanUtils.copyBean(new StatusDefinition(), statusFlowRequest))
-                .toList();
-        List<String> statusIds = getStatusIds(statusDefinitionsRequests);
-        // 校验状态项是否存在
-        baseStatusItemService.checkStatusScope(request.getScopeId(), statusIds);
-        // 查询项目下所有的状态项
-        List<String> scopeStatusItemIds = baseStatusItemService.getByScopeIdAndScene(request.getScopeId(), request.getScene())
-                .stream()
-                .map(StatusItem::getId)
-                .toList();
-        updateStatusDefinition(scopeStatusItemIds, statusDefinitions);
+    protected void updateStatusDefinition(StatusItem statusItem, StatusDefinitionUpdateRequest request) {
+        handleSingleChoice(statusItem, request);
+        if (request.getEnable()) {
+            baseStatusDefinitionService.add(BeanUtils.copyBean(new StatusDefinition(), request));
+        } else {
+            baseStatusDefinitionService.delete(request.getStatusId(), request.getDefinitionId());
+        }
     }
 
     /**
-     * 设置状态定义
-     * 比如设置成项目
-     *
-     * @param scopeStatusItemIds
-     * @param statusDefinitions
+     * 处理单选的状态定义
+     * @param statusItem
+     * @param request
      */
-    public void updateStatusDefinition(List<String> scopeStatusItemIds, List<StatusDefinition> statusDefinitions) {
-        if (CollectionUtils.isEmpty(statusDefinitions)) {
-            return;
+    private void handleSingleChoice(StatusItem statusItem, StatusDefinitionUpdateRequest request) {
+        if (StringUtils.equals(statusItem.getScene(), TemplateScene.BUG.name())) {
+            BugStatusDefinitionType statusDefinitionType = BugStatusDefinitionType.getStatusDefinitionType(request.getDefinitionId());
+            if (!statusDefinitionType.getIsSingleChoice()) {
+                return;
+            }
+            // 如果是单选，需要将其他状态取消勾选
+            if (request.getEnable()) {
+                List<String> statusIds = baseStatusItemService.getByScopeIdAndScene(statusItem.getScopeId(), statusItem.getScene())
+                        .stream()
+                        .map(StatusItem::getId)
+                        .toList();
+                StatusDefinitionExample example = new StatusDefinitionExample();
+                example.createCriteria()
+                        .andStatusIdIn(statusIds)
+                        .andDefinitionIdEqualTo(request.getDefinitionId());
+                statusDefinitionMapper.deleteByExample(example);
+            } else {
+                // 单选默认必选，不能取消
+                throw new MSException(CommonResultCode.STATUS_DEFINITION_REQUIRED_ERROR);
+            }
         }
-        // 先删除组织或项目下的所有定义
-        StatusDefinitionExample example = new StatusDefinitionExample();
-        example.createCriteria().andStatusIdIn(scopeStatusItemIds);
-        statusDefinitionMapper.deleteByExample(example);
-        // 再添加
-        statusDefinitionMapper.batchInsert(statusDefinitions);
-    }
-
-    private List<String> getStatusIds(List<StatusDefinitionUpdateRequest.StatusDefinitionRequest> statusDefinitions) {
-        List<String> statusIds = statusDefinitions.stream()
-                .map(StatusDefinitionUpdateRequest.StatusDefinitionRequest::getStatusId)
-                .toList();
-        return statusIds;
     }
 
     /**
@@ -143,13 +140,11 @@ public class BaseStatusFlowSettingService {
      * @param request
      */
     protected void updateStatusFlow(StatusFlowUpdateRequest request) {
-        List<StatusFlowUpdateRequest.StatusFlowRequest> statusFlows = request.getStatusFlows();
-        List<String> statusIds = baseStatusFlowService.getStatusIds(statusFlows);
-        baseStatusItemService.checkStatusScope(request.getScopeId(), statusIds);
-        List<String> statusItemIds = baseStatusItemService.getByScopeIdAndScene(request.getScopeId(), request.getScene())
-                .stream()
-                .map(StatusItem::getId).toList();
-        baseStatusFlowService.updateStatusFlow(statusItemIds, request.getStatusFlows());
+        if (request.getEnable()) {
+            baseStatusFlowService.add(BeanUtils.copyBean(new StatusFlow(), request));
+        } else {
+            baseStatusFlowService.delete(request.getFromId(), request.getToId());
+        }
     }
 
     protected void deleteStatusItem(String id) {
@@ -232,20 +227,17 @@ public class BaseStatusFlowSettingService {
     protected void handleAllTransferTo(StatusItemAddRequest request, String addStatusItemId) {
         if (BooleanUtils.isTrue(request.getAllTransferTo())) {
             List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(request.getScopeId(), request.getScene());
-            List<StatusFlowUpdateRequest.StatusFlowRequest> statusFlows = statusItems.stream()
+            List<StatusFlowUpdateRequest> statusFlowUpdateRequests = statusItems.stream()
                     // 过滤自己
                     .filter(item -> !StringUtils.equals(item.getId(), addStatusItemId))
                     .map(item -> {
-                        StatusFlowUpdateRequest.StatusFlowRequest statusFlow = new StatusFlowUpdateRequest.StatusFlowRequest();
-                        statusFlow.setFromId(item.getId());
-                        statusFlow.setToId(addStatusItemId);
-                        return statusFlow;
+                        StatusFlowUpdateRequest statusFlowRequest = new StatusFlowUpdateRequest();
+                        statusFlowRequest.setFromId(item.getId());
+                        statusFlowRequest.setToId(addStatusItemId);
+                        statusFlowRequest.setEnable(true);
+                        return statusFlowRequest;
                     }).toList();
-            StatusFlowUpdateRequest statusFlowUpdateRequest = new StatusFlowUpdateRequest();
-            statusFlowUpdateRequest.setScopeId(request.getScopeId());
-            statusFlowUpdateRequest.setScene(request.getScene());
-            statusFlowUpdateRequest.setStatusFlows(statusFlows);
-            updateStatusFlow(statusFlowUpdateRequest);
+            statusFlowUpdateRequests.forEach(this::updateStatusFlow);
         }
     }
 

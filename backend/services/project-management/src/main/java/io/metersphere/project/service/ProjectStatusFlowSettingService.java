@@ -43,11 +43,11 @@ public class ProjectStatusFlowSettingService extends BaseStatusFlowSettingServic
      * 比如设置成项目
      * @param request
      */
-    @Override
     public void updateStatusDefinition(StatusDefinitionUpdateRequest request) {
-        ProjectService.checkResourceExist(request.getScopeId());
-        projectTemplateService.checkProjectTemplateEnable(request.getScopeId(), request.getScene());
-        super.updateStatusDefinition(request);
+        StatusItem statusItem = baseStatusItemService.getWithCheck(request.getStatusId());
+        ProjectService.checkResourceExist(statusItem.getScopeId());
+        projectTemplateService.checkProjectTemplateEnable(statusItem.getScopeId(), statusItem.getScene());
+        super.updateStatusDefinition(statusItem, request);
     }
 
     /**
@@ -105,8 +105,11 @@ public class ProjectStatusFlowSettingService extends BaseStatusFlowSettingServic
      * @param request
      */
     public void updateStatusFlow(StatusFlowUpdateRequest request) {
-        ProjectService.checkResourceExist(request.getScopeId());
-        projectTemplateService.checkProjectTemplateEnable(request.getScopeId(), request.getScene());
+        StatusItem fromStatusItem = baseStatusItemService.getWithCheck(request.getFromId());
+        StatusItem toStatusItem = baseStatusItemService.getWithCheck(request.getToId());
+        ProjectService.checkResourceExist(fromStatusItem.getScopeId());
+        ProjectService.checkResourceExist(toStatusItem.getScopeId());
+        projectTemplateService.checkProjectTemplateEnable(fromStatusItem.getScopeId(), fromStatusItem.getScene());
         super.updateStatusFlow(request);
     }
 

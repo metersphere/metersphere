@@ -85,10 +85,8 @@ public class BaseStatusItemService {
     public StatusItem add(StatusItem statusItem) {
         checkAddExist(statusItem);
         statusItem.setInternal(false);
-        if (statusItem.getPos() == null) {
-            // 如果没有指定排序，就放到最后
-            statusItem.setPos(getByScopeIdAndScene(statusItem.getScopeId(), statusItem.getScene()).size() + 1);
-        }
+        // 放到最后
+        statusItem.setPos(getByScopeIdAndScene(statusItem.getScopeId(), statusItem.getScene()).size() + 1);
         return baseAdd(statusItem);
     }
 
@@ -152,6 +150,9 @@ public class BaseStatusItemService {
     }
 
     public List<StatusItem> getByScopeIdsAndScene(List<String> scopeIds, String scene) {
+        if (CollectionUtils.isEmpty(scopeIds)) {
+            return List.of();
+        }
         StatusItemExample example = new StatusItemExample();
         example.createCriteria().andScopeIdIn(scopeIds).andSceneEqualTo(scene);
         return statusItemMapper.selectByExample(example);

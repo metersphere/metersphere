@@ -38,6 +38,18 @@ public class BaseStatusDefinitionService {
         statusDefinitionMapper.deleteByExample(example);
     }
 
+    public void delete(String statusId, String definitionId) {
+        statusDefinitionMapper.deleteByPrimaryKey(statusId, definitionId);
+    }
+
+    public void add(StatusDefinition statusDefinition) {
+        StatusDefinitionExample example = new StatusDefinitionExample();
+        example.createCriteria()
+                .andStatusIdEqualTo(statusDefinition.getStatusId())
+                .andDefinitionIdEqualTo(statusDefinition.getDefinitionId());
+        statusDefinitionMapper.insert(statusDefinition);
+    }
+
     public void deleteByStatusIds(List<String> statusItemIds) {
         if (CollectionUtils.isEmpty(statusItemIds)) {
             return;
@@ -53,5 +65,13 @@ public class BaseStatusDefinitionService {
             return;
         }
         statusDefinitionMapper.batchInsert(statusDefinitions);
+    }
+
+    public void deleteByStatusIdsAndDefinitionId(List<String> statusIds, String definitionId) {
+        StatusDefinitionExample example = new StatusDefinitionExample();
+        example.createCriteria()
+                .andStatusIdIn(statusIds)
+                .andDefinitionIdEqualTo(definitionId);
+        statusDefinitionMapper.deleteByExample(example);
     }
 }

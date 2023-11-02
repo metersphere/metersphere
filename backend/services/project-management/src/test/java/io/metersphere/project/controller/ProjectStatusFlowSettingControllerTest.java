@@ -34,8 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.metersphere.project.enums.result.ProjectResultCode.PROJECT_TEMPLATE_PERMISSION;
-import static io.metersphere.system.controller.handler.result.CommonResultCode.STATUS_ITEM_EXIST;
-import static io.metersphere.system.controller.handler.result.CommonResultCode.STATUS_ITEM_NOT_EXIST;
+import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.ORGANIZATION_TEMPLATE_PERMISSION;
 
@@ -58,6 +57,7 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
     private static final String STATUS_FLOW_UPDATE = "status/flow/update";
 
     private static StatusItem addStatusItem;
+    private static StatusItem anotherAddStatusItem;
 
     @Resource
     private StatusItemMapper statusItemMapper;
@@ -124,7 +124,8 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         request.setName("test3");
         request.setAllTransferTo(true);
         mvcResult = this.requestPostWithOkAndReturn(STATUS_ADD, request);
-        statusItemId = getResultData(mvcResult, StatusItem.class).getId();
+        anotherAddStatusItem = getResultData(mvcResult, StatusItem.class);
+        statusItemId = anotherAddStatusItem.getId();
         OrganizationStatusFlowSettingControllerTest.assertAllTransferTo(statusItemId, request.getScopeId());
 
         // @@校验组织是否存在
@@ -178,21 +179,41 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, STATUS_UPDATE, request);
     }
 
-
     @Test
     @Order(3)
     public void updateStatusDefinition() throws Exception {
         StatusDefinitionUpdateRequest request = new StatusDefinitionUpdateRequest();
-        request.setScene(TemplateScene.BUG.name());
-        request.setScopeId(DEFAULT_PROJECT_ID);
-        StatusDefinitionUpdateRequest.StatusDefinitionRequest statusDefinition = new StatusDefinitionUpdateRequest.StatusDefinitionRequest();
-        statusDefinition.setStatusId(addStatusItem.getId());
-        statusDefinition.setDefinitionId(BugStatusDefinitionType.END.name());
-        request.setStatusDefinitions(List.of(statusDefinition));
+        request.setStatusId(addStatusItem.getId());
+        request.setDefinitionId(BugStatusDefinitionType.END.name());
+        request.setEnable(true);
 
         // @@校验请求成功
         this.requestPostWithOkAndReturn(STATUS_DEFINITION_UPDATE, request);
-        assertUpdateStatusDefinition(DEFAULT_PROJECT_ID);
+        OrganizationStatusFlowSettingControllerTest.assertUpdateStatusDefinition(request);
+        // 校验项目是否同步修改
+        OrganizationStatusFlowSettingControllerTest.assertRefUpdateStatusDefinition(request);
+
+        // 取消关联
+        request.setEnable(false);
+        this.requestPostWithOkAndReturn(STATUS_DEFINITION_UPDATE, request);
+        OrganizationStatusFlowSettingControllerTest.assertUpdateStatusDefinition(request);
+
+        // @测试单选
+        request.setStatusId(addStatusItem.getId());
+        request.setDefinitionId(BugStatusDefinitionType.START.name());
+        request.setEnable(true);
+        this.requestPostWithOkAndReturn(STATUS_DEFINITION_UPDATE, request);
+        OrganizationStatusFlowSettingControllerTest.assertUpdateStatusDefinition(request);
+        // 校验单选
+        OrganizationStatusFlowSettingControllerTest.assertSingleChoiceUpdateStatusDefinition(request);
+        // 校验单选禁止取消
+        request.setEnable(false);
+        assertErrorCode(this.requestPost(STATUS_DEFINITION_UPDATE, request), STATUS_DEFINITION_REQUIRED_ERROR);
+        // 设置回来，避免其他地方校验出错
+        StatusItem newStatusItem = OrganizationStatusFlowSettingControllerTest.getNewStatusItem(addStatusItem.getScopeId());
+        request.setStatusId(newStatusItem.getId());
+        request.setEnable(true);
+        this.requestPostWithOkAndReturn(STATUS_DEFINITION_UPDATE, request);
 
         // @校验是否开启组织模板
         changeOrgTemplateEnable(true);
@@ -200,11 +221,7 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         changeOrgTemplateEnable(false);
 
         // @@状态不存在
-        request.getStatusDefinitions().get(0).setStatusId("1111");
-        assertErrorCode(this.requestPost(STATUS_DEFINITION_UPDATE, request), STATUS_ITEM_NOT_EXIST);
-
-        // @@校验组织是否存在
-        request.setScopeId("1111");
+        request.setStatusId("1111");
         assertErrorCode(this.requestPost(STATUS_DEFINITION_UPDATE, request), NOT_FOUND);
 
         // @@校验日志
@@ -215,34 +232,27 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, STATUS_DEFINITION_UPDATE, request);
     }
 
-    private void assertUpdateStatusDefinition(String scopeId) {
-        List<String> statusIds = baseStatusItemService.getByScopeIdAndScene(scopeId, TemplateScene.BUG.name()).stream().map(StatusItem::getId).toList();
-        List<StatusDefinition> statusDefinitions = baseStatusDefinitionService.getStatusDefinitions(statusIds);
-        Assertions.assertEquals(statusDefinitions.size(), 1);
-        Assertions.assertEquals(statusDefinitions.get(0).getDefinitionId(), BugStatusDefinitionType.END.name());
-    }
-
     @Test
     @Order(4)
     public void updateStatusFlow() throws Exception {
         StatusFlowUpdateRequest request = new StatusFlowUpdateRequest();
-        request.setScopeId(DEFAULT_PROJECT_ID);
-        request.setScene(TemplateScene.BUG.name());
+        request.setFromId(anotherAddStatusItem.getId());
+        request.setToId(addStatusItem.getId());
 
-        StatusFlowUpdateRequest.StatusFlowRequest statusFlow = new StatusFlowUpdateRequest.StatusFlowRequest();
-        statusFlow.setFromId(addStatusItem.getId());
-        StatusItemExample example = new StatusItemExample();
-        example.createCriteria().andScopeIdEqualTo(DEFAULT_PROJECT_ID).andSceneEqualTo(TemplateScene.BUG.name());
-        StatusItem targetStatusItem = statusItemMapper.selectByExample(example).stream()
-                .filter(item -> !StringUtils.equals(addStatusItem.getId(), item.getId()))
-                .findFirst()
-                .get();
-        statusFlow.setToId(targetStatusItem.getId());
-        request.setStatusFlows(List.of(statusFlow));
+        request.setEnable(true);
 
         // @@校验请求成功
         this.requestPostWithOkAndReturn(STATUS_FLOW_UPDATE, request);
-        assertUpdateStatusFlow(DEFAULT_PROJECT_ID, statusFlow);
+        OrganizationStatusFlowSettingControllerTest.assertUpdateStatusFlow(request);
+        // 校验项目是否同步修改
+        OrganizationStatusFlowSettingControllerTest.assertRefUpdateStatusFlow(request);
+
+        // @@校验取消
+        request.setEnable(false);
+        this.requestPostWithOkAndReturn(STATUS_FLOW_UPDATE, request);
+        OrganizationStatusFlowSettingControllerTest.assertUpdateStatusFlow(request);
+        // 校验项目是否同步修改
+        OrganizationStatusFlowSettingControllerTest.assertRefUpdateStatusFlow(request);
 
         // @校验是否开启组织模板
         changeOrgTemplateEnable(true);
@@ -250,11 +260,7 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         changeOrgTemplateEnable(false);
 
         // @@状态不存在
-        request.getStatusFlows().get(0).setToId("1111");
-        assertErrorCode(this.requestPost(STATUS_FLOW_UPDATE, request), STATUS_ITEM_NOT_EXIST);
-
-        // @@校验组织是否存在
-        request.setScopeId("1111");
+        request.setToId("1111");
         assertErrorCode(this.requestPost(STATUS_FLOW_UPDATE, request), NOT_FOUND);
 
         // @@校验日志
@@ -263,15 +269,6 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         createdGroupParamValidateTest(StatusFlowUpdateRequestDefinition.class, STATUS_FLOW_UPDATE);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, STATUS_FLOW_UPDATE, request);
-    }
-
-    private void assertUpdateStatusFlow(String scopeId, StatusFlowUpdateRequest.StatusFlowRequest statusFlow) {
-        List<String> statusIds = baseStatusItemService.getByScopeIdAndScene(scopeId, TemplateScene.BUG.name()).stream()
-                .map(StatusItem::getId).toList();
-        List<StatusFlow> statusFlows = baseStatusFlowService.getStatusFlows(statusIds);
-        Assertions.assertEquals(statusFlows.size(), 1);
-        Assertions.assertEquals(statusFlows.get(0).getFromId(), statusFlow.getFromId());
-        Assertions.assertEquals(statusFlows.get(0).getToId(), statusFlow.getToId());
     }
 
     @Test

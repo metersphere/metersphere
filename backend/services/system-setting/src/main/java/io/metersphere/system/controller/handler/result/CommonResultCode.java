@@ -27,7 +27,8 @@ public enum CommonResultCode implements IResultCode {
     DEFAULT_TEMPLATE_PERMISSION(100014, "default_template_permission_error"),
     STATUS_ITEM_NOT_EXIST(100015, "status_item.not.exist"),
     STATUS_ITEM_EXIST(100016, "status_item.exist"),
-    FIELD_VALIDATE_ERROR(100017, "field_validate_error");
+    FIELD_VALIDATE_ERROR(100017, "field_validate_error"),
+    STATUS_DEFINITION_REQUIRED_ERROR(100018, "status_definition_required_error");;
 
 
     private int code;

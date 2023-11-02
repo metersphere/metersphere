@@ -1,7 +1,5 @@
 package io.metersphere.system.service;
 
-import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.StatusFlow;
 import io.metersphere.system.domain.StatusFlowExample;
 import io.metersphere.system.mapper.StatusFlowMapper;
@@ -11,10 +9,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author jianxing
@@ -38,34 +33,6 @@ public class BaseStatusFlowService {
                 .andToIdIn(statusIds);
         example.or(criteria);
         return statusFlowMapper.selectByExample(example);
-    }
-
-    public void updateStatusFlow(List<String> deleteStatusItemIds, List<StatusFlowUpdateRequest.StatusFlowRequest> statusFlowRequests) {
-        // 先删除
-        StatusFlowExample example = new StatusFlowExample();
-        example.createCriteria().andFromIdIn(deleteStatusItemIds);
-        statusFlowMapper.deleteByExample(example);
-        example.clear();
-        example.createCriteria().andToIdIn(deleteStatusItemIds);
-        statusFlowMapper.deleteByExample(example);
-
-        // 再添加
-        List<StatusFlow> statusFlows = statusFlowRequests.stream().map(request -> {
-            StatusFlow statusFlow = new StatusFlow();
-            BeanUtils.copyBean(statusFlow, request);
-            statusFlow.setId(IDGenerator.nextStr());
-            return statusFlow;
-        }).toList();
-        statusFlowMapper.batchInsert(statusFlows);
-    }
-
-    public static List<String> getStatusIds(List<StatusFlowUpdateRequest.StatusFlowRequest> statusFlows) {
-        Set<String> statusIds = new HashSet<>();
-        statusFlows.forEach(statusFlow -> {
-            statusIds.add(statusFlow.getFromId());
-            statusIds.add(statusFlow.getToId());
-        });
-        return statusIds.stream().collect(Collectors.toList());
     }
 
     public void deleteByStatusId(String statusId) {
@@ -99,5 +66,29 @@ public class BaseStatusFlowService {
             statusFlow.setId(IDGenerator.nextStr());
         });
         statusFlowMapper.batchInsert(statusFlows);
+    }
+
+    public void add(StatusFlow statusFlow) {
+        statusFlow.setId(IDGenerator.nextStr());
+        statusFlowMapper.insert(statusFlow);
+    }
+
+    public void delete(String fromId, String toId) {
+        StatusFlowExample example = new StatusFlowExample();
+        example.createCriteria()
+                .andFromIdEqualTo(fromId)
+                .andToIdEqualTo(toId);
+        statusFlowMapper.deleteByExample(example);
+    }
+
+    public void deleteByFromIdsAndToIds(List<String> subProjectFromIds, List<String> subProjectToIds) {
+        if (CollectionUtils.isEmpty(subProjectFromIds) || CollectionUtils.isEmpty(subProjectToIds)) {
+            return;
+        }
+        StatusFlowExample example = new StatusFlowExample();
+        example.createCriteria()
+                .andFromIdIn(subProjectFromIds)
+                .andToIdIn(subProjectToIds);
+        statusFlowMapper.deleteByExample(example);
     }
 }
