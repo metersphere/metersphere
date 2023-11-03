@@ -146,14 +146,14 @@ export type StateList = {
 };
 // 设置工作流状态初始或结束
 export interface SetStateType {
-  scopeId: string;
-  scene: string;
-  statusDefinitions: StateList[];
+  statusId: string;
+  definitionId: string;
+  enable: boolean;
 }
 
 // 更新流转状态
 export interface UpdateWorkFlowSetting {
-  scopeId: string;
-  scene: string;
-  statusFlows: { fromId: string; toId: string }[];
+  fromId: string;
+  toId: string;
+  enable: boolean;
 }

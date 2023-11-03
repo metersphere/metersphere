@@ -20,7 +20,7 @@
               <a-divider v-if="!props.cardItem.enable || props.cardItem.key === 'BUG'" direction="vertical" />
             </span>
             <span v-if="props.cardItem.key === 'BUG'" class="operation hover:text-[rgb(var(--primary-5))]">
-              <span>{{ t('system.orgTemplate.workflowSetup') }}</span>
+              <span @click="workflowSetup">{{ t('system.orgTemplate.workflowSetup') }}</span>
               <a-divider v-if="!props.cardItem.enable && props.cardItem.key === 'BUG'" direction="vertical" />
             </span>
             <span v-if="!props.cardItem.enable" class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]">
@@ -44,11 +44,15 @@
   import { isEnableTemplate } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import useTemplateStore from '@/store/modules/setting/template';
 
   import { SettingRouteEnum } from '@/enums/routeEnum';
 
   const { t } = useI18n();
   const appStore = useAppStore();
+  const templateStore = useTemplateStore();
+
+  const currentOrgId = computed(() => appStore.currentOrgId);
 
   const props = defineProps<{
     cardItem: Record<string, any>;
@@ -67,8 +71,9 @@
   // 启用模板
   const enableHandler = async () => {
     try {
-      await isEnableTemplate(appStore.currentOrgId);
+      await isEnableTemplate(currentOrgId.value);
       Message.success(t('system.orgTemplate.enabledSuccessfully'));
+      templateStore.getStatus();
     } catch (error) {
       console.log(error);
     }
@@ -93,6 +98,15 @@
   const templateManagement = () => {
     router.push({
       name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+      query: {
+        type: props.cardItem.key,
+      },
+    });
+  };
+
+  const workflowSetup = () => {
+    router.push({
+      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
       query: {
         type: props.cardItem.key,
       },

@@ -14,7 +14,7 @@
         :card-min-width="360"
         class="flex-1"
         :shadow-limit="50"
-        :list="cardList"
+        :list="getCardList('organization')"
         :is-proportional="false"
         :gap="16"
         padding-bottom-space="16px"
@@ -41,7 +41,7 @@
   import useVisit from '@/hooks/useVisit';
   import useTemplateStore from '@/store/modules/setting/template';
 
-  import { cardList } from './components/fieldSetting';
+  import { getCardList } from './components/fieldSetting';
 
   const templateStore = useTemplateStore();
 

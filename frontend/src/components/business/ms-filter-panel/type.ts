@@ -44,6 +44,7 @@ export interface SearchKeyType {
   type: string; // Vue控件名称
   label: string; // 显示名称
   rules?: FieldRule[];
+  request?: any;
   props?: {
     [key: string]: string | number | boolean;
   };

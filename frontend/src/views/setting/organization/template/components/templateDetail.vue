@@ -87,7 +87,7 @@
   import type { ActionTemplateManage, CustomField, DefinedFieldItem } from '@/models/setting/template';
   import { SettingRouteEnum } from '@/enums/routeEnum';
 
-  import { cardList } from './fieldSetting';
+  import { getCardList } from './fieldSetting';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -296,7 +296,7 @@
 
   // 计算当前级别title
   const breadTitle = computed(() => {
-    const firstBreadTitle = cardList.find((item) => item.key === route.query.type)?.name;
+    const firstBreadTitle = getCardList('organization').find((item) => item.key === route.query.type)?.name;
     const ThirdBreadTitle = title.value;
     return {
       firstBreadTitle,

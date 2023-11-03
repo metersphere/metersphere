@@ -220,7 +220,7 @@
   };
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getMemberList, {
     tableKey: TableKeyEnum.ORGANIZATION_MEMBER,
-    scroll: { x: 2000 },
+    scroll: { x: 1800 },
     selectable: true,
     showSetting: true,
     size: 'default',

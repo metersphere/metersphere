@@ -22,7 +22,7 @@
       ></a-input-search
     ></div>
   </div>
-  <ms-base-table
+  <MsBaseTable
     v-bind="propsRes"
     :action-config="tableBatchActions"
     @selected-change="handleTableSelect"
@@ -67,7 +67,7 @@
         @ok="removeMember(record)"
       />
     </template>
-  </ms-base-table>
+  </MsBaseTable>
   <AddMemberModal
     ref="projectMemberRef"
     v-model:visible="addMemberVisible"
@@ -87,7 +87,7 @@
   /**
    * @description 项目管理-项目与权限-成员
    */
-  import { onBeforeMount, ref } from 'vue';
+  import { onMounted, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -108,7 +108,7 @@
   } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { useAppStore, useTableStore } from '@/store';
+  import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
 
   import type {
@@ -123,22 +123,20 @@
   const { openModal } = useModal();
   const appStore = useAppStore();
 
-  const tableStore = useTableStore();
   const lastProjectId = computed(() => appStore.getCurrentProjectId);
 
   const columns: MsTableColumn = [
     {
-      title: 'project.member.tableColumnEmail',
-      dataIndex: 'email',
-      showInTable: true,
-      width: 200,
-      showTooltip: true,
-    },
-    {
       title: 'project.member.tableColumnName',
       dataIndex: 'name',
       showInTable: true,
-      width: 200,
+      showTooltip: true,
+      fixed: 'left',
+    },
+    {
+      title: 'project.member.tableColumnEmail',
+      dataIndex: 'email',
+      showInTable: true,
       showTooltip: true,
     },
     {
@@ -159,6 +157,7 @@
       slotName: 'enable',
       dataIndex: 'enable',
       showInTable: true,
+      width: 150,
     },
     {
       title: 'project.member.tableColumnActions',
@@ -168,7 +167,6 @@
       showInTable: true,
     },
   ];
-  await tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');
 
   const tableBatchActions = {
     baseAction: [
@@ -193,7 +191,7 @@
     tableKey: TableKeyEnum.PROJECT_MEMBER,
     selectable: true,
     showSetting: true,
-    size: 'default',
+    columns,
     scroll: {
       x: 1200,
     },
@@ -355,8 +353,7 @@
 
   const userGroupAll = ref<ProjectUserOption[]>([]);
 
-  onMounted(async () => {
-    initData();
+  const initOptions = async () => {
     userGroupOptions.value = await getProjectUserGroup(lastProjectId.value);
     userGroupAll.value = [
       {
@@ -365,6 +362,11 @@
       },
       ...userGroupOptions.value,
     ];
+  };
+
+  onMounted(() => {
+    initData();
+    initOptions();
   });
 </script>
 

@@ -110,7 +110,8 @@ export default {
   'system.orgTemplate.workFlowToolTipHover':
     'hover can replace the initial state, and the operation column can select the end state',
   'system.orgTemplate.addWorkFlowStatus': 'Add State',
-  'system.orgTemplate.StateName': 'State name',
+  'system.orgTemplate.updateWorkFlowStatus': 'Update State',
+  'system.orgTemplate.stateName': 'State name',
   'system.orgTemplate.stateNameDescription':
     'Please enter the status name, in order to display complete, try to be less than 8 characters',
   'system.orgTemplate.stateNameNotNull': 'The status name cannot be empty',
@@ -130,4 +131,19 @@ export default {
   'system.orgTemplate.deleteStateStepContent':
     'After delete, will be effective in the project and delete irrevocable, please careful operation.',
   'system.orgTemplate.stateDetail': '{name} State detail',
+  'system.orgTemplate.addState': 'Add State',
+  'system.orgTemplate.example': 'example',
+  'system.orgTemplate.startState': 'Start State',
+  'system.orgTemplate.endState': 'End State',
+  'system.orgTemplate.iconTip': 'Icon to adjust state order',
+  'system.orgTemplate.anyStateToAll': 'Any state may switch to change state',
+  'system.orgTemplate.enableAnyStateToAll': 'enabled',
+  'system.orgTemplate.enableNotAnyStateToAll': 'off',
+  'system.orgTemplate.createFlowStep': 'Create flow step',
+  'system.orgTemplate.deleteSteps': 'Delete steps',
+  'system.orgTemplate.updateFlowStep': 'Update flow step',
+  'system.orgTemplate.details': 'details',
+  'system.orgTemplate.stateTip':
+    'Open, the existing state will transfer to the state, only in the state of new Settings',
+  'system.orgTemplate.createSuccess': 'Created successfully',
 };

@@ -63,6 +63,7 @@ export enum SettingRouteEnum {
   SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING = 'settingOrganizationTemplateFiledSetting',
   SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT = 'settingOrganizationTemplateManagement',
   SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL = 'settingOrganizationTemplateManagementDetail',
+  SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW = 'settingOrganizationTemplateWorkFlow',
   SETTING_ORGANIZATION_SERVICE = 'settingOrganizationService',
   SETTING_ORGANIZATION_LOG = 'settingOrganizationLog',
 }
