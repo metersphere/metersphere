@@ -168,7 +168,7 @@ public class NoticeTemplateService {
         messageTemplateFieldFollow.setName(Translator.get("message.follow_people"));
         messageTemplateFieldDTOS.add(messageTemplateFieldFollow);
         MessageTemplateFieldDTO messageTemplateFieldTriggerMode = new MessageTemplateFieldDTO();
-        messageTemplateFieldTriggerMode.setId("TRIGGER_MODE");
+        messageTemplateFieldTriggerMode.setId("triggerMode");
         messageTemplateFieldTriggerMode.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
         messageTemplateFieldTriggerMode.setName(Translator.get("message.trigger_mode"));
         messageTemplateFieldDTOS.add(messageTemplateFieldTriggerMode);

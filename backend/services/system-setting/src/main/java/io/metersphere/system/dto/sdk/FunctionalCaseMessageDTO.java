@@ -21,7 +21,7 @@ public class FunctionalCaseMessageDTO {
     private String reviewStatus;
 
     @Schema(description = "message.domain.case_model")
-    private String caseModel;
+    private String caseEditType;
 
     @Schema(description = "message.domain.last_execute_result")
     private String lastExecuteResult;

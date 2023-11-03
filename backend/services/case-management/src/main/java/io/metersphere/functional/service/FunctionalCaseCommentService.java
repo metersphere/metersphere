@@ -67,9 +67,9 @@ public class FunctionalCaseCommentService {
         checkCase(functionalCaseCommentRequest.getCaseId());
         FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest, userId);
         if (StringUtils.equals(functionalCaseCommentRequest.getEvent(), NoticeConstants.Event.REPLY)) {
-            return saveCommentWidthNotice(functionalCaseCommentRequest, functionalCaseComment, userId);
+            return saveCommentWidthReply(functionalCaseCommentRequest, functionalCaseComment, userId);
         } else {
-            return saveCommentWidthOutNotice(functionalCaseCommentRequest, functionalCaseComment, userId);
+            return saveCommentWidthOther(functionalCaseCommentRequest, functionalCaseComment, userId);
         }
     }
 
@@ -107,7 +107,7 @@ public class FunctionalCaseCommentService {
      * @param functionalCaseComment 被组装的半份数据
      * @return FunctionalCaseComment
      */
-    public FunctionalCaseComment saveCommentWidthOutNotice(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
+    public FunctionalCaseComment saveCommentWidthOther(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
         if (StringUtils.isNotBlank(functionalCaseCommentRequest.getNotifier())) {
             functionalCaseComment.setNotifier(functionalCaseCommentRequest.getNotifier());
         }
@@ -127,7 +127,7 @@ public class FunctionalCaseCommentService {
      * @param functionalCaseComment 被组装的半份数据
      * @return FunctionalCaseComment
      */
-    public FunctionalCaseComment saveCommentWidthNotice(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
+    public FunctionalCaseComment saveCommentWidthReply(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
         setOther(functionalCaseCommentRequest, functionalCaseComment);
         functionalCaseCommentMapper.insert(functionalCaseComment);
         FunctionalCaseDTO functionalCaseDTOReply = functionalCaseNoticeService.getFunctionalCaseDTO(functionalCaseCommentRequest);

@@ -42,6 +42,8 @@ public class FunctionalCaseNoticeService {
         setNotifier(functionalCaseCommentRequest, functionalCaseDTO);
         List<OptionDTO> customFields = getCustomFields(functionalCaseCommentRequest.getCaseId());
         functionalCaseDTO.setFields(customFields);
+        //TODO:设置测试计划名称
+        //TODO：设置用例评审名称
         return functionalCaseDTO;
     }
 
@@ -113,10 +115,11 @@ public class FunctionalCaseNoticeService {
         return optionDTOList;
     }
 
-    public FunctionalCaseDTO getMainFunctionalCaseDTO(String name, String caseEditType, List<CaseCustomsFieldDTO> customsFields) {
+    public FunctionalCaseDTO getMainFunctionalCaseDTO(String name, String caseEditType,String projectId, List<CaseCustomsFieldDTO> customsFields) {
         String userId = SessionUtils.getUserId();
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
         functionalCaseDTO.setName(name);
+        functionalCaseDTO.setProjectId(projectId);
         functionalCaseDTO.setCaseEditType(caseEditType);
         functionalCaseDTO.setCreateUser(userId);
         List<OptionDTO> fields = new ArrayList<>();
@@ -133,22 +136,23 @@ public class FunctionalCaseNoticeService {
             }
         }
         functionalCaseDTO.setFields(fields);
+        //TODO:设置测试计划名称
+        //TODO：设置用例评审名称
         return functionalCaseDTO;
     }
 
 
     public FunctionalCaseDTO getDeleteFunctionalCaseDTO(String id){
-        String userId = SessionUtils.getUserId();
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(id);
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
         Optional.ofNullable(functionalCase).ifPresent(functional -> {
-            functionalCaseDTO.setName(functionalCase.getName());
-            functionalCaseDTO.setCaseEditType(functionalCase.getCaseEditType());
-            functionalCaseDTO.setCreateUser(userId);
+            BeanUtils.copyBean(functionalCaseDTO, functionalCase);
             List<OptionDTO> customFields = getCustomFields(id);
             functionalCaseDTO.setFields(customFields);
 
         });
+        //TODO:设置测试计划名称
+        //TODO：设置用例评审名称
         return functionalCaseDTO;
     }
 

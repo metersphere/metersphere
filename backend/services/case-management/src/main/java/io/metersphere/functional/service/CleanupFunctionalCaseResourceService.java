@@ -1,6 +1,8 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.functional.domain.FunctionalCaseModuleExample;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
+import io.metersphere.functional.mapper.FunctionalCaseModuleMapper;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.service.CleanupProjectResourceService;
 import jakarta.annotation.Resource;
@@ -22,6 +24,9 @@ public class CleanupFunctionalCaseResourceService implements CleanupProjectResou
     @Resource
     private DeleteFunctionalCaseService deleteFunctionalCaseService;
 
+    @Resource
+    private FunctionalCaseModuleMapper functionalCaseModuleMapper;
+
 
     @Override
     public void deleteResources(String projectId) {
@@ -29,6 +34,10 @@ public class CleanupFunctionalCaseResourceService implements CleanupProjectResou
         if (CollectionUtils.isNotEmpty(ids)) {
             deleteFunctionalCaseService.deleteFunctionalCaseResource(ids, projectId);
         }
+        //删除模块
+        FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
+        functionalCaseModuleExample.createCriteria().andProjectIdEqualTo(projectId);
+        functionalCaseModuleMapper.deleteByExample(functionalCaseModuleExample);
     }
 
     @Override
