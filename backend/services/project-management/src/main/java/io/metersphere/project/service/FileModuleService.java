@@ -35,15 +35,15 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class FileModuleService extends ModuleTreeService implements CleanupProjectResourceService {
     @Resource
-    private FileModuleLogService fileModuleLogService;
+    protected FileModuleLogService fileModuleLogService;
     @Resource
-    private FileModuleMapper fileModuleMapper;
+    protected FileModuleMapper fileModuleMapper;
     @Resource
-    private ExtFileModuleMapper extFileModuleMapper;
+    protected ExtFileModuleMapper extFileModuleMapper;
     @Resource
-    private SqlSessionFactory sqlSessionFactory;
+    protected SqlSessionFactory sqlSessionFactory;
     @Resource
-    private FileManagementService fileManagementService;
+    protected FileManagementService fileManagementService;
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectBaseByProjectId(projectId, ModuleConstants.NODE_TYPE_DEFAULT);
@@ -59,13 +59,13 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
     public String add(FileModuleCreateRequest request, String operator) {
         FileModule fileModule = new FileModule();
         fileModule.setId(IDGenerator.nextStr());
-        fileModule.setName(request.getName());
+        fileModule.setName(request.getName().trim());
         fileModule.setParentId(request.getParentId());
         fileModule.setProjectId(request.getProjectId());
         this.checkDataValidity(fileModule);
         fileModule.setCreateTime(System.currentTimeMillis());
         fileModule.setUpdateTime(fileModule.getCreateTime());
-        fileModule.setPos(this.countPos(request.getParentId()));
+        fileModule.setPos(this.countPos(request.getParentId(), ModuleConstants.NODE_TYPE_DEFAULT));
         fileModule.setCreateUser(operator);
         fileModule.setUpdateUser(operator);
         fileModule.setModuleType(ModuleConstants.NODE_TYPE_DEFAULT);
@@ -76,8 +76,8 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         return fileModule.getId();
     }
 
-    private Long countPos(String parentId) {
-        Long maxPos = extFileModuleMapper.getMaxPosByParentId(parentId);
+    protected Long countPos(String parentId, String fileType) {
+        Long maxPos = extFileModuleMapper.getMaxPosByParentId(parentId, fileType);
         if (maxPos == null) {
             return LIMIT_POS;
         } else {
@@ -88,7 +88,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
     /**
      * 检查数据的合法性
      */
-    private void checkDataValidity(FileModule fileModule) {
+    protected void checkDataValidity(FileModule fileModule) {
         FileModuleExample example = new FileModuleExample();
         if (!StringUtils.equals(fileModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
             //检查父ID是否存在
@@ -121,7 +121,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         }
         FileModule updateModule = new FileModule();
         updateModule.setId(request.getId());
-        updateModule.setName(request.getName());
+        updateModule.setName(request.getName().trim());
         updateModule.setParentId(module.getParentId());
         this.checkDataValidity(updateModule);
         updateModule.setUpdateTime(System.currentTimeMillis());

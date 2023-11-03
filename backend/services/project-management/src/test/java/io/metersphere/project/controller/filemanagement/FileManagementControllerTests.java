@@ -5,7 +5,6 @@ import io.metersphere.project.dto.filemanagement.request.*;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
-import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
@@ -17,9 +16,12 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.TempFileUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -47,7 +49,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class FileManagementControllerTests extends BaseTest {
-    private static final String FILE_TEST_PROJECT_ID = "1507121382013";
     private static Project project;
 
     private static List<BaseTreeNode> preliminaryTreeNodes = new ArrayList<>();
@@ -68,29 +69,18 @@ public class FileManagementControllerTests extends BaseTest {
     @Resource
     private FileMetadataMapper fileMetadataMapper;
     @Resource
-    private ProjectMapper projectMapper;
+    private CommonProjectService commonProjectService;
 
     @BeforeEach
     public void initTestData() {
         //文件管理专用项目
         if (project == null) {
-            project = projectMapper.selectByPrimaryKey(FILE_TEST_PROJECT_ID);
-        }
-        if (project == null) {
-            Project initProject = new Project();
-            initProject.setId(FILE_TEST_PROJECT_ID);
-            initProject.setNum(null);
+            AddProjectRequest initProject = new AddProjectRequest();
             initProject.setOrganizationId("100001");
             initProject.setName("文件管理专用项目");
             initProject.setDescription("建国创建的文件管理专用项目");
-            initProject.setCreateUser("admin");
-            initProject.setUpdateUser("admin");
-            initProject.setCreateTime(System.currentTimeMillis());
-            initProject.setUpdateTime(System.currentTimeMillis());
             initProject.setEnable(true);
-            initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
-            projectMapper.insertSelective(initProject);
-            project = projectMapper.selectByPrimaryKey(initProject.getId());
+            project = commonProjectService.add(initProject, "admin", "/organization-project/add", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
         }
     }
     @Test
@@ -407,8 +397,8 @@ public class FileManagementControllerTests extends BaseTest {
         }
 
         //在来个jar文件
-        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test-jar.jar")).getPath();
-        file = new MockMultipartFile("file", "test-jar.jar", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test-jar-1.jar")).getPath();
+        file = new MockMultipartFile("file", "test-jar-1.jar", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", file);
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
@@ -419,6 +409,18 @@ public class FileManagementControllerTests extends BaseTest {
         jarFileId = returnId;
         uploadedFileTypes.add("jar");
 
+        //在来个jar文件(状态开启）
+        fileUploadRequest.setEnable(true);
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test-jar-2.jar")).getPath();
+        file = new MockMultipartFile("file", "test-jar-2.jar", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(fileUploadRequest));
+        mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
+        returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
+        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        FILE_ID_PATH.put(returnId, filePath);
+        fileUploadRequest.setEnable(false);
 
         //小型图片文件，用于测试预览图下载
         filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/1182937072541700.jpg")).getPath();
@@ -506,6 +508,15 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         this.requestMultipart(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap).andExpect(status().isBadRequest());
 
+        //上传非jar文件但是enable为true
+        fileUploadRequest.setProjectId(project.getId());
+        fileUploadRequest.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+        fileUploadRequest.setEnable(true);
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(fileUploadRequest));
+        this.requestMultipart(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap).andExpect(status().is5xxServerError());
+        fileUploadRequest.setEnable(false);
         //模块不存在
         fileUploadRequest.setModuleId(IDGenerator.nextStr());
         paramMap = new LinkedMultiValueMap<>();
