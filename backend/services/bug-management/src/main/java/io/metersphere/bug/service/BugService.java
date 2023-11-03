@@ -552,8 +552,7 @@ public class BugService {
      */
     private List<BugDTO> buildExtraInfo(List<BugDTO> bugs) {
         // 获取用户集合
-        List<String> userIds = new ArrayList<>();
-        userIds.addAll(bugs.stream().map(BugDTO::getCreateUser).toList());
+        List<String> userIds = new ArrayList<>(bugs.stream().map(BugDTO::getCreateUser).toList());
         userIds.addAll(bugs.stream().map(BugDTO::getUpdateUser).toList());
         userIds.addAll(bugs.stream().map(BugDTO::getDeleteUser).toList());
         userIds.addAll(bugs.stream().map(BugDTO::getHandleUser).toList());
