@@ -270,7 +270,94 @@
             </el-row>
             <el-row>
               <!-- 场景步骤内容 -->
-              <div ref="stepInfo" style="height: calc(100vh - 170px)">
+              <div ref="stepInfo" v-if="stepCount <= 200">
+                <el-tree
+                  node-key="resourceId"
+                  :props="props"
+                  :data="scenarioDefinition"
+                  class="ms-tree"
+                  :expand-on-click-node="false"
+                  :allow-drop="allowDrop"
+                  :allow-drag="allowDrag"
+                  :empty-text="$t('api_test.scenario.step_info')"
+                  highlight-current
+                  :show-checkbox="isBatchProcess"
+                  @node-drag-end="nodeDragEnd"
+                  @node-click="nodeClick"
+                  draggable
+                  ref="stepTree"
+                  :key="reloadTree">
+                  <el-row
+                    class="custom-tree-node"
+                    :gutter="10"
+                    type="flex"
+                    align="middle"
+                    slot-scope="{ node, data }"
+                    style="width: 100%">
+                    <span
+                      class="custom-tree-node-col"
+                      style="padding-left: 0px; padding-right: 0px"
+                      v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
+                      <span
+                        v-show="!node.expanded"
+                        class="el-icon-circle-plus-outline custom-node_e"
+                        @click="openOrClose(node, data)" />
+                      <span
+                        v-show="node.expanded"
+                        class="el-icon-remove-outline custom-node_e"
+                        @click="openOrClose(node, data)" />
+                    </span>
+                    <!-- 批量操作 -->
+                    <span
+                      :class="data.checkBox ? 'custom-tree-node-hide' : 'custom-tree-node-col'"
+                      style="padding-left: 0px; padding-right: 0px"
+                      v-show="(data.hashTree && data.hashTree.length === 0) || data.isLeaf">
+                      <show-more-btn
+                        :is-show="node.checked"
+                        :buttons="batchOperators"
+                        v-show="data.checkBox"
+                        :show-size="false"
+                        style="margin-right: 10px" />
+                    </span>
+                    <span style="width: calc(100% - 40px)">
+                      <!-- 步骤组件-->
+                      <ms-component-config
+                        :scenario-definition="scenarioDefinition"
+                        :message="message"
+                        :type="data.type"
+                        :scenario="data"
+                        :response="response"
+                        :currentScenario="currentScenario"
+                        :node="node"
+                        :project-list="projectList"
+                        :env-map="projectEnvMap"
+                        :env-group-id="envGroupId"
+                        :environment-type="environmentType"
+                        @remove="remove"
+                        @copyRow="copyRow"
+                        @suggestClick="suggestClick"
+                        @refReload="refReload"
+                        @runScenario="runDebug"
+                        @stopScenario="stop"
+                        @setDomain="setDomain"
+                        @openScenario="openScenario"
+                        @editScenarioAdvance="editScenarioAdvance"
+                        ref="componentConfig"
+                        v-if="
+                          stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
+                          !node.parent ||
+                          !node.parent.data ||
+                          stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1
+                        " />
+                      <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
+                        {{ hideNode(node) }}
+                      </div>
+                    </span>
+                  </el-row>
+                </el-tree>
+              </div>
+              <!-- 场景步骤内容 -->
+              <div v-else ref="stepInfo" style="height: calc(100vh - 170px)">
                 <vue-virtual-tree
                   node-key="data.id"
                   height="calc(100vh - 170px)"
@@ -786,6 +873,7 @@ export default {
       isPreventReClick: false,
       latestVersionId: '',
       hasLatest: false,
+      stepCount: 0, // 步骤节点总数
     };
   },
   created() {
@@ -1972,7 +2060,7 @@ export default {
         if (this.projectIds.size > 1) {
           let projects = [];
           this.projectIds.forEach((item) => {
-            if (this.projectList.filter(project => project.id === item).length > 0) {
+            if (this.projectList.filter((project) => project.id === item).length > 0) {
               projects.push(item);
             }
           });
@@ -2052,6 +2140,7 @@ export default {
                 } else {
                   this.onSampleError = obj.onSampleError;
                 }
+                this.stepCount = 0;
                 this.dataProcessing(obj.hashTree);
                 this.scenarioDefinition = obj.hashTree;
                 this.$nextTick(() => {
@@ -2108,6 +2197,7 @@ export default {
     },
     dataProcessing(stepArray) {
       if (stepArray) {
+        this.stepCount += stepArray.length;
         for (let i in stepArray) {
           let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
           if (typeArray.indexOf(stepArray[i].type) !== -1) {
