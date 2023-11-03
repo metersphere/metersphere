@@ -31,8 +31,10 @@ public class RIdGeneratorTests {
             executorService.submit(() -> {
                 long nextId = NumGenerator.nextNum(projectId, ApplicationNumScope.API_DEFINITION);
                 System.out.println(nextId);
-                if (atomicLong.get() < nextId) {
-                    atomicLong.set(nextId);
+                synchronized (projectId) {
+                    if (atomicLong.get() < nextId) {
+                        atomicLong.set(nextId);
+                    }
                 }
             });
         }
@@ -58,8 +60,10 @@ public class RIdGeneratorTests {
                 // 接口用例的前缀为: PROJECT_ID_API_DEFINITION 比较特殊
                 long nextId = NumGenerator.nextNum(projectId + "_" + apiNum, ApplicationNumScope.API_TEST_CASE);
                 System.out.println(nextId);
-                if (atomicLong.get() < nextId) {
-                    atomicLong.set(nextId);
+                synchronized (projectId) {
+                    if (atomicLong.get() < nextId) {
+                        atomicLong.set(nextId);
+                    }
                 }
             });
         }
