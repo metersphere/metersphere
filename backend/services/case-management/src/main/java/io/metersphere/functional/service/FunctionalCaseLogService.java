@@ -10,11 +10,13 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,6 +28,9 @@ public class FunctionalCaseLogService {
 
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
+
+    @Resource
+    private OperationLogService operationLogService;
 
 
     //TODO 日志(需要修改)
@@ -103,5 +108,25 @@ public class FunctionalCaseLogService {
             return dto;
         }
         return null;
+    }
+
+    public void batchDelLog(List<FunctionalCase> functionalCases, String projectId) {
+        List<LogDTO> dtoList = new ArrayList<>();
+        functionalCases.forEach(item -> {
+            LogDTO dto = new LogDTO(
+                    projectId,
+                    "",
+                    item.getId(),
+                    item.getCreateUser(),
+                    OperationLogType.DELETE.name(),
+                    OperationLogModule.FUNCTIONAL_CASE,
+                    item.getName());
+
+            dto.setPath("/functional/case/module/delete/");
+            dto.setMethod(HttpMethodConstants.GET.name());
+            dto.setOriginalValue(JSON.toJSONBytes(item));
+            dtoList.add(dto);
+        });
+        operationLogService.batchAdd(dtoList);
     }
 }

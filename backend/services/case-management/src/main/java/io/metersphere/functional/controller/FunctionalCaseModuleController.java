@@ -58,4 +58,11 @@ public class FunctionalCaseModuleController {
     public void deleteNode(@PathVariable String moduleId) {
         functionalCaseModuleService.deleteModule(moduleId);
     }
+
+    @GetMapping("/trash/tree/{projectId}")
+    @Operation(summary = "用例管理-功能用例-回收站-模块-获取模块树")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    public List<BaseTreeNode> getTrashTree(@PathVariable String projectId) {
+        return functionalCaseModuleService.getTrashTree(projectId);
+    }
 }
