@@ -19,6 +19,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -43,14 +44,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class FunctionalCaseModuleControllerTests extends BaseTest {
 
     private static Project project;
-
-    private static List<BaseTreeNode> preliminaryTreeNodes = new ArrayList<>();
-
     private static final String URL_MODULE_TREE = "/functional/case/module/tree/";
     private static final String URL_MODULE_TREE_ADD = "/functional/case/module/add";
     private static final String URL_MODULE_TREE_UPDATE = "/functional/case/module/update";
+
+    private static List<BaseTreeNode> preliminaryTreeNodes = new ArrayList<>();
+
     private static final String URL_MODULE_TREE_MOVE = "/functional/case/module/move";
     private static final String URL_MODULE_TREE_DELETE = "/functional/case/module/delete/";
+    private static final String URL_MODULE_TREE_TRASH = "/functional/case/module/trash/tree/";
 
 
     @Resource
@@ -662,12 +664,12 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
         // 删除有用例的节点 a1-a1      检查是否级联删除根节点
         //创建数据
         BaseTreeNode a1a1Node = getNodeByName(this.getFunctionalCaseModuleTreeNode(), "a1-a1");
-        createCase(a1a1Node);
-        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey("gyqTestCaseId");
+        FunctionalCase name = createCase(a1a1Node, false, "name");
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(name.getId());
         Assertions.assertNotNull(functionalCase);
         this.requestGetWithOk(URL_MODULE_TREE_DELETE+a1a1Node.getId());
         this.checkModuleIsEmpty(a1a1Node.getId());
-        FunctionalCase functionalCaseDel = functionalCaseMapper.selectByPrimaryKey("gyqTestCaseId");
+        FunctionalCase functionalCaseDel = functionalCaseMapper.selectByPrimaryKey(name.getId());
         Assertions.assertTrue(functionalCaseDel.getDeleted());
         Assertions.assertTrue(StringUtils.equals(functionalCaseDel.getModuleId(), "root"));
 
@@ -677,24 +679,61 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
         this.requestGetWithOk(URL_MODULE_TREE_DELETE+ModuleConstants.DEFAULT_NODE_ID);
 
         //service层判断：测试删除空集合
-        functionalCaseModuleService.deleteModuleByIds(new ArrayList<>());
+        functionalCaseModuleService.deleteModuleByIds(new ArrayList<>(),new ArrayList<>());
+
+        checkLog(functionalCase.getId(), OperationLogType.DELETE, URL_MODULE_TREE_DELETE);
+
 
     }
 
-    private void createCase(BaseTreeNode a1a1Node) {
+
+    @Test
+    @Order(9)
+    public void getTrashTreeSuccess() throws Exception {
+        //回收站为空
+        MvcResult mvcResult = this.requestGetAndReturn(URL_MODULE_TREE_TRASH + project.getId());
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<BaseTreeNode> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
+        Assertions.assertTrue(CollectionUtils.isEmpty(baseTreeNodes));
+        //回收站有数据
+        FunctionalCaseModuleCreateRequest request = new FunctionalCaseModuleCreateRequest();
+        request.setProjectId(project.getId());
+        request.setName("gyq");
+        MvcResult mvcResultAdd = this.requestPostWithOkAndReturn(URL_MODULE_TREE_ADD, request);
+        String returnId = mvcResultAdd.getResponse().getContentAsString();
+        Assertions.assertNotNull(returnId);
+        List<BaseTreeNode> treeNodes = this.getFunctionalCaseModuleTreeNode();
+        BaseTreeNode a1Node = null;
+        for (BaseTreeNode baseTreeNode : treeNodes) {
+            if (StringUtils.equals(baseTreeNode.getName(), request.getName())) {
+                a1Node = baseTreeNode;
+            }
+            Assertions.assertNotNull(baseTreeNode.getParentId());
+        }
+        Assertions.assertNotNull(a1Node);
+        createCase(a1Node, true ,"name1");
+        MvcResult mvcResultTrash = this.requestGetAndReturn(URL_MODULE_TREE_TRASH + project.getId());
+        String contentTrash = mvcResultTrash.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolderTrash = JSON.parseObject(contentTrash, ResultHolder.class);
+        List<BaseTreeNode> baseTreeNodeTrashList = JSON.parseArray(JSON.toJSONString(resultHolderTrash.getData()), BaseTreeNode.class);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(baseTreeNodeTrashList));
+    }
+
+    private FunctionalCase createCase(BaseTreeNode a1a1Node, Boolean deleted, String name) {
         FunctionalCase functionalCase = new FunctionalCase();
-        functionalCase.setName("gyqTest");
+        functionalCase.setName(name);
         functionalCase.setNum(100001);
         functionalCase.setModuleId(a1a1Node.getId());
         functionalCase.setProjectId(project.getId());
-        functionalCase.setDeleted(false);
+        functionalCase.setDeleted(deleted);
         functionalCase.setTemplateId("default_template");
-        functionalCase.setId("gyqTestCaseId");
+        functionalCase.setId(IDGenerator.nextStr());
         functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
         functionalCase.setCaseEditType("Text");
         functionalCase.setPos(500L);
         functionalCase.setVersionId("12335");
-        functionalCase.setRefId("gyqTestCaseId");
+        functionalCase.setRefId(functionalCase.getId());
         functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
         functionalCase.setPublicCase(false);
         functionalCase.setLatest(true);
@@ -703,6 +742,7 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
         functionalCase.setUpdateUser("gyq");
         functionalCase.setUpdateTime(System.currentTimeMillis());
         functionalCaseMapper.insertSelective(functionalCase);
+        return functionalCase;
     }
 
     private void checkModuleIsEmpty(String id) {

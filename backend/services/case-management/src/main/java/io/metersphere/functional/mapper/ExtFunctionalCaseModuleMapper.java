@@ -10,6 +10,8 @@ import java.util.List;
 public interface ExtFunctionalCaseModuleMapper {
     List<BaseTreeNode> selectBaseByProjectId(@Param("projectId")String projectId);
 
+    List<BaseTreeNode> selectBaseByIds(@Param("ids") List<String> ids);
+
     List<String> selectChildrenIdsByParentIds(@Param("ids") List<String> deleteIds);
 
     List<String> selectChildrenIdsSortByPos(String parentId);

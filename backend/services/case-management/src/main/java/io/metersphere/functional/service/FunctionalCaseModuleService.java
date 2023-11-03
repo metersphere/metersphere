@@ -7,10 +7,13 @@
 package io.metersphere.functional.service;
 
 
+import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseExample;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.domain.FunctionalCaseModuleExample;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseModuleMapper;
 import io.metersphere.functional.request.FunctionalCaseModuleCreateRequest;
 import io.metersphere.functional.request.FunctionalCaseModuleUpdateRequest;
@@ -32,6 +35,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,6 +51,10 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
     private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
+    @Resource
+    private  FunctionalCaseLogService functionalCaseLogService;
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
@@ -104,22 +112,28 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
     public void deleteModule(String moduleId) {
         FunctionalCaseModule deleteModule = functionalCaseModuleMapper.selectByPrimaryKey(moduleId);
         if (deleteModule != null) {
-            this.deleteModuleByIds(Collections.singletonList(moduleId));
+            List<FunctionalCase> functionalCases = this.deleteModuleByIds(Collections.singletonList(moduleId), new ArrayList<>());
+            functionalCaseLogService.batchDelLog(functionalCases, deleteModule.getProjectId());
         }
     }
 
-    public void deleteModuleByIds(List<String>deleteIds){
+    public List<FunctionalCase> deleteModuleByIds(List<String>deleteIds,  List<FunctionalCase>functionalCases){
         if (CollectionUtils.isEmpty(deleteIds)) {
-            return;
+            return functionalCases;
         }
         FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
         functionalCaseModuleExample.createCriteria().andIdIn(deleteIds);
         functionalCaseModuleMapper.deleteByExample(functionalCaseModuleExample);
+        List<FunctionalCase> functionalCaseList = extFunctionalCaseMapper.checkCaseByModuleIds(deleteIds);
+        if (CollectionUtils.isNotEmpty(functionalCaseList)) {
+            functionalCases.addAll(functionalCaseList);
+        }
         extFunctionalCaseMapper.removeToTrashByModuleIds(deleteIds);
         List<String> childrenIds = extFunctionalCaseModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {
-            deleteModuleByIds(childrenIds);
+            deleteModuleByIds(childrenIds, functionalCases);
         }
+        return functionalCases;
     }
 
     private Long countPos(String parentId) {
@@ -184,6 +198,15 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
-
-
+    public List<BaseTreeNode> getTrashTree(String projectId) {
+        FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
+        functionalCaseExample.createCriteria().andDeletedEqualTo(true).andProjectIdEqualTo(projectId);
+        List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+        if (CollectionUtils.isEmpty(functionalCases)) {
+            return new ArrayList<>();
+        }
+        List<String> moduleIds = functionalCases.stream().map(FunctionalCase::getModuleId).distinct().toList();
+        List<BaseTreeNode> baseTreeNodes = extFunctionalCaseModuleMapper.selectBaseByIds(moduleIds);
+        return super.buildTreeAndCountResource(baseTreeNodes, false, Translator.get("default.module"));
+    }
 }
