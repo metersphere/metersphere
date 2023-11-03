@@ -9,6 +9,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @PluginSubType("MsLoopController")
 public class MsLoopController extends TestElementDTO {
-    private String clazzName = MsLoopController.class.getCanonicalName();
     private String loopType;
 }

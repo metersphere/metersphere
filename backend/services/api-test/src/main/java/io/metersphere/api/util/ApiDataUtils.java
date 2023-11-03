@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import io.metersphere.sdk.dto.api.request.post.processors.MsPostJSR223Processor;
 import io.metersphere.sdk.dto.api.request.sampler.MsDebugSampler;
@@ -24,18 +23,23 @@ public class ApiDataUtils {
     private ApiDataUtils() {
     }
 
-    private static final ObjectMapper objectMapper = JsonMapper.builder()
+    private static ObjectMapper objectMapper = JsonMapper.builder()
             .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
             .build();
 
-    private static final StdSubtypeResolver resolver = new StdSubtypeResolver();
+    // 默认内置子组件，如果有新的子组件，需要在这里添加
+    static final List<NamedType> namedTypes = new LinkedList<>();
 
     static {
-        // 添加处理资源文件的类
-        final List<NamedType> namedTypes = new LinkedList<>();
+        // 默认内置的子组件
         namedTypes.add(new NamedType(MsPostJSR223Processor.class, MsPostJSR223Processor.class.getSimpleName()));
         namedTypes.add(new NamedType(MsDebugSampler.class, MsDebugSampler.class.getSimpleName()));
 
+        setObjectMapper(objectMapper);
+        namedTypes.forEach(objectMapper::registerSubtypes);
+    }
+
+    private static void setObjectMapper(ObjectMapper objectMapper) {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         // 支持json字符中带注释符
         objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
@@ -44,8 +48,6 @@ public class ApiDataUtils {
         // 如果一个对象中没有任何的属性，那么在序列化的时候就会报错
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        namedTypes.forEach(resolver::registerSubtypes);
-        objectMapper.setSubtypeResolver(resolver);
     }
 
     public static String toJSONString(Object value) {
@@ -88,11 +90,23 @@ public class ApiDataUtils {
     /**
      * 设置动态加载的jar的Resolver
      *
-     * @param namedTypes PluginSubType 注解的类
+     * @param newTypes PluginSubType 注解的类
      */
-    public static void setResolver(List<NamedType> namedTypes) {
-        namedTypes.forEach(resolver::registerSubtypes);
-        objectMapper.setSubtypeResolver(resolver);
+    public static void setResolver(List<NamedType> newTypes) {
+        // 获取所有子组件 TODO：此方法无法卸载组件
+        // SubtypeResolver subtypeResolver = objectMapper.getSubtypeResolver();
+        // objectMapper.setSubtypeResolver(subtypeResolver);
+
+        objectMapper = JsonMapper.builder()
+                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .build();
+        setObjectMapper(objectMapper);
+
+        // 加入默认组件
+        namedTypes.forEach(objectMapper::registerSubtypes);
+        // 加入新的动态组件
+        newTypes.forEach(objectMapper::registerSubtypes);
+
     }
 
     /**
@@ -101,7 +115,8 @@ public class ApiDataUtils {
      * @param clazz PluginSubType 注解的类
      */
     public static void setResolver(Class<?> clazz) {
-        resolver.registerSubtypes(clazz);
-        objectMapper.setSubtypeResolver(resolver);
+        setResolver(new LinkedList<>());
+        // 加入新的动态组件
+        objectMapper.registerSubtypes(clazz);
     }
 }
