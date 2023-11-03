@@ -2195,9 +2195,8 @@ export default {
         });
       }
     },
-    dataProcessing(stepArray) {
+    dataProcessing(stepArray, parent = null) {
       if (stepArray) {
-        this.stepCount += stepArray.length;
         for (let i in stepArray) {
           let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
           if (typeArray.indexOf(stepArray[i].type) !== -1) {
@@ -2218,8 +2217,15 @@ export default {
               },
             };
           }
+          if (
+            this.stepFilter.get('ALlSamplerStep').indexOf(stepArray[i].type) === -1 ||
+            !parent ||
+            this.stepFilter.get('AllSamplerProxy').indexOf(parent.type) === -1
+          ) {
+            this.stepCount += 1;
+          }
           if (stepArray[i].hashTree.length > 0) {
-            this.dataProcessing(stepArray[i].hashTree);
+            this.dataProcessing(stepArray[i].hashTree, stepArray[i]);
           }
         }
       }
