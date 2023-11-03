@@ -505,5 +505,6 @@ public interface NoticeConstants {
         String testResourcePoolId = "testResourcePoolId";
         String resourceId = "resourceId";
         String platformBugId = "platformBugId";
+        String handleUsers = "handleUsers";
     }
 }
