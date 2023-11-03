@@ -79,7 +79,7 @@
   import type { AddOrUpdateField, SeneType } from '@/models/setting/template';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { cardList, getIconType } from './fieldSetting';
+  import { getCardList, getIconType } from './fieldSetting';
 
   const templateStore = useTemplateStore();
 
@@ -172,7 +172,7 @@
   const tableRef = ref();
   const isEnable = computed(() => {
     return templateStore.templateStatus[scene.value as string];
-  }); // 开始默认未启用
+  });
 
   // 切换模版是否启用展示操作列
   const isEnableOperation = () => {
@@ -241,7 +241,7 @@
   // 更新面包屑根据不同的模版
   const updateBreadcrumbList = () => {
     const { breadcrumbList } = appStore;
-    const breadTitle = cardList.find((item) => item.key === route.query.type);
+    const breadTitle = getCardList('organization').find((item) => item.key === route.query.type);
     if (breadTitle) {
       breadcrumbList[0].locale = breadTitle.name;
       appStore.setBreadcrumbList(breadcrumbList);

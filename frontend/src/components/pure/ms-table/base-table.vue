@@ -159,7 +159,7 @@
     <div
       v-if="showBatchAction || attrs.showPagination"
       class="mt-[16px] flex h-[32px] w-[100%] flex-row flex-nowrap items-center justify-end px-0"
-      :class="{ 'justify-between': showBatchAction, 'min-w-[952px]': attrs.selectable }"
+      :class="{ 'justify-between': showBatchAction, 'min-w-[934px]': attrs.selectable }"
     >
       <batch-action
         v-if="showBatchAction"

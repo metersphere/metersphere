@@ -255,6 +255,26 @@ const Setting: AppRouteRecordRaw = {
             ],
           },
         },
+        // 模板列表-模板管理-工作流
+        {
+          path: 'templateWorkFlow',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
+          component: () => import('@/views/setting/organization/template/components/workflowTable.vue'),
+          meta: {
+            locale: 'menu.settings.organization.templateManagementWorkFlow',
+            roles: ['*'],
+            breadcrumbs: [
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
+                locale: 'menu.settings.organization.template',
+              },
+              {
+                name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
+                locale: 'menu.settings.organization.templateManagementWorkFlow',
+              },
+            ],
+          },
+        },
         {
           path: 'log',
           name: SettingRouteEnum.SETTING_ORGANIZATION_LOG,

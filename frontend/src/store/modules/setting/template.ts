@@ -28,6 +28,21 @@ const useTemplateStore = defineStore('template', {
         console.log(error);
       }
     },
+    // 获取项目模板状态
+    getProjectTemplateState() {
+      const { FUNCTIONAL, API, UI, TEST_PLAN, BUG } = this.templateStatus;
+      return {
+        FUNCTIONAL: !FUNCTIONAL,
+        API: !API,
+        UI: !UI,
+        TEST_PLAN: !TEST_PLAN,
+        BUG: !BUG,
+      } as Record<string, boolean>;
+    },
+    // 获取组织模板状态
+    getOrdTemplateState() {
+      return this.templateStatus;
+    },
   },
 });
 

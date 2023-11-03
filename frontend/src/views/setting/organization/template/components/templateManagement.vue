@@ -64,7 +64,7 @@
   import { SettingRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { cardList } from './fieldSetting';
+  import { getCardList } from './fieldSetting';
 
   const route = useRoute();
   const { t } = useI18n();
@@ -219,7 +219,7 @@
   // 更新面包屑根据不同的模版
   const updateBreadcrumbList = () => {
     const { breadcrumbList } = appStore;
-    const breadTitle = cardList.find((item) => item.key === route.query.type);
+    const breadTitle = getCardList('organization').find((item: any) => item.key === route.query.type);
     if (breadTitle) {
       breadcrumbList[0].locale = breadTitle.name;
       appStore.setBreadcrumbList(breadcrumbList);
