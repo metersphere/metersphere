@@ -213,6 +213,10 @@ public class PermissionConstants {
     public static final String FUNCTIONAL_CASE_READ_UPDATE = "FUNCTIONAL_CASE:READ+UPDATE";
     public static final String FUNCTIONAL_CASE_READ_DELETE = "FUNCTIONAL_CASE:READ+DELETE";
     public static final String FUNCTIONAL_CASE_READ_COMMENT = "FUNCTIONAL_CASE:READ+COMMENT";
+    public static final String FUNCTIONAL_CASE_READ_EXPORT = "FUNCTIONAL_CASE:READ+EXPORT";
+    public static final String FUNCTIONAL_CASE_READ_IMPORT = "FUNCTIONAL_CASE:READ+IMPORT";
+
+
 
     /*------ end: FUNCTIONAL_CASE ------*/
 
