@@ -92,10 +92,8 @@
     await formRef.value?.validate().then(async (error) => {
       if (!error) {
         try {
-          if (!isEdit.value) {
-            form.value.allTransferTo = enable as boolean;
-          }
           if (!form.value.id) {
+            form.value.allTransferTo = enable as boolean;
             await createWorkFlowStatus(form.value);
             Message.success(t('system.orgTemplate.addSuccessState'));
           } else {
@@ -115,9 +113,13 @@
   // 编辑
   function handleEdit(record: OrdWorkStatus) {
     visible.value = true;
-    form.value.name = record.name;
-    form.value.id = record.id;
-    form.value.remark = record.remark;
+    const { name, id, remark, scene } = record;
+    form.value = {
+      name,
+      id,
+      remark,
+      scene,
+    };
   }
 
   watch(

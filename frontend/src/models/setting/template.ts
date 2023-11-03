@@ -131,12 +131,12 @@ export interface WorkFlowType {
 
 // 创建组织工作流状态
 export interface OrdWorkStatus {
-  scopeId: string;
-  id: string;
+  scopeId?: string;
+  id?: string;
   name: string;
-  scene: SeneType;
+  scene?: SeneType;
   remark: string;
-  allTransferTo: boolean; // 是否允许所有状态流转到该状态
+  allTransferTo?: boolean; // 是否允许所有状态流转到该状态
 }
 
 // 状态列表

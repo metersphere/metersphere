@@ -43,7 +43,7 @@
           <span class="mb-2">{{ t('system.orgTemplate.startState') }} </span>
           <MsTag>{{ startState }}</MsTag>
         </div>
-        <icon-arrow-right :style="{ 'font-size': '16px' }" class="mt-8 text-[var(--color-text-brand)]" />
+        <icon-arrow-right class="mt-8 text-[16px] text-[var(--color-text-brand)]" />
         <div class="flex flex-col">
           <span class="mb-2"> {{ t('system.orgTemplate.endState') }}</span>
           <MsTag>{{ endState }}</MsTag>
@@ -124,18 +124,12 @@
 
   // 计算开始状态
   const startState = computed(() => {
-    const startStatus = props.totalData.find((item: WorkFlowType) => item.id === props.stateItem.id);
-    if (startStatus) {
-      return startStatus.name;
-    }
+    return props.totalData.find((item: WorkFlowType) => item.id === props.stateItem.id)?.name;
   });
 
   // 计算结束状态
   const endState = computed(() => {
-    const endStatus = props.totalData.find((item: WorkFlowType) => item.id === props.columnItem.dataIndex);
-    if (endStatus) {
-      return endStatus.name;
-    }
+    return props.totalData.find((item: WorkFlowType) => item.id === props.columnItem.dataIndex)?.name;
   });
 
   // 计算是否禁用状态
