@@ -1,0 +1,37 @@
+[
+  {
+    "id": "CASE_MANAGEMENT",
+    "name": "permission.case_management.name",
+    "type": "CASE_MANAGEMENT",
+    "children": [
+      {
+        "id": "FUNCTIONAL_CASE",
+        "name": "permission.functional_case.name",
+        "permissions": [
+          {
+            "id": "FUNCTIONAL_CASE:READ"
+          },
+          {
+            "id": "FUNCTIONAL_CASE:READ+ADD"
+          },
+          {
+            "id": "FUNCTIONAL_CASE:READ+UPDATE"
+          },
+          {
+            "id": "FUNCTIONAL_CASE:READ+DELETE"
+          },
+          {
+            "id": "FUNCTIONAL_CASE:READ+COMMENT",
+            "name": "permission.functional_case.comment"
+          },
+          {
+            "id": "FUNCTIONAL_CASE:READ+EXPORT"
+          },
+          {
+            "id": "FUNCTIONAL_CASE:READ+IMPORT"
+          }
+        ]
+      }
+    ]
+  }
+]
