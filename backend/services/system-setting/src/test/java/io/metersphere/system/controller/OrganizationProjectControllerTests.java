@@ -590,7 +590,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         // 校验日志
         checkLog(projectId, OperationLogType.ADD);
         //用户id为空
-        project = this.generatorUpdate("organizationId", "projectId2", "organization-TestNameUserIdIsNull", "Edit name", true, new ArrayList<>());
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId2", "organization-TestNameUserIdIsNull", "Edit name", true, new ArrayList<>());
         mvcResult = this.responsePost(updateProject, project);
         result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
@@ -605,7 +605,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         Assertions.assertEquals(projectExtend.getModuleSetting(), CollectionUtils.isEmpty(project.getModuleIds()) ? null : JSON.toJSONString(project.getModuleIds()));
 
         // 修改模块设置
-        project = this.generatorUpdate("organizationId", "projectId2", "org-Module", "Edit name", true, new ArrayList<>());
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId2", "org-Module", "Edit name", true, new ArrayList<>());
         moduleIds = new ArrayList<>();
         moduleIds.add("apiTest");
         moduleIds.add("uiTest");
@@ -624,7 +624,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(moduleIds));
 
         //设置资源池
-        project = this.generatorUpdate("organizationId", "projectId3", "org-updatePools", "org-updatePools", true, new ArrayList<>());
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId3", "org-updatePools", "org-updatePools", true, new ArrayList<>());
         project.setResourcePoolIds(List.of("resourcePoolId","resourcePoolId1"));
         mvcResult = this.responsePost(updateProject, project);
         result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
@@ -649,22 +649,22 @@ public class OrganizationProjectControllerTests extends BaseTest {
     @Order(8)
     public void testUpdateProjectError() throws Exception {
         //项目名称存在 500
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId1","org-Module", "description", true, List.of("admin"));
+        UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId1", "org-Module", "description", true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorUpdate(null, "projectId",null, null, true , List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目Id为空
-        project = this.generatorUpdate("organizationId", null,null, null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, null, null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目名称为空
-        project = this.generatorUpdate("organizationId", "projectId",null, null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId", null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目不存在
-        project = this.generatorUpdate("organizationId", "1111","123", null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "1111", "123", null, true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //资源池不存在
-        project = this.generatorUpdate("organizationId", "projectId","org-Module-pool", null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId", "org-Module-pool", null, true, List.of("admin"));
         project.setResourcePoolIds(List.of("resourcePoolId3"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
 
