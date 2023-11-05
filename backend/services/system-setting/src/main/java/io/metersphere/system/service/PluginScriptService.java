@@ -29,6 +29,9 @@ public class PluginScriptService {
     private ExtPluginScriptMapper extPluginScriptMapper;
 
     public void add(String pluginId, List<String> frontendScript) {
+        if (CollectionUtils.isEmpty(frontendScript)) {
+            return;
+        }
         Set<String> ids = new HashSet<>();
         List<PluginScript> pluginScripts = new ArrayList<>(frontendScript.size());
         for (String script : frontendScript) {

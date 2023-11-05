@@ -17,10 +17,7 @@ import io.metersphere.system.mapper.PluginOrganizationMapper;
 import io.metersphere.system.mapper.PluginScriptMapper;
 import io.metersphere.system.dto.request.PlatformOptionRequest;
 import io.metersphere.system.dto.request.PluginUpdateRequest;
-import io.metersphere.system.service.JdbcDriverPluginService;
-import io.metersphere.system.service.OrganizationService;
-import io.metersphere.system.service.PluginService;
-import io.metersphere.system.service.UserLoginService;
+import io.metersphere.system.service.*;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -68,6 +65,8 @@ public class PluginControllerTests extends BaseTest {
     private OrganizationService organizationService;
     @Resource
     private JdbcDriverPluginService jdbcDriverPluginService;
+    @Resource
+    private PluginScriptService pluginScriptService;
     private static Plugin addPlugin;
     private static Plugin anotherAddPlugin;
 
@@ -131,6 +130,7 @@ public class PluginControllerTests extends BaseTest {
 
         // 增加覆盖率
         this.requestGetWithOkAndReturn(DEFAULT_LIST);
+        pluginScriptService.add(null, null);
 
         // 校验 global 为 tru e时，organizationIds 为空
         request.setGlobal(false);
