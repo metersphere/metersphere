@@ -100,10 +100,6 @@ public class FileRepositoryService extends FileModuleService {
             if (request.getUserName() != null) {
                 repository.setUserName(request.getUserName());
             }
-            if (request.getPlatform() != null) {
-                this.checkPlatForm(request.getPlatform());
-                repository.setPlatform(request.getPlatform());
-            }
             fileModuleRepositoryMapper.updateByPrimaryKeySelective(repository);
         }
         //记录日志
