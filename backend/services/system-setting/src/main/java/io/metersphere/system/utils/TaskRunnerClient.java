@@ -40,9 +40,8 @@ public class TaskRunnerClient {
             ResponseEntity<ResultHolder> entity = restTemplateWithTimeOut.exchange(u, HttpMethod.GET, httpEntity, ResultHolder.class);
             return entity.getBody();
         };
-        // 首次调用
-        ResultHolder body = action.execute(url, null);
-        return retry(url, body, action);
+
+        return retry(url, null, action);
     }
 
     public static ResultHolder post(String url, Object requestBody) throws Exception {
@@ -56,20 +55,22 @@ public class TaskRunnerClient {
             restTemplateWithTimeOut.postForEntity(url, httpEntity, ResultHolder.class);
             return entity.getBody();
         };
-        // 首次调用
-        ResultHolder body = action.execute(url, requestBody);
-        return retry(url, body, action);
+
+        return retry(url, requestBody, action);
     }
 
-    private static ResultHolder retry(String url, ResultHolder body, Action action) throws Exception {
+    private static ResultHolder retry(String url, Object requestBody, Action action) throws Exception {
+        // 首次调用
+        ResultHolder body = action.execute(url, requestBody);
         if (body != null && body.getCode() == MsHttpResultCode.SUCCESS.getCode()) {
             return body;
         }
+
         // 增加token失败重试
         for (int i = 0; i < retryCount; i++) {
             TimeUnit.MILLISECONDS.sleep(300);
 
-            body = action.execute(url, null);
+            body = action.execute(url, requestBody);
             // 重试后检查是否成功
             if (body != null && body.getCode() == MsHttpResultCode.SUCCESS.getCode()) {
                 return body;
