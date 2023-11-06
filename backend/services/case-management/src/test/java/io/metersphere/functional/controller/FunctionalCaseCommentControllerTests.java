@@ -282,7 +282,7 @@ public class FunctionalCaseCommentControllerTests {
         FunctionalCaseCommentRequest functionalCaseCommentRequest = new FunctionalCaseCommentRequest();
         functionalCaseCommentRequest.setCaseId("xiaomeinvGTestOne");
         functionalCaseCommentRequest.setContent("评论你好");
-        functionalCaseCommentRequest.setReplyUser("default-project-member-user-guo");
+        functionalCaseCommentRequest.setReplyUser("default-project-member-user-guo-5");
         functionalCaseCommentRequest.setParentId(functionalCaseComment1.getId());
         functionalCaseCommentRequest.setEvent(NoticeConstants.Event.REPLY);
         FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest,SAVE_URL);

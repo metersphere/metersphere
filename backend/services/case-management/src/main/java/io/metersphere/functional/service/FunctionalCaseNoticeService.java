@@ -64,9 +64,12 @@ public class FunctionalCaseNoticeService {
                     if (!notifierList.contains(replyUser)) {
                         functionalCaseDTO.setRelatedUsers(replyUser);
                     }
+                } else {
+                    functionalCaseDTO.setRelatedUsers(replyUser);
                 }
             }
-        } else {
+        }
+        else {
             if (StringUtils.isNotBlank(replyUser)) {
                 StringBuilder notifierStr = new StringBuilder();
                 if (StringUtils.isNotBlank(notifier)) {
