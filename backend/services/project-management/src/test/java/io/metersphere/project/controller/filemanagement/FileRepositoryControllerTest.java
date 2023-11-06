@@ -1,13 +1,13 @@
 package io.metersphere.project.controller.filemanagement;
 
+import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.domain.FileMetadataRepository;
 import io.metersphere.project.domain.FileModule;
 import io.metersphere.project.domain.FileModuleRepository;
-import io.metersphere.project.dto.filemanagement.request.FileMetadataTableRequest;
-import io.metersphere.project.dto.filemanagement.request.FileRepositoryConnectRequest;
-import io.metersphere.project.dto.filemanagement.request.FileRepositoryCreateRequest;
-import io.metersphere.project.dto.filemanagement.request.FileRepositoryUpdateRequest;
+import io.metersphere.project.dto.filemanagement.request.*;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.mapper.FileMetadataMapper;
+import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.mapper.FileModuleRepositoryMapper;
 import io.metersphere.project.service.FileModuleService;
@@ -66,6 +66,8 @@ public class FileRepositoryControllerTest extends BaseTest {
     private FileModuleMapper fileModuleMapper;
     @Resource
     private FileModuleRepositoryMapper fileModuleRepositoryMapper;
+    @Resource
+    private FileMetadataRepositoryMapper fileMetadataRepositoryMapper;
     @Resource
     private FileMetadataMapper fileMetadataMapper;
     @Resource
@@ -313,6 +315,121 @@ public class FileRepositoryControllerTest extends BaseTest {
         this.getFileModuleTreeNode();
         //权限校验
         this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ, String.format(FileManagementRequestUtils.URL_FILE_REPOSITORY_LIST, DEFAULT_PROJECT_ID));
+    }
+
+    @Test
+    @Order(11)
+    public void repositoryAddFileTest() throws Exception {
+        if (StringUtils.isEmpty(repositoryId)) {
+            this.moduleAddTest();
+        }
+        //测试主分支的文件
+        String branch = "master";
+        String filePath = "README.en.md";
+        RepositoryFileAddRequest request = new RepositoryFileAddRequest();
+        request.setBranch(branch);
+        request.setFilePath(filePath);
+        request.setModuleId(repositoryId);
+        MvcResult result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
+        String fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
+        this.checkFileRepositoryFile(fileId, request);
+        //测试其他分支的多层目录的文件
+        String otherBranch = "develop";
+        String folderFilePath1 = "test-folder/gitee/test.txt";
+        request = new RepositoryFileAddRequest();
+        request.setBranch(otherBranch);
+        request.setFilePath(folderFilePath1);
+        request.setModuleId(repositoryId);
+        result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
+        fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
+        this.checkFileRepositoryFile(fileId, request);
+
+        //测试隐藏文件
+        String folderFilePath2 = "test-folder/.keep";
+        request = new RepositoryFileAddRequest();
+        request.setBranch(otherBranch);
+        request.setFilePath(folderFilePath2);
+        request.setModuleId(repositoryId);
+        result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
+        fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
+        this.checkFileRepositoryFile(fileId, request);
+
+        //测试添加jar包并且启用
+        request = new RepositoryFileAddRequest();
+        request.setBranch(branch);
+        request.setFilePath("jar-test/notJar.jar");
+        request.setEnable(true);
+        request.setModuleId(repositoryId);
+        result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
+        fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
+        this.checkFileRepositoryFile(fileId, request);
+
+        {
+            //重复添加测试
+            request = new RepositoryFileAddRequest();
+            request.setBranch(otherBranch);
+            request.setFilePath(folderFilePath2);
+            request.setModuleId(repositoryId);
+            this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request).andExpect(status().is5xxServerError());
+
+            //测试添加非jar包并且启用
+            request = new RepositoryFileAddRequest();
+            request.setBranch(branch);
+            request.setFilePath("README.md");
+            request.setEnable(true);
+            request.setModuleId(repositoryId);
+            this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request).andExpect(status().is5xxServerError());
+        }
+
+        {
+            //测试不存在的文件
+            request = new RepositoryFileAddRequest();
+            request.setBranch(otherBranch);
+            request.setFilePath(IDGenerator.nextStr());
+            request.setModuleId(repositoryId);
+            this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request).andExpect(status().is5xxServerError());
+            //测试不存在的分支
+            request = new RepositoryFileAddRequest();
+            request.setBranch(IDGenerator.nextStr());
+            request.setFilePath(folderFilePath2);
+            request.setModuleId(repositoryId);
+            this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request).andExpect(status().is5xxServerError());
+            //不存在的moduleId
+            request = new RepositoryFileAddRequest();
+            request.setBranch(otherBranch);
+            request.setFilePath(folderFilePath2);
+            request.setModuleId(IDGenerator.nextStr());
+            this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request).andExpect(status().is5xxServerError());
+        }
+
+        {
+            //参数测试
+            request = new RepositoryFileAddRequest();
+            request.setFilePath(folderFilePath2);
+            request.setModuleId(repositoryId);
+            this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request).andExpect(status().isBadRequest());
+
+            request = new RepositoryFileAddRequest();
+            request.setBranch(IDGenerator.nextStr());
+            request.setModuleId(repositoryId);
+            this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request).andExpect(status().isBadRequest());
+
+            request = new RepositoryFileAddRequest();
+            request.setBranch(IDGenerator.nextStr());
+            request.setFilePath(folderFilePath2);
+            this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request).andExpect(status().isBadRequest());
+
+        }
+
+    }
+
+    private void checkFileRepositoryFile(String fileId, RepositoryFileAddRequest request) {
+        FileMetadataRepository repository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileId);
+        Assertions.assertEquals(repository.getBranch(), request.getBranch());
+        Assertions.assertNotNull(repository.getCommitId());
+        Assertions.assertNotNull(repository.getCommitMessage());
+        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
+        Assertions.assertEquals(fileMetadata.getPath(), request.getFilePath());
     }
 
     @Test

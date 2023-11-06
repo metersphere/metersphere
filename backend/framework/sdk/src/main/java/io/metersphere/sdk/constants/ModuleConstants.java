@@ -10,11 +10,11 @@ public class ModuleConstants {
     //Git节点类型
     public static final String NODE_TYPE_GIT = "git";
     //GitHub节点类型
-    public static final String NODE_TYPE_GITHUB = "GitHub";
+    public static final String NODE_TYPE_GITHUB = "Github";
     //Gitee节点类型
     public static final String NODE_TYPE_GITEE = "Gitee";
     //GitLab节点类型
-    public static final String NODE_TYPE_GITLAB = "GitLab";
+    public static final String NODE_TYPE_GITLAB = "Gitlab";
 
     public static final String NODE_PROTOCOL_HTTP = "HTTP";
 }

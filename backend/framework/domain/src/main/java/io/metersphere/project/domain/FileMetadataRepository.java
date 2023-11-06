@@ -20,16 +20,6 @@ public class FileMetadataRepository implements Serializable {
     @Size(min = 1, max = 255, message = "{file_metadata_repository.branch.length_range}", groups = {Created.class, Updated.class})
     private String branch;
 
-    @Schema(description = "存储库地址", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata_repository.repository_url.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{file_metadata_repository.repository_url.length_range}", groups = {Created.class, Updated.class})
-    private String repositoryUrl;
-
-    @Schema(description = "token", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata_repository.token.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1000, message = "{file_metadata_repository.token.length_range}", groups = {Created.class, Updated.class})
-    private String token;
-
     @Schema(description = "提交ID")
     private String commitId;
 
@@ -41,8 +31,6 @@ public class FileMetadataRepository implements Serializable {
     public enum Column {
         fileMetadataId("file_metadata_id", "fileMetadataId", "VARCHAR", false),
         branch("branch", "branch", "VARCHAR", false),
-        repositoryUrl("repository_url", "repositoryUrl", "VARCHAR", false),
-        token("token", "token", "VARCHAR", false),
         commitId("commit_id", "commitId", "VARCHAR", false),
         commitMessage("commit_message", "commitMessage", "LONGVARCHAR", false);
 

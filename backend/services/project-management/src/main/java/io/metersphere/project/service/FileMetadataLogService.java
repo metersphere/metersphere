@@ -1,8 +1,8 @@
 package io.metersphere.project.service;
 
 import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.domain.FileMetadataRepository;
 import io.metersphere.project.domain.Project;
-import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
@@ -17,13 +17,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class FileMetadataLogService {
-    @Resource
-    private FileMetadataMapper fileMetadataMapper;
+
+    private String logModule = OperationLogModule.PROJECT_FILE_MANAGEMENT;
+
     @Resource
     private ProjectMapper projectMapper;
     @Resource
@@ -35,7 +38,7 @@ public class FileMetadataLogService {
                 .projectId(module.getProjectId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.ADD.name())
-                .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .module(logModule)
                 .method(HttpMethodConstants.POST.name())
                 .path("/project/file/upload")
                 .sourceId(module.getId())
@@ -52,7 +55,7 @@ public class FileMetadataLogService {
                 .projectId(module.getProjectId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.UPDATE.name())
-                .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .module(logModule)
                 .method(HttpMethodConstants.POST.name())
                 .path("/project/file/re-upload")
                 .sourceId(module.getId())
@@ -69,7 +72,7 @@ public class FileMetadataLogService {
                 .projectId(projectId)
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.UPDATE.name())
-                .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .module(logModule)
                 .method(HttpMethodConstants.POST.name())
                 .path("/project/file/update")
                 .sourceId(module.getId())
@@ -88,7 +91,7 @@ public class FileMetadataLogService {
                     .projectId(projectId)
                     .organizationId(project.getOrganizationId())
                     .type(OperationLogType.DELETE.name())
-                    .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                    .module(logModule)
                     .method(HttpMethodConstants.POST.name())
                     .path("/project/file/delete")
                     .sourceId(fileMetadata.getId())
@@ -108,7 +111,7 @@ public class FileMetadataLogService {
                 .projectId(project.getId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.UPDATE.name())
-                .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .module(logModule)
                 .method(HttpMethodConstants.GET.name())
                 .path("/project/file/jar-file-status")
                 .sourceId(module.getId())
@@ -127,7 +130,7 @@ public class FileMetadataLogService {
                     .projectId(projectId)
                     .organizationId(project.getOrganizationId())
                     .type(OperationLogType.UPDATE.name())
-                    .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                    .module(logModule)
                     .method(HttpMethodConstants.POST.name())
                     .path("/project/file/batch-move")
                     .sourceId(fileMetadata.getId())
@@ -138,5 +141,26 @@ public class FileMetadataLogService {
         }
 
         operationLogService.batchAdd(list);
+    }
+
+    public void saveRepositoryAddLog(FileMetadata fileMetadata, FileMetadataRepository repositoryFile, String operator) {
+        Project project = projectMapper.selectByPrimaryKey(fileMetadata.getProjectId());
+        Map<String, Object> logContent = new HashMap<>() {{
+            this.put("fileMetadata", fileMetadata);
+            this.put("repositoryFile", repositoryFile);
+        }};
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(fileMetadata.getProjectId())
+                .organizationId(project.getOrganizationId())
+                .type(OperationLogType.ADD.name())
+                .module(logModule)
+                .method(HttpMethodConstants.POST.name())
+                .path("/project/file/repository/add-file")
+                .sourceId(fileMetadata.getId())
+                .content(Translator.get("file.log.repository.add") + " " + fileMetadata.getName())
+                .originalValue(JSON.toJSONBytes(logContent))
+                .createUser(operator)
+                .build().getLogDTO();
+        operationLogService.add(dto);
     }
 }

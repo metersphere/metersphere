@@ -4,8 +4,6 @@
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FileMetadataRepository">
     <id column="file_metadata_id" jdbcType="VARCHAR" property="fileMetadataId" />
     <result column="branch" jdbcType="VARCHAR" property="branch" />
-    <result column="repository_url" jdbcType="VARCHAR" property="repositoryUrl" />
-    <result column="token" jdbcType="VARCHAR" property="token" />
     <result column="commit_id" jdbcType="VARCHAR" property="commitId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.project.domain.FileMetadataRepository">
@@ -70,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    file_metadata_id, branch, repository_url, token, commit_id
+    file_metadata_id, branch, commit_id
   </sql>
   <sql id="Blob_Column_List">
     commit_message
@@ -124,12 +122,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.FileMetadataRepository">
-    insert into file_metadata_repository (file_metadata_id, branch, repository_url, 
-      token, commit_id, commit_message
-      )
-    values (#{fileMetadataId,jdbcType=VARCHAR}, #{branch,jdbcType=VARCHAR}, #{repositoryUrl,jdbcType=VARCHAR}, 
-      #{token,jdbcType=VARCHAR}, #{commitId,jdbcType=VARCHAR}, #{commitMessage,jdbcType=LONGVARCHAR}
-      )
+    insert into file_metadata_repository (file_metadata_id, branch, commit_id, 
+      commit_message)
+    values (#{fileMetadataId,jdbcType=VARCHAR}, #{branch,jdbcType=VARCHAR}, #{commitId,jdbcType=VARCHAR}, 
+      #{commitMessage,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileMetadataRepository">
     insert into file_metadata_repository
@@ -139,12 +135,6 @@
       </if>
       <if test="branch != null">
         branch,
-      </if>
-      <if test="repositoryUrl != null">
-        repository_url,
-      </if>
-      <if test="token != null">
-        token,
       </if>
       <if test="commitId != null">
         commit_id,
@@ -159,12 +149,6 @@
       </if>
       <if test="branch != null">
         #{branch,jdbcType=VARCHAR},
-      </if>
-      <if test="repositoryUrl != null">
-        #{repositoryUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="token != null">
-        #{token,jdbcType=VARCHAR},
       </if>
       <if test="commitId != null">
         #{commitId,jdbcType=VARCHAR},
@@ -189,12 +173,6 @@
       <if test="record.branch != null">
         branch = #{record.branch,jdbcType=VARCHAR},
       </if>
-      <if test="record.repositoryUrl != null">
-        repository_url = #{record.repositoryUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="record.token != null">
-        token = #{record.token,jdbcType=VARCHAR},
-      </if>
       <if test="record.commitId != null">
         commit_id = #{record.commitId,jdbcType=VARCHAR},
       </if>
@@ -210,8 +188,6 @@
     update file_metadata_repository
     set file_metadata_id = #{record.fileMetadataId,jdbcType=VARCHAR},
       branch = #{record.branch,jdbcType=VARCHAR},
-      repository_url = #{record.repositoryUrl,jdbcType=VARCHAR},
-      token = #{record.token,jdbcType=VARCHAR},
       commit_id = #{record.commitId,jdbcType=VARCHAR},
       commit_message = #{record.commitMessage,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -222,8 +198,6 @@
     update file_metadata_repository
     set file_metadata_id = #{record.fileMetadataId,jdbcType=VARCHAR},
       branch = #{record.branch,jdbcType=VARCHAR},
-      repository_url = #{record.repositoryUrl,jdbcType=VARCHAR},
-      token = #{record.token,jdbcType=VARCHAR},
       commit_id = #{record.commitId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -234,12 +208,6 @@
     <set>
       <if test="branch != null">
         branch = #{branch,jdbcType=VARCHAR},
-      </if>
-      <if test="repositoryUrl != null">
-        repository_url = #{repositoryUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="token != null">
-        token = #{token,jdbcType=VARCHAR},
       </if>
       <if test="commitId != null">
         commit_id = #{commitId,jdbcType=VARCHAR},
@@ -253,8 +221,6 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.FileMetadataRepository">
     update file_metadata_repository
     set branch = #{branch,jdbcType=VARCHAR},
-      repository_url = #{repositoryUrl,jdbcType=VARCHAR},
-      token = #{token,jdbcType=VARCHAR},
       commit_id = #{commitId,jdbcType=VARCHAR},
       commit_message = #{commitMessage,jdbcType=LONGVARCHAR}
     where file_metadata_id = #{fileMetadataId,jdbcType=VARCHAR}
@@ -262,19 +228,16 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.FileMetadataRepository">
     update file_metadata_repository
     set branch = #{branch,jdbcType=VARCHAR},
-      repository_url = #{repositoryUrl,jdbcType=VARCHAR},
-      token = #{token,jdbcType=VARCHAR},
       commit_id = #{commitId,jdbcType=VARCHAR}
     where file_metadata_id = #{fileMetadataId,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into file_metadata_repository
-    (file_metadata_id, branch, repository_url, token, commit_id, commit_message)
+    (file_metadata_id, branch, commit_id, commit_message)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.fileMetadataId,jdbcType=VARCHAR}, #{item.branch,jdbcType=VARCHAR}, #{item.repositoryUrl,jdbcType=VARCHAR}, 
-        #{item.token,jdbcType=VARCHAR}, #{item.commitId,jdbcType=VARCHAR}, #{item.commitMessage,jdbcType=LONGVARCHAR}
-        )
+      (#{item.fileMetadataId,jdbcType=VARCHAR}, #{item.branch,jdbcType=VARCHAR}, #{item.commitId,jdbcType=VARCHAR}, 
+        #{item.commitMessage,jdbcType=LONGVARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -292,12 +255,6 @@
         </if>
         <if test="'branch'.toString() == column.value">
           #{item.branch,jdbcType=VARCHAR}
-        </if>
-        <if test="'repository_url'.toString() == column.value">
-          #{item.repositoryUrl,jdbcType=VARCHAR}
-        </if>
-        <if test="'token'.toString() == column.value">
-          #{item.token,jdbcType=VARCHAR}
         </if>
         <if test="'commit_id'.toString() == column.value">
           #{item.commitId,jdbcType=VARCHAR}

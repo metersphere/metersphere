@@ -1,16 +1,21 @@
 package io.metersphere.project.service;
 
+import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.domain.FileMetadataRepository;
 import io.metersphere.project.domain.FileModule;
 import io.metersphere.project.domain.FileModuleRepository;
 import io.metersphere.project.dto.filemanagement.FileRepositoryLog;
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryCreateRequest;
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryUpdateRequest;
+import io.metersphere.project.dto.filemanagement.request.RepositoryFileAddRequest;
+import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleRepositoryMapper;
 import io.metersphere.project.utils.GitRepositoryUtil;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.RemoteFileAttachInfo;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -26,7 +31,13 @@ import java.util.List;
 public class FileRepositoryService extends FileModuleService {
 
     @Resource
+    private FileMetadataLogService fileMetadataLogService;
+    @Resource
+    private FileMetadataService fileMetadataService;
+    @Resource
     private FileModuleRepositoryMapper fileModuleRepositoryMapper;
+    @Resource
+    private FileMetadataRepositoryMapper fileMetadataRepositoryMapper;
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectBaseByProjectId(projectId, ModuleConstants.NODE_TYPE_GIT);
@@ -69,7 +80,7 @@ public class FileRepositoryService extends FileModuleService {
         GitRepositoryUtil utils = new GitRepositoryUtil(url, userName, token);
         List<String> branches = utils.getBranches();
         if (CollectionUtils.isEmpty(branches)) {
-            throw new MSException(Translator.get("file_repository.not.exist"));
+            throw new MSException(Translator.get("file_repository.connect.error"));
         }
     }
 
@@ -80,7 +91,7 @@ public class FileRepositoryService extends FileModuleService {
         FileModule fileModule = fileModuleMapper.selectByPrimaryKey(request.getId());
         FileModuleRepository repository = fileModuleRepositoryMapper.selectByPrimaryKey(request.getId());
         if (ObjectUtils.anyNull(fileModule, repository)) {
-            throw new MSException(Translator.get("file_repository.not.exist"));
+            throw new MSException(Translator.get("file_repository.connect.error"));
         }
         this.connect(repository.getUrl(),
                 request.getToken() == null ? repository.getToken() : request.getToken(),
@@ -110,5 +121,32 @@ public class FileRepositoryService extends FileModuleService {
         if (!StringUtils.equalsAny(platform, ModuleConstants.NODE_TYPE_GITHUB, ModuleConstants.NODE_TYPE_GITEE, ModuleConstants.NODE_TYPE_GITLAB)) {
             throw new MSException(Translator.get("file_repository.platform.error"));
         }
+    }
+
+    public String addFile(RepositoryFileAddRequest request, String operator) {
+        FileModule fileModule = fileModuleMapper.selectByPrimaryKey(request.getModuleId());
+        FileModuleRepository repository = fileModuleRepositoryMapper.selectByPrimaryKey(request.getModuleId());
+        if (ObjectUtils.anyNull(fileModule, repository)) {
+            throw new MSException(Translator.get("file_repository.connect.error"));
+        }
+        GitRepositoryUtil utils = new GitRepositoryUtil(repository.getUrl(), repository.getUserName(), repository.getToken());
+
+        RemoteFileAttachInfo fileAttachInfo = utils.selectLastCommitIdByBranch(request.getBranch(), request.getFilePath());
+        if (fileAttachInfo == null) {
+            throw new MSException(Translator.get("file.not.exist"));
+        }
+
+        FileMetadata fileMetadata = fileMetadataService.saveFileMetadata(
+                fileModule.getProjectId(), fileModule.getId(), request.getFilePath(), operator, fileAttachInfo.getSize(), request.isEnable());
+        FileMetadataRepository fileMetadataRepository = new FileMetadataRepository();
+        fileMetadataRepository.setFileMetadataId(fileMetadata.getId());
+        fileMetadataRepository.setBranch(fileAttachInfo.getBranch());
+        fileMetadataRepository.setCommitId(fileAttachInfo.getCommitId());
+        fileMetadataRepository.setCommitMessage(fileAttachInfo.getCommitMessage());
+        fileMetadataRepositoryMapper.insert(fileMetadataRepository);
+        //记录日志
+        fileMetadataLogService.saveRepositoryAddLog(fileMetadata, fileMetadataRepository, operator);
+
+        return fileMetadata.getId();
     }
 }

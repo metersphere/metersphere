@@ -66,8 +66,6 @@ CREATE TABLE IF NOT EXISTS file_metadata_repository
 (
     `file_metadata_id` VARCHAR(50)   NOT NULL COMMENT '文件ID',
     `branch`           VARCHAR(255)  NOT NULL COMMENT '分支',
-    `repository_url`   VARCHAR(255)  NOT NULL COMMENT '存储库地址',
-    `token`            VARCHAR(1000) NOT NULL COMMENT 'token',
     `commit_id`        VARCHAR(255) COMMENT '提交ID',
     `commit_message`   TEXT COMMENT '提交信息',
     PRIMARY KEY (file_metadata_id)

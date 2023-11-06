@@ -17,6 +17,14 @@ public class TempFileUtils {
         return StringUtils.equalsAnyIgnoreCase(type, "jpg", "jpeg", "png", "gif", "bmp", "svg", "ico");
     }
 
+    public static String getFileNameByPath(String filePath) {
+        if (StringUtils.contains(filePath, "/")) {
+            return StringUtils.substringAfterLast(filePath, "/");
+        } else {
+            return filePath;
+        }
+    }
+
 
     public static String getImgFileTmpPath(String fileId) {
         return TEMP_FILE_FOLDER + fileId + ".jpg";
