@@ -32,6 +32,7 @@ export default {
   'project.fileManagement.edit': '编辑',
   'project.fileManagement.cancel': '取消',
   'project.fileManagement.testLink': '测试连接',
+  'project.fileManagement.testLinkSuccess': '连接成功',
   'project.fileManagement.storageName': '存储库名称',
   'project.fileManagement.storageNamePlaceholder': '请输入存储库名称',
   'project.fileManagement.storageNameNotNull': '存储库名称不能为空',

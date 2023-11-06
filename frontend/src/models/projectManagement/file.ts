@@ -37,6 +37,7 @@ export interface UploadFileParams {
   request: {
     projectId: string;
     moduleId: string; // 模块ID
+    enable: boolean; // jar文件启用禁用
   };
   file: File;
 }
@@ -52,6 +53,7 @@ export interface UpdateFileParams {
 export interface ReuploadFileParams {
   request: {
     fileId: string;
+    enable: boolean; // jar文件启用禁用
   };
   file: File;
 }
@@ -85,4 +87,36 @@ export interface ModuleTreeNode {
   name: string;
   type: string;
   children: ModuleTreeNode[];
+}
+// 存储库列表
+export interface Repository {
+  id: string;
+  name: string;
+  type: string;
+  parentId: string;
+  children: string[];
+  attachInfo: Record<string, any>; // 附加信息
+  count: number;
+}
+// 存储库公共信息
+export interface RepositoryCommon {
+  name: string;
+  platform: string;
+  token: string;
+  userName: string;
+}
+// 添加存储库信息入参
+export interface AddRepositoryParams extends RepositoryCommon {
+  projectId: string;
+  url: string;
+}
+// 更新存储库信息入参
+export interface UpdateRepositoryParams extends RepositoryCommon {
+  id: string;
+}
+// 测试存储库连接
+export interface TestRepositoryConnectParams {
+  url: string;
+  token: string;
+  userName: string;
 }
