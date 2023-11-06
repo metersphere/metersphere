@@ -63,7 +63,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <!-- k8s client -->
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-client</artifactId>
+            <version>${kubernetes-client.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
