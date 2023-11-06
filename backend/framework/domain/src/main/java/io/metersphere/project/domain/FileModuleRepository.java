@@ -1,15 +1,12 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class FileModuleRepository implements Serializable {
@@ -18,26 +15,32 @@ public class FileModuleRepository implements Serializable {
     @Size(min = 1, max = 50, message = "{file_module_repository.file_module_id.length_range}", groups = {Created.class, Updated.class})
     private String fileModuleId;
 
-    @Schema(description = "所属平台;GitHub/Gitlab/Gitee")
+    @Schema(description = "所属平台;GitHub/Gitlab/Gitee", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_module_repository.platform.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 10, message = "{file_module_repository.platform.length_range}", groups = {Created.class, Updated.class})
     private String platform;
 
-    @Schema(description = "存储库地址")
-    private String repositoryPath;
+    @Schema(description = "存储库地址", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_module_repository.url.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{file_module_repository.url.length_range}", groups = {Created.class, Updated.class})
+    private String url;
 
-    @Schema(description = "存储库Token;platform为Gitee时必填")
-    private String repositoryUserName;
+    @Schema(description = "存储库Token", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_module_repository.token.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{file_module_repository.token.length_range}", groups = {Created.class, Updated.class})
+    private String token;
 
-    @Schema(description = "存储库Token")
-    private String repositoryToken;
+    @Schema(description = "用户名;platform为Gitee时必填")
+    private String userName;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         fileModuleId("file_module_id", "fileModuleId", "VARCHAR", false),
         platform("platform", "platform", "VARCHAR", false),
-        repositoryPath("repository_path", "repositoryPath", "VARCHAR", false),
-        repositoryUserName("repository_user_name", "repositoryUserName", "VARCHAR", false),
-        repositoryToken("repository_token", "repositoryToken", "VARCHAR", false);
+        url("url", "url", "VARCHAR", false),
+        token("token", "token", "VARCHAR", false),
+        userName("user_name", "userName", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

@@ -3,16 +3,17 @@ package io.metersphere.project.service;
 import io.metersphere.project.domain.FileModule;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.NodeSortDTO;
+import io.metersphere.project.dto.filemanagement.FileRepositoryLog;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.system.dto.sdk.BaseModule;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.builder.LogDTOBuilder;
+import io.metersphere.system.dto.sdk.BaseModule;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,23 @@ public class FileModuleLogService {
         operationLogService.add(dto);
     }
 
+    public void saveAddRepositoryLog(FileRepositoryLog repositoryLog, String operator) {
+        Project project = projectMapper.selectByPrimaryKey(repositoryLog.getProjectId());
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(repositoryLog.getProjectId())
+                .organizationId(project.getOrganizationId())
+                .type(OperationLogType.ADD.name())
+                .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .method(HttpMethodConstants.POST.name())
+                .path("/project/file/repository/add-repository")
+                .sourceId(repositoryLog.getId())
+                .content(repositoryLog.getName())
+                .originalValue(JSON.toJSONBytes(repositoryLog))
+                .createUser(operator)
+                .build().getLogDTO();
+        operationLogService.add(dto);
+    }
+
     public void saveUpdateLog(FileModule module, String projectId, String operator) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         LogDTO dto = LogDTOBuilder.builder()
@@ -60,7 +78,23 @@ public class FileModuleLogService {
                 .originalValue(JSON.toJSONBytes(module))
                 .createUser(operator)
                 .build().getLogDTO();
+        operationLogService.add(dto);
+    }
 
+    public void saveUpdateRepositoryLog(FileRepositoryLog fileRepositoryLog, String operator) {
+        Project project = projectMapper.selectByPrimaryKey(fileRepositoryLog.getProjectId());
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(fileRepositoryLog.getProjectId())
+                .organizationId(project.getOrganizationId())
+                .type(OperationLogType.UPDATE.name())
+                .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .method(HttpMethodConstants.POST.name())
+                .path("/project/file/repository/update-repository")
+                .sourceId(fileRepositoryLog.getId())
+                .content(fileRepositoryLog.getName())
+                .originalValue(JSON.toJSONBytes(fileRepositoryLog))
+                .createUser(operator)
+                .build().getLogDTO();
         operationLogService.add(dto);
     }
 
@@ -113,4 +147,5 @@ public class FileModuleLogService {
                 .build().getLogDTO();
         operationLogService.add(dto);
     }
+
 }

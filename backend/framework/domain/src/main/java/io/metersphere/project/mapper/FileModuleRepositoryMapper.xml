@@ -4,9 +4,9 @@
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FileModuleRepository">
     <id column="file_module_id" jdbcType="VARCHAR" property="fileModuleId" />
     <result column="platform" jdbcType="VARCHAR" property="platform" />
-    <result column="repository_path" jdbcType="VARCHAR" property="repositoryPath" />
-    <result column="repository_user_name" jdbcType="VARCHAR" property="repositoryUserName" />
-    <result column="repository_token" jdbcType="VARCHAR" property="repositoryToken" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="token" jdbcType="VARCHAR" property="token" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    file_module_id, platform, repository_path, repository_user_name, repository_token
+    file_module_id, platform, url, token, user_name
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.FileModuleRepositoryExample" resultMap="BaseResultMap">
     select
@@ -100,10 +100,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.FileModuleRepository">
-    insert into file_module_repository (file_module_id, platform, repository_path, 
-      repository_user_name, repository_token)
-    values (#{fileModuleId,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, #{repositoryPath,jdbcType=VARCHAR}, 
-      #{repositoryUserName,jdbcType=VARCHAR}, #{repositoryToken,jdbcType=VARCHAR})
+    insert into file_module_repository (file_module_id, platform, url, 
+      token, user_name)
+    values (#{fileModuleId,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, 
+      #{token,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileModuleRepository">
     insert into file_module_repository
@@ -114,14 +114,14 @@
       <if test="platform != null">
         platform,
       </if>
-      <if test="repositoryPath != null">
-        repository_path,
+      <if test="url != null">
+        url,
       </if>
-      <if test="repositoryUserName != null">
-        repository_user_name,
+      <if test="token != null">
+        token,
       </if>
-      <if test="repositoryToken != null">
-        repository_token,
+      <if test="userName != null">
+        user_name,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -131,14 +131,14 @@
       <if test="platform != null">
         #{platform,jdbcType=VARCHAR},
       </if>
-      <if test="repositoryPath != null">
-        #{repositoryPath,jdbcType=VARCHAR},
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
       </if>
-      <if test="repositoryUserName != null">
-        #{repositoryUserName,jdbcType=VARCHAR},
+      <if test="token != null">
+        #{token,jdbcType=VARCHAR},
       </if>
-      <if test="repositoryToken != null">
-        #{repositoryToken,jdbcType=VARCHAR},
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -157,14 +157,14 @@
       <if test="record.platform != null">
         platform = #{record.platform,jdbcType=VARCHAR},
       </if>
-      <if test="record.repositoryPath != null">
-        repository_path = #{record.repositoryPath,jdbcType=VARCHAR},
+      <if test="record.url != null">
+        url = #{record.url,jdbcType=VARCHAR},
       </if>
-      <if test="record.repositoryUserName != null">
-        repository_user_name = #{record.repositoryUserName,jdbcType=VARCHAR},
+      <if test="record.token != null">
+        token = #{record.token,jdbcType=VARCHAR},
       </if>
-      <if test="record.repositoryToken != null">
-        repository_token = #{record.repositoryToken,jdbcType=VARCHAR},
+      <if test="record.userName != null">
+        user_name = #{record.userName,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -175,9 +175,9 @@
     update file_module_repository
     set file_module_id = #{record.fileModuleId,jdbcType=VARCHAR},
       platform = #{record.platform,jdbcType=VARCHAR},
-      repository_path = #{record.repositoryPath,jdbcType=VARCHAR},
-      repository_user_name = #{record.repositoryUserName,jdbcType=VARCHAR},
-      repository_token = #{record.repositoryToken,jdbcType=VARCHAR}
+      url = #{record.url,jdbcType=VARCHAR},
+      token = #{record.token,jdbcType=VARCHAR},
+      user_name = #{record.userName,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -188,14 +188,14 @@
       <if test="platform != null">
         platform = #{platform,jdbcType=VARCHAR},
       </if>
-      <if test="repositoryPath != null">
-        repository_path = #{repositoryPath,jdbcType=VARCHAR},
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
       </if>
-      <if test="repositoryUserName != null">
-        repository_user_name = #{repositoryUserName,jdbcType=VARCHAR},
+      <if test="token != null">
+        token = #{token,jdbcType=VARCHAR},
       </if>
-      <if test="repositoryToken != null">
-        repository_token = #{repositoryToken,jdbcType=VARCHAR},
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
       </if>
     </set>
     where file_module_id = #{fileModuleId,jdbcType=VARCHAR}
@@ -203,20 +203,18 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.FileModuleRepository">
     update file_module_repository
     set platform = #{platform,jdbcType=VARCHAR},
-      repository_path = #{repositoryPath,jdbcType=VARCHAR},
-      repository_user_name = #{repositoryUserName,jdbcType=VARCHAR},
-      repository_token = #{repositoryToken,jdbcType=VARCHAR}
+      url = #{url,jdbcType=VARCHAR},
+      token = #{token,jdbcType=VARCHAR},
+      user_name = #{userName,jdbcType=VARCHAR}
     where file_module_id = #{fileModuleId,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into file_module_repository
-    (file_module_id, platform, repository_path, repository_user_name, repository_token
-      )
+    (file_module_id, platform, url, token, user_name)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.fileModuleId,jdbcType=VARCHAR}, #{item.platform,jdbcType=VARCHAR}, #{item.repositoryPath,jdbcType=VARCHAR}, 
-        #{item.repositoryUserName,jdbcType=VARCHAR}, #{item.repositoryToken,jdbcType=VARCHAR}
-        )
+      (#{item.fileModuleId,jdbcType=VARCHAR}, #{item.platform,jdbcType=VARCHAR}, #{item.url,jdbcType=VARCHAR}, 
+        #{item.token,jdbcType=VARCHAR}, #{item.userName,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -235,14 +233,14 @@
         <if test="'platform'.toString() == column.value">
           #{item.platform,jdbcType=VARCHAR}
         </if>
-        <if test="'repository_path'.toString() == column.value">
-          #{item.repositoryPath,jdbcType=VARCHAR}
+        <if test="'url'.toString() == column.value">
+          #{item.url,jdbcType=VARCHAR}
         </if>
-        <if test="'repository_user_name'.toString() == column.value">
-          #{item.repositoryUserName,jdbcType=VARCHAR}
+        <if test="'token'.toString() == column.value">
+          #{item.token,jdbcType=VARCHAR}
         </if>
-        <if test="'repository_token'.toString() == column.value">
-          #{item.repositoryToken,jdbcType=VARCHAR}
+        <if test="'user_name'.toString() == column.value">
+          #{item.userName,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

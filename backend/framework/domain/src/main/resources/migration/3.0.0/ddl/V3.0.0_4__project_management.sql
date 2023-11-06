@@ -62,16 +62,20 @@ CREATE INDEX idx_file_metadata_id ON file_association (file_metadata_id);
 CREATE INDEX idx_project_id ON file_association (project_id);
 CREATE INDEX idx_source_id ON file_association (source_id);
 
-
 CREATE TABLE IF NOT EXISTS file_metadata_repository
 (
-    `id`       VARCHAR(50) NOT NULL COMMENT '文件ID',
-    `git_info` LONGBLOB COMMENT '储存库',
-    PRIMARY KEY (id)
+    `file_metadata_id` VARCHAR(50)   NOT NULL COMMENT '文件ID',
+    `branch`           VARCHAR(255)  NOT NULL COMMENT '分支',
+    `repository_url`   VARCHAR(255)  NOT NULL COMMENT '存储库地址',
+    `token`            VARCHAR(1000) NOT NULL COMMENT 'token',
+    `commit_id`        VARCHAR(255) COMMENT '提交ID',
+    `commit_message`   TEXT COMMENT '提交信息',
+    PRIMARY KEY (file_metadata_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci
-    COMMENT = '文件基础信息大字段';
+    COMMENT = '存储库文件信息拓展';
+
 
 CREATE TABLE IF NOT EXISTS file_metadata
 (
@@ -206,16 +210,18 @@ CREATE INDEX idx_latest ON project_version (latest);
 
 CREATE TABLE IF NOT EXISTS file_module_repository
 (
-    `file_module_id`       VARCHAR(50) NOT NULL COMMENT 'file_module_id',
-    `platform`             VARCHAR(10) COMMENT '所属平台;GitHub/Gitlab/Gitee',
-    `repository_path`      VARCHAR(255) COMMENT '存储库地址',
-    `repository_user_name` VARCHAR(255) COMMENT '存储库Token;platform为Gitee时必填',
-    `repository_token`     VARCHAR(255) COMMENT '存储库Token',
+    `file_module_id` VARCHAR(50)  NOT NULL COMMENT 'file_module_id',
+    `platform`       VARCHAR(10)  NOT NULL COMMENT '所属平台;GitHub/Gitlab/Gitee',
+    `url`            VARCHAR(255) NOT NULL COMMENT '存储库地址',
+    `token`          VARCHAR(255) NOT NULL COMMENT '存储库Token',
+    `user_name`      VARCHAR(255) COMMENT '用户名;platform为Gitee时必填',
     PRIMARY KEY (file_module_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci
     COMMENT = '文件存储库模块';
+
+CREATE INDEX idx_token ON file_module_repository (token);
 
 
 CREATE TABLE IF NOT EXISTS custom_function_blob
