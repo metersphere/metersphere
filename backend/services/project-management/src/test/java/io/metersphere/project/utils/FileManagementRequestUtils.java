@@ -55,4 +55,7 @@ public class FileManagementRequestUtils {
     //修改存储库
     public static final String URL_FILE_REPOSITORY_UPDATE = "/project/file/repository/update-repository";
 
+    //添加文件
+    public static final String URL_FILE_REPOSITORY_FILE_ADD = "/project/file/repository/add-file";
+
 }

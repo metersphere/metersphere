@@ -106,43 +106,49 @@ public class FileMetadataService {
         }
     }
 
-    public String upload(FileUploadRequest request, String operator, MultipartFile uploadFile) throws Exception {
-        //检查模块的合法性
-        fileManagementService.checkModule(request.getModuleId(), ModuleConstants.NODE_TYPE_DEFAULT);
-
-        String fileName = StringUtils.trim(uploadFile.getOriginalFilename());
-
+    public FileMetadata saveFileMetadata(String projectId, String moduleId, String filePath, String operator, long size, boolean enable) {
+        String fileName = TempFileUtils.getFileNameByPath(filePath);
         FileMetadata fileMetadata = new FileMetadata();
-        if (StringUtils.contains(fileName, ".")) {
+        if (StringUtils.lastIndexOf(fileName, ".") > 0) {
+            //采用这种判断方式，可以避免将隐藏文件的后缀名作为文件类型
             fileMetadata.setName(StringUtils.substring(fileName, 0, fileName.lastIndexOf(".")));
             fileMetadata.setType(StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1));
         } else {
             fileMetadata.setName(fileName);
             fileMetadata.setType(StringUtils.EMPTY);
         }
-
-        //检查处理后的用户名合法性
-        this.checkFileName(null, fileMetadata.getName(), request.getProjectId());
-
         //如果开启了开关，检查是否是jar文件
-        if (request.isEnable()) {
+        if (enable) {
             this.checkEnableFile(fileMetadata.getType());
         }
+        //检查处理后的用户名合法性
+        this.checkFileName(null, fileMetadata.getName(), projectId);
 
         fileMetadata.setId(IDGenerator.nextStr());
         fileMetadata.setStorage(StorageType.MINIO.name());
-        fileMetadata.setProjectId(request.getProjectId());
-        fileMetadata.setModuleId(request.getModuleId());
+        fileMetadata.setProjectId(projectId);
+        fileMetadata.setModuleId(moduleId);
         long operationTime = System.currentTimeMillis();
         fileMetadata.setCreateTime(operationTime);
         fileMetadata.setCreateUser(operator);
         fileMetadata.setUpdateTime(operationTime);
         fileMetadata.setUpdateUser(operator);
-        fileMetadata.setSize(uploadFile.getSize());
+        fileMetadata.setSize(size);
+        fileMetadata.setPath(filePath);
         fileMetadata.setLatest(true);
         fileMetadata.setRefId(fileMetadata.getId());
         fileMetadata.setEnable(false);
         fileMetadataMapper.insert(fileMetadata);
+        return fileMetadata;
+    }
+
+    public String upload(FileUploadRequest request, String operator, MultipartFile uploadFile) throws Exception {
+        //检查模块的合法性
+        fileManagementService.checkModule(request.getModuleId(), ModuleConstants.NODE_TYPE_DEFAULT);
+
+        String fileName = StringUtils.trim(uploadFile.getOriginalFilename());
+
+        FileMetadata fileMetadata = this.saveFileMetadata(request.getProjectId(), request.getModuleId(), fileName, operator, uploadFile.getSize(), request.isEnable());
 
         //记录日志
         fileMetadataLogService.saveUploadLog(fileMetadata, operator);

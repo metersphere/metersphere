@@ -1,12 +1,23 @@
 package io.metersphere.project.utils;
 
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.dto.sdk.RemoteFileAttachInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,67 +81,67 @@ public class GitRepositoryUtil {
     //        return returnMap;
     //    }
 
-    //    public RemoteFileAttachInfo selectLastCommitIdByBranch(String branch, String filePath) {
-    //        RemoteFileAttachInfo attachInfo;
-    //        InMemoryRepository repo = null;
-    //        TreeWalk treeWalk = null;
-    //        try {
-    //            repo = this.getGitRepositoryInMemory(repositoryUrl, userName, token);
-    //            ObjectId lastCommitId = repo.resolve("refs/heads/" + branch);
-    //            if (lastCommitId != null) {
-    //                RevCommit commit = this.getRevTreeByRepositoryAndCommitId(repo, lastCommitId);
-    //                RevTree tree = commit.getTree();
-    //                treeWalk = new TreeWalk(repo);
-    //                treeWalk.addTree(tree);
-    //                treeWalk.setRecursive(true);
-    //                treeWalk.setFilter(PathFilter.create(filePath));
-    //                if (!treeWalk.next()) {
-    //                    return null;
-    //                } else {
-    //                    ObjectId objectId = treeWalk.getObjectId(0);
-    //                    ObjectLoader loader = repo.open(objectId);
-    //                    String fileLastCommitId = this.getFileLastCommitId(lastCommitId, filePath);
-    //                    if (StringUtils.isEmpty(fileLastCommitId)) {
-    //                        fileLastCommitId = lastCommitId.getName();
-    //                    }
-    //                    attachInfo = new RemoteFileAttachInfo(repositoryUrl, userName, token, branch, fileLastCommitId, filePath, commit.getFullMessage(), loader.getSize());
-    //                    return attachInfo;
-    //                }
-    //            }
-    //        } catch (Exception e) {
-    //            LogUtils.error("获取文件库文件报错!", e);
-    //        } finally {
-    //            if (treeWalk != null) {
-    //                treeWalk.close();
-    //            }
-    //            this.closeConnection(repo);
-    //        }
-    //        return null;
-    //    }
+    public RemoteFileAttachInfo selectLastCommitIdByBranch(String branch, String filePath) {
+        RemoteFileAttachInfo attachInfo;
+        InMemoryRepository repo = null;
+        TreeWalk treeWalk = null;
+        try {
+            repo = this.getGitRepositoryInMemory(repositoryUrl, userName, token);
+            ObjectId lastCommitId = repo.resolve("refs/heads/" + branch);
+            if (lastCommitId != null) {
+                RevCommit commit = this.getRevTreeByRepositoryAndCommitId(repo, lastCommitId);
+                RevTree tree = commit.getTree();
+                treeWalk = new TreeWalk(repo);
+                treeWalk.addTree(tree);
+                treeWalk.setRecursive(true);
+                treeWalk.setFilter(PathFilter.create(filePath));
+                if (!treeWalk.next()) {
+                    return null;
+                } else {
+                    ObjectId objectId = treeWalk.getObjectId(0);
+                    ObjectLoader loader = repo.open(objectId);
+                    String fileLastCommitId = this.getFileLastCommitId(lastCommitId, filePath);
+                    if (StringUtils.isEmpty(fileLastCommitId)) {
+                        fileLastCommitId = lastCommitId.getName();
+                    }
+                    attachInfo = new RemoteFileAttachInfo(repositoryUrl, userName, token, branch, fileLastCommitId, filePath, commit.getFullMessage(), loader.getSize());
+                    return attachInfo;
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.error("获取文件库文件报错!", e);
+        } finally {
+            if (treeWalk != null) {
+                treeWalk.close();
+            }
+            this.closeConnection(repo);
+        }
+        return null;
+    }
 
-    //    private String getFileLastCommitId(ObjectId objectId, String filePath) throws Exception {
-    //        Iterable<RevCommit> logs = git.log().add(objectId).addPath(filePath).call();
-    //        String returnStr = StringUtils.EMPTY;
-    //        for (RevCommit rev : logs) {
-    //            returnStr = rev.getName();
-    //        }
-    //        return returnStr;
-    //    }
+    private String getFileLastCommitId(ObjectId objectId, String filePath) throws Exception {
+        Iterable<RevCommit> logs = git.log().add(objectId).addPath(filePath).call();
+        String returnStr = StringUtils.EMPTY;
+        for (RevCommit rev : logs) {
+            returnStr = rev.getName();
+        }
+        return returnStr;
+    }
 
-    //    private RevCommit getRevTreeByRepositoryAndCommitId(InMemoryRepository repo, ObjectId fileCommitId) throws IOException {
-    //        RevWalk revWalk = new RevWalk(repo);
-    //        return revWalk.parseCommit(fileCommitId);
-    //    }
+    private RevCommit getRevTreeByRepositoryAndCommitId(InMemoryRepository repo, ObjectId fileCommitId) throws Exception {
+        RevWalk revWalk = new RevWalk(repo);
+        return revWalk.parseCommit(fileCommitId);
+    }
 
-    //    private InMemoryRepository getGitRepositoryInMemory(String repositoryUrl, String userName, String token) throws Exception {
-    //        DfsRepositoryDescription repoDesc = new DfsRepositoryDescription();
-    //        InMemoryRepository repo = new InMemoryRepository(repoDesc);
-    //        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userName, token);
-    //        git = new Git(repo);
-    //        git.fetch().setRemote(repositoryUrl).setRefSpecs(new RefSpec(REF_SPACE)).setCredentialsProvider(credentialsProvider).call();
-    //        repo.getObjectDatabase();
-    //        return repo;
-    //    }
+    private InMemoryRepository getGitRepositoryInMemory(String repositoryUrl, String userName, String token) throws Exception {
+        DfsRepositoryDescription repoDesc = new DfsRepositoryDescription();
+        InMemoryRepository repo = new InMemoryRepository(repoDesc);
+        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userName, token);
+        git = new Git(repo);
+        git.fetch().setRemote(repositoryUrl).setRefSpecs(new RefSpec(REF_SPACE)).setCredentialsProvider(credentialsProvider).call();
+        repo.getObjectDatabase();
+        return repo;
+    }
 
     //    private TreeWalk getTreeWork(InMemoryRepository repo, ObjectId fileCommitObjectId, String filePath) throws Exception {
     //        RevWalk revWalk = new RevWalk(repo);

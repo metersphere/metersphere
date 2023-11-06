@@ -3,6 +3,7 @@ package io.metersphere.project.controller;
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryConnectRequest;
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryCreateRequest;
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryUpdateRequest;
+import io.metersphere.project.dto.filemanagement.request.RepositoryFileAddRequest;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.FileRepositoryService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -59,8 +60,16 @@ public class FileRepositoryController {
     }
 
     @PostMapping("/connect")
+    @Operation(summary = "项目管理-文件管理-存储库-测试存储库链接")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     public void connect(@RequestBody @Validated FileRepositoryConnectRequest request) {
         fileRepositoryService.connect(request.getUrl(), request.getToken(), request.getUserName());
+    }
+
+    @PostMapping("/add-file")
+    @Operation(summary = "项目管理-文件管理-存储库-添加文件")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
+    public String upload(@Validated @RequestBody RepositoryFileAddRequest request) throws Exception {
+        return fileRepositoryService.addFile(request, SessionUtils.getUserId());
     }
 }
