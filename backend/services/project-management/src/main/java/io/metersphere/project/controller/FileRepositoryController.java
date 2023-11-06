@@ -36,7 +36,6 @@ public class FileRepositoryController {
         return fileRepositoryService.getTree(projectId);
     }
 
-
     @GetMapping(value = "/file-type/{projectId}")
     @Operation(summary = "项目管理-文件管理-存储库-获取已存在的存储库文件类型")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)

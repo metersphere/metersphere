@@ -2,11 +2,13 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.FileMetadataExample;
+import io.metersphere.project.domain.FileMetadataRepositoryExample;
 import io.metersphere.project.domain.FileModuleExample;
 import io.metersphere.project.dto.filemanagement.FileManagementQuery;
 import io.metersphere.project.dto.filemanagement.request.FileBatchProcessRequest;
 import io.metersphere.project.mapper.ExtFileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
+import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
@@ -27,6 +29,8 @@ import java.util.List;
 public class FileManagementService {
     @Resource
     private FileMetadataMapper fileMetadataMapper;
+    @Resource
+    private FileMetadataRepositoryMapper fileMetadataRepositoryMapper;
     @Resource
     private FileModuleMapper fileModuleMapper;
     @Resource
@@ -53,6 +57,10 @@ public class FileManagementService {
             FileMetadataExample example = new FileMetadataExample();
             example.createCriteria().andIdIn(deleteIds);
             fileMetadataMapper.deleteByExample(example);
+
+            FileMetadataRepositoryExample repositoryExample = new FileMetadataRepositoryExample();
+            repositoryExample.createCriteria().andFileMetadataIdIn(deleteIds);
+            fileMetadataRepositoryMapper.deleteByExample(repositoryExample);
 
             //记录日志
             fileMetadataLogService.saveDeleteLog(deleteList, request.getProjectId(), operator);

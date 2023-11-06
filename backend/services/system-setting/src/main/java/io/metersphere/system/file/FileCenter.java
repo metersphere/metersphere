@@ -12,6 +12,7 @@ public class FileCenter {
         Map<StorageType, FileRepository> repositoryMap = new HashMap<>() {{
             put(StorageType.MINIO, CommonBeanFactory.getBean(MinioRepository.class));
             put(StorageType.LOCAL, CommonBeanFactory.getBean(LocalFileRepository.class));
+            put(StorageType.GIT, CommonBeanFactory.getBean(GitRepository.class));
         }};
         FileRepository fileRepository = repositoryMap.get(storageType);
         return fileRepository == null ? getDefaultRepository() : fileRepository;

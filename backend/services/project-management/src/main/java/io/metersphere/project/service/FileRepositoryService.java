@@ -10,13 +10,14 @@ import io.metersphere.project.dto.filemanagement.request.FileRepositoryUpdateReq
 import io.metersphere.project.dto.filemanagement.request.RepositoryFileAddRequest;
 import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleRepositoryMapper;
-import io.metersphere.project.utils.GitRepositoryUtil;
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.RemoteFileAttachInfo;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.GitRepositoryUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -59,7 +60,7 @@ public class FileRepositoryService extends FileModuleService {
         fileModule.setPos(this.countPos(ModuleConstants.ROOT_NODE_PARENT_ID, ModuleConstants.NODE_TYPE_GIT));
         fileModule.setCreateUser(operator);
         fileModule.setUpdateUser(operator);
-        fileModule.setModuleType(ModuleConstants.NODE_TYPE_DEFAULT);
+        fileModule.setModuleType(ModuleConstants.NODE_TYPE_GIT);
         fileModuleMapper.insert(fileModule);
 
         //记录模块仓库数据
@@ -137,7 +138,7 @@ public class FileRepositoryService extends FileModuleService {
         }
 
         FileMetadata fileMetadata = fileMetadataService.saveFileMetadata(
-                fileModule.getProjectId(), fileModule.getId(), request.getFilePath(), operator, fileAttachInfo.getSize(), request.isEnable());
+                fileModule.getProjectId(), fileModule.getId(), request.getFilePath(), StorageType.GIT.name(), operator, fileAttachInfo.getSize(), request.isEnable());
         FileMetadataRepository fileMetadataRepository = new FileMetadataRepository();
         fileMetadataRepository.setFileMetadataId(fileMetadata.getId());
         fileMetadataRepository.setBranch(fileAttachInfo.getBranch());

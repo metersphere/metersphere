@@ -2,12 +2,14 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.FileModule;
 import io.metersphere.project.domain.FileModuleExample;
+import io.metersphere.project.domain.FileModuleRepositoryExample;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.dto.filemanagement.request.FileModuleCreateRequest;
 import io.metersphere.project.dto.filemanagement.request.FileModuleUpdateRequest;
 import io.metersphere.project.mapper.ExtFileModuleMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
+import io.metersphere.project.mapper.FileModuleRepositoryMapper;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
@@ -36,6 +38,8 @@ import java.util.stream.Collectors;
 public class FileModuleService extends ModuleTreeService implements CleanupProjectResourceService {
     @Resource
     protected FileModuleLogService fileModuleLogService;
+    @Resource
+    private FileModuleRepositoryMapper fileModuleRepositoryMapper;
     @Resource
     protected FileModuleMapper fileModuleMapper;
     @Resource
@@ -139,12 +143,22 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
             //记录日志
             fileModuleLogService.saveDeleteLog(deleteModule, currentUser);
         }
+
+        FileModuleRepositoryExample repositoryExample = new FileModuleRepositoryExample();
+        repositoryExample.createCriteria().andFileModuleIdEqualTo(deleteId);
+        fileModuleRepositoryMapper.deleteByExample(repositoryExample);
+
     }
     public void deleteModule(List<String> deleteIds) {
         if (CollectionUtils.isEmpty(deleteIds)) {
             return;
         }
         extFileModuleMapper.deleteByIds(deleteIds);
+
+        FileModuleRepositoryExample repositoryExample = new FileModuleRepositoryExample();
+        repositoryExample.createCriteria().andFileModuleIdIn(deleteIds);
+        fileModuleRepositoryMapper.deleteByExample(repositoryExample);
+
         fileManagementService.deleteByModuleIds(deleteIds);
 
         List<String> childrenIds = extFileModuleMapper.selectChildrenIdsByParentIds(deleteIds);

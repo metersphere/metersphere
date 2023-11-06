@@ -28,32 +28,28 @@ public class FilePreviewController {
 
     @GetMapping(value = "/original/{userId}/{fileId}")
     @Operation(summary = "预览原图")
-    public ResponseEntity<byte[]> originalImg(@PathVariable String userId,@PathVariable String fileId) {
+    public ResponseEntity<byte[]> originalImg(@PathVariable String userId, @PathVariable String fileId) throws Exception {
         FileInformationResponse fileInformationResponse = fileMetadataService.get(fileId);
         if (StringUtils.isEmpty(fileInformationResponse.getId())) {
             throw new MSException("file.not.exist");
         }
         //检查权限
-        if (permissionCheckService.userHasProjectPermission(userId, fileInformationResponse.getProjectId(), PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)) {
-            return fileMetadataService.downloadById(fileId);
-        }else {
+        if (!permissionCheckService.userHasProjectPermission(userId, fileInformationResponse.getProjectId(), PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)) {
             throw  new MSException("http_result_forbidden");
         }
-
+        return fileMetadataService.downloadById(fileId);
     }
     @GetMapping(value = "/compressed/{userId}/{fileId}")
     @Operation(summary = "预览缩略图")
-    public ResponseEntity<byte[]> compressedImg(@PathVariable String userId,@PathVariable String fileId) {
+    public ResponseEntity<byte[]> compressedImg(@PathVariable String userId, @PathVariable String fileId) throws Exception {
         FileInformationResponse fileInformationResponse = fileMetadataService.get(fileId);
         if (StringUtils.isEmpty(fileInformationResponse.getId())) {
             throw new MSException("file.not.exist");
         }
         //检查权限
-        if (permissionCheckService.userHasProjectPermission(userId, fileInformationResponse.getProjectId(), PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)) {
-            return fileMetadataService.downloadPreviewImgById(fileId);
-        }else {
+        if (!permissionCheckService.userHasProjectPermission(userId, fileInformationResponse.getProjectId(), PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)) {
             throw  new MSException("http_result_forbidden");
         }
-
+        return fileMetadataService.downloadPreviewImgById(fileId);
     }
 }

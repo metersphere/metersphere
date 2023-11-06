@@ -76,7 +76,7 @@ public class FileManagementController {
     @GetMapping(value = "/download/{id}")
     @Operation(summary = "项目管理-文件管理-下载文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)
-    public ResponseEntity<byte[]> download(@PathVariable String id) {
+    public ResponseEntity<byte[]> download(@PathVariable String id) throws Exception {
         return fileMetadataService.downloadById(id);
     }
 

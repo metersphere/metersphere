@@ -4,12 +4,16 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.FileMetadataExample;
+import io.metersphere.project.domain.FileMetadataRepository;
+import io.metersphere.project.domain.FileModuleRepository;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.filemanagement.FileManagementQuery;
 import io.metersphere.project.dto.filemanagement.request.*;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.mapper.ExtFileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
+import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
+import io.metersphere.project.mapper.FileModuleRepositoryMapper;
 import io.metersphere.project.utils.FileDownloadUtils;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
@@ -49,6 +53,10 @@ public class FileMetadataService {
     private FileMetadataMapper fileMetadataMapper;
     @Resource
     private ExtFileMetadataMapper extFileMetadataMapper;
+    @Resource
+    private FileMetadataRepositoryMapper fileMetadataRepositoryMapper;
+    @Resource
+    private FileModuleRepositoryMapper fileModuleRepositoryMapper;
     @Resource
     private FileMetadataLogService fileMetadataLogService;
     @Resource
@@ -106,7 +114,7 @@ public class FileMetadataService {
         }
     }
 
-    public FileMetadata saveFileMetadata(String projectId, String moduleId, String filePath, String operator, long size, boolean enable) {
+    public FileMetadata saveFileMetadata(String projectId, String moduleId, String filePath, String storage, String operator, long size, boolean enable) {
         String fileName = TempFileUtils.getFileNameByPath(filePath);
         FileMetadata fileMetadata = new FileMetadata();
         if (StringUtils.lastIndexOf(fileName, ".") > 0) {
@@ -125,7 +133,7 @@ public class FileMetadataService {
         this.checkFileName(null, fileMetadata.getName(), projectId);
 
         fileMetadata.setId(IDGenerator.nextStr());
-        fileMetadata.setStorage(StorageType.MINIO.name());
+        fileMetadata.setStorage(storage);
         fileMetadata.setProjectId(projectId);
         fileMetadata.setModuleId(moduleId);
         long operationTime = System.currentTimeMillis();
@@ -148,7 +156,7 @@ public class FileMetadataService {
 
         String fileName = StringUtils.trim(uploadFile.getOriginalFilename());
 
-        FileMetadata fileMetadata = this.saveFileMetadata(request.getProjectId(), request.getModuleId(), fileName, operator, uploadFile.getSize(), request.isEnable());
+        FileMetadata fileMetadata = this.saveFileMetadata(request.getProjectId(), request.getModuleId(), fileName, StorageType.MINIO.name(), operator, uploadFile.getSize(), request.isEnable());
 
         //记录日志
         fileMetadataLogService.saveUploadLog(fileMetadata, operator);
@@ -189,7 +197,7 @@ public class FileMetadataService {
         return fileService.upload(file, uploadFileRequest);
     }
 
-    public ResponseEntity<byte[]> downloadById(String id) {
+    public ResponseEntity<byte[]> downloadById(String id) throws Exception {
 
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(id);
         byte[] bytes = this.getFile(fileMetadata);
@@ -206,7 +214,7 @@ public class FileMetadataService {
         return fileName + "." + type;
     }
 
-    private byte[] getFile(FileMetadata fileMetadata) {
+    private byte[] getFile(FileMetadata fileMetadata) throws Exception {
         if (fileMetadata == null) {
             throw new MSException(Translator.get("file.not.exist"));
         }
@@ -214,12 +222,15 @@ public class FileMetadataService {
         fileRequest.setFileName(fileMetadata.getId());
         fileRequest.setProjectId(fileMetadata.getProjectId());
         fileRequest.setStorage(fileMetadata.getStorage());
-        try {
-            return fileService.download(fileRequest);
-        } catch (Exception e) {
-            LogUtils.error("获取文件失败", e);
+
+        //获取git文件下载
+        if (StringUtils.equals(fileMetadata.getStorage(), StorageType.GIT.name())) {
+            FileModuleRepository fileModuleRepository = fileModuleRepositoryMapper.selectByPrimaryKey(fileMetadata.getModuleId());
+            FileMetadataRepository fileMetadataRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileMetadata.getId());
+            fileRequest.setGitFileRequest(fileModuleRepository, fileMetadataRepository);
         }
-        return new byte[0];
+
+        return fileService.download(fileRequest);
     }
 
     public void update(FileUpdateRequest request, String operator) {
@@ -281,9 +292,14 @@ public class FileMetadataService {
     public byte[] batchDownload(List<FileMetadata> fileMetadataList) {
         Map<String, byte[]> files = new LinkedHashMap<>();
         fileMetadataList.forEach(fileMetadata -> {
-            byte[] bytes = this.getFile(fileMetadata);
-            if (bytes != null) {
-                files.put(this.getFileName(fileMetadata.getName(), fileMetadata.getType()), bytes);
+            byte[] bytes;
+            try {
+                bytes = this.getFile(fileMetadata);
+                if (bytes != null) {
+                    files.put(this.getFileName(fileMetadata.getName(), fileMetadata.getType()), bytes);
+                }
+            } catch (Exception e) {
+                LogUtils.error("下载文件失败", e);
             }
         });
 
@@ -371,7 +387,7 @@ public class FileMetadataService {
         return moduleCountMap;
     }
 
-    public ResponseEntity<byte[]> downloadPreviewImgById(String id) {
+    public ResponseEntity<byte[]> downloadPreviewImgById(String id) throws Exception {
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(id);
         String previewImgPath = null;
         if (TempFileUtils.isImage(fileMetadata.getType())) {
