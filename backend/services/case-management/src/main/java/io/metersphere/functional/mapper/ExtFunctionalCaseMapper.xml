@@ -65,4 +65,118 @@
             #{id}
         </foreach>
     </select>
+
+
+    <select id="list" resultType="io.metersphere.functional.dto.FunctionalCasePageDTO">
+        SELECT
+            id,
+            num,
+            NAME,
+            version_id,
+            create_user,
+            create_time,
+            update_user,
+            update_time,
+            review_status,
+            last_execute_result,
+            tags
+        FROM
+            functional_case
+        where deleted = #{deleted}
+        <include refid="queryWhereCondition"/>
+
+    </select>
+
+    <sql id="queryWhereCondition">
+        <if test="request.projectId">
+            and functional_case.project_id = #{request.projectId}
+        </if>
+        <if test="request.keyword != null">
+            and (
+            functional_case.name like concat('%', #{request.keyword},'%')
+            or functional_case.num like concat('%', #{request.keyword},'%')
+            or functional_case.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            )
+        </if>
+        <include refid="filter"/>
+        <include refid="combine">
+            <property name="condition" value="request.combine"/>
+        </include>
+    </sql>
+
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='review_status'">
+                            and functional_case.review_status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='last_execute_result'">
+                            and functional_case.last_execute_result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='version_id'">
+                            and functional_case.version_id in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='custom'">
+                            and functional_case.id in (
+                            select case_id from functional_case_custom_field where field_id =
+                            #{key}
+                            and JSON_CONTAINS(value, json_array(#{value}))
+                            )
+                        </when>
+                        <when test="key=='create_user'">
+                            and functional_case.create_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="combine">
+        <if test="request.combine != null">
+            <if test='${condition}.name != null'>
+                and functional_case.name
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.name"/>
+                </include>
+            </if>
+            <if test='${condition}.id != null'>
+                and functional_case.num
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.id"/>
+                </include>
+            </if>
+            <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
+                <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
+                    and functional_case.id ${custom.operator} (
+                    select case_id from functional_case_custom_field where field_id = #{custom.id}
+                    <choose>
+                        <when test="custom.type == 'List'">
+                           and JSON_CONTAINS(`value`, json_array(#{custom.value}))
+                        </when>
+                        <when test="custom.type == 'date' or custom.type == 'datetime'">
+                            and `value`
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </when>
+                        <otherwise>
+                            and trim(both '"' from `value`)
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </otherwise>
+                    </choose>
+                    )
+                </foreach>
+            </if>
+        </if>
+    </sql>
+
 </mapper>

@@ -1,7 +1,9 @@
 package io.metersphere.functional.mapper;
 
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
+import io.metersphere.functional.request.FunctionalCasePageRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -23,4 +25,5 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCase> checkCaseByModuleIds(@Param("moduleIds") List<String> deleteIds);
 
+    List<FunctionalCasePageDTO> list(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
 }

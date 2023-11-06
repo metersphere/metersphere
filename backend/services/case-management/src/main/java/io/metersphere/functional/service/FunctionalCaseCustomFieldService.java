@@ -4,6 +4,7 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.domain.FunctionalCaseCustomFieldExample;
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
+import io.metersphere.functional.mapper.ExtFunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -25,6 +26,9 @@ public class FunctionalCaseCustomFieldService {
 
     @Resource
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
+
+    @Resource
+    private ExtFunctionalCaseCustomFieldMapper extFunctionalCaseCustomFieldMapper;
 
     /**
      * 保存 用例-自定义字段关系
@@ -98,5 +102,9 @@ public class FunctionalCaseCustomFieldService {
             customField.setValue(customsField.getValue());
             functionalCaseCustomFieldMapper.updateByPrimaryKeySelective(customField);
         });
+    }
+
+    public List<FunctionalCaseCustomField> getCustomFieldByCaseIds(List<String> ids) {
+        return extFunctionalCaseCustomFieldMapper.getCustomFieldByCaseIds(ids);
     }
 }

@@ -2,10 +2,7 @@ package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
-import io.metersphere.functional.request.FunctionalCaseAddRequest;
-import io.metersphere.functional.request.FunctionalCaseDeleteRequest;
-import io.metersphere.functional.request.FunctionalCaseEditRequest;
-import io.metersphere.functional.request.FunctionalCaseFollowerRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
 import io.metersphere.project.domain.Notification;
@@ -32,10 +29,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -49,6 +43,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_EDIT_FOLLOWER_URL = "/functional/case/edit/follower";
     public static final String FUNCTIONAL_CASE_FOLLOWER_URL = "/functional/case/follower/";
     public static final String FUNCTIONAL_CASE_DELETE_URL = "/functional/case/delete";
+    public static final String FUNCTIONAL_CASE_LIST_URL = "/functional/case/page";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -255,6 +250,36 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
     @Test
     @Order(5)
+    public void testGetPageList() throws Exception {
+        FunctionalCasePageRequest request = new FunctionalCasePageRequest();
+        request.setProjectId("test_project_id");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPost(FUNCTIONAL_CASE_LIST_URL, request);
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+        //自定义字段 测试
+        Map<String,Object> map = new HashMap<>();
+        map.put("customs",Arrays.asList(new LinkedHashMap(){{
+            put("id","TEST_FIELD_ID");
+            put("operator","in");
+            put("value","222");
+            put("type","List");
+        }}));
+        request.setCombine(map);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+    }
+
+
+    @Test
+    @Order(6)
     public void testDeleteFunctionalCase() throws Exception {
         FunctionalCaseDeleteRequest request = new FunctionalCaseDeleteRequest();
         request.setId("TEST_FUNCTIONAL_CASE_ID");
