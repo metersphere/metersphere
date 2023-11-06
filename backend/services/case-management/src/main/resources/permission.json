@@ -2,7 +2,7 @@
   {
     "id": "CASE_MANAGEMENT",
     "name": "permission.case_management.name",
-    "type": "CASE_MANAGEMENT",
+    "type": "PROJECT",
     "children": [
       {
         "id": "FUNCTIONAL_CASE",
