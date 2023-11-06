@@ -2,9 +2,11 @@ package io.metersphere.api.controller;
 
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
+import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -66,7 +68,10 @@ public class ApiDefinitionControllerTests {
         request.setLatest(true);
         request.setStatus("test-api-status");
         request.setVersionId("test-api-version");
+        request.setRefId("test-api-version");
         request.setDeleted(false);
+        request.setModuleId("test-api-module-id");
+        request.setNum(NumGenerator.nextNum("test-project-id", ApplicationNumScope.API_DEFINITION));
 
         mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/add")
                         .file(file)

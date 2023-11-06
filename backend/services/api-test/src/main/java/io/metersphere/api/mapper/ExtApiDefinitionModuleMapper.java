@@ -1,7 +1,7 @@
 package io.metersphere.api.mapper;
 
-import io.metersphere.api.dto.debug.ApiDebugRequest;
 import io.metersphere.api.dto.debug.ApiTreeNode;
+import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.system.dto.sdk.BaseModule;
@@ -10,14 +10,12 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface ExtApiDebugModuleMapper {
-    List<BaseTreeNode> selectBaseByProtocolAndUser(String protocol, String userId);
+public interface ExtApiDefinitionModuleMapper {
+    List<BaseTreeNode> selectBaseByRequest(@Param("request") ApiModuleRequest request);
 
-    List<BaseTreeNode> selectIdAndParentIdByProtocolAndUserId(String protocol, String userId);
+    List<BaseTreeNode> selectIdAndParentIdByRequest(@Param("request") ApiModuleRequest request);
 
     List<String> selectChildrenIdsByParentIds(@Param("ids") List<String> deleteIds);
-
-    List<BaseTreeNode> selectBaseNodeByIds(@Param("ids") List<String> ids);
 
     List<String> selectChildrenIdsSortByPos(String parentId);
 
@@ -29,7 +27,9 @@ public interface ExtApiDebugModuleMapper {
 
     BaseModule selectModuleByParentIdAndPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
-    List<ApiTreeNode> selectApiDebugByProtocolAndUser(String protocol, String userId);
+    List<ApiTreeNode> selectApiDataByRequest(@Param("request") ApiModuleRequest request);
 
-    List<ModuleCountDTO> countModuleIdByKeywordAndProtocol(@Param("request") ApiDebugRequest request, @Param("userId") String userId);
+    List<ModuleCountDTO> countModuleIdByRequest(@Param("request") ApiModuleRequest request);
+
+    List<BaseTreeNode> selectNodeByIds(@Param("ids") List<String> ids);
 }

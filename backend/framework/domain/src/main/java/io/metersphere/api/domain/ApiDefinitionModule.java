@@ -22,7 +22,7 @@ public class ApiDefinitionModule implements Serializable {
 
     @Schema(description = "协议", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_module.protocol.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{api_definition_module.protocol.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 20, message = "{api_definition_module.protocol.length_range}", groups = {Created.class, Updated.class})
     private String protocol;
 
     @Schema(description = "父级fk", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -35,13 +35,9 @@ public class ApiDefinitionModule implements Serializable {
     @Size(min = 1, max = 50, message = "{api_definition_module.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description = "树节点级别", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_definition_module.level.not_blank}", groups = {Created.class})
-    private Integer level;
-
     @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_definition_module.pos.not_blank}", groups = {Created.class})
-    private Integer pos;
+    private Long pos;
 
     @Schema(description = "创建时间")
     private Long createTime;
@@ -63,8 +59,7 @@ public class ApiDefinitionModule implements Serializable {
         protocol("protocol", "protocol", "VARCHAR", false),
         parentId("parent_id", "parentId", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
-        level("level", "level", "INTEGER", true),
-        pos("pos", "pos", "INTEGER", false),
+        pos("pos", "pos", "BIGINT", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),

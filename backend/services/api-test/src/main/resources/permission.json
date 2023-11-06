@@ -1,0 +1,65 @@
+[
+  {
+    "id": "API",
+    "name": "permission.api_test.name",
+    "type": "PROJECT",
+    "children": [
+      {
+        "id": "PROJECT_API_DEBUG",
+        "name": "permission.api_debug.name",
+        "permissions": [
+          {
+            "id": "PROJECT_API_DEBUG:READ"
+          },
+          {
+            "id": "PROJECT_API_DEBUG:READ+ADD"
+          },
+          {
+            "id": "PROJECT_API_DEBUG:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_API_DEBUG:READ+DELETE"
+          },
+          {
+            "id": "PROJECT_API_DEBUG:READ+IMPORT",
+            "name": "permission.api_definition.import"
+          },
+          {
+            "id": "PROJECT_API_DEBUG:READ+EXECUTE",
+            "name": "permission.api_definition.execute"
+          }
+        ]
+      },
+      {
+        "id": "PROJECT_API_DEFINITION",
+        "name": "permission.api_definition.name",
+        "permissions": [
+          {
+            "id": "PROJECT_API_DEFINITION:READ"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION:READ+ADD"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION:READ+DELETE"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION:READ+IMPORT",
+            "name": "permission.api_definition.import"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION:READ+EXECUTE",
+            "name": "permission.api_definition.execute"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION:READ+EXPORT",
+            "name": "permission.api_definition.export"
+          }
+        ]
+      }
+    ]
+  }
+]

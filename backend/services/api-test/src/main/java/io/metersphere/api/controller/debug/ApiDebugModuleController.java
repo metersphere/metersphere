@@ -1,8 +1,8 @@
 package io.metersphere.api.controller.debug;
 
 import io.metersphere.api.dto.debug.ApiDebugRequest;
-import io.metersphere.api.dto.debug.DebugModuleCreateRequest;
-import io.metersphere.api.dto.debug.DebugModuleUpdateRequest;
+import io.metersphere.api.dto.debug.ModuleCreateRequest;
+import io.metersphere.api.dto.debug.ModuleUpdateRequest;
 import io.metersphere.api.service.debug.ApiDebugModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -36,14 +36,14 @@ public class ApiDebugModuleController {
     @PostMapping("/add")
     @Operation(summary = "接口测试-接口调试-模块-添加模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ_ADD)
-    public String add(@RequestBody @Validated DebugModuleCreateRequest request) {
+    public String add(@RequestBody @Validated ModuleCreateRequest request) {
         return apiDebugModuleService.add(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
     @Operation(summary = "接口测试-接口调试-模块-修改模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ_UPDATE)
-    public boolean list(@RequestBody @Validated DebugModuleUpdateRequest request) {
+    public boolean list(@RequestBody @Validated ModuleUpdateRequest request) {
         apiDebugModuleService.update(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
         return true;
     }

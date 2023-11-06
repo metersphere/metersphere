@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class DebugModuleUpdateRequest {
+public class ModuleUpdateRequest {
     @Schema(description = "模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_module.id.not_blank}")
     private String id;
