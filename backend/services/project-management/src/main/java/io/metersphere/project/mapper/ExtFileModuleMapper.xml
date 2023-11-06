@@ -32,7 +32,8 @@
     </delete>
     <select id="getMaxPosByParentId" resultType="java.lang.Long">
         SELECT max(pos) FROM file_module
-        WHERE parent_id = #{0}
+        WHERE parent_id = #{parentId}
+          AND module_type = #{fileType}
     </select>
     <select id="selectChildrenIdsSortByPos" resultType="java.lang.String">
         SELECT id FROM file_module WHERE parent_id  = #{0}

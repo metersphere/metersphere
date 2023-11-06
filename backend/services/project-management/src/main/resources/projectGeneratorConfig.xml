@@ -73,7 +73,8 @@
         <!--        <table tableName="custom_function"/>-->
         <!--        <table tableName="fake_error"/>-->
         <!--        <table tableName="file_metadata"/>-->
-        <table tableName="file_module"/>
+        <table tableName="file_metadata_repository"/>
+        <table tableName="file_module_repository"/>
         <!--        <table tableName="project"/>-->
         <!--        <table tableName="project_application"/>-->
         <!--        <table tableName="project_version"/>-->

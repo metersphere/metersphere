@@ -10,19 +10,41 @@ import lombok.Data;
 
 @Data
 public class FileMetadataRepository implements Serializable {
-    @Schema(title = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata_repository.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{file_metadata_repository.id.length_range}", groups = {Created.class, Updated.class})
-    private String id;
+    @Schema(description = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_metadata_repository.file_metadata_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{file_metadata_repository.file_metadata_id.length_range}", groups = {Created.class, Updated.class})
+    private String fileMetadataId;
 
-    @Schema(title = "储存库")
-    private byte[] gitInfo;
+    @Schema(description = "分支", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_metadata_repository.branch.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{file_metadata_repository.branch.length_range}", groups = {Created.class, Updated.class})
+    private String branch;
+
+    @Schema(description = "存储库地址", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_metadata_repository.repository_url.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{file_metadata_repository.repository_url.length_range}", groups = {Created.class, Updated.class})
+    private String repositoryUrl;
+
+    @Schema(description = "token", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_metadata_repository.token.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 1000, message = "{file_metadata_repository.token.length_range}", groups = {Created.class, Updated.class})
+    private String token;
+
+    @Schema(description = "提交ID")
+    private String commitId;
+
+    @Schema(description = "提交信息")
+    private String commitMessage;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
-        id("id", "id", "VARCHAR", false),
-        gitInfo("git_info", "gitInfo", "LONGVARBINARY", false);
+        fileMetadataId("file_metadata_id", "fileMetadataId", "VARCHAR", false),
+        branch("branch", "branch", "VARCHAR", false),
+        repositoryUrl("repository_url", "repositoryUrl", "VARCHAR", false),
+        token("token", "token", "VARCHAR", false),
+        commitId("commit_id", "commitId", "VARCHAR", false),
+        commitMessage("commit_message", "commitMessage", "LONGVARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

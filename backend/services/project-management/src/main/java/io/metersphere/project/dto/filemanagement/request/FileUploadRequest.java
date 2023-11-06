@@ -14,4 +14,7 @@ public class FileUploadRequest {
     @Schema(description = "模块Id")
     @NotBlank(message = "{file_module.id.not_blank}")
     private String moduleId = ModuleConstants.DEFAULT_NODE_ID;
+
+    @Schema(description = "是否启用")
+    private boolean enable;
 }

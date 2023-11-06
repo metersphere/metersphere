@@ -10,7 +10,7 @@ public interface FileMetadataRepositoryMapper {
 
     int deleteByExample(FileMetadataRepositoryExample example);
 
-    int deleteByPrimaryKey(String id);
+    int deleteByPrimaryKey(String fileMetadataId);
 
     int insert(FileMetadataRepository record);
 
@@ -20,7 +20,7 @@ public interface FileMetadataRepositoryMapper {
 
     List<FileMetadataRepository> selectByExample(FileMetadataRepositoryExample example);
 
-    FileMetadataRepository selectByPrimaryKey(String id);
+    FileMetadataRepository selectByPrimaryKey(String fileMetadataId);
 
     int updateByExampleSelective(@Param("record") FileMetadataRepository record, @Param("example") FileMetadataRepositoryExample example);
 
@@ -31,6 +31,8 @@ public interface FileMetadataRepositoryMapper {
     int updateByPrimaryKeySelective(FileMetadataRepository record);
 
     int updateByPrimaryKeyWithBLOBs(FileMetadataRepository record);
+
+    int updateByPrimaryKey(FileMetadataRepository record);
 
     int batchInsert(@Param("list") List<FileMetadataRepository> list);
 

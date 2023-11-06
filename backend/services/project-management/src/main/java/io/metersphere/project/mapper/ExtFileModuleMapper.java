@@ -18,7 +18,7 @@ public interface ExtFileModuleMapper {
 
     void deleteByIds(@Param("ids") List<String> deleteId);
 
-    Long getMaxPosByParentId(String parentId);
+    Long getMaxPosByParentId(@Param("parentId") String parentId, @Param("fileType") String fileType);
 
     List<String> selectIdsByProjectId(String projectId);
 

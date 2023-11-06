@@ -100,6 +100,12 @@ public class FileMetadataService {
         }
     }
 
+    private void checkEnableFile(String fileType) {
+        if (!StringUtils.equalsIgnoreCase(fileType, JAR_FILE_PREFIX)) {
+            throw new MSException(Translator.get("file.not.jar"));
+        }
+    }
+
     public String upload(FileUploadRequest request, String operator, MultipartFile uploadFile) throws Exception {
         //检查模块的合法性
         fileManagementService.checkModule(request.getModuleId(), ModuleConstants.NODE_TYPE_DEFAULT);
@@ -114,8 +120,14 @@ public class FileMetadataService {
             fileMetadata.setName(fileName);
             fileMetadata.setType(StringUtils.EMPTY);
         }
+
         //检查处理后的用户名合法性
         this.checkFileName(null, fileMetadata.getName(), request.getProjectId());
+
+        //如果开启了开关，检查是否是jar文件
+        if (request.isEnable()) {
+            this.checkEnableFile(fileMetadata.getType());
+        }
 
         fileMetadata.setId(IDGenerator.nextStr());
         fileMetadata.setStorage(StorageType.MINIO.name());
@@ -229,9 +241,7 @@ public class FileMetadataService {
                 updateExample.setTags(null);
             }
             if (request.getEnable() != null) {
-                if (!StringUtils.equalsIgnoreCase(fileMetadata.getType(), JAR_FILE_PREFIX)) {
-                    throw new MSException(Translator.get("file.not.jar"));
-                }
+                this.checkEnableFile(fileMetadata.getType());
                 updateExample.setEnable(request.getEnable());
             }
             updateExample.setUpdateUser(operator);
@@ -388,9 +398,7 @@ public class FileMetadataService {
         if (fileMetadata == null) {
             throw new MSException(Translator.get("file.not.exist"));
         }
-        if (!StringUtils.equalsIgnoreCase(fileMetadata.getType(), JAR_FILE_PREFIX)) {
-            throw new MSException(Translator.get("file.not.jar"));
-        }
+        this.checkEnableFile(fileMetadata.getType());
         FileMetadata updateModel = new FileMetadata();
         updateModel.setId(fileMetadata.getId());
         updateModel.setEnable(enable);

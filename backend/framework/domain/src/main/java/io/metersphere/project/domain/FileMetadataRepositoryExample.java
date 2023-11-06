@@ -104,73 +104,353 @@ public class FileMetadataRepositoryExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andIdIsNull() {
-            addCriterion("id is null");
+        public Criteria andFileMetadataIdIsNull() {
+            addCriterion("file_metadata_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andIdIsNotNull() {
-            addCriterion("id is not null");
+        public Criteria andFileMetadataIdIsNotNull() {
+            addCriterion("file_metadata_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andIdEqualTo(String value) {
-            addCriterion("id =", value, "id");
+        public Criteria andFileMetadataIdEqualTo(String value) {
+            addCriterion("file_metadata_id =", value, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotEqualTo(String value) {
-            addCriterion("id <>", value, "id");
+        public Criteria andFileMetadataIdNotEqualTo(String value) {
+            addCriterion("file_metadata_id <>", value, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdGreaterThan(String value) {
-            addCriterion("id >", value, "id");
+        public Criteria andFileMetadataIdGreaterThan(String value) {
+            addCriterion("file_metadata_id >", value, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdGreaterThanOrEqualTo(String value) {
-            addCriterion("id >=", value, "id");
+        public Criteria andFileMetadataIdGreaterThanOrEqualTo(String value) {
+            addCriterion("file_metadata_id >=", value, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLessThan(String value) {
-            addCriterion("id <", value, "id");
+        public Criteria andFileMetadataIdLessThan(String value) {
+            addCriterion("file_metadata_id <", value, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLessThanOrEqualTo(String value) {
-            addCriterion("id <=", value, "id");
+        public Criteria andFileMetadataIdLessThanOrEqualTo(String value) {
+            addCriterion("file_metadata_id <=", value, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLike(String value) {
-            addCriterion("id like", value, "id");
+        public Criteria andFileMetadataIdLike(String value) {
+            addCriterion("file_metadata_id like", value, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotLike(String value) {
-            addCriterion("id not like", value, "id");
+        public Criteria andFileMetadataIdNotLike(String value) {
+            addCriterion("file_metadata_id not like", value, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdIn(List<String> values) {
-            addCriterion("id in", values, "id");
+        public Criteria andFileMetadataIdIn(List<String> values) {
+            addCriterion("file_metadata_id in", values, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotIn(List<String> values) {
-            addCriterion("id not in", values, "id");
+        public Criteria andFileMetadataIdNotIn(List<String> values) {
+            addCriterion("file_metadata_id not in", values, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdBetween(String value1, String value2) {
-            addCriterion("id between", value1, value2, "id");
+        public Criteria andFileMetadataIdBetween(String value1, String value2) {
+            addCriterion("file_metadata_id between", value1, value2, "fileMetadataId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotBetween(String value1, String value2) {
-            addCriterion("id not between", value1, value2, "id");
+        public Criteria andFileMetadataIdNotBetween(String value1, String value2) {
+            addCriterion("file_metadata_id not between", value1, value2, "fileMetadataId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchIsNull() {
+            addCriterion("branch is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchIsNotNull() {
+            addCriterion("branch is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchEqualTo(String value) {
+            addCriterion("branch =", value, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchNotEqualTo(String value) {
+            addCriterion("branch <>", value, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchGreaterThan(String value) {
+            addCriterion("branch >", value, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchGreaterThanOrEqualTo(String value) {
+            addCriterion("branch >=", value, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchLessThan(String value) {
+            addCriterion("branch <", value, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchLessThanOrEqualTo(String value) {
+            addCriterion("branch <=", value, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchLike(String value) {
+            addCriterion("branch like", value, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchNotLike(String value) {
+            addCriterion("branch not like", value, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchIn(List<String> values) {
+            addCriterion("branch in", values, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchNotIn(List<String> values) {
+            addCriterion("branch not in", values, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchBetween(String value1, String value2) {
+            addCriterion("branch between", value1, value2, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andBranchNotBetween(String value1, String value2) {
+            addCriterion("branch not between", value1, value2, "branch");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlIsNull() {
+            addCriterion("repository_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlIsNotNull() {
+            addCriterion("repository_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlEqualTo(String value) {
+            addCriterion("repository_url =", value, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlNotEqualTo(String value) {
+            addCriterion("repository_url <>", value, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlGreaterThan(String value) {
+            addCriterion("repository_url >", value, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("repository_url >=", value, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlLessThan(String value) {
+            addCriterion("repository_url <", value, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlLessThanOrEqualTo(String value) {
+            addCriterion("repository_url <=", value, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlLike(String value) {
+            addCriterion("repository_url like", value, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlNotLike(String value) {
+            addCriterion("repository_url not like", value, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlIn(List<String> values) {
+            addCriterion("repository_url in", values, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlNotIn(List<String> values) {
+            addCriterion("repository_url not in", values, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlBetween(String value1, String value2) {
+            addCriterion("repository_url between", value1, value2, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUrlNotBetween(String value1, String value2) {
+            addCriterion("repository_url not between", value1, value2, "repositoryUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenIsNull() {
+            addCriterion("token is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenIsNotNull() {
+            addCriterion("token is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenEqualTo(String value) {
+            addCriterion("token =", value, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenNotEqualTo(String value) {
+            addCriterion("token <>", value, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenGreaterThan(String value) {
+            addCriterion("token >", value, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenGreaterThanOrEqualTo(String value) {
+            addCriterion("token >=", value, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenLessThan(String value) {
+            addCriterion("token <", value, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenLessThanOrEqualTo(String value) {
+            addCriterion("token <=", value, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenLike(String value) {
+            addCriterion("token like", value, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenNotLike(String value) {
+            addCriterion("token not like", value, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenIn(List<String> values) {
+            addCriterion("token in", values, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenNotIn(List<String> values) {
+            addCriterion("token not in", values, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenBetween(String value1, String value2) {
+            addCriterion("token between", value1, value2, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokenNotBetween(String value1, String value2) {
+            addCriterion("token not between", value1, value2, "token");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdIsNull() {
+            addCriterion("commit_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdIsNotNull() {
+            addCriterion("commit_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdEqualTo(String value) {
+            addCriterion("commit_id =", value, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdNotEqualTo(String value) {
+            addCriterion("commit_id <>", value, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdGreaterThan(String value) {
+            addCriterion("commit_id >", value, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdGreaterThanOrEqualTo(String value) {
+            addCriterion("commit_id >=", value, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdLessThan(String value) {
+            addCriterion("commit_id <", value, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdLessThanOrEqualTo(String value) {
+            addCriterion("commit_id <=", value, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdLike(String value) {
+            addCriterion("commit_id like", value, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdNotLike(String value) {
+            addCriterion("commit_id not like", value, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdIn(List<String> values) {
+            addCriterion("commit_id in", values, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdNotIn(List<String> values) {
+            addCriterion("commit_id not in", values, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdBetween(String value1, String value2) {
+            addCriterion("commit_id between", value1, value2, "commitId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCommitIdNotBetween(String value1, String value2) {
+            addCriterion("commit_id not between", value1, value2, "commitId");
             return (Criteria) this;
         }
     }
