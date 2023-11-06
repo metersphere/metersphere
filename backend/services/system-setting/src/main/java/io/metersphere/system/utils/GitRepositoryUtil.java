@@ -1,7 +1,9 @@
-package io.metersphere.project.utils;
+package io.metersphere.system.utils;
 
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.dto.RepositoryQuery;
 import io.metersphere.system.dto.sdk.RemoteFileAttachInfo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -19,9 +21,8 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GitRepositoryUtil {
     private final String REF_SPACE = "+refs/heads/*:refs/heads/*";
@@ -46,40 +47,40 @@ public class GitRepositoryUtil {
 
     //以下方法先注释掉，用到了再打开
 
-    //    public byte[] getSingleFile(String filePath, String commitId) throws Exception {
-    //        LogUtils.info("准备获取文件. repositoryUrl：" + repositoryUrl + "; filePath：" + filePath + "; commitId：" + commitId);
-    //        InMemoryRepository repo = this.getGitRepositoryInMemory(repositoryUrl, userName, token);
-    //        ObjectId fileCommitObjectId = repo.resolve(commitId);
-    //        ObjectId objectId = this.getTreeWork(repo, fileCommitObjectId, filePath).getObjectId(0);
-    //        ObjectLoader loader = repo.open(objectId);
-    //        byte[] returnBytes = loader.getBytes();
-    //        this.closeConnection(repo);
-    //        return returnBytes;
-    //    }
+    public byte[] getFile(String filePath, String commitId) throws Exception {
+        LogUtils.info("准备获取文件. repositoryUrl：" + repositoryUrl + "; filePath：" + filePath + "; commitId：" + commitId);
+        InMemoryRepository repo = this.getGitRepositoryInMemory(repositoryUrl, userName, token);
+        ObjectId fileCommitObjectId = repo.resolve(commitId);
+        ObjectId objectId = this.getTreeWork(repo, fileCommitObjectId, filePath).getObjectId(0);
+        ObjectLoader loader = repo.open(objectId);
+        byte[] returnBytes = loader.getBytes();
+        this.closeConnection(repo);
+        return returnBytes;
+    }
 
-    //    public Map<String, byte[]> getFiles(List<RepositoryQuery> RepositoryQueryList) throws Exception {
-    //        Map<String, byte[]> returnMap = new HashMap<>();
-    //        if (CollectionUtils.isEmpty(RepositoryQueryList)) {
-    //            return returnMap;
-    //        }
-    //        Map<String, List<RepositoryQuery>> commitIdFilePathMap = RepositoryQueryList.stream().collect(Collectors.groupingBy(RepositoryQuery::getCommitId));
-    //        InMemoryRepository repo = this.getGitRepositoryInMemory(repositoryUrl, userName, token);
-    //        ObjectId fileCommitObjectId;
-    //        for (Map.Entry<String, List<RepositoryQuery>> commitFilePathEntry : commitIdFilePathMap.entrySet()) {
-    //            String commitId = commitFilePathEntry.getKey();
-    //            List<RepositoryQuery> itemRequestList = commitFilePathEntry.getValue();
-    //            for (RepositoryQuery RepositoryQuery : itemRequestList) {
-    //                String filePath = RepositoryQuery.getFilePath();
-    //                fileCommitObjectId = repo.resolve(commitId);
-    //                ObjectId objectId = this.getTreeWork(repo, fileCommitObjectId, filePath).getObjectId(0);
-    //                ObjectLoader loader = repo.open(objectId);
-    //                returnMap.put(RepositoryQuery.getFileMetadataId(), loader.getBytes());
-    //            }
-    //            this.closeConnection(repo);
-    //        }
-    //        LogUtils.info("准备批量获取文件结束. repositoryUrl：" + repositoryUrl);
-    //        return returnMap;
-    //    }
+    public Map<String, byte[]> getFiles(List<RepositoryQuery> RepositoryQueryList) throws Exception {
+        Map<String, byte[]> returnMap = new HashMap<>();
+        if (CollectionUtils.isEmpty(RepositoryQueryList)) {
+            return returnMap;
+        }
+        Map<String, List<RepositoryQuery>> commitIdFilePathMap = RepositoryQueryList.stream().collect(Collectors.groupingBy(RepositoryQuery::getCommitId));
+        InMemoryRepository repo = this.getGitRepositoryInMemory(repositoryUrl, userName, token);
+        ObjectId fileCommitObjectId;
+        for (Map.Entry<String, List<RepositoryQuery>> commitFilePathEntry : commitIdFilePathMap.entrySet()) {
+            String commitId = commitFilePathEntry.getKey();
+            List<RepositoryQuery> itemRequestList = commitFilePathEntry.getValue();
+            for (RepositoryQuery repositoryQuery : itemRequestList) {
+                String filePath = repositoryQuery.getFilePath();
+                fileCommitObjectId = repo.resolve(commitId);
+                ObjectId objectId = this.getTreeWork(repo, fileCommitObjectId, filePath).getObjectId(0);
+                ObjectLoader loader = repo.open(objectId);
+                returnMap.put(repositoryQuery.getFileMetadataId(), loader.getBytes());
+            }
+            this.closeConnection(repo);
+        }
+        LogUtils.info("准备批量获取文件结束. repositoryUrl：" + repositoryUrl);
+        return returnMap;
+    }
 
     public RemoteFileAttachInfo selectLastCommitIdByBranch(String branch, String filePath) {
         RemoteFileAttachInfo attachInfo;
@@ -143,16 +144,16 @@ public class GitRepositoryUtil {
         return repo;
     }
 
-    //    private TreeWalk getTreeWork(InMemoryRepository repo, ObjectId fileCommitObjectId, String filePath) throws Exception {
-    //        RevWalk revWalk = new RevWalk(repo);
-    //        RevCommit commit = revWalk.parseCommit(fileCommitObjectId);
-    //        RevTree tree = commit.getTree();
-    //        TreeWalk treeWalk = new TreeWalk(repo);
-    //        treeWalk.addTree(tree);
-    //        treeWalk.setRecursive(true);
-    //        treeWalk.setFilter(PathFilter.create(filePath));
-    //        return treeWalk;
-    //    }
+    private TreeWalk getTreeWork(InMemoryRepository repo, ObjectId fileCommitObjectId, String filePath) throws Exception {
+        RevWalk revWalk = new RevWalk(repo);
+        RevCommit commit = revWalk.parseCommit(fileCommitObjectId);
+        RevTree tree = commit.getTree();
+        TreeWalk treeWalk = new TreeWalk(repo);
+        treeWalk.addTree(tree);
+        treeWalk.setRecursive(true);
+        treeWalk.setFilter(PathFilter.create(filePath));
+        return treeWalk;
+    }
 
     private void closeConnection(Repository repo) {
         if (git != null) {

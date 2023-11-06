@@ -1,16 +1,12 @@
 package io.metersphere.project.controller.filemanagement;
 
-import io.metersphere.project.domain.FileMetadata;
-import io.metersphere.project.domain.FileMetadataRepository;
-import io.metersphere.project.domain.FileModule;
-import io.metersphere.project.domain.FileModuleRepository;
+import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.filemanagement.request.*;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.mapper.FileModuleRepositoryMapper;
-import io.metersphere.project.service.FileModuleService;
 import io.metersphere.project.utils.FileManagementRequestUtils;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -27,15 +23,20 @@ import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -49,19 +50,11 @@ public class FileRepositoryControllerTest extends BaseTest {
     private static final String GITEE_USERNAME = "testformetersphere";
     private static final String GITEE_TOKEN = "4548d369bb595738d726512742e4478f";
 
-    private static List<BaseTreeNode> repositoryTreeNodes = new ArrayList<>();
-
-    private static final Map<String, String> FILE_ID_PATH = new LinkedHashMap<>();
-
-    private static final Map<String, String> FILE_VERSIONS_ID_MAP = new HashMap<>();
-
-    private static String reUploadFileId;
+    private static final List<String> fileList = new ArrayList<>();
 
     private static String repositoryId;
-    private static String jarFileId;
+    private static String picFileId;
 
-    @Resource
-    private FileModuleService fileModuleService;
     @Resource
     private FileModuleMapper fileModuleMapper;
     @Resource
@@ -310,6 +303,43 @@ public class FileRepositoryControllerTest extends BaseTest {
     }
 
     @Test
+    @Order(5)
+    public void moduleDeleteTest() throws Exception {
+        if (StringUtils.isEmpty(repositoryId)) {
+            this.moduleAddTest();
+        }
+
+        this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, repositoryId));
+        this.checkRepositoryDeleted(repositoryId);
+        checkLog(repositoryId, OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE);
+
+
+        //重新添加
+        this.moduleAddTest();
+
+    }
+
+    private void checkRepositoryDeleted(String repositoryId) {
+        FileModuleRepositoryExample repositoryExample = new FileModuleRepositoryExample();
+        repositoryExample.createCriteria().andFileModuleIdEqualTo(repositoryId);
+        Assertions.assertEquals(fileModuleRepositoryMapper.countByExample(repositoryExample), 0);
+
+        FileModuleExample example = new FileModuleExample();
+        example.createCriteria().andIdEqualTo(repositoryId);
+        Assertions.assertEquals(fileModuleMapper.countByExample(example), 0);
+    }
+
+    private void checkRepositoryFileDeleted(String fileId) {
+        FileMetadataRepositoryExample repositoryExample = new FileMetadataRepositoryExample();
+        repositoryExample.createCriteria().andFileMetadataIdEqualTo(fileId);
+        Assertions.assertEquals(fileMetadataRepositoryMapper.countByExample(repositoryExample), 0);
+
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdEqualTo(fileId);
+        Assertions.assertEquals(fileMetadataMapper.countByExample(example), 0);
+    }
+
+    @Test
     @Order(10)
     public void repositoryListTest() throws Exception {
         this.getFileModuleTreeNode();
@@ -333,6 +363,8 @@ public class FileRepositoryControllerTest extends BaseTest {
         MvcResult result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         String fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkFileRepositoryFile(fileId, request);
+        this.checkLog(fileId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD);
+        fileList.add(fileId);
         //测试其他分支的多层目录的文件
         String otherBranch = "develop";
         String folderFilePath1 = "test-folder/gitee/test.txt";
@@ -343,7 +375,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkFileRepositoryFile(fileId, request);
-
+        fileList.add(fileId);
         //测试隐藏文件
         String folderFilePath2 = "test-folder/.keep";
         request = new RepositoryFileAddRequest();
@@ -353,7 +385,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkFileRepositoryFile(fileId, request);
-
+        fileList.add(fileId);
         //测试添加jar包并且启用
         request = new RepositoryFileAddRequest();
         request.setBranch(branch);
@@ -363,7 +395,17 @@ public class FileRepositoryControllerTest extends BaseTest {
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkFileRepositoryFile(fileId, request);
-
+        fileList.add(fileId);
+        //获取图片信息
+        request = new RepositoryFileAddRequest();
+        request.setBranch(otherBranch);
+        request.setFilePath("1095388459180046.jpg");
+        request.setModuleId(repositoryId);
+        result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
+        fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
+        this.checkFileRepositoryFile(fileId, request);
+        this.picFileId = fileId;
+        fileList.add(fileId);
         {
             //重复添加测试
             request = new RepositoryFileAddRequest();
@@ -418,10 +460,27 @@ public class FileRepositoryControllerTest extends BaseTest {
             request.setBranch(IDGenerator.nextStr());
             request.setFilePath(folderFilePath2);
             this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request).andExpect(status().isBadRequest());
-
         }
 
     }
+
+    @Test
+    @Order(12)
+    public void repositoryGetFileTest() throws Exception {
+        if (StringUtils.isEmpty(picFileId)) {
+            this.repositoryAddFileTest();
+        }
+        //下载文件
+        MvcResult originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", picFileId));
+        byte[] fileBytes = originalResult.getResponse().getContentAsByteArray();
+        Assertions.assertTrue(fileBytes.length > 0);
+        //预览文件
+        originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", picFileId));
+        Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
+        MvcResult compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", picFileId));
+        Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
+    }
+
 
     private void checkFileRepositoryFile(String fileId, RepositoryFileAddRequest request) {
         FileMetadataRepository repository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileId);
@@ -430,6 +489,13 @@ public class FileRepositoryControllerTest extends BaseTest {
         Assertions.assertNotNull(repository.getCommitMessage());
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
         Assertions.assertEquals(fileMetadata.getPath(), request.getFilePath());
+        Assertions.assertEquals(fileMetadata.getStorage(), StorageType.GIT.name());
+    }
+
+    protected MvcResult downloadFile(String url, Object... uriVariables) throws Exception {
+        return mockMvc.perform(getRequestBuilder(url, uriVariables))
+                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                .andExpect(status().isOk()).andReturn();
     }
 
     @Test
@@ -440,9 +506,27 @@ public class FileRepositoryControllerTest extends BaseTest {
         this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ, String.format(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_TYPE, DEFAULT_PROJECT_ID));
     }
 
+    @Test
+    @Order(99)
+    public void repositoryFileDeleteTest() throws Exception {
+        if (CollectionUtils.isEmpty(fileList)) {
+            this.repositoryAddFileTest();
+        }
+        FileBatchProcessRequest fileBatchProcessRequest = new FileBatchProcessRequest();
+        fileBatchProcessRequest.setProjectId(project.getId());
+        fileBatchProcessRequest.setSelectIds(fileList);
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
+        for (String fileId : fileList) {
+            this.checkLog(fileId, OperationLogType.DELETE, FileManagementRequestUtils.URL_FILE_DELETE);
+            this.checkRepositoryFileDeleted(fileId);
+        }
+    }
+
+
     private void checkFileRepository(String repositoryId, String projectId, String name, String platform, String url, String token, String userName) {
         FileModule module = fileModuleMapper.selectByPrimaryKey(repositoryId);
         FileModuleRepository repository = fileModuleRepositoryMapper.selectByPrimaryKey(repositoryId);
+        Assertions.assertEquals(module.getModuleType(), ModuleConstants.NODE_TYPE_GIT);
         if (StringUtils.isNotEmpty(projectId)) {
             Assertions.assertEquals(module.getProjectId(), projectId);
         }

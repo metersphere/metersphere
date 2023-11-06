@@ -145,10 +145,9 @@ public class FileMetadataLogService {
 
     public void saveRepositoryAddLog(FileMetadata fileMetadata, FileMetadataRepository repositoryFile, String operator) {
         Project project = projectMapper.selectByPrimaryKey(fileMetadata.getProjectId());
-        Map<String, Object> logContent = new HashMap<>() {{
-            this.put("fileMetadata", fileMetadata);
-            this.put("repositoryFile", repositoryFile);
-        }};
+        Map<String, Object> logContent = new HashMap<>();
+        logContent.put("fileMetadata", fileMetadata);
+        logContent.put("repositoryFile", repositoryFile);
         LogDTO dto = LogDTOBuilder.builder()
                 .projectId(fileMetadata.getProjectId())
                 .organizationId(project.getOrganizationId())
