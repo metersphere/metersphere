@@ -34,6 +34,7 @@ export default {
   'project.fileManagement.edit': 'Edit',
   'project.fileManagement.cancel': 'Cancel',
   'project.fileManagement.testLink': 'Test connection',
+  'project.fileManagement.testLinkSuccess': 'Connection successful',
   'project.fileManagement.storageName': 'Repository name',
   'project.fileManagement.storageNamePlaceholder': 'Please enter a repository name',
   'project.fileManagement.storageNameNotNull': 'Repository name cannot be empty',

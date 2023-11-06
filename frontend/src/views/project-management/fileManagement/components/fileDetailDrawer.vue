@@ -359,6 +359,7 @@
           await reuploadFile({
             request: {
               fileId: props.fileId,
+              enable: false,
             },
             file: data,
           });

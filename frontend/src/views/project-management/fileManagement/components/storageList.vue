@@ -5,41 +5,43 @@
     allow-clear
     class="mb-[8px]"
   ></a-input>
-  <MsList
-    v-model:focus-item-key="focusItemKey"
-    :virtual-list-props="{
-      height: 'calc(100vh - 310px)',
-    }"
-    :data="storageList"
-    :bordered="false"
-    :split="false"
-    :item-more-actions="folderMoreActions"
-    :empty-text="t('project.fileManagement.noStorage')"
-    class="mr-[-6px]"
-    @more-action-select="handleMoreSelect"
-    @more-actions-close="moreActionsClose"
-  >
-    <template #title="{ item, index }">
-      <div :key="index" class="storage" @click="setActiveFolder(item.key)">
-        <div :class="props.activeFolder === item.key ? 'storage-text storage-text--active' : 'storage-text'">
-          <MsIcon type="icon-icon_git" class="storage-icon" />
-          <div class="storage-name">{{ item.title }}</div>
-          <div class="storage-count">({{ item.count }})</div>
+  <a-spin class="h-full w-full" :loading="loading">
+    <MsList
+      v-model:focus-item-key="focusItemKey"
+      :virtual-list-props="{
+        height: 'calc(100vh - 310px)',
+      }"
+      :data="storageList"
+      :bordered="false"
+      :split="false"
+      :item-more-actions="folderMoreActions"
+      :empty-text="t('project.fileManagement.noStorage')"
+      class="mr-[-6px]"
+      @more-action-select="handleMoreSelect"
+      @more-actions-close="moreActionsClose"
+    >
+      <template #title="{ item, index }">
+        <div :key="index" class="storage" @click="setActiveFolder(item.key)">
+          <div :class="props.activeFolder === item.key ? 'storage-text storage-text--active' : 'storage-text'">
+            <MsIcon type="icon-icon_git" class="storage-icon" />
+            <div class="storage-name">{{ item.title }}</div>
+            <div class="storage-count">({{ item.count }})</div>
+          </div>
         </div>
-      </div>
-    </template>
-    <template #itemAction="{ item }">
-      <popConfirm
-        mode="rename"
-        :parent-id="item.key"
-        :field-config="{ field: renameStorageTitle }"
-        :all-names="[]"
-        @close="resetFocusItemKey"
-      >
-        <span :id="`renameSpan${item.key}`" class="relative"></span>
-      </popConfirm>
-    </template>
-  </MsList>
+      </template>
+      <template #itemAction="{ item }">
+        <popConfirm
+          mode="rename"
+          :parent-id="item.key"
+          :field-config="{ field: renameStorageTitle }"
+          :all-names="[]"
+          @close="resetFocusItemKey"
+        >
+          <span :id="`renameSpan${item.key}`" class="relative"></span>
+        </popConfirm>
+      </template>
+    </MsList>
+  </a-spin>
   <MsDrawer
     v-model:visible="showDrawer"
     :title="t(isEdit ? 'project.fileManagement.updateStorageTitle' : 'project.fileManagement.addStorage')"
@@ -112,12 +114,12 @@
       </a-form-item>
       <a-form-item
         :label="t('project.fileManagement.storageUsername')"
-        field="username"
+        field="userName"
         asterisk-position="end"
         :rules="usernameRules"
       >
         <a-input
-          v-model:model-value="activeStorageForm.username"
+          v-model:model-value="activeStorageForm.userName"
           :max-length="250"
           :placeholder="t('project.fileManagement.storageUsernamePlaceholder')"
           allow-clear
@@ -144,20 +146,25 @@
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import popConfirm from './popConfirm.vue';
 
+  import { addRepository, connectRepository, getRepositories } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useAppStore from '@/store/modules/app';
   import { validateGitUrl } from '@/utils/validate';
 
+  import { Repository } from '@/models/projectManagement/file';
   import { GitPlatformEnum } from '@/enums/commonEnum';
 
   const props = defineProps<{
     activeFolder: string | number;
     drawerVisible: boolean;
+    showType: string;
   }>();
   const emit = defineEmits(['update:drawerVisible', 'itemClick']);
 
   const { t } = useI18n();
   const { openModal } = useModal();
+  const appStore = useAppStore();
 
   const folderMoreActions: ActionsItem[] = [
     {
@@ -176,306 +183,46 @@
   ];
 
   const storageKeyword = ref('');
-  const originStorageList = ref([
-    {
-      title: 'storage1',
-      key: '1',
-      count: 129,
-    },
-    {
-      title: 'storage2',
-      key: '2',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3sss',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3asa',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3sda',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3ads',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3asdd',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3sdfsdf',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3dgsg',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3asd',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3fwcdw',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3wef',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3f2ed',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3fe2fe',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3fe2feg2',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '32s22',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '323ff22f',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '33f3f',
-      count: 129,
-    },
-    {
-      title: 'storage1',
-      key: '1f2f',
-      count: 129,
-    },
-    {
-      title: 'storage2',
-      key: '2ef2ef',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3sd2fd',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '32ef2ef',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3f32v',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '323fgt2',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '324g23r',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3233d2',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '32gftr3',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '323f2dd',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '32fgede',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '32efsad',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3fsdgsd',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3sdgvsdxcs',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3asxc',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3csdcdg',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3gsg3f3',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3d3dxcsd',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3c3wervvb',
-      count: 129,
-    },
-    {
-      title: 'storage1',
-      key: '13vf33',
-      count: 129,
-    },
-    {
-      title: 'storage2',
-      key: '234444',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '32323d',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '323ffef',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: 'f23f23f3',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3f2f2f',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3rf4f2',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3dsewd',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3x2ef23f',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3f3f43',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3h4hgp',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3yu6n',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3nyuk',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3hn6',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3nyguhnmm6',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '36n6n',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3yukyuk',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3yhnn',
-      count: 129,
-    },
-    {
-      title: 'storage3',
-      key: '3gntnty',
-      count: 129,
-    },
-  ]);
+  const originStorageList = ref<Repository[]>([]);
   const storageList = ref(originStorageList.value);
+  const loading = ref(false);
 
   const searchStorage = debounce(() => {
-    storageList.value = originStorageList.value.filter((item) => item.title.includes(storageKeyword.value));
+    storageList.value = originStorageList.value.filter((item) => item.name.includes(storageKeyword.value));
   }, 300);
 
   watch(
     () => storageKeyword.value,
     () => {
       if (storageKeyword.value === '') {
-        storageList.value = originStorageList.value;
+        storageList.value = [...originStorageList.value];
       }
       searchStorage();
+    }
+  );
+
+  /**
+   * 初始化存储库列表
+   */
+  async function initRepositories() {
+    try {
+      loading.value = true;
+      const res = await getRepositories(appStore.currentProjectId);
+      originStorageList.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  watch(
+    () => props.showType,
+    (val) => {
+      if (val === 'Storage') {
+        initRepositories();
+      }
     }
   );
 
@@ -505,6 +252,7 @@
         try {
           Message.success(t('project.fileManagement.deleteSuccess'));
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -549,7 +297,7 @@
     platform: GitPlatformEnum.GITHUB,
     url: '',
     token: '',
-    username: '',
+    userName: '',
   });
   const storageFormRef = ref<FormInstance>();
   const gitPlatformTypes = Object.values(GitPlatformEnum);
@@ -562,9 +310,10 @@
         platform: GitPlatformEnum.GITHUB,
         url: 'xxxxxxx',
         token: 'sxsxsx',
-        username: 'ddwdwdwwd',
+        userName: 'ddwdwdwwd',
       };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       drawerLoading.value = false;
@@ -605,7 +354,7 @@
   });
 
   function platformChange() {
-    storageFormRef.value?.resetFields('username');
+    storageFormRef.value?.resetFields('userName');
   }
 
   const exampleUrl = 'http://github.com/xxxxx/xxxxxx.git';
@@ -620,7 +369,35 @@
     }
   }
 
-  // async function saveStorage(isContinue: boolean) {}
+  function handleDrawerCancel() {
+    showDrawer.value = false;
+    storageFormRef.value?.resetFields();
+    isEdit.value = false;
+  }
+
+  /**
+   * 保存存储库
+   * @param isContinue 是否继续添加
+   */
+  async function saveStorage(isContinue: boolean) {
+    try {
+      drawerLoading.value = true;
+      await addRepository({
+        ...activeStorageForm.value,
+        projectId: appStore.currentProjectId,
+      });
+      if (!isContinue) {
+        handleDrawerCancel();
+      }
+      Message.success(t('common.addSuccess'));
+      initRepositories();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      drawerLoading.value = false;
+    }
+  }
 
   /**
    * 处理抽屉确认
@@ -629,25 +406,29 @@
   function handleDrawerConfirm(isContinue: boolean) {
     storageFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
       if (!errors) {
-        // saveStorage(isContinue);
+        saveStorage(isContinue);
       }
     });
   }
 
-  function handleDrawerCancel() {
-    showDrawer.value = false;
-    storageFormRef.value?.resetFields();
-  }
-
   const testLoading = ref(false);
-
   function testLink() {
     storageFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
       if (!errors) {
-        testLoading.value = true;
-        setTimeout(() => {
+        try {
+          testLoading.value = true;
+          await connectRepository({
+            url: activeStorageForm.value.url,
+            userName: activeStorageForm.value.userName,
+            token: activeStorageForm.value.token,
+          });
+          Message.success(t('project.fileManagement.testLinkSuccess'));
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
           testLoading.value = false;
-        }, 2000);
+        }
       }
     });
   }

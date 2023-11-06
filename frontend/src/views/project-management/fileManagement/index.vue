@@ -58,6 +58,7 @@
               v-model:selected-keys="selectedKeys"
               :is-expand-all="isExpandAll"
               :modules-count="modulesCount"
+              :show-type="showType"
               @init="setRootModules"
               @folder-node-select="folderNodeSelect"
             />
@@ -66,6 +67,7 @@
             <StorageList
               v-model:drawer-visible="storageDrawerVisible"
               :active-folder="activeFolder"
+              :show-type="showType"
               @item-click="storageItemSelect"
             />
           </div>
@@ -100,9 +102,8 @@
 
   import { getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
-  import { mapTree } from '@/utils';
 
-  import { FileListQueryParams, ModuleTreeNode } from '@/models/projectManagement/file';
+  import { FileListQueryParams } from '@/models/projectManagement/file';
 
   const { t } = useI18n();
 

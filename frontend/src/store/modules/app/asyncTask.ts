@@ -182,7 +182,7 @@ const useAsyncTaskStore = defineStore('asyncTask', {
       try {
         if (this.uploadFileTask.uploadFunc) {
           await this.uploadFileTask.uploadFunc({
-            request: { ...this.uploadFileTask.requestParams },
+            request: { ...this.uploadFileTask.requestParams, enable: unref(fileItem)?.enable },
             file: unref(fileItem)?.file,
           });
         } else {

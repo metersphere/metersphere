@@ -83,7 +83,7 @@
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
-  import { FileListQueryParams, ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/projectManagement/file';
 
   const props = defineProps<{
     isExpandAll: boolean;
@@ -91,6 +91,7 @@
     selectedKeys?: Array<string | number>; // 选中的节点 key
     isModal?: boolean; // 是否是弹窗模式
     modulesCount?: Record<string, number>; // 模块数量统计对象
+    showType?: string; // 显示类型
   }>();
   const emit = defineEmits(['update:selectedKeys', 'init', 'folderNodeSelect']);
 
@@ -283,9 +284,17 @@
     }
   }
 
-  onBeforeMount(() => {
-    initModules();
-  });
+  watch(
+    () => props.showType,
+    (val) => {
+      if (val === 'Module') {
+        initModules();
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
 
   /**
    * 初始化模块文件数量

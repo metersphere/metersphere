@@ -298,6 +298,7 @@
     downloadFile,
     getFileList,
     getFileTypes,
+    getRepositoryFileTypes,
     toggleJarFileStatus,
     uploadFile,
   } from '@/api/modules/project-management/fileManagement';
@@ -339,7 +340,7 @@
   const keyword = ref('');
   const loading = ref(false);
 
-  const tableFileType = ref('');
+  const tableFileType = ref(''); // 文件格式筛选
   const tableFileTypeOptions = ref<string[]>([]);
   const fileTypeLoading = ref(false);
 
@@ -349,7 +350,12 @@
   async function initFileTypes() {
     try {
       fileTypeLoading.value = true;
-      const res = await getFileTypes(appStore.currentProjectId);
+      let res = null;
+      if (fileType.value === 'storage') {
+        res = await getRepositoryFileTypes(appStore.currentProjectId);
+      } else {
+        res = await getFileTypes(appStore.currentProjectId);
+      }
       tableFileTypeOptions.value = res;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -358,6 +364,16 @@
       fileTypeLoading.value = false;
     }
   }
+
+  watch(
+    () => props.activeFolderType,
+    () => {
+      initFileTypes();
+    },
+    {
+      immediate: true,
+    }
+  );
 
   const showType = ref<'list' | 'card'>('list'); // 文件列表展示形式
 
@@ -704,9 +720,13 @@
   function setTableParams() {
     if (props.activeFolder === 'my') {
       combine.value.createUser = userStore.id;
+    } else {
+      combine.value.createUser = '';
     }
     if (fileType.value === 'storage') {
       combine.value.storage = 'git';
+    } else {
+      combine.value.storage = 'module';
     }
     let moduleIds: string[] = [props.activeFolder, ...props.offspringIds];
     if (['all', 'my'].includes(props.activeFolder)) {
@@ -721,7 +741,11 @@
     });
   }
 
+  /**
+   * 更改文件展示类型：模块/存储库
+   */
   function changeFileType() {
+    initFileTypes();
     setTableParams();
     loadList();
   }
@@ -960,7 +984,6 @@
   type RouteQueryPosition = 'uploadDrawer' | null;
 
   onBeforeMount(() => {
-    initFileTypes();
     if (route.query.position) {
       switch (
         route.query.position as RouteQueryPosition // 定位到上传文件抽屉，自动打开

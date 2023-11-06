@@ -1,8 +1,10 @@
 import MSR from '@/api/http/index';
 import {
   AddModuleUrl,
+  AddRepositoryUrl,
   BatchDownloadFileUrl,
   BatchMoveFileUrl,
+  ConnectRepositoryUrl,
   DeleteFileUrl,
   DeleteModuleUrl,
   DownloadFileUrl,
@@ -11,17 +13,21 @@ import {
   GetFileTypesUrl,
   GetModuleCountUrl,
   GetModuleUrl,
+  GetRepositoryFileTypesUrl,
+  GetRepositoryFileUrl,
   MoveModuleUrl,
   ReuploadFileUrl,
   ToggleJarFileUrl,
   UpdateFileUrl,
   UpdateModuleUrl,
+  UpdateRepositoryUrl,
   UploadFileUrl,
 } from '@/api/requrls/project-management/fileManagement';
 
 import type { CommonList } from '@/models/common';
 import type {
   AddModuleParams,
+  AddRepositoryParams,
   BatchFileApiParams,
   FileDetail,
   FileItem,
@@ -29,9 +35,12 @@ import type {
   ModuleCount,
   ModuleTreeNode,
   MoveModuleParams,
+  Repository,
   ReuploadFileParams,
+  TestRepositoryConnectParams,
   UpdateFileParams,
   UpdateModuleParams,
+  UpdateRepositoryParams,
   UploadFileParams,
 } from '@/models/projectManagement/file';
 
@@ -100,7 +109,7 @@ export function deleteModule(id: string) {
   return MSR.get({ url: DeleteModuleUrl, params: id });
 }
 
-// 获取文件类型集合
+// 获取模块文件类型集合
 export function getFileTypes(id: string) {
   return MSR.get<string[]>({ url: GetFileTypesUrl, params: id });
 }
@@ -118,4 +127,29 @@ export function toggleJarFileStatus(id: string, status: boolean) {
 // 批量移动文件
 export function batchMoveFile(data: BatchFileApiParams) {
   return MSR.post({ url: BatchMoveFileUrl, data });
+}
+
+// 查找存储库
+export function getRepositories(id: string) {
+  return MSR.get<Repository[]>({ url: GetRepositoryFileUrl, params: id });
+}
+
+// 获取存储库文件类型集合
+export function getRepositoryFileTypes(id: string) {
+  return MSR.get<string[]>({ url: GetRepositoryFileTypesUrl, params: id });
+}
+
+// 添加存储库
+export function addRepository(data: AddRepositoryParams) {
+  return MSR.post({ url: AddRepositoryUrl, data });
+}
+
+// 测试存储库连接
+export function connectRepository(data: TestRepositoryConnectParams) {
+  return MSR.post({ url: ConnectRepositoryUrl, data });
+}
+
+// 修改存储库信息
+export function updateRepository(data: UpdateRepositoryParams) {
+  return MSR.post({ url: UpdateRepositoryUrl, data });
 }
