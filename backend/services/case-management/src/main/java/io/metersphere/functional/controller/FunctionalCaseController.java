@@ -1,12 +1,13 @@
 package io.metersphere.functional.controller;
 
+import com.alibaba.excel.util.StringUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
+import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
-import io.metersphere.functional.request.FunctionalCaseAddRequest;
-import io.metersphere.functional.request.FunctionalCaseDeleteRequest;
-import io.metersphere.functional.request.FunctionalCaseEditRequest;
-import io.metersphere.functional.request.FunctionalCaseFollowerRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.FunctionalCaseLogService;
 import io.metersphere.functional.service.FunctionalCaseNoticeService;
 import io.metersphere.functional.service.FunctionalCaseService;
@@ -18,6 +19,8 @@ import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -122,4 +125,13 @@ public class FunctionalCaseController {
         functionalCaseService.deleteFunctionalCase(request, userId);
     }
 
+
+    @PostMapping("/page")
+    @Operation(summary = "功能用例-用例列表查询")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody FunctionalCasePageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, false));
+    }
 }

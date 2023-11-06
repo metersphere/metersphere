@@ -3,6 +3,7 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.CaseCustomsFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
+import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
@@ -11,6 +12,7 @@ import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseDeleteRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
+import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -31,10 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -361,5 +360,31 @@ public class FunctionalCaseService {
         FunctionalCase functionalCase = checkFunctionalCase(functionalCaseId);
         List<FunctionalCaseVersionDTO> list = extFunctionalCaseMapper.getFunctionalCaseByRefId(functionalCase.getRefId());
         return list;
+    }
+
+    /**
+     * 列表查询
+     *
+     * @param request
+     * @return
+     */
+    public List<FunctionalCasePageDTO> getFunctionalCasePage(FunctionalCasePageRequest request, Boolean deleted) {
+        List<FunctionalCasePageDTO> functionalCaseLists = extFunctionalCaseMapper.list(request, deleted);
+        if (CollectionUtils.isEmpty(functionalCaseLists)) {
+            return new ArrayList<>();
+        }
+        //处理自定义字段值
+        return handleCustomFieldsAnd(functionalCaseLists);
+    }
+
+    private List<FunctionalCasePageDTO> handleCustomFieldsAnd(List<FunctionalCasePageDTO> functionalCaseLists) {
+        List<String> ids = functionalCaseLists.stream().map(FunctionalCasePageDTO::getId).collect(Collectors.toList());
+        List<FunctionalCaseCustomField> customFields = functionalCaseCustomFieldService.getCustomFieldByCaseIds(ids);
+        Map<String, List<FunctionalCaseCustomField>> collect = customFields.stream().collect(Collectors.groupingBy(FunctionalCaseCustomField::getCaseId));
+        functionalCaseLists.forEach(functionalCasePageDTO -> {
+            functionalCasePageDTO.setCustomsFields(collect.get(functionalCasePageDTO.getId()));
+        });
+        return functionalCaseLists;
+
     }
 }

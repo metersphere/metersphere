@@ -1,10 +1,11 @@
 package io.metersphere.functional.dto;
 
+import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -12,9 +13,9 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class FunctionalCasePageDTO implements Serializable {
+public class FunctionalCasePageDTO extends FunctionalCase {
 
 
     @Schema(description = "自定义字段集合")
-    private List<CaseCustomsFieldDTO> customsFields;
+    private List<FunctionalCaseCustomField> customsFields;
 }
