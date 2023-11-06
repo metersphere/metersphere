@@ -1,7 +1,7 @@
-package io.metersphere.api.service.debug;
+package io.metersphere.api.service.definition;
 
-import io.metersphere.api.domain.ApiDebug;
-import io.metersphere.api.domain.ApiDebugModule;
+import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.domain.ApiDefinitionModule;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -25,8 +25,8 @@ import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiDebugModuleLogService {
-    private static final String API_DEBUG_MODULE = "/api/debug/module";
+public class ApiDefinitionModuleLogService {
+    private static final String API_DEBUG_MODULE = "/api/definition/module";
     private static final String ADD = API_DEBUG_MODULE + "/add";
     private static final String UPDATE = API_DEBUG_MODULE + "/update";
     private static final String DELETE = API_DEBUG_MODULE + "/delete";
@@ -38,13 +38,13 @@ public class ApiDebugModuleLogService {
     @Resource
     private OperationLogService operationLogService;
 
-    public void saveAddLog(ApiDebugModule module, String operator) {
+    public void saveAddLog(ApiDefinitionModule module, String operator) {
         Project project = projectMapper.selectByPrimaryKey(module.getProjectId());
         LogDTO dto = LogDTOBuilder.builder()
                 .projectId(module.getProjectId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.ADD.name())
-                .module(OperationLogModule.API_DEBUG)
+                .module(OperationLogModule.API_DEFINITION)
                 .method(HttpMethodConstants.POST.name())
                 .path(ADD)
                 .sourceId(module.getId())
@@ -55,13 +55,13 @@ public class ApiDebugModuleLogService {
         operationLogService.add(dto);
     }
 
-    public void saveUpdateLog(ApiDebugModule module, String projectId, String operator) {
-        Project project = projectMapper.selectByPrimaryKey(projectId);
+    public void saveUpdateLog(ApiDefinitionModule module, String operator) {
+        Project project = projectMapper.selectByPrimaryKey(module.getProjectId());
         LogDTO dto = LogDTOBuilder.builder()
-                .projectId(projectId)
+                .projectId(project.getId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.UPDATE.name())
-                .module(OperationLogModule.API_DEBUG)
+                .module(OperationLogModule.API_DEFINITION)
                 .method(HttpMethodConstants.POST.name())
                 .path(UPDATE)
                 .sourceId(module.getId())
@@ -74,27 +74,26 @@ public class ApiDebugModuleLogService {
     }
 
     public void saveDeleteModuleLog(List<BaseTreeNode> deleteModule, String operator, String projectId) {
+        List<LogDTO> dtoList = new ArrayList<>();
         Project project = projectMapper.selectByPrimaryKey(projectId);
-        List<LogDTO> dtos = new ArrayList<>();
         deleteModule.forEach(item -> {
-                    LogDTO dto = LogDTOBuilder.builder()
-                            .projectId(project.getId())
-                            .organizationId(project.getOrganizationId())
-                            .type(OperationLogType.DELETE.name())
-                            .module(OperationLogModule.API_DEBUG)
-                            .method(HttpMethodConstants.GET.name())
-                            .path(DELETE + "/%s")
-                            .sourceId(item.getId())
-                            .content(item.getName() + " " + Translator.get("file.log.delete_module"))
-                            .createUser(operator)
-                            .build().getLogDTO();
-                    dtos.add(dto);
-                }
-        );
-        operationLogService.batchAdd(dtos);
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(project.getId())
+                    .organizationId(project.getOrganizationId())
+                    .type(OperationLogType.DELETE.name())
+                    .module(OperationLogModule.API_DEFINITION)
+                    .method(HttpMethodConstants.GET.name())
+                    .path(DELETE + "/%s")
+                    .sourceId(item.getId())
+                    .content(item.getName() + " " + Translator.get("file.log.delete_module"))
+                    .createUser(operator)
+                    .build().getLogDTO();
+            dtoList.add(dto);
+        });
+        operationLogService.batchAdd(dtoList);
     }
 
-    public void saveDeleteDataLog(List<ApiDebug> deleteData, String operator, String projectId) {
+    public void saveDeleteDataLog(List<ApiDefinition> deleteData, String operator, String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         List<LogDTO> logs = new ArrayList<>();
         deleteData.forEach(item -> {
@@ -102,7 +101,7 @@ public class ApiDebugModuleLogService {
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
                             .type(OperationLogType.DELETE.name())
-                            .module(OperationLogModule.API_DEBUG)
+                            .module(OperationLogModule.API_DEFINITION)
                             .method(HttpMethodConstants.GET.name())
                             .path(DELETE + "/%s")
                             .sourceId(item.getId())
@@ -137,7 +136,7 @@ public class ApiDebugModuleLogService {
                 .projectId(moveNode.getProjectId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.UPDATE.name())
-                .module(OperationLogModule.API_DEBUG)
+                .module(OperationLogModule.API_DEFINITION)
                 .method(HttpMethodConstants.POST.name())
                 .path(MOVE)
                 .sourceId(moveNode.getId())

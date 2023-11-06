@@ -61,34 +61,32 @@ CREATE INDEX idx_create_user ON api_debug_module(create_user);
 
 
 DROP TABLE IF EXISTS api_definition;
-CREATE TABLE api_definition(
-    `id` VARCHAR(50) NOT NULL   COMMENT '接口pk' ,
-    `name` VARCHAR(255) NOT NULL   COMMENT '接口名称' ,
-    `protocol` VARCHAR(20) NOT NULL   COMMENT '接口协议' ,
-    `method` VARCHAR(20)    COMMENT 'http协议类型post/get/其它协议则是协议名(mqtt)' ,
-    `path` VARCHAR(500)    COMMENT 'http协议路径/其它协议则为空' ,
-    `status` VARCHAR(50) NOT NULL   COMMENT '接口状态/进行中/已完成' ,
-    `num` INT    COMMENT '自定义id' ,
-    `tags` VARCHAR(500)    COMMENT '标签' ,
-    `pos` BIGINT NOT NULL   COMMENT '自定义排序' ,
-    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-    `module_id` VARCHAR(50)   DEFAULT 'NONE' COMMENT '模块fk' ,
-    `environment_id` VARCHAR(50)    COMMENT '环境fk' ,
-    `latest` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是' ,
-    `version_id` VARCHAR(50)    COMMENT '版本fk' ,
-    `ref_id` VARCHAR(50)    COMMENT '版本引用fk' ,
-    `description` VARCHAR(500)    COMMENT '描述' ,
-    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-    `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
-    `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
-    `delete_user` VARCHAR(50)    COMMENT '删除人' ,
-    `delete_time` BIGINT    COMMENT '删除时间' ,
-    `deleted` BIT(1) NOT NULL  DEFAULT 0 COMMENT '删除状态' ,
+CREATE TABLE api_definition
+(
+    `id`          VARCHAR(50)  NOT NULL COMMENT '接口pk',
+    `name`        VARCHAR(255) NOT NULL COMMENT '接口名称',
+    `protocol`    VARCHAR(20)  NOT NULL COMMENT '接口协议',
+    `method`      VARCHAR(20) COMMENT 'http协议类型post/get/其它协议则是协议名(mqtt)',
+    `path`        VARCHAR(500) COMMENT 'http协议路径/其它协议则为空',
+    `status`      VARCHAR(50)  NOT NULL COMMENT '接口状态/进行中/已完成',
+    `num`         BIGINT       NOT NULL COMMENT '自定义id',
+    `tags`        VARCHAR(500) COMMENT '标签',
+    `pos`         BIGINT       NOT NULL COMMENT '自定义排序',
+    `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目fk',
+    `module_id`   VARCHAR(50)  NOT NULL DEFAULT 'root' COMMENT '模块fk',
+    `latest`      BIT(1)       NOT NULL DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是',
+    `version_id`  VARCHAR(50)  NOT NULL COMMENT '版本fk',
+    `ref_id`      VARCHAR(50)  NOT NULL COMMENT '版本引用fk',
+    `description` VARCHAR(500) COMMENT '描述',
+    `create_time` BIGINT       NOT NULL COMMENT '创建时间',
+    `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人',
+    `update_time` BIGINT       NOT NULL COMMENT '修改时间',
+    `update_user` VARCHAR(50)  NOT NULL COMMENT '修改人',
+    `delete_user` VARCHAR(50) COMMENT '删除人',
+    `delete_time` BIGINT COMMENT '删除时间',
+    `deleted`     BIT(1)       NOT NULL DEFAULT 0 COMMENT '删除状态',
     PRIMARY KEY (id)
-)  ENGINE = InnoDB
-   DEFAULT CHARSET = utf8mb4
-   COLLATE = utf8mb4_general_ci COMMENT = '接口定义';
+) COMMENT = '接口定义';
 
 
 CREATE INDEX idx_project_id ON api_definition(project_id);
@@ -112,7 +110,7 @@ CREATE TABLE api_environment_config(
   PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '接口定义公共部分环境-建议干掉这个功能';
+  COLLATE = utf8mb4_general_ci COMMENT = '接口定义公共部分环境';
 
 DROP TABLE IF EXISTS api_report;
 CREATE TABLE api_report(
@@ -160,10 +158,9 @@ DROP TABLE IF EXISTS api_definition_module;
 CREATE TABLE api_definition_module(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口模块pk' ,
   `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
-  `protocol` VARCHAR(64) NOT NULL   COMMENT '协议' ,
+  `protocol` VARCHAR(20) NOT NULL   COMMENT '协议' ,
   `parent_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父级fk' ,
   `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-  `level` INT NOT NULL  DEFAULT 1 COMMENT '树节点级别' ,
   `pos` INT NOT NULL   COMMENT '排序' ,
   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
   `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ExtApiDefinitionModuleMapper">
+    <select id="selectIdAndParentIdByRequest" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT m.id,
+        m.parent_id AS parentId
+        FROM api_definition_module m
+        <include refid="module_request"/>
+        ORDER BY pos
+    </select>
+    <select id="selectIdsByProjectId" resultType="java.lang.String">
+        SELECT id
+        FROM api_definition_module
+        WHERE project_id = #{0}
+    </select>
+    <select id="selectChildrenIdsByParentIds" resultType="java.lang.String">
+        SELECT id
+        FROM api_definition_module
+        WHERE parent_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <delete id="deleteByIds">
+        DELETE
+        FROM api_definition_module
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="getMaxPosByParentId" resultType="java.lang.Long">
+        SELECT max(pos)
+        FROM api_definition_module
+        WHERE parent_id = #{0}
+    </select>
+    <select id="selectChildrenIdsSortByPos" resultType="java.lang.String">
+        SELECT id
+        FROM api_definition_module
+        WHERE parent_id = #{0}
+
+        ORDER BY pos ASC
+    </select>
+    <select id="getLastModuleByParentId" resultType="io.metersphere.api.domain.ApiDebugModule">
+        SELECT *
+        FROM api_definition_module
+        WHERE parent_id = #{0}
+
+        ORDER BY pos DESC
+        LIMIT 1
+    </select>
+    <select id="selectApiDataByRequest" resultType="io.metersphere.api.dto.debug.ApiTreeNode">
+        SELECT id,
+        NAME,
+        module_id AS parentId,
+        'api' AS type,
+        method
+        FROM api_definition
+        <include refid="api_request"/>
+        ORDER BY update_time DESC
+    </select>
+    <select id="countModuleIdByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT module_id AS moduleId, count(id) AS dataCount
+        FROM api_definition
+        <include refid="api_request"/>
+        GROUP BY api_definition.module_id
+    </select>
+    <select id="selectBaseModuleById" resultType="io.metersphere.system.dto.sdk.BaseModule">
+        SELECT id, name, pos, project_Id, parent_id
+        FROM api_definition_module
+        WHERE id = #{0}
+    </select>
+
+    <select id="selectModuleByParentIdAndPosOperator"
+            parameterType="io.metersphere.project.dto.NodeSortQueryParam"
+            resultType="io.metersphere.system.dto.sdk.BaseModule">
+        SELECT id, name, pos, project_Id, parent_id
+        FROM api_definition_module
+        WHERE parent_id = #{parentId}
+        <if test="operator == 'moreThan'">
+            AND pos &gt; #{pos}
+        </if>
+        <if test="operator == 'lessThan'">
+            AND pos &lt; #{pos}
+        </if>
+        ORDER BY pos
+        <if test="operator == 'lessThan' or operator == 'latest'">
+            DESC
+        </if>
+        LIMIT 1
+    </select>
+    <select id="selectBaseByRequest" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT m.id,
+        m.parent_id AS parentId,
+        m.name,
+        m.pos,
+        m.project_id,
+        'module' AS type
+        FROM api_definition_module m
+        <include refid="module_request"/>
+        ORDER BY pos
+    </select>
+    <select id="selectNodeByIds" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT m.id,
+        m.parent_id AS parentId,
+        m.name,
+        m.pos,
+        m.project_id,
+        'module' AS type
+        FROM api_definition_module m
+        WHERE m.id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY pos
+    </select>
+
+    <sql id="api_request">
+        <where>
+            api_definition.deleted = 0
+            <if test="request.projectId != null and request.projectId != ''">
+                AND api_definition.project_id = #{request.projectId}
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                AND api_definition.name like CONCAT('%', #{request.keyword},'%')
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() != 0">
+                AND api_definition.module_id IN
+                <foreach collection="request.moduleIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="request.protocol != null and request.protocol != ''">
+                AND api_definition.protocol = #{request.protocol}
+            </if>
+            AND api_definition.latest = 1
+            <!--<if test="request.versionId != null and request.versionId != ''">
+                and api_definition.version_id = #{request.versionId}
+            </if>
+            <if test="request.refId != null and request.refId != ''">
+                and api_definition.ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND api_definition.latest = 1
+            </if>-->
+        </where>
+    </sql>
+
+    <sql id="module_request">
+        <where>
+            <if test="request.projectId != null and request.projectId != ''">
+                AND m.project_id = #{request.projectId}
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                AND m.name like CONCAT('%', #{request.keyword},'%')
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() != 0">
+                AND m.module_id IN
+                <foreach collection="request.moduleIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="request.protocol != null and request.protocol != ''">
+                AND m.protocol = #{request.protocol}
+            </if>
+        </where>
+    </sql>
+
+</mapper>

@@ -37,7 +37,7 @@ public class ApiDefinition implements Serializable {
     private String status;
 
     @Schema(description = "自定义id")
-    private Integer num;
+    private Long num;
 
     @Schema(description = "标签")
     private String tags;
@@ -51,20 +51,23 @@ public class ApiDefinition implements Serializable {
     @Size(min = 1, max = 50, message = "{api_definition.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description = "模块fk")
+    @Schema(description = "模块fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_definition.module_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_definition.module_id.length_range}", groups = {Created.class, Updated.class})
     private String moduleId;
-
-    @Schema(description = "环境fk")
-    private String environmentId;
 
     @Schema(description = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_definition.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
-    @Schema(description = "版本fk")
+    @Schema(description = "版本fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_definition.version_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_definition.version_id.length_range}", groups = {Created.class, Updated.class})
     private String versionId;
 
-    @Schema(description = "版本引用fk")
+    @Schema(description = "版本引用fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_definition.ref_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_definition.ref_id.length_range}", groups = {Created.class, Updated.class})
     private String refId;
 
     @Schema(description = "描述")
@@ -101,12 +104,11 @@ public class ApiDefinition implements Serializable {
         method("method", "method", "VARCHAR", true),
         path("path", "path", "VARCHAR", true),
         status("status", "status", "VARCHAR", true),
-        num("num", "num", "INTEGER", false),
+        num("num", "num", "BIGINT", false),
         tags("tags", "tags", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         moduleId("module_id", "moduleId", "VARCHAR", false),
-        environmentId("environment_id", "environmentId", "VARCHAR", false),
         latest("latest", "latest", "BIT", false),
         versionId("version_id", "versionId", "VARCHAR", false),
         refId("ref_id", "refId", "VARCHAR", false),

@@ -3,8 +3,8 @@ package io.metersphere.api.service.debug;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiDebugRequest;
 import io.metersphere.api.dto.debug.ApiTreeNode;
-import io.metersphere.api.dto.debug.DebugModuleCreateRequest;
-import io.metersphere.api.dto.debug.DebugModuleUpdateRequest;
+import io.metersphere.api.dto.debug.ModuleCreateRequest;
+import io.metersphere.api.dto.debug.ModuleUpdateRequest;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.mapper.ApiDebugModuleMapper;
@@ -28,7 +28,9 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,7 +57,11 @@ public class ApiDebugModuleService extends ModuleTreeService {
         List<BaseTreeNode> fileModuleList = extApiDebugModuleMapper.selectBaseByProtocolAndUser(protocol, userId);
         List<BaseTreeNode> baseTreeNodes = super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED));
         List<ApiTreeNode> apiTreeNodeList = extApiDebugModuleMapper.selectApiDebugByProtocolAndUser(protocol, userId);
-        //将apiTreeNodeList转换成BaseTreeNode  method放入map中
+        return getBaseTreeNodes(apiTreeNodeList, baseTreeNodes);
+
+    }
+
+    public List<BaseTreeNode> getBaseTreeNodes(List<ApiTreeNode> apiTreeNodeList, List<BaseTreeNode> baseTreeNodes) {
         if (CollectionUtils.isEmpty(apiTreeNodeList)) {
             return baseTreeNodes;
         }
@@ -72,11 +78,10 @@ public class ApiDebugModuleService extends ModuleTreeService {
         Map<String, List<BaseTreeNode>> apiTreeNodeMap = nodeList.stream().collect(Collectors.groupingBy(BaseTreeNode::getParentId));
         //遍历baseTreeNodes，将apiTreeNodeMap中的id相等的数据添加到baseTreeNodes中
         return generateTree(baseTreeNodes, apiTreeNodeMap);
-
     }
 
     //生成树结构
-    public List<BaseTreeNode> generateTree(List<BaseTreeNode> baseTreeNodes, Map<String, List<BaseTreeNode>> apiTreeNodeMap) {
+    private List<BaseTreeNode> generateTree(List<BaseTreeNode> baseTreeNodes, Map<String, List<BaseTreeNode>> apiTreeNodeMap) {
         baseTreeNodes.forEach(baseTreeNode -> {
             if (apiTreeNodeMap.containsKey(baseTreeNode.getId())) {
                 baseTreeNode.getChildren().addAll(apiTreeNodeMap.get(baseTreeNode.getId()));
@@ -94,7 +99,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
         return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get(UNPLANNED));
     }
 
-    public String add(DebugModuleCreateRequest request, String operator) {
+    public String add(ModuleCreateRequest request, String operator) {
         ApiDebugModule apiDebugModule = new ApiDebugModule();
         apiDebugModule.setId(IDGenerator.nextStr());
         apiDebugModule.setName(request.getName());
@@ -148,7 +153,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
         example.clear();
     }
 
-    public void update(DebugModuleUpdateRequest request, String userId, String projectId) {
+    public void update(ModuleUpdateRequest request, String userId, String projectId) {
         ApiDebugModule module = apiDebugModuleMapper.selectByPrimaryKey(request.getId());
         if (module == null) {
             throw new MSException(Translator.get(MODULE_NO_EXIST));
@@ -172,17 +177,17 @@ public class ApiDebugModuleService extends ModuleTreeService {
     public void deleteModule(String deleteId, String currentUser) {
         ApiDebugModule deleteModule = apiDebugModuleMapper.selectByPrimaryKey(deleteId);
         if (deleteModule != null) {
-            this.deleteModule(Collections.singletonList(deleteId));
-            //记录日志
-            apiDebugModuleLogService.saveDeleteLog(deleteModule, currentUser);
+            this.deleteModule(Collections.singletonList(deleteId), currentUser, deleteModule.getProjectId());
         }
     }
 
-    public void deleteModule(List<String> deleteIds) {
+    public void deleteModule(List<String> deleteIds, String currentUser, String projectId) {
         if (CollectionUtils.isEmpty(deleteIds)) {
             return;
         }
+        List<BaseTreeNode> baseTreeNodes = extApiDebugModuleMapper.selectBaseNodeByIds(deleteIds);
         extApiDebugModuleMapper.deleteByIds(deleteIds);
+        apiDebugModuleLogService.saveDeleteModuleLog(baseTreeNodes, currentUser, projectId);
         //删除模块下的所有接口
         ApiDebugExample example = new ApiDebugExample();
         example.createCriteria().andModuleIdIn(deleteIds);
@@ -193,11 +198,12 @@ public class ApiDebugModuleService extends ModuleTreeService {
             ApiDebugBlobExample blobExample = new ApiDebugBlobExample();
             blobExample.createCriteria().andIdIn(apiDebugIds);
             apiDebugBlobMapper.deleteByExample(blobExample);
+            apiDebugModuleLogService.saveDeleteDataLog(apiDebugs, currentUser, projectId);
         }
 
         List<String> childrenIds = extApiDebugModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {
-            deleteModule(childrenIds);
+            deleteModule(childrenIds, currentUser, projectId);
         }
     }
 
@@ -211,6 +217,9 @@ public class ApiDebugModuleService extends ModuleTreeService {
         //节点换到了别的节点下,要先更新parent节点.
         if (apiDebugModuleMapper.countByExample(example) == 0) {
             ApiDebugModule fileModule = new ApiDebugModule();
+            ApiDebugModule currentModule = apiDebugModuleMapper.selectByPrimaryKey(request.getDragNodeId());
+            currentModule.setParentId(nodeSortDTO.getParent().getId());
+            checkDataValidity(currentModule);
             fileModule.setId(request.getDragNodeId());
             fileModule.setParentId(nodeSortDTO.getParent().getId());
             apiDebugModuleMapper.updateByPrimaryKeySelective(fileModule);
@@ -225,20 +234,9 @@ public class ApiDebugModuleService extends ModuleTreeService {
      * 查找当前项目下模块每个节点对应的资源统计
      */
     public Map<String, Long> getModuleCountMap(String protocol, String userId, List<ModuleCountDTO> moduleCountDTOList) {
-        Map<String, Long> returnMap = new HashMap<>();
         //构建模块树，并计算每个节点下的所有数量（包含子节点）
         List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(protocol, userId, moduleCountDTOList);
-        //通过广度遍历的方式构建返回值
-        List<BaseTreeNode> whileList = new ArrayList<>(treeNodeList);
-        while (CollectionUtils.isNotEmpty(whileList)) {
-            List<BaseTreeNode> childList = new ArrayList<>();
-            for (BaseTreeNode treeNode : whileList) {
-                returnMap.put(treeNode.getId(), treeNode.getCount());
-                childList.addAll(treeNode.getChildren());
-            }
-            whileList = childList;
-        }
-        return returnMap;
+        return super.getIdCountMapByBreadth(treeNodeList);
     }
 
 
