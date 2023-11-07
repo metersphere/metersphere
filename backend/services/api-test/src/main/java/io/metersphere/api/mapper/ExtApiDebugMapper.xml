@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.metersphere.api.mapper.ExtApiDebugMapper">
+
+    <select id="list" resultType="io.metersphere.api.dto.debug.ApiDebugSimpleDTO">
+        select  id, name, method, module_id
+        from api_debug
+        where protocol = #{protocol} and create_user = #{userId}
+        ORDER BY pos
+    </select>
+</mapper>

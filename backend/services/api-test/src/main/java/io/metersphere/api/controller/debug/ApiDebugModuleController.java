@@ -35,14 +35,14 @@ public class ApiDebugModuleController {
 
     @PostMapping("/add")
     @Operation(summary = "接口测试-接口调试-模块-添加模块")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ_ADD)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_ADD)
     public String add(@RequestBody @Validated ModuleCreateRequest request) {
         return apiDebugModuleService.add(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
     @Operation(summary = "接口测试-接口调试-模块-修改模块")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_UPDATE)
     public boolean list(@RequestBody @Validated ModuleUpdateRequest request) {
         apiDebugModuleService.update(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
         return true;
@@ -50,14 +50,14 @@ public class ApiDebugModuleController {
 
     @GetMapping("/delete/{deleteId}")
     @Operation(summary = "接口测试-接口调试-模块-删除模块")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_DELETE)
     public void deleteNode(@PathVariable String deleteId) {
         apiDebugModuleService.deleteModule(deleteId, SessionUtils.getUserId());
     }
 
     @PostMapping("/move")
     @Operation(summary = "接口测试-接口调试-模块-移动模块")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_UPDATE)
     public void moveNode(@Validated @RequestBody NodeMoveRequest request) {
         apiDebugModuleService.moveNode(request, SessionUtils.getUserId());
     }

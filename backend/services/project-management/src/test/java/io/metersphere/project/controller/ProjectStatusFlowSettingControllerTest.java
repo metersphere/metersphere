@@ -1,10 +1,6 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.sdk.constants.*;
-import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
-import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
-import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
-import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.OrganizationStatusFlowSettingControllerTest;
@@ -12,8 +8,13 @@ import io.metersphere.system.controller.param.StatusDefinitionUpdateRequestDefin
 import io.metersphere.system.controller.param.StatusFlowUpdateRequestDefinition;
 import io.metersphere.system.controller.param.StatusItemAddRequestDefinition;
 import io.metersphere.system.controller.param.StatusItemUpdateRequestDefinition;
-import io.metersphere.system.domain.*;
+import io.metersphere.system.domain.OrganizationParameter;
+import io.metersphere.system.domain.StatusItem;
 import io.metersphere.system.dto.StatusItemDTO;
+import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
+import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
+import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.mapper.StatusItemMapper;
@@ -23,7 +24,6 @@ import io.metersphere.system.service.BaseStatusItemService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;

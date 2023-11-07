@@ -264,7 +264,7 @@ public abstract class BaseTest {
         return JSON.parseArray(JSON.toJSONString(data), clazz);
     }
 
-    private static Map parseResponse(MvcResult mvcResult) throws UnsupportedEncodingException {
+    protected static Map parseResponse(MvcResult mvcResult) throws UnsupportedEncodingException {
         return JSON.parseMap(mvcResult.getResponse().getContentAsString(Charset.defaultCharset()));
     }
 
