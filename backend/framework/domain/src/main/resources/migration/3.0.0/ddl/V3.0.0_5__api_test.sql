@@ -8,8 +8,9 @@ CREATE TABLE api_debug(
     `protocol` VARCHAR(20) NOT NULL   COMMENT '接口协议' ,
     `method` VARCHAR(20)    COMMENT 'http协议类型post/get/其它协议则是协议名(mqtt)' ,
     `path` VARCHAR(500)    COMMENT 'http协议路径/其它协议则为空' ,
+    `pos` BIGINT NOT NULL  DEFAULT 0 COMMENT '自定义排序' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-    `module_id` VARCHAR(50)  NOT NULL DEFAULT 'root' COMMENT '模块fk' ,
+    `module_id` VARCHAR(50) NOT NULL  DEFAULT 'root' COMMENT '模块fk' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
@@ -86,7 +87,9 @@ CREATE TABLE api_definition
     `delete_time` BIGINT COMMENT '删除时间',
     `deleted`     BIT(1)       NOT NULL DEFAULT 0 COMMENT '删除状态',
     PRIMARY KEY (id)
-) COMMENT = '接口定义';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '接口定义';
 
 
 CREATE INDEX idx_project_id ON api_definition(project_id);

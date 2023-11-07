@@ -21,12 +21,10 @@
             "id": "PROJECT_API_DEBUG:READ+DELETE"
           },
           {
-            "id": "PROJECT_API_DEBUG:READ+IMPORT",
-            "name": "permission.api_definition.import"
+            "id": "PROJECT_API_DEBUG:READ+IMPORT"
           },
           {
-            "id": "PROJECT_API_DEBUG:READ+EXECUTE",
-            "name": "permission.api_definition.execute"
+            "id": "PROJECT_API_DEBUG:READ+EXECUTE"
           }
         ]
       },
@@ -47,16 +45,13 @@
             "id": "PROJECT_API_DEFINITION:READ+DELETE"
           },
           {
-            "id": "PROJECT_API_DEFINITION:READ+IMPORT",
-            "name": "permission.api_definition.import"
+            "id": "PROJECT_API_DEFINITION:READ+IMPORT"
           },
           {
-            "id": "PROJECT_API_DEFINITION:READ+EXECUTE",
-            "name": "permission.api_definition.execute"
+            "id": "PROJECT_API_DEFINITION:READ+EXECUTE"
           },
           {
-            "id": "PROJECT_API_DEFINITION:READ+EXPORT",
-            "name": "permission.api_definition.export"
+            "id": "PROJECT_API_DEFINITION:READ+EXPORT"
           }
         ]
       }
