@@ -41,11 +41,13 @@ public class BugControllerTests extends BaseTest {
     public static final String BUG_TEMPLATE_DETAIL = "/bug/template";
     public static final String BUG_BATCH_DELETE = "/bug/batch-delete";
     public static final String BUG_BATCH_UPDATE = "/bug/batch-update";
+    public static final String BUG_FOLLOW = "/bug/follow";
+    public static final String BUG_UN_FOLLOW = "/bug/unfollow";
 
     @Test
     @Order(0)
     @Sql(scripts = {"/dml/init_bug.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
-    public void testBugPageSuccess() throws Exception {
+    void testBugPageSuccess() throws Exception {
         BugPageRequest bugRequest = new BugPageRequest();
         bugRequest.setCurrent(1);
         bugRequest.setPageSize(10);
@@ -86,7 +88,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(1)
-    public void testBugPageEmptySuccess() throws Exception {
+    void testBugPageEmptySuccess() throws Exception {
         BugPageRequest bugPageRequest = new BugPageRequest();
         bugPageRequest.setCurrent(1);
         bugPageRequest.setPageSize(10);
@@ -157,7 +159,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(2)
-    public void testBugPageError() throws Exception {
+    void testBugPageError() throws Exception {
         // 页码有误
         BugPageRequest bugPageRequest = new BugPageRequest();
         bugPageRequest.setCurrent(0);
@@ -172,7 +174,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(3)
-    public void testAddBugSuccess() throws Exception {
+    void testAddBugSuccess() throws Exception {
         BugEditRequest request = buildRequest(false);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
         File file = new File(filePath);
@@ -182,7 +184,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(4)
-    public void testAddBugError() throws Exception {
+    void testAddBugError() throws Exception {
         BugEditRequest request = buildRequest(false);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
         File file = new File(filePath);
@@ -214,7 +216,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(5)
-    public void testUpdateBugSuccess() throws Exception {
+    void testUpdateBugSuccess() throws Exception {
         BugEditRequest request = buildRequest(true);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
         File file = new File(filePath);
@@ -229,7 +231,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(6)
-    public void testUpdateBugError() throws Exception {
+    void testUpdateBugError() throws Exception {
         BugEditRequest request = buildRequest(true);
         request.setId("default-bug-id-not-exist");
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
@@ -240,7 +242,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(7)
-    public void testUpdateBugWithEmptyField() throws Exception {
+    void testUpdateBugWithEmptyField() throws Exception {
         BugEditRequest request = buildRequest(true);
         request.setCustomFieldMap(null);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
@@ -251,7 +253,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(8)
-    public void testGetBugTemplateOption() throws Exception {
+    void testGetBugTemplateOption() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(BUG_TEMPLATE_OPTION + "?projectId=default-project-for-bug");
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(sortData, ResultHolder.class);
@@ -262,7 +264,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(9)
-    public void testGetBugTemplateDetailSuccess() throws Exception {
+    void testGetBugTemplateDetailSuccess() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(BUG_TEMPLATE_DETAIL + "/default-bug-template-id" + "?projectId=default-project-for-bug");
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(sortData, ResultHolder.class);
@@ -280,7 +282,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(10)
-    public void testBatchUpdateBugSuccess() throws Exception {
+    void testBatchUpdateBugSuccess() throws Exception {
         BugBatchUpdateRequest request = new BugBatchUpdateRequest();
         request.setProjectId("default-project-for-bug");
         // 全选, 编辑所有数据
@@ -318,7 +320,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(11)
-    public void testBatchUpdateEmptyBugSuccess() throws Exception {
+    void testBatchUpdateEmptyBugSuccess() throws Exception {
         BugBatchUpdateRequest request = new BugBatchUpdateRequest();
         request.setProjectId("default-project-for-bug");
         request.setCombine(buildRequestCombine());
@@ -337,7 +339,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(12)
-    public void testDeleteBugSuccess() throws Exception {
+    void testDeleteBugSuccess() throws Exception {
         this.requestGet(BUG_DELETE + "/default-bug-id", status().isOk());
         // 非Local缺陷
         this.requestGet(BUG_DELETE + "/default-bug-id-tapd1", status().isOk());
@@ -345,13 +347,13 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(13)
-    public void testDeleteBugError() throws Exception {
+    void testDeleteBugError() throws Exception {
         this.requestGet(BUG_DELETE + "/default-bug-id-not-exist", status().is5xxServerError());
     }
 
     @Test
     @Order(14)
-    public void testBatchDeleteEmptyBugSuccess() throws Exception {
+    void testBatchDeleteEmptyBugSuccess() throws Exception {
         BugBatchRequest request = new BugBatchRequest();
         request.setProjectId("default-project-for-bug");
         request.setCombine(buildRequestCombine());
@@ -364,8 +366,26 @@ public class BugControllerTests extends BaseTest {
     }
 
     @Test
+    @Order(15)
+    void testFollowBug() throws Exception {
+        // 关注的缺陷存在
+        this.requestGet(BUG_FOLLOW + "/default-bug-id-single", status().isOk());
+        // 关注的缺陷不存在
+        this.requestGet(BUG_FOLLOW + "/default-bug-id-not-exist", status().is5xxServerError());
+    }
+
+    @Test
+    @Order(16)
+    void testUnFollowBug() throws Exception {
+        // 取消关注的缺陷存在
+        this.requestGet(BUG_UN_FOLLOW + "/default-bug-id-single", status().isOk());
+        // 取消关注的缺陷不存在
+        this.requestGet(BUG_UN_FOLLOW + "/default-bug-id-not-exist", status().is5xxServerError());
+    }
+
+    @Test
     @Order(20)
-    public void testBatchDeleteBugSuccess() throws Exception {
+    void testBatchDeleteBugSuccess() throws Exception {
         BugBatchRequest request = new BugBatchRequest();
         request.setProjectId("default-project-for-bug");
         // 全选, 删除所有

@@ -2,7 +2,7 @@
   {
     "id": "BUG",
     "name": "permission.bug.name",
-    "type": "BUG",
+    "type": "PROJECT",
     "children": [
       {
         "id": "BUG",

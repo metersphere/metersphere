@@ -87,6 +87,8 @@ public class BugService {
     private FileService fileService;
     @Resource
     private BaseTemplateService baseTemplateService;
+    @Resource
+    private BugFollowerMapper bugFollowerMapper;
 
     /**
      * 缺陷列表查询
@@ -312,6 +314,31 @@ public class BugService {
                 handleAndSaveCustomFields(bugEditRequest, true, request.isAppend());
             });
         }
+    }
+
+    /**
+     * 关注缺陷
+     * @param id 缺陷ID
+     * @param currentUser 当前用户
+     */
+    public void follow(String id, String currentUser) {
+        checkBugExist(id);
+        BugFollower bugFollower = new BugFollower();
+        bugFollower.setBugId(id);
+        bugFollower.setUserId(currentUser);
+        bugFollowerMapper.insert(bugFollower);
+    }
+
+    /**
+     * 取消关注缺陷
+     * @param id 缺陷ID
+     * @param currentUser 当前用户
+     */
+    public void unfollow(String id, String currentUser) {
+        checkBugExist(id);
+        BugFollowerExample example = new BugFollowerExample();
+        example.createCriteria().andBugIdEqualTo(id).andUserIdEqualTo(currentUser);
+        bugFollowerMapper.deleteByExample(example);
     }
 
     /**
