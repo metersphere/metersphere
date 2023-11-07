@@ -89,7 +89,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             }
             if (CollectionUtils.isNotEmpty(fields)) {
                 for (Object o : fields) {
-                    String jsonFields =  JSON.toJSONString(o);
+                    String jsonFields = JSON.toJSONString(o);
                     Map<?, ?> jsonObject = JSON.parseObject(jsonFields, Map.class);
                     String customFieldName = (String) jsonObject.get("id");
                     Object value = jsonObject.get("name");
@@ -145,6 +145,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
 
         // 去重复
         List<String> userIds = toUsers.stream().map(Receiver::getUserId).distinct().toList();
+        LogUtils.error("userIds: ", JSON.toJSONString(userIds));
         List<User> users = getUsers(userIds);
         List<String> realUserIds = users.stream().map(User::getId).toList();
         return toUsers.stream().filter(t -> realUserIds.contains(t.getUserId())).toList();
@@ -153,6 +154,9 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     private List<Receiver> handleFollows(MessageDetail messageDetail, NoticeModel noticeModel) {
         List<Receiver> receivers = new ArrayList<>();
         String id = (String) noticeModel.getParamMap().get("id");
+        if (StringUtils.isBlank(id)) {
+            return receivers;
+        }
         String taskType = messageDetail.getTaskType();
         switch (taskType) {
             case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
@@ -218,7 +222,10 @@ public abstract class AbstractNoticeSender implements NoticeSender {
 
     protected List<User> getUsers(List<String> userIds) {
         UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(userIds);
-        return userMapper.selectByExample(userExample);
+        if (CollectionUtils.isNotEmpty(userIds)) {
+            userExample.createCriteria().andIdIn(userIds);
+            return userMapper.selectByExample(userExample);
+        }
+        return new ArrayList<>();
     }
 }
