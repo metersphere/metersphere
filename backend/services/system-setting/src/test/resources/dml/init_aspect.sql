@@ -33,3 +33,16 @@ INSERT INTO custom_field(id, name, scene, type, remark, create_time, update_time
 values ('aspect_test_one','aspect_test','FUNCTIONAL', 'INPUT','aspect_test',  UNIX_TIMESTAMP() * 1000,  UNIX_TIMESTAMP() * 1000, 'admin' , 'aspect_test_one', '100001100001',false, false, 'PROJECT');
 
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('aspect_gyq_one', 'aspect_test_one', 'hello');
+
+INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, pos, project_id, module_id, latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, delete_user, delete_time, deleted)
+VALUES ('aspect_gyq_api_one', 'api_test','HTTP', 'POST','api/test','test-api-status', 1000001, null, 1, '100001100001' , 'test_module', true, 'v1.10','aspect_gyq_api_one', null, UNIX_TIMESTAMP() * 1000,'admin', UNIX_TIMESTAMP() * 1000,'admin', null,null,false);
+
+INSERT INTO api_scenario(id, name, level, status, principal, last_report_status, last_report_id, num, custom_num, pos, version_id, ref_id, project_id, api_scenario_module_id, description, tags, create_user, create_time, delete_time, delete_user, update_user, update_time)
+VALUES ('aspect_gyq_api_scenario_one', 'api_scenario', 'p1', 'test-api-status', 'gyq', null, null,1000001, 1000001, 1,'v1.10', 'aspect_gyq_api_scenario_one','100001100001', 'test_module', null,null,'admin',  UNIX_TIMESTAMP() * 1000,null,null,'admin', UNIX_TIMESTAMP() * 1000);
+
+INSERT INTO test_plan(id, project_id, parent_id, name, status, stage, tags, create_time, create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, actual_end_time, description)
+VALUES ('aspect_gyq_test_plan_one','100001100001', 'NONE', 'test_plan', 'test-api-status', 'Smock', null, UNIX_TIMESTAMP() * 1000, 'admin',   UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 2000, UNIX_TIMESTAMP() * 3000 ,UNIX_TIMESTAMP() * 2000, UNIX_TIMESTAMP() * 3000,null);
+
+INSERT INTO case_review(id, name, status, create_time, update_time, end_time, description, project_id, tags, create_user, review_pass_rule)
+VALUES ('aspect_gyq_case_review_one','case_review','test-api-status',UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000,null, '100001100001',null,'admin','single');
+

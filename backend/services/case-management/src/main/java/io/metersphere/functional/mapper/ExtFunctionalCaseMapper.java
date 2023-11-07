@@ -28,6 +28,9 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCasePageDTO> list(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
 
+    void recoverCase(@Param("ids") List<String> ids,  @Param("userId") String userId, @Param("time") long time);
+
+
     List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("deleted") boolean deleted);
 
     void batchDelete(@Param("ids") List<String> ids, @Param("userId") String userId);

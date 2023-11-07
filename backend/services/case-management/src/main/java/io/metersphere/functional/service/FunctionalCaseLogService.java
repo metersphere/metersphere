@@ -161,4 +161,51 @@ public class FunctionalCaseLogService {
         }
         return dtoList;
     }
+
+    /**
+     * 恢复项目
+     * @param id 接口请求参数
+     * @return 日志详情
+     */
+    public LogDTO recoverLog(String id) {
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(id);
+        if (functionalCase != null) {
+            LogDTO dto = new LogDTO(
+                    functionalCase.getProjectId(),
+                    "",
+                    id,
+                    functionalCase.getCreateUser(),
+                    OperationLogType.RECOVER.name(),
+                    OperationLogModule.FUNCTIONAL_CASE,
+                    functionalCase.getName());
+            dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+            return dto;
+        }
+        return null;
+    }
+
+    /**
+     * 彻底删除
+     * @param id 接口请求参数
+     * @return 日志详情
+     */
+    public LogDTO deleteTrashCaseLog(String id) {
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(id);
+        if (functionalCase != null) {
+            LogDTO dto = new LogDTO(
+                    functionalCase.getProjectId(),
+                    null,
+                    functionalCase.getId(),
+                    functionalCase.getCreateUser(),
+                    OperationLogType.DELETE.name(),
+                    OperationLogModule.FUNCTIONAL_CASE,
+                    functionalCase.getName());
+
+            dto.setPath("/functional/case/trash/delete");
+            dto.setMethod(HttpMethodConstants.GET.name());
+            dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+            return dto;
+        }
+        return null;
+    }
 }

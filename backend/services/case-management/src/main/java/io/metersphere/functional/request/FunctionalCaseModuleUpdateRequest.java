@@ -5,8 +5,18 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
+import java.io.Serial;
+import java.io.Serializable;
+
+/**
+ * @author guoyuqi
+ */
 @Data
-public class FunctionalCaseModuleUpdateRequest {
+public class FunctionalCaseModuleUpdateRequest implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Schema(description = "模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_module.id.not_blank}")
     private String id;
