@@ -27,6 +27,8 @@ export interface MsTableColumnData extends TableColumnData {
   disableTitle?: string;
   // 当展示tooltip时，是否是Tag
   isTag?: boolean;
+  // 为字符串Tag
+  isStringTag?: boolean;
   // editType
   editType?: ColumnEditTypeEnum;
   // 撤销删除的组件

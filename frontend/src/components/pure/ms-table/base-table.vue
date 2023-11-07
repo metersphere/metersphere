@@ -83,13 +83,19 @@
                   </div>
                 </slot>
               </template>
-              <template v-else-if="item.isTag">
+              <template v-else-if="item.isTag || item.isStringTag">
                 <template
                   v-if="!record[item.dataIndex as string] || (Array.isArray(record[item.dataIndex as string]) && record[item.dataIndex as string].length === 0)"
                 >
                   <slot :name="item.slotName" v-bind="{ record, rowIndex, column }"> - </slot>
                 </template>
-                <MsTagGroup v-else :tag-list="record[item.dataIndex as string]" type="primary" theme="outline" />
+                <MsTagGroup
+                  v-else
+                  :is-string-tag="item.isStringTag"
+                  :tag-list="record[item.dataIndex as string]"
+                  type="primary"
+                  theme="outline"
+                />
               </template>
               <template v-else-if="item.slotName === SpecialColumnEnum.OPERATION">
                 <slot name="operation" v-bind="{ record, rowIndex }" />

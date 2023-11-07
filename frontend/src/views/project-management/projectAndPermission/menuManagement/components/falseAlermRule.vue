@@ -1,5 +1,10 @@
 <template>
-  <MsCard has-breadcrumb>
+  <MsCard simple>
+    <div class="mb-4">
+      <div class="back-btn" @click="handleBack">
+        <icon-arrow-left />
+      </div>
+    </div>
     <div class="mb-4 flex items-center justify-between">
       <a-button type="primary" @click="showAddRule(undefined)">{{ t('project.menu.addFalseAlertRules') }}</a-button>
       <a-input-search
@@ -17,9 +22,6 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
-      <template #label="{ record }">
-        <MsTagGroup is-string-tag theme="outline" :tag-list="record.typeList"> </MsTagGroup>
-      </template>
       <template #operation="{ record }">
         <template v-if="!record.enable">
           <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id)">{{ t('common.enable') }}</MsButton>
@@ -69,6 +71,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { useRouter } from 'vue-router';
   import { Message, TableData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -79,7 +82,6 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import { FormItemModel } from '@/components/business/ms-batch-form/types';
 
@@ -95,12 +97,14 @@
   import { useAppStore } from '@/store';
 
   import { FakeTableListItem } from '@/models/projectManagement/menuManagement';
+  import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   type UserModalMode = 'create' | 'edit';
 
   const { t } = useI18n();
   const appStore = useAppStore();
+  const router = useRouter();
   const currentProjectId = computed(() => appStore.currentProjectId);
   const addVisible = ref(false);
   const addLoading = ref(false);
@@ -160,9 +164,8 @@
     },
     {
       title: 'project.menu.rule.label',
-      dataIndex: 'type',
-      slotName: 'label',
-      isTag: true,
+      dataIndex: 'typeList',
+      isStringTag: true,
       width: 146,
     },
     {
@@ -203,9 +206,10 @@
       selectable: true,
       noDisable: false,
       size: 'default',
+      debug: true,
     },
     (record: TableData) => {
-      record.typeList = record.type.split(',');
+      record.typeList = record.type ? record.type.split(',') : [];
       record.ruleResult = getRowRuleString(record);
       return record;
     }
@@ -219,6 +223,12 @@
     setKeyword(keyword.value);
     await loadList();
     resetSelector();
+  };
+
+  const handleBack = () => {
+    router.push({
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
+    });
   };
 
   const handleDelete = (v: string | BatchActionQueryParams) => {
@@ -443,3 +453,19 @@
     fetchData();
   });
 </script>
+
+<style lang="less" scoped>
+  .back-btn {
+    @apply flex cursor-pointer items-center rounded-full;
+
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ffffff;
+    background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
+    box-shadow: 0 0 7px rgb(15 0 78 / 9%);
+    .arco-icon {
+      color: rgb(var(--primary-5));
+    }
+  }
+</style>
