@@ -19,7 +19,6 @@ import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.TempFileUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.RemoteFileAttachInfo;
@@ -199,10 +198,23 @@ public class FileMetadataService {
         return fileService.upload(file, uploadFileRequest);
     }
 
-    public ResponseEntity<byte[]> downloadById(String id) throws Exception {
+    public byte[] getFileByte(FileMetadata fileMetadata) {
+        String filePath = null;
+        if (TempFileUtils.isImgPreviewFileExists(fileMetadata.getId())) {
+            filePath = TempFileUtils.getTmpFilePath(fileMetadata.getId());
+        } else {
+            try {
+                filePath = TempFileUtils.createFile(TempFileUtils.getTmpFilePath(fileMetadata.getId()), this.getFile(fileMetadata));
+            } catch (Exception ignore) {
+            }
+        }
+        byte[] bytes = TempFileUtils.getFile(filePath);
+        return bytes;
+    }
 
+    public ResponseEntity<byte[]> downloadById(String id) {
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(id);
-        byte[] bytes = this.getFile(fileMetadata);
+        byte[] bytes = this.getFileByte(fileMetadata);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + this.getFileName(fileMetadata.getId(), fileMetadata.getType()) + "\"")
@@ -294,17 +306,9 @@ public class FileMetadataService {
     public byte[] batchDownload(List<FileMetadata> fileMetadataList) {
         Map<String, byte[]> files = new LinkedHashMap<>();
         fileMetadataList.forEach(fileMetadata -> {
-            byte[] bytes;
-            try {
-                bytes = this.getFile(fileMetadata);
-                if (bytes != null) {
-                    files.put(this.getFileName(fileMetadata.getName(), fileMetadata.getType()), bytes);
-                }
-            } catch (Exception e) {
-                LogUtils.error("下载文件失败", e);
-            }
+            byte[] bytes = this.getFileByte(fileMetadata);
+            files.put(this.getFileName(fileMetadata.getName(), fileMetadata.getType()), bytes);
         });
-
         return FileDownloadUtils.listBytesToZip(files);
     }
 
@@ -377,8 +381,8 @@ public class FileMetadataService {
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(id);
         String previewImgPath = null;
         if (TempFileUtils.isImage(fileMetadata.getType())) {
-            if (TempFileUtils.isImgFileExists(fileMetadata.getId())) {
-                previewImgPath = TempFileUtils.getImgFileTmpPath(fileMetadata.getId());
+            if (TempFileUtils.isImgPreviewFileExists(fileMetadata.getId())) {
+                previewImgPath = TempFileUtils.getPreviewImgFilePath(fileMetadata.getId());
             } else {
                 previewImgPath = TempFileUtils.catchCompressImgIfNotExists(fileMetadata.getId(), this.getFile(fileMetadata));
             }
@@ -386,7 +390,7 @@ public class FileMetadataService {
 
         byte[] bytes;
         if (StringUtils.isNotBlank(previewImgPath)) {
-            bytes = TempFileUtils.getPreviewFile(previewImgPath);
+            bytes = TempFileUtils.getFile(previewImgPath);
         } else {
             bytes = new byte[]{};
         }

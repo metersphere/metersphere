@@ -1,5 +1,6 @@
 package io.metersphere.sdk.util;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.imageio.ImageIO;
@@ -26,20 +27,32 @@ public class TempFileUtils {
     }
 
 
-    public static String getImgFileTmpPath(String fileId) {
-        return TEMP_FILE_FOLDER + fileId + ".jpg";
+    //获取缩略图路径
+    public static String getPreviewImgFilePath(String fileId) {
+        return TEMP_FILE_FOLDER + "preview/" + fileId + ".jpg";
+    }
+
+    //获取临时文件路径
+    public static String getTmpFilePath(String fileId) {
+        return TEMP_FILE_FOLDER + "tmp/" + fileId;
     }
 
     public static void deleteTmpFile(String fileId) {
-        File file = new File(getImgFileTmpPath(fileId));
-        if (file.exists()) {
-            file.delete();
+        try {
+            File file = new File(getPreviewImgFilePath(fileId));
+            FileUtils.forceDelete(file);
+            file = new File(getTmpFilePath(fileId));
+            FileUtils.forceDelete(file);
+        } catch (Exception ignore) {
+
         }
     }
 
+
+    //压缩图片
     public static String catchCompressImgIfNotExists(String fileId, byte[] fileBytes) {
         try {
-            String previewPath = getImgFileTmpPath(fileId);
+            String previewPath = getPreviewImgFilePath(fileId);
             compressPic(fileBytes, previewPath);
             return previewPath;
         } catch (Exception ignore) {
@@ -93,7 +106,7 @@ public class TempFileUtils {
     }
 
 
-    private static void createFile(String filePath, byte[] fileBytes) {
+    public static String createFile(String filePath, byte[] fileBytes) {
         File file = new File(filePath);
         if (file.exists()) {
             file.delete();
@@ -117,15 +130,17 @@ public class TempFileUtils {
         } catch (IOException e) {
             LogUtils.error(e);
         }
+        return filePath;
     }
 
-    public static boolean isImgFileExists(String fileId) {
-        File file = new File(getImgFileTmpPath(fileId));
+    //图片缩略图是否存在
+    public static boolean isImgPreviewFileExists(String fileId) {
+        File file = new File(getPreviewImgFilePath(fileId));
         return file.exists();
     }
 
-    public static byte[] getPreviewFile(String filePreviewPath) {
-        File file = new File(filePreviewPath);
+    public static byte[] getFile(String filePath) {
+        File file = new File(filePath);
         byte[] previewByte = new byte[0];
         if (file.exists()) {
             try (FileInputStream fis = new FileInputStream(file);
