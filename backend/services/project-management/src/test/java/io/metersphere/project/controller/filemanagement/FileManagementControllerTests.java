@@ -440,6 +440,23 @@ public class FileManagementControllerTests extends BaseTest {
             Assertions.assertTrue(uploadedFileTypes.contains(fileType));
         }
 
+        //上传隐藏文件 .yincangwenjian
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/.yincangwenjian")).getPath();
+        file = new MockMultipartFile("file", ".yincangwenjian", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(fileUploadRequest));
+        mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
+        returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
+        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        FILE_ID_PATH.put(returnId, filePath);
+        uploadedFileTypes.add("");
+
+        //检查文件类型是不是为空
+        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(returnId);
+        Assertions.assertEquals(fileMetadata.getName(), ".yincangwenjian");
+        Assertions.assertEquals(fileMetadata.getType(), StringUtils.EMPTY);
+
         //文件上传到a1-a1节点
         BaseTreeNode a1a1Node = FileManagementBaseUtils.getNodeByName(preliminaryTreeNodes, "a1-a1");
         fileUploadRequest = new FileUploadRequest();
@@ -620,7 +637,6 @@ public class FileManagementControllerTests extends BaseTest {
             String downloadMD5 = FileManagementBaseUtils.getFileMD5(fileBytes);
             Assertions.assertEquals(fileMD5, downloadMD5);
         }
-
         //测试权限
         this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD, String.format(FileManagementRequestUtils.URL_FILE_DOWNLOAD, picFileId));
     }
