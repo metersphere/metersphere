@@ -26,4 +26,7 @@ public interface ExtFunctionalCaseMapper {
     List<FunctionalCase> checkCaseByModuleIds(@Param("moduleIds") List<String> deleteIds);
 
     List<FunctionalCasePageDTO> list(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
+
+    void recoverCase(@Param("ids") List<String> ids,  @Param("userId") String userId, @Param("time") long time);
+
 }

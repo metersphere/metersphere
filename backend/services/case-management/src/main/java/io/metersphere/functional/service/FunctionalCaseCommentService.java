@@ -26,9 +26,6 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.apache.commons.collections.CollectionUtils;
-
-
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -236,37 +233,26 @@ public class FunctionalCaseCommentService {
      */
     private List<FunctionalCaseCommentDTO> buildData(List<FunctionalCaseComment> functionalCaseComments, Map<String, User> userMap) {
         List<FunctionalCaseCommentDTO>list = new ArrayList<>();
-        List<FunctionalCaseComment> rootList = functionalCaseComments.stream().filter(t -> StringUtils.isBlank(t.getParentId())).toList();
-        List<FunctionalCaseComment> replyList = functionalCaseComments.stream().filter(t -> StringUtils.isNotBlank(t.getParentId())).toList();
-        Map<String, List<FunctionalCaseComment>> commentMap = replyList.stream().collect(Collectors.groupingBy(FunctionalCaseComment::getParentId));
-        for (FunctionalCaseComment functionalCaseComment : rootList) {
+        for (FunctionalCaseComment functionalCaseComment : functionalCaseComments) {
             FunctionalCaseCommentDTO functionalCaseCommentDTO = new FunctionalCaseCommentDTO();
             BeanUtils.copyBean(functionalCaseCommentDTO,functionalCaseComment);
             functionalCaseCommentDTO.setUserName(userMap.get(functionalCaseComment.getCreateUser()).getName());
-            List<FunctionalCaseComment> replyComments = commentMap.get(functionalCaseComment.getId());
-            if (CollectionUtils.isNotEmpty(replyComments)) {
-                List<FunctionalCaseCommentDTO> replies = getReplies(userMap, functionalCaseComment, replyComments);
-                functionalCaseCommentDTO.setReplies(replies);
+            if (StringUtils.isBlank(functionalCaseComment.getReplyUser())) {
+                functionalCaseCommentDTO.setReplyUserName(userMap.get(functionalCaseComment.getCreateUser()).getName());
+            } else {
+                functionalCaseCommentDTO.setReplyUserName(userMap.get(functionalCaseComment.getReplyUser()).getName());
             }
             list.add(functionalCaseCommentDTO);
         }
-        return list;
-    }
 
-    private List<FunctionalCaseCommentDTO> getReplies(Map<String, User> userMap, FunctionalCaseComment functionalCaseComment, List<FunctionalCaseComment> replyComments) {
-        List<FunctionalCaseCommentDTO> replies = new ArrayList<>();
-        for (FunctionalCaseComment replyComment : replyComments) {
-            FunctionalCaseCommentDTO functionalCaseCommentDTOReply = new FunctionalCaseCommentDTO();
-            BeanUtils.copyBean(functionalCaseCommentDTOReply,replyComment);
-            functionalCaseCommentDTOReply.setUserName(userMap.get(replyComment.getCreateUser()).getName());
-            if (StringUtils.isBlank(replyComment.getReplyUser())) {
-                functionalCaseCommentDTOReply.setReplyUserName(userMap.get(functionalCaseComment.getCreateUser()).getName());
-            } else {
-                functionalCaseCommentDTOReply.setReplyUserName(userMap.get(replyComment.getReplyUser()).getName());
-            }
-            replies.add(functionalCaseCommentDTOReply);
+        List<FunctionalCaseCommentDTO> rootList = list.stream().filter(t -> StringUtils.isBlank(t.getParentId())).sorted(Comparator.comparing(FunctionalCaseComment::getCreateTime).reversed()).toList();
+        List<FunctionalCaseCommentDTO> replyList = list.stream().filter(t -> StringUtils.isNotBlank(t.getParentId())).sorted(Comparator.comparing(FunctionalCaseComment::getCreateTime).reversed()).toList();
+        Map<String, List<FunctionalCaseCommentDTO>> commentMap = replyList.stream().collect(Collectors.groupingBy(FunctionalCaseComment::getParentId));
+        for (FunctionalCaseCommentDTO functionalCaseComment : rootList) {
+            List<FunctionalCaseCommentDTO> replyComments = commentMap.get(functionalCaseComment.getId());
+            functionalCaseComment.setReplies(replyComments);
         }
-        return replies.stream().sorted(Comparator.comparing(FunctionalCaseComment::getCreateTime).reversed()).toList();
+        return rootList;
     }
 
     /**

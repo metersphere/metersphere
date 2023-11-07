@@ -70,20 +70,13 @@ public class FunctionalCaseNoticeService {
             }
         }
         else {
-            if (StringUtils.isNotBlank(replyUser)) {
-                StringBuilder notifierStr = new StringBuilder();
-                if (StringUtils.isNotBlank(notifier)) {
-                    List<String> notifierList = Arrays.asList(notifier.split(";"));
-                    if (notifierList.contains(replyUser)) {
-                        for (String notifierId : notifierList) {
-                            if (!StringUtils.equals(notifierId, replyUser)) {
-                                notifierStr.append(notifierId).append(";");
-                            }
-                        }
-                    } else {
-                        notifierStr = new StringBuilder(notifier);
-                    }
-                    functionalCaseDTO.setRelatedUsers(notifierStr.toString());
+            if (StringUtils.isNotBlank(replyUser) && StringUtils.isNotBlank(notifier)) {
+                List<String> notifierList = Arrays.asList(notifier.split(";"));
+                if (notifierList.contains(replyUser)) {
+                    notifierList.remove(replyUser);
+                    functionalCaseDTO.setRelatedUsers(String.join(";", notifierList));
+                } else {
+                    functionalCaseDTO.setRelatedUsers(notifier);
                 }
             } else {
                 functionalCaseDTO.setRelatedUsers(notifier);

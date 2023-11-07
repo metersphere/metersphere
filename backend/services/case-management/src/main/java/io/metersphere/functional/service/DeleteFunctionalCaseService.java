@@ -30,7 +30,7 @@ public class DeleteFunctionalCaseService {
 
 
     public void deleteFunctionalCaseResource(List<String> ids, String projectId) {
-        //TODO 删除各种关联关系？ 1.测试用例(接口/场景/ui/性能)？ 2.关联缺陷(是否需要同步？) 3.关联需求(是否需要同步？) 4.依赖关系？ 5.关联评审？ 6.操作记录？ 7.关联测试计划？ 8.评论？ 9.附件？ 10.自定义字段？ 11.用例基本信息(主表、附属表)？ 12...?
+        //TODO 删除各种关联关系？ 1.测试用例(接口/场景/ui/性能)？ 2.关联缺陷(是否需要同步？) 3.关联需求(是否需要同步？) 4.依赖关系？ 5.关联评审？ 6.关联测试计划？ 7.操作记录？ 8.评论？ 9.附件？ 10.自定义字段？ 11.用例基本信息(主表、附属表)？ 12...?
         //1.刪除用例与其他用例关联关系
         FunctionalCaseTestExample caseTestExample = new FunctionalCaseTestExample();
         caseTestExample.createCriteria().andCaseIdIn(ids);
