@@ -1,8 +1,10 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
+import io.metersphere.functional.request.FunctionalCaseBatchRequest;
 import io.metersphere.functional.request.FunctionalCaseDeleteRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
@@ -12,6 +14,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +34,10 @@ public class FunctionalCaseLogService {
 
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private FunctionalCaseService functionalCaseService;
+    @Resource
+    private ExtFunctionalCaseMapper extFunctionalCaseMapper;
 
 
     //TODO 日志(需要修改)
@@ -128,5 +135,30 @@ public class FunctionalCaseLogService {
             dtoList.add(dto);
         });
         operationLogService.batchAdd(dtoList);
+    }
+
+
+    public List<LogDTO> batchDeleteFunctionalCaseLog(FunctionalCaseBatchRequest request) {
+        List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
+        List<LogDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids);
+            functionalCases.forEach(functionalCase -> {
+                LogDTO dto = new LogDTO(
+                        functionalCase.getProjectId(),
+                        null,
+                        functionalCase.getId(),
+                        null,
+                        OperationLogType.DELETE.name(),
+                        OperationLogModule.FUNCTIONAL_CASE,
+                        functionalCase.getName());
+
+                dto.setPath("/functional/case/batch/deleteToGc");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+                dtoList.add(dto);
+            });
+        }
+        return dtoList;
     }
 }

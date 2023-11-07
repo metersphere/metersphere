@@ -44,6 +44,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_FOLLOWER_URL = "/functional/case/follower/";
     public static final String FUNCTIONAL_CASE_DELETE_URL = "/functional/case/delete";
     public static final String FUNCTIONAL_CASE_LIST_URL = "/functional/case/page";
+    public static final String FUNCTIONAL_CASE_BATCH_DELETE_URL = "/functional/case/batch/delete-to-gc";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -266,12 +267,12 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
 
         //自定义字段 测试
-        Map<String,Object> map = new HashMap<>();
-        map.put("customs",Arrays.asList(new LinkedHashMap(){{
-            put("id","TEST_FIELD_ID");
-            put("operator","in");
-            put("value","222");
-            put("type","List");
+        Map<String, Object> map = new HashMap<>();
+        map.put("customs", Arrays.asList(new LinkedHashMap() {{
+            put("id", "TEST_FIELD_ID");
+            put("operator", "in");
+            put("value", "222");
+            put("type", "List");
         }}));
         request.setCombine(map);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
@@ -297,4 +298,21 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setDeleteAll(true);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_DELETE_URL, request);
     }
+
+
+    @Test
+    @Order(7)
+    public void testBatchDelete() throws Exception {
+        FunctionalCaseBatchRequest request = new FunctionalCaseBatchRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(false);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_DELETE_URL, request);
+
+        request.setSelectIds(Arrays.asList("TEST_FUNCTIONAL_CASE_ID_5", "TEST_FUNCTIONAL_CASE_ID_7"));
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_DELETE_URL, request);
+        request.setSelectAll(true);
+        request.setExcludeIds(Arrays.asList("TEST_FUNCTIONAL_CASE_ID_2"));
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_DELETE_URL, request);
+    }
+
 }

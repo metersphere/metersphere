@@ -4,6 +4,7 @@ import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -26,4 +27,12 @@ public interface ExtFunctionalCaseMapper {
     List<FunctionalCase> checkCaseByModuleIds(@Param("moduleIds") List<String> deleteIds);
 
     List<FunctionalCasePageDTO> list(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
+
+    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("deleted") boolean deleted);
+
+    void batchDelete(@Param("ids") List<String> ids, @Param("userId") String userId);
+
+    List<FunctionalCase> getLogInfo(@Param("ids") List<String> ids);
+
+    List<String> getRefIds(@Param("ids") List<String> ids);
 }

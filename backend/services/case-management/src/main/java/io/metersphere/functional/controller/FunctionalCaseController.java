@@ -134,4 +134,14 @@ public class FunctionalCaseController {
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, false));
     }
+
+
+    @PostMapping("/batch/delete-to-gc")
+    @Operation(summary = "功能用例-批量删除用例")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDeleteFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
+    public void batchDeleteFunctionalCaseToGc(@Validated @RequestBody FunctionalCaseBatchRequest request) {
+        String userId = SessionUtils.getUserId();
+        functionalCaseService.batchDeleteFunctionalCaseToGc(request, userId);
+    }
 }
