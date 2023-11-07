@@ -102,6 +102,9 @@
         <include refid="combine">
             <property name="condition" value="request.combine"/>
         </include>
+        <include refid="queryVersionCondition">
+            <property name="versionTable" value="functional_case"/>
+        </include>
     </sql>
 
     <sql id="filter">
@@ -121,12 +124,19 @@
                             and functional_case.version_id in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key=='custom'">
-                            and functional_case.id in (
-                            select case_id from functional_case_custom_field where field_id =
+                        <when test="key.startsWith('custom_single')">
+                            and test_case.id in (
+                            select resource_id from custom_field_test_case where concat('custom_single-',field_id) =
                             #{key}
-                            and JSON_CONTAINS(value, json_array(#{value}))
+                            and trim(both '"' from `value`) in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                             )
+                        </when>
+                        <when test="key.startsWith('custom_multiple')">
+                            and test_case.id in (
+                            select resource_id from custom_field_test_case where concat('custom_multiple-',field_id) =
+                            #{key}
+                            and and JSON_CONTAINS(`value`, json_array(#{value}))
                         </when>
                         <when test="key=='create_user'">
                             and functional_case.create_user in
@@ -179,4 +189,15 @@
         </if>
     </sql>
 
+    <sql id="queryVersionCondition">
+        <if test="request.versionId != null">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null">
+            and ${versionTable}.ref_id = #{request.refId}
+        </if>
+        <if test="request.versionId == null and request.refId == null">
+            AND ${versionTable}.latest = 0
+        </if>
+    </sql>
 </mapper>
