@@ -22,8 +22,10 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.TempFileUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.sdk.RemoteFileAttachInfo;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.GitRepositoryUtil;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -333,33 +335,17 @@ public class FileMetadataService {
         if (oldFile == null) {
             throw new MSException(Translator.get("old.file.not.exist"));
         }
-        oldFile.setLatest(false);
-        fileMetadataMapper.updateByPrimaryKeySelective(oldFile);
 
-        //删除旧的预览文件
-        TempFileUtils.deleteTmpFile(oldFile.getId());
-
-        long operationTime = System.currentTimeMillis();
-        FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setId(IDGenerator.nextStr());
-        fileMetadata.setStorage(oldFile.getStorage());
-        fileMetadata.setProjectId(oldFile.getProjectId());
-        fileMetadata.setModuleId(oldFile.getModuleId());
-        fileMetadata.setName(oldFile.getName());
-        fileMetadata.setType(oldFile.getType());
-        fileMetadata.setCreateTime(operationTime);
-        fileMetadata.setCreateUser(oldFile.getCreateUser());
-        fileMetadata.setUpdateTime(operationTime);
-        fileMetadata.setUpdateUser(operator);
+        if (!StringUtils.equals(oldFile.getStorage(), StorageType.MINIO.name())) {
+            //非minio类型文件不允许重新上传
+            throw new MSException(Translator.get("file.not.exist"));
+        }
+        this.setFileVersionIsOld(oldFile, operator);
+        FileMetadata fileMetadata = this.genNewVersion(oldFile, operator);
         fileMetadata.setSize(uploadFile.getSize());
-        fileMetadata.setRefId(oldFile.getRefId());
-        fileMetadata.setEnable(oldFile.getEnable());
-        fileMetadata.setLatest(true);
         fileMetadataMapper.insert(fileMetadata);
-
         //记录日志
         fileMetadataLogService.saveReUploadLog(fileMetadata, operator);
-
         // 上传文件
         String filePath = this.uploadFile(fileMetadata, uploadFile);
         FileMetadata updateFileMetadata = new FileMetadata();
@@ -453,5 +439,70 @@ public class FileMetadataService {
             //记录日志
             fileMetadataLogService.saveFileMoveLog(logList, request.getProjectId(), operator);
         }
+    }
+
+    private void setFileVersionIsOld(FileMetadata oldFile, String operator) {
+        //删除旧的预览文件
+        TempFileUtils.deleteTmpFile(oldFile.getId());
+        //更新文件版本分支
+        FileMetadata updateModel = new FileMetadata();
+        updateModel.setId(oldFile.getId());
+        updateModel.setLatest(false);
+        updateModel.setUpdateTime(System.currentTimeMillis());
+        updateModel.setUpdateUser(operator);
+        fileMetadataMapper.updateByPrimaryKeySelective(updateModel);
+    }
+
+    private FileMetadata genNewVersion(FileMetadata oldFile, String operator) {
+        long operationTime = System.currentTimeMillis();
+        FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setId(IDGenerator.nextStr());
+        fileMetadata.setStorage(oldFile.getStorage());
+        fileMetadata.setProjectId(oldFile.getProjectId());
+        fileMetadata.setModuleId(oldFile.getModuleId());
+        fileMetadata.setName(oldFile.getName());
+        fileMetadata.setType(oldFile.getType());
+        fileMetadata.setCreateTime(operationTime);
+        fileMetadata.setCreateUser(oldFile.getCreateUser());
+        fileMetadata.setUpdateTime(operationTime);
+        fileMetadata.setPath(oldFile.getPath());
+        fileMetadata.setUpdateUser(operator);
+        fileMetadata.setRefId(oldFile.getRefId());
+        fileMetadata.setEnable(oldFile.getEnable());
+        fileMetadata.setLatest(true);
+        return fileMetadata;
+    }
+
+    public String pullFile(String fileId, String operator) {
+        FileMetadata oldFile = fileMetadataMapper.selectByPrimaryKey(fileId);
+        String returnFileId = fileId;
+        if (StringUtils.equals(oldFile.getStorage(), StorageType.GIT.name())) {
+            FileMetadataRepository metadataRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileId);
+            FileModuleRepository moduleRepository = fileModuleRepositoryMapper.selectByPrimaryKey(oldFile.getModuleId());
+            if (metadataRepository != null && moduleRepository != null) {
+
+                GitRepositoryUtil repositoryUtils = new GitRepositoryUtil(moduleRepository.getUrl(), moduleRepository.getUserName(), moduleRepository.getToken());
+                RemoteFileAttachInfo gitFileAttachInfo = repositoryUtils.selectLastCommitIdByBranch(metadataRepository.getBranch(), oldFile.getPath());
+
+                if (!StringUtils.equals(gitFileAttachInfo.getCommitId(), metadataRepository.getCommitId())) {
+                    this.setFileVersionIsOld(oldFile, operator);
+                    FileMetadata fileMetadata = this.genNewVersion(oldFile, operator);
+                    fileMetadata.setSize(gitFileAttachInfo.getSize());
+                    fileMetadataMapper.insert(fileMetadata);
+                    returnFileId = fileMetadata.getId();
+
+                    FileMetadataRepository fileMetadataRepository = new FileMetadataRepository();
+                    fileMetadataRepository.setFileMetadataId(returnFileId);
+                    fileMetadataRepository.setBranch(gitFileAttachInfo.getBranch());
+                    fileMetadataRepository.setCommitId(gitFileAttachInfo.getCommitId());
+                    fileMetadataRepository.setCommitMessage(gitFileAttachInfo.getCommitMessage());
+                    fileMetadataRepositoryMapper.insert(fileMetadataRepository);
+
+                    //记录日志
+                    fileMetadataLogService.saveFilePullLog(fileMetadata, operator);
+                }
+            }
+        }
+        return returnFileId;
     }
 }

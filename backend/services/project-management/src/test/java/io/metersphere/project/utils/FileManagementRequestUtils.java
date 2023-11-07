@@ -54,8 +54,7 @@ public class FileManagementRequestUtils {
     public static final String URL_FILE_REPOSITORY_CREATE = "/project/file/repository/add-repository";
     //修改存储库
     public static final String URL_FILE_REPOSITORY_UPDATE = "/project/file/repository/update-repository";
-
     //添加文件
     public static final String URL_FILE_REPOSITORY_FILE_ADD = "/project/file/repository/add-file";
-
+    public static final String URL_FILE_REPOSITORY_FILE_PULL = "/project/file/repository/pull-file/%s";
 }
