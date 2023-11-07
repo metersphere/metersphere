@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 import static io.metersphere.project.enums.result.ProjectResultCode.PROJECT_TEMPLATE_PERMISSION;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
-import static io.metersphere.system.controller.result.SystemResultCode.ORGANIZATION_TEMPLATE_PERMISSION;
 
 /**
  * @author jianxing
@@ -298,6 +297,7 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, STATUS_DELETE, addStatusItem.getId());
     }
 
+    @Test
     @Order(6)
     public void sortStatusItem() throws Exception {
         List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
@@ -308,9 +308,9 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         OrganizationStatusFlowSettingControllerTest.assertSortStatusItem(DEFAULT_PROJECT_ID, statusIds);
 
         // @校验是否开启组织模板
-        changeOrgTemplateEnable(false);
-        assertErrorCode(this.requestPost(STATUS_SORT, statusIds, DEFAULT_PROJECT_ID, TemplateScene.BUG.name()), ORGANIZATION_TEMPLATE_PERMISSION);
         changeOrgTemplateEnable(true);
+        assertErrorCode(this.requestPost(STATUS_SORT, statusIds, DEFAULT_PROJECT_ID, TemplateScene.BUG.name()), PROJECT_TEMPLATE_PERMISSION);
+        changeOrgTemplateEnable(false);
 
         // @@状态不存在
         assertErrorCode(this.requestPost(STATUS_SORT, List.of("1111"), DEFAULT_PROJECT_ID, TemplateScene.BUG.name()), STATUS_ITEM_NOT_EXIST);
@@ -319,7 +319,7 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         assertErrorCode(this.requestPost(STATUS_SORT, statusIds, "111", TemplateScene.BUG.name()), NOT_FOUND);
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, STATUS_SORT, List.of(), DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
+        requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, STATUS_SORT, List.of(), DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
     }
 
     private void changeOrgTemplateEnable(boolean enable) {

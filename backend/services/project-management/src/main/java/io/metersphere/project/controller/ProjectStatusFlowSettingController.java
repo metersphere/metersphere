@@ -55,7 +55,9 @@ public class ProjectStatusFlowSettingController {
     @Operation(summary = "系统设置-组织-状态流设置-状态项排序")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
     public void sortStatusItem(@PathVariable
-                               String projectId, @PathVariable String scene,
+                               String projectId,
+                               @PathVariable
+                               String scene,
                                @RequestBody
                                @NotEmpty
                                List<String> statusIds) {
