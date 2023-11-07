@@ -140,7 +140,7 @@ export default {
           children: [
             {
               title: i18n.t('api_test.request.processor.code_template_get_variable'),
-              value: 'vars.get("variable_name");',
+              value: this.getCustomVariable(),
             },
             {
               title: i18n.t('api_test.request.processor.code_template_set_variable'),
@@ -255,6 +255,18 @@ export default {
           break;
       }
 
+      return returnScript;
+    },
+    //获取自定义变量
+    getCustomVariable() {
+      let returnScript = '';
+      if (this.jsr223Processor) {
+        if (this.jsr223Processor.scriptLanguage === 'python') {
+          returnScript = 'vars["variable_name"]';
+        } else {
+          returnScript = 'vars.get("variable_name")';
+        }
+      }
       return returnScript;
     },
     addTemplate(template) {
