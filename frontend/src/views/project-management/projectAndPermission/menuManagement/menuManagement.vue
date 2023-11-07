@@ -7,7 +7,14 @@
       </div>
     </a-tooltip>
   </div>
-  <MsBaseTable ref="tableRef" class="mt-[16px]" v-bind="propsRes" @expand="expandChange" v-on="propsEvent">
+  <MsBaseTable
+    ref="tableRef"
+    class="mt-[16px]"
+    v-bind="propsRes"
+    :expanded-keys="expandedKeys"
+    @expand="expandChange"
+    v-on="propsEvent"
+  >
     <template #module="{ record }">
       <div v-if="record.children">
         <MsIcon class="text-[var(--color-text-4)]" :type="getMenuIcon(record.module)" />
@@ -642,9 +649,19 @@
     return pool?.name;
   };
 
+  const initExpendKeys = async () => {
+    if (router.currentRoute.value.redirectedFrom) {
+      // 从误报规则跳转回来的
+      await expandChange({ module: MenuEnum.apiTest });
+    } else {
+      expandedKeys.value = [];
+    }
+  };
+
   onMounted(() => {
     setLoadListParams({ projectId: currentProjectId.value });
     fetchData();
+    initExpendKeys();
   });
   watch(currentProjectId, () => {
     fetchData();

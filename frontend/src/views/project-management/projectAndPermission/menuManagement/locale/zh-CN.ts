@@ -87,4 +87,5 @@ export default {
   'project.menu.rule.enableRuleTip': '开启后，展示在规则切换列表',
   'project.menu.rule.deleteRule': '确认删除 {size} 条误报规则吗？',
   'project.menu.rule.deleteRuleTip': '删除后，仅对新执行的测试报告生效，请谨慎操作！',
+  'project.menu.rule.goBackMenu': '返回应用管理',
 };

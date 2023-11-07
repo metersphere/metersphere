@@ -215,7 +215,7 @@ export default function useTableProps<T>(
         // debug 模式下打印属性
         if (propsRes.value.debug && import.meta.env.DEV) {
           // eslint-disable-next-line no-console
-          // console.log('Table propsRes: ', propsRes.value);
+          console.log('Table propsRes: ', propsRes.value);
         }
       }
     } else {
