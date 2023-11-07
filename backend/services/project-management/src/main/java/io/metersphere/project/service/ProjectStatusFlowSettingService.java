@@ -115,7 +115,7 @@ public class ProjectStatusFlowSettingService extends BaseStatusFlowSettingServic
 
     @Override
     public List<StatusItem> sortStatusItem(String projectId, String scene, List<String> statusIds) {
-        OrganizationService.checkResourceExist(projectId);
+        ProjectService.checkResourceExist(projectId);
         projectTemplateService.checkProjectTemplateEnable(projectId, scene);
         return super.sortStatusItem(projectId, scene, statusIds);
     }
