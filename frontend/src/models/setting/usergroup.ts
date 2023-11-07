@@ -17,7 +17,17 @@ export interface CustomMoreActionItem {
 }
 
 export type RenameType = 'rename' | 'auth';
-export type AuthScopeType = 'SYSTEM' | 'PROJECT' | 'ORGANIZATION';
+export type AuthScopeType =
+  | 'SYSTEM'
+  | 'PROJECT'
+  | 'ORGANIZATION'
+  | 'WORKSTATION'
+  | 'TEST_PLAN'
+  | 'BUG_MANAGEMENT'
+  | 'CASE_MANAGEMENT'
+  | 'API_TEST'
+  | 'UI_TEST'
+  | 'LOAD_TEST';
 
 export interface UserGroupItem {
   // 组ID
@@ -104,6 +114,14 @@ export interface AuthTableItem {
   isSystem?: boolean;
   isOrganization?: boolean;
   isProject?: boolean;
+  isWorkstation?: boolean;
+  isTestPlan?: boolean;
+  isBugManagement?: boolean;
+  isCaseManagement?: boolean;
+  isApiTest?: boolean;
+  isUiTest?: boolean;
+  isLoadTest?: boolean;
+
   indeterminate?: boolean;
 }
 export interface SavePermissions {

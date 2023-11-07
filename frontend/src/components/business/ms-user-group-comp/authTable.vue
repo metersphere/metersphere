@@ -124,6 +124,14 @@
   const systemSpan = ref(1);
   const projectSpan = ref(1);
   const organizationSpan = ref(1);
+  const workstationSpan = ref(1);
+  const testPlanSpan = ref(1);
+  const bugManagementSpan = ref(1);
+  const caseManagementSpan = ref(1);
+  const uiTestSpan = ref(1);
+  const apiTestSpan = ref(1);
+  const loadTestSpan = ref(1);
+
   // 表格的总全选
   const allChecked = ref(false);
   const allIndeterminate = ref(false);
@@ -157,6 +165,41 @@
       if (record.isProject) {
         return {
           rowspan: projectSpan.value,
+        };
+      }
+      if (record.isWorkstation) {
+        return {
+          rowspan: workstationSpan.value,
+        };
+      }
+      if (record.isTestPlan) {
+        return {
+          rowspan: testPlanSpan.value,
+        };
+      }
+      if (record.isBugManagement) {
+        return {
+          rowspan: bugManagementSpan.value,
+        };
+      }
+      if (record.isCaseManagement) {
+        return {
+          rowspan: caseManagementSpan.value,
+        };
+      }
+      if (record.isUiTest) {
+        return {
+          rowspan: uiTestSpan.value,
+        };
+      }
+      if (record.isApiTest) {
+        return {
+          rowspan: apiTestSpan.value,
+        };
+      }
+      if (record.isLoadTest) {
+        return {
+          rowspan: loadTestSpan.value,
         };
       }
     }
@@ -196,6 +239,13 @@
         isSystem: index === 0 && type === 'SYSTEM',
         isOrganization: index === 0 && type === 'ORGANIZATION',
         isProject: index === 0 && type === 'PROJECT',
+        isWorkstation: index === 0 && type === 'WORKSTATION',
+        isTestPlan: index === 0 && type === 'TEST_PLAN',
+        isBugManagement: index === 0 && type === 'BUG_MANAGEMENT',
+        isCaseManagement: index === 0 && type === 'CASE_MANAGEMENT',
+        isUiTest: index === 0 && type === 'UI_TEST',
+        isLoadTest: index === 0 && type === 'LOAD_TEST',
+        isApiTest: index === 0 && type === 'API_TEST',
       });
     });
     return result;
@@ -206,12 +256,24 @@
     data.forEach((item) => {
       if (item.type === 'SYSTEM') {
         systemSpan.value = item.children?.length || 0;
-      }
-      if (item.type === 'PROJECT') {
+      } else if (item.type === 'PROJECT') {
         projectSpan.value = item.children?.length || 0;
-      }
-      if (item.type === 'ORGANIZATION') {
+      } else if (item.type === 'ORGANIZATION') {
         organizationSpan.value = item.children?.length || 0;
+      } else if (item.type === 'WORKSTATION') {
+        workstationSpan.value = item.children?.length || 0;
+      } else if (item.type === 'TEST_PLAN') {
+        testPlanSpan.value = item.children?.length || 0;
+      } else if (item.type === 'BUG_MANAGEMENT') {
+        bugManagementSpan.value = item.children?.length || 0;
+      } else if (item.type === 'CASE_MANAGEMENT') {
+        caseManagementSpan.value = item.children?.length || 0;
+      } else if (item.type === 'UI_TEST') {
+        uiTestSpan.value = item.children?.length || 0;
+      } else if (item.type === 'API_TEST') {
+        apiTestSpan.value = item.children?.length || 0;
+      } else if (item.type === 'LOAD_TEST') {
+        loadTestSpan.value = item.children?.length || 0;
       }
       result.push(...makeData(item, item.id));
     });

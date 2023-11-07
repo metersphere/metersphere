@@ -62,7 +62,7 @@
       ref="batchFormRef"
       :models="batchFormModels"
       :form-mode="ruleFormMode"
-      add-text="project.menu.rule.addResource"
+      add-text="project.menu.rule.addRule"
       :default-vals="currentList"
       show-enable
       :is-show-drag="false"
@@ -114,7 +114,7 @@
   const headerOptions = computed(() => [
     { label: 'Response Headers', value: 'headers' },
     { label: 'Response Data', value: 'data' },
-    { label: 'Response Body', value: 'body' },
+    { label: 'Response Code', value: 'code' },
   ]);
   const relationOptions = computed(() => [
     { label: '包含', value: 'contain' },
