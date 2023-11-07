@@ -16,6 +16,14 @@ VALUES ('TEST_FUNCTIONAL_CASE_ID_3', 3, 'TEST_MOUDLE_ID', '100001100001', '10000
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES ('TEST_FUNCTIONAL_CASE_ID_4', 4, 'TEST_MOUDLE_ID', '100001100001', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'TEST_REF_ID', 'UN_EXECUTED', b'0', b'0', b'0', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('TEST_FUNCTIONAL_CASE_ID_5', 5, 'TEST_MOUDLE_ID', '100001100001', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'TEST_REF_ID_1', 'UN_EXECUTED', b'0', b'0', b'0', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('TEST_FUNCTIONAL_CASE_ID_6', 6, 'TEST_MOUDLE_ID', '100001100001', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'TEST_REF_ID_1', 'UN_EXECUTED', b'0', b'0', b'0', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('TEST_FUNCTIONAL_CASE_ID_7', 7, 'TEST_MOUDLE_ID', '100001100001', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'TEST_REF_ID_2', 'UN_EXECUTED', b'0', b'0', b'0', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID', 'STEP', '1111', NULL, NULL, 'TEST');
 

@@ -9,10 +9,7 @@ import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
-import io.metersphere.functional.request.FunctionalCaseAddRequest;
-import io.metersphere.functional.request.FunctionalCaseDeleteRequest;
-import io.metersphere.functional.request.FunctionalCaseEditRequest;
-import io.metersphere.functional.request.FunctionalCasePageRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -23,6 +20,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
@@ -386,5 +384,27 @@ public class FunctionalCaseService {
         });
         return functionalCaseLists;
 
+    }
+
+    public void batchDeleteFunctionalCaseToGc(FunctionalCaseBatchRequest request, String userId) {
+        List<String> ids = doSelectIds(request, request.getProjectId());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<String> refId = extFunctionalCaseMapper.getRefIds(ids);
+            extFunctionalCaseMapper.batchDelete(refId, userId);
+        }
+    }
+
+
+    public <T> List<String> doSelectIds(T dto, String projectId) {
+        TableBatchProcessDTO request = (TableBatchProcessDTO) dto;
+        if (request.isSelectAll()) {
+            List<String> ids = extFunctionalCaseMapper.getIds(request, projectId, false);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
     }
 }
