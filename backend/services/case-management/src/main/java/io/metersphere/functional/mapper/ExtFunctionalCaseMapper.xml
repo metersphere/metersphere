@@ -87,6 +87,19 @@
 
     </select>
 
+    <update id="recoverCase">
+        UPDATE functional_case
+        SET deleted = false,
+            update_user =  #{userId},
+            update_time = #{time},
+            delete_user = null,
+            delete_time = null
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
     <sql id="queryWhereCondition">
         <if test="request.projectId">
             and functional_case.project_id = #{request.projectId}

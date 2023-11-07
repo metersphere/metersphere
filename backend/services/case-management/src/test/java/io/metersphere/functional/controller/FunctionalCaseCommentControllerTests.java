@@ -469,6 +469,8 @@ public class FunctionalCaseCommentControllerTests {
         Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getCaseId(), "xiaomeinvGTest"));
         Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getNotifier(), "default-project-member-user-guo;default-project-member-user-guo-4;"));
         Assertions.assertTrue(StringUtils.equals(functionalCaseComment.getContent(), "评论你好哇"));
+        Assertions.assertTrue(StringUtils.isBlank(functionalCaseComment.getReplyUser()));
+
     }
 
     @Test

@@ -58,33 +58,29 @@ public class FunctionalCaseNoticeService {
         String notifier = functionalCaseCommentRequest.getNotifier();
         String replyUser = functionalCaseCommentRequest.getReplyUser();
         if (StringUtils.equals(functionalCaseCommentRequest.getEvent(), NoticeConstants.Event.REPLY)) {
-            if (StringUtils.isNotBlank(replyUser)) {
-                if (StringUtils.isNotBlank(notifier)) {
-                    List<String> notifierList = Arrays.asList(notifier.split(";"));
-                    if (!notifierList.contains(replyUser)) {
-                        functionalCaseDTO.setRelatedUsers(replyUser);
-                    }
-                } else {
+            if (StringUtils.isNotBlank(notifier)) {
+                List<String> notifierList = Arrays.asList(notifier.split(";"));
+                if (!notifierList.contains(replyUser)) {
                     functionalCaseDTO.setRelatedUsers(replyUser);
                 }
+            } else {
+                functionalCaseDTO.setRelatedUsers(replyUser);
             }
         }
         else {
-            if (StringUtils.isNotBlank(replyUser)) {
+            if (StringUtils.isNotBlank(replyUser) && StringUtils.isNotBlank(notifier)) {
+                List<String> notifierList = Arrays.asList(notifier.split(";"));
                 StringBuilder notifierStr = new StringBuilder();
-                if (StringUtils.isNotBlank(notifier)) {
-                    List<String> notifierList = Arrays.asList(notifier.split(";"));
-                    if (notifierList.contains(replyUser)) {
-                        for (String notifierId : notifierList) {
-                            if (!StringUtils.equals(notifierId, replyUser)) {
-                                notifierStr.append(notifierId).append(";");
-                            }
+                if (notifierList.contains(replyUser)) {
+                    for (String notifierId : notifierList) {
+                        if (!StringUtils.equals(notifierId, replyUser)) {
+                            notifierStr.append(notifierId).append(";");
                         }
-                    } else {
-                        notifierStr = new StringBuilder(notifier);
                     }
-                    functionalCaseDTO.setRelatedUsers(notifierStr.toString());
+                } else {
+                    notifierStr = new StringBuilder(notifier);
                 }
+                functionalCaseDTO.setRelatedUsers(notifierStr.toString());
             } else {
                 functionalCaseDTO.setRelatedUsers(notifier);
             }

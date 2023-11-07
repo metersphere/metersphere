@@ -26,9 +26,6 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.apache.commons.collections.CollectionUtils;
-
-
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,7 +66,7 @@ public class FunctionalCaseCommentService {
         if (StringUtils.equals(functionalCaseCommentRequest.getEvent(), NoticeConstants.Event.REPLY)) {
             return saveCommentWidthReply(functionalCaseCommentRequest, functionalCaseComment, userId);
         } else {
-            return saveCommentWidthOther(functionalCaseCommentRequest, functionalCaseComment, userId);
+            return saveCommentOrAt(functionalCaseCommentRequest, functionalCaseComment, userId);
         }
     }
 
@@ -107,13 +104,15 @@ public class FunctionalCaseCommentService {
      * @param functionalCaseComment 被组装的半份数据
      * @return FunctionalCaseComment
      */
-    public FunctionalCaseComment saveCommentWidthOther(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
+    public FunctionalCaseComment saveCommentOrAt(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
         if (StringUtils.isNotBlank(functionalCaseCommentRequest.getNotifier())) {
             functionalCaseComment.setNotifier(functionalCaseCommentRequest.getNotifier());
         }
         functionalCaseCommentMapper.insert(functionalCaseComment);
         FunctionalCaseDTO functionalCaseDTO = functionalCaseNoticeService.getFunctionalCaseDTO(functionalCaseCommentRequest);
+        //发送@ 通知人
         sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTO);
+        //发送系统设置的评论通知
         if (StringUtils.isBlank(functionalCaseCommentRequest.getParentId()) && !StringUtils.equals(functionalCaseCommentRequest.getEvent(),NoticeConstants.Event.COMMENT)) {
             functionalCaseCommentRequest.setEvent(NoticeConstants.Event.COMMENT);
             sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTO);
@@ -128,7 +127,7 @@ public class FunctionalCaseCommentService {
      * @return FunctionalCaseComment
      */
     public FunctionalCaseComment saveCommentWidthReply(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
-        setOther(functionalCaseCommentRequest, functionalCaseComment);
+        setReplyAndNotifier(functionalCaseCommentRequest, functionalCaseComment);
         functionalCaseCommentMapper.insert(functionalCaseComment);
         FunctionalCaseDTO functionalCaseDTOReply = functionalCaseNoticeService.getFunctionalCaseDTO(functionalCaseCommentRequest);
         sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTOReply);
@@ -139,12 +138,12 @@ public class FunctionalCaseCommentService {
         return functionalCaseComment;
     }
 
-    private void setOther(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment) {
+    private void setReplyAndNotifier(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment) {
         checkParentId(functionalCaseCommentRequest, functionalCaseComment);
         if (StringUtils.isBlank(functionalCaseCommentRequest.getReplyUser())) {
             throw new MSException(Translator.get("case_comment.reply_user_is_null"));
         }
-        functionalCaseCommentRequest.setReplyUser(functionalCaseCommentRequest.getReplyUser());
+        functionalCaseComment.setReplyUser(functionalCaseCommentRequest.getReplyUser());
         if (StringUtils.isNotBlank(functionalCaseCommentRequest.getNotifier())) {
             functionalCaseComment.setNotifier(functionalCaseCommentRequest.getNotifier());
         } else {
@@ -236,37 +235,24 @@ public class FunctionalCaseCommentService {
      */
     private List<FunctionalCaseCommentDTO> buildData(List<FunctionalCaseComment> functionalCaseComments, Map<String, User> userMap) {
         List<FunctionalCaseCommentDTO>list = new ArrayList<>();
-        List<FunctionalCaseComment> rootList = functionalCaseComments.stream().filter(t -> StringUtils.isBlank(t.getParentId())).toList();
-        List<FunctionalCaseComment> replyList = functionalCaseComments.stream().filter(t -> StringUtils.isNotBlank(t.getParentId())).toList();
-        Map<String, List<FunctionalCaseComment>> commentMap = replyList.stream().collect(Collectors.groupingBy(FunctionalCaseComment::getParentId));
-        for (FunctionalCaseComment functionalCaseComment : rootList) {
+        for (FunctionalCaseComment functionalCaseComment : functionalCaseComments) {
             FunctionalCaseCommentDTO functionalCaseCommentDTO = new FunctionalCaseCommentDTO();
             BeanUtils.copyBean(functionalCaseCommentDTO,functionalCaseComment);
             functionalCaseCommentDTO.setUserName(userMap.get(functionalCaseComment.getCreateUser()).getName());
-            List<FunctionalCaseComment> replyComments = commentMap.get(functionalCaseComment.getId());
-            if (CollectionUtils.isNotEmpty(replyComments)) {
-                List<FunctionalCaseCommentDTO> replies = getReplies(userMap, functionalCaseComment, replyComments);
-                functionalCaseCommentDTO.setReplies(replies);
+            if (StringUtils.isNotBlank(functionalCaseComment.getReplyUser())) {
+                functionalCaseCommentDTO.setReplyUserName(userMap.get(functionalCaseComment.getReplyUser()).getName());
             }
             list.add(functionalCaseCommentDTO);
         }
-        return list;
-    }
 
-    private List<FunctionalCaseCommentDTO> getReplies(Map<String, User> userMap, FunctionalCaseComment functionalCaseComment, List<FunctionalCaseComment> replyComments) {
-        List<FunctionalCaseCommentDTO> replies = new ArrayList<>();
-        for (FunctionalCaseComment replyComment : replyComments) {
-            FunctionalCaseCommentDTO functionalCaseCommentDTOReply = new FunctionalCaseCommentDTO();
-            BeanUtils.copyBean(functionalCaseCommentDTOReply,replyComment);
-            functionalCaseCommentDTOReply.setUserName(userMap.get(replyComment.getCreateUser()).getName());
-            if (StringUtils.isBlank(replyComment.getReplyUser())) {
-                functionalCaseCommentDTOReply.setReplyUserName(userMap.get(functionalCaseComment.getCreateUser()).getName());
-            } else {
-                functionalCaseCommentDTOReply.setReplyUserName(userMap.get(replyComment.getReplyUser()).getName());
-            }
-            replies.add(functionalCaseCommentDTOReply);
+        List<FunctionalCaseCommentDTO> rootList = list.stream().filter(t -> StringUtils.isBlank(t.getParentId())).sorted(Comparator.comparing(FunctionalCaseComment::getCreateTime).reversed()).toList();
+        List<FunctionalCaseCommentDTO> replyList = list.stream().filter(t -> StringUtils.isNotBlank(t.getParentId())).sorted(Comparator.comparing(FunctionalCaseComment::getCreateTime).reversed()).toList();
+        Map<String, List<FunctionalCaseCommentDTO>> commentMap = replyList.stream().collect(Collectors.groupingBy(FunctionalCaseComment::getParentId));
+        for (FunctionalCaseCommentDTO functionalCaseComment : rootList) {
+            List<FunctionalCaseCommentDTO> replyComments = commentMap.get(functionalCaseComment.getId());
+            functionalCaseComment.setReplies(replyComments);
         }
-        return replies.stream().sorted(Comparator.comparing(FunctionalCaseComment::getCreateTime).reversed()).toList();
+        return rootList;
     }
 
     /**
@@ -322,7 +308,7 @@ public class FunctionalCaseCommentService {
     }
 
     private FunctionalCaseComment updateCommentWidthNotice(FunctionalCaseCommentRequest functionalCaseCommentRequest, FunctionalCaseComment functionalCaseComment, String userId) {
-        setOther(functionalCaseCommentRequest, functionalCaseComment);
+        setReplyAndNotifier(functionalCaseCommentRequest, functionalCaseComment);
         functionalCaseCommentMapper.updateByPrimaryKeySelective(functionalCaseComment);
         functionalCaseCommentRequest.setEvent(NoticeConstants.Event.AT);
         FunctionalCaseDTO functionalCaseDTO = functionalCaseNoticeService.getFunctionalCaseDTO(functionalCaseCommentRequest);
