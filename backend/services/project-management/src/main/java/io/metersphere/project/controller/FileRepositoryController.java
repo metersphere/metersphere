@@ -68,7 +68,14 @@ public class FileRepositoryController {
     @PostMapping("/add-file")
     @Operation(summary = "项目管理-文件管理-存储库-添加文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
-    public String upload(@Validated @RequestBody RepositoryFileAddRequest request) throws Exception {
+    public String addFile(@Validated @RequestBody RepositoryFileAddRequest request) throws Exception {
         return fileRepositoryService.addFile(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/pull-file/{id}")
+    @Operation(summary = "项目管理-文件管理-存储库-更新文件")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
+    public String pullFile(@PathVariable String id) throws Exception {
+        return fileMetadataService.pullFile(id, SessionUtils.getUserId());
     }
 }

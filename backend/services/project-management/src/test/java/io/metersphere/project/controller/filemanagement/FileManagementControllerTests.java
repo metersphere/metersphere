@@ -556,7 +556,7 @@ public class FileManagementControllerTests extends BaseTest {
         FileUploadRequest fileUploadRequest = new FileUploadRequest();
         fileUploadRequest.setProjectId(project.getId());
 
-        //重新上传并修改文件版本
+        //构建参数
         FileReUploadRequest fileReUploadRequest = new FileReUploadRequest();
         fileReUploadRequest.setFileId(reUploadFileId);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_re-upload.JPG")).getPath();
@@ -565,6 +565,17 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("file", file);
         paramMap.add("request", JSON.toJSONString(fileReUploadRequest));
 
+        //测试非minio文件不能重新上传
+        FileMetadata updateModel = new FileMetadata();
+        updateModel.setId(reUploadFileId);
+        updateModel.setStorage(StorageType.GIT.name());
+        fileMetadataMapper.updateByPrimaryKeySelective(updateModel);
+        this.requestMultipart(FileManagementRequestUtils.URL_FILE_RE_UPLOAD, paramMap).andExpect(status().is5xxServerError());
+        //测试完了改回去
+        updateModel.setStorage(StorageType.MINIO.name());
+        fileMetadataMapper.updateByPrimaryKeySelective(updateModel);
+
+        //重新上传并修改文件版本
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_RE_UPLOAD, paramMap);
         String reUploadId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(reUploadId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_RE_UPLOAD);

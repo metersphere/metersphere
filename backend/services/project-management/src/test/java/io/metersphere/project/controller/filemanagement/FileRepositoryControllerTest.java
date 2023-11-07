@@ -362,7 +362,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         request.setModuleId(repositoryId);
         MvcResult result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         String fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
-        this.checkFileRepositoryFile(fileId, request);
+        this.checkRepositoryFile(fileId, request);
         this.checkLog(fileId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD);
         fileList.add(fileId);
         //测试其他分支的多层目录的文件
@@ -374,7 +374,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         request.setModuleId(repositoryId);
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
-        this.checkFileRepositoryFile(fileId, request);
+        this.checkRepositoryFile(fileId, request);
         fileList.add(fileId);
         //测试隐藏文件
         String folderFilePath2 = "test-folder/.keep";
@@ -384,7 +384,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         request.setModuleId(repositoryId);
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
-        this.checkFileRepositoryFile(fileId, request);
+        this.checkRepositoryFile(fileId, request);
         fileList.add(fileId);
         //测试添加jar包并且启用
         request = new RepositoryFileAddRequest();
@@ -394,7 +394,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         request.setModuleId(repositoryId);
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
-        this.checkFileRepositoryFile(fileId, request);
+        this.checkRepositoryFile(fileId, request);
         fileList.add(fileId);
         //获取图片信息
         request = new RepositoryFileAddRequest();
@@ -403,7 +403,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         request.setModuleId(repositoryId);
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
-        this.checkFileRepositoryFile(fileId, request);
+        this.checkRepositoryFile(fileId, request);
         this.picFileId = fileId;
         fileList.add(fileId);
         {
@@ -481,8 +481,29 @@ public class FileRepositoryControllerTest extends BaseTest {
         Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
     }
 
+    @Test
+    @Order(12)
+    public void repositoryPullFileTest() throws Exception {
+        if (StringUtils.isEmpty(picFileId)) {
+            this.repositoryAddFileTest();
+        }
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_PULL, picFileId));
+        String fileId = JSON.parseObject(mvcResult.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
+        //此时没有更新记录，应当相等
+        Assertions.assertEquals(fileId, picFileId);
 
-    private void checkFileRepositoryFile(String fileId, RepositoryFileAddRequest request) {
+        //手动更改过去的commit id 达到pull更新的效果
+        FileMetadataRepository updateRepository = new FileMetadataRepository();
+        updateRepository.setFileMetadataId(picFileId);
+        updateRepository.setCommitId(IDGenerator.nextStr());
+        fileMetadataRepositoryMapper.updateByPrimaryKeySelective(updateRepository);
+        mvcResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_PULL, picFileId));
+        fileId = JSON.parseObject(mvcResult.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
+        this.checkRepositoryFile(picFileId, fileId);
+    }
+
+
+    private void checkRepositoryFile(String fileId, RepositoryFileAddRequest request) {
         FileMetadataRepository repository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileId);
         Assertions.assertEquals(repository.getBranch(), request.getBranch());
         Assertions.assertNotNull(repository.getCommitId());
@@ -490,6 +511,24 @@ public class FileRepositoryControllerTest extends BaseTest {
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
         Assertions.assertEquals(fileMetadata.getPath(), request.getFilePath());
         Assertions.assertEquals(fileMetadata.getStorage(), StorageType.GIT.name());
+    }
+
+    private void checkRepositoryFile(String fileId, String newFileId) {
+        FileMetadata oldMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
+        FileMetadataRepository oldRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileId);
+        FileMetadata newMetadata = fileMetadataMapper.selectByPrimaryKey(newFileId);
+        FileMetadataRepository newRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(newFileId);
+
+        Assertions.assertNotEquals(fileId, newFileId);
+        Assertions.assertEquals(oldMetadata.getName(), newMetadata.getName());
+        Assertions.assertEquals(oldMetadata.getPath(), newMetadata.getPath());
+        Assertions.assertEquals(oldMetadata.getStorage(), newMetadata.getStorage());
+        Assertions.assertEquals(oldMetadata.getModuleId(), newMetadata.getModuleId());
+        Assertions.assertEquals(oldMetadata.getType(), newMetadata.getType());
+        Assertions.assertEquals(oldMetadata.getRefId(), newMetadata.getRefId());
+
+        Assertions.assertEquals(oldRepository.getBranch(), newRepository.getBranch());
+        Assertions.assertNotEquals(oldRepository.getFileMetadataId(), newRepository.getFileMetadataId());
     }
 
     protected MvcResult downloadFile(String url, Object... uriVariables) throws Exception {

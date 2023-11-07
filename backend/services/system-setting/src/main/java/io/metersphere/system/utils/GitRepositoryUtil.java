@@ -83,7 +83,6 @@ public class GitRepositoryUtil {
     }
 
     public RemoteFileAttachInfo selectLastCommitIdByBranch(String branch, String filePath) {
-        RemoteFileAttachInfo attachInfo;
         InMemoryRepository repo = null;
         TreeWalk treeWalk = null;
         try {
@@ -105,8 +104,7 @@ public class GitRepositoryUtil {
                     if (StringUtils.isEmpty(fileLastCommitId)) {
                         fileLastCommitId = lastCommitId.getName();
                     }
-                    attachInfo = new RemoteFileAttachInfo(repositoryUrl, userName, token, branch, fileLastCommitId, filePath, commit.getFullMessage(), loader.getSize());
-                    return attachInfo;
+                    return new RemoteFileAttachInfo(repositoryUrl, userName, token, branch, fileLastCommitId, filePath, commit.getFullMessage(), loader.getSize());
                 }
             }
         } catch (Exception e) {
@@ -117,7 +115,7 @@ public class GitRepositoryUtil {
             }
             this.closeConnection(repo);
         }
-        return null;
+        return new RemoteFileAttachInfo();
     }
 
     private String getFileLastCommitId(ObjectId objectId, String filePath) throws Exception {
