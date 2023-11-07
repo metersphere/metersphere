@@ -102,4 +102,18 @@ public class BugController {
     public void batchUpdate(@Validated @RequestBody BugBatchUpdateRequest request) {
         bugService.batchUpdate(request);
     }
+
+    @GetMapping("/follow/{id}")
+    @Operation(summary = "缺陷管理-关注缺陷")
+    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    public void follow(@PathVariable String id) {
+        bugService.follow(id, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/unfollow/{id}")
+    @Operation(summary = "缺陷管理-取消关注缺陷")
+    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    public void unfollow(@PathVariable String id) {
+        bugService.unfollow(id, SessionUtils.getUserId());
+    }
 }
