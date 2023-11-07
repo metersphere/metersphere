@@ -470,7 +470,8 @@ export default {
       }
     },
     showReport(row) {
-      if (this.size > 600 && this.reportId === row.id) {
+      if (this.size > 600 && (this.reportId === row.id ||
+          (this.reportId.indexOf('[TEST-PLAN-REDIRECT]')> -1 && this.reportId.split('[TEST-PLAN-REDIRECT]')[1]) === row.id)) {
         this.packUp();
         return;
       }
