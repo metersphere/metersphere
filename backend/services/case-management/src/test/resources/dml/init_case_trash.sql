@@ -27,3 +27,10 @@ VALUES('gyq_custom_id2', 'level', 'FUNCTIONAL', 'SELECT', '', 1, 'ORGANIZATION',
 
 INSERT INTO functional_case_comment(id, case_id, create_user, status, parent_id, resource_id, notifier, content, reply_user, create_time, update_time)
 VALUES ('trash_comment_id', 'Trash_TEST_FUNCTIONAL_CASE_ID', 'gyq', null, null, null, 'gyq','你好', null, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
+
+
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID', 'STEP', '1111', NULL, NULL, 'TEST');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_1', 'STEP', '1111', NULL, NULL, 'TEST');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_2', 'STEP', '1111', NULL, NULL, 'TEST');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_3', 'STEP', '1111', NULL, NULL, 'TEST');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_4', 'STEP', '1111', NULL, NULL, 'TEST');

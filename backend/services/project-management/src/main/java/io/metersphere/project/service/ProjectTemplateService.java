@@ -3,27 +3,27 @@ package io.metersphere.project.service;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.plugin.sdk.spi.MsPlugin;
 import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.project.dto.CustomFieldOptions;
 import io.metersphere.project.dto.ProjectTemplateDTO;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
 import io.metersphere.sdk.constants.InternalUser;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
-import io.metersphere.system.dto.sdk.TemplateDTO;
-import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.Plugin;
-import io.metersphere.system.domain.ServiceIntegration;
-import io.metersphere.system.domain.Template;
-import io.metersphere.system.domain.TemplateExample;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
+import io.metersphere.system.mapper.CustomFieldOptionMapper;
 import io.metersphere.system.service.BaseTemplateService;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.system.service.ServiceIntegrationService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.PluginWrapper;
 import org.springframework.stereotype.Service;
@@ -54,6 +54,9 @@ public class ProjectTemplateService extends BaseTemplateService {
     private PlatformPluginService platformPluginService;
     @Resource
     private ProjectApplicationService projectApplicationService;
+
+    @Resource
+    private CustomFieldOptionMapper customFieldOptionMapper;
 
     @Override
     public List list(String projectId, String scene) {
@@ -381,5 +384,42 @@ public class ProjectTemplateService extends BaseTemplateService {
                 .forEach(scene ->
                         templateEnableConfig.put(scene.name(), !isOrganizationTemplateEnable(project.getOrganizationId(), scene.name())));
         return templateEnableConfig;
+    }
+
+    /**
+     * 获取表头可设置自定义字段（接口提供）
+     * @param projectId
+     * @param scene
+     * @return
+     */
+    public List<CustomFieldOptions> getTableCustomsField(String projectId, String scene) {
+        TemplateExample example = new TemplateExample();
+        example.createCriteria().andScopeIdEqualTo(projectId).andSceneEqualTo(scene);
+        List<Template> templates = templateMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(templates)) {
+            List<String> templateIds = templates.stream().map(Template::getId).collect(Collectors.toList());
+            List<TemplateCustomField> fieldList = baseTemplateCustomFieldService.getByTemplateIds(templateIds);
+            List<String> fieldIds = fieldList.stream().map(TemplateCustomField::getFieldId).distinct().collect(Collectors.toList());
+            List<CustomField> customFields = baseCustomFieldService.getByIds(fieldIds);
+            CustomFieldOptionExample optionExample = new CustomFieldOptionExample();
+            optionExample.createCriteria().andFieldIdIn(fieldIds);
+            List<CustomFieldOption> customFieldOptions = customFieldOptionMapper.selectByExample(optionExample);
+            Map<String, List<CustomFieldOption>> optionMap = customFieldOptions.stream().collect(Collectors.groupingBy(CustomFieldOption::getFieldId));
+            List<CustomFieldOptions> collect = customFields.stream().map(customField -> {
+                CustomFieldOptions optionDTO = new CustomFieldOptions();
+                optionDTO.setId(customField.getId());
+                if (customField.getInternal()) {
+                    customField.setName(baseCustomFieldService.translateInternalField(customField.getName()));
+                } else {
+                    optionDTO.setName(customField.getName());
+                }
+                optionDTO.setOptions(optionMap.get(customField.getId()));
+                optionDTO.setInternal(customField.getInternal());
+                optionDTO.setType(customField.getType());
+                return optionDTO;
+            }).collect(Collectors.toList());
+            return collect;
+        }
+        return new ArrayList<>();
     }
 }

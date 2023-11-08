@@ -11,6 +11,7 @@ import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.FunctionalCaseLogService;
 import io.metersphere.functional.service.FunctionalCaseNoticeService;
 import io.metersphere.functional.service.FunctionalCaseService;
+import io.metersphere.project.dto.CustomFieldOptions;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
@@ -144,4 +145,29 @@ public class FunctionalCaseController {
         String userId = SessionUtils.getUserId();
         functionalCaseService.batchDeleteFunctionalCaseToGc(request, userId);
     }
+
+    @GetMapping("/custom/field/{projectId}")
+    @Operation(summary = "功能用例-获取表头自定义字段(高级搜索中的自定义字段)")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    public List<CustomFieldOptions> getTableCustomsField(@PathVariable String projectId) {
+        return projectTemplateService.getTableCustomsField(projectId, TemplateScene.FUNCTIONAL.name());
+    }
+
+    @PostMapping("/batch/move")
+    @Operation(summary = "功能用例-批量移动用例")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    public void batchMoveFunctionalCase(@Validated @RequestBody FunctionalCaseBatchMoveRequest request) {
+        String userId = SessionUtils.getUserId();
+        functionalCaseService.batchMoveFunctionalCase(request, userId);
+    }
+
+
+    @PostMapping("/batch/copy")
+    @Operation(summary = "功能用例-批量复制用例")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    public void batchCopyFunctionalCase(@Validated @RequestBody FunctionalCaseBatchMoveRequest request) {
+        String userId = SessionUtils.getUserId();
+        functionalCaseService.batchCopyFunctionalCase(request, userId);
+    }
+
 }

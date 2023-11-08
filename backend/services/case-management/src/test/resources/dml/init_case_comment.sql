@@ -13,6 +13,9 @@ VALUES ('xiaomeinvGTestOne', 1000001, 'test_guo', '100001100001', 'test_guo', 'g
         1698058347559,
         null);
 
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('xiaomeinvGTest', 'STEP', '1111', NULL, NULL, 'TEST');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('xiaomeinvGTestOne', 'STEP', '1111', NULL, NULL, 'TEST');
+
 INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
                  last_project_id, create_user, update_user, deleted)
 VALUES ('default-project-member-user-guo', 'default-project-member-user1', 'project-member-guo1@metersphere.io',

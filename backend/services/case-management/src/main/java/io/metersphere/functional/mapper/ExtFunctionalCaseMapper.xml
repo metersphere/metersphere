@@ -72,6 +72,7 @@
             id,
             num,
             NAME,
+            module_id,
             version_id,
             create_user,
             create_time,
@@ -212,7 +213,7 @@
             and ${versionTable}.ref_id = #{request.refId}
         </if>
         <if test="request.versionId == null and request.refId == null">
-            AND ${versionTable}.latest = 0
+            AND ${versionTable}.latest = 1
         </if>
     </sql>
 
@@ -289,4 +290,18 @@
         </foreach>
         and deleted = false
     </select>
+
+
+    <update id="batchMoveModule">
+        update functional_case
+        set module_id = #{request.moduleId},
+            update_user = #{userId},
+            update_time = UNIX_TIMESTAMP()*1000
+        where ref_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and deleted = false
+        and project_id = #{request.projectId}
+    </update>
 </mapper>

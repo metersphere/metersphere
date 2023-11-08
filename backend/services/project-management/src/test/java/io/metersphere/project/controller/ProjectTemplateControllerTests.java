@@ -467,4 +467,13 @@ public class ProjectTemplateControllerTests extends BaseTest {
         projectTemplateService.getTemplateDTOById("test_template_id", DEFAULT_PROJECT_ID, TemplateScene.FUNCTIONAL.name());
         projectTemplateService.getTemplateDTOById("test_template_id_1", "test_project_id_1", TemplateScene.FUNCTIONAL.name());
     }
+
+
+    @Test
+    @Order(3)
+    public void getCustomFields() throws Exception {
+        projectTemplateService.getTableCustomsField("DEFAULT_PROJECT_ID", TemplateScene.FUNCTIONAL.name());
+        projectTemplateService.getTableCustomsField(DEFAULT_PROJECT_ID, TemplateScene.FUNCTIONAL.name());
+        projectTemplateService.getTableCustomsField("test_project_id_2", TemplateScene.FUNCTIONAL.name());
+    }
 }
