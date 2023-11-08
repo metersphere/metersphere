@@ -4,6 +4,7 @@ import io.metersphere.project.dto.filemanagement.request.FileRepositoryConnectRe
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryCreateRequest;
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryUpdateRequest;
 import io.metersphere.project.dto.filemanagement.request.RepositoryFileAddRequest;
+import io.metersphere.project.dto.filemanagement.response.FileRepositoryResponse;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.FileRepositoryService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -41,6 +42,13 @@ public class FileRepositoryController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
     public List<String> getFileType(@PathVariable String projectId) {
         return fileMetadataService.getFileType(projectId, StorageType.GIT.name());
+    }
+
+    @GetMapping(value = "/info/{id}")
+    @Operation(summary = "项目管理-文件管理-存储库-存储库信息")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
+    public FileRepositoryResponse getRepositoryInfo(@PathVariable String id) {
+        return fileRepositoryService.getRepositoryInfo(id);
     }
 
     @PostMapping("/add-repository")

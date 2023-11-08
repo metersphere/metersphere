@@ -45,22 +45,29 @@ CREATE INDEX idx_name ON fake_error (name);
 
 CREATE TABLE IF NOT EXISTS file_association
 (
-    `id`               VARCHAR(50) NOT NULL COMMENT '',
-    `type`             VARCHAR(50) NOT NULL COMMENT '模块类型,服务拆分后就是各个服务',
-    `source_id`        VARCHAR(50) NOT NULL COMMENT '各个模块关联时自身Id/比如API/CASE/SCENAEIO',
-    `source_item_id`   VARCHAR(50) NOT NULL COMMENT '对应资源引用时具体id，如一个用例引用多个文件',
-    `file_metadata_id` VARCHAR(50) NOT NULL COMMENT '文件id',
-    `file_type`        VARCHAR(50) NOT NULL COMMENT '文件类型',
-    `project_id`       VARCHAR(50) NOT NULL COMMENT '项目id',
+    `id`             VARCHAR(50) NOT NULL COMMENT '',
+    `source_item_id` VARCHAR(50) NOT NULL COMMENT '多用于场景步骤内具体的步骤ID',
+    `source_type`    VARCHAR(50) NOT NULL COMMENT '资源类型',
+    `source_id`      VARCHAR(50) NOT NULL COMMENT '资源ID',
+    `file_id`        VARCHAR(50) NOT NULL COMMENT '文件ID',
+    `file_ref_id`    VARCHAR(50) NOT NULL COMMENT '文件同版本ID',
+    `file_version`   VARCHAR(50) NOT NULL COMMENT '文件版本',
+    `create_time`    BIGINT      NOT NULL COMMENT '创建时间',
+    `update_user`    VARCHAR(50) NOT NULL COMMENT '修改人',
+    `update_time`    BIGINT      NOT NULL COMMENT '更新时间',
+    `create_user`    VARCHAR(50) COMMENT '创建人',
     PRIMARY KEY (id)
-)  ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci COMMENT = '文件关联资源关系(分散到模块)';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci
+    COMMENT = '文件资源关联';
 
 
-CREATE INDEX idx_file_metadata_id ON file_association (file_metadata_id);
-CREATE INDEX idx_project_id ON file_association (project_id);
+
+CREATE INDEX idx_file_metadata_id ON file_association (file_id);
+CREATE INDEX idx_source_type ON file_association (source_type);
 CREATE INDEX idx_source_id ON file_association (source_id);
+
 
 CREATE TABLE IF NOT EXISTS file_metadata_repository
 (

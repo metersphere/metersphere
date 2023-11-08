@@ -150,6 +150,7 @@
                f.path,
                f.project_id,
                f.size,
+               f.ref_id,
                f.storage
         FROM file_metadata f
                  INNER JOIN user updateUser ON f.update_user = updateUser.id

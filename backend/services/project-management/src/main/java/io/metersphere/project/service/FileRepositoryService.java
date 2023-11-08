@@ -8,6 +8,7 @@ import io.metersphere.project.dto.filemanagement.FileRepositoryLog;
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryCreateRequest;
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryUpdateRequest;
 import io.metersphere.project.dto.filemanagement.request.RepositoryFileAddRequest;
+import io.metersphere.project.dto.filemanagement.response.FileRepositoryResponse;
 import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleRepositoryMapper;
 import io.metersphere.sdk.constants.ModuleConstants;
@@ -149,5 +150,14 @@ public class FileRepositoryService extends FileModuleService {
         fileMetadataLogService.saveRepositoryAddLog(fileMetadata, fileMetadataRepository, operator);
 
         return fileMetadata.getId();
+    }
+
+    public FileRepositoryResponse getRepositoryInfo(String id) {
+        FileModule fileModule = fileModuleMapper.selectByPrimaryKey(id);
+        FileModuleRepository repository = fileModuleRepositoryMapper.selectByPrimaryKey(id);
+        if (fileModule == null || repository == null) {
+            throw new MSException(Translator.get("file_repository.not.exist"));
+        }
+        return new FileRepositoryResponse(fileModule, repository);
     }
 }
