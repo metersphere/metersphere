@@ -1,17 +1,17 @@
 <template>
-  <div class="edit-del-group">
-    <div class="edit menu-btn" :disabled="textDisabled" @click="edit">
-      <i class="tab-icons" />
-      <span>
-        {{ t('minder.commons.edit') }}
-      </span>
-    </div>
-    <div class="del menu-btn" :disabled="removeNodeDisabled" @click="del">
-      <i class="tab-icons" />
-      <span>
-        {{ t('minder.commons.delete') }}
-      </span>
-    </div>
+  <div class="menu-item">
+    <a-button
+      class="arco-btn-outline--secondary mb-[4px]"
+      :disabled="removeNodeDisabled"
+      type="outline"
+      size="small"
+      @click="del"
+    >
+      <template #icon>
+        <icon-minus />
+      </template>
+    </a-button>
+    {{ t('minder.commons.delete') }}
   </div>
 </template>
 
@@ -21,14 +21,13 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { delProps } from '../../props';
-  import { isDeleteDisableNode, isDisableNode } from '../../script/tool/utils';
+  import { isDeleteDisableNode } from '../../script/tool/utils';
 
   const { t } = useI18n();
 
   const props = defineProps(delProps);
 
   let minder = reactive<any>({});
-  const textDisabled = ref(true);
   const removeNodeDisabled = ref(true);
 
   function checkDisabled() {
@@ -40,7 +39,6 @@
     }
     const node = minder.getSelectedNode();
     removeNodeDisabled.value = !node || !!isDeleteDisableNode(minder) || node.parent === null;
-    textDisabled.value = !node || !!isDisableNode(minder);
   }
 
   onMounted(() => {
@@ -52,26 +50,6 @@
     });
   });
 
-  function editNode() {
-    if (!minder.queryCommandValue) return;
-    const editor = window.minderEditor;
-    const receiverElement = editor.receiver.element;
-    const { fsm } = editor;
-    const { receiver } = editor;
-
-    receiverElement.innerText = minder.queryCommandValue('text');
-    fsm.jump('input', 'input-request');
-    receiver.selectAll();
-  }
-
-  function edit() {
-    if (textDisabled.value || !minder.queryCommandState) {
-      return;
-    }
-    if (minder.queryCommandState('text') !== -1) {
-      editNode();
-    }
-  }
   function del() {
     if (removeNodeDisabled.value || !minder.queryCommandState || !minder.execCommand) {
       return;

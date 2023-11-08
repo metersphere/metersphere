@@ -1,25 +1,23 @@
 <template>
-  <div class="insert-group">
-    <div class="insert-child-box menu-btn" :disabled="appendChildNodeDisabled" @click="execCommand('AppendChildNode')">
-      <i class="tab-icons" />
-      <span>{{ t('minder.menu.insert.down') }}</span>
-    </div>
-    <div
-      class="insert-parent-box menu-btn"
-      :disabled="appendParentNodeDisabled"
-      @click="execCommand('AppendParentNode')"
-    >
-      <i class="tab-icons" />
-      <span>{{ t('minder.menu.insert.up') }}</span>
-    </div>
-    <div
-      class="insert-sibling-box menu-btn"
-      :disabled="appendSiblingNodeDisabled"
-      @click="execCommand('AppendSiblingNode')"
-    >
-      <i class="tab-icons" />
-      <span>{{ t('minder.menu.insert.same') }}</span>
-    </div>
+  <div class="menu-item">
+    <a-dropdown @select="handleCommand">
+      <a-button
+        class="arco-btn-outline--secondary mb-[4px]"
+        :disabled="appendChildNodeDisabled && appendParentNodeDisabled && appendSiblingNodeDisabled"
+        type="outline"
+        size="small"
+      >
+        <template #icon>
+          <icon-plus />
+        </template>
+      </a-button>
+      <template #content>
+        <a-doption :disabled="appendChildNodeDisabled" value="down">{{ t('minder.menu.insert.down') }}</a-doption>
+        <a-doption :disabled="appendParentNodeDisabled" value="up">{{ t('minder.menu.insert.up') }}</a-doption>
+        <a-doption :disabled="appendSiblingNodeDisabled" value="same">{{ t('minder.menu.insert.same') }}</a-doption>
+      </template>
+    </a-dropdown>
+    {{ t('minder.menu.insert.insert') }}
   </div>
 </template>
 
@@ -62,6 +60,22 @@
   function execCommand(command: string) {
     if (minder.value.queryCommandState(command) !== -1) {
       minder.value.execCommand(command);
+    }
+  }
+
+  function handleCommand(val: string | number | Record<string, any> | undefined) {
+    switch (val) {
+      case 'down':
+        execCommand('AppendChildNode');
+        break;
+      case 'up':
+        execCommand('AppendParentNode');
+        break;
+      case 'same':
+        execCommand('AppendSiblingNode');
+        break;
+      default:
+        break;
     }
   }
 </script>

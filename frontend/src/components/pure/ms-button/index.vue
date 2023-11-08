@@ -1,7 +1,7 @@
 <template>
   <div
     :class="`ms-button ms-button-${props.type} ms-button--${props.status} ${
-      props.disabled || props.loading ? 'ms-button--disabled' : ''
+      props.disabled || props.loading ? `ms-button--${props.status}--disabled` : ''
     }`"
     @click="clickHandler"
   >
@@ -45,8 +45,12 @@
     border-radius: var(--border-radius-mini);
     line-height: 22px;
   }
-  .ms-button--disabled {
+  .ms-button--primary--disabled {
     color: var(--color-text-4) !important;
+  }
+  .ms-button--danger--disabled {
+    color: rgb(var(--danger-2)) !important;
+    cursor: not-allowed;
   }
   .ms-button-text {
     @apply p-0;

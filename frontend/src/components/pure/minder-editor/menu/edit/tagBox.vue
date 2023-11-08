@@ -1,13 +1,14 @@
 <template>
-  <div :disabled="commandDisabled">
+  <div class="flex items-center">
     <a-tag
       v-for="item in props.tags"
       :key="item"
-      size="small"
       :color="getResourceColor(item)"
+      :class="commandDisabled ? 'disabledTag' : ''"
       @click="editResource(item)"
-      >{{ item }}</a-tag
     >
+      {{ item }}
+    </a-tag>
   </div>
 </template>
 
@@ -92,10 +93,10 @@
   .arco-tag:first-child {
     margin-left: 4px;
   }
-  .add-btn {
-    padding: 0 !important;
-    width: 36px;
-    height: 24px;
-    border-style: dashed !important;
+  .disabledTag {
+    @apply !cursor-not-allowed;
+
+    color: var(--color-text-4);
+    background-color: var(--color-secondary-disabled);
   }
 </style>

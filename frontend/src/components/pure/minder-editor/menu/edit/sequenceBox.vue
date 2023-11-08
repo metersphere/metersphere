@@ -1,6 +1,11 @@
 ﻿<template>
-  <div :disabled="commandDisabled">
-    <a-button class="delete-btn !mx-[4px] !my-0 !h-[23px] !w-[23px] !p-[2px]" shape="circle" @click="execCommand()">
+  <div class="flex items-center">
+    <a-button
+      :disabled="commandDisabled"
+      class="delete-btn !mx-[4px] !my-0 !h-[23px] !w-[23px] !p-[2px]"
+      shape="circle"
+      @click="execCommand()"
+    >
       <template #icon>
         <icon-delete />
       </template>
@@ -9,6 +14,7 @@
       <a-button
         v-if="pIndex != 0"
         :key="item"
+        :disabled="commandDisabled"
         class="priority-btn mr-[4px] h-[22px] w-[22px] rounded-[8px] pr-[5px] text-[12px]"
         :class="'priority-btn_' + pIndex"
         size="small"
@@ -98,7 +104,7 @@
     border-bottom: 3px solid #840023;
     background-color: #ff1200;
   }
-  .priority-btn_1:hover {
+  .priority-btn_1:hover:not(:disabled) {
     border-bottom: 3px solid #840023;
     color: white;
     background-color: #ff1200;
@@ -107,7 +113,7 @@
     border-bottom: 3px solid #01467f;
     background-color: #0074ff;
   }
-  .priority-btn_2:hover {
+  .priority-btn_2:hover:not(:disabled) {
     border-bottom: 3px solid #01467f;
     color: white;
     background-color: #0074ff;
@@ -116,7 +122,7 @@
     border-bottom: 3px solid #006300;
     background-color: #00af00;
   }
-  .priority-btn_3:hover {
+  .priority-btn_3:hover:not(:disabled) {
     border-bottom: 3px solid #006300;
     color: white;
     background-color: #00af00;
@@ -125,7 +131,7 @@
     border-bottom: 3px solid #b25000;
     background-color: #ff962e;
   }
-  .priority-btn_4:hover {
+  .priority-btn_4:hover:not(:disabled) {
     border-bottom: 3px solid #b25000;
     color: white;
     background-color: #ff962e;
@@ -134,7 +140,7 @@
     border-bottom: 3px solid #4720c4;
     background-color: #a464ff;
   }
-  .priority-btn_5:hover {
+  .priority-btn_5:hover:not(:disabled) {
     border-bottom: 3px solid #4720c4;
     color: white;
     background-color: #a464ff;
@@ -143,7 +149,7 @@
     border-bottom: 3px solid #515151;
     background-color: #a3a3a3;
   }
-  .priority-btn_6:hover {
+  .priority-btn_6:hover:not(:disabled) {
     border-bottom: 3px solid #515151;
     color: white;
     background-color: #a3a3a3;
