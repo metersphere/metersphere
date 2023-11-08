@@ -260,6 +260,9 @@ export default {
 
       const allDataIndex = this.allData.findIndex((d) => d.name === index.name);
       this.allData.splice(allDataIndex, 1);
+
+      const itemsIndex = this.items.findIndex((d) => d.name === index.name);
+      this.items.splice(itemsIndex, 1);
       this.sortParameters();
       this.currentPage = Math.ceil(this.allData.length / this.pageSize);
       this.queryPage();
