@@ -440,7 +440,7 @@ public class FileManagementControllerTests extends BaseTest {
             Assertions.assertTrue(uploadedFileTypes.contains(fileType));
         }
 
-        //上传隐藏文件 .yincangwenjian
+        //上传隐藏文件: .yincangwenjian
         filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/.yincangwenjian")).getPath();
         file = new MockMultipartFile("file", ".yincangwenjian", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
         paramMap = new LinkedMultiValueMap<>();
@@ -450,7 +450,7 @@ public class FileManagementControllerTests extends BaseTest {
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
         FILE_ID_PATH.put(returnId, filePath);
-        uploadedFileTypes.add("");
+        uploadedFileTypes.add(StringUtils.EMPTY);
 
         //检查文件类型是不是为空
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(returnId);
@@ -490,7 +490,6 @@ public class FileManagementControllerTests extends BaseTest {
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
         FILE_ID_PATH.put(returnId, filePath);
-        uploadedFileTypes.add(StringUtils.EMPTY);
 
         //检查文件类型获取接口有没有获取到数据
         fileTypes = this.getFileType();
