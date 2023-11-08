@@ -1,3 +1,6 @@
+/**
+ * 滚动到指定元素
+ */
 export interface ScrollToViewOptions {
   behavior?: 'auto' | 'smooth';
   block?: 'start' | 'center' | 'end' | 'nearest';
@@ -19,11 +22,16 @@ export function scrollIntoView(targetRef: HTMLElement | Element | null, options:
   targetRef?.scrollIntoView(scrollOptions);
 }
 
+/**
+ * 无操作函数
+ */
 export const NOOP = () => {
   return undefined;
 };
 
-// 判断是否为服务端渲染
+/**
+ * 判断是否为服务端渲染
+ */
 export const isServerRendering = (() => {
   try {
     return !(typeof window !== 'undefined' && document !== undefined);
@@ -32,7 +40,9 @@ export const isServerRendering = (() => {
   }
 })();
 
-// 监听事件
+/**
+ * 监听事件
+ */
 export const on = (() => {
   if (isServerRendering) {
     return NOOP;
@@ -47,7 +57,9 @@ export const on = (() => {
   };
 })();
 
-// 移除监听事件
+/**
+ * 移除监听事件
+ */
 export const off = (() => {
   if (isServerRendering) {
     return NOOP;
@@ -61,3 +73,35 @@ export const off = (() => {
     element.removeEventListener(type, handler as EventListenerOrEventListenerObject, options);
   };
 })();
+
+/**
+ * 获取元素宽度
+ * @param el 当前元素
+ * @returns number
+ */
+export function getNodeWidth(el: HTMLElement) {
+  return el && +el.getBoundingClientRect().width.toFixed(2);
+}
+
+/**
+ * 获取元素样式
+ * @param element 当前元素
+ * @param prop 样式属性
+ * @returns string
+ */
+export function getStyle(element: HTMLElement | null, prop: string | null) {
+  if (!element || !prop) return null;
+  let styleName = prop as keyof CSSStyleDeclaration;
+  if (styleName === 'float') {
+    styleName = 'cssFloat';
+  }
+  try {
+    if (document.defaultView) {
+      const computed = document.defaultView.getComputedStyle(element, '');
+      return element.style[styleName] || computed ? computed[styleName] : '';
+    }
+  } catch (e) {
+    return element.style[styleName];
+  }
+  return null;
+}
