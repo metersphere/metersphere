@@ -32,14 +32,15 @@
           show-word-limit
           :placeholder="expression"
           @click.native="savePreParams(common.variable)"
-          style="width: 70%" />
+          :style="extractType === 'Regex' ? 'width: 70%' : 'width: 100%'" />
 
         <el-autocomplete
           style="width: 25%; margin-left: 10px"
           size="small"
           placeholder="Template $i$ where i is capturing group number,stats at 1"
           v-model="common.template"
-          :fetch-suggestions="querySearch" />
+          :fetch-suggestions="querySearch"
+          v-if="extractType === 'Regex'" />
       </el-col>
       <el-col class="multiple_checkbox" v-if="edit">
         <el-checkbox v-model="common.multipleMatching" :disabled="isReadOnly">
