@@ -2,7 +2,6 @@ package io.metersphere.bug.controller;
 
 import io.metersphere.bug.domain.BugComment;
 import io.metersphere.bug.dto.BugCommentDTO;
-import io.metersphere.bug.dto.BugCommentUserInfo;
 import io.metersphere.bug.dto.request.BugCommentEditRequest;
 import io.metersphere.bug.mapper.BugCommentMapper;
 import io.metersphere.project.domain.Notification;
@@ -38,7 +37,6 @@ public class BugCommentTests extends BaseTest {
     private NotificationMapper notificationMapper;
 
     public static final String BUG_COMMENT_GET = "/bug/comment/get";
-    public static final String BUG_COMMENT_USER_GET = "/bug/comment/user-extra";
     public static final String BUG_COMMENT_ADD = "/bug/comment/add";
     public static final String BUG_COMMENT_UPDATE = "/bug/comment/update";
     public static final String BUG_COMMENT_DELETE = "/bug/comment/delete";
@@ -71,29 +69,6 @@ public class BugCommentTests extends BaseTest {
 
     @Test
     @Order(2)
-    public void testGetBugUserExtra() throws Exception {
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(BUG_COMMENT_USER_GET + "/default-bug-id-for-comment");
-        String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(sortData, ResultHolder.class);
-        List<BugCommentUserInfo> userInfos = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BugCommentUserInfo.class);
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(userInfos));
-        long count = userInfos.stream().filter(userInfo -> StringUtils.contains(userInfo.getId(), "oasis-user-id")).count();
-        // 该缺陷评论存在两个通知人
-        Assertions.assertEquals(3, count);
-    }
-
-    @Test
-    @Order(3)
-    public void testGetBugEmptyUserExtra() throws Exception {
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(BUG_COMMENT_USER_GET + "/default-bug-id-for-comment1");
-        String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(sortData, ResultHolder.class);
-        List<BugCommentUserInfo> userInfos = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BugCommentUserInfo.class);
-        Assertions.assertTrue(CollectionUtils.isEmpty(userInfos));
-    }
-
-    @Test
-    @Order(4)
     public void testAddBugCommentOnlySuccess() throws Exception {
         // 只评论, 不@用户, 也不是回复
         BugCommentEditRequest request = new BugCommentEditRequest();
@@ -112,7 +87,7 @@ public class BugCommentTests extends BaseTest {
     }
 
     @Test
-    @Order(5)
+    @Order(3)
     public void testAddBugCommentOnlyError() throws Exception {
         // 只评论, 不@用户, 也不是回复 (缺陷不存在)
         BugCommentEditRequest request = new BugCommentEditRequest();
@@ -143,7 +118,7 @@ public class BugCommentTests extends BaseTest {
     }
 
     @Test
-    @Order(6)
+    @Order(4)
     public void testAddBugCommentWithAtEventSuccess() throws Exception {
         // 评论并@用户, 不是回复
         BugCommentEditRequest request = new BugCommentEditRequest();
@@ -166,7 +141,7 @@ public class BugCommentTests extends BaseTest {
     }
 
     @Test
-    @Order(7)
+    @Order(5)
     public void testAddBugCommentWithReplyEventSuccess() throws Exception {
         // 评论并回复用户, 但不@
         BugCommentEditRequest request = new BugCommentEditRequest();
@@ -190,7 +165,7 @@ public class BugCommentTests extends BaseTest {
     }
 
     @Test
-    @Order(8)
+    @Order(6)
     public void testAddBugCommentWithReplyAndAtEventSuccess() throws Exception {
         // 评论并回复用户, 但不@当前回复人
         BugCommentEditRequest request = new BugCommentEditRequest();
@@ -224,7 +199,7 @@ public class BugCommentTests extends BaseTest {
     }
 
     @Test
-    @Order(9)
+    @Order(7)
     public void testUpdateBugCommentOnlySuccess() throws Exception {
         // 只编辑第一级评论
         BugCommentEditRequest request = new BugCommentEditRequest();
@@ -243,7 +218,7 @@ public class BugCommentTests extends BaseTest {
     }
 
     @Test
-    @Order(10)
+    @Order(8)
     public void testUpdateBugCommentWithReplyEventSuccess() throws Exception {
         // 只编辑回复的评论并且带有@用户
         BugCommentEditRequest request = new BugCommentEditRequest();
@@ -264,7 +239,7 @@ public class BugCommentTests extends BaseTest {
     }
 
     @Test
-    @Order(11)
+    @Order(9)
     public void testUpdateBugCommentWithAtEventSuccess() throws Exception {
         // 编辑第一级并带有@的评论
         BugCommentEditRequest request = new BugCommentEditRequest();
@@ -284,7 +259,7 @@ public class BugCommentTests extends BaseTest {
     }
 
     @Test
-    @Order(12)
+    @Order(10)
     public void testDeleteBugCommentSuccess() throws Exception {
         // 删除第一级评论
         this.requestGet(BUG_COMMENT_DELETE + "/default-bug-comment-id-1");
@@ -297,7 +272,7 @@ public class BugCommentTests extends BaseTest {
     }
 
     @Test
-    @Order(13)
+    @Order(11)
     public void testDeleteBugCommentError() throws Exception {
         // 评论不存在
         this.requestGet(BUG_COMMENT_DELETE + "/default-bug-comment-id-x");

@@ -1,9 +1,10 @@
 package io.metersphere.system.mapper;
 
+import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.CommentUserInfo;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExcludeOptionDTO;
-import io.metersphere.system.domain.User;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -34,4 +35,11 @@ public interface BaseUserMapper {
     List<UserExcludeOptionDTO> getExcludeSelectOptionWithLimit(@Param("keyword") String keyword);
 
     List<OptionDTO> getSelectOptionByIdsWithDeleted(List<String> ids);
+
+    /**
+     * 获取评论用户信息
+     * @param ids 用户ID集合
+     * @return 评论用户信息集合
+     */
+    List<CommentUserInfo> getCommentUserInfoByIds(List<String> ids);
 }

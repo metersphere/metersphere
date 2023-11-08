@@ -4,6 +4,7 @@ import io.metersphere.sdk.constants.CustomFieldType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.utils.SessionUtils;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * 字段处理工具类
  * @author song-cc-rock
  */
+@UtilityClass
 public class CustomFieldUtils {
 
     public static final String COMBINE_CUSTOM = "customs";

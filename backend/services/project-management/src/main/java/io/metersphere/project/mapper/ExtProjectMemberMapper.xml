@@ -31,6 +31,20 @@
         limit 100
     </select>
 
+    <select id="getCommentAtUserInfoByParam" resultType="io.metersphere.system.dto.CommentUserInfo">
+        <!-- avatar: 保留; 用户头像参数暂时为空, 后续调整为user_extend参数 -->
+        <!-- 评论@通知人过滤条件暂为根据用户名字, 且限制100条 -->
+        select distinct u.*, '' as avatar
+        from user_role_relation urr
+        join `user` u on urr.user_id = u.id
+        left join user_extend ue on u.id = ue.id
+        where urr.source_id = #{projectId}
+        <if test="keyword != null and keyword != ''">
+            and u.name like concat('%', #{keyword}, '%')
+        </if>
+        limit 100
+    </select>
+
     <sql id="filter">
         <if test="request.filter != null">
             <foreach collection="request.filter.entrySet()" index="key" item="values">
