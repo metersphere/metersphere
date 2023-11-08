@@ -8,10 +8,10 @@ import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.utils.Pager;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -42,6 +42,7 @@ public class ProjectMemberControllerTests extends BaseTest {
     public static final String REMOVE_MEMBER = "/project/member/remove";
     public static final String ADD_ROLE = "/project/member/add-role";
     public static final String BATCH_REMOVE_MEMBER = "/project/member/batch/remove";
+    public static final String COMMENT_USER_OPTION = "/project/member/comment/user-option";
 
     @Test
     @Order(1)
@@ -250,6 +251,12 @@ public class ProjectMemberControllerTests extends BaseTest {
         request.setProjectId("default-project-member-x");
         request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
         this.requestPost(BATCH_REMOVE_MEMBER, request, status().is5xxServerError());
+    }
+
+    @Test
+    @Order(17)
+    public void testGetProjectCommentUserOption() throws Exception {
+        this.requestGet(COMMENT_USER_OPTION + "/default-project-member-test", status().isOk());
     }
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {

@@ -9,6 +9,7 @@ import io.metersphere.project.request.ProjectMemberEditRequest;
 import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.project.service.ProjectMemberService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.CommentUserInfo;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.utils.PageUtils;
@@ -98,5 +99,11 @@ public class ProjectMemberController {
     @RequiresPermissions(PermissionConstants.PROJECT_USER_DELETE)
     public void batchRemove(@RequestBody ProjectMemberBatchDeleteRequest request) {
         projectMemberService.batchRemove(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/comment/user-option/{projectId}")
+    @Operation(summary = "项目管理-成员-获取评论用户@下拉选项")
+    public List<CommentUserInfo> selectCommentUser(@PathVariable String projectId, @RequestParam(value = "keyword", required = false) String keyword) {
+        return projectMemberService.selectCommentUser(projectId, keyword);
     }
 }

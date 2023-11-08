@@ -5,18 +5,15 @@ import io.metersphere.bug.domain.BugComment;
 import io.metersphere.bug.domain.BugCommentExample;
 import io.metersphere.bug.dto.BugCommentDTO;
 import io.metersphere.bug.dto.BugCommentNoticeDTO;
-import io.metersphere.bug.dto.BugCommentUserInfo;
 import io.metersphere.bug.dto.request.BugCommentEditRequest;
 import io.metersphere.bug.mapper.BugCommentMapper;
 import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserExample;
+import io.metersphere.system.dto.CommentUserInfo;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.BaseUserMapper;
-import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -34,8 +31,6 @@ public class BugCommentService {
 
     @Resource
     private BugMapper bugMapper;
-    @Resource
-    private UserMapper userMapper;
     @Resource
     private BaseUserMapper baseUserMapper;
     @Resource
@@ -57,12 +52,14 @@ public class BugCommentService {
         }
 
         // BugComment -> BugCommentDTO
-        Map<String, String> userMap = getUserMap(bugComments);
+        Map<String, CommentUserInfo> userMap = getUserMap(bugComments);
         List<BugCommentDTO> bugCommentDTOList = bugComments.stream().map(bugComment -> {
             BugCommentDTO commentDTO = new BugCommentDTO();
             BeanUtils.copyBean(commentDTO, bugComment);
-            commentDTO.setCreateUserName(userMap.get(bugComment.getCreateUser()));
-            commentDTO.setReplyUserName(userMap.get(bugComment.getReplyUser()));
+            commentDTO.setReplyUserName(StringUtils.isNotEmpty(bugComment.getReplyUser()) ?
+                    userMap.get(bugComment.getReplyUser()).getName() : null);
+            commentDTO.setCommentUserInfo(userMap.get(bugComment.getCreateUser()));
+            commentDTO.setNotifierOption(getNotifyUserOption(bugComment.getNotifier(), userMap));
             return commentDTO;
         }).toList();
 
@@ -76,36 +73,6 @@ public class BugCommentService {
             parentComment.setChildComments(childComments);
         });
         return parentComments;
-    }
-
-    /**
-     * 获取用户全部信息
-     * @param bugId 缺陷ID
-     * @return 用户集合
-     */
-    public List<BugCommentUserInfo> getUserExtra(String bugId) {
-        BugCommentExample example = new BugCommentExample();
-        example.createCriteria().andBugIdEqualTo(bugId);
-        List<BugComment> bugComments = bugCommentMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(bugComments)) {
-            return new ArrayList<>();
-        }
-
-        List<String> userIds = new ArrayList<>(bugComments.stream().map(BugComment::getCreateUser).toList());
-        bugComments.forEach(bugComment -> {
-            if (StringUtils.isNotEmpty(bugComment.getNotifier())) {
-                // 通知人@内容以';'分隔
-                userIds.addAll(Arrays.asList(bugComment.getNotifier().split(";")));
-            }
-        });
-        UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(userIds.stream().distinct().toList());
-        List<User> users = userMapper.selectByExample(userExample);
-        return users.stream().map(user -> {
-            BugCommentUserInfo userInfo = new BugCommentUserInfo();
-            BeanUtils.copyBean(userInfo, user);
-            return userInfo;
-        }).toList();
     }
 
     /**
@@ -188,13 +155,20 @@ public class BugCommentService {
          */
         BugCommentNoticeDTO bugCommentNotice = bugCommentNoticeService.getBugCommentNotice(request);
         bugCommentNoticeService.sendNotice(request, bugCommentNotice, currentUser);
-        if (StringUtils.isEmpty(request.getParentId()) && StringUtils.equals(request.getEvent(), NoticeConstants.Event.AT)) {
+        if (StringUtils.equals(request.getEvent(), NoticeConstants.Event.AT)) {
             request.setEvent(NoticeConstants.Event.COMMENT);
             bugCommentNoticeService.sendNotice(request, bugCommentNotice, currentUser);
         }
         return bugComment;
     }
 
+    /**
+     * 更新评论并发送通知(只需处理@提醒人)
+     * @param request 请求参数
+     * @param bugComment 缺陷评论
+     * @param currentUser 当前用户ID
+     * @return 缺陷评论
+     */
     public BugComment updateBugCommentAndNotice(BugCommentEditRequest request, BugComment bugComment, String currentUser) {
         bugComment.setNotifier(request.getNotifier());
         bugCommentMapper.updateByPrimaryKeySelective(bugComment);
@@ -277,15 +251,40 @@ public class BugCommentService {
     }
 
     /**
+     * 获取评论@通知人选项
+     * @param notifier 通知人ID串
+     * @param userMap 用户信息Map
+     * @return 通知人选项
+     */
+    private List<OptionDTO> getNotifyUserOption(String notifier, Map<String, CommentUserInfo> userMap) {
+        if (StringUtils.isBlank(notifier)) {
+            return new ArrayList<>();
+        }
+        List<String> notifyUserIds = Arrays.asList(notifier.split(";"));
+        return userMap.values().stream().filter(user -> notifyUserIds.contains(user.getId())).map(user -> {
+            OptionDTO optionDTO = new OptionDTO();
+            optionDTO.setId(user.getId());
+            optionDTO.setName(user.getName());
+            return optionDTO;
+        }).toList();
+    }
+
+    /**
      * 获取用户Map
      * @param bugComments 缺陷评论集合
      * @return 用户信息Map
      */
-    private Map<String, String> getUserMap(List<BugComment> bugComments) {
+    private Map<String, CommentUserInfo> getUserMap(List<BugComment> bugComments) {
         List<String> userIds = new ArrayList<>();
         userIds.addAll(bugComments.stream().map(BugComment::getCreateUser).toList());
         userIds.addAll(bugComments.stream().map(BugComment::getReplyUser).toList());
-        List<OptionDTO> options = baseUserMapper.selectUserOptionByIds(userIds.stream().distinct().toList());
-        return options.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+        bugComments.forEach(bugComment -> {
+            if (StringUtils.isNotBlank(bugComment.getNotifier())) {
+                userIds.addAll(Arrays.asList(bugComment.getNotifier().split(";")));
+            }
+        });
+        List<String> distinctIds = userIds.stream().filter(StringUtils::isNotBlank).distinct().toList();
+        List<CommentUserInfo> commentUserInfos = baseUserMapper.getCommentUserInfoByIds(distinctIds);
+        return commentUserInfos.stream().collect(Collectors.toMap(CommentUserInfo::getId, v -> v));
     }
 }

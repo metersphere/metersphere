@@ -2,7 +2,6 @@ package io.metersphere.bug.controller;
 
 import io.metersphere.bug.domain.BugComment;
 import io.metersphere.bug.dto.BugCommentDTO;
-import io.metersphere.bug.dto.BugCommentUserInfo;
 import io.metersphere.bug.dto.request.BugCommentEditRequest;
 import io.metersphere.bug.service.BugCommentService;
 import io.metersphere.system.utils.SessionUtils;
@@ -23,11 +22,6 @@ public class BugCommentController {
     @GetMapping("/get/{bugId}")
     public List<BugCommentDTO> get(@PathVariable String bugId) {
         return bugCommentService.getComments(bugId);
-    }
-
-    @GetMapping("/user-extra/{bugId}")
-    public List<BugCommentUserInfo> getUserExtra(@PathVariable String bugId) {
-        return bugCommentService.getUserExtra(bugId);
     }
 
     @PostMapping("/add")

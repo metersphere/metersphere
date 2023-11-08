@@ -11,16 +11,17 @@ import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.CommentUserInfo;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
@@ -326,6 +327,16 @@ public class ProjectMemberService {
             setLog(request.getProjectId(), userId, currentUserId, OperationLogType.DELETE.name(), "/project/member/remove", HttpMethodConstants.GET.name(), null, null, logs);
         });
         operationLogService.batchAdd(logs);
+    }
+
+    /**
+     * 获取项目评论下拉成员选项
+     * @param keyword 搜索关键字
+     * @param projectId 项目ID
+     * @return 用户集合信息
+     */
+    public List<CommentUserInfo> selectCommentUser(String projectId, String keyword) {
+        return extProjectMemberMapper.getCommentAtUserInfoByParam(projectId, keyword);
     }
 
     /**
