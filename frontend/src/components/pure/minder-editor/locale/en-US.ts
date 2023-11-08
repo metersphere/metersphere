@@ -22,6 +22,7 @@ export default {
         expand_six: 'Expand six level',
       },
       insert: {
+        insert: 'Insert',
         down: 'Subordinate',
         up: 'Superior',
         same: 'Same',

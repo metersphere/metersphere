@@ -1,13 +1,31 @@
 <template>
-  <div class="move-group">
-    <div class="move-up menu-btn" :disabled="arrangeUpDisabled" @click="execCommand('ArrangeUp')">
-      <i class="tab-icons" />
-      <span>{{ t('minder.menu.move.up') }}</span>
-    </div>
-    <div class="move-down menu-btn" :disabled="arrangeDownDisabled" @click="execCommand('ArrangeDown')">
-      <i class="tab-icons" />
-      <span>{{ t('minder.menu.move.down') }}</span>
-    </div>
+  <div class="menu-item">
+    <a-button
+      class="arco-btn-outline--secondary mb-[4px]"
+      :disabled="arrangeUpDisabled"
+      type="outline"
+      size="small"
+      @click="execCommand('ArrangeUp')"
+    >
+      <template #icon>
+        <icon-plus />
+      </template>
+    </a-button>
+    {{ t('minder.menu.move.up') }}
+  </div>
+  <div class="menu-item">
+    <a-button
+      class="arco-btn-outline--secondary mb-[4px]"
+      :disabled="arrangeDownDisabled"
+      type="outline"
+      size="small"
+      @click="execCommand('ArrangeDown')"
+    >
+      <template #icon>
+        <icon-plus />
+      </template>
+    </a-button>
+    {{ t('minder.menu.move.down') }}
   </div>
 </template>
 

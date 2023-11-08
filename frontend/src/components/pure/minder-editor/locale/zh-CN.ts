@@ -14,14 +14,9 @@ export default {
       expand: {
         expand: '展开',
         folding: '收起',
-        expand_one: '展开到一级节点',
-        expand_tow: '展开到二级节点',
-        expand_three: '展开到三级节点',
-        expand_four: '展开到四级节点',
-        expand_five: '展开到五级节点',
-        expand_six: '展开到六级节点',
       },
       insert: {
+        insert: '插入',
         down: '插入下级主题',
         up: '插入上级主题',
         same: '插入同级主题',

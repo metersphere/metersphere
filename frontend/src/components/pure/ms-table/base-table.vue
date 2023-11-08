@@ -440,7 +440,7 @@
       return typeof props.rowClass === 'function' ? props.rowClass(record, rowIndex) : props.rowClass;
     }
 
-    if (!record.enable && !props.noDisable) {
+    if (record.enable === false && !props.noDisable) {
       return 'ms-table-row-disabled';
     }
   }

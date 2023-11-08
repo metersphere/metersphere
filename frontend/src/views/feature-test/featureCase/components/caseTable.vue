@@ -33,11 +33,13 @@
     </div>
   </div>
   <FilterPanel v-show="isExpandFilter"></FilterPanel>
+  <MinderEditor :tags="['模块', '用例', '前置条件', '备注', '步骤', '预期结果']" tag-enable sequence-enable />
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
 
+  import MinderEditor from '@/components/pure/minder-editor/minderEditor.vue';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import FilterPanel from '@/components/business/ms-filter-panel/searchForm.vue';
 

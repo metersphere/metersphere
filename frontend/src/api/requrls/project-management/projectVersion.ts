@@ -1,0 +1,9 @@
+export const UpdateVersion = '/project/version/update'; // 更新版本
+export const VersionPage = '/project/version/list'; // 版本列表
+export const AddVersion = '/project/version/add'; // 新增版本
+export const ToggleVersionStatus = '/project/version/switch/status'; // 启用/禁用版本
+export const UseLatestVersion = '/project/version/switch/latest'; // 使用最新版本
+export const EnableVersion = '/project/version/switch/enable'; // 启用版本
+export const GetVersionOptions = '/project/version/option'; // 获取版本下拉列表
+export const GetVersionStatus = '/project/version/enable'; // 获取版本状态
+export const DeleteVersion = '/project/version/delete'; // 获取版本状态
