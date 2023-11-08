@@ -313,7 +313,11 @@ public class CommonProjectService {
                 deleteExample.createCriteria().andSourceIdEqualTo(project.getId()).andUserIdIn(deleteIds).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
                 userRoleRelationMapper.selectByExample(deleteExample).forEach(userRoleRelation -> {
                     User user = userMapper.selectByPrimaryKey(userRoleRelation.getUserId());
-                    LogDTO logDTO = new LogDTO(project.getId(), project.getOrganizationId(), userRoleRelation.getId(), updateUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_admin") + ": " + user.getName());
+                    String logProjectId = OperationLogConstants.SYSTEM;
+                    if (StringUtils.equals(module, OperationLogModule.SETTING_ORGANIZATION_PROJECT)) {
+                        logProjectId = OperationLogConstants.ORGANIZATION;
+                    }
+                    LogDTO logDTO = new LogDTO(logProjectId, project.getOrganizationId(), userRoleRelation.getId(), updateUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_admin") + ": " + user.getName());
                     setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
                 });
                 userRoleRelationMapper.deleteByExample(deleteExample);
@@ -332,7 +336,7 @@ public class CommonProjectService {
                 deleteExample.createCriteria().andSourceIdEqualTo(project.getId()).andUserIdIn(orgUserIds).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
                 userRoleRelationMapper.selectByExample(deleteExample).forEach(userRoleRelation -> {
                     User user = userMapper.selectByPrimaryKey(userRoleRelation.getUserId());
-                    LogDTO logDTO = new LogDTO(project.getId(), project.getOrganizationId(), userRoleRelation.getId(), updateUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_admin") + ": " + user.getName());
+                    LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, project.getOrganizationId(), userRoleRelation.getId(), updateUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_admin") + ": " + user.getName());
                     setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
                 });
                 userRoleRelationMapper.deleteByExample(deleteExample);
@@ -406,7 +410,11 @@ public class CommonProjectService {
                     adminRole.setCreateUser(createUser);
                     adminRole.setOrganizationId(project.getOrganizationId());
                     userRoleRelations.add(adminRole);
-                    LogDTO logDTO = new LogDTO(projectId, project.getOrganizationId(), adminRole.getId(), createUser, type, module, content + Translator.get("project_admin") + ": " + nameMap.get(userId));
+                    String logProjectId = OperationLogConstants.SYSTEM;
+                    if (StringUtils.equals(module, OperationLogModule.SETTING_ORGANIZATION_PROJECT)) {
+                        logProjectId = OperationLogConstants.ORGANIZATION;
+                    }
+                    LogDTO logDTO = new LogDTO(logProjectId, project.getOrganizationId(), adminRole.getId(), createUser, type, module, content + Translator.get("project_admin") + ": " + nameMap.get(userId));
                     setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
                 }
             });
@@ -462,7 +470,11 @@ public class CommonProjectService {
                     memberRole.setCreateUser(createUser);
                     memberRole.setOrganizationId(project.getOrganizationId());
                     userRoleRelations.add(memberRole);
-                    LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, OperationLogConstants.SYSTEM, memberRole.getId(), createUser, type, module, content + Translator.get("project_member") + ": " + userMap.get(userId));
+                    String logProjectId = OperationLogConstants.SYSTEM;
+                    if (StringUtils.equals(module, OperationLogModule.SETTING_ORGANIZATION_PROJECT)) {
+                        logProjectId = OperationLogConstants.ORGANIZATION;
+                    }
+                    LogDTO logDTO = new LogDTO(logProjectId, OperationLogConstants.SYSTEM, memberRole.getId(), createUser, type, module, content + Translator.get("project_member") + ": " + userMap.get(userId));
                     setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
                 }
             });
@@ -491,7 +503,11 @@ public class CommonProjectService {
         }
         List<LogDTO> logDTOList = new ArrayList<>();
         userRoleRelationMapper.selectByExample(userRoleRelationExample).forEach(userRoleRelation -> {
-            LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, OperationLogConstants.SYSTEM, userRoleRelation.getId(), createUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_member") + ": " + user.getName());
+            String logProjectId = OperationLogConstants.SYSTEM;
+            if (StringUtils.equals(module, OperationLogModule.SETTING_ORGANIZATION_PROJECT)) {
+                logProjectId = OperationLogConstants.ORGANIZATION;
+            }
+            LogDTO logDTO = new LogDTO(logProjectId, OperationLogConstants.SYSTEM, userRoleRelation.getId(), createUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_member") + ": " + user.getName());
             setLog(logDTO, path, HttpMethodConstants.GET.name(), logDTOList);
         });
         operationLogService.batchAdd(logDTOList);

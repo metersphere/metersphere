@@ -3,13 +3,14 @@ package io.metersphere.system.service;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.OperationLogConstants;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.AddProjectRequest;
-import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.dto.UpdateProjectNameRequest;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.log.dto.LogDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,7 @@ public class OrganizationProjectLogService {
      */
     public LogDTO addLog(AddProjectRequest project) {
         LogDTO dto = new LogDTO(
-                project.getId(),
+                OperationLogConstants.ORGANIZATION,
                 project.getOrganizationId(),
                 null,
                 null,
@@ -48,13 +49,13 @@ public class OrganizationProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(request.getId());
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    project.getId(),
+                    OperationLogConstants.ORGANIZATION,
                     project.getOrganizationId(),
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_ORGANIZATION_PROJECT,
-                    project.getName());
+                    request.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;
@@ -66,13 +67,13 @@ public class OrganizationProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(request.getId());
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    project.getId(),
+                    OperationLogConstants.ORGANIZATION,
                     project.getOrganizationId(),
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_ORGANIZATION_PROJECT,
-                    project.getName());
+                    request.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;
@@ -84,7 +85,7 @@ public class OrganizationProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(id);
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    project.getId(),
+                    OperationLogConstants.ORGANIZATION,
                     project.getOrganizationId(),
                     project.getId(),
                     project.getCreateUser(),
@@ -109,7 +110,7 @@ public class OrganizationProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(id);
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    project.getId(),
+                    OperationLogConstants.ORGANIZATION,
                     project.getOrganizationId(),
                     id,
                     project.getCreateUser(),
@@ -132,7 +133,7 @@ public class OrganizationProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(id);
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    project.getId(),
+                    OperationLogConstants.ORGANIZATION,
                     project.getOrganizationId(),
                     id,
                     null,

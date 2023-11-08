@@ -2,11 +2,11 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ public class ProjectLogService {
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.PROJECT_MANAGEMENT,
-                    project.getName());
+                    request.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;
