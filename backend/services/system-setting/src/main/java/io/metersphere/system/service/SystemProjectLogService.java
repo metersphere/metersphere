@@ -4,13 +4,13 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.AddProjectRequest;
-import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.dto.UpdateProjectNameRequest;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.log.dto.LogDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +55,7 @@ public class SystemProjectLogService {
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_ORGANIZATION,
-                    project.getName());
+                    request.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;
@@ -73,7 +73,7 @@ public class SystemProjectLogService {
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_ORGANIZATION,
-                    project.getName());
+                    request.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;

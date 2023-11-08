@@ -989,22 +989,22 @@ public class OrganizationProjectControllerTests extends BaseTest {
         project.setId("projectId2");
         project.setName("org-updateName");
         project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
-        this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
+        this.requestPost(updateName, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project.setOrganizationId(null);
-        this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
+        this.requestPost(updateName, project, BAD_REQUEST_MATCHER);
         //项目Id为空
         project.setId(null);
         project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
-        this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
+        this.requestPost(updateName, project, BAD_REQUEST_MATCHER);
         //项目名称为空
         project.setName(null);
-        this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
+        this.requestPost(updateName, project, BAD_REQUEST_MATCHER);
         //项目不存在
         project.setId("1111");
         project.setName("updateName");
         project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
-        this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
+        this.requestPost(updateName, project, ERROR_REQUEST_MATCHER);
     }
 
 }
