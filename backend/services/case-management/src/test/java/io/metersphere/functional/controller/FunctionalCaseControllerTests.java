@@ -45,6 +45,9 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_DELETE_URL = "/functional/case/delete";
     public static final String FUNCTIONAL_CASE_LIST_URL = "/functional/case/page";
     public static final String FUNCTIONAL_CASE_BATCH_DELETE_URL = "/functional/case/batch/delete-to-gc";
+    public static final String FUNCTIONAL_CASE_TABLE_URL = "/functional/case/custom/field/";
+    public static final String FUNCTIONAL_CASE_BATCH_MOVE_URL = "/functional/case/batch/move";
+    public static final String FUNCTIONAL_CASE_BATCH_COPY_URL = "/functional/case/batch/copy";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -280,7 +283,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
 
     @Test
-    @Order(6)
+    @Order(19)
     public void testDeleteFunctionalCase() throws Exception {
         FunctionalCaseDeleteRequest request = new FunctionalCaseDeleteRequest();
         request.setId("TEST_FUNCTIONAL_CASE_ID");
@@ -301,7 +304,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
 
     @Test
-    @Order(7)
+    @Order(20)
     public void testBatchDelete() throws Exception {
         FunctionalCaseBatchRequest request = new FunctionalCaseBatchRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
@@ -313,6 +316,39 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setSelectAll(true);
         request.setExcludeIds(Arrays.asList("TEST_FUNCTIONAL_CASE_ID_2"));
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_DELETE_URL, request);
+    }
+
+    @Test
+    @Order(7)
+    public void testTableCustomField() throws Exception {
+        this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_TABLE_URL + DEFAULT_PROJECT_ID);
+    }
+
+    @Test
+    @Order(4)
+    public void testBatchMove() throws Exception {
+        FunctionalCaseBatchMoveRequest request = new FunctionalCaseBatchMoveRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setModuleId("TEST_MOVE_MODULE_ID");
+        request.setSelectAll(false);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_MOVE_URL, request);
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_MOVE_URL, request);
+    }
+
+
+    @Test
+    @Order(2)
+    public void testBatchCopy() throws Exception {
+        FunctionalCaseBatchMoveRequest request = new FunctionalCaseBatchMoveRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setModuleId("TEST_MOVE_MODULE_ID");
+        request.setSelectIds(Arrays.asList("TEST"));
+        request.setSelectAll(false);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_COPY_URL, request);
+        request.setSelectIds(new ArrayList<>());
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_COPY_URL, request);
     }
 
 }

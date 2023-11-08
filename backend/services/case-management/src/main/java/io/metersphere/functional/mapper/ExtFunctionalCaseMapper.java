@@ -3,6 +3,7 @@ package io.metersphere.functional.mapper;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
+import io.metersphere.functional.request.FunctionalCaseBatchMoveRequest;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import org.apache.ibatis.annotations.Param;
@@ -38,4 +39,6 @@ public interface ExtFunctionalCaseMapper {
     List<FunctionalCase> getLogInfo(@Param("ids") List<String> ids);
 
     List<String> getRefIds(@Param("ids") List<String> ids);
+
+    void batchMoveModule(@Param("request") FunctionalCaseBatchMoveRequest request, @Param("ids") List<String> ids, @Param("userId") String userId);
 }

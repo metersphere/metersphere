@@ -27,7 +27,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -196,5 +199,27 @@ public class FunctionalCaseAttachmentService {
         example.createCriteria().andCaseIdIn(ids);
         functionalCaseAttachmentMapper.deleteByExample(example);
         deleteMinioFile(localAttachment, projectId);
+    }
+
+
+    /**
+     * 通过caseId获取附件信息
+     *
+     * @param ids
+     * @return
+     */
+    public Map<String, List<FunctionalCaseAttachment>> getAttachmentByCaseIds(List<String> ids) {
+        FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
+        example.createCriteria().andCaseIdIn(ids);
+        List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
+        Map<String, List<FunctionalCaseAttachment>> attachmentMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(caseAttachments)) {
+            attachmentMap = caseAttachments.stream().collect(Collectors.groupingBy(FunctionalCaseAttachment::getCaseId));
+        }
+        return attachmentMap;
+    }
+
+    public void batchSaveAttachment(List<FunctionalCaseAttachment> attachments) {
+        functionalCaseAttachmentMapper.batchInsert(attachments);
     }
 }

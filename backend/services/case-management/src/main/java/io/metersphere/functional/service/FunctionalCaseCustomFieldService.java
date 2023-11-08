@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -106,5 +107,18 @@ public class FunctionalCaseCustomFieldService {
 
     public List<FunctionalCaseCustomField> getCustomFieldByCaseIds(List<String> ids) {
         return extFunctionalCaseCustomFieldMapper.getCustomFieldByCaseIds(ids);
+    }
+
+    public Map<String, List<FunctionalCaseCustomField>> getCustomFieldMapByCaseIds(List<String> ids) {
+        List<FunctionalCaseCustomField> customFieldList = getCustomFieldByCaseIds(ids);
+        Map<String, List<FunctionalCaseCustomField>> caseCustomFieldMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(customFieldList)) {
+            caseCustomFieldMap = customFieldList.stream().collect(Collectors.groupingBy(FunctionalCaseCustomField::getCaseId));
+        }
+        return caseCustomFieldMap;
+    }
+
+    public void batchSaveCustomField(List<FunctionalCaseCustomField> customFields) {
+        functionalCaseCustomFieldMapper.batchInsert(customFields);
     }
 }

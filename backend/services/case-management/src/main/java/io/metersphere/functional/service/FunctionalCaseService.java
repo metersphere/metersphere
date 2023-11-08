@@ -26,6 +26,10 @@ import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,6 +70,9 @@ public class FunctionalCaseService {
 
     @Resource
     private DeleteFunctionalCaseService deleteFunctionalCaseService;
+
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
         String caseId = IDGenerator.nextStr();
@@ -406,5 +413,122 @@ public class FunctionalCaseService {
         } else {
             return request.getSelectIds();
         }
+    }
+
+
+    /**
+     * 批量移动用例
+     *
+     * @param request
+     * @param userId
+     */
+    public void batchMoveFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId) {
+        List<String> ids = doSelectIds(request, request.getProjectId());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<String> refId = extFunctionalCaseMapper.getRefIds(ids);
+            extFunctionalCaseMapper.batchMoveModule(request, refId, userId);
+        }
+    }
+
+    /**
+     * 批量复制用例
+     *
+     * @param request
+     * @param userId
+     */
+    public void batchCopyFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId) {
+        List<String> ids = doSelectIds(request, request.getProjectId());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            //基本信息
+            Map<String, FunctionalCase> functionalCaseMap = copyBaseInfo(request.getProjectId(), ids);
+            //大字段
+            Map<String, FunctionalCaseBlob> functionalCaseBlobMap = copyBlobInfo(ids);
+            //附件 本地附件
+            Map<String, List<FunctionalCaseAttachment>> attachmentMap = functionalCaseAttachmentService.getAttachmentByCaseIds(ids);
+            //TODO 文件库附件
+            //自定义字段
+            Map<String, List<FunctionalCaseCustomField>> customFieldMap = functionalCaseCustomFieldService.getCustomFieldMapByCaseIds(ids);
+
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            FunctionalCaseMapper mapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+            Long nextOrder = getNextOrder(request.getProjectId());
+
+            try {
+                for (int i = 0; i < ids.size(); i++) {
+                    String id = IDGenerator.nextStr();
+                    FunctionalCase functionalCase = functionalCaseMap.get(ids.get(i));
+                    FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMap.get(ids.get(i));
+                    List<FunctionalCaseAttachment> caseAttachments = attachmentMap.get(ids.get(i));
+                    List<FunctionalCaseCustomField> customFields = customFieldMap.get(ids.get(i));
+
+                    Optional.ofNullable(functionalCase).ifPresent(functional -> {
+                        functional.setId(id);
+                        functional.setRefId(id);
+                        functional.setModuleId(request.getModuleId());
+                        functional.setNum(getNextNum(request.getProjectId()));
+                        functional.setName(getCopyName(functionalCase.getName()));
+                        functional.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
+                        functional.setPos(nextOrder + ORDER_STEP);
+                        functional.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+                        functional.setCreateUser(userId);
+                        functional.setCreateTime(System.currentTimeMillis());
+                        functional.setUpdateTime(System.currentTimeMillis());
+                        mapper.insert(functional);
+
+                        functionalCaseBlob.setId(id);
+                        functionalCaseBlobMapper.insert(functionalCaseBlob);
+                    });
+
+                    if (CollectionUtils.isNotEmpty(caseAttachments)) {
+                        caseAttachments.stream().forEach(attachment -> {
+                            attachment.setId(IDGenerator.nextStr());
+                            attachment.setCaseId(id);
+                            attachment.setCreateUser(userId);
+                            attachment.setCreateTime(System.currentTimeMillis());
+                        });
+                        functionalCaseAttachmentService.batchSaveAttachment(caseAttachments);
+                    }
+
+                    if (CollectionUtils.isNotEmpty(customFields)) {
+                        customFields.stream().forEach(customField -> {
+                            customField.setCaseId(id);
+                        });
+                        functionalCaseCustomFieldService.batchSaveCustomField(customFields);
+                    }
+
+                    if (i % 50 == 0) {
+                        sqlSession.flushStatements();
+                    }
+                }
+                sqlSession.flushStatements();
+            } finally {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
+        }
+    }
+
+    private String getCopyName(String name) {
+        String copyName = "copy_" + name + "_" + UUID.randomUUID().toString().substring(0, 4);
+        if (copyName.length() > 255) {
+            copyName = copyName.substring(0, 250) + copyName.substring(copyName.length() - 5);
+        }
+        return copyName;
+    }
+
+
+    private Map<String, FunctionalCaseBlob> copyBlobInfo(List<String> ids) {
+        FunctionalCaseBlobExample blobExample = new FunctionalCaseBlobExample();
+        blobExample.createCriteria().andIdIn(ids);
+        List<FunctionalCaseBlob> functionalCaseBlobs = functionalCaseBlobMapper.selectByExampleWithBLOBs(blobExample);
+        Map<String, FunctionalCaseBlob> functionalCaseBlobMap = functionalCaseBlobs.stream().collect(Collectors.toMap(FunctionalCaseBlob::getId, functionalCaseBlob -> functionalCaseBlob));
+        return functionalCaseBlobMap;
+    }
+
+    private Map<String, FunctionalCase> copyBaseInfo(String projectId, List<String> ids) {
+        FunctionalCaseExample example = new FunctionalCaseExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andDeletedEqualTo(false).andIdIn(ids);
+        List<FunctionalCase> functionalCaseLists = functionalCaseMapper.selectByExample(example);
+        Map<String, FunctionalCase> functionalMap = functionalCaseLists.stream().collect(Collectors.toMap(FunctionalCase::getId, functionalCase -> functionalCase));
+        return functionalMap;
     }
 }
