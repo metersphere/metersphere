@@ -1,8 +1,8 @@
 <template>
-  <div v-if="props.actionConfig" class="ms-table__patch-action">
-    <span class="title">{{ t('msTable.batch.selected', { count: props.selectRowCount }) }}</span>
-    <template v-for="(element, idx) in props.actionConfig.baseAction" :key="element.label">
-      <a-divider v-if="element.isDivider" class="mx-0 my-[6px]" />
+  <div v-if="props.actionConfig" ref="refWrapper" class="flex flex-row flex-nowrap">
+    <div class="title">{{ t('msTable.batch.selected', { count: props.selectRowCount }) }}</div>
+    <template v-for="(element, idx) in baseAction" :key="element.label">
+      <a-divider v-if="element.isDivider" class="divider mx-0 my-[6px]" />
       <a-button
         v-else
         class="ml-[12px]"
@@ -15,11 +15,11 @@
         >{{ t(element.label as string) }}</a-button
       >
     </template>
-    <div v-if="props.actionConfig.moreAction" class="relative top-[2px] ml-[16px] inline-block">
+    <div v-if="props.actionConfig.moreAction" class="drop-down relative ml-[16px] inline-block">
       <a-dropdown position="tr" @select="handleSelect">
         <a-button type="outline"><MsIcon type="icon-icon_more_outlined" /></a-button>
         <template #content>
-          <template v-for="element in props.actionConfig.moreAction" :key="element.label">
+          <template v-for="element in moreAction" :key="element.label">
             <a-divider v-if="element.isDivider" margin="4px" />
             <a-doption v-else :value="element" :class="{ delete: element.danger }">
               {{ t(element.label as string) }}
@@ -28,7 +28,7 @@
         </template>
       </a-dropdown>
     </div>
-    <a-button class="ml-[16px]" type="text" @click="emit('clear')">{{ t('msTable.batch.clear') }}</a-button>
+    <a-button class="clear-btn ml-[16px]" type="text" @click="emit('clear')">{{ t('msTable.batch.clear') }}</a-button>
   </div>
 </template>
 
@@ -36,10 +36,15 @@
   import MsIcon from '../ms-icon-font/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { getNodeWidth } from '@/utils/dom';
 
   import { BatchActionConfig, BatchActionParams } from './type';
+  import ResizeObserver from 'resize-observer-polyfill';
 
   const { t } = useI18n();
+
+  const refWrapper = ref<HTMLElement>();
+
   const props = defineProps<{
     selectRowCount?: number;
     actionConfig?: BatchActionConfig;
@@ -48,16 +53,113 @@
     (e: 'batchAction', value: BatchActionParams): void;
     (e: 'clear'): void;
   }>();
+
+  const baseAction = ref<BatchActionConfig['baseAction']>([]);
+  const moreAction = ref<BatchActionConfig['moreAction']>([]);
+  // 存储所有的action
+  const allAction = ref<BatchActionConfig['baseAction']>([]);
+  const lastVisibleIndex = ref<number | null>(null);
+  const refResizeObserver = ref<ResizeObserver>();
+
+  const titleClass = 'title';
+  const dividerClass = 'divider';
+  const dropDownClass = 'drop-down';
+  const clearBtnClass = 'clear-btn';
+
   const handleSelect = (item: string | number | Record<string, any> | undefined | BatchActionParams) => {
     emit('batchAction', item as BatchActionParams);
   };
+
+  const computedLastVisibleIndex = () => {
+    if (!refWrapper.value) {
+      return;
+    }
+    const wrapperWidth = getNodeWidth(refWrapper.value);
+
+    const childNodeList = [].slice.call(refWrapper.value.children) as HTMLElement[];
+
+    let totalWidth = 0;
+    let menuItemIndex = 0;
+
+    for (let i = 0; i < childNodeList.length; i++) {
+      const node = childNodeList[i];
+      const classNames = node.className.split(' ');
+      const isTitle = classNames.includes(titleClass);
+      const isDivider = classNames.includes(dividerClass);
+      const isDropDown = classNames.includes(dropDownClass);
+      const isClearBtn = classNames.includes(clearBtnClass);
+      if (isDivider) {
+        totalWidth += 16;
+      } else if (isTitle) {
+        // title宽度为固定值100px
+        totalWidth += 100;
+      } else if (isDropDown) {
+        // dropDown宽度为固定值48px + MarginLeft 16px
+        totalWidth += 64;
+      } else if (isClearBtn) {
+        // 清空选择按钮 60px + MarginLeft 16px
+        totalWidth += 76;
+      } else {
+        // 普通按钮宽度为内容宽度 + marginLeft 16px
+        totalWidth += getNodeWidth(node) + 16;
+        menuItemIndex++;
+      }
+      if (totalWidth > wrapperWidth) {
+        lastVisibleIndex.value = menuItemIndex - 1;
+        return;
+      }
+    }
+    lastVisibleIndex.value = null;
+    setTimeout(() => {
+      baseAction.value = props.actionConfig?.baseAction || [];
+      moreAction.value = props.actionConfig?.moreAction || [];
+    }, 0);
+  };
+
+  watch(
+    () => props.actionConfig,
+    (value) => {
+      if (value) {
+        allAction.value = [...value.baseAction];
+        baseAction.value = [...value.baseAction];
+        if (value.moreAction) {
+          allAction.value = [...allAction.value, ...value.moreAction];
+          moreAction.value = [...value.moreAction];
+        }
+      }
+    },
+    { immediate: true }
+  );
+  watch(
+    () => lastVisibleIndex.value,
+    (value) => {
+      if (value !== null) {
+        baseAction.value = allAction.value.slice(0, value);
+        moreAction.value = allAction.value.slice(value);
+      }
+    }
+  );
+
+  onMounted(() => {
+    refResizeObserver.value = new ResizeObserver((entries: ResizeObserverEntry[]) => {
+      entries.forEach(computedLastVisibleIndex);
+    });
+
+    if (refWrapper.value) {
+      refResizeObserver.value.observe(refWrapper.value);
+    }
+  });
+  onUnmounted(() => {
+    refResizeObserver.value?.disconnect();
+  });
 </script>
 
 <style lang="less" scoped>
-  .ms-table__patch-action {
-    .title {
-      color: var(--color-text-2);
-    }
+  .title {
+    display: flex;
+    align-items: center;
+    width: 100px;
+    color: var(--color-text-2);
   }
   .delete {
     border-color: rgb(var(--danger-6)) !important;

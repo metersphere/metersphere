@@ -58,6 +58,7 @@
     "pinia": "^2.1.6",
     "pinia-plugin-persistedstate": "^3.2.0",
     "query-string": "^8.1.0",
+    "resize-observer-polyfill": "^1.5.1",
     "sortablejs": "^1.15.0",
     "vue": "^3.3.4",
     "vue-echarts": "^6.6.1",

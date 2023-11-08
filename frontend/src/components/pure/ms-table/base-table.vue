@@ -164,25 +164,30 @@
     </a-table>
     <div
       v-if="showBatchAction || attrs.showPagination"
-      class="mt-[16px] flex h-[32px] w-[100%] flex-row flex-nowrap items-center justify-end px-0"
-      :class="{ 'justify-between': showBatchAction, 'min-w-[934px]': attrs.selectable }"
+      class="mt-[16px] flex h-[32px] min-w-[1000px] flex-row flex-nowrap items-center"
+      :class="{ 'justify-between': showBatchAction }"
     >
-      <batch-action
-        v-if="showBatchAction"
-        :select-row-count="selectCurrent"
-        :action-config="props.actionConfig"
-        @batch-action="handleBatchAction"
-        @clear="emit('clearSelector')"
-      />
-      <ms-pagination
-        v-if="attrs.showPagination"
-        v-show="props.selectorStatus !== SelectAllEnum.CURRENT"
-        size="small"
-        v-bind="(attrs.msPagination as MsPaginationI)"
-        hide-on-single-page
-        @change="pageChange"
-        @page-size-change="pageSizeChange"
-      />
+      <div class="flex flex-grow">
+        <batch-action
+          v-if="showBatchAction"
+          class="flex-1"
+          :select-row-count="selectCurrent"
+          :action-config="props.actionConfig"
+          @batch-action="handleBatchAction"
+          @clear="emit('clearSelector')"
+        />
+      </div>
+      <div class="min-w-[500px]">
+        <ms-pagination
+          v-if="attrs.showPagination"
+          v-show="props.selectorStatus !== SelectAllEnum.CURRENT"
+          size="small"
+          v-bind="(attrs.msPagination as MsPaginationI)"
+          hide-on-single-page
+          @change="pageChange"
+          @page-size-change="pageSizeChange"
+        />
+      </div>
     </div>
     <ColumnSelector
       v-model:visible="columnSelectorVisible"
