@@ -606,6 +606,15 @@ export default {
           if (item.refEevMap) {
             delete item.refEevMap;
           }
+          if (item.debug || !item.debug) {
+            delete item.debug;
+          }
+          if (!item.testing) {
+            delete item.testing;
+          }
+          if (item.domain === '' || item.domain === null || item.domain === undefined) {
+            delete item.domain;
+          }
           if (item.body && item.body.kvs) {
             item.body.kvs.forEach((v) => {
               if (v.files) {
