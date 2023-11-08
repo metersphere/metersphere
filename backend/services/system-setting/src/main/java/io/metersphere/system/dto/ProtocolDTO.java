@@ -8,6 +8,13 @@ import lombok.Data;
  */
 @Data
 public class ProtocolDTO {
+    /**
+     * 协议名
+     */
     private String protocol;
-    private String name;
+    /**
+     * 协议对应的组件名
+     * 例如 Http 对应 MsHTTPElement
+     */
+    private String polymorphicName;
 }

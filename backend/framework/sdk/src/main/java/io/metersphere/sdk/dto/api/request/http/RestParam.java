@@ -18,4 +18,16 @@ public class RestParam extends KeyValueParam {
      * 是否必填
      */
     private Boolean required = false;
+    /**
+     * 最大长度
+     */
+    private Integer minLength;
+    /**
+     * 最小长度
+     */
+    private Integer maxLength;
+    /**
+     * 是否编码
+     */
+    private Boolean encode = false;
 }

@@ -8,7 +8,7 @@ package io.metersphere.plugin.api.spi;
 public abstract class AbstractProtocolPlugin extends AbstractApiPlugin {
 
     /**
-     * 返回协议名称
+     * 返回协议名
      * @return
      */
     abstract public String getProtocol();
