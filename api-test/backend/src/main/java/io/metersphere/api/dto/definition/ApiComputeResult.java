@@ -12,4 +12,5 @@ public class ApiComputeResult {
     private String passRate;
     private int success;
     private int error;
+    private int fakeError;
 }

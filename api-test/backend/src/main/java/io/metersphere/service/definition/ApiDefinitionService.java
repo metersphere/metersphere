@@ -211,10 +211,12 @@ public class ApiDefinitionService {
                     res.setCaseTotal(String.valueOf(compRes.getCaseTotal()));
                     res.setCasePassingRate(compRes.getPassRate());
                     // 状态优先级 未执行，未通过，通过
-                    if ((compRes.getError() + compRes.getSuccess()) < compRes.getCaseTotal()) {
+                    if ((compRes.getError() + compRes.getSuccess() + compRes.getFakeError()) < compRes.getCaseTotal()) {
                         res.setCaseStatus(ApiReportStatus.PENDING.name());
                     } else if (compRes.getError() > 0) {
                         res.setCaseStatus(ApiReportStatus.ERROR.name());
+                    } else if (compRes.getFakeError() > 0) {
+                        res.setCaseStatus(ApiReportStatus.FAKE_ERROR.name());
                     } else {
                         res.setCaseStatus(ApiReportStatus.SUCCESS.name());
                     }
