@@ -600,6 +600,7 @@ export default {
     outsideClick(e) {
       e.stopPropagation();
       this.showAll();
+      this.selectedNode = undefined;
     },
     fabClick() {
       if (this.operatingElements.length < 1) {

@@ -1512,10 +1512,12 @@ export default {
       this.showAll();
       this.buttonData = buttons(this);
       this.initPlugins();
+      this.selectedTreeNode = undefined;
+      this.selectedNode = undefined;
     },
     fabClick() {
       if (this.operatingElements && this.operatingElements.length < 1) {
-        if ((this.selectedTreeNode && this.selectedTreeNode.referenced === 'REF') || this.selectedTreeNode.disabled) {
+        if ((this.selectedTreeNode && this.selectedTreeNode.referenced === 'REF') || (this.selectedTreeNode.disabled && this.selectedTreeNode.disabled)) {
           this.$warning(this.$t('api_test.scenario.scenario_warning'));
         } else {
           this.$warning(this.$t('api_test.scenario.scenario_step_warning'));
