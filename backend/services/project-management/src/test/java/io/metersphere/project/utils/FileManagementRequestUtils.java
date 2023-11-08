@@ -46,6 +46,8 @@ public class FileManagementRequestUtils {
      */
     //存储库列表
     public static final String URL_FILE_REPOSITORY_LIST = "/project/file/repository/list/%s";
+    //存储库详情
+    public static final String URL_FILE_REPOSITORY_INFO = "/project/file/repository/info/%s";
     //存储库文件类型
     public static final String URL_FILE_REPOSITORY_FILE_TYPE = "/project/file/repository/file-type/%s";
     //测试连接存储库

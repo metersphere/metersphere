@@ -3,6 +3,7 @@ package io.metersphere.project.controller.filemanagement;
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.filemanagement.request.*;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
+import io.metersphere.project.dto.filemanagement.response.FileRepositoryResponse;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
@@ -179,6 +180,19 @@ public class FileRepositoryControllerTest extends BaseTest {
         repositoryId = rh.getData().toString();
         this.checkFileRepository(repositoryId, createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
         this.checkLog(repositoryId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE);
+
+        //测试获取详情
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE_REPOSITORY_INFO, repositoryId));
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        FileRepositoryResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FileRepositoryResponse.class);
+        Assertions.assertEquals(response.getId(), repositoryId);
+        Assertions.assertEquals(response.getName(), createRequest.getName());
+        Assertions.assertEquals(response.getPlatform(), createRequest.getPlatform());
+        Assertions.assertEquals(response.getToken(), GITEE_TOKEN);
+        Assertions.assertEquals(response.getUrl(), GITEE_URL);
+        Assertions.assertEquals(response.getUserName(), GITEE_USERNAME);
+
         //参数测试： 没有url
         createRequest = new FileRepositoryCreateRequest();
         createRequest.setProjectId(project.getId());
@@ -241,6 +255,9 @@ public class FileRepositoryControllerTest extends BaseTest {
 
         //测试整体过程中没有修改数据成功
         this.checkFileRepository(repositoryId, createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
+
+        //测试获取没有数据的详情
+        this.requestGet(String.format(FileManagementRequestUtils.URL_FILE_REPOSITORY_INFO, IDGenerator.nextStr())).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -461,6 +478,22 @@ public class FileRepositoryControllerTest extends BaseTest {
             request.setFilePath(folderFilePath2);
             this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request).andExpect(status().isBadRequest());
         }
+
+        //检查前台的页面查询
+        //空数据下，检查文件列表
+        FileMetadataTableRequest tableRequest = new FileMetadataTableRequest() {{
+            this.setCurrent(1);
+            this.setPageSize(10);
+            this.setProjectId(project.getId());
+            this.setCombine(new HashMap<>() {{
+                this.put("storage", StorageType.GIT.name());
+            }});
+        }};
+        MvcResult pageResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, tableRequest);
+        String returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Pager<List<FileInformationResponse>> tableResult = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        Assertions.assertEquals(tableResult.getTotal(), fileList.size());
 
     }
 

@@ -55,6 +55,9 @@ public class FileInformationResponse {
     @Schema(description = "启用/禁用(jar文件)")
     private boolean enable;
 
+    @Schema(description = "关联ID")
+    private String refId;
+
     public FileInformationResponse(FileMetadata fileMetadata) {
         if (fileMetadata != null) {
             this.id = fileMetadata.getId();
@@ -72,6 +75,7 @@ public class FileInformationResponse {
             this.createUser = fileMetadata.getCreateUser();
             this.updateUser = fileMetadata.getUpdateUser();
             this.updateTime = fileMetadata.getUpdateTime();
+            this.refId = fileMetadata.getRefId();
         }
     }
 }

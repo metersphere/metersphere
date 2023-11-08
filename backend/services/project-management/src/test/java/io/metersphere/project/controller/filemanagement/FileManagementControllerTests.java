@@ -146,6 +146,9 @@ public class FileManagementControllerTests extends BaseTest {
         Assertions.assertNotNull(a1Node);
         checkLog(a1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD);
 
+        //测试a1无法获取存储库详情
+        this.requestGet(String.format(FileManagementRequestUtils.URL_FILE_REPOSITORY_INFO, a1Node.getId())).andExpect(status().is5xxServerError());
+
         //根目录下创建节点a2和a3，在a1下创建子节点a1-b1
         request = new FileModuleCreateRequest();
         request.setProjectId(project.getId());
@@ -864,6 +867,7 @@ public class FileManagementControllerTests extends BaseTest {
                         JSON.parseObject(fileMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Pager.class);
         List<FileInformationResponse> fileList = JSON.parseArray(JSON.toJSONString(pageResult.getList()), FileInformationResponse.class);
+
         for (FileInformationResponse fileDTO : fileList) {
             MvcResult originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()));
             Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
