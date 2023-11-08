@@ -165,9 +165,6 @@ public class AfterReturningNoticeSendServiceTests extends BaseTest {
     @Order(3)
     public void ApiScenarioNoticeSuccess() {
         String apiScenarioTask = NoticeConstants.TaskType.API_SCENARIO_TASK;
-        String testPlanTask = NoticeConstants.TaskType.TEST_PLAN_TASK;
-        String caseReviewTask = NoticeConstants.TaskType.CASE_REVIEW_TASK;
-        String loadTestTask = NoticeConstants.TaskType.LOAD_TEST_TASK;
 
         List<String>eventList = new ArrayList<>();
         getTypeList(eventList);
