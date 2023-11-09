@@ -394,7 +394,7 @@ public class ProjectTemplateService extends BaseTemplateService {
      * @param scene
      * @return
      */
-    public List<CustomFieldOptions> getTableCustomsField(String projectId, String scene) {
+    public List<CustomFieldOptions> getTableCustomField(String projectId, String scene) {
         TemplateExample example = new TemplateExample();
         example.createCriteria().andScopeIdEqualTo(projectId).andSceneEqualTo(scene);
         List<Template> templates = templateMapper.selectByExample(example);

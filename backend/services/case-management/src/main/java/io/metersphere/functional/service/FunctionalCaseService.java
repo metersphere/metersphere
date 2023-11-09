@@ -1,7 +1,7 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.*;
-import io.metersphere.functional.dto.CaseCustomsFieldDTO;
+import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
@@ -117,10 +117,10 @@ public class FunctionalCaseService {
         BeanUtils.copyBean(functionalCaseBlob, request);
         functionalCaseBlobMapper.insertSelective(functionalCaseBlob);
         //保存自定义字段
-        List<CaseCustomsFieldDTO> customsFields = request.getCustomsFields();
-        if (CollectionUtils.isNotEmpty(customsFields)) {
-            customsFields = customsFields.stream().distinct().collect(Collectors.toList());
-            functionalCaseCustomFieldService.saveCustomField(caseId, customsFields);
+        List<CaseCustomFieldDTO> customFields = request.getCustomFields();
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            customFields = customFields.stream().distinct().collect(Collectors.toList());
+            functionalCaseCustomFieldService.saveCustomField(caseId, customFields);
         }
         return functionalCase;
     }
@@ -260,7 +260,7 @@ public class FunctionalCaseService {
         functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
 
         //更新自定义字段
-        functionalCaseCustomFieldService.updateCustomField(request.getId(), request.getCustomsFields());
+        functionalCaseCustomFieldService.updateCustomField(request.getId(), request.getCustomFields());
     }
 
 
@@ -387,7 +387,7 @@ public class FunctionalCaseService {
         List<FunctionalCaseCustomField> customFields = functionalCaseCustomFieldService.getCustomFieldByCaseIds(ids);
         Map<String, List<FunctionalCaseCustomField>> collect = customFields.stream().collect(Collectors.groupingBy(FunctionalCaseCustomField::getCaseId));
         functionalCaseLists.forEach(functionalCasePageDTO -> {
-            functionalCasePageDTO.setCustomsFields(collect.get(functionalCasePageDTO.getId()));
+            functionalCasePageDTO.setCustomFields(collect.get(functionalCasePageDTO.getId()));
         });
         return functionalCaseLists;
 

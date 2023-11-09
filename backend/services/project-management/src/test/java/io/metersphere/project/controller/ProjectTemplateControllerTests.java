@@ -454,8 +454,8 @@ public class ProjectTemplateControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void getCustomFields() throws Exception {
-        projectTemplateService.getTableCustomsField("DEFAULT_PROJECT_ID", TemplateScene.FUNCTIONAL.name());
-        projectTemplateService.getTableCustomsField(DEFAULT_PROJECT_ID, TemplateScene.FUNCTIONAL.name());
-        projectTemplateService.getTableCustomsField("test_project_id_2", TemplateScene.FUNCTIONAL.name());
+        projectTemplateService.getTableCustomField("DEFAULT_PROJECT_ID", TemplateScene.FUNCTIONAL.name());
+        projectTemplateService.getTableCustomField(DEFAULT_PROJECT_ID, TemplateScene.FUNCTIONAL.name());
+        projectTemplateService.getTableCustomField("test_project_id_2", TemplateScene.FUNCTIONAL.name());
     }
 }
