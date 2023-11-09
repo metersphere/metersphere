@@ -163,7 +163,7 @@
       </template>
     </a-table>
     <div
-      v-if="showBatchAction || attrs.showPagination"
+      v-if="attrs.showFooterActionWrap"
       class="mt-[16px] flex h-[32px] flex-row flex-nowrap items-center"
       :class="{ 'justify-between': showBatchAction }"
     >
