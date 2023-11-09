@@ -1,6 +1,5 @@
 package io.metersphere.sdk.dto.api.task;
 
-import io.metersphere.sdk.constants.KafkaTopicConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.RsaUtils;
@@ -32,7 +31,7 @@ public class TaskRequest implements Serializable {
     public void setKafkaConfig(Map<String, String> kafkaConfig) {
         if (MapUtils.isNotEmpty(kafkaConfig)) {
             try {
-                this.kafkaConfig = RsaUtils.publicEncrypt(JSON.toJSONString(kafkaConfig), KafkaTopicConstants.API_REPORT_TOPIC);
+                this.kafkaConfig = RsaUtils.publicEncrypt(JSON.toJSONString(kafkaConfig), this.getReportId());
             } catch (NoSuchAlgorithmException e) {
                 throw new MSException(e);
             }
@@ -42,7 +41,7 @@ public class TaskRequest implements Serializable {
     public void setMinioConfig(Map<String, String> minioConfig) {
         if (MapUtils.isNotEmpty(minioConfig)) {
             try {
-                this.minioConfig = RsaUtils.publicEncrypt(JSON.toJSONString(minioConfig), KafkaTopicConstants.API_REPORT_TOPIC);
+                this.minioConfig = RsaUtils.publicEncrypt(JSON.toJSONString(minioConfig), this.getReportId());
             } catch (NoSuchAlgorithmException e) {
                 throw new MSException(e);
             }

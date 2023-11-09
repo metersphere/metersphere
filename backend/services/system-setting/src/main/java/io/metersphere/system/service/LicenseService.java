@@ -11,4 +11,5 @@ public interface LicenseService {
 
     LicenseDTO addLicense(String licenseCode, String userId);
 
+    String getCode(String encrypt);
 }

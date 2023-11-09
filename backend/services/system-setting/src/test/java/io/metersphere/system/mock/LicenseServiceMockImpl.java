@@ -27,4 +27,9 @@ public class LicenseServiceMockImpl implements LicenseService {
         licenseDTO.setStatus("OK");
         return licenseDTO;
     }
+
+    @Override
+    public String getCode(String encrypt) {
+        return encrypt;
+    }
 }
