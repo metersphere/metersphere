@@ -24,6 +24,7 @@
       :remember-order="true"
       row-key="id"
       :reserve-option="true"
+      :screen-height="screenHeight"
       :page-refresh="pageRefresh"
       :row-order-group-id="projectId"
       @order="getTestCases"
@@ -139,6 +140,7 @@ export default {
       pageSize: 10,
       currentPage: 1,
       total: 0,
+      screenHeight: "calc(100vh - 400px)",
       condition: {
         components: TEST_PLAN_RELEVANCE_LOAD_CASE
       },

@@ -16,6 +16,7 @@
               :remember-order="true"
               row-key="id"
               :row-order-group-id="projectId"
+              :screen-height="screenHeight"
               @order="search"
               @filter="filterSearch"
               :disable-header-config="true"
@@ -168,6 +169,7 @@ export default {
         components: TEST_PLAN_RELEVANCE_UI_SCENARIO_CONFIGS
       },
       currentScenario: {},
+      screenHeight: "calc(100vh - 400px)",
       schedule: {},
       selectAll: false,
       selectAllIds: [],

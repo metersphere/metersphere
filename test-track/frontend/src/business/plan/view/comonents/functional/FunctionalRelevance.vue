@@ -178,7 +178,7 @@ export default {
       projectName: '',
       projects: [],
       customNum: false,
-      screenHeight: '400',
+      screenHeight: "calc(100vh - 400px)",
       priorityFilters: [
         {text: 'P0', value: 'P0'},
         {text: 'P1', value: 'P1'},
