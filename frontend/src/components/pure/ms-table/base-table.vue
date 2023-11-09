@@ -164,7 +164,7 @@
     </a-table>
     <div
       v-if="showBatchAction || attrs.showPagination"
-      class="mt-[16px] flex h-[32px] min-w-[1000px] flex-row flex-nowrap items-center"
+      class="mt-[16px] flex h-[32px] flex-row flex-nowrap items-center"
       :class="{ 'justify-between': showBatchAction }"
     >
       <div class="flex flex-grow">

@@ -58,8 +58,9 @@
   const moreAction = ref<BatchActionConfig['moreAction']>([]);
   // 存储所有的action
   const allAction = ref<BatchActionConfig['baseAction']>([]);
-  const lastVisibleIndex = ref<number | null>(null);
   const refResizeObserver = ref<ResizeObserver>();
+  // 控制是否重新计算
+  const computedStatus = ref(true);
 
   const titleClass = 'title';
   const dividerClass = 'divider';
@@ -72,6 +73,10 @@
 
   const computedLastVisibleIndex = () => {
     if (!refWrapper.value) {
+      return;
+    }
+    if (!computedStatus.value) {
+      computedStatus.value = true;
       return;
     }
     const wrapperWidth = getNodeWidth(refWrapper.value);
@@ -105,15 +110,15 @@
         menuItemIndex++;
       }
       if (totalWidth > wrapperWidth) {
-        lastVisibleIndex.value = menuItemIndex - 1;
+        const value = menuItemIndex - 1;
+        baseAction.value = allAction.value.slice(0, value);
+        moreAction.value = allAction.value.slice(value);
+        computedStatus.value = false;
         return;
       }
     }
-    lastVisibleIndex.value = null;
-    setTimeout(() => {
-      baseAction.value = props.actionConfig?.baseAction || [];
-      moreAction.value = props.actionConfig?.moreAction || [];
-    }, 0);
+    moreAction.value = props.actionConfig?.moreAction || [];
+    baseAction.value = props.actionConfig?.baseAction || [];
   };
 
   watch(
@@ -129,15 +134,6 @@
       }
     },
     { immediate: true }
-  );
-  watch(
-    () => lastVisibleIndex.value,
-    (value) => {
-      if (value !== null) {
-        baseAction.value = allAction.value.slice(0, value);
-        moreAction.value = allAction.value.slice(value);
-      }
-    }
   );
 
   onMounted(() => {

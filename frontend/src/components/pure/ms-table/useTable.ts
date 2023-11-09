@@ -33,8 +33,8 @@ export default function useTableProps<T>(
     bordered: true, // 是否显示边框
     showPagination: true, // 是否显示分页
     size: 'default', // 表格大小
-    heightUsed: 294, // 表格所在的页面已经使用的高度
-    scroll: { x: 1400, y: appStore.innerHeight - 294 }, // 表格滚动配置
+    heightUsed: 286, // 表格所在的页面已经使用的高度
+    scroll: { x: 1400, y: appStore.innerHeight - 286 }, // 表格滚动配置
     loading: false, // 加载效果
     data: [], // 表格数据
     /**
