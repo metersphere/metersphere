@@ -1,6 +1,6 @@
 package io.metersphere.functional.request;
 
-import io.metersphere.functional.dto.CaseCustomsFieldDTO;
+import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -65,7 +65,7 @@ public class FunctionalCaseAddRequest implements Serializable {
 
 
     @Schema(description = "自定义字段集合")
-    private List<CaseCustomsFieldDTO> customsFields;
+    private List<CaseCustomFieldDTO> customFields;
 
 
     @Schema(description = "关联文件ID集合")

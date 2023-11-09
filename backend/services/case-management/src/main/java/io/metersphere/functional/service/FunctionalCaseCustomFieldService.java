@@ -3,7 +3,7 @@ package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.domain.FunctionalCaseCustomFieldExample;
-import io.metersphere.functional.dto.CaseCustomsFieldDTO;
+import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import jakarta.annotation.Resource;
@@ -34,14 +34,14 @@ public class FunctionalCaseCustomFieldService {
     /**
      * 保存 用例-自定义字段关系
      *
-     * @param customsFields
+     * @param customFields
      */
-    public void saveCustomField(String caseId, List<CaseCustomsFieldDTO> customsFields) {
-        customsFields.forEach(customsField -> {
+    public void saveCustomField(String caseId, List<CaseCustomFieldDTO> customFields) {
+        customFields.forEach(custom -> {
             FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
             customField.setCaseId(caseId);
-            customField.setFieldId(customsField.getFieldId());
-            customField.setValue(customsField.getValue());
+            customField.setFieldId(custom.getFieldId());
+            customField.setValue(custom.getValue());
             functionalCaseCustomFieldMapper.insertSelective(customField);
         });
     }
@@ -69,21 +69,21 @@ public class FunctionalCaseCustomFieldService {
      * 更新自定义字段
      *
      * @param caseId
-     * @param customsFields
+     * @param customFields
      */
-    public void updateCustomField(String caseId, List<CaseCustomsFieldDTO> customsFields) {
-        List<String> fieldIds = customsFields.stream().map(CaseCustomsFieldDTO::getFieldId).collect(Collectors.toList());
+    public void updateCustomField(String caseId, List<CaseCustomFieldDTO> customFields) {
+        List<String> fieldIds = customFields.stream().map(CaseCustomFieldDTO::getFieldId).collect(Collectors.toList());
         FunctionalCaseCustomFieldExample example = new FunctionalCaseCustomFieldExample();
         example.createCriteria().andFieldIdIn(fieldIds).andCaseIdEqualTo(caseId);
         List<FunctionalCaseCustomField> defaultFields = functionalCaseCustomFieldMapper.selectByExample(example);
         Map<String, FunctionalCaseCustomField> collect = defaultFields.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getFieldId, (item) -> item));
-        List<CaseCustomsFieldDTO> addFields = new ArrayList<>();
-        List<CaseCustomsFieldDTO> updateFields = new ArrayList<>();
-        customsFields.forEach(customsField -> {
-            if (collect.containsKey(customsField.getFieldId())) {
-                updateFields.add(customsField);
+        List<CaseCustomFieldDTO> addFields = new ArrayList<>();
+        List<CaseCustomFieldDTO> updateFields = new ArrayList<>();
+        customFields.forEach(customField -> {
+            if (collect.containsKey(customField.getFieldId())) {
+                updateFields.add(customField);
             } else {
-                addFields.add(customsField);
+                addFields.add(customField);
             }
         });
         if (CollectionUtils.isNotEmpty(addFields)) {
@@ -95,12 +95,12 @@ public class FunctionalCaseCustomFieldService {
         }
     }
 
-    private void updateField(String caseId, List<CaseCustomsFieldDTO> updateFields) {
-        updateFields.forEach(customsField -> {
+    private void updateField(String caseId, List<CaseCustomFieldDTO> updateFields) {
+        updateFields.forEach(custom -> {
             FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
             customField.setCaseId(caseId);
-            customField.setFieldId(customsField.getFieldId());
-            customField.setValue(customsField.getValue());
+            customField.setFieldId(custom.getFieldId());
+            customField.setValue(custom.getValue());
             functionalCaseCustomFieldMapper.updateByPrimaryKeySelective(customField);
         });
     }

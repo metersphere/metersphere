@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class CaseCustomsFieldDTO implements Serializable {
+public class CaseCustomFieldDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -28,7 +28,7 @@ public class CaseCustomsFieldDTO implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CaseCustomsFieldDTO that = (CaseCustomsFieldDTO) o;
+        CaseCustomFieldDTO that = (CaseCustomFieldDTO) o;
         return Objects.equals(fieldId, that.fieldId) && Objects.equals(value, that.value);
     }
 
