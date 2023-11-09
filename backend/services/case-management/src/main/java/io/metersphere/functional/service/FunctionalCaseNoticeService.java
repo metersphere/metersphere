@@ -3,7 +3,7 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.domain.FunctionalCaseCustomFieldExample;
-import io.metersphere.functional.dto.CaseCustomsFieldDTO;
+import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDTO;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
@@ -114,7 +114,7 @@ public class FunctionalCaseNoticeService {
         return optionDTOList;
     }
 
-    public FunctionalCaseDTO getMainFunctionalCaseDTO(String name, String caseEditType,String projectId, List<CaseCustomsFieldDTO> customsFields) {
+    public FunctionalCaseDTO getMainFunctionalCaseDTO(String name, String caseEditType,String projectId, List<CaseCustomFieldDTO> customFields) {
         String userId = SessionUtils.getUserId();
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
         functionalCaseDTO.setName(name);
@@ -122,15 +122,15 @@ public class FunctionalCaseNoticeService {
         functionalCaseDTO.setCaseEditType(caseEditType);
         functionalCaseDTO.setCreateUser(userId);
         List<OptionDTO> fields = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(customsFields)) {
-            for (CaseCustomsFieldDTO customsFieldDTO : customsFields) {
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            for (CaseCustomFieldDTO customFieldDTO : customFields) {
                 OptionDTO optionDTO = new OptionDTO();
-                CustomField customField = customFieldMapper.selectByPrimaryKey(customsFieldDTO.getFieldId());
+                CustomField customField = customFieldMapper.selectByPrimaryKey(customFieldDTO.getFieldId());
                 if (customField == null) {
                     continue;
                 }
                 optionDTO.setId(customField.getName());
-                optionDTO.setName(customsFieldDTO.getValue());
+                optionDTO.setName(customFieldDTO.getValue());
                 fields.add(optionDTO);
             }
         }

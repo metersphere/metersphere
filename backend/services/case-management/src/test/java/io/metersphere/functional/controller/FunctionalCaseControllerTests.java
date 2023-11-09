@@ -1,7 +1,7 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCase;
-import io.metersphere.functional.dto.CaseCustomsFieldDTO;
+import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
@@ -48,6 +48,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_TABLE_URL = "/functional/case/custom/field/";
     public static final String FUNCTIONAL_CASE_BATCH_MOVE_URL = "/functional/case/batch/move";
     public static final String FUNCTIONAL_CASE_BATCH_COPY_URL = "/functional/case/batch/copy";
+    public static final String FUNCTIONAL_CASE_VERSION_URL = "/functional/case/version/";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -73,8 +74,8 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
 
         //设置自定义字段
-        List<CaseCustomsFieldDTO> dtoList = creatCustomsFields();
-        request.setCustomsFields(dtoList);
+        List<CaseCustomFieldDTO> dtoList = creatCustomFields();
+        request.setCustomFields(dtoList);
 
         //设置文件
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.JPG")).getPath();
@@ -125,30 +126,30 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
     }
 
-    private List<CaseCustomsFieldDTO> creatCustomsFields() {
+    private List<CaseCustomFieldDTO> creatCustomFields() {
         insertCustomField();
-        List<CaseCustomsFieldDTO> list = new ArrayList<>();
-        CaseCustomsFieldDTO customsFieldDTO = new CaseCustomsFieldDTO();
-        customsFieldDTO.setFieldId("customs_field_id_1");
-        customsFieldDTO.setValue("customs_field_value_1");
-        list.add(customsFieldDTO);
-        CaseCustomsFieldDTO customsFieldDTO2 = new CaseCustomsFieldDTO();
-        customsFieldDTO2.setFieldId("customs_field_id_2");
-        customsFieldDTO2.setValue("customs_field_value_2");
-        list.add(customsFieldDTO2);
+        List<CaseCustomFieldDTO> list = new ArrayList<>();
+        CaseCustomFieldDTO customFieldDTO = new CaseCustomFieldDTO();
+        customFieldDTO.setFieldId("custom_field_id_1");
+        customFieldDTO.setValue("custom_field_value_1");
+        list.add(customFieldDTO);
+        CaseCustomFieldDTO customFieldDTO2 = new CaseCustomFieldDTO();
+        customFieldDTO2.setFieldId("custom_field_id_2");
+        customFieldDTO2.setValue("custom_field_value_2");
+        list.add(customFieldDTO2);
         return list;
     }
 
     private void insertCustomField() {
         CustomField customField = new CustomField();
-        customField.setId("customs_field_id_1");
-        customField.setName("test_customs_field_id_1");
+        customField.setId("custom_field_id_1");
+        customField.setName("test_custom_field_id_1");
         customField.setType(CustomFieldType.INPUT.toString());
         customField.setScene(TemplateScene.FUNCTIONAL.name());
         customField.setCreateUser("gyq");
         customField.setCreateTime(System.currentTimeMillis());
         customField.setUpdateTime(System.currentTimeMillis());
-        customField.setRefId("test_customs_field_id_1");
+        customField.setRefId("test_custom_field_id_1");
         customField.setScopeId(DEFAULT_PROJECT_ID);
         customField.setScopeType(TemplateScopeType.PROJECT.name());
         customField.setInternal(false);
@@ -173,8 +174,8 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public void testUpdateFunctionalCase() throws Exception {
         FunctionalCaseEditRequest request = creatEditRequest();
         //设置自定义字段
-        List<CaseCustomsFieldDTO> list = updateCustomsFields(request);
-        request.setCustomsFields(list);
+        List<CaseCustomFieldDTO> list = updateCustomFields(request);
+        request.setCustomFields(list);
         LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         List<MockMultipartFile> files = new ArrayList<>();
         paramMap.add("request", JSON.toJSONString(request));
@@ -196,14 +197,14 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
     }
 
-    private List<CaseCustomsFieldDTO> updateCustomsFields(FunctionalCaseEditRequest editRequest) {
-        List<CaseCustomsFieldDTO> list = new ArrayList<>() {{
-            add(new CaseCustomsFieldDTO() {{
-                setFieldId("customs_field_id_1");
+    private List<CaseCustomFieldDTO> updateCustomFields(FunctionalCaseEditRequest editRequest) {
+        List<CaseCustomFieldDTO> list = new ArrayList<>() {{
+            add(new CaseCustomFieldDTO() {{
+                setFieldId("custom_field_id_1");
                 setValue("测试更新");
             }});
-            add(new CaseCustomsFieldDTO() {{
-                setFieldId("customs_field_id_2");
+            add(new CaseCustomFieldDTO() {{
+                setFieldId("custom_field_id_2");
                 setValue("更新时存在新字段");
             }});
         }};
@@ -271,7 +272,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
         //自定义字段 测试
         Map<String, Object> map = new HashMap<>();
-        map.put("customs", Arrays.asList(new LinkedHashMap() {{
+        map.put("custom", Arrays.asList(new LinkedHashMap() {{
             put("id", "TEST_FIELD_ID");
             put("operator", "in");
             put("value", "222");
@@ -349,6 +350,15 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setSelectIds(new ArrayList<>());
         request.setSelectAll(true);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_COPY_URL, request);
+    }
+
+    @Test
+    @Order(2)
+    public void testVersion() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_VERSION_URL + "TEST_FUNCTIONAL_CASE_ID");
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
     }
 
 }

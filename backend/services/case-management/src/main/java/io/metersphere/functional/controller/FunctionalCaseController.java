@@ -50,7 +50,6 @@ public class FunctionalCaseController {
 
     //TODO 获取模板列表(多模板功能暂时不做)
 
-    //TODO 附件操作：文件删除/文件下载/文件预览/文件转存/文件更新
 
     @GetMapping("/default/template/field/{projectId}")
     @Operation(summary = "功能用例-获取默认模板自定义字段")
@@ -65,7 +64,7 @@ public class FunctionalCaseController {
     @Operation(summary = "功能用例-新增用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainFunctionalCaseDTO(#request.name, #request.caseEditType, #request.projectId, #request.customsFields)", targetClass = FunctionalCaseNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainFunctionalCaseDTO(#request.name, #request.caseEditType, #request.projectId, #request.customFields)", targetClass = FunctionalCaseNoticeService.class)
     public FunctionalCase addFunctionalCase(@Validated @RequestPart("request") FunctionalCaseAddRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
         return functionalCaseService.addFunctionalCase(request, files, userId);
@@ -84,7 +83,7 @@ public class FunctionalCaseController {
     @Operation(summary = "功能用例-更新用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainFunctionalCaseDTO(#request.name, #request.caseEditType, #request.projectId, #request.customsFields)", targetClass = FunctionalCaseNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainFunctionalCaseDTO(#request.name, #request.caseEditType, #request.projectId, #request.customFields)", targetClass = FunctionalCaseNoticeService.class)
     public FunctionalCase updateFunctionalCase(@Validated @RequestPart("request") FunctionalCaseEditRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
         return functionalCaseService.updateFunctionalCase(request, files, userId);
@@ -149,8 +148,8 @@ public class FunctionalCaseController {
     @GetMapping("/custom/field/{projectId}")
     @Operation(summary = "功能用例-获取表头自定义字段(高级搜索中的自定义字段)")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    public List<CustomFieldOptions> getTableCustomsField(@PathVariable String projectId) {
-        return projectTemplateService.getTableCustomsField(projectId, TemplateScene.FUNCTIONAL.name());
+    public List<CustomFieldOptions> getTableCustomField(@PathVariable String projectId) {
+        return projectTemplateService.getTableCustomField(projectId, TemplateScene.FUNCTIONAL.name());
     }
 
     @PostMapping("/batch/move")
