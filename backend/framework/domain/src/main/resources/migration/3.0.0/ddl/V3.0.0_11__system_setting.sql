@@ -397,9 +397,10 @@ CREATE TABLE IF NOT EXISTS template_custom_field(
     `field_id` VARCHAR(50) NOT NULL   COMMENT '字段ID' ,
     `template_id` VARCHAR(50) NOT NULL   COMMENT '模版ID' ,
     `required` BIT NOT NULL  DEFAULT 0 COMMENT '是否必填' ,
+    `system_field` BIT NOT NULL  DEFAULT 0 COMMENT '是否是系统字段' ,
     `pos` INT NOT NULL  DEFAULT 0 COMMENT '排序字段' ,
     `api_field_id` VARCHAR(255)    COMMENT 'api字段名' ,
-    `default_value` VARCHAR(500)    COMMENT '默认值' ,
+    `default_value` VARCHAR(1500)    COMMENT '默认值' ,
     PRIMARY KEY (id)
     ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4

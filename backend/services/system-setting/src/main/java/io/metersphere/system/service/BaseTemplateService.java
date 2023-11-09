@@ -13,6 +13,7 @@ import io.metersphere.system.domain.TemplateExample;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
+import io.metersphere.system.dto.sdk.request.TemplateSystemCustomFieldRequest;
 import io.metersphere.system.mapper.TemplateMapper;
 import io.metersphere.system.resolver.field.AbstractCustomFieldResolver;
 import io.metersphere.system.resolver.field.CustomFieldResolverFactory;
@@ -20,6 +21,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,41 +111,54 @@ public class BaseTemplateService {
                     return customField;
                 }));
 
-        // 封装字段信息
-        List<TemplateCustomFieldDTO> fieldDTOS = templateCustomFields.stream().map(i -> {
-            CustomField customField = fieldMap.get(i.getFieldId());
-            TemplateCustomFieldDTO templateCustomFieldDTO = new TemplateCustomFieldDTO();
-            BeanUtils.copyBean(templateCustomFieldDTO, i);
-            templateCustomFieldDTO.setFieldName(customField.getName());
-            AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
-            Object defaultValue = null;
-            try {
-                defaultValue = customFieldResolver.parse2Value(i.getDefaultValue());
-            } catch (Exception e) {
-                LogUtils.error(e);
-            }
-            templateCustomFieldDTO.setDefaultValue(defaultValue);
-            return templateCustomFieldDTO;
-        }).toList();
+        // 封装自定义字段信息
+        List<TemplateCustomFieldDTO> fieldDTOS = templateCustomFields.stream()
+                .filter(i -> !BooleanUtils.isTrue(i.getSystemField()))
+                .map(i -> {
+                    CustomField customField = fieldMap.get(i.getFieldId());
+                    TemplateCustomFieldDTO templateCustomFieldDTO = new TemplateCustomFieldDTO();
+                    BeanUtils.copyBean(templateCustomFieldDTO, i);
+                    templateCustomFieldDTO.setFieldName(customField.getName());
+                    AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
+                    Object defaultValue = null;
+                    try {
+                        defaultValue = customFieldResolver.parse2Value(i.getDefaultValue());
+                    } catch (Exception e) {
+                        LogUtils.error(e);
+                    }
+                    templateCustomFieldDTO.setDefaultValue(defaultValue);
+                    return templateCustomFieldDTO;
+                }).toList();
+
+        // 封装系统字段信息
+        List<TemplateCustomFieldDTO> systemFieldDTOS = templateCustomFields.stream()
+                .filter(i -> BooleanUtils.isTrue(i.getSystemField()))
+                .map(i -> {
+                    TemplateCustomFieldDTO templateCustomFieldDTO = new TemplateCustomFieldDTO();
+                    templateCustomFieldDTO.setFieldId(i.getFieldId());
+                    templateCustomFieldDTO.setDefaultValue(i.getDefaultValue());
+                    return templateCustomFieldDTO;
+                }).toList();
 
         TemplateDTO templateDTO = BeanUtils.copyBean(new TemplateDTO(), template);
         templateDTO.setCustomFields(fieldDTOS);
+        templateDTO.setSystemFields(systemFieldDTOS);
         return templateDTO;
     }
 
-    public Template add(Template template, List<TemplateCustomFieldRequest> customFields) {
+    protected Template add(Template template, List<TemplateCustomFieldRequest> customFields, List<TemplateSystemCustomFieldRequest> systemFields) {
         template.setInternal(false);
-        return this.baseAdd(template, customFields);
+        return this.baseAdd(template, customFields, systemFields);
     }
 
-    public Template baseAdd(Template template, List<TemplateCustomFieldRequest> customFields) {
+    public Template baseAdd(Template template, List<TemplateCustomFieldRequest> customFields, List<TemplateSystemCustomFieldRequest> systemFields) {
         checkAddExist(template);
         template.setId(IDGenerator.nextStr());
         template.setCreateTime(System.currentTimeMillis());
         template.setUpdateTime(System.currentTimeMillis());
         templateMapper.insert(template);
-        baseTemplateCustomFieldService.deleteByTemplateId(template.getId());
-        baseTemplateCustomFieldService.addByTemplateId(template.getId(), customFields);
+        baseTemplateCustomFieldService.addCustomFieldByTemplateId(template.getId(), customFields);
+        baseTemplateCustomFieldService.addSystemFieldByTemplateId(template.getId(), parse2TemplateCustomFieldRequests(systemFields));
         return template;
     }
 
@@ -154,7 +169,7 @@ public class BaseTemplateService {
                 .orElseThrow(() -> new MSException(TEMPLATE_SCENE_ILLEGAL));
     }
 
-    public Template update(Template template, List<TemplateCustomFieldRequest> customFields) {
+    protected Template update(Template template, List<TemplateCustomFieldRequest> customFields, List<TemplateSystemCustomFieldRequest> systemFields) {
         checkResourceExist(template.getId());
         checkUpdateExist(template);
         template.setUpdateTime(System.currentTimeMillis());
@@ -166,11 +181,29 @@ public class BaseTemplateService {
         template.setCreateTime(null);
         // customFields 为 null 则不修改
         if (customFields != null) {
-            baseTemplateCustomFieldService.deleteByTemplateId(template.getId());
-            baseTemplateCustomFieldService.addByTemplateId(template.getId(), customFields);
+            baseTemplateCustomFieldService.deleteByTemplateIdAndSystem(template.getId(), false);
+            baseTemplateCustomFieldService.addCustomFieldByTemplateId(template.getId(), customFields);
+        }
+        if (systemFields != null) {
+            // 系统字段
+            baseTemplateCustomFieldService.deleteByTemplateIdAndSystem(template.getId(), true);
+            baseTemplateCustomFieldService.addSystemFieldByTemplateId(template.getId(), parse2TemplateCustomFieldRequests(systemFields));
         }
         templateMapper.updateByPrimaryKeySelective(template);
         return template;
+    }
+
+    private List<TemplateCustomFieldRequest> parse2TemplateCustomFieldRequests(List<TemplateSystemCustomFieldRequest> systemFields) {
+        if (CollectionUtils.isEmpty(systemFields)) {
+            return List.of();
+        }
+        List<TemplateCustomFieldRequest> templateCustomFieldRequests = systemFields.stream().map(systemFiled -> {
+            TemplateCustomFieldRequest templateCustomFieldRequest = new TemplateCustomFieldRequest();
+            BeanUtils.copyBean(templateCustomFieldRequest, systemFiled);
+            templateCustomFieldRequest.setRequired(false);
+            return templateCustomFieldRequest;
+        }).toList();
+        return templateCustomFieldRequests;
     }
 
     public void delete(String id) {
@@ -182,6 +215,7 @@ public class BaseTemplateService {
 
     /**
      * 校验时候是内置模板
+     *
      * @param template
      */
     protected void checkInternal(Template template) {
@@ -269,6 +303,7 @@ public class BaseTemplateService {
      * 初始化功能用例模板
      * 创建组织的时候调用初始化组织模板
      * 创建项目的时候调用初始化项目模板
+     *
      * @param scopeId
      * @param scopeType
      */
@@ -284,19 +319,21 @@ public class BaseTemplateService {
             templateCustomFieldRequest.setFieldId(customField.getId());
             return templateCustomFieldRequest;
         }).toList();
-        baseTemplateCustomFieldService.addByTemplateId(template.getId(), templateCustomFieldRequests);
+        baseTemplateCustomFieldService.addCustomFieldByTemplateId(template.getId(), templateCustomFieldRequests);
     }
 
     /**
      * 初始化缺陷模板
      * 创建组织的时候调用初始化组织模板
      * 创建项目的时候调用初始化项目模板
+     *
      * @param scopeId
      * @param scopeType
      */
     public void initBugDefaultTemplate(String scopeId, TemplateScopeType scopeType) {
         this.initDefaultTemplate(scopeId, "bug_default", scopeType, TemplateScene.BUG);
     }
+
     public void initApiDefaultTemplate(String scopeId, TemplateScopeType scopeType) {
         this.initDefaultTemplate(scopeId, "api_default", scopeType, TemplateScene.API);
     }

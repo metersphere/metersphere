@@ -205,8 +205,8 @@ VALUES ((select id from custom_field where name = 'functional_priority'), 'P3', 
 -- 初始化组织功能用例模板
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, scene)
 VALUES (UUID_SHORT(), 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'ORGANIZATION', '100001', 0, 'FUNCTIONAL');
-INSERT INTO template_custom_field(id, field_id, template_id, required, pos, api_field_id, default_value)
-VALUES(UUID_SHORT(), (select id from custom_field where name = 'functional_priority'), (select id from template where name = 'functional_default'), 1, 0, NULL, NULL);
+INSERT INTO template_custom_field(id, field_id, template_id, required, pos, system_field, api_field_id, default_value)
+VALUES(UUID_SHORT(), (select id from custom_field where name = 'functional_priority'), (select id from template where name = 'functional_default'), 1, 0, 0, NULL, NULL);
 
 -- 初始化默认项目版本
 INSERT INTO project_version (id, project_id, name, description, status, latest, publish_time, start_time, end_time, create_time, create_user) VALUES (UUID_SHORT(), '100001100001', 'v1.0', NULL, 'open', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin');
@@ -228,12 +228,12 @@ VALUES ((select id from custom_field where name = 'functional_priority' and scop
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, scene, ref_id)
 VALUES (UUID_SHORT(), 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', '100001100001', 0, 'FUNCTIONAL',
         (SELECT id FROM (SELECT * FROM template) t where name = 'functional_default'));
-INSERT INTO template_custom_field(id, field_id, template_id, required, pos, api_field_id, default_value)
+INSERT INTO template_custom_field(id, field_id, template_id, required, pos, system_field, api_field_id, default_value)
 VALUES(
   UUID_SHORT(),
   (select id from custom_field where name = 'functional_priority' and scope_id = '100001100001'),
   (select id from template where name = 'functional_default' and scope_id = '100001100001'),
-  1, 0, NULL, null
+  1, 0, 0, NULL, null
 );
 
 -- 初始化组织缺陷模板
