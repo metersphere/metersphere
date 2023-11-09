@@ -7,6 +7,7 @@ import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.sdk.request.TemplateSystemCustomFieldRequest;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
@@ -107,7 +108,7 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
             List<TemplateCustomFieldRequest> templateCustomFieldRequests = templateCustomFields.stream()
                     .map(templateCustomField -> BeanUtils.copyBean(new TemplateCustomFieldRequest(), templateCustomField))
                     .toList();
-            addRefProjectTemplate(projectId, template, templateCustomFieldRequests);
+            addRefProjectTemplate(projectId, template, templateCustomFieldRequests, null);
         });
     }
 
@@ -199,12 +200,13 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
      * @param orgTemplate
      * @param customFields
      */
-    public void addRefProjectTemplate(String projectId, Template orgTemplate, List<TemplateCustomFieldRequest> customFields) {
+    public void addRefProjectTemplate(String projectId, Template orgTemplate, List<TemplateCustomFieldRequest> customFields,
+                                      List<TemplateSystemCustomFieldRequest> systemCustomFields) {
         Template template = BeanUtils.copyBean(new Template(), orgTemplate);
         template.setScopeId(projectId);
         template.setRefId(orgTemplate.getId());
         template.setScopeType(TemplateScopeType.PROJECT.name());
         List<TemplateCustomFieldRequest> refCustomFields = baseTemplateService.getRefTemplateCustomFieldRequest(projectId, customFields);
-        baseTemplateService.baseAdd(template, refCustomFields);
+        baseTemplateService.baseAdd(template, refCustomFields, systemCustomFields);
     }
 }

@@ -573,6 +573,66 @@ public class TemplateCustomFieldExample {
             addCriterion("default_value not between", value1, value2, "defaultValue");
             return (Criteria) this;
         }
+
+        public Criteria andSystemFieldIsNull() {
+            addCriterion("system_field is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldIsNotNull() {
+            addCriterion("system_field is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldEqualTo(Boolean value) {
+            addCriterion("system_field =", value, "systemField");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldNotEqualTo(Boolean value) {
+            addCriterion("system_field <>", value, "systemField");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldGreaterThan(Boolean value) {
+            addCriterion("system_field >", value, "systemField");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("system_field >=", value, "systemField");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldLessThan(Boolean value) {
+            addCriterion("system_field <", value, "systemField");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldLessThanOrEqualTo(Boolean value) {
+            addCriterion("system_field <=", value, "systemField");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldIn(List<Boolean> values) {
+            addCriterion("system_field in", values, "systemField");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldNotIn(List<Boolean> values) {
+            addCriterion("system_field not in", values, "systemField");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldBetween(Boolean value1, Boolean value2) {
+            addCriterion("system_field between", value1, value2, "systemField");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemFieldNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("system_field not between", value1, value2, "systemField");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

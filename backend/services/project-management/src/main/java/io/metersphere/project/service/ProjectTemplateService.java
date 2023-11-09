@@ -16,8 +16,8 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
-import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.system.mapper.CustomFieldOptionMapper;
+import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.service.BaseTemplateService;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
@@ -296,26 +296,28 @@ public class ProjectTemplateService extends BaseTemplateService {
         return super.getTemplateDTO(template);
     }
 
-    @Override
-    public Template add(Template template, List<TemplateCustomFieldRequest> customFields) {
+    public Template add(TemplateUpdateRequest request, String creator) {
+        Template template = BeanUtils.copyBean(new Template(), request);
+        template.setCreateUser(creator);
         checkProjectResourceExist(template);
         checkProjectTemplateEnable(template.getScopeId(), template.getScene());
         template.setScopeType(TemplateScopeType.PROJECT.name());
         template.setRefId(null);
-        return super.add(template, customFields);
+        return super.add(template, request.getCustomFields(), request.getSystemFields());
     }
 
     public void checkProjectResourceExist(Template template) {
         projectService.checkResourceExist(template.getScopeId());
     }
 
-    @Override
-    public Template update(Template template, List<TemplateCustomFieldRequest> customFields) {
+    public Template update(TemplateUpdateRequest request) {
+        Template template = new Template();
+        BeanUtils.copyBean(template, request);
         Template originTemplate = super.getWithCheck(template.getId());
         checkProjectTemplateEnable(originTemplate.getScopeId(), originTemplate.getScene());
         template.setScopeId(originTemplate.getScopeId());
         checkProjectResourceExist(originTemplate);
-        return super.update(template, customFields);
+        return super.update(template, request.getCustomFields(), request.getSystemFields());
     }
 
     @Override

@@ -9,6 +9,7 @@
     <result column="pos" jdbcType="INTEGER" property="pos" />
     <result column="api_field_id" jdbcType="VARCHAR" property="apiFieldId" />
     <result column="default_value" jdbcType="VARCHAR" property="defaultValue" />
+    <result column="system_field" jdbcType="BIT" property="systemField" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, field_id, template_id, required, pos, api_field_id, default_value
+    id, field_id, template_id, required, pos, api_field_id, default_value, system_field
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.TemplateCustomFieldExample" resultMap="BaseResultMap">
     select
@@ -104,10 +105,10 @@
   <insert id="insert" parameterType="io.metersphere.system.domain.TemplateCustomField">
     insert into template_custom_field (id, field_id, template_id, 
       required, pos, api_field_id, 
-      default_value)
+      default_value, system_field)
     values (#{id,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR}, 
       #{required,jdbcType=BIT}, #{pos,jdbcType=INTEGER}, #{apiFieldId,jdbcType=VARCHAR}, 
-      #{defaultValue,jdbcType=VARCHAR})
+      #{defaultValue,jdbcType=VARCHAR}, #{systemField,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.TemplateCustomField">
     insert into template_custom_field
@@ -133,6 +134,9 @@
       <if test="defaultValue != null">
         default_value,
       </if>
+      <if test="systemField != null">
+        system_field,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -155,6 +159,9 @@
       </if>
       <if test="defaultValue != null">
         #{defaultValue,jdbcType=VARCHAR},
+      </if>
+      <if test="systemField != null">
+        #{systemField,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -188,6 +195,9 @@
       <if test="record.defaultValue != null">
         default_value = #{record.defaultValue,jdbcType=VARCHAR},
       </if>
+      <if test="record.systemField != null">
+        system_field = #{record.systemField,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -201,7 +211,8 @@
       required = #{record.required,jdbcType=BIT},
       pos = #{record.pos,jdbcType=INTEGER},
       api_field_id = #{record.apiFieldId,jdbcType=VARCHAR},
-      default_value = #{record.defaultValue,jdbcType=VARCHAR}
+      default_value = #{record.defaultValue,jdbcType=VARCHAR},
+      system_field = #{record.systemField,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,6 +238,9 @@
       <if test="defaultValue != null">
         default_value = #{defaultValue,jdbcType=VARCHAR},
       </if>
+      <if test="systemField != null">
+        system_field = #{systemField,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -237,17 +251,19 @@
       required = #{required,jdbcType=BIT},
       pos = #{pos,jdbcType=INTEGER},
       api_field_id = #{apiFieldId,jdbcType=VARCHAR},
-      default_value = #{defaultValue,jdbcType=VARCHAR}
+      default_value = #{defaultValue,jdbcType=VARCHAR},
+      system_field = #{systemField,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into template_custom_field
-    (id, field_id, template_id, required, pos, api_field_id, default_value)
+    (id, field_id, template_id, required, pos, api_field_id, default_value, system_field
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.fieldId,jdbcType=VARCHAR}, #{item.templateId,jdbcType=VARCHAR}, 
         #{item.required,jdbcType=BIT}, #{item.pos,jdbcType=INTEGER}, #{item.apiFieldId,jdbcType=VARCHAR}, 
-        #{item.defaultValue,jdbcType=VARCHAR})
+        #{item.defaultValue,jdbcType=VARCHAR}, #{item.systemField,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -280,6 +296,9 @@
         </if>
         <if test="'default_value'.toString() == column.value">
           #{item.defaultValue,jdbcType=VARCHAR}
+        </if>
+        <if test="'system_field'.toString() == column.value">
+          #{item.systemField,jdbcType=BIT}
         </if>
       </foreach>
       )

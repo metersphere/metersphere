@@ -39,6 +39,10 @@ public class TemplateCustomField implements Serializable {
     @Schema(description = "默认值")
     private String defaultValue;
 
+    @Schema(description = "", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{template_custom_field.system_field.not_blank}", groups = {Created.class})
+    private Boolean systemField;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -48,7 +52,8 @@ public class TemplateCustomField implements Serializable {
         required("required", "required", "BIT", false),
         pos("pos", "pos", "INTEGER", false),
         apiFieldId("api_field_id", "apiFieldId", "VARCHAR", false),
-        defaultValue("default_value", "defaultValue", "VARCHAR", false);
+        defaultValue("default_value", "defaultValue", "VARCHAR", false),
+        systemField("system_field", "systemField", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

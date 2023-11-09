@@ -4,9 +4,11 @@ import io.metersphere.sdk.constants.OrganizationParameterConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
+import io.metersphere.system.dto.sdk.request.TemplateSystemCustomFieldRequest;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.base.BaseCustomFieldTestService;
@@ -97,6 +99,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         request.setEnableThirdPart(true);
         request.setScopeId(DEFAULT_ORGANIZATION_ID);
         request.setCustomFields(List.of(templateCustomFieldRequest));
+        request.setSystemFields(getTemplateSystemCustomFieldRequests());
 
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
 
@@ -107,12 +110,13 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         request.setId(template.getId());
         TemplateUpdateRequest copyRequest = BeanUtils.copyBean(new TemplateUpdateRequest(), request);
         copyRequest.setCustomFields(null);
+        copyRequest.setSystemFields(null);
         Assertions.assertEquals(copyRequest, BeanUtils.copyBean(new TemplateUpdateRequest(), template));
         Assertions.assertEquals(template.getCreateUser(), ADMIN.getValue());
         Assertions.assertEquals(template.getInternal(), false);
         Assertions.assertEquals(template.getScopeType(), TemplateScopeType.ORGANIZATION.name());
         assertTemplateCustomFields(request, template);
-        assertRefTemplate(template);
+        assertRefTemplate(template, request);
 
         // @@重名校验异常
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), TEMPLATE_EXIST);
@@ -130,6 +134,8 @@ public class OrganizationTemplateControllerTests extends BaseTest {
 
         // 插入另一条数据，用户更新时重名校验
         request.setScopeId(DEFAULT_ORGANIZATION_ID);
+        request.setCustomFields(null);
+        request.setSystemFields(null);
         MvcResult anotherMvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         this.anotherTemplateField = templateMapper.selectByPrimaryKey(getResultData(anotherMvcResult, Template.class).getId());
 
@@ -141,12 +147,25 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_ADD, DEFAULT_ADD, request);
     }
 
+    public static List<TemplateSystemCustomFieldRequest> getTemplateSystemCustomFieldRequests() {
+        TemplateSystemCustomFieldRequest nameField = new TemplateSystemCustomFieldRequest();
+        nameField.setFieldId("name");
+        nameField.setDefaultValue("name default");
+        TemplateSystemCustomFieldRequest descriptionField = new TemplateSystemCustomFieldRequest();
+        descriptionField.setFieldId("description");
+        descriptionField.setDefaultValue("description default");
+        List<TemplateSystemCustomFieldRequest> systemFields = new ArrayList<>();
+        systemFields.add(nameField);
+        systemFields.add(descriptionField);
+        return systemFields;
+    }
+
     /**
      * 校验变更组织模板时，有没有同步变更项目模板
      *
      * @param template
      */
-    private void assertRefTemplate(Template template) {
+    private void assertRefTemplate(Template template, TemplateUpdateRequest originRequest) {
         List<Template> refTemplates = organizationTemplateService.getByRefId(template.getId());
         refTemplates.forEach(refTemplate -> {
             Assertions.assertEquals(refTemplate.getEnableThirdPart(), template.getEnableThirdPart());
@@ -156,6 +175,15 @@ public class OrganizationTemplateControllerTests extends BaseTest {
             Assertions.assertEquals(refTemplate.getInternal(), template.getInternal());
             Assertions.assertEquals(refTemplate.getCreateUser(), template.getCreateUser());
             Assertions.assertEquals(refTemplate.getScopeType(), TemplateScopeType.PROJECT.name());
+
+            List<TemplateCustomField> templateCustomFields = baseTemplateCustomFieldService.getByTemplateId(template.getId());
+            List<TemplateCustomField> systemFields = templateCustomFields.stream().filter(TemplateCustomField::getSystemField).toList();
+            for (int i = 0; i < systemFields.size(); i++) {
+                TemplateCustomField templateCustomField = systemFields.get(i);
+                TemplateSystemCustomFieldRequest customFieldRequest = originRequest.getSystemFields().get(i);
+                Assertions.assertEquals(templateCustomField.getFieldId(), customFieldRequest.getFieldId());
+                Assertions.assertEquals(templateCustomField.getDefaultValue(), customFieldRequest.getDefaultValue());
+            }
         });
     }
 
@@ -174,16 +202,26 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         }
     }
 
-    private void assertTemplateCustomFields(TemplateUpdateRequest request, Template template) {
+    public static void assertTemplateCustomFields(TemplateUpdateRequest request, Template template) {
+        BaseTemplateCustomFieldService baseTemplateCustomFieldService = CommonBeanFactory.getBean(BaseTemplateCustomFieldService.class);
         List<TemplateCustomField> templateCustomFields = baseTemplateCustomFieldService.getByTemplateId(template.getId());
-        Assertions.assertEquals(templateCustomFields.size(), request.getCustomFields().size());
-        for (int i = 0; i < templateCustomFields.size(); i++) {
-            TemplateCustomField templateCustomField = templateCustomFields.get(i);
+        Assertions.assertEquals(templateCustomFields.size(), request.getCustomFields().size() + request.getSystemFields().size());
+        List<TemplateCustomField> systemFields = templateCustomFields.stream().filter(TemplateCustomField::getSystemField).toList();
+        List<TemplateCustomField> customFields = templateCustomFields.stream().filter(field -> !field.getSystemField()).toList();
+        for (int i = 0; i < customFields.size(); i++) {
+            TemplateCustomField templateCustomField = customFields.get(i);
             TemplateCustomFieldRequest customFieldRequest = request.getCustomFields().get(i);
             Assertions.assertEquals(templateCustomField.getFieldId(), customFieldRequest.getFieldId());
             Assertions.assertEquals(templateCustomField.getTemplateId(), template.getId());
             Assertions.assertEquals(templateCustomField.getRequired(), customFieldRequest.getRequired());
             Assertions.assertEquals(templateCustomField.getApiFieldId(), customFieldRequest.getApiFieldId());
+            Assertions.assertEquals(templateCustomField.getDefaultValue(), customFieldRequest.getDefaultValue());
+        }
+        for (int i = 0; i < systemFields.size(); i++) {
+            TemplateCustomField templateCustomField = systemFields.get(i);
+            TemplateSystemCustomFieldRequest customFieldRequest = request.getSystemFields().get(i);
+            Assertions.assertEquals(templateCustomField.getFieldId(), customFieldRequest.getFieldId());
+            Assertions.assertEquals(templateCustomField.getTemplateId(), template.getId());
             Assertions.assertEquals(templateCustomField.getDefaultValue(), customFieldRequest.getDefaultValue());
         }
     }
@@ -217,6 +255,8 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         request.setScene(TemplateScene.UI.name());
         request.setEnableThirdPart(true);
         request.setCustomFields(new ArrayList<>(0));
+        request.setSystemFields(getTemplateSystemCustomFieldRequests());
+        request.getSystemFields().get(0).setDefaultValue("update");
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         Template template = templateMapper.selectByPrimaryKey(request.getId());
         // 校验请求成功数据
@@ -229,7 +269,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         Assertions.assertEquals(template.getScene(), scene);
         Assertions.assertEquals(template.getEnableThirdPart(), request.getEnableThirdPart());
         assertTemplateCustomFields(request, template);
-        assertRefTemplate(template);
+        assertRefTemplate(template, request);
 
         // 带字段的更新
         TemplateCustomFieldRequest templateCustomFieldRequest = getTemplateCustomFieldRequest(scene);
@@ -240,7 +280,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         // 不更新字段
         request.setCustomFields(null);
         this.requestPostWithOk(DEFAULT_UPDATE, request);
-        Assertions.assertEquals(baseTemplateCustomFieldService.getByTemplateId(template.getId()).size(), 1);
+        Assertions.assertEquals(baseTemplateCustomFieldService.getByTemplateId(template.getId()).size(), 3);
 
         // @校验是否开启组织模板
         changeOrgTemplateEnable(false);
@@ -306,13 +346,21 @@ public class OrganizationTemplateControllerTests extends BaseTest {
                 .andReturn();
         // 校验数据是否正确
         TemplateDTO templateDTO = getResultData(mvcResult, TemplateDTO.class);
-        Template template = templateMapper.selectByPrimaryKey(templateDTO.getId());
+        assertGetTemplateDTO(templateDTO);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, DEFAULT_GET, templateDTO.getId());
+    }
+
+    public static void assertGetTemplateDTO(TemplateDTO templateDTO) {
+        Template template = CommonBeanFactory.getBean(TemplateMapper.class).selectByPrimaryKey(templateDTO.getId());
         Assertions.assertEquals(template, BeanUtils.copyBean(new Template(), templateDTO));
+        List<TemplateCustomField> templateCustomFields = CommonBeanFactory.getBean(BaseTemplateCustomFieldService.class).getByTemplateId(template.getId());
         List<TemplateCustomFieldDTO> customFields = templateDTO.getCustomFields();
-        List<TemplateCustomField> templateCustomFields = baseTemplateCustomFieldService.getByTemplateId(template.getId());
+        List<TemplateCustomField> customTemplateFields = templateCustomFields.stream().filter(field -> !field.getSystemField()).toList();
         for (int i = 0; i < customFields.size(); i++) {
             TemplateCustomFieldDTO customFieldDTO = customFields.get(i);
-            TemplateCustomField templateCustomField = templateCustomFields.get(i);
+            TemplateCustomField templateCustomField = customTemplateFields.get(i);
             Assertions.assertEquals(customFieldDTO.getFieldId(), templateCustomField.getFieldId());
             Assertions.assertEquals(customFieldDTO.getApiFieldId(), templateCustomField.getApiFieldId());
             Assertions.assertEquals(customFieldDTO.getRequired(), templateCustomField.getRequired());
@@ -320,8 +368,14 @@ public class OrganizationTemplateControllerTests extends BaseTest {
             Assertions.assertEquals(customFieldDTO.getFieldName(), "用例等级");
         }
 
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, DEFAULT_GET, templateDTO.getId());
+        List<TemplateCustomFieldDTO> systemFields = templateDTO.getSystemFields();
+        List<TemplateCustomField> systemTemplateFields = templateCustomFields.stream().filter(TemplateCustomField::getSystemField).toList();
+        for (int i = 0; i < systemFields.size(); i++) {
+            TemplateCustomFieldDTO customFieldDTO = systemFields.get(i);
+            TemplateCustomField templateCustomField = systemTemplateFields.get(i);
+            Assertions.assertEquals(customFieldDTO.getFieldId(), templateCustomField.getFieldId());
+            Assertions.assertEquals(customFieldDTO.getDefaultValue(), templateCustomField.getDefaultValue());
+        }
     }
 
     @Test

@@ -1,15 +1,14 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.domain.Template;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.utils.SessionUtils;
-import io.metersphere.system.domain.Template;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.OrganizationTemplateLogService;
 import io.metersphere.system.service.OrganizationTemplateService;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,10 +56,7 @@ public class OrganizationTemplateController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_ADD)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.addLog(#request)", msClass = OrganizationTemplateLogService.class)
     public Template add(@Validated({Created.class}) @RequestBody TemplateUpdateRequest request) {
-        Template template = new Template();
-        BeanUtils.copyBean(template, request);
-        template.setCreateUser(SessionUtils.getUserId());
-        return organizationTemplateService.add(template, request.getCustomFields());
+        return organizationTemplateService.add(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
@@ -68,9 +64,7 @@ public class OrganizationTemplateController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE)
     @Log(type = OperationLogType.ADD, expression = "#msClass.updateLog(#request)", msClass = OrganizationTemplateLogService.class)
     public Template update(@Validated({Updated.class}) @RequestBody TemplateUpdateRequest request) {
-        Template template = new Template();
-        BeanUtils.copyBean(template, request);
-        return organizationTemplateService.update(template, request.getCustomFields());
+        return organizationTemplateService.update(request);
     }
 
     @GetMapping("/delete/{id}")

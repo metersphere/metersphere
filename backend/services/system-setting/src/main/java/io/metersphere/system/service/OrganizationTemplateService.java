@@ -10,6 +10,8 @@ import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.OrganizationParameter;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.domain.TemplateExample;
+import io.metersphere.system.dto.sdk.request.TemplateSystemCustomFieldRequest;
+import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.mapper.ExtOrganizationTemplateMapper;
 import jakarta.annotation.Resource;
@@ -52,15 +54,16 @@ public class OrganizationTemplateService extends BaseTemplateService {
         return super.getTemplateDTO(template);
     }
 
-    @Override
-    public Template add(Template template, List<TemplateCustomFieldRequest> customFields) {
+    public Template add(TemplateUpdateRequest request, String creator) {
+        Template template = BeanUtils.copyBean(new Template(), request);
+        template.setCreateUser(creator);
         checkOrgResourceExist(template);
         checkOrganizationTemplateEnable(template.getScopeId(), template.getScene());
         template.setScopeType(TemplateScopeType.ORGANIZATION.name());
         template.setRefId(null);
-        template = super.add(template, customFields);
+        template = super.add(template, request.getCustomFields(), request.getSystemFields());
         // 同步创建项目级别模板
-        addRefProjectTemplate(template, customFields);
+        addRefProjectTemplate(template, request.getCustomFields(), request.getSystemFields());
         return template;
     }
 
@@ -73,7 +76,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
      * @param orgTemplate
      * @param customFields
      */
-    public void addRefProjectTemplate(Template orgTemplate, List<TemplateCustomFieldRequest> customFields) {
+    public void addRefProjectTemplate(Template orgTemplate, List<TemplateCustomFieldRequest> customFields, List<TemplateSystemCustomFieldRequest> systemFields) {
         String orgId = orgTemplate.getScopeId();
         List<String> projectIds = baseProjectMapper.getProjectIdByOrgId(orgId);
         Template template = BeanUtils.copyBean(new Template(), orgTemplate);
@@ -82,7 +85,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
             template.setRefId(orgTemplate.getId());
             template.setScopeType(TemplateScopeType.PROJECT.name());
             List<TemplateCustomFieldRequest> refCustomFields = getRefTemplateCustomFieldRequest(projectId, customFields);
-            super.baseAdd(template, refCustomFields);
+            super.baseAdd(template, refCustomFields, systemFields);
         });
     }
 
@@ -90,15 +93,17 @@ public class OrganizationTemplateService extends BaseTemplateService {
         OrganizationService.checkResourceExist(template.getScopeId());
     }
 
-    @Override
-    public Template update(Template template, List<TemplateCustomFieldRequest> customFields) {
+
+    public Template update(TemplateUpdateRequest request) {
+        Template template = new Template();
+        BeanUtils.copyBean(template, request);
         Template originTemplate = super.getWithCheck(template.getId());
         checkOrganizationTemplateEnable(originTemplate.getScopeId(), originTemplate.getScene());
         template.setScopeId(originTemplate.getScopeId());
         checkOrgResourceExist(originTemplate);
-        updateRefProjectTemplate(template, customFields);
+        updateRefProjectTemplate(template, request.getCustomFields(), request.getSystemFields());
         template.setRefId(null);
-        return super.update(template, customFields);
+        return super.update(template, request.getCustomFields(), request.getSystemFields());
     }
 
     /**
@@ -110,7 +115,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
      * @param orgTemplate
      * @param customFields
      */
-    public void updateRefProjectTemplate(Template orgTemplate, List<TemplateCustomFieldRequest> customFields) {
+    public void updateRefProjectTemplate(Template orgTemplate, List<TemplateCustomFieldRequest> customFields, List<TemplateSystemCustomFieldRequest> systemFields) {
         List<Template> projectTemplates = getByRefId(orgTemplate.getId());
         Template template = BeanUtils.copyBean(new Template(), orgTemplate);
         projectTemplates.forEach(projectTemplate -> {
@@ -118,7 +123,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
             template.setScopeId(projectTemplate.getScopeId());
             template.setRefId(orgTemplate.getId());
             List<TemplateCustomFieldRequest> refCustomFields = getRefTemplateCustomFieldRequest(projectTemplate.getScopeId(), customFields);
-            super.update(template, refCustomFields);
+            super.update(template, refCustomFields, systemFields);
         });
     }
 

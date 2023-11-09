@@ -4,10 +4,9 @@ import io.metersphere.project.dto.ProjectTemplateDTO;
 import io.metersphere.project.service.ProjectTemplateLogService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.domain.Template;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.domain.Template;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.SessionUtils;
@@ -56,22 +55,17 @@ public class ProjectTemplateController {
     @PostMapping("/add")
     @Operation(summary = "创建模版")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_ADD)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.addLog(#request)", msClass = ProjectTemplateLogService.class)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ProjectTemplateLogService.class)
     public Template add(@Validated({Created.class}) @RequestBody TemplateUpdateRequest request) {
-        Template template = new Template();
-        BeanUtils.copyBean(template, request);
-        template.setCreateUser(SessionUtils.getUserId());
-        return projectTemplateservice.add(template, request.getCustomFields());
+        return projectTemplateservice.add(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
     @Operation(summary = "更新模版")
     @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_UPDATE)
-    @Log(type = OperationLogType.ADD, expression = "#msClass.updateLog(#request)", msClass = ProjectTemplateLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ProjectTemplateLogService.class)
     public Template update(@Validated({Updated.class}) @RequestBody TemplateUpdateRequest request) {
-        Template template = new Template();
-        BeanUtils.copyBean(template, request);
-        return projectTemplateservice.update(template, request.getCustomFields());
+        return projectTemplateservice.update(request);
     }
 
     @GetMapping("/delete/{id}")

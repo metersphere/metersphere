@@ -44,4 +44,8 @@ public class TemplateUpdateRequest {
     @Valid
     @Schema(title = "自定义字段Id列表")
     private List<TemplateCustomFieldRequest> customFields;
+
+    @Valid
+    @Schema(title = "系统字段列表")
+    private List<TemplateSystemCustomFieldRequest> systemFields;
 }
