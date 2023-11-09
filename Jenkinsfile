@@ -108,6 +108,7 @@ pipeline {
                     do
                         cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
                         #
+                        rm -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/target/lib/*
                         mvn dependency:copy-dependencies --file $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.pom --settings ./settings.xml
                         cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/target/lib/* backend/app/target/dependency/BOOT-INF/lib/
                     done
