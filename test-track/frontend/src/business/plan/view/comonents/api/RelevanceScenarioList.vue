@@ -29,6 +29,7 @@
       @order="search"
       @filter="filterSearch"
       :disable-header-config="true"
+      :screen-height="screenHeight"
       @selectCountChange="selectCountChange"
     >
       <el-table-column
@@ -244,6 +245,7 @@ export default {
       envGroupId: "",
       versionFilters: [],
       pageRefresh: false,
+      screenHeight: "calc(100vh - 400px)",
     };
   },
   computed: {
