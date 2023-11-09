@@ -20,49 +20,8 @@
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-system-setting</artifactId>
+            <artifactId>metersphere-domain</artifactId>
             <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-project-management</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <!-- selenium包  -->
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.metersphere</groupId>
-            <artifactId>jmeter-plugins-webdriver</artifactId>
-            <version>${jmeter-plugins-webdriver.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.jmeter</groupId>
-                    <artifactId>ApacheJMeter_core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-nop</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>servlet-api</artifactId>
-                    <groupId>javax.servlet</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mail</artifactId>
-                    <groupId>javax.mail</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>geronimo-spec-javamail</artifactId>
-                    <groupId>geronimo-spec</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>websocket-client</artifactId>
-                    <groupId>org.eclipse.jetty.websocket</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
     </dependencies>

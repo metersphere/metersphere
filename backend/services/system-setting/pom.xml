@@ -121,7 +121,18 @@
             <artifactId>redisson-spring-boot-starter</artifactId>
             <version>${redisson-starter.version}</version>
         </dependency>
-
+        <!-- dingClient -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dingtalk</artifactId>
+            <version>${dingtalk-client.version}</version>
+        </dependency>
+        <!-- xmind export-->
+        <dependency>
+            <groupId>com.github.eljah</groupId>
+            <artifactId>xmindjbehaveplugin</artifactId>
+            <version>${xmindjbehaveplugin.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
