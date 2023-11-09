@@ -7,9 +7,9 @@ import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.plugin.sdk.spi.MsPlugin;
+import io.metersphere.plugin.sdk.spi.QuotaPlugin;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -18,10 +18,11 @@ import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.PluginExample;
 import io.metersphere.system.dto.PluginDTO;
 import io.metersphere.system.dto.PluginNotifiedDTO;
-import io.metersphere.system.mapper.ExtPluginMapper;
-import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.dto.request.PlatformOptionRequest;
 import io.metersphere.system.dto.request.PluginUpdateRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.mapper.ExtPluginMapper;
+import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -165,6 +166,8 @@ public class PluginService {
             plugin.setScenario(PluginScenarioType.API_PROTOCOL.name());
         } else if (msPlugin instanceof AbstractPlatformPlugin) {
             plugin.setScenario(PluginScenarioType.PLATFORM.name());
+        }else if(msPlugin instanceof QuotaPlugin){
+            plugin.setScenario(PluginScenarioType.QUOTA.name());
         }
         plugin.setXpack(msPlugin.isXpack());
         plugin.setPluginId(descriptor.getPluginId() + "-" + descriptor.getVersion());

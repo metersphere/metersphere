@@ -12,5 +12,9 @@ public enum PluginScenarioType {
     /**
      * jdbc 驱动插件
      */
-    JDBC_DRIVER
+    JDBC_DRIVER,
+    /**
+     *  配额控制
+     */
+    QUOTA
 }
