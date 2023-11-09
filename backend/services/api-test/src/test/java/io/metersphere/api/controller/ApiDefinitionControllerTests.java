@@ -1,50 +1,43 @@
 package io.metersphere.api.controller;
 
-import com.jayway.jsonpath.JsonPath;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
+import io.metersphere.api.dto.request.ApiDefinitionPageRequest;
 import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.uid.NumGenerator;
-import jakarta.annotation.Resource;
+import io.metersphere.system.utils.Pager;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
-public class ApiDefinitionControllerTests {
-    @Resource
-    private MockMvc mockMvc;
-    private final static String prefix = "/api/definition";
-    private static String sessionId;
-    private static String csrfToken;
+public class ApiDefinitionControllerTests extends BaseTest {
 
-    @Test
-    @BeforeEach
-    public void login() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
-                        .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
-        csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
-    }
+    private final static String URL_DEFINITION_ADD = "/api/definition/add";
+    private final static String URL_DEFINITION_UPDATE = "/api/definition/update";
+    private final static String URL_DEFINITION_BATCH_UPDATE = "/api/definition/batch-update";
+    private final static String URL_DEFINITION_DELETE = "/api/definition/delete";
+    private final static String URL_DEFINITION_BATCH_DELETE= "/api/definition/batch-del";
+    private final static String URL_DEFINITION_PAGE= "/api/definition/page";
+
+    private final static String DEFAULT_PROJECT_ID = "100001100001";
+
+
 
     @Test
     @Order(1)
@@ -72,16 +65,11 @@ public class ApiDefinitionControllerTests {
         request.setDeleted(false);
         request.setModuleId("test-api-module-id");
         request.setNum(NumGenerator.nextNum("test-project-id", ApplicationNumScope.API_DEFINITION));
-
-        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/add")
-                        .file(file)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(request)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.data.id").value("test-api-id"));
+        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", file);
+        this.requestMultipartWithOkAndReturn(URL_DEFINITION_ADD, paramMap);
     }
 
     @Test
@@ -103,13 +91,8 @@ public class ApiDefinitionControllerTests {
         request.setStatus("test-api-status");
         request.setVersionId("test-api-version");
         request.setDeleted(false);
-        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/update")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JSON.toJSONString(request))
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk());
 
+        this.requestPostWithOk(URL_DEFINITION_UPDATE, request);
     }
 
     @Test
@@ -119,27 +102,17 @@ public class ApiDefinitionControllerTests {
         List<String> tests = new ArrayList<>();
         tests.add("test-api-id");
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/batch-update")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JSON.toJSONString(tests))
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk());
-
+        this.requestPostWithOk(URL_DEFINITION_BATCH_UPDATE, tests);
     }
 
     @Test
     @Order(4)
     public void testDel() throws Exception {
         LogUtils.info("delete api test");
+        List<String> tests = new ArrayList<>();
+        tests.add("test-api-id");
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/delete")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content("test-api-id")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk());
-
+        this.requestPostWithOk(URL_DEFINITION_DELETE, tests);
     }
 
     @Test
@@ -149,13 +122,74 @@ public class ApiDefinitionControllerTests {
         List<String> tests = new ArrayList<>();
         tests.add("test-api-id");
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/batch-del")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JSON.toJSONString(tests))
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk());
+        this.requestPostWithOk(URL_DEFINITION_BATCH_DELETE, tests);
+    }
 
+    @Test
+    @Order(6)
+    @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void getListBPage() throws Exception {
+        ApiDefinitionPageRequest request = new ApiDefinitionPageRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+
+        // ALL 全部 KEYWORD 关键字 FILTER 筛选 COMBINE 自定义
+        String search = "KEYWORD";
+        Map<String, List<String>> filters = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
+        switch (search) {
+            case "ALL":
+                // Perform all search types
+                request.setKeyword("100");
+                filters.put("status", Arrays.asList("Underway", "Completed"));
+                filters.put("method", List.of("GET"));
+                filters.put("version_id", List.of("1005704995741369851"));
+                request.setFilter(filters);
+
+                map.put("name", Map.of("operator", "like", "value", "test-1"));
+                map.put("method", Map.of("operator", "in", "value", Arrays.asList("GET", "POST")));
+                request.setCombine(map);
+                break;
+            case "KEYWORD":
+                // 基础查询
+                request.setKeyword("100");
+                // 版本查询
+                request.setVersionId("100570499574136985");
+                break;
+            case "FILTER":
+                // 筛选
+                filters.put("status", Arrays.asList("Underway", "Completed"));
+                filters.put("method", List.of("GET"));
+                filters.put("version_id", List.of("1005704995741369851"));
+                request.setFilter(filters);
+                break;
+            case "COMBINE":
+                // 自定义字段 测试
+                map.put("name", Map.of("operator", "like", "value", "test-1"));
+                map.put("method", Map.of("operator", "in", "value", Arrays.asList("GET", "POST")));
+                request.setCombine(map);
+                break;
+            default:
+                break;
+        }
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_DEFINITION_PAGE, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
     }
 
 }

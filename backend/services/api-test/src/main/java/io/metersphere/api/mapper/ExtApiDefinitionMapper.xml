@@ -11,4 +11,180 @@
             #{v}
         </foreach>
     </update>
+    <select id="list" resultType="io.metersphere.api.dto.definition.ApiDefinitionDTO">
+        select
+        api_definition.id, api_definition.`name`, api_definition.protocol, api_definition.`method`,
+        api_definition.`path`, api_definition.`status`, api_definition.num, api_definition.tags, api_definition.pos,
+        api_definition.project_id, api_definition.module_id, api_definition.latest, api_definition.version_id,
+        api_definition.ref_id, api_definition.description, api_definition.create_time, api_definition.create_user,
+        api_definition.update_time, api_definition.update_user, api_definition.delete_user, api_definition.delete_time,
+        api_definition.deleted, project_version.name as version_name
+        from api_definition
+        LEFT JOIN project_version ON project_version.id = api_definition.version_id
+        <include refid="queryWhereCondition"/>
+
+    </select>
+
+    <select id="selectApiCaseByIdsAndStatusIsNotTrash"
+            resultType="io.metersphere.api.dto.definition.ApiCaseComputeDTO">
+        select
+        t1.api_definition_id apiDefinitionId,
+        count( t1.id ) caseTotal,
+        SUM( CASE WHEN t2.`status` = 'SUCCESS' THEN 1 ELSE 0 END ) AS `success`,
+        SUM( CASE WHEN t2.`status` IN ( 'ERROR', 'FAKE_ERROR' ) THEN 1 ELSE 0 END ) AS `error`,
+        CONCAT( FORMAT( SUM( IF ( t2.`status` = 'SUCCESS', 1, 0 ))/ COUNT( t1.id )* 100, 2 ), '%' ) casePassRate
+        FROM
+        api_test_case t1
+        LEFT JOIN api_report t2 ON t1.last_report_id = t2.id
+        WHERE
+        t1.project_id = #{projectId} and (t1.`status` is null or t1.`status` != 'Trash')
+
+        GROUP BY
+        t1.api_definition_id
+        HAVING
+        t1.api_definition_id IN
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </select>
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.keyword != null and request.keyword != ''">
+                and (
+                api_definition.num like concat('%', #{request.keyword},'%')
+                or api_definition.name like concat('%', #{request.keyword},'%')
+                or api_definition.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+                )
+            </if>
+            <if test="request.projectId != null and request.projectId != ''">
+                and api_definition.project_id = #{request.projectId}
+            </if>
+            <if test="request.protocol != null and request.protocol != ''">
+                AND api_definition.protocol = #{request.protocol}
+            </if>
+            <include refid="filters">
+                <property name="filter" value="request.filter"/>
+            </include>
+
+            <if test="request.combine != null and request.combine != ''">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="ObjectTags" value="request.combine.tags"/>
+                </include>
+            </if>
+
+            <include refid="queryVersionCondition">
+                <property name="versionTable" value="api_definition"/>
+            </include>
+        </where>
+    </sql>
+
+    <sql id="filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and api_definition.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='method'">
+                            and api_definition.method in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='create_user'">
+                            and api_definition.create_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='version_id'">
+                            and api_definition.version_id in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and api_definition.name
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+
+        <if test='${condition}.id != null'>
+            and api_definition.num
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.id"/>
+            </include>
+        </if>
+
+        <if test="${condition}.updateTime != null">
+            and api_definition.update_time
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+
+        <if test="${condition}.createTime != null">
+            and api_definition.create_time
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+
+        <if test="${condition}.status != null">
+            and api_definition.status
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+
+        <if test="${condition}.path != null">
+            and api_definition.path
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.path"/>
+            </include>
+        </if>
+
+        <if test="${condition}.method != null">
+            and api_definition.method
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.method"/>
+            </include>
+        </if>
+
+        <if test='${condition}.tags != null and ${ObjectTags}.operator == "not like"'>
+            and (api_definition.tags is null or api_definition.tags
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+            )
+        </if>
+
+        <if test='${condition}.tags != null and ${ObjectTags}.operator == "like"'>
+            and api_definition.tags
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="queryVersionCondition">
+        <if test="request.versionId != null and request.versionId != ''">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null and request.refId != ''">
+            and ${versionTable}.ref_id = #{request.refId}
+        </if>
+        <if test="request.versionId == null and request.refId == null and request.id == null">
+            AND ${versionTable}.latest = 1
+        </if>
+    </sql>
+
+
+
 </mapper>
