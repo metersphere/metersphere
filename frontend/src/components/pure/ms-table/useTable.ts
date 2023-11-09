@@ -28,13 +28,16 @@ export default function useTableProps<T>(
   // 编辑操作的保存回调函数
   saveCallBack?: (item: T) => Promise<any>
 ) {
+  const defaultHeightUsed = 286;
+  // 底部操作栏的height和marginTop
+  const footerActionWrapHeight = 48;
   const defaultProps: MsTableProps<T> = {
     tableKey: '', // 缓存pageSize 或 column 的 key
     bordered: true, // 是否显示边框
     showPagination: true, // 是否显示分页
     size: 'default', // 表格大小
-    heightUsed: 286, // 表格所在的页面已经使用的高度
-    scroll: { x: 1400, y: appStore.innerHeight - 286 }, // 表格滚动配置
+    heightUsed: defaultHeightUsed, // 表格所在的页面已经使用的高度
+    scroll: { x: 1400, y: appStore.innerHeight - defaultHeightUsed }, // 表格滚动配置
     loading: false, // 加载效果
     data: [], // 表格数据
     /**
@@ -65,6 +68,7 @@ export default function useTableProps<T>(
     emptyDataShowLine: true, // 空数据是否显示 "-"
     /** Column Selector */
     showJumpMethod: false, // 是否显示跳转方法
+    showFooterActionWrap: false, // 是否显示底部操作区域
     ...props,
   };
 
@@ -261,10 +265,12 @@ export default function useTableProps<T>(
   };
 
   // 重置选择器
-  const resetSelector = () => {
+  const resetSelector = (isNone = true) => {
     propsRes.value.selectedKeys.clear();
     propsRes.value.excludeKeys.clear();
-    propsRes.value.selectorStatus = SelectAllEnum.NONE;
+    if (isNone) {
+      propsRes.value.selectorStatus = SelectAllEnum.NONE;
+    }
   };
 
   // 获取当前表格的选中项数量
@@ -344,6 +350,7 @@ export default function useTableProps<T>(
         // 清空选中项
         resetSelector();
       } else {
+        resetSelector(false);
         data.forEach((item) => {
           if (item[rowKey] && !selectedKeys.has(item[rowKey])) {
             selectedKeys.add(item[rowKey]);
@@ -373,9 +380,17 @@ export default function useTableProps<T>(
   });
 
   watchEffect(() => {
-    // TODO 等UI出图，表格设置里加入分页配置等操作
-    const { heightUsed } = propsRes.value;
-    const currentY = appStore.innerHeight - (heightUsed || 294);
+    const { heightUsed, showPagination, selectedKeys, msPagination } = propsRes.value;
+    const { pageSize, total } = msPagination as Pagination;
+    /*
+     * 是否有底部操作栏 包括 批量操作 和 分页器
+     * 1. 有分页器，且总条数大于每页条数
+     * 2. 有选中项
+     */
+    const hasFooterAction = (showPagination && total > pageSize) || selectedKeys.size > 0;
+    const currentY =
+      appStore.innerHeight - (heightUsed || defaultHeightUsed) + (hasFooterAction ? 0 : footerActionWrapHeight);
+    propsRes.value.showFooterActionWrap = hasFooterAction;
     propsRes.value.scroll = { ...propsRes.value.scroll, y: currentY };
   });
 
