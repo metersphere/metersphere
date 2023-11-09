@@ -78,6 +78,7 @@
             :total="page.total"
             :page-size.sync="page.pageSize"
             :screen-height="screenHeight"
+            :show-select-all="false"
             @handlePageChange="getTestCases"
             @selectCountChange="setSelectCounts"
             @order="getTestCases"
