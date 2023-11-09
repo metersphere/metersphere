@@ -161,6 +161,19 @@ public class PluginControllerTests extends BaseTest {
                 getDefaultMultiPartParam(request, myDriver));
         Assertions.assertEquals(jdbcDriverPluginService.getJdbcDriverClass(DEFAULT_ORGANIZATION_ID), Arrays.asList("io.jianxing.MyDriver", "com.mysql.cj.jdbc.Driver"));
 
+
+        // 校验QUOTA动上传成功
+        request.setName("cloud-quota-plugin");
+        request.setOrganizationIds(Arrays.asList(org.getId()));
+        File quota = new File(
+                this.getClass().getClassLoader().getResource("file/cloud-quota-plugin-3.x.jar")
+                        .getPath()
+        );
+        this.requestMultipartWithOkAndReturn(DEFAULT_ADD,
+                getDefaultMultiPartParam(request, quota));
+        // 清理掉
+        this.requestGetWithOk(DEFAULT_DELETE, "cloud-quota-plugin");
+
         // @@重名校验异常
         // 校验插件名称重名
         assertErrorCode(this.requestMultipart(DEFAULT_ADD,
