@@ -1,6 +1,6 @@
 import el from "metersphere-frontend/src/i18n/lang/ele-zh-TW";
 import fu from "fit2cloud-ui/src/locale/lang/zh-TW"; // 加载fit2cloud的内容
-import mf from "metersphere-frontend/src/i18n/lang/zh-TW"
+import mf from "metersphere-frontend/src/i18n/lang/zh-TW";
 
 const message = {
   home: {
@@ -32,9 +32,9 @@ const message = {
         this_week: "本週",
         load_error: "加載失敗",
         no_data: "暫無數據",
-        no_search_data: '沒有找到相關內容',
+        no_search_data: "沒有找到相關內容",
       },
-      case_finished_review_pass_tip: "已評審通過的案例/所有完成評審的案例*100%"
+      case_finished_review_pass_tip: "已評審通過的案例/所有完成評審的案例*100%",
     },
     case_review_dashboard: {
       case_count: "用例數量",
@@ -60,23 +60,26 @@ const message = {
       un_closed_count: "遺留缺陷數",
       total_count: "缺陷總數",
       case_count: "用例總數",
-    }
+    },
   },
   plan: {
-    error_samples: '錯誤請求',
-    all_samples: '所有請求',
-    response_3_samples: '默認抽樣前3個請求的響應數據',
+    error_samples: "錯誤請求",
+    all_samples: "所有請求",
+    response_3_samples: "默認抽樣前3個請求的響應數據",
     batch_delete_tip: "批量刪除測試計劃，是否繼續？",
-    relevance_case_success: "已添加至測試計劃"
+    relevance_case_success: "已添加至測試計劃",
   },
   review: {
     result_distribution: "結果分布",
-    review_pass_rule: '評審通過標準',
-    review_pass_rule_all: '全部通過',
-    review_pass_rule_single: '單人通過',
-    update_review_reviewer_tip: "註：修改評審人，會覆蓋已關聯用例的評審人，並且更新用例的評審狀態，請謹慎操作！",
-    review_rule_tip: "全部通過：所有評審人都通過才通過<\/br>單人通過：任意評審人通過則通過",
-    update_review_rule_tip: "註：修改通過標準會影響已評審過的用例，請謹慎操作！",
+    review_pass_rule: "評審通過標準",
+    review_pass_rule_all: "全部通過",
+    review_pass_rule_single: "單人通過",
+    update_review_reviewer_tip:
+      "註：修改評審人，會覆蓋已關聯用例的評審人，並且更新用例的評審狀態，請謹慎操作！",
+    review_rule_tip:
+      "全部通過：所有評審人都通過才通過</br>單人通過：任意評審人通過則通過",
+    update_review_rule_tip:
+      "註：修改通過標準會影響已評審過的用例，請謹慎操作！",
     review_history: "評審歷史",
     no_review_history: "暫無評審歷史",
     added_comment: "添加了評論",
@@ -85,7 +88,7 @@ const message = {
     pass_review_confirm: "確定通過此評審嗎",
     comment_require: "(必填)",
     comment_not_require: "(選填)",
-    search_by_id_or_name_or_tag: "通過ID/名稱/標籤搜索"
+    search_by_id_or_name_or_tag: "通過ID/名稱/標籤搜索",
   },
   case: {
     all_case_content: "全部用例",
@@ -102,8 +105,8 @@ const message = {
     none: "暫無",
     commented: "髮佈了評論",
     add_attachment: "添加附件",
-    file_size_limit: "支持任意類型文件，文件大小不超過 500MB",
-    file_size_out_of_bounds: "文件大小不超過 500MB",
+    file_size_limit: "支持任意類型文件，文件大小不超過 50MB",
+    file_size_out_of_bounds: "文件大小不超過 50MB",
     upload_at: "上傳於",
     relate_at: "關聯於",
     add_steps: "添加步骤",
@@ -129,7 +132,7 @@ const message = {
     all_case: "全部用例",
     all_scenes: "全部場景",
     all_api: "全部接口",
-    associated_files:"關聯文件",
+    associated_files: "關聯文件",
     empty_file: "暫無文件",
     upload_file: "上傳文件",
     selected: "已選擇",
@@ -153,14 +156,17 @@ const message = {
     version_id_cannot_be_empty: "版本號不能為空",
     enter_comments_and_click_send: "輸入評論,點擊發送",
     cancel_relate_case_tips_title: "確定取消關聯關係嗎?",
-    cancel_relate_case_tips_content: "取消關聯會影響測試計劃相關統計, 確定取消嗎?",
+    cancel_relate_case_tips_content:
+      "取消關聯會影響測試計劃相關統計, 確定取消嗎?",
     back_tips: "你填寫的信息未保存, 確定退出嗎?",
     dependency_remove_confirm: "確定解除依賴嗎?",
-    minder_paste_tip: "粘貼的節點中有未加載用例的模塊，目前不支持復製未加載的用例！",
-    minder_move_confirm_tip: "當前存在字段排序，無法設置用例順序，請切換至用例列表，取消字段排序!",
+    minder_paste_tip:
+      "粘貼的節點中有未加載用例的模塊，目前不支持復製未加載的用例！",
+    minder_move_confirm_tip:
+      "當前存在字段排序，無法設置用例順序，請切換至用例列表，取消字段排序!",
     minder_module_move_confirm_tip: "模塊不支持設置順序!",
     public: {
-      remove: '是否移除用例',
+      remove: "是否移除用例",
       batch_remove_confirm: "確定移除{0}項用例?",
     },
     enter_issues_content: "輸入缺陷內容...",
@@ -177,12 +183,12 @@ const message = {
     not_exits: "該文件不存在",
     waiting_upload: "等待上傳",
     waiting_relate: "等待關聯",
-  }
-}
+  },
+};
 
 export default {
   ...el,
   ...fu,
   ...mf,
-  ...message
+  ...message,
 };

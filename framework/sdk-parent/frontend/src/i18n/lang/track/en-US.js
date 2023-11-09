@@ -116,8 +116,7 @@ export default {
     batch_delete_completely_confirm: "Confirm delete {0} case completely?",
     batch_delete_tip:
       "It cannot be recovered after delete, please delete carefully",
-    public_batch_delete_tip:
-      "It will be removed from public case, Carefully.",
+    public_batch_delete_tip: "It will be removed from public case, Carefully.",
     public_remove: "Remove",
     batch_delete_soft_tip: "The test case will be put into trash",
     save_create_continue: "Save and create continue",
@@ -177,7 +176,7 @@ export default {
       "Disassociating the project will also cancel the associated test cases under the project",
     img_loading_fail: "Image failed to load",
     pdf_loading_fail: "PDF loading failed",
-    upload_tip: "file size limit[0-500MB]",
+    upload_tip: "file size limit[0-50MB]",
     add_attachment: "Add",
     attachment: "Attachment",
     dump_module: "Please select dump directory",
@@ -199,7 +198,8 @@ export default {
       upload_limit_count: "Only one file can be uploaded at a time",
       upload_limit_format: "Upload files can only be XLS, XLSX format!",
       upload_limit_size: "Upload file size cannot exceed 100MB!",
-      upload_refresh_tips: "Content has been updated, please upload the file again!",
+      upload_refresh_tips:
+        "Content has been updated, please upload the file again!",
       upload_limit_other_size: "Upload file size cannot exceed",
       success: "Import success",
       error: "Import error",
@@ -584,7 +584,8 @@ export default {
     import_bugs: "Import Issue",
     export_bugs: "Export Issue",
     save_before_open_comment: "Please save issue before comment",
-    delete_third_part_tip: "This operation will delete third-party platform defects synchronously",
+    delete_third_part_tip:
+      "This operation will delete third-party platform defects synchronously",
     delete_tip: "Confirm Delete Issue：",
     batch_delete_tip: "Confirm Batch Delete Issue",
     check_id_exist: "Check",

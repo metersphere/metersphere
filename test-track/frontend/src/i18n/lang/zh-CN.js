@@ -63,20 +63,23 @@ const message = {
     },
   },
   plan: {
-    error_samples: '错误请求',
-    all_samples: '所有请求',
-    response_3_samples: '默认抽样前3个请求的响应数据',
+    error_samples: "错误请求",
+    all_samples: "所有请求",
+    response_3_samples: "默认抽样前3个请求的响应数据",
     batch_delete_tip: "批量删除测试计划，是否继续?",
-    relevance_case_success: "已添加至测试计划"
+    relevance_case_success: "已添加至测试计划",
   },
   review: {
     result_distribution: "结果分布",
     review_pass_rule: "评审通过标准",
     review_pass_rule_all: "全部通过",
     review_pass_rule_single: "单人通过",
-    update_review_reviewer_tip: "注：修改评审人，会覆盖已关联用例的评审人，并且更新用例的评审状态，请谨慎操作！",
-    review_rule_tip: "全部通过：所有评审人都通过才通过<\/br>单人通过：任意评审人通过则通过",
-    update_review_rule_tip: "注：修改通过标准会影响已评审过的用例，请谨慎操作！",
+    update_review_reviewer_tip:
+      "注：修改评审人，会覆盖已关联用例的评审人，并且更新用例的评审状态，请谨慎操作！",
+    review_rule_tip:
+      "全部通过：所有评审人都通过才通过</br>单人通过：任意评审人通过则通过",
+    update_review_rule_tip:
+      "注：修改通过标准会影响已评审过的用例，请谨慎操作！",
     review_history: "评审历史",
     no_review_history: "暂无评审历史",
     added_comment: "添加了评论",
@@ -85,7 +88,7 @@ const message = {
     pass_review_confirm: "确定通过此评审吗",
     comment_require: "(必填)",
     comment_not_require: "(选填)",
-    search_by_id_or_name_or_tag: "通过ID/名称/标签搜索"
+    search_by_id_or_name_or_tag: "通过ID/名称/标签搜索",
   },
   case: {
     all_case_content: "全部用例",
@@ -102,8 +105,8 @@ const message = {
     none: "暂无",
     commented: "发布了评论",
     add_attachment: "添加附件",
-    file_size_limit: "支持任意类型文件，文件大小不超过 500MB",
-    file_size_out_of_bounds: "文件大小不超过 500MB",
+    file_size_limit: "支持任意类型文件，文件大小不超过 50MB",
+    file_size_out_of_bounds: "文件大小不超过 50MB",
     upload_at: "上传于",
     relate_at: "关联于",
     add_steps: "添加步骤",
@@ -129,7 +132,7 @@ const message = {
     all_case: "全部用例",
     all_scenes: "全部场景",
     all_api: "全部接口",
-    associated_files:"关联文件",
+    associated_files: "关联文件",
     empty_file: "暂无文件",
     upload_file: "上传文件",
     selected: "已选择",
@@ -153,14 +156,17 @@ const message = {
     version_id_cannot_be_empty: "版本号不能为空",
     enter_comments_and_click_send: "输入评论,点击发送",
     cancel_relate_case_tips_title: "确定取消关联关系吗?",
-    cancel_relate_case_tips_content: "取消关联会影响测试计划相关统计, 确定取消吗?",
+    cancel_relate_case_tips_content:
+      "取消关联会影响测试计划相关统计, 确定取消吗?",
     back_tips: "你填写的信息未保存, 确定退出吗?",
     dependency_remove_confirm: "确定解除依赖吗?",
-    minder_paste_tip: "粘贴的节点中有未加载用例的模块，目前不支持复制未加载的用例！",
-    minder_move_confirm_tip: "当前存在字段排序，无法设置用例顺序，请切换至用例列表，取消字段排序!",
+    minder_paste_tip:
+      "粘贴的节点中有未加载用例的模块，目前不支持复制未加载的用例！",
+    minder_move_confirm_tip:
+      "当前存在字段排序，无法设置用例顺序，请切换至用例列表，取消字段排序!",
     minder_module_move_confirm_tip: "模块不支持设置顺序!",
     public: {
-      remove: '是否移除用例',
+      remove: "是否移除用例",
       batch_remove_confirm: "确定移除{0}项用例?",
     },
     enter_issues_content: "请输入缺陷内容...",
@@ -177,7 +183,7 @@ const message = {
     not_exits: "该文件不存在",
     waiting_upload: "等待上传",
     waiting_relate: "等待关联",
-  }
+  },
 };
 
 export default {
