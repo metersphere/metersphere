@@ -288,7 +288,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         request = new ModuleCreateRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("defaultProject");
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ_ADD, URL_MODULE_ADD, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_ADD, URL_MODULE_ADD, request);
     }
 
     @Test
@@ -386,7 +386,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         updateRequest = new ModuleUpdateRequest();
         updateRequest.setId(apiDebugModules.get(0).getId());
         updateRequest.setName("default-update-Project");
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ_UPDATE, URL_MODULE_UPDATE, updateRequest);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, URL_MODULE_UPDATE, updateRequest);
     }
 
     @Test
@@ -659,7 +659,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
 
         checkLog(a1Node.getId(), OperationLogType.UPDATE, URL_MODULE_MOVE);
         checkLog(a3Node.getId(), OperationLogType.UPDATE, URL_MODULE_MOVE);
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ_UPDATE, URL_MODULE_MOVE, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, URL_MODULE_MOVE, request);
     }
 
     @Test
@@ -773,7 +773,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         //service层判断：测试删除空集合
         apiDefinitionModuleService.deleteModule(new ArrayList<>(), "admin", DEFAULT_PROJECT_ID);
         //校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE, String.format(URL_MODULE_DELETE, IDGenerator.nextNum()));
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, String.format(URL_MODULE_DELETE, IDGenerator.nextNum()));
 
     }
 
