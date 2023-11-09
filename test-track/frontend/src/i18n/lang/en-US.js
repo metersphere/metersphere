@@ -1,6 +1,6 @@
 import el from "metersphere-frontend/src/i18n/lang/ele-en-US";
 import fu from "fit2cloud-ui/src/locale/lang/en_US"; // 加载fit2cloud的内容
-import mf from "metersphere-frontend/src/i18n/lang/en-US"
+import mf from "metersphere-frontend/src/i18n/lang/en-US";
 
 const message = {
   home: {
@@ -32,9 +32,9 @@ const message = {
         this_week: "Week ",
         load_error: "Loading failure",
         no_data: "No data",
-        no_search_data: 'No search data',
+        no_search_data: "No search data",
       },
-      case_finished_review_pass_tip: "Reviewed cases/All reviewed cases *100%"
+      case_finished_review_pass_tip: "Reviewed cases/All reviewed cases *100%",
     },
     case_review_dashboard: {
       case_count: "Case",
@@ -60,23 +60,26 @@ const message = {
       un_closed_count: "Unclosed bug",
       total_count: "All related bug",
       case_count: "Case count",
-    }
+    },
   },
   plan: {
-    error_samples: 'Error samples',
-    all_samples: 'All samples',
-    response_3_samples: 'The first three pieces of data',
+    error_samples: "Error samples",
+    all_samples: "All samples",
+    response_3_samples: "The first three pieces of data",
     batch_delete_tip: "Do you want to continue deleting the test plan?",
-    relevance_case_success: "Relevance success"
+    relevance_case_success: "Relevance success",
   },
   review: {
     result_distribution: "Result Distribution",
-    review_pass_rule: 'Review Pass Criteria',
-    review_pass_rule_all: 'All Pass',
-    review_pass_rule_single: 'Single Pass',
-    update_review_reviewer_tip: "Note: Modifying the reviewer will overwrite the reviewers associated with the use case, and update the review status of the use case, Please exercise caution!",
-    review_rule_tip: "All pass: Pass only if all reviewers pass <\/br> Single pass: Pass if any reviewers pass",
-    update_review_rule_tip: "Note: Modifying the standard will affect the reviewed use cases, please exercise caution!",
+    review_pass_rule: "Review Pass Criteria",
+    review_pass_rule_all: "All Pass",
+    review_pass_rule_single: "Single Pass",
+    update_review_reviewer_tip:
+      "Note: Modifying the reviewer will overwrite the reviewers associated with the use case, and update the review status of the use case, Please exercise caution!",
+    review_rule_tip:
+      "All pass: Pass only if all reviewers pass </br> Single pass: Pass if any reviewers pass",
+    update_review_rule_tip:
+      "Note: Modifying the standard will affect the reviewed use cases, please exercise caution!",
     review_history: "Review History",
     no_review_history: "There is no review history",
     added_comment: "Added comment",
@@ -85,7 +88,7 @@ const message = {
     pass_review_confirm: "Are you sure to pass this review",
     comment_require: "(require)",
     comment_not_require: "(not_require)",
-    search_by_id_or_name_or_tag: "Search by ID/Name/Tag"
+    search_by_id_or_name_or_tag: "Search by ID/Name/Tag",
   },
   case: {
     all_case_content: "All case",
@@ -102,8 +105,9 @@ const message = {
     none: "None",
     commented: "Commented",
     add_attachment: "Add Attachment",
-    file_size_limit: "Any type of file is supported, and the file size does not exceed 500MB",
-    file_size_out_of_bounds: "File size does not exceed 500MB",
+    file_size_limit:
+      "Any type of file is supported, and the file size does not exceed 50MB",
+    file_size_out_of_bounds: "File size does not exceed 50MB",
     upload_at: "upload",
     relate_at: "relate",
     add_steps: "Add Steps",
@@ -129,7 +133,7 @@ const message = {
     all_case: "All case",
     all_scenes: "All scenes",
     all_api: "All interfaces",
-    associated_files:"Associated",
+    associated_files: "Associated",
     empty_file: "No files",
     upload_file: "Upload files",
     selected: "Selected",
@@ -153,14 +157,17 @@ const message = {
     version_id_cannot_be_empty: "Version id cannot be empty",
     enter_comments_and_click_send: "Enter comments and click Send",
     cancel_relate_case_tips_title: "Confirm cancel?",
-    cancel_relate_case_tips_content: "Cancel it will affect the test plan statistics. Sure?",
+    cancel_relate_case_tips_content:
+      "Cancel it will affect the test plan statistics. Sure?",
     back_tips: "TestCase is not saved, Are you sure to quit?",
     dependency_remove_confirm: "Is dependency release confirmed?",
-    minder_paste_tip: "The pasted node has modules with unloaded use cases, copying unloaded use cases is not currently supported!",
-    minder_move_confirm_tip: "There is currently field sorting, and the use case order cannot be set. Please switch to the use case list and cancel the field sorting!",
+    minder_paste_tip:
+      "The pasted node has modules with unloaded use cases, copying unloaded use cases is not currently supported!",
+    minder_move_confirm_tip:
+      "There is currently field sorting, and the use case order cannot be set. Please switch to the use case list and cancel the field sorting!",
     minder_module_move_confirm_tip: "Module does not support setting order!",
     public: {
-      remove: 'Whether to remove the use case ',
+      remove: "Whether to remove the use case ",
       batch_remove_confirm: "Confirm remove {0} item use case?",
     },
     enter_issues_content: "Please enter the defect content...",
@@ -177,12 +184,11 @@ const message = {
     not_exits: "File not exits",
     waiting_upload: "Waiting upload",
     waiting_relate: "Waiting relate",
-  }
-}
+  },
+};
 export default {
   ...el,
   ...fu,
   ...mf,
-  ...message
+  ...message,
 };
-

@@ -1781,7 +1781,7 @@ const message = {
       follow_redirects: "跟隨重定向",
       cert_alias: "證書別名",
       do_multipart_post: "對 POST 使用 multipart/form-data",
-      body_upload_limit_size: "上傳文件大小不能超過 500 MB!",
+      body_upload_limit_size: "上傳文件大小不能超過 50 MB!",
       condition: "條件",
       condition_variable: "變量，例如: ${var}",
       wait: "等待",

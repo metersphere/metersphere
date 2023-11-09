@@ -1782,7 +1782,7 @@ const message = {
       follow_redirects: "跟随重定向",
       cert_alias: "证书别名",
       do_multipart_post: "对 POST 使用 multipart/form-data",
-      body_upload_limit_size: "上传文件大小不能超过 500 MB!",
+      body_upload_limit_size: "上传文件大小不能超过 50 MB!",
       condition: "条件",
       condition_variable: "变量，例如: ${var}",
       wait: "等待",

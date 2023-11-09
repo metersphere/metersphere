@@ -154,7 +154,7 @@ export default {
     cancel_relevance_project: "取消項目關聯會同時取消該項目下已關聯的測試用例",
     img_loading_fail: "圖片加載失敗",
     pdf_loading_fail: "PDF加載失敗",
-    upload_tip: "文件大小限制[0-500MB]",
+    upload_tip: "文件大小限制[0-50MB]",
     add_attachment: "添加",
     attachment: "附件",
     dump_module: "請選擇轉存目錄",
@@ -615,7 +615,7 @@ export default {
     fail_case: "失敗用例",
     issue_list: "缺陷列錶",
     all_case: "所有用例",
-    report_summary_length_tips: "報告總結不能超過60000個字符"
+    report_summary_length_tips: "報告總結不能超過60000個字符",
   },
   reporter: "報告人",
   lastmodify: "最後更改",

@@ -288,7 +288,7 @@ export default {
       this.tabActiveName = "remark";
     },
     fileValidator(file) {
-      return file.size < 500 * 1024 * 1024;
+      return file.size < 50 * 1024 * 1024;
     },
     beforeUpload(file) {
       if (!this.fileValidator(file)) {
