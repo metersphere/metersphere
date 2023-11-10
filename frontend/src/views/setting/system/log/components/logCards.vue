@@ -275,7 +275,10 @@
   const type = ref(''); // 操作类型
   const _module = ref(''); // 操作对象
   const content = ref(''); // 名称
-  const time = ref<(Date | string | number)[]>([dayjs().subtract(1, 'M').valueOf(), dayjs().valueOf()]); // 操作时间
+  const time = ref<(Date | string | number)[]>([
+    dayjs().subtract(1, 'M').hour(0).minute(0).second(1).valueOf(),
+    dayjs().valueOf(),
+  ]); // 操作时间
   const selectedTime = ref<Date | string | number | undefined>(''); // 日期选择器选中但未确认的时间
 
   /**

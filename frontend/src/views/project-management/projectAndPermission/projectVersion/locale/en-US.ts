@@ -14,7 +14,7 @@ export default {
   'project.projectVersion.openVersionSuccess': 'Activated successfully',
   'project.projectVersion.versionName': 'Version name',
   'project.projectVersion.status': 'Status',
-  'project.projectVersion.latest': 'Latest version',
+  'project.projectVersion.latest': 'Latest',
   'project.projectVersion.publishTime': 'Release time',
   'project.projectVersion.createTime': 'Creation time',
   'project.projectVersion.creator': 'Creator',
@@ -34,4 +34,7 @@ export default {
   'project.projectVersion.confirmCloseTipContent2': 'You can switch other versions to the latest version',
   'project.projectVersion.replaceVersionPlaceholder': 'Please select an alternative version',
   'project.projectVersion.latestVersionDeleteTip': 'The latest version cannot be deleted',
+  'project.projectVersion.statusTip': 'After closing, the version information drop-down box will not be displayed.',
+  'project.projectVersion.versionInfo': 'Version information example',
+  'project.projectVersion.versionLatest': 'Latest',
 };

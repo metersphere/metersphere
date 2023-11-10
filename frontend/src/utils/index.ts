@@ -235,6 +235,32 @@ export function findNodeByKey<T>(trees: TreeNode<T>[], targetKey: string, custom
 }
 
 /**
+ * 根据 key 遍历树，并返回找到的节点路径和节点
+ */
+export function findNodePathByKey<T>(
+  tree: TreeNode<T>[],
+  targetKey: string,
+  dataKey?: string,
+  customKey = 'key'
+): TreeNode<T> | null {
+  for (let i = 0; i < tree.length; i++) {
+    const node = tree[i];
+    if (dataKey ? node[dataKey]?.[customKey] === targetKey : node[customKey] === targetKey) {
+      return { ...node, treePath: [dataKey ? node[dataKey] : node] }; // 如果当前节点的 key 与目标 key 匹配，则返回当前节点
+    }
+
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      const result = findNodePathByKey(node.children, targetKey, dataKey, customKey); // 递归在子节点中查找
+      if (result) {
+        result.treePath.unshift(dataKey ? node[dataKey] : node);
+        return result; // 如果在子节点中找到了匹配的节点，则返回该节点
+      }
+    }
+  }
+
+  return null;
+}
+/**
  * 找出俩数组之间的差异项并返回
  * @param targetMap 目标项
  * @param sourceMap 查找项

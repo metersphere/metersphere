@@ -90,5 +90,16 @@ export default {
       priority: 'Priority',
       tag: 'Tag',
     },
+    hotboxMenu: {
+      expand: 'Expand/Collapse',
+      insetParent: 'Insert one level up',
+      insetSon: 'Insert next level',
+      insetBrother: 'Insert sibling',
+      copy: 'Copy',
+      cut: 'Cut',
+      paste: 'Paste',
+      delete: 'Delete',
+      enterNode: 'Enter the current node',
+    },
   },
 };

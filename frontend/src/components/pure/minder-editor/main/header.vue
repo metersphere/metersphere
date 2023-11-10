@@ -4,6 +4,7 @@
       <edit-menu
         :minder="minder"
         :move-enable="props.moveEnable"
+        :move-confirm="props.moveConfirm"
         :sequence-enable="props.sequenceEnable"
         :tag-enable="props.tagEnable"
         :progress-enable="props.progressEnable"

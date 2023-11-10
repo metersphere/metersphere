@@ -1,26 +1,33 @@
 <template>
-  <div class="mold-group" :disabled="disabled">
-    <a-dropdown class="toggle" @select="handleCommand">
-      <div>
-        <span class="dropdown-toggle mold-icons menu-btn" :class="'mold-' + (moldIndex + 1)" />
-        <span class="dropdown-link">
-          <icon-caret-down />
-        </span>
-      </div>
-      <template #content>
-        <a-doption class="dropdown-item mold-icons mold-1" :value="1" />
-        <a-doption class="dropdown-item mold-icons mold-2" :value="2" />
-        <a-doption class="dropdown-item mold-icons mold-3" :value="3" />
-        <a-doption class="dropdown-item mold-icons mold-4" :value="4" />
-        <a-doption class="dropdown-item mold-icons mold-5" :value="5" />
-        <a-doption class="dropdown-item mold-icons mold-6" :value="6" />
-      </template>
-    </a-dropdown>
-  </div>
+  <a-dropdown class="toggle" :disabled="disabled" @select="handleCommand">
+    <span class="dropdown-toggle mold-icons menu-btn cursor-pointer" :class="'mold-' + (moldIndex + 1)" />
+    <template #content>
+      <a-doption class="dropdown-item" :value="1">
+        <div class="mold-icons mold-1"></div>
+      </a-doption>
+      <a-doption class="dropdown-item" :value="2">
+        <div class="mold-icons mold-2"></div>
+      </a-doption>
+      <a-doption class="dropdown-item" :value="3">
+        <div class="mold-icons mold-3"></div>
+      </a-doption>
+      <a-doption class="dropdown-item" :value="4">
+        <div class="mold-icons mold-4"></div>
+      </a-doption>
+      <a-doption class="dropdown-item" :value="5">
+        <div class="mold-icons mold-5"></div>
+      </a-doption>
+      <a-doption class="dropdown-item" :value="6">
+        <div class="mold-icons mold-6"></div>
+      </a-doption>
+    </template>
+  </a-dropdown>
 </template>
 
 <script lang="ts" name="Mold" setup>
   import { computed, nextTick, onMounted, ref } from 'vue';
+
+  import useMinderStore from '@/store/modules/components/minder-editor';
 
   import { moleProps } from '../../props';
 
@@ -30,6 +37,7 @@
     (e: 'moldChange', data: number): void;
   }>();
 
+  const minderStore = useMinderStore();
   const moldIndex = ref(0);
 
   const disabled = computed(() => {
@@ -45,9 +53,10 @@
   const templateList = computed(() => window.kityminder.Minder.getTemplateList());
 
   function handleCommand(value: string | number | Record<string, any> | undefined) {
-    moldIndex.value = value as number;
-    window.minder.execCommand('template', Object.keys(templateList.value)[value as number]);
-    emit('moldChange', value as number);
+    moldIndex.value = (value as number) - 1;
+    window.minder.execCommand('template', Object.keys(templateList.value)[(value as number) - 1]);
+    minderStore.setMold((value as number) - 1);
+    emit('moldChange', (value as number) - 1);
   }
 
   onMounted(() => {
@@ -55,40 +64,19 @@
   });
 </script>
 
-<style lang="less">
-  .toggle {
-    .arco-dropdown-list {
-      @apply grid grid-cols-2;
-
-      padding: 5px;
-      gap: 5px;
-    }
-  }
-</style>
-
 <style lang="less" scoped>
+  :deep(.arco-dropdown-list) {
+    @apply grid grid-cols-2;
+  }
   .dropdown-toggle .mold-icons,
   .mold-icons {
     background-image: url('@/assets/images/minder/mold.png');
     background-repeat: no-repeat;
   }
-  .mold-group {
-    @apply relative flex items-center justify-center;
+  .dropdown-item {
+    @apply flex items-center justify-center;
 
-    width: 80px;
-    .dropdown-toggle {
-      @apply flex;
-
-      margin-top: 5px;
-      width: 50px;
-      height: 50px;
-    }
-  }
-  .dropdown-link {
-    @apply absolute cursor-pointer;
-
-    right: 3px;
-    bottom: 2px;
+    height: 50px !important;
   }
   .mold-loop(@i) when (@i > 0) {
     .mold-@{i} {
@@ -96,7 +84,7 @@
 
       margin-top: 5px;
       width: 50px;
-      height: 50px;
+      height: 45px;
       background-position: (1 - @i) * 50px 0;
     }
     .mold-loop(@i - 1);

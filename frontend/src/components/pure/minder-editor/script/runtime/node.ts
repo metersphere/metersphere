@@ -50,6 +50,13 @@ export default function NodeRuntime(this: { minder: any; hotbox: any; editText: 
               return;
             }
             markDeleteNode(minder);
+          } else if (command.indexOf('ArrangeUp') > -1 || command.indexOf('ArrangeDown') > -1) {
+            if (
+              !window.minderProps.moveEnable ||
+              (window.minderProps.moveConfirm && !window.minderProps.moveConfirm())
+            ) {
+              return;
+            }
           }
           minder.execCommand(command);
         }

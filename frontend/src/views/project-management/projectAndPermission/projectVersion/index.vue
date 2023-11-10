@@ -1,11 +1,11 @@
 <template>
-  <a-spin v-if="!projectVersionStatus" :loading="loading" class="h-full w-full">
+  <a-spin v-if="!projectVersionStatus" :loading="loading" class="h-full w-full min-w-[930px]">
     <div class="flex h-full flex-col items-center p-[24px]">
       <div class="mt-[200px] text-[16px] font-medium text-[var(--color-text-1)]">
         {{ t('project.projectVersion.version') }}
       </div>
       <div class="mt-[16px] text-[var(--color-text-4)]">{{ t('project.projectVersion.tip') }}</div>
-      <div class="mt-[24px] flex justify-between gap-[16px]">
+      <div class="mt-[24px] grid grid-cols-3 gap-[16px]">
         <div class="tip-card">
           <img src="@/assets/images/project_assign.png" width="78" height="60" class="tip-icon" />
           <div>
@@ -61,8 +61,11 @@
       <template #statusTitle>
         <div class="flex items-center">
           {{ t('project.projectVersion.status') }}
-          <a-popover :title="t('project.projectVersion.statusTip')" position="right">
+          <a-popover position="rt">
             <icon-info-circle class="ml-[4px] hover:text-[rgb(var(--primary-5))]" size="16" />
+            <template #title>
+              <div class="w-[256px]"> {{ t('project.projectVersion.statusTip') }} </div>
+            </template>
             <template #content>
               <div class="mt-[12px] w-[256px] rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]">
                 <div class="statusTipContent">
@@ -172,7 +175,7 @@
       :on-before-ok="handleBeforeLatestModalOk"
       class="p-[4px]"
       title-align="start"
-      body-class="px-0 py-[8px]"
+      body-class="p-0"
       :ok-text="t('common.confirmClose')"
       :ok-button-props="{ status: 'danger' }"
       @cancel="handleLatestModalCancel"
@@ -515,11 +518,11 @@
           },
           hideCancel: false,
         });
-      } else {
-        await toggleVersionStatus(record.id);
-        Message.success(t('project.projectVersion.open', { name: record.name }));
-        loadList();
+        return false;
       }
+      await toggleVersionStatus(record.id);
+      Message.success(t('project.projectVersion.open', { name: record.name }));
+      loadList();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

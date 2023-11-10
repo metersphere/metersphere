@@ -4,7 +4,7 @@ import localforage from 'localforage';
 import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
 
 import { useAppStore } from '@/store';
-import { PageSizeMap, SelectorColumnMap, TableOpenDetailMode } from '@/store/modules/ms-table/types';
+import { PageSizeMap, SelectorColumnMap, TableOpenDetailMode } from '@/store/modules/components/ms-table/types';
 import { isArraysEqualWithOrder } from '@/utils/equal';
 
 import { SpecialColumnEnum } from '@/enums/tableEnum';
