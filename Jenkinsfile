@@ -120,6 +120,19 @@ pipeline {
                 }
             }
         }
+        stage('Build Standalone') {
+            when {
+                expression {
+                    def reg = "^\\d+\\.\\w+\$"
+                    return env.REVISION.matches(reg)
+                }
+            }
+            steps {
+                script {
+                    build job: "../metersphere-standalone/${BRANCH_NAME}", quietPeriod: 10
+                }
+            }
+        }
     }
     post('Notification') {
         always {
