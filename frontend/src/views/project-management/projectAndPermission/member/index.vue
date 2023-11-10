@@ -58,7 +58,7 @@
         {{ t('organization.member.statusDisable') }}
       </div>
     </template>
-    <template #action="{ record }">
+    <template #operation="{ record }">
       <MsRemoveButton
         position="br"
         :title="t('project.member.deleteMemberTip', { name: characterLimit(record.name) })"
@@ -108,7 +108,7 @@
   } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { useAppStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
 
   import type {
@@ -122,7 +122,7 @@
   const { t } = useI18n();
   const { openModal } = useModal();
   const appStore = useAppStore();
-
+  const tableStore = useTableStore();
   const lastProjectId = computed(() => appStore.getCurrentProjectId);
 
   const columns: MsTableColumn = [
@@ -131,18 +131,22 @@
       dataIndex: 'name',
       showInTable: true,
       showTooltip: true,
-      fixed: 'left',
+      sortIndex: 0,
+      ellipsis: true,
+      showDrag: false,
     },
     {
       title: 'project.member.tableColumnEmail',
       dataIndex: 'email',
       showInTable: true,
       showTooltip: true,
+      showDrag: true,
     },
     {
       title: 'project.member.tableColumnPhone',
       dataIndex: 'phone',
       showInTable: true,
+      showDrag: true,
       width: 150,
     },
     {
@@ -150,6 +154,7 @@
       slotName: 'userRole',
       dataIndex: 'userRoleIdNameMap',
       showInTable: true,
+      showDrag: true,
       width: 300,
     },
     {
@@ -161,10 +166,12 @@
     },
     {
       title: 'project.member.tableColumnActions',
-      slotName: 'action',
+      slotName: 'operation',
       fixed: 'right',
+      dataIndex: 'operation',
       width: 100,
       showInTable: true,
+      showDrag: false,
     },
   ];
 
@@ -368,6 +375,7 @@
     initData();
     initOptions();
   });
+  tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');
 </script>
 
 <style scoped></style>

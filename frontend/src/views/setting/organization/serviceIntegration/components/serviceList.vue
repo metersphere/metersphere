@@ -21,7 +21,7 @@
             height: `calc(100vh - ${collapseHeight} - 230px)`,
           }"
         >
-          <div class="list">
+          <div v-if="filterList.length" class="list">
             <div v-for="item of filterList" :key="item.id" class="item">
               <div class="flex">
                 <span class="icon float-left mr-2 h-[40px] w-[40px] rounded">
@@ -94,6 +94,10 @@
               </div>
             </div>
           </div>
+          <a-empty class="mt-20">
+            暂无数据
+            <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="goPluginManagement">跳转至插件管理</span>
+          </a-empty>
         </a-scrollbar>
       </div>
     </div>
@@ -103,6 +107,7 @@
 
 <script setup lang="ts">
   import { onBeforeMount, ref } from 'vue';
+  import { useRouter } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import ConfigModal from './conifgModal.vue';
@@ -114,11 +119,13 @@
   import { characterLimit } from '@/utils';
 
   import type { ServiceItem, ServiceList } from '@/models/setting/serviceIntegration';
+  import { SettingRouteEnum } from '@/enums/routeEnum';
 
   import Message from '@arco-design/web-vue/es/message';
 
   const { t } = useI18n();
   const { openModal } = useModal();
+  const router = useRouter();
 
   const appStore = useAppStore();
   const lastOrganizationId = appStore.currentOrgId;
@@ -211,7 +218,12 @@
       loading.value = false;
     }
   };
-
+  // 跳转到插件管理
+  function goPluginManagement() {
+    router.push({
+      name: SettingRouteEnum.SETTING_SYSTEM_PLUGIN_MANAGEMENT,
+    });
+  }
   onBeforeMount(() => {
     loadList();
   });

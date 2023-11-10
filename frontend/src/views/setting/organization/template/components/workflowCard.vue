@@ -3,10 +3,10 @@
     class="wrapper"
     :class="{
       ...styleClass.wrapper,
-      _hover_Wrapper: isEnableProjectState || isNotAllowCreate ? false : true,
-      _pointer: !isNotAllowCreate,
-      _not_allowed: isNotAllowCreate,
-      _disabled_gray_bg: isEnableProjectState,
+      '_hover_Wrapper': isEnableProjectState || isNotAllowCreate ? false : true,
+      '_pointer': !isNotAllowCreate,
+      'cursor-not-allowed': isNotAllowCreate,
+      '_disabled_gray_bg': isEnableProjectState,
     }"
   >
     <!-- 不允许状态流转 -->
@@ -64,27 +64,27 @@
 
 <script setup lang="ts">
   /**
-   * @description 系统设置-组织-工作流table小卡片
+   * @description 工作流table小卡片
    */
-
   import { ref } from 'vue';
-  import { useRoute } from 'vue-router';
   import { Message, TableColumnData } from '@arco-design/web-vue';
 
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
-  import { updateOrdWorkStateFlow } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTemplateStore from '@/store/modules/setting/template';
 
   import type { UpdateWorkFlowSetting, WorkFlowType } from '@/models/setting/template';
 
+  import { getWorkFlowRequestApi } from '@/views/setting/organization/template/components/fieldSetting';
+
   const templateStore = useTemplateStore();
 
   const { t } = useI18n();
   const { openModal } = useModal();
   const props = defineProps<{
+    mode: 'organization' | 'project';
     stateItem: WorkFlowType;
     columnItem: TableColumnData;
     cellCoordinates: { rowId: string; columnId: string };
@@ -134,8 +134,9 @@
 
   // 计算是否禁用状态
   const isEnableProjectState = computed(() => {
-    const projectState = templateStore.getProjectTemplateState();
-    return projectState[props.stateItem.scene];
+    return props.mode === 'project'
+      ? !templateStore.projectStatus[props.stateItem.scene]
+      : !templateStore.ordStatus[props.stateItem.scene];
   });
 
   const title = computed(() => {
@@ -227,6 +228,7 @@
 
   const loading = ref<boolean>(false);
 
+  const updateOrdWorkStateFlow = getWorkFlowRequestApi(props.mode).updateFlow;
   // 创建工作流流转状态
   async function changeWorkFlow(type: string) {
     try {
@@ -307,9 +309,9 @@
   }
   // 容器阴影 hover
   ._hover_Wrapper {
-    @apply hover:shadow-xl;
     &:hover {
       border-radius: 4px;
+      box-shadow: 0 4px 15px -1px rgba(100 100 102 / 15%);
     }
   }
   // 未创建hover----

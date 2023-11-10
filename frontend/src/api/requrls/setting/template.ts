@@ -12,6 +12,8 @@ export const UpdateProjectTemplateUrl = '/project/template/update';
 export const GetProjectTemplateDetailUrl = '/project/template/get';
 // 删除模版
 export const DeleteProjectTemplateUrl = '/project/template/delete';
+// 是否启用项目模板
+export const getProjectTemplateStateUrl = '/project/template/enable/config';
 
 // 组织--- 模板
 
@@ -29,8 +31,8 @@ export const GetOrganizeTemplateDetailUrl = '/organization/template/get';
 export const DeleteOrganizeTemplateUrl = '/organization/template/delete';
 // 关闭组织模板，开启项目模版
 export const EnableOrOffTemplateUrl = '/organization/template/disable';
-// 是否启用组织模板
-export const isEnableTemplateUrl = '/organization/template/enable/config';
+// 获取所有模板状态
+export const getOrdTemplateStateUrl = '/organization/template/enable/config';
 
 // 系统设置-组织-自定义字段
 
@@ -61,3 +63,33 @@ export const OrdSetStateUrl = '/organization/status/flow/setting/status/definiti
 export const OrdStateSortUrl = '/organization/status/flow/setting/status/sort';
 // 更新状态流转
 export const OrdUpdateStateFlowUrl = '/organization/status/flow/setting/status/flow/update';
+
+// 项目管理-模板-自定义字段
+
+// 获取自定义字段列表
+export const GetDefinedProjectFieldListUrl = '/project/custom/field/list/';
+// 创建自定义字段
+export const CreateProjectFieldUrl = '/project/custom/field/add';
+// 更新自定义字段
+export const UpdateProjectFieldUrl = '/project/custom/field/update';
+// 获取自定义字段详情
+export const GetFieldProjectDetailUrl = '/project/custom/field/get';
+// 删除自定义字段
+export const DeleteProjectFieldDetailUrl = '/project/custom/field/delete';
+
+// 项目管理-模板-获取工作流列表
+export const ProjectWorkFlowUrl = '/project/status/flow/setting/get';
+// 状态流更新
+export const ProjectWorkFlowSetting = '/project/status/flow/setting/status/update';
+// 创建工作流状态
+export const ProjectCreateFlowStatusUrl = '/project/status/flow/setting/status/add';
+// 更新工作流状态
+export const ProjectUpdateFlowStatusUrl = '/project/status/flow/setting/status/update';
+// 删除工作流状态
+export const ProjectDeleteFlowStatusUrl = '/project/status/flow/setting/status/delete';
+// 设置工作流状态为初始态或者标记结束状态
+export const ProjectSetStateUrl = '/project/status/flow/setting/status/definition/update';
+// 设置选项排序
+export const ProjectStateSortUrl = '/project/status/flow/setting/status/sort';
+// 更新状态流转
+export const ProjectUpdateStateFlowUrl = '/project/status/flow/setting/status/flow/update';

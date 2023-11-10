@@ -18,6 +18,7 @@ export default {
   'system.orgTemplate.testPlanTemplates': 'TestPlan template',
   'system.orgTemplate.defectTemplates': 'Defect template',
   'system.orgTemplate.enabledTemplates': 'enabled',
+  'system.orgTemplate.disabledTemplates': 'disabled',
   'system.orgTemplate.fieldSetting': 'Setting',
   'system.orgTemplate.TemplateManagement': 'Management',
   'system.orgTemplate.workflowSetup': 'Workflow',
@@ -86,6 +87,7 @@ export default {
   'system.orgTemplate.addStep': 'Add Step',
   'system.orgTemplate.caseName': 'Use case name',
   'system.orgTemplate.caseNamePlaceholder': 'Please enter a use case name',
+  'system.orgTemplate.defectNamePlaceholder': 'Please enter a use defect name',
   'system.orgTemplate.precondition': 'precondition',
   'system.orgTemplate.stepDescription': 'Step description',
   'system.orgTemplate.changeType': 'Change type',
@@ -146,4 +148,20 @@ export default {
   'system.orgTemplate.stateTip':
     'Open, the existing state will transfer to the state, only in the state of new Settings',
   'system.orgTemplate.createSuccess': 'Created successfully',
+  'system.orgTemplate.filedDetail': '{name}',
+  'system.orgTemplate.int': 'Int',
+  'system.orgTemplate.float': 'Float',
+  'system.orgTemplate.defaultTemplate': 'Default Template',
+  'system.orgTemplate.setSuccessfully': 'Set successfully',
+  'system.orgTemplate.isThirdParty': 'Third Party',
+  'system.orgTemplate.yes': 'Yes',
+  'system.orgTemplate.no': 'No',
+  'system.orgTemplate.custom': 'custom',
+  'system.orgTemplate.defectName': 'Defect Name',
+  'system.orgTemplate.defectContent': 'Defect Content',
+  'system.orgTemplate.defectNameTip':
+    'You can set a default value for the defect name, which is used uniformly when creating it',
+  'system.orgTemplate.defectContentTip':
+    'You can set the default value for the defect content and use it when creating',
+  'system.orgTemplate.templateNameRules': 'Please enter a template name',
 };

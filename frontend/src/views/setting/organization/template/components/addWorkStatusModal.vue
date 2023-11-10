@@ -42,31 +42,42 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 系统管理-组织-模板管理-工作流-创建工作流状态
+   */
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsDialog from '@/components/pure/ms-dialog/index.vue';
 
-  import { createWorkFlowStatus, updateWorkFlowStatus } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
   import type { OrdWorkStatus } from '@/models/setting/template';
 
+  import { getWorkFlowRequestApi } from '@/views/setting/organization/template/components/fieldSetting';
+
   const appStore = useAppStore();
 
   const currentOrgId = computed(() => appStore.currentOrgId);
+  const currentProjectId = computed(() => appStore.currentProjectId);
   const route = useRoute();
   const { t } = useI18n();
+
+  const props = defineProps<{
+    mode: 'organization' | 'project';
+  }>();
+
   const emits = defineEmits<{
     (e: 'update:visible', visible: boolean): void;
     (e: 'success'): void;
   }>();
 
   const visible = ref<boolean>(false);
+
   const initFormValue: OrdWorkStatus = {
-    scopeId: currentOrgId.value,
+    scopeId: '',
     id: '',
     name: '',
     scene: route.query.type,
@@ -87,11 +98,14 @@
 
   const isEdit = computed(() => !!form.value.id);
 
-  // 添加项目成员
+  const createWorkFlowStatus = getWorkFlowRequestApi(props.mode).create;
+  const updateWorkFlowStatus = getWorkFlowRequestApi(props.mode).update;
   const confirmHandler = async (enable: boolean | undefined) => {
     await formRef.value?.validate().then(async (error) => {
       if (!error) {
         try {
+          const scopeId = props.mode === 'organization' ? currentOrgId.value : currentProjectId.value;
+          form.value.scopeId = scopeId;
           if (!form.value.id) {
             form.value.allTransferTo = enable as boolean;
             await createWorkFlowStatus(form.value);

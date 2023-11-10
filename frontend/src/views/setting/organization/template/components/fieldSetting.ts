@@ -1,11 +1,37 @@
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
+import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
 import type { FormItemType } from '@/components/pure/ms-form-create/types';
 
+import {
+  addOrUpdateOrdField,
+  addOrUpdateProjectField,
+  createProjectWorkFlowStatus,
+  createWorkFlowStatus,
+  deleteOrdField,
+  deleteOrdWorkState,
+  deleteProjectField,
+  deleteProjectWorkState,
+  getFieldList,
+  getOrdFieldDetail,
+  getProjectFieldDetail,
+  getProjectFieldList,
+  getProjectWorkFlowList,
+  getWorkFlowList,
+  setOrdWorkState,
+  setOrdWorkStateSort,
+  setProjectWorkState,
+  setProjectWorkStateSort,
+  updateOrdWorkStateFlow,
+  updateProjectWorkFlowStatus,
+  updateProjectWorkStateFlow,
+  updateWorkFlowStatus,
+} from '@/api/modules/setting/template';
 import { useI18n } from '@/hooks/useI18n';
 import useTemplateStore from '@/store/modules/setting/template';
 
-import type { fieldIconAndNameModal } from '@/models/setting/template';
+import type { CustomField, DefinedFieldItem, fieldIconAndNameModal } from '@/models/setting/template';
 import { TemplateCardEnum, TemplateIconEnum } from '@/enums/templateEnum';
 
 const { t } = useI18n();
@@ -47,49 +73,12 @@ export const getFieldType = (selectFieldType: FormItemType) => {
   }
 };
 
-const organizationState = computed(() => templateStore.getOrdTemplateState());
-const projectState = computed(() => templateStore.getProjectTemplateState());
-// 模板列表Icon
-export const cardList = [
-  {
-    id: 1001,
-    key: 'FUNCTIONAL',
-    value: TemplateCardEnum.FUNCTIONAL,
-    name: t('system.orgTemplate.caseTemplates'),
-    enable: templateStore.templateStatus.FUNCTIONAL,
-  },
-  {
-    id: 1002,
-    key: 'API',
-    value: TemplateCardEnum.API,
-    name: t('system.orgTemplate.APITemplates'),
-    enable: templateStore.templateStatus.API,
-  },
-  {
-    id: 1003,
-    key: 'UI',
-    value: TemplateCardEnum.UI,
-    name: t('system.orgTemplate.UITemplates'),
-    enable: templateStore.templateStatus.UI,
-  },
-  {
-    id: 1004,
-    key: 'TEST_PLAN',
-    value: TemplateCardEnum.TEST_PLAN,
-    name: t('system.orgTemplate.testPlanTemplates'),
-    enable: templateStore.templateStatus.TEST_PLAN,
-  },
-  {
-    id: 1005,
-    key: 'BUG',
-    value: TemplateCardEnum.BUG,
-    name: t('system.orgTemplate.defectTemplates'),
-    enable: templateStore.templateStatus.BUG,
-  },
-];
+const organizationState = computed(() => templateStore.ordStatus);
+const projectState = computed(() => templateStore.projectStatus);
 
+// 模板列表Icon
 export function getCardList(type: string): Record<string, any>[] {
-  const dataList = [
+  const dataList = ref([
     {
       id: 1001,
       key: 'FUNCTIONAL',
@@ -120,16 +109,17 @@ export function getCardList(type: string): Record<string, any>[] {
       value: TemplateCardEnum.BUG,
       name: t('system.orgTemplate.defectTemplates'),
     },
-  ];
+  ]);
   if (type === 'organization') {
-    return dataList.map((item) => {
+    return dataList.value.map((item) => {
       return {
         ...item,
         enable: organizationState.value[item.key],
       };
     });
   }
-  return dataList.map((item) => {
+
+  return dataList.value.map((item) => {
     return {
       ...item,
       enable: projectState.value[item.key],
@@ -219,6 +209,104 @@ export const fieldIconAndName: fieldIconAndNameModal[] = [
 // 获取图标类型
 export const getIconType = (iconType: FormItemType) => {
   return fieldIconAndName.find((item) => item.key === iconType);
+};
+
+// 获取接口类型
+export const getFieldRequestApi = (mode: 'organization' | 'project') => {
+  if (mode === 'organization') {
+    return {
+      list: getFieldList,
+      delete: deleteOrdField,
+      addOrUpdate: addOrUpdateOrdField,
+      detail: getOrdFieldDetail,
+    };
+  }
+  return {
+    list: getProjectFieldList,
+    delete: deleteProjectField,
+    addOrUpdate: addOrUpdateProjectField,
+    detail: getProjectFieldDetail,
+  };
+};
+
+// 获取工作流类型接口
+export const getWorkFlowRequestApi = (mode: 'organization' | 'project') => {
+  if (mode === 'organization') {
+    return {
+      list: getWorkFlowList,
+      create: createWorkFlowStatus,
+      update: updateWorkFlowStatus,
+      delete: deleteOrdWorkState,
+      changeState: setOrdWorkState,
+      dragChange: setOrdWorkStateSort,
+      updateFlow: updateOrdWorkStateFlow,
+    };
+  }
+  return {
+    list: getProjectWorkFlowList,
+    create: createProjectWorkFlowStatus,
+    update: updateProjectWorkFlowStatus,
+    delete: deleteProjectWorkState,
+    changeState: setProjectWorkState,
+    dragChange: setProjectWorkStateSort,
+    updateFlow: updateProjectWorkStateFlow,
+  };
+};
+
+/** **
+ * @description 处理totalData自定义字段列表格式
+ * @param totalData: 自定义字段总列表
+ */
+
+export const getTotalFieldOptionList = (totalData: DefinedFieldItem[]) => {
+  return totalData.map((item: any) => {
+    const currentFormRules = FieldTypeFormRules[item.type];
+    let selectOptions: any = [];
+    if (item.options && item.options.length) {
+      selectOptions = item.options.map((optionItem: any) => {
+        return {
+          label: optionItem.text,
+          value: optionItem.value,
+        };
+      });
+      currentFormRules.options = selectOptions;
+    }
+    return {
+      ...item,
+      formRules: [
+        { ...currentFormRules, value: item.value, props: { ...currentFormRules.props, options: selectOptions } },
+      ],
+      fApi: null,
+      required: item.internal,
+    };
+  });
+};
+
+/** **
+ * @description 处理自定义字段详情展示格式
+ * @param totalData: 自定义字段总列表
+ * @param customFields: 自定义字段总列表
+ */
+export const getCustomDetailFields = (totalData: DefinedFieldItem[], customFields: CustomField[]) => {
+  const customFieldsIds = customFields.map((index: any) => index.fieldId);
+  return totalData.filter((item) => {
+    const currentCustomFieldIndex = customFieldsIds.findIndex((it: any) => it === item.id);
+    if (customFieldsIds.indexOf(item.id) > -1) {
+      const currentForm = item.formRules?.map((it: any) => {
+        it.props.modelValue = customFields[currentCustomFieldIndex].defaultValue;
+        return {
+          ...it,
+          value: customFields[currentCustomFieldIndex].defaultValue,
+        };
+      });
+      const formItem = item;
+      formItem.formRules = cloneDeep(currentForm);
+      formItem.apiFieldId = customFields[currentCustomFieldIndex].apiFieldId;
+      formItem.required = customFields[currentCustomFieldIndex].required;
+      return true;
+    }
+    return false;
+  });
 };
 
 export default {};

@@ -52,6 +52,11 @@
     useEditor,
   } from '@halo-dev/richtext-editor';
 
+  const props = defineProps<{
+    modelValue: string;
+  }>();
+  const emit = defineEmits(['update:model-value']);
+
   const content = useLocalStorage('content', '');
 
   const editor = useEditor({
@@ -132,6 +137,22 @@
 
   // const locale = useLocalStorage('locale', 'zh-CN');
   const locale = computed(() => currentLocale.value as 'zh-CN' | 'en-US');
+
+  watch(
+    () => props.modelValue,
+    (val) => {
+      if (val) {
+        content.value = val;
+      }
+    }
+  );
+
+  watch(
+    () => content.value,
+    () => {
+      emit('update:model-value', `${editor.value?.getHTML()}`);
+    }
+  );
 </script>
 
 <template>

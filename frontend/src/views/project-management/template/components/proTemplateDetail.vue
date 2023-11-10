@@ -67,7 +67,7 @@
         v-model:select-data="selectData"
         :data="(totalTemplateField as DefinedFieldItem[])"
         :enable-third-part="templateForm.enableThirdPart"
-        mode="organization"
+        mode="project"
         @update="updateHandler"
       />
       <!-- 缺陷详情表 -->
@@ -79,6 +79,7 @@
         layout="vertical"
       >
         <a-form-item
+          class="max-w-[732px]"
           field="name"
           :label="t('system.orgTemplate.defectName')"
           :rules="[{ required: true, message: t('system.orgTemplate.defectNamePlaceholder') }]"
@@ -94,7 +95,12 @@
           ></a-input>
           <MsFormItemSub :text="t('system.orgTemplate.defectNameTip')" :show-fill-icon="false" />
         </a-form-item>
-        <a-form-item field="precondition" :label="t('system.orgTemplate.defectContent')" asterisk-position="end">
+        <a-form-item
+          field="precondition"
+          :label="t('system.orgTemplate.defectContent')"
+          asterisk-position="end"
+          class="max-w-[732px]"
+        >
           <MsRichText v-model:model-value="defectForm.description" />
           <MsFormItemSub :text="t('system.orgTemplate.defectContentTip')" :show-fill-icon="false" />
         </a-form-item>
@@ -112,7 +118,7 @@
 
 <script setup lang="ts">
   /**
-   * @description 系统管理-组织-模版-模版管理-创建&编辑
+   * @description 系统管理-项目-模版-模版管理-创建&编辑
    */
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
@@ -121,14 +127,14 @@
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
-  import TemplateManagementTable from './templateManagementTable.vue';
-  import PreviewTemplate from './viewTemplate.vue';
+  import TemplateManagementTable from '@/views/setting/organization/template/components/templateManagementTable.vue';
+  import PreviewTemplate from '@/views/setting/organization/template/components/viewTemplate.vue';
 
   import {
-    createOrganizeTemplateInfo,
-    getFieldList,
-    getOrganizeTemplateInfo,
-    updateOrganizeTemplateInfo,
+    createProjectTemplateInfo,
+    getProjectFieldList,
+    getProjectTemplateInfo,
+    updateProjectTemplateInfo,
   } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
@@ -137,15 +143,20 @@
   import { scrollIntoView } from '@/utils/dom';
 
   import type { ActionTemplateManage, CustomField, DefinedFieldItem } from '@/models/setting/template';
-  import { SettingRouteEnum } from '@/enums/routeEnum';
+  import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
-  import { getCardList, getCustomDetailFields, getTotalFieldOptionList } from './fieldSetting';
+  import {
+    getCardList,
+    getCustomDetailFields,
+    getTotalFieldOptionList,
+  } from '@/views/setting/organization/template/components/fieldSetting';
 
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
   const appStore = useAppStore();
-  const currentOrgId = computed(() => appStore.currentOrgId);
+  const currentProjectId = computed(() => appStore.currentProjectId);
+
   const { setState } = useLeaveUnSaveTip();
 
   setState(false);
@@ -157,7 +168,7 @@
     id: '',
     name: '',
     remark: '',
-    scopeId: currentOrgId.value,
+    scopeId: currentProjectId.value,
     enableThirdPart: false,
   };
 
@@ -178,7 +189,7 @@
   const getTemplateInfo = async () => {
     try {
       loading.value = true;
-      const res = await getOrganizeTemplateInfo(route.query.id as string);
+      const res = await getProjectTemplateInfo(route.query.id as string);
       const { name, customFields, systemFields } = res;
       templateForm.value = {
         ...res,
@@ -208,9 +219,12 @@
   // 获取字段列表数据
   const getClassifyField = async () => {
     try {
-      totalTemplateField.value = await getFieldList({ scopedId: currentOrgId.value, scene: route.query.type });
+      totalTemplateField.value = await getProjectFieldList({
+        scopedId: currentProjectId.value,
+        scene: route.query.type,
+      });
       getFieldOptionList();
-      // 编辑字段需要单独处理过滤
+      // 编辑字段就需要单独处理过滤
       if (isEditField.value) {
         selectData.value = totalTemplateField.value.filter(
           (item) => selectFiled.value.map((it) => it.id).indexOf(item.id) > -1
@@ -236,7 +250,12 @@
     }
   });
 
-  const defectForm = ref<Record<string, any>>({}); // 缺陷详情表单
+  const initDefectForm = {
+    name: '',
+    description: '',
+  };
+  // 缺陷详情字段
+  const defectForm = ref<Record<string, any>>({ ...initDefectForm });
 
   // 获取模板参数
   function getTemplateParams(): ActionTemplateManage {
@@ -246,8 +265,8 @@
         return {
           fieldId: item.id,
           required: item.required,
-          apiFieldId: item.apiFieldId || '',
-          defaultValue: value || '',
+          apiFieldId: item.apiFieldId,
+          defaultValue: value,
         };
       }
       return [];
@@ -267,7 +286,7 @@
       remark,
       enableThirdPart,
       customFields: result as CustomField[],
-      scopeId: currentOrgId.value,
+      scopeId: currentProjectId.value,
       scene: route.query.type,
       systemFields: sysDetailFields,
     };
@@ -285,17 +304,17 @@
       loading.value = true;
       const params = getTemplateParams();
       if (isEdit.value && route.params.mode !== 'copy') {
-        await updateOrganizeTemplateInfo(params);
+        await updateProjectTemplateInfo(params);
         Message.success(t('system.orgTemplate.updateSuccess'));
       } else {
-        await createOrganizeTemplateInfo(params);
+        await createProjectTemplateInfo(params);
         Message.success(t('system.orgTemplate.addSuccess'));
       }
       if (isContinueFlag.value) {
         resetForm();
       } else {
         await sleep(300);
-        router.push({ name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT, query: route.query });
+        router.push({ name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT, query: route.query });
         setState(true);
       }
     } catch (error) {
@@ -324,7 +343,7 @@
 
   // 计算当前级别title
   const breadTitle = computed(() => {
-    const firstBreadTitle = getCardList('organization').find((item) => item.key === route.query.type)?.name;
+    const firstBreadTitle = getCardList('organization').find((item: any) => item.key === route.query.type)?.name;
     const ThirdBreadTitle = title.value;
     return {
       firstBreadTitle,
@@ -344,6 +363,7 @@
       appStore.setBreadcrumbList(breadcrumbList);
     }
   };
+
   // 字段表编辑更新表
   const updateHandler = (flag: boolean) => {
     isEditField.value = flag;
@@ -351,11 +371,11 @@
     getClassifyField();
   };
 
-  // 缺陷详情表单回显
   watch(
     () => systemFieldData.value,
     (val) => {
       if (val) {
+        defectForm.value = { ...initDefectForm };
         systemFieldData.value.forEach((item) => {
           defectForm.value[item.fieldId] = item.defaultValue;
         });

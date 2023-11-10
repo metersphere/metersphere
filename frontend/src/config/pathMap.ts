@@ -165,8 +165,36 @@ export const pathMap: PathMapItem[] = [
           },
           {
             key: 'SETTING_ORGANIZATION_TEMPLATE', // 系统设置-组织-模版
-            locale: 'menu.settings.organization.serviceIntegration',
+            locale: 'menu.settings.organization.template',
             route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE,
+            permission: [],
+            level: MENU_LEVEL[1],
+          },
+          {
+            key: 'SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING', // 系统设置-模板管理-字段设置
+            locale: 'menu.settings.organization.templateFieldSetting',
+            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
+            permission: [],
+            level: MENU_LEVEL[1],
+          },
+          {
+            key: 'SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT', // 系统设置-模板管理列表
+            locale: 'menu.settings.organization.templateManagementList',
+            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+            permission: [],
+            level: MENU_LEVEL[1],
+          },
+          {
+            key: 'SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL', // 系统设置-模板管理-详情
+            locale: 'menu.settings.organization.templateManagementDetail',
+            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
+            permission: [],
+            level: MENU_LEVEL[1],
+          },
+          {
+            key: 'SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW', // 系统设置-模板管理-工作流
+            locale: 'menu.settings.organization.templateManagementWorkFlow',
+            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
             permission: [],
             level: MENU_LEVEL[1],
           },
@@ -203,13 +231,6 @@ export const pathMap: PathMapItem[] = [
             level: MENU_LEVEL[2],
           },
           {
-            key: 'PROJECT_MANAGEMENT_PERMISSION_TEMPLATE', // 项目管理-项目与权限-菜单管理
-            locale: 'project.permission.templateManager',
-            route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_TEMPLATE,
-            permission: [],
-            level: MENU_LEVEL[2],
-          },
-          {
             key: 'PROJECT_MANAGEMENT_PERMISSION_VERSION', // 项目管理-项目与权限-项目版本
             locale: 'project.permission.projectVersion',
             route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
@@ -231,6 +252,41 @@ export const pathMap: PathMapItem[] = [
             level: MENU_LEVEL[2],
           },
         ],
+      },
+      {
+        key: 'PROJECT_MANAGEMENT_TEMPLATE', // 项目管理-模板管理
+        locale: 'menu.settings.organization.template',
+        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING', // 项目管理-模板管理-字段设置
+        locale: 'menu.settings.organization.templateFieldSetting',
+        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT', // 项目管理-模板管理列表
+        locale: 'menu.settings.organization.templateManagementList',
+        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL', // 项目管理-模板管理-详情
+        locale: 'menu.settings.organization.templateManagementDetail',
+        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW', // 项目管理-模板管理-工作流
+        locale: 'menu.settings.organization.templateManagementWorkFlow',
+        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW,
+        permission: [],
+        level: MENU_LEVEL[2],
       },
       {
         key: 'PROJECT_MANAGEMENT_FILE_MANAGEMENT', // 项目管理-文件管理

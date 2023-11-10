@@ -3,7 +3,7 @@
     <template #name="{ record }">
       <MsIcon v-if="!record.internal" :type="getIconType(record.type)?.iconName || ''" size="16" />
       <span class="ml-2">{{ record.name }}</span>
-      <span v-if="record.internal" class="system-flag">{{ t('system.orgTemplate.isSystem') }}</span>
+      <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
     </template>
     <template #apiFieldId="{ record }">
       <a-input
@@ -37,6 +37,7 @@
     v-model:visible="showDrawer"
     :total-data="(totalData as DefinedFieldItem[])"
     :table-select-data="(selectList as DefinedFieldItem[])"
+    :mode="props.mode"
     @confirm="confirmHandler"
     @update-data="updateFieldHandler"
   />
@@ -46,33 +47,42 @@
     </template>
     {{ t('system.orgTemplate.createField') }}
   </a-button>
-  <EditFieldDrawer ref="fieldDrawerRef" v-model:visible="showFieldDrawer" @success="updateFieldHandler" />
+  <EditFieldDrawer
+    ref="fieldDrawerRef"
+    v-model:visible="showFieldDrawer"
+    :mode="props.mode"
+    @success="updateFieldHandler"
+  />
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 系统管理-组织-模板管理-创建模板-非缺陷模板自定义字段表格
+   */
   import { ref } from 'vue';
+  import { useRoute } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import AddFieldToTemplateDrawer from './addFieldToTemplateDrawer.vue';
   import EditFieldDrawer from './editFieldDrawer.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { useTableStore } from '@/store';
 
   import type { DefinedFieldItem } from '@/models/setting/template';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { getIconType } from './fieldSetting';
 
-  const tableStore = useTableStore();
   const { t } = useI18n();
 
   const props = withDefaults(
     defineProps<{
+      mode: 'organization' | 'project';
       enableThirdPart: boolean; // 是否对接第三方平台
       data: DefinedFieldItem[]; // 总字段数据
       selectData: Record<string, any>[]; // 选择数据
@@ -83,6 +93,8 @@
   );
 
   const emit = defineEmits(['update:select-data', 'update']);
+
+  const route = useRoute();
 
   const columns: MsTableColumn = [
     {
@@ -121,6 +133,7 @@
     {
       title: 'system.orgTemplate.operation',
       slotName: 'operation',
+      dataIndex: 'operation',
       fixed: 'right',
       width: 200,
       showInTable: true,
@@ -141,14 +154,14 @@
 
   const tableRef = ref();
 
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD, columns, 'drawer');
   const { propsRes, propsEvent, setProps } = useTable(undefined, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT_FIELD,
+    columns,
     scroll: { x: '1800px' },
     selectable: false,
     noDisable: true,
     size: 'default',
-    showSetting: true,
+    showSetting: false,
     showPagination: false,
     enableDrag: true,
   });
@@ -241,7 +254,7 @@
   watch(
     () => props.enableThirdPart,
     (val) => {
-      if (val) {
+      if (val && route.query.type === 'BUG') {
         const result = [...columns.slice(0, 1), getApiColumns(), ...columns.slice(1)];
         tableRef.value.initColumn(result);
       } else {
