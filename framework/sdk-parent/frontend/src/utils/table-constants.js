@@ -1,6 +1,6 @@
 // 模板
 import i18n from "../i18n";
-import {AZURE_DEVOPS, LOCAL, TAPD, ZEN_TAO} from "./constants";
+import {AZURE_DEVOPS, LOCAL, TAPD} from "./constants";
 
 export const CUSTOM_FIELD_TYPE_OPTION = [
   {value: 'input', text: 'workspace.custom_filed.input'},
@@ -55,7 +55,6 @@ export const UI_ELEMENT_LOCATION_TYPE_OPTION = [
 export const CUSTOM_FIELD_SCENE_OPTION = [
   {value: 'TEST_CASE', text: 'workspace.case_template_manage'},
   {value: 'ISSUE', text: 'workspace.issue_template_manage'},
-  {value: 'PLAN',text: 'workstation.table_name.track_plan'},
   {value: 'API', text: 'workspace.api_template_manage'}
 ];
 

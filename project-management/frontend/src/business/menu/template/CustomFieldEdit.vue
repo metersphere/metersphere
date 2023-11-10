@@ -35,7 +35,7 @@
           v-model="form.scene"
           :placeholder="$t('custom_field.scene')">
           <el-option
-            v-for="item in (form.scene === 'PLAN' ? planSceneOptions : sceneOptions)"
+            v-for="item in sceneOptions"
             :key="item.value"
             :label="$t(item.text)"
             :value="item.value">
@@ -122,11 +122,6 @@ export default {
     },
     sceneOptions() {
       return CUSTOM_FIELD_SCENE_OPTION;
-    },
-    planSceneOptions() {
-      let tmp = [...CUSTOM_FIELD_SCENE_OPTION];
-      tmp.push({value: 'PLAN', text: i18n.t('workstation.table_name.track_plan')});// 创建和编辑不能选测试计划
-      return tmp;
     },
     showOptions() {
       return ['select', 'multipleSelect', 'radio', 'checkbox'].indexOf(this.form.type) > -1;
