@@ -83,6 +83,7 @@
           :label="t('system.orgTemplate.defectName')"
           :rules="[{ required: true, message: t('system.orgTemplate.defectNamePlaceholder') }]"
           required
+          class="max-w-[732px]"
           asterisk-position="end"
         >
           <a-input
@@ -94,7 +95,12 @@
           ></a-input>
           <MsFormItemSub :text="t('system.orgTemplate.defectNameTip')" :show-fill-icon="false" />
         </a-form-item>
-        <a-form-item field="precondition" :label="t('system.orgTemplate.defectContent')" asterisk-position="end">
+        <a-form-item
+          field="precondition"
+          :label="t('system.orgTemplate.defectContent')"
+          asterisk-position="end"
+          class="max-w-[732px]"
+        >
           <MsRichText v-model:model-value="defectForm.description" />
           <MsFormItemSub :text="t('system.orgTemplate.defectContentTip')" :show-fill-icon="false" />
         </a-form-item>
