@@ -21,25 +21,27 @@
     </div>
     <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">
       <template #name="{ record }">
-        <MsIcon
-          v-if="!record.internal"
-          :type="getIconType(record.type)?.iconName || ''"
-          size="16"
-          :class="{
-            'text-[rgb(var(--primary-5))]': props.mode === 'project',
-            'cursor-pointer': props.mode === 'project',
-          }"
-        />
-        <span
-          class="ml-2"
-          :class="{
-            'text-[rgb(var(--primary-5))]': props.mode === 'project',
-            'cursor-pointer': props.mode === 'project',
-          }"
-          @click="showDetail(record)"
-          >{{ record.name }}</span
+        <div class="flex items-center">
+          <MsIcon
+            v-if="!record.internal"
+            :type="getIconType(record.type)?.iconName || ''"
+            size="16"
+            :class="{
+              'text-[rgb(var(--primary-5))]': props.mode === 'project',
+              'cursor-pointer': props.mode === 'project',
+            }"
+          />
+          <span
+            class="ml-2"
+            :class="{
+              'text-[rgb(var(--primary-5))]': props.mode === 'project',
+              'cursor-pointer': props.mode === 'project',
+            }"
+            @click="showDetail(record)"
+            >{{ record.name }}</span
+          >
+          <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag></div
         >
-        <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
       </template>
       <template #operation="{ record }">
         <div class="flex flex-row flex-nowrap items-center">

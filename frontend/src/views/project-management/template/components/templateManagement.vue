@@ -27,10 +27,12 @@
         {{ record.enableThirdPart ? t('system.orgTemplate.yes') : t('system.orgTemplate.no') }}
       </template>
       <template #name="{ record }">
-        <span class="ml-2 cursor-pointer text-[rgb(var(--primary-5))]" @click="previewDetail(record)">{{
-          record.name
-        }}</span>
-        <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
+        <div class="flex items-center">
+          <span class="ml-2 cursor-pointer text-[rgb(var(--primary-5))]" @click="previewDetail(record)">{{
+            record.name
+          }}</span>
+          <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
+        </div>
       </template>
       <template #operation="{ record }">
         <div class="flex flex-row flex-nowrap">
