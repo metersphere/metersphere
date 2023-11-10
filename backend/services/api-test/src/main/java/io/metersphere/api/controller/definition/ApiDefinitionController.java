@@ -73,10 +73,10 @@ public class ApiDefinitionController {
     @PostMapping("/page")
     @Operation(summary = "接口测试-接口管理-接口列表")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
-    public Pager<List<ApiDefinitionDTO>> getListByPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
+    public Pager<List<ApiDefinitionDTO>> getPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, apiDefinitionService.getApiDefinitionPage(request));
+        return PageUtils.setPageInfo(page, apiDefinitionService.getApiDefinitionPage(request, false));
     }
 
 }

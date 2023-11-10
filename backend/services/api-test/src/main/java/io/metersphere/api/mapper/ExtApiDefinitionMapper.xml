@@ -21,6 +21,7 @@
         api_definition.deleted, project_version.name as version_name
         from api_definition
         LEFT JOIN project_version ON project_version.id = api_definition.version_id
+        where deleted = #{deleted}
         <include refid="queryWhereCondition"/>
 
     </select>
@@ -31,13 +32,14 @@
         t1.api_definition_id apiDefinitionId,
         count( t1.id ) caseTotal,
         SUM( CASE WHEN t2.`status` = 'SUCCESS' THEN 1 ELSE 0 END ) AS `success`,
-        SUM( CASE WHEN t2.`status` IN ( 'ERROR', 'FAKE_ERROR' ) THEN 1 ELSE 0 END ) AS `error`,
+        SUM( CASE WHEN t2.`status` = 'ERROR' THEN 1 ELSE 0 END ) AS `error`,
+        SUM( CASE WHEN t2.`status` = 'FAKE_ERROR' THEN 1 ELSE 0 END ) AS `fakeError`,
         CONCAT( FORMAT( SUM( IF ( t2.`status` = 'SUCCESS', 1, 0 ))/ COUNT( t1.id )* 100, 2 ), '%' ) casePassRate
         FROM
         api_test_case t1
         LEFT JOIN api_report t2 ON t1.last_report_id = t2.id
         WHERE
-        t1.project_id = #{projectId} and (t1.`status` is null or t1.`status` != 'Trash')
+        t1.project_id = #{projectId} and  t1.deleted = 0
 
         GROUP BY
         t1.api_definition_id
@@ -48,36 +50,34 @@
         </foreach>
     </select>
     <sql id="queryWhereCondition">
-        <where>
-            <if test="request.keyword != null and request.keyword != ''">
-                and (
-                api_definition.num like concat('%', #{request.keyword},'%')
-                or api_definition.name like concat('%', #{request.keyword},'%')
-                or api_definition.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
-                )
-            </if>
-            <if test="request.projectId != null and request.projectId != ''">
-                and api_definition.project_id = #{request.projectId}
-            </if>
-            <if test="request.protocol != null and request.protocol != ''">
-                AND api_definition.protocol = #{request.protocol}
-            </if>
-            <include refid="filters">
-                <property name="filter" value="request.filter"/>
-            </include>
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            api_definition.num like concat('%', #{request.keyword},'%')
+            or api_definition.name like concat('%', #{request.keyword},'%')
+            or api_definition.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            )
+        </if>
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_definition.project_id = #{request.projectId}
+        </if>
+        <if test="request.protocol != null and request.protocol != ''">
+            AND api_definition.protocol = #{request.protocol}
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
 
-            <if test="request.combine != null and request.combine != ''">
-                <include refid="combine">
-                    <property name="condition" value="request.combine"/>
-                    <property name="name" value="request.name"/>
-                    <property name="ObjectTags" value="request.combine.tags"/>
-                </include>
-            </if>
-
-            <include refid="queryVersionCondition">
-                <property name="versionTable" value="api_definition"/>
+        <if test="request.combine != null and request.combine != ''">
+            <include refid="combine">
+                <property name="condition" value="request.combine"/>
+                <property name="name" value="request.name"/>
+                <property name="ObjectTags" value="request.combine.tags"/>
             </include>
-        </where>
+        </if>
+
+        <include refid="queryVersionCondition">
+            <property name="versionTable" value="api_definition"/>
+        </include>
     </sql>
 
     <sql id="filters">
