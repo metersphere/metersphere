@@ -422,6 +422,7 @@ export default {
     cellClick(row) {
       this.rowProjectId = row.id;
       // 保存当前点击的组织信息到currentRow
+      this.dialogCurrentPage = 1;
       this.currentWorkspaceRow = row;
       this.currentProjectId = row.id;
       let param = {
@@ -429,7 +430,6 @@ export default {
         projectId: row.id
       };
       this.memberTableLoading = getProjectMemberPages(this.dialogCurrentPage, this.dialogPageSize, row.workspaceId, param).then(res => {
-        console.log(111)
         let data = res.data;
         let {listObject, itemCount} = data;
         this.memberLineData = listObject;
