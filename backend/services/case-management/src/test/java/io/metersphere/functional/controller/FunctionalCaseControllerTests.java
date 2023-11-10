@@ -41,7 +41,6 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_DETAIL_URL = "/functional/case/detail/";
     public static final String FUNCTIONAL_CASE_UPDATE_URL = "/functional/case/update";
     public static final String FUNCTIONAL_CASE_EDIT_FOLLOWER_URL = "/functional/case/edit/follower";
-    public static final String FUNCTIONAL_CASE_FOLLOWER_URL = "/functional/case/follower/";
     public static final String FUNCTIONAL_CASE_DELETE_URL = "/functional/case/delete";
     public static final String FUNCTIONAL_CASE_LIST_URL = "/functional/case/page";
     public static final String FUNCTIONAL_CASE_BATCH_DELETE_URL = "/functional/case/batch/delete-to-gc";
@@ -235,22 +234,12 @@ public class FunctionalCaseControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
-        //获取关注人
-        MvcResult followerMvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_FOLLOWER_URL + "TEST_FUNCTIONAL_CASE_ID");
-        String followerReturnData = followerMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder followerResultHolder = JSON.parseObject(followerReturnData, ResultHolder.class);
-        Assertions.assertNotNull(followerResultHolder);
 
         //取消关注
         MvcResult editMvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_EDIT_FOLLOWER_URL, functionalCaseFollowerRequest);
         String editReturnData = editMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder editResultHolder = JSON.parseObject(editReturnData, ResultHolder.class);
         Assertions.assertNotNull(editResultHolder);
-        //获取关注人
-        MvcResult editFollowerMvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_FOLLOWER_URL + "TEST_FUNCTIONAL_CASE_ID");
-        String editFollowerReturnData = editFollowerMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder editFollowerResultHolder = JSON.parseObject(editFollowerReturnData, ResultHolder.class);
-        Assertions.assertNotNull(editFollowerResultHolder);
     }
 
     @Test
@@ -344,8 +333,9 @@ public class FunctionalCaseControllerTests extends BaseTest {
         FunctionalCaseBatchMoveRequest request = new FunctionalCaseBatchMoveRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setModuleId("TEST_MOVE_MODULE_ID");
-        request.setSelectIds(Arrays.asList("TEST"));
         request.setSelectAll(false);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_COPY_URL, request);
+        request.setSelectIds(Arrays.asList("TEST"));
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_COPY_URL, request);
         request.setSelectIds(new ArrayList<>());
         request.setSelectAll(true);
