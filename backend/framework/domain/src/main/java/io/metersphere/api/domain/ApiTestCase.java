@@ -26,7 +26,7 @@ public class ApiTestCase implements Serializable {
     private String priority;
 
     @Schema(description = "接口用例编号id")
-    private Integer num;
+    private Long num;
 
     @Schema(description = "标签")
     private String tags;
@@ -56,13 +56,10 @@ public class ApiTestCase implements Serializable {
     @Size(min = 1, max = 50, message = "{api_test_case.api_definition_id.length_range}", groups = {Created.class, Updated.class})
     private String apiDefinitionId;
 
-    @Schema(description = "版本fk")
+    @Schema(description = "版本fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_test_case.version_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_test_case.version_id.length_range}", groups = {Created.class, Updated.class})
     private String versionId;
-
-    @Schema(description = "责任人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_test_case.principal.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_test_case.principal.length_range}", groups = {Created.class, Updated.class})
-    private String principal;
 
     @Schema(description = "环境fk")
     private String environmentId;
@@ -95,7 +92,7 @@ public class ApiTestCase implements Serializable {
         id("id", "id", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
         priority("priority", "priority", "VARCHAR", false),
-        num("num", "num", "INTEGER", false),
+        num("num", "num", "BIGINT", false),
         tags("tags", "tags", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         lastReportStatus("last_report_status", "lastReportStatus", "VARCHAR", false),
@@ -104,7 +101,6 @@ public class ApiTestCase implements Serializable {
         projectId("project_id", "projectId", "VARCHAR", false),
         apiDefinitionId("api_definition_id", "apiDefinitionId", "VARCHAR", false),
         versionId("version_id", "versionId", "VARCHAR", false),
-        principal("principal", "principal", "VARCHAR", false),
         environmentId("environment_id", "environmentId", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),

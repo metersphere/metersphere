@@ -371,29 +371,29 @@ CREATE TABLE api_sync_config(
 CREATE INDEX idx_resource_id ON api_sync_config(resource_id);
 
 DROP TABLE IF EXISTS api_test_case;
-CREATE TABLE api_test_case(
-  `id` VARCHAR(50) NOT NULL   COMMENT '接口用例pk' ,
-  `name` VARCHAR(255) NOT NULL   COMMENT '接口用例名称' ,
-  `priority` VARCHAR(50) NOT NULL   COMMENT '用例等级' ,
-  `num` INT    COMMENT '接口用例编号id' ,
-  `tags` VARCHAR(1000)    COMMENT '标签' ,
-  `status` VARCHAR(20) NOT NULL   COMMENT '用例状态' ,
-  `last_report_status` VARCHAR(20)    COMMENT '最新执行结果状态' ,
-  `last_report_id` VARCHAR(50)    COMMENT '最后执行结果报告fk' ,
-  `pos` BIGINT NOT NULL   COMMENT '自定义排序' ,
-  `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-  `api_definition_id` VARCHAR(50) NOT NULL   COMMENT '接口fk' ,
-  `version_id` VARCHAR(50)    COMMENT '版本fk' ,
-  `principal` VARCHAR(50) NOT NULL   COMMENT '责任人' ,
-  `environment_id` VARCHAR(50)    COMMENT '环境fk' ,
-  `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-  `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-  `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-  `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
-  `delete_time` BIGINT    COMMENT '删除时间' ,
-  `delete_user` VARCHAR(50)    COMMENT '删除人' ,
-  `deleted` BIT(1) NOT NULL  DEFAULT 0 COMMENT '删除标识' ,
-  PRIMARY KEY (id)
+CREATE TABLE api_test_case
+(
+    `id`                 VARCHAR(50)  NOT NULL COMMENT '接口用例pk',
+    `name`               VARCHAR(255) NOT NULL COMMENT '接口用例名称',
+    `priority`           VARCHAR(50)  NOT NULL COMMENT '用例等级',
+    `num`                BIGINT       NOT NULL COMMENT '接口用例编号id',
+    `tags`               VARCHAR(1000) COMMENT '标签',
+    `status`             VARCHAR(20)  NOT NULL COMMENT '用例状态',
+    `last_report_status` VARCHAR(20) COMMENT '最新执行结果状态',
+    `last_report_id`     VARCHAR(50) COMMENT '最后执行结果报告fk',
+    `pos`                BIGINT       NOT NULL COMMENT '自定义排序',
+    `project_id`         VARCHAR(50)  NOT NULL COMMENT '项目fk',
+    `api_definition_id`  VARCHAR(50)  NOT NULL COMMENT '接口fk',
+    `version_id`         VARCHAR(50)  NOT NULL COMMENT '版本fk',
+    `environment_id`     VARCHAR(50) COMMENT '环境fk',
+    `create_time`        BIGINT       NOT NULL COMMENT '创建时间',
+    `create_user`        VARCHAR(50)  NOT NULL COMMENT '创建人',
+    `update_time`        BIGINT       NOT NULL COMMENT '更新时间',
+    `update_user`        VARCHAR(50)  NOT NULL COMMENT '更新人',
+    `delete_time`        BIGINT COMMENT '删除时间',
+    `delete_user`        VARCHAR(50) COMMENT '删除人',
+    `deleted`            BIT(1)       NOT NULL DEFAULT 0 COMMENT '删除标识',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '接口用例';
@@ -401,13 +401,14 @@ CREATE TABLE api_test_case(
 
 CREATE INDEX idx_api_definition_id ON api_test_case(api_definition_id);
 CREATE INDEX idx_project_id ON api_test_case(project_id);
+CREATE INDEX idx_status ON api_test_case(status);
 CREATE INDEX idx_version_id ON api_test_case(version_id);
-CREATE INDEX idx_principal ON api_test_case(principal);
 CREATE INDEX idx_priority ON api_test_case(priority);
 CREATE INDEX idx_create_time ON api_test_case(create_time);
 CREATE INDEX idx_update_time ON api_test_case(update_time);
 CREATE INDEX idx_create_user ON api_test_case(create_user);
 CREATE INDEX idx_name ON api_test_case(name);
+CREATE INDEX idx_num ON api_test_case(num);
 
 DROP TABLE IF EXISTS api_test_case_follower;
 CREATE TABLE api_test_case_follower(
