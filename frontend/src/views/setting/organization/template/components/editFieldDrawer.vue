@@ -58,7 +58,7 @@
           :label="t('system.orgTemplate.allowMultiMember')"
           asterisk-position="end"
         >
-          <a-switch v-model="isMultipleSelectMember" size="small" />
+          <a-switch v-model="isMultipleSelectMember" size="small" :disabled="isEdit" />
         </a-form-item>
         <!-- 选项选择器 -->
         <a-form-item
@@ -115,6 +115,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 模板管理-自定义字段-添加自定义字段&编辑自定义字段
+   */
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
@@ -125,22 +128,22 @@
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
 
-  import { addOrUpdateOrdField, getOrdFieldDetail } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { getGenerateId } from '@/utils';
 
   import type { AddOrUpdateField, fieldIconAndNameModal } from '@/models/setting/template';
 
-  import { fieldIconAndName, getFieldType } from './fieldSetting';
+  import { fieldIconAndName, getFieldRequestApi, getFieldType } from './fieldSetting';
 
   const { t } = useI18n();
   const route = useRoute();
   const appStore = useAppStore();
-  const currentOrgId = computed(() => appStore.currentOrgId);
+
   const sceneType = route.query.type;
   const props = defineProps<{
     visible: boolean;
+    mode: 'organization' | 'project';
   }>();
   const emit = defineEmits(['success', 'update:visible']);
 
@@ -148,11 +151,17 @@
   const drawerLoading = ref<boolean>(false);
 
   const fieldFormRef = ref<FormInstance>();
+  const currentOrgId = computed(() => appStore.currentOrgId);
+  const currentProjectId = computed(() => appStore.currentProjectId);
+
+  const scopeId = computed(() => {
+    return props.mode === 'organization' ? currentOrgId.value : currentProjectId.value;
+  });
   const initFieldForm: AddOrUpdateField = {
     name: '',
     type: undefined,
     remark: '',
-    scopeId: '',
+    scopeId: scopeId.value,
     scene: 'FUNCTIONAL',
     options: [],
     enableOptionKey: false,
@@ -232,6 +241,7 @@
     resetForm();
   };
 
+  const { addOrUpdate, detail } = getFieldRequestApi(props.mode);
   // 保存
   const confirmHandler = async (isContinue: boolean) => {
     try {
@@ -240,7 +250,7 @@
       const formCopy = cloneDeep(fieldForm.value);
 
       formCopy.scene = route.query.type;
-      formCopy.scopeId = currentOrgId.value;
+      formCopy.scopeId = scopeId.value;
 
       // 如果选择是日期或者数值
       if (selectFormat.value) {
@@ -258,12 +268,12 @@
       }
 
       // 处理参数
-      const { id, name, options, scopeId, scene, type, remark, enableOptionKey } = formCopy;
+      const { id, name, options, scene, type, remark, enableOptionKey } = formCopy;
 
       const params: AddOrUpdateField = {
         name,
         options,
-        scopeId,
+        scopeId: scopeId.value,
         scene,
         type,
         remark,
@@ -272,7 +282,7 @@
       if (id) {
         params.id = id;
       }
-      await addOrUpdateOrdField(params);
+      await addOrUpdate(params);
       Message.success(isEdit.value ? t('common.updateSuccess') : t('common.addSuccess'));
       if (!isContinue) {
         handleDrawerCancel();
@@ -310,7 +320,7 @@
   // 获取字段选项详情
   const getFieldDetail = async (id: string) => {
     try {
-      const fieldDetail = await getOrdFieldDetail(id);
+      const fieldDetail = await detail(id);
       fieldDefaultValues.value = fieldDetail.options.map((item: any) => {
         return {
           ...item,
@@ -336,6 +346,7 @@
         selectFormat.value = itemType;
         return 'DATE';
       default:
+        selectFormat.value = itemType;
         return itemType;
     }
   };

@@ -21,7 +21,7 @@ export enum TemplateIconEnum {
 export enum TemplateCardEnum {
   FUNCTIONAL = 'caseTemplate', // 用例模版
   API = 'api_ui_Template', // ui模板
-  UI = 'api_ui_Template', // API模板
+  UI = 'uiTemplate', // API模板
   TEST_PLAN = 'testPlanTemplate', // 测试计划模板
   BUG = 'defectTemplate', // 缺陷模板
 }

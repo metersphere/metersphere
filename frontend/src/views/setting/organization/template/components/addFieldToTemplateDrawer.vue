@@ -49,7 +49,12 @@
                 </div>
               </a-checkbox-group>
             </div>
-            <EditFieldDrawer ref="fieldDrawerRef" v-model:visible="showFieldDrawer" @success="okHandler" />
+            <EditFieldDrawer
+              ref="fieldDrawerRef"
+              v-model:visible="showFieldDrawer"
+              :mode="props.mode"
+              @success="okHandler"
+            />
             <div>
               <a-button class="mt-1 px-0" type="text" :disabled="totalData.length > 20" @click="createField">
                 <template #icon>
@@ -92,8 +97,10 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 系统管理-模版-模版管理-创建模板-添加字段到模板抽屉
+   */
   import { ref } from 'vue';
-  import { useRoute } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -111,6 +118,7 @@
   const drawerLoading = ref<boolean>(false);
 
   const props = defineProps<{
+    mode: 'organization' | 'project';
     visible: boolean;
     totalData: DefinedFieldItem[]; // 所有字段
     tableSelectData: DefinedFieldItem[]; // 表格选择字段
@@ -136,7 +144,7 @@
   // 监视回显字段
   watch(
     () => props.tableSelectData,
-    (val) => {
+    () => {
       const sysField = props.tableSelectData.filter((item) => item.internal);
       const cusField = props.tableSelectData.filter((item) => !item.internal);
       selectSystemIds.value = sysField.map((item) => item.id);
@@ -183,10 +191,9 @@
     () => totalIds.value,
     (val) => {
       const res = totalList.value.filter((item) => val.indexOf(item.id) > -1);
-      const result = res.sort((a, b) => {
+      selectedList.value = res.sort((a, b) => {
         return val.indexOf(a.id) - val.indexOf(b.id);
       });
-      selectedList.value = result;
     }
   );
 

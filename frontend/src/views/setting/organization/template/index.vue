@@ -14,13 +14,21 @@
         :card-min-width="360"
         class="flex-1"
         :shadow-limit="50"
-        :list="getCardList('organization')"
+        :list="cardList"
         :is-proportional="false"
         :gap="16"
         padding-bottom-space="16px"
       >
         <template #item="{ item, index }">
-          <TemplateItem :card-item="item" :index="index" />
+          <TemplateItem
+            :card-item="item"
+            :index="index"
+            mode="organization"
+            @field-setting="fieldSetting"
+            @template-management="templateManagement"
+            @workflow-setup="workflowSetup"
+            @update-state="updateState"
+          />
         </template>
       </MsCardList>
     </div>
@@ -31,7 +39,7 @@
   /**
    * @description 系统设置--组织--模版
    */
-  import { onMounted, ref } from 'vue';
+  import { useRouter } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCardList from '@/components/business/ms-card-list/index.vue';
@@ -41,16 +49,16 @@
   import useVisit from '@/hooks/useVisit';
   import useTemplateStore from '@/store/modules/setting/template';
 
+  import { SettingRouteEnum } from '@/enums/routeEnum';
+
   import { getCardList } from './components/fieldSetting';
 
   const templateStore = useTemplateStore();
-
   const { t } = useI18n();
-
+  const router = useRouter();
   const visitedKey = 'notRemind';
   const { addVisited } = useVisit(visitedKey);
   const { getIsVisited } = useVisit(visitedKey);
-
   const isShowTip = ref<boolean>(true);
   const noRemindHandler = () => {
     isShowTip.value = false;
@@ -65,8 +73,46 @@
     templateStore.getStatus();
   });
 
-  onMounted(() => {
+  // 字段设置
+  const fieldSetting = (key: string) => {
+    router.push({
+      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
+      query: {
+        type: key,
+      },
+    });
+  };
+
+  // 模板管理
+  const templateManagement = (key: string) => {
+    router.push({
+      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
+      query: {
+        type: key,
+      },
+    });
+  };
+
+  // 工作流
+  const workflowSetup = (key: string) => {
+    router.push({
+      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
+      query: {
+        type: key,
+      },
+    });
+  };
+
+  const cardList = ref<Record<string, any>[]>([]);
+
+  // 更新状态列表
+  const updateState = () => {
+    cardList.value = [...getCardList('organization')];
+  };
+
+  onBeforeMount(() => {
     doCheckIsTip();
+    updateState();
   });
 </script>
 

@@ -8,7 +8,7 @@
         <div class="template-operation">
           <div class="flex items-center">
             <span class="font-medium">{{ props.cardItem.name }}</span>
-            <span class="enable">{{ t('system.orgTemplate.enabledTemplates') }}</span>
+            <span v-if="!isEnableProject" class="enable">{{ t('system.orgTemplate.enabledTemplates') }}</span>
           </div>
           <div class="flex min-w-[300px] flex-nowrap items-center">
             <span class="operation hover:text-[rgb(var(--primary-5))]">
@@ -17,14 +17,14 @@
             </span>
             <span class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="templateManagement">{{ t('system.orgTemplate.TemplateManagement') }}</span>
-              <a-divider v-if="!props.cardItem.enable || props.cardItem.key === 'BUG'" direction="vertical" />
+              <a-divider v-if="isEnableProject || props.cardItem.key === 'BUG'" direction="vertical" />
             </span>
             <span v-if="props.cardItem.key === 'BUG'" class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="workflowSetup">{{ t('system.orgTemplate.workflowSetup') }}</span>
-              <a-divider v-if="!props.cardItem.enable && props.cardItem.key === 'BUG'" direction="vertical" />
+              <a-divider v-if="isEnableProject && props.cardItem.key === 'BUG'" direction="vertical" />
             </span>
-            <span v-if="!props.cardItem.enable" class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]">
-              <MsTableMoreAction :list="moreActions" @select="(item) => handleMoreActionSelect"
+            <span v-if="isEnableProject" class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]">
+              <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect"
             /></span>
           </div>
         </div>
@@ -34,19 +34,19 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 模版-模版管理小卡片
+   */
   import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
-  import { isEnableTemplate } from '@/api/modules/setting/template';
+  import { enableOrOffTemplate } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useTemplateStore from '@/store/modules/setting/template';
-
-  import { SettingRouteEnum } from '@/enums/routeEnum';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -56,9 +56,25 @@
 
   const props = defineProps<{
     cardItem: Record<string, any>;
+    mode: 'organization' | 'project';
   }>();
 
-  const router = useRouter();
+  const emit = defineEmits<{
+    (e: 'fieldSetting', key: string): void;
+    (e: 'templateManagement', key: string): void;
+    (e: 'workflowSetup', key: string): void;
+    (e: 'updateState'): void;
+  }>();
+
+  // 先判断项目是否是开启
+  const isEnableProject = computed(() => {
+    if (props.mode === 'organization') {
+      return !templateStore.projectStatus[props.cardItem.key];
+    }
+    if (props.mode === 'project') {
+      return templateStore.ordStatus[props.cardItem.key];
+    }
+  });
 
   const moreActions = ref<ActionsItem[]>([
     {
@@ -71,47 +87,46 @@
   // 启用模板
   const enableHandler = async () => {
     try {
-      await isEnableTemplate(currentOrgId.value);
-      Message.success(t('system.orgTemplate.enabledSuccessfully'));
-      templateStore.getStatus();
+      if (props.mode) {
+        await enableOrOffTemplate(currentOrgId.value, props.cardItem.key);
+        Message.success(t('system.orgTemplate.enabledSuccessfully'));
+        await templateStore.getStatus();
+        emit('updateState');
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleMoreActionSelect = (item: ActionsItem) => {
-    if (item.eventTag === 'enable') {
-      enableHandler();
-    }
+  const handleMoreActionSelect = () => {
+    enableHandler();
   };
 
   // 字段设置
   const fieldSetting = () => {
-    router.push({
-      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
-      query: {
-        type: props.cardItem.key,
-      },
-    });
+    emit('fieldSetting', props.cardItem.key);
   };
 
   const templateManagement = () => {
-    router.push({
-      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
-      query: {
-        type: props.cardItem.key,
-      },
-    });
+    emit('templateManagement', props.cardItem.key);
   };
 
   const workflowSetup = () => {
-    router.push({
-      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
-      query: {
-        type: props.cardItem.key,
-      },
-    });
+    emit('workflowSetup', props.cardItem.key);
   };
+
+  const templateCardInfo = ref<Record<string, any>>({});
+
+  watch(
+    () => props.cardItem,
+    (val) => {
+      if (val) {
+        debugger;
+        templateCardInfo.value = { ...props.cardItem };
+      }
+    },
+    { deep: true }
+  );
 </script>
 
 <style scoped lang="less">

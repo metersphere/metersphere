@@ -1,172 +1,204 @@
 <template>
-  <MsCard has-breadcrumb simple>
-    <a-alert class="mb-6" type="warning">{{ t('system.orgTemplate.workFlowTip') }}</a-alert>
-    <div class="mb-4">
-      <div class="mb-4 flex items-center"
-        ><a-button class="mr-2" type="outline" @click="addStatus">{{ t('system.orgTemplate.addState') }}</a-button>
-        <a-popover title="" position="right">
-          <MsButton class="!mr-1">{{ t('system.orgTemplate.example') }}</MsButton>
-          <template #content>
-            <div class="w-[410px] bg-[var(--color-bg-3)] p-[16px]">
-              <img src="@/assets/images/schematicDrawing.png" alt="" />
-            </div>
-          </template>
-        </a-popover>
-        <a-tooltip :content="t('system.orgTemplate.workFlowTip')">
-          <icon-exclamation-circle class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]" />
-          <template #content>
-            <div class="whitespace-nowrap">{{ t('system.orgTemplate.workFlowToolTip') }}</div>
-            <div>{{ t('system.orgTemplate.workFlowToolTipHover') }}</div>
-          </template>
-        </a-tooltip>
-      </div>
-      <a-table
-        :columns="workFlowColumns"
-        :data="dataList"
-        row-key="id"
-        :bordered="{ cell: true }"
-        :hoverable="false"
-        :pagination="false"
-        :draggable="{ type: 'handle', width: 39 }"
-        :loading="tableLoading"
-        @change="handleChange"
-      >
-        <template #columns>
-          <a-table-column
-            v-for="column in workFlowColumns"
-            :key="column.dataIndex"
-            :data-index="column.dataIndex"
-            :title="(column?.title as string)"
-            :header-cell-class="column.headerCellClass"
-            :fixed="column.fixed"
-          >
-            <template #title>
-              <div v-if="column.dataIndex !== 'statusName'" class="w-full">
-                <MsTag class="relative" size="large" theme="light">{{ column.title }} </MsTag></div
-              >
-              <div v-else class="splitBox">
-                <div class="startStatus"> {{ t('system.orgTemplate.startState') }} </div>
-                <div class="line"></div>
-                <div class="endStatus"> {{ t('system.orgTemplate.endState') }} </div>
-              </div>
-            </template>
-            <template #cell="{ record }">
-              <div v-if="column.dataIndex === 'statusName'">
-                <div class="flex items-center justify-between">
-                  <div class="relative">
-                    <MsTag class="relative" size="large" theme="light">{{ record.name }}</MsTag>
-                    <span v-if="record.statusDefinitions.join() === 'START'" class="absolute -top-6 left-7">
-                      <svg-icon width="36px" height="36px" class="inline-block text-[white]" name="start"></svg-icon
-                    ></span>
-                  </div>
-
-                  <div class="action mr-2 flex h-8 w-8 items-center justify-center rounded opacity-0">
-                    <MsTableMoreAction
-                      :list="getMoreActions(record)"
-                      @select="(item) => handleMoreActionSelect(item, record)"
-                    ></MsTableMoreAction
-                  ></div>
-                </div>
-              </div>
-              <div v-else class="!h-[82px] min-w-[116px] p-[2px]">
-                <WorkflowCard
-                  :column-item="column"
-                  :state-item="record"
-                  :cell-coordinates="cellCoordinates"
-                  :total-data="dataList"
-                  @click="selectCard(record, column.dataIndex)"
-                  @ok="getWorkFetchList()"
-                />
-              </div>
-            </template>
-          </a-table-column>
-          <a-table-column :title="t('system.orgTemplate.operation')" :width="360" header-cell-class="splitOperation">
-            <template #cell="{ record }">
-              <div class="flex">
-                <MsButton class="!mr-0 ml-4" @click="editWorkStatus(record)">{{ t('common.edit') }}</MsButton>
-                <a-divider direction="vertical" />
-                <a-checkbox v-model="record.currentState" @change="(value) => changeState(value, record)">
-                  <MsButton>{{ t('system.orgTemplate.endState') }}</MsButton></a-checkbox
-                >
-                <MsButton class="!mr-0 ml-4" @click="detailWorkStatus(record)">{{
-                  t('system.orgTemplate.details')
-                }}</MsButton>
-              </div>
-            </template>
-          </a-table-column>
-        </template>
-      </a-table>
-      <div class="mt-4 flex items-center text-[var(--color-text-4)]">
-        <span>tips: </span>
-        <MsIcon type="icon-icon_drag" class="mx-4 text-[16px] text-[var(--color-text-4)]" />
-        <span>{{ t('system.orgTemplate.anyStateToAll') }}</span>
-        <a-popover title="" position="right">
-          <MsButton class="!mr-0 ml-2">{{ t('system.orgTemplate.example') }}</MsButton>
-          <template #content>
-            <div class="bg-[var(--color-bg-3)]">
-              <img src="@/assets/images/colorSelect.png" alt="" />
-            </div>
-          </template>
-        </a-popover>
-      </div>
-      <AddWorkStatusModal ref="addWorkStateRef" v-model:visible="showModel" @success="getWorkFetchList()" />
-      <MsDrawer
-        ref="detailDrawerRef"
-        v-model:visible="showDetailVisible"
-        :width="480"
-        :footer="false"
-        :title="t('system.orgTemplate.stateDetail', { name: detailInfo?.name })"
-      >
-        <div class="flex p-4">
-          <div class="flex w-[40%] flex-col">
-            <span class="label">{{ t('system.orgTemplate.stateName') }}</span>
-            <span class="label">{{ t('system.orgTemplate.description') }}</span>
-          </div>
-          <div class="flex w-[60%] flex-col">
-            <span class="content">{{ detailInfo?.name }}</span>
-            <span class="content">{{ detailInfo?.remark || '-' }}</span>
-          </div>
-        </div>
-      </MsDrawer>
+  <a-alert v-if="isShowTip" class="mb-6" type="warning">
+    <div class="flex items-start justify-between">
+      <span class="w-[80%]">{{ t('system.orgTemplate.workFlowTip') }}</span>
+      <span class="cursor-pointer text-[var(--color-text-2)]" @click="noRemindHandler">{{
+        t('system.orgTemplate.noReminders')
+      }}</span>
     </div>
-  </MsCard>
+  </a-alert>
+  <div class="mb-4">
+    <div class="mb-4 flex items-center"
+      ><a-button v-if="!isEnableProjectState" class="mr-2" type="outline" @click="addStatus">{{
+        t('system.orgTemplate.addState')
+      }}</a-button>
+      <span v-else class="mr-2 font-medium text-[var(--color-text-1)]">工作流</span>
+      <a-popover title="" position="right">
+        <MsButton class="!mr-1">{{ t('system.orgTemplate.example') }}</MsButton>
+        <template #content>
+          <div class="w-[410px] bg-[var(--color-bg-3)] p-1">
+            <img src="@/assets/images/schematicDrawing.png" alt="" />
+          </div>
+        </template>
+      </a-popover>
+      <a-tooltip :content="t('system.orgTemplate.workFlowTip')">
+        <icon-exclamation-circle class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]" />
+        <template #content>
+          <div class="whitespace-nowrap">{{ t('system.orgTemplate.workFlowToolTip') }}</div>
+          <div>{{ t('system.orgTemplate.workFlowToolTipHover') }}</div>
+        </template>
+      </a-tooltip>
+    </div>
+    <a-table
+      :columns="workFlowColumns"
+      :data="dataList"
+      row-key="id"
+      :bordered="{ cell: true }"
+      :hoverable="false"
+      :pagination="false"
+      :scroll="{ x: '1400px' }"
+      :draggable="{ type: 'handle', width: 39 }"
+      :loading="tableLoading"
+      @change="handleChange"
+    >
+      <template #columns>
+        <a-table-column
+          v-for="column in workFlowColumns"
+          :key="column.dataIndex"
+          :data-index="column.dataIndex"
+          :title="(column?.title as string)"
+          :header-cell-class="column.headerCellClass"
+          :fixed="column.fixed"
+        >
+          <template #title>
+            <div v-if="column.dataIndex !== 'statusName'" class="w-full">
+              <MsTag class="relative" size="large" theme="light">{{ column.title }} </MsTag></div
+            >
+            <div v-else class="splitBox">
+              <div class="startStatus"> {{ t('system.orgTemplate.startState') }} </div>
+              <div class="line"></div>
+              <div class="endStatus"> {{ t('system.orgTemplate.endState') }} </div>
+            </div>
+          </template>
+          <template #cell="{ record }">
+            <div v-if="column.dataIndex === 'statusName'">
+              <div class="flex items-center justify-between">
+                <div class="relative">
+                  <MsTag class="relative" size="large" theme="light">{{ record.name }}</MsTag>
+                  <span v-if="record.statusDefinitions.join() === 'START'" class="absolute -top-6 left-7">
+                    <svg-icon width="36px" height="36px" class="inline-block text-[white]" name="start"></svg-icon
+                  ></span>
+                </div>
+
+                <div
+                  v-if="!isEnableProjectState"
+                  class="action mr-2 flex h-8 w-8 items-center justify-center rounded opacity-0"
+                >
+                  <MsTableMoreAction
+                    :list="getMoreActions(record)"
+                    @select="(item) => handleMoreActionSelect(item, record)"
+                  ></MsTableMoreAction
+                ></div>
+              </div>
+            </div>
+            <div v-else class="!h-[82px] min-w-[116px] p-[2px]">
+              <WorkflowCard
+                :mode="props.mode"
+                :column-item="column"
+                :state-item="record"
+                :cell-coordinates="cellCoordinates"
+                :total-data="dataList"
+                @click="selectCard(record, column.dataIndex)"
+                @ok="getWorkFetchList()"
+              />
+            </div>
+          </template>
+        </a-table-column>
+        <a-table-column
+          :title="t('system.orgTemplate.operation')"
+          :width="320"
+          header-cell-class="splitOperation"
+          fixed="right"
+        >
+          <template #cell="{ record }">
+            <div class="ml-4 flex items-center">
+              <MsButton v-if="!isEnableProjectState" class="!mr-0 ml-4" @click="editWorkStatus(record)">{{
+                t('common.edit')
+              }}</MsButton>
+              <a-divider v-if="!isEnableProjectState" class="h-[12px]" direction="vertical" />
+              <a-checkbox
+                v-if="!isEnableProjectState"
+                v-model="record.currentState"
+                @change="(value) => changeState(value, record)"
+              >
+                <MsButton class="!mr-0">{{ t('system.orgTemplate.endState') }}</MsButton></a-checkbox
+              >
+              <a-divider v-if="!isEnableProjectState" class="h-[12px]" direction="vertical" />
+              <MsButton class="!mr-0" @click="detailWorkStatus(record)">{{ t('system.orgTemplate.details') }}</MsButton>
+            </div>
+          </template>
+        </a-table-column>
+      </template>
+    </a-table>
+    <div class="mt-4 flex items-center text-[var(--color-text-4)]">
+      <span>tips: </span>
+      <MsIcon type="icon-icon_drag" class="mx-4 text-[16px] text-[var(--color-text-4)]" />
+      <span>{{ t('system.orgTemplate.anyStateToAll') }}</span>
+      <a-popover title="" position="right">
+        <MsButton class="!mr-0 ml-2">{{ t('system.orgTemplate.example') }}</MsButton>
+        <template #content>
+          <div class="bg-[var(--color-bg-3)]">
+            <img src="@/assets/images/colorSelect.png" alt="" />
+          </div>
+        </template>
+      </a-popover>
+    </div>
+    <AddWorkStatusModal
+      ref="addWorkStateRef"
+      v-model:visible="showModel"
+      :mode="props.mode"
+      @success="getWorkFetchList()"
+    />
+    <MsDrawer
+      ref="detailDrawerRef"
+      v-model:visible="showDetailVisible"
+      :width="480"
+      :footer="false"
+      :title="t('system.orgTemplate.stateDetail', { name: detailInfo?.name })"
+    >
+      <div class="flex p-4">
+        <div class="flex w-[40%] flex-col">
+          <span class="label">{{ t('system.orgTemplate.stateName') }}</span>
+          <span class="label">{{ t('system.orgTemplate.description') }}</span>
+        </div>
+        <div class="flex w-[60%] flex-col">
+          <span class="content">{{ detailInfo?.name }}</span>
+          <span class="content">{{ detailInfo?.remark || '-' }}</span>
+        </div>
+      </div>
+    </MsDrawer>
+  </div>
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 模板-工作流table
+   */
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { Message, TableColumnData, TableData } from '@arco-design/web-vue';
   import { isEqual } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsCard from '@/components/pure/ms-card/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import AddWorkStatusModal from './addWorkStatusModal.vue';
-  import WorkflowCard from './workflowCard.vue';
+  import AddWorkStatusModal from '@/views/setting/organization/template/components/addWorkStatusModal.vue';
+  import WorkflowCard from '@/views/setting/organization/template/components/workflowCard.vue';
 
-  import {
-    deleteOrdWorkState,
-    getWorkFlowList,
-    setOrdWorkState,
-    setOrdWorkStateSort,
-  } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useVisit from '@/hooks/useVisit';
   import { useAppStore } from '@/store';
   import useTemplateStore from '@/store/modules/setting/template';
   import { characterLimit } from '@/utils';
 
   import type { SetStateType, WorkFlowType } from '@/models/setting/template';
 
+  import { getWorkFlowRequestApi } from '@/views/setting/organization/template/components/fieldSetting';
+
   const { t } = useI18n();
   const appStore = useAppStore();
 
   const templateStore = useTemplateStore();
 
+  const props = defineProps<{
+    mode: 'organization' | 'project'; // 组织 || 项目
+  }>();
+
   const currentOrgId = computed(() => appStore.currentOrgId);
+  const currentProjectId = computed(() => appStore.currentProjectId);
   const { openModal } = useModal();
   const route = useRoute();
 
@@ -180,10 +212,11 @@
 
   // 计算是否禁用状态
   const isEnableProjectState = computed(() => {
-    const projectState = templateStore.getProjectTemplateState();
-    return projectState[route.query.type as string];
+    return props.mode === 'organization'
+      ? templateStore.projectStatus[route.query.type as string]
+      : !templateStore.projectStatus[route.query.type as string];
   });
-  const dataList = ref<any>([]);
+  const dataList = ref<WorkFlowType[]>([]);
 
   // 获取的状态流数据
   const workData = ref<WorkFlowType[]>([]);
@@ -212,12 +245,16 @@
 
   const tableLoading = ref<boolean>(false);
 
+  const scopedId = computed(() => (props.mode === 'organization' ? currentOrgId.value : currentProjectId.value));
+
+  const getWorkList = getWorkFlowRequestApi(props.mode).list;
+
   // 获取table列表
   async function getWorkFetchList() {
     try {
       tableLoading.value = true;
-      workData.value = await getWorkFlowList(currentOrgId.value, route.query.type);
-      workFlowColumns.value = workData.value.map((item, index) => {
+      workData.value = await getWorkList(scopedId.value, route.query.type);
+      workFlowColumns.value = workData.value.map((item) => {
         const columns = {
           title: item.name,
           dataIndex: item.id,
@@ -261,7 +298,7 @@
   function addStatus() {
     showModel.value = true;
   }
-
+  const deleteState = getWorkFlowRequestApi(props.mode).delete;
   // 删除状态
   function deleteHandler(record: WorkFlowType) {
     if (record.statusDefinitions.join().includes('START')) {
@@ -279,7 +316,7 @@
       },
       onBeforeOk: async () => {
         try {
-          if (record.id) await deleteOrdWorkState(record.id);
+          if (record.id) await deleteState(record.id);
           Message.success(t('system.orgTemplate.deleteSuccess'));
           getWorkFetchList();
         } catch (error) {
@@ -290,6 +327,7 @@
     });
   }
 
+  const setInitAndEndState = getWorkFlowRequestApi(props.mode).changeState;
   // 设置初始状态|| 设置结束状态
   async function setState(record: WorkFlowType, type: string) {
     const params: SetStateType = {
@@ -298,7 +336,7 @@
       enable: type === 'START' ? true : record.currentState,
     };
     try {
-      await setOrdWorkState(params);
+      await setInitAndEndState(params);
       Message.success(
         type === 'END' ? t('system.orgTemplate.setEndStateSuccess') : t('system.orgTemplate.setInitStateSuccess')
       );
@@ -314,15 +352,17 @@
       setState(record, 'START');
     }
   }
+
+  const dragChangeRequest = getWorkFlowRequestApi(props.mode).dragChange;
   // 表格拖拽改变回调
   async function handleChange(_data: TableData[]) {
     const originIds = dataList.value.map((item: any) => item.id);
-    dataList.value = _data;
+    dataList.value = _data as WorkFlowType[];
     const dataIds = _data.map((item: any) => item.id);
     const isChange = isEqual(originIds, dataIds);
-    if (isChange) return {};
+    if (isChange) return false;
     try {
-      await setOrdWorkStateSort(currentOrgId.value, route.query.type, dataIds);
+      await dragChangeRequest(scopedId.value, route.query.type, dataIds);
       getWorkFetchList();
     } catch (error) {
       console.log(error);
@@ -364,8 +404,24 @@
     detailInfo.value = { ...record };
   }
 
+  const visitedKey = 'notRemindWorkFlowTip';
+  const { addVisited } = useVisit(visitedKey);
+  const { getIsVisited } = useVisit(visitedKey);
+  const isShowTip = ref<boolean>(true);
+
+  // 不再提示
+  const noRemindHandler = () => {
+    isShowTip.value = false;
+    addVisited();
+  };
+
+  const doCheckIsTip = () => {
+    isShowTip.value = !getIsVisited();
+  };
+
   onBeforeMount(() => {
     getWorkFetchList();
+    doCheckIsTip();
   });
 </script>
 

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-import { isEnableTemplate } from '@/api/modules/setting/template';
+import { getOrdTemplate, getProTemplate } from '@/api/modules/setting/template';
 
 import useAppStore from '../app';
 
@@ -9,39 +9,35 @@ const appStore = useAppStore();
 const useTemplateStore = defineStore('template', {
   persist: true,
   state: (): {
-    templateStatus: Record<string, boolean>;
+    ordStatus: Record<string, boolean>;
+    projectStatus: Record<string, boolean>;
   } => ({
-    templateStatus: {
-      FUNCTIONAL: true,
-      API: true,
-      UI: true,
-      TEST_PLAN: true,
-      BUG: true,
+    ordStatus: {
+      FUNCTIONAL: false,
+      API: false,
+      UI: false,
+      TEST_PLAN: false,
+      BUG: false,
+    },
+    projectStatus: {
+      FUNCTIONAL: false,
+      API: false,
+      UI: false,
+      TEST_PLAN: false,
+      BUG: false,
     },
   }),
   actions: {
     // 模板列表的状态
     async getStatus() {
+      const currentOrgId = computed(() => appStore.currentOrgId);
+      const currentProjectId = computed(() => appStore.currentProjectId);
       try {
-        this.templateStatus = await isEnableTemplate(appStore.currentOrgId);
+        this.ordStatus = await getOrdTemplate(currentOrgId.value);
+        this.projectStatus = await getProTemplate(currentProjectId.value);
       } catch (error) {
         console.log(error);
       }
-    },
-    // 获取项目模板状态
-    getProjectTemplateState() {
-      const { FUNCTIONAL, API, UI, TEST_PLAN, BUG } = this.templateStatus;
-      return {
-        FUNCTIONAL: !FUNCTIONAL,
-        API: !API,
-        UI: !UI,
-        TEST_PLAN: !TEST_PLAN,
-        BUG: !BUG,
-      } as Record<string, boolean>;
-    },
-    // 获取组织模板状态
-    getOrdTemplateState() {
-      return this.templateStatus;
     },
   },
 });

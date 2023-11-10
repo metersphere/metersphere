@@ -43,6 +43,7 @@
         >
           <a-option v-for="item of projectOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
         </a-select>
+        <span v-if="(record.selectProjectList || []).length === 0">-</span>
       </template>
       <template #userRole="{ record }">
         <MsTagGroup
@@ -64,6 +65,7 @@
         >
           <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
         </a-select>
+        <span v-if="(record.selectUserList || []).length === 0">-</span>
       </template>
       <template #enable="{ record }">
         <div v-if="record.enable" class="flex items-center">

@@ -47,16 +47,6 @@ const ProjectManagement: AppRouteRecordRaw = {
             roles: ['*'],
           },
         },
-        // 模版管理
-        {
-          path: 'templateManager',
-          name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_TEMPLATE,
-          component: () => import('@/views/project-management/projectAndPermission/templateManagement/index.vue'),
-          meta: {
-            locale: 'project.permission.templateManager',
-            roles: ['*'],
-          },
-        },
         // 项目版本
         {
           path: 'projectVersion',
@@ -88,6 +78,104 @@ const ProjectManagement: AppRouteRecordRaw = {
           },
         },
       ],
+    },
+    // 項目管理模板
+    {
+      path: 'templateManager',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
+      component: () => import('@/views/project-management/template/index.vue'),
+      meta: {
+        locale: 'menu.projectManagement.templateManager',
+        roles: ['*'],
+        isTopMenu: true,
+      },
+    },
+    // 模板列表-模板字段设置
+    {
+      path: 'filedSetting',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
+      component: () => import('@/views/project-management/template/components/projectFieldSetting.vue'),
+      meta: {
+        locale: 'menu.settings.organization.templateFieldSetting',
+        roles: ['*'],
+        breadcrumbs: [
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
+            locale: 'menu.projectManagement.templateManager',
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
+            locale: 'menu.settings.organization.templateFieldSetting',
+            editLocale: 'menu.settings.organization.templateFieldSetting',
+          },
+        ],
+      },
+    },
+    // 模板列表-模板管理列表
+    {
+      path: 'templateManagement',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+      component: () => import('@/views/project-management/template/components/templateManagement.vue'),
+      meta: {
+        locale: 'menu.settings.organization.templateManagement',
+        roles: ['*'],
+        breadcrumbs: [
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
+            locale: 'menu.settings.organization.template',
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+            locale: 'menu.settings.organization.templateManagementList',
+            editLocale: 'menu.settings.organization.templateManagementList',
+          },
+        ],
+      },
+    },
+    // 项目-模板-创建模板和模板详情
+    {
+      path: 'templateDetail/:mode?',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
+      component: () => import('@/views/project-management/template/components/proTemplateDetail.vue'),
+      meta: {
+        locale: 'menu.settings.organization.templateManagementDetail',
+        roles: ['*'],
+        breadcrumbs: [
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
+            locale: 'menu.settings.organization.template',
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
+            locale: 'menu.settings.organization.templateManagementList',
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
+            locale: 'menu.settings.organization.templateManagementDetail',
+            editLocale: 'menu.settings.organization.templateManagementEdit',
+          },
+        ],
+      },
+    },
+    // 模板列表-模板管理-工作流
+    {
+      path: 'templateWorkFlow',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW,
+      component: () => import('@/views/project-management/template/components/workFlowTableIndex.vue'),
+      meta: {
+        locale: 'menu.settings.organization.templateManagementWorkFlow',
+        roles: ['*'],
+        breadcrumbs: [
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
+            locale: 'menu.settings.organization.bugTemplate',
+          },
+          {
+            name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW,
+            locale: 'menu.settings.organization.templateManagementWorkFlow',
+          },
+        ],
+      },
     },
     // 文件管理
     {

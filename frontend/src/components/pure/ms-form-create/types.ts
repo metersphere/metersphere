@@ -58,6 +58,7 @@ export interface FormItem {
   };
   // 表单布局
   wrap?: Record<string, any>;
+  props?: Record<string, any>;
 }
 
 interface FomItemSelect extends FormItemComplexCommonConfig {

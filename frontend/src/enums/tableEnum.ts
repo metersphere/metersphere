@@ -27,6 +27,7 @@ export enum TableKeyEnum {
   FILE_MANAGEMENT_CASE = 'fileManagementCase',
   FILE_MANAGEMENT_VERSION = 'fileManagementVersion',
   PROJECT_MANAGEMENT_MENU_FALSE_ALERT = 'projectManagementMenuFalseAlert',
+  ORGANIZATION_TEMPLATE_DEFECT_TABLE = 'organizationTemplateManagementDefect',
 }
 
 // 具有特殊功能的列

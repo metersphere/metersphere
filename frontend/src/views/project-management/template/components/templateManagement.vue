@@ -1,8 +1,5 @@
 <template>
   <MsCard has-breadcrumb simple>
-    <a-alert v-if="isEnableOrdTemplate" class="mb-6" type="warning">{{
-      t('system.orgTemplate.enableTemplateTip')
-    }}</a-alert>
     <div class="mb-4 flex items-center justify-between">
       <span v-if="isEnableOrdTemplate" class="font-medium">{{ t('system.orgTemplate.templateList') }}</span>
       <a-button v-else type="primary" :disabled="false" @click="createTemplate">
@@ -18,18 +15,28 @@
       ></a-input-search>
     </div>
     <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">
-      <template #name="{ record }">
-        <span class="ml-2">{{ record.name }}</span>
-        <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
+      <template #defaultTemplate="{ record }">
+        <a-switch
+          v-model="record.enableDefault"
+          :disabled="record.enableDefault || isEnableOrdTemplate"
+          size="small"
+          @change="(value) => changeDefault(value, record)"
+        />
       </template>
       <template #enableThirdPart="{ record }">
         {{ record.enableThirdPart ? t('system.orgTemplate.yes') : t('system.orgTemplate.no') }}
+      </template>
+      <template #name="{ record }">
+        <span class="ml-2 cursor-pointer text-[rgb(var(--primary-5))]" @click="previewDetail(record)">{{
+          record.name
+        }}</span>
+        <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
       </template>
       <template #operation="{ record }">
         <div class="flex flex-row flex-nowrap">
           <MsButton @click="editTemplate(record.id)">{{ t('system.orgTemplate.edit') }}</MsButton>
           <MsButton class="!mr-0" @click="copyTemplate(record.id)">{{ t('system.orgTemplate.copy') }}</MsButton>
-          <a-divider v-if="!record.internal" class="h-[12px]" direction="vertical" />
+          <a-divider v-if="!record.internal" direction="vertical" />
           <MsTableMoreAction
             v-if="!record.internal"
             :list="moreActions"
@@ -38,12 +45,26 @@
         </div>
       </template>
     </MsBaseTable>
+    <MsDrawer
+      v-model:visible="showDetailVisible"
+      :title="titleDetail"
+      :width="1200"
+      :footer="false"
+      unmount-on-close
+      @cancel="handleCancel"
+    >
+      <PreviewTemplate
+        :select-field="(selectData as DefinedFieldItem[])"
+        :template-type="route.query.type"
+        :defect-form="defectForm"
+      />
+    </MsDrawer>
   </MsCard>
 </template>
 
 <script setup lang="ts">
   /**
-   * @description 系统管理-组织-模版-模版管理列表
+   * @description 系统管理-项目-模版-模版管理列表
    */
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
@@ -51,14 +72,22 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import PreviewTemplate from '@/views/setting/organization/template/components/viewTemplate.vue';
 
-  import { deleteOrdTemplate, getOrganizeTemplateList } from '@/api/modules/setting/template';
+  import {
+    deleteOrdTemplate,
+    getProjectFieldList,
+    getProjectTemplateInfo,
+    getProjectTemplateList,
+    setDefaultTemplate,
+  } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import router from '@/router';
@@ -66,11 +95,15 @@
   import useTemplateStore from '@/store/modules/setting/template';
   import { characterLimit } from '@/utils';
 
-  import type { OrdTemplateManagement } from '@/models/setting/template';
-  import { SettingRouteEnum } from '@/enums/routeEnum';
+  import type { DefinedFieldItem, OrdTemplateManagement } from '@/models/setting/template';
+  import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { getCardList } from './fieldSetting';
+  import {
+    getCardList,
+    getCustomDetailFields,
+    getTotalFieldOptionList,
+  } from '@/views/setting/organization/template/components/fieldSetting';
 
   const route = useRoute();
   const { t } = useI18n();
@@ -80,7 +113,9 @@
   const { openModal } = useModal();
 
   const keyword = ref('');
-  const currentOrd = computed(() => appStore.currentOrgId);
+  const currentProjectId = computed(() => appStore.currentProjectId);
+
+  const sceneType = computed(() => route.query.type);
 
   const fieldColumns: MsTableColumn = [
     {
@@ -88,9 +123,16 @@
       slotName: 'name',
       dataIndex: 'name',
       width: 300,
+      fixed: 'left',
       showDrag: true,
       showInTable: true,
-      showTooltip: true,
+    },
+    {
+      title: 'system.orgTemplate.defaultTemplate',
+      dataIndex: 'remark',
+      slotName: 'defaultTemplate',
+      showDrag: true,
+      showInTable: true,
     },
     {
       title: 'system.orgTemplate.description',
@@ -117,9 +159,18 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setProps } = useTable(getOrganizeTemplateList, {
+  const isThirdParty = {
+    title: 'system.orgTemplate.isThirdParty',
+    dataIndex: 'enableThirdPart',
+    slotName: 'enableThirdPart',
+    showDrag: true,
+    showInTable: true,
+  };
+
+  await tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT, fieldColumns, 'drawer');
+  const { propsRes, propsEvent, loadList, setLoadListParams, setProps } = useTable(getProjectTemplateList, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT,
-    scroll: { x: '100%' },
+    scroll: { x: '1400px' },
     selectable: false,
     noDisable: true,
     size: 'default',
@@ -128,9 +179,8 @@
     heightUsed: 380,
   });
   const scene = route.query.type;
-
   const isEnableOrdTemplate = computed(() => {
-    return templateStore.projectStatus[scene as string];
+    return !templateStore.projectStatus[scene as string];
   });
 
   const totalList = ref<OrdTemplateManagement[]>([]);
@@ -138,7 +188,7 @@
   // 查询字段
   const searchFiled = async () => {
     try {
-      totalList.value = await getOrganizeTemplateList({ organizationId: currentOrd.value, scene });
+      totalList.value = await getProjectTemplateList({ projectId: currentProjectId.value, scene });
       const filterData = totalList.value.filter((item: OrdTemplateManagement) => item.name.includes(keyword.value));
       setProps({ data: filterData });
     } catch (error) {
@@ -186,14 +236,27 @@
   };
 
   const fetchData = async () => {
-    setLoadListParams({ organizationId: currentOrd.value, scene: route.query.type });
+    setLoadListParams({ projectId: currentProjectId.value, scene: route.query.type });
     await loadList();
+  };
+
+  // 设置默认模版
+  const changeDefault = async (value: any, record: OrdTemplateManagement) => {
+    if (value) {
+      try {
+        await setDefaultTemplate(currentProjectId.value, record.id);
+        Message.success(t('system.orgTemplate.setSuccessfully'));
+        fetchData();
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   // 创建模板
   const createTemplate = () => {
     router.push({
-      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
       query: {
         type: route.query.type,
       },
@@ -206,7 +269,7 @@
   // 编辑模板
   const editTemplate = (id: string) => {
     router.push({
-      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
       query: {
         id,
         type: route.query.type,
@@ -220,7 +283,7 @@
   // 复制模板
   const copyTemplate = (id: string) => {
     router.push({
-      name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
       query: {
         id,
         type: route.query.type,
@@ -231,10 +294,47 @@
     });
   };
 
+  const showDetailVisible = ref<boolean>(false);
+  const selectData = ref<DefinedFieldItem[]>([]);
+  const totalData = ref<DefinedFieldItem[]>([]);
+
+  // 处理自定义字段列表
+  const getFieldOptionList = () => {
+    totalData.value = getTotalFieldOptionList(totalData.value as DefinedFieldItem[]);
+  };
+
+  const initDetailForm = {
+    name: '',
+    description: '',
+  };
+  const titleDetail = ref<string>();
+  const defectForm = ref<Record<string, any>>({ ...initDetailForm });
+  // 预览详情
+  const previewDetail = async (record: OrdTemplateManagement) => {
+    showDetailVisible.value = true;
+    titleDetail.value = record.name;
+    try {
+      totalData.value = await getProjectFieldList({ scopedId: currentProjectId.value, scene: route.query.type });
+      getFieldOptionList();
+      const res = await getProjectTemplateInfo(record.id);
+      selectData.value = getCustomDetailFields(totalData.value as DefinedFieldItem[], res.customFields);
+      res.systemFields.forEach((item: any) => {
+        defectForm.value[item.fieldId] = item.defaultValue;
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleCancel = () => {
+    showDetailVisible.value = false;
+    defectForm.value = { ...initDetailForm };
+  };
+
   // 更新面包屑根据不同的模版
   const updateBreadcrumbList = () => {
     const { breadcrumbList } = appStore;
-    const breadTitle = getCardList('organization').find((item: any) => item.key === route.query.type);
+    const breadTitle = getCardList('project').find((item: any) => item.key === route.query.type);
     if (breadTitle) {
       breadcrumbList[0].locale = breadTitle.name;
       appStore.setBreadcrumbList(breadcrumbList);
@@ -243,21 +343,11 @@
 
   const tableRef = ref();
 
-  const sceneType = computed(() => route.query.type);
-
-  const isThirdParty = {
-    title: 'system.orgTemplate.isThirdParty',
-    dataIndex: 'enableThirdPart',
-    slotName: 'enableThirdPart',
-    showDrag: true,
-    showInTable: true,
-  };
-
   function updateColumns() {
     const columns =
-      sceneType.value === 'BUG' ? fieldColumns.slice(0, 1).concat(isThirdParty, fieldColumns.slice(1)) : fieldColumns;
+      sceneType.value === 'BUG' ? fieldColumns.slice(0, 2).concat(isThirdParty, fieldColumns.slice(2)) : fieldColumns;
     if (isEnableOrdTemplate.value) {
-      const result = columns.slice(0, columns.length - 1);
+      const result = columns.slice(0, fieldColumns.length - 1);
       tableRef.value.initColumn(result);
     } else {
       tableRef.value.initColumn(columns);
@@ -269,7 +359,6 @@
     fetchData();
     updateColumns();
   });
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT, fieldColumns, 'drawer');
 </script>
 
 <style scoped lang="less">

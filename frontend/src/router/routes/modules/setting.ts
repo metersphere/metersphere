@@ -192,7 +192,7 @@ const Setting: AppRouteRecordRaw = {
         {
           path: 'templateFiledSetting',
           name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
-          component: () => import('@/views/setting/organization/template/components/fieldSetting.vue'),
+          component: () => import('@/views/setting/organization/template/components/ordFieldSetting.vue'),
           meta: {
             locale: 'menu.settings.organization.templateFieldSetting',
             roles: ['*'],
@@ -259,14 +259,14 @@ const Setting: AppRouteRecordRaw = {
         {
           path: 'templateWorkFlow',
           name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
-          component: () => import('@/views/setting/organization/template/components/workflowTable.vue'),
+          component: () => import('@/views/setting/organization/template/components/workFlowTableIndex.vue'),
           meta: {
             locale: 'menu.settings.organization.templateManagementWorkFlow',
             roles: ['*'],
             breadcrumbs: [
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
-                locale: 'menu.settings.organization.template',
+                locale: 'menu.settings.organization.bugTemplate',
               },
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,

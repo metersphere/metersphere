@@ -27,7 +27,7 @@ export interface FieldOptions {
   fieldId?: string;
   value: string | string[] | number | number[];
   text: string;
-  internal?: boolean;
+  internal?: boolean; // 是否是内置模版
 }
 
 // 自定义字段
@@ -69,6 +69,7 @@ export interface AddOrUpdateField {
   scopeId: string; // 组织或项目ID
   options?: FieldOption[];
   enableOptionKey: boolean;
+  [key: string]: any;
 }
 
 export interface fieldIconAndNameModal {
@@ -98,8 +99,8 @@ export interface OrdTemplateManagement {
 
 export interface CustomField {
   fieldId: string;
-  required: boolean; // 是否必填
-  apiFieldId: string; // api字段名
+  required?: boolean; // 是否必填
+  apiFieldId?: string; // api字段名
   defaultValue: string | string[] | null | number; // 默认值
 }
 
@@ -111,6 +112,8 @@ export interface ActionTemplateManage {
   enableThirdPart?: boolean; // 是否开启api字段名配置
   scene?: SeneType;
   customFields?: CustomField[];
+  fieldType?: string;
+  systemFields?: Record<string, any>[];
 }
 
 // 工作流列表字段
@@ -153,7 +156,7 @@ export interface SetStateType {
 
 // 更新流转状态
 export interface UpdateWorkFlowSetting {
-  fromId: string;
-  toId: string;
+  fromId: string; // 开始id
+  toId: string; // 结束id
   enable: boolean;
 }

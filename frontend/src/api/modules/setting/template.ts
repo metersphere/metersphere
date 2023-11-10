@@ -2,15 +2,23 @@ import MSR from '@/api/http/index';
 import {
   CreateFieldUrl,
   CreateOrganizeTemplateUrl,
+  CreateProjectFieldUrl,
+  CreateProjectTemplateUrl,
   DeleteFieldDetailUrl,
   DeleteOrganizeTemplateUrl,
+  DeleteProjectFieldDetailUrl,
+  DeleteProjectTemplateUrl,
   EnableOrOffTemplateUrl,
   GetDefinedFieldListUrl,
+  GetDefinedProjectFieldListUrl,
   GetFieldDetailUrl,
+  GetFieldProjectDetailUrl,
+  getOrdTemplateStateUrl,
   GetOrganizeTemplateDetailUrl,
   GetOrganizeTemplateUrl,
   GetProjectTemplateDetailUrl,
-  isEnableTemplateUrl,
+  getProjectTemplateStateUrl,
+  GetProjectTemplateUrl,
   OrdCreateFlowStatusUrl,
   OrdDeleteFlowStatusUrl,
   OrdSetStateUrl,
@@ -18,9 +26,17 @@ import {
   OrdUpdateFlowStatusUrl,
   OrdUpdateStateFlowUrl,
   OrdWorkFlowUrl,
-  SetOrganizeTemplateUrl,
+  ProjectCreateFlowStatusUrl,
+  ProjectDeleteFlowStatusUrl,
+  ProjectSetStateUrl,
+  ProjectStateSortUrl,
+  ProjectUpdateFlowStatusUrl,
+  ProjectUpdateStateFlowUrl,
+  ProjectWorkFlowUrl,
+  SetProjectTemplateUrl,
   UpdateFieldUrl,
   UpdateOrganizeTemplateUrl,
+  UpdateProjectFieldUrl,
   UpdateProjectTemplateUrl,
 } from '@/api/requrls/setting/template';
 
@@ -28,9 +44,7 @@ import { TableQueryParams } from '@/models/common';
 import type {
   ActionTemplateManage,
   AddOrUpdateField,
-  DefinedFieldItem,
   OrdWorkStatus,
-  OrganizeTemplateItem,
   SeneType,
   SetStateType,
   UpdateWorkFlowSetting,
@@ -38,13 +52,13 @@ import type {
 } from '@/models/setting/template';
 
 /** *
- * 模版
+ * 模版(组织)
  */
 // 获取模版列表(组织)
 export function getOrganizeTemplateList(params: TableQueryParams) {
   return MSR.get({ url: `${GetOrganizeTemplateUrl}/${params.organizationId}/${params.scene}` });
 }
-// 获取模版详情
+// 获取模版详情(组织)
 export function getOrganizeTemplateInfo(id: string) {
   return MSR.get({ url: `${GetOrganizeTemplateDetailUrl}/${id}` });
 }
@@ -57,21 +71,32 @@ export function createOrganizeTemplateInfo(data: ActionTemplateManage) {
 export function updateOrganizeTemplateInfo(data: ActionTemplateManage) {
   return MSR.post({ url: `${UpdateOrganizeTemplateUrl}`, data });
 }
-// 是否启用组织XX模板
-export function isEnableTemplate(organizationId: string) {
-  return MSR.get<Record<string, boolean>>({ url: `${isEnableTemplateUrl}/${organizationId}` });
+
+// 获取模板列表的状态(组织)
+export function getOrdTemplate(scopedId: string) {
+  return MSR.get<Record<string, boolean>>({ url: `${getOrdTemplateStateUrl}/${scopedId}` });
 }
-// 删除模板
+
+// 获取模板列表的状态(项目)
+export function getProTemplate(scopedId: string) {
+  return MSR.get<Record<string, boolean>>({ url: `${getProjectTemplateStateUrl}/${scopedId}` });
+}
+
+// 删除模板(组织)
 export function deleteOrdTemplate(id: string) {
   return MSR.get({ url: `${DeleteOrganizeTemplateUrl}/${id}` });
+}
+// 关闭组织模板||开启项目模板
+export function enableOrOffTemplate(organizationId: string, scene: SeneType) {
+  return MSR.get({ url: `${EnableOrOffTemplateUrl}/${organizationId}/${scene}` });
 }
 
 /** *
  * 自定义字段(组织)
  */
-// 获取自定义字段列表
+// 获取自定义字段列表(组织)
 export function getFieldList(params: TableQueryParams) {
-  return MSR.get({ url: `${GetDefinedFieldListUrl}${params.organizationId}/${params.scene}` });
+  return MSR.get({ url: `${GetDefinedFieldListUrl}${params.scopedId}/${params.scene}` });
 }
 
 // 创建自定义字段(组织)
@@ -95,8 +120,8 @@ export function getOrdFieldDetail(id: string) {
 // 组织模板-工作流
 
 // 获取组织下边模板工作流
-export function getWorkFlowList(organizationId: string, scene: SeneType) {
-  return MSR.get<WorkFlowType[]>({ url: `${OrdWorkFlowUrl}/${organizationId}/${scene}` });
+export function getWorkFlowList(scopedId: string, scene: SeneType) {
+  return MSR.get<WorkFlowType[]>({ url: `${OrdWorkFlowUrl}/${scopedId}/${scene}` });
 }
 // 创建工作流状态
 export function createWorkFlowStatus(data: OrdWorkStatus) {
@@ -116,11 +141,99 @@ export function setOrdWorkState(data: SetStateType) {
   return MSR.post({ url: OrdSetStateUrl, data });
 }
 // 设置工作流状态排序
-export function setOrdWorkStateSort(organizationId: string, scene: SeneType, data: string[]) {
-  return MSR.post({ url: `${OrdStateSortUrl}/${organizationId}/${scene}`, data });
+export function setOrdWorkStateSort(scopedId: string, scene: SeneType, data: string[]) {
+  return MSR.post({ url: `${OrdStateSortUrl}/${scopedId}/${scene}`, data });
 }
 // 更新工作流流转状态
 export function updateOrdWorkStateFlow(data: UpdateWorkFlowSetting) {
   return MSR.post({ url: `${OrdUpdateStateFlowUrl}`, data });
 }
-export default {};
+
+/** *
+ * 自定义字段(项目)
+ */
+// 获取自定义字段列表(组织)
+export function getProjectFieldList(params: TableQueryParams) {
+  return MSR.get({ url: `${GetDefinedProjectFieldListUrl}${params.scopedId}/${params.scene}` });
+}
+
+// 创建自定义字段(组织)
+export function addOrUpdateProjectField(data: AddOrUpdateField) {
+  if (data.id) {
+    return MSR.post({ url: UpdateProjectFieldUrl, data });
+  }
+  return MSR.post({ url: CreateProjectFieldUrl, data });
+}
+
+// 删除自定义字段(组织)
+export function deleteProjectField(id: string) {
+  return MSR.get({ url: DeleteProjectFieldDetailUrl, params: id });
+}
+
+// 获取自定义字段详情选项(组织)
+export function getProjectFieldDetail(id: string) {
+  return MSR.get({ url: GetFieldProjectDetailUrl, params: id });
+}
+
+/** *
+ * 模版(项目)
+ */
+// 获取模版列表(项目)
+export function getProjectTemplateList(params: TableQueryParams) {
+  return MSR.get({ url: `${GetProjectTemplateUrl}/${params.projectId}/${params.scene}` });
+}
+// 获取模版详情(项目)
+export function getProjectTemplateInfo(id: string) {
+  return MSR.get({ url: `${GetProjectTemplateDetailUrl}/${id}` });
+}
+// 创建模板列表(项目)
+export function createProjectTemplateInfo(data: ActionTemplateManage) {
+  return MSR.post({ url: `${CreateProjectTemplateUrl}`, data });
+}
+
+// 编辑模板列表(项目)
+export function updateProjectTemplateInfo(data: ActionTemplateManage) {
+  return MSR.post({ url: `${UpdateProjectTemplateUrl}`, data });
+}
+
+// 删除模板(项目)
+export function deleteProjectTemplate(id: string) {
+  return MSR.get({ url: `${DeleteProjectTemplateUrl}/${id}` });
+}
+
+// 设置默认项目模板
+export function setDefaultTemplate(projectId: string, id: string) {
+  return MSR.get({ url: `${SetProjectTemplateUrl}/${projectId}/${id}` });
+}
+
+// 项目模板-工作流
+
+// 获取项目模板工作流
+export function getProjectWorkFlowList(scopedId: string, scene: SeneType) {
+  return MSR.get<WorkFlowType[]>({ url: `${ProjectWorkFlowUrl}/${scopedId}/${scene}` });
+}
+// 创建工作流状态
+export function createProjectWorkFlowStatus(data: OrdWorkStatus) {
+  return MSR.post<WorkFlowType[]>({ url: ProjectCreateFlowStatusUrl, data });
+}
+// 更新工作流状态
+export function updateProjectWorkFlowStatus(data: OrdWorkStatus) {
+  return MSR.post<WorkFlowType[]>({ url: ProjectUpdateFlowStatusUrl, data });
+}
+
+// 删除工作流状态
+export function deleteProjectWorkState(id: string) {
+  return MSR.get({ url: ProjectDeleteFlowStatusUrl, params: id });
+}
+// 设置工作流状态初始态 || 结束态
+export function setProjectWorkState(data: SetStateType) {
+  return MSR.post({ url: ProjectSetStateUrl, data });
+}
+// 设置工作流状态排序
+export function setProjectWorkStateSort(scopedId: string, scene: SeneType, data: string[]) {
+  return MSR.post({ url: `${ProjectStateSortUrl}/${scopedId}/${scene}`, data });
+}
+// 更新工作流流转状态
+export function updateProjectWorkStateFlow(data: UpdateWorkFlowSetting) {
+  return MSR.post({ url: `${ProjectUpdateStateFlowUrl}`, data });
+}

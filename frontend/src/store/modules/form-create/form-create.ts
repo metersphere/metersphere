@@ -73,6 +73,7 @@ const useFormCreateStore = defineStore('form-create', {
               'modelValue': item.value,
               'options': currentOptions, // 当前已经存在的options
               'formKey': key, // 对应pinia-form-create里边初始化的KEY
+              'disabled': item?.props?.disabled,
             },
           };
           // 如果不存在关联name删除link关联属性
@@ -87,9 +88,7 @@ const useFormCreateStore = defineStore('form-create', {
         }
         return {};
       });
-      if (result && result.length) {
-        this.setInitdRules(key, result as FormRuleItem[]);
-      }
+      this.setInitdRules(key, result as FormRuleItem[]);
     },
     // 初始化好了的格式给formCreate
     setInitdRules(key: FormCreateKeyEnum[keyof FormCreateKeyEnum], result: FormRuleItem[]) {
