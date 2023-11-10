@@ -716,6 +716,18 @@ export default {
         });
       }
     },
+    setCurrentKeyById(id) {
+      if (id) {
+        this.$nextTick(() => {
+          this.$refs.tree.setCurrentKey(id);
+          let currentDate = this.$refs.tree.getCurrentNode();
+          if (currentDate) {
+            let currentNode = this.$refs.tree.getNode(currentDate);
+            this.handleNodeSelect(currentNode);
+          }
+        });
+      }
+    },
     isDefault(data) {
       return data.name === this.defaultLabel && data.level === 1;
     },

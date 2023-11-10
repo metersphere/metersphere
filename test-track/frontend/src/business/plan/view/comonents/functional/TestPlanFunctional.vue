@@ -27,8 +27,6 @@
           :plan-status="planStatus "
           :clickType="clickType"
           :select-node-ids="selectNodeIds"
-          :search-select-node-ids="searchSelectNodeIds"
-          :search-select.sync="searchSelect"
           :version-enable="versionEnable"
           @refresh="refresh"
           @refreshTree="refreshTree"
@@ -70,10 +68,11 @@ import TestPlanMinder from "@/business/common/minder/TestPlanMinder";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import TestPlanFunctionalRelevance from "@/business/plan/view/comonents/functional/TestPlanFunctionalRelevance";
 import IsChangeConfirm from "metersphere-frontend/src/components/IsChangeConfirm";
-import {openMinderConfirm, saveMinderConfirm} from "@/business/common/minder/minderUtils";
+import {clearOtherTagAfterBatchTag, openMinderConfirm, saveMinderConfirm} from "@/business/common/minder/minderUtils";
 import {getTestPlanCaseNodesByCaseFilter} from "@/api/testCase";
 import {useStore} from "@/store";
 import {testPlanTestCaseGet} from "@/api/remote/plan/test-plan-test-case";
+import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
 
 export default {
   name: "TestPlanFunctional",
@@ -97,8 +96,6 @@ export default {
       tmpActiveDom: null,
       tmpPath: null,
       currentNode: null,
-      searchSelectNodeIds: [],
-      searchSelect: false,
     };
   },
   props: [
@@ -147,7 +144,6 @@ export default {
     },
     clearSelectNode() {
       this.selectNodeIds = [];
-      this.searchSelectNodeIds = [];
       useStore().testPlanViewSelectNode = {};
     },
     initData() {
@@ -163,7 +159,6 @@ export default {
       this.selectNodeIds = nodeIds;
       useStore().testPlanViewSelectNode = node;
       this.currentNode = node;
-      this.searchSelect = false;
       // 切换node后，重置分页数
       if (this.$refs.testPlanTestCaseList) {
         this.$refs.testPlanTestCaseList.currentPage = 1;
@@ -187,30 +182,7 @@ export default {
               this.loading = false;
               this.treeNodes = r.data;
               this.setCurrentKey();
-              this.$refs.testPlanTestCaseList.$nextTick(() => {
-                this.setSearchSelectNodeIds(r)
-              });
             });
-        }
-      }
-    },
-    setSearchSelectNodeIds(treeNodes) {
-      this.searchSelectNodeIds = []
-      this.getChildNodeId(treeNodes.data[0], this.searchSelectNodeIds);
-      this.searchSelect = true;
-    },
-    getChildNodeId(rootNode, nodeIds) {
-      if (rootNode && this.currentNode) {
-        if (rootNode.id === this.currentNode.data.id) {
-          this.pushNode(rootNode, nodeIds);
-        } else {
-          if (rootNode.children) {
-            for (let i = 0; i < rootNode.children.length; i++) {
-              if (rootNode.children[i].id === this.currentNode.data.id) {
-                this.pushNode(rootNode.children[i], nodeIds)
-              }
-            }
-          }
         }
       }
     },
@@ -225,7 +197,12 @@ export default {
     },
     setCurrentKey() {
       if (this.$refs.nodeTree) {
-        this.$refs.nodeTree.setCurrentKey(this.currentNode);
+        this.$refs.nodeTree.$nextTick(() => {
+          if (this.currentNode) {
+            // 这里传id，如果传node，可能会导致使用的是旧的node
+            this.$refs.nodeTree.setCurrentKeyById(this.currentNode.data.id);
+          }
+        });
       }
     },
     setCondition(data) {

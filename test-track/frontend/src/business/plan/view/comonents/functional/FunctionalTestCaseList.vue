@@ -461,14 +461,7 @@ export default {
     },
     planStatus: {
       type: String
-    },
-    searchSelectNodeIds: {
-      type: Array
-    },
-    searchSelect: {
-      type: Boolean,
-      default: false
-    },
+    }
   },
   computed: {
     editTestPlanTestCaseOrder() {
@@ -670,14 +663,8 @@ export default {
         this.status = 'all';
       }
       this.condition.nodeIds = [];
-      if (!this.searchSelect) {
-        if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-          this.condition.nodeIds = this.selectNodeIds;
-        }
-      } else {
-        if (this.searchSelectNodeIds && this.searchSelectNodeIds.length > 0) {
-          this.condition.nodeIds = this.searchSelectNodeIds;
-        }
+      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+        this.condition.nodeIds = this.selectNodeIds;
       }
       this.condition.projectId = getCurrentProjectID();
       if (this.planId) {
@@ -762,7 +749,11 @@ export default {
     search() {
       this.currentPage = 1;
       this.$emit('search');
-      this.initTableData();
+      if (!this.selectNodeIds || this.selectNodeIds.length < 1) {
+        // 如果没有选中节点，则刷新列表
+        // 如果选中了节点，刷新模块时，会触发列表刷新，这里就不刷新了
+        this.initTableData();
+      }
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
