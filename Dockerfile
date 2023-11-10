@@ -19,6 +19,6 @@ ENV AB_OFF=true
 ENV MS_VERSION=${MS_VERSION}
 ENV JAVA_OPTIONS="-Dfile.encoding=utf-8 -Djava.awt.headless=true --add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED"
 
-RUN echo "${MS_VERSION}" > /tmp/MS_VERSION
+RUN echo -n "${MS_VERSION}" > /tmp/MS_VERSION
 
 CMD ["/deployments/run-java.sh"]
