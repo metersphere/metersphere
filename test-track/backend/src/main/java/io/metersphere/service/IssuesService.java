@@ -55,6 +55,7 @@ import io.metersphere.service.remote.project.TrackIssueTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.service.wapper.UserService;
 import io.metersphere.utils.DistinctKeyUtil;
+import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.dto.PlatformUser;
 import io.metersphere.xpack.track.dto.*;
@@ -2110,7 +2111,7 @@ public class IssuesService {
         try {
             XpackIssueService xpackIssueService = CommonBeanFactory.getBean(XpackIssueService.class);
             xpackIssueService.syncThirdPartyIssues(project, syncRequest);
-            if (platformPluginService.isPluginPlatform(project.getPlatform())) {
+            if (PlatformPluginService.isPluginPlatform(project.getPlatform())) {
                 syncAllPluginIssueAttachment(project, syncRequest);
             }
         } catch (Exception e) {
