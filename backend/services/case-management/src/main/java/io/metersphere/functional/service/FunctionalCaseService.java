@@ -34,7 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -130,10 +129,8 @@ public class FunctionalCaseService {
         return (pos == null ? 0 : pos) + ORDER_STEP;
     }
 
-    public int getNextNum(String projectId) {
-        long nextNum = NumGenerator.nextNum(projectId, ApplicationNumScope.CASE_MANAGEMENT);
-        BigDecimal bigDecimal = new BigDecimal(nextNum);
-        return bigDecimal.intValue();
+    public long getNextNum(String projectId) {
+        return NumGenerator.nextNum(projectId, ApplicationNumScope.CASE_MANAGEMENT);
     }
 
 

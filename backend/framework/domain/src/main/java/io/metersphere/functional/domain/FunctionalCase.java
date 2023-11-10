@@ -4,6 +4,7 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,9 +19,8 @@ public class FunctionalCase implements Serializable {
     private String id;
 
     @Schema(description =  "业务ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case.num.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{functional_case.num.length_range}", groups = {Created.class, Updated.class})
-    private Integer num;
+    @NotNull(message = "{functional_case.num.not_blank}", groups = {Created.class})
+    private Long num;
 
     @Schema(description =  "模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.module_id.not_blank}", groups = {Created.class})
@@ -112,7 +112,7 @@ public class FunctionalCase implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        num("num", "num", "INTEGER", false),
+        num("num", "num", "BIGINT", false),
         moduleId("module_id", "moduleId", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         templateId("template_id", "templateId", "VARCHAR", false),

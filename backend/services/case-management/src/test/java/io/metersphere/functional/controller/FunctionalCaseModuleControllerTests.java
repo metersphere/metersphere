@@ -723,7 +723,7 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
     private FunctionalCase createCase(BaseTreeNode a1a1Node, Boolean deleted, String name) {
         FunctionalCase functionalCase = new FunctionalCase();
         functionalCase.setName(name);
-        functionalCase.setNum(100001);
+        functionalCase.setNum(100001l);
         functionalCase.setModuleId(a1a1Node.getId());
         functionalCase.setProjectId(project.getId());
         functionalCase.setDeleted(deleted);

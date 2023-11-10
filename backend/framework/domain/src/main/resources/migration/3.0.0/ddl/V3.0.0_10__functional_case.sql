@@ -3,7 +3,7 @@ SET SESSION innodb_lock_wait_timeout = 7200;
 
 CREATE TABLE IF NOT EXISTS functional_case(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
-    `num` INT NOT NULL   COMMENT '业务ID' ,
+    `num` BIGINT NOT NULL   COMMENT '业务ID' ,
     `module_id` VARCHAR(50) NOT NULL  DEFAULT '' COMMENT '模块ID' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
     `template_id` VARCHAR(50) NOT NULL   COMMENT '模板ID' ,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS functional_case(
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '功能用例';
 
-
+CREATE INDEX idx_num ON functional_case(num);
 CREATE INDEX idx_module_id ON functional_case(module_id);
 CREATE INDEX idx_project_id_pos ON functional_case(project_id,pos);
 CREATE INDEX idx_public_case_pos ON functional_case(public_case,pos);
