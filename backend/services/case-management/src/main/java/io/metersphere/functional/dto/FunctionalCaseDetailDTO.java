@@ -79,4 +79,7 @@ public class FunctionalCaseDetailDTO implements Serializable {
 
     @Schema(description = "附件信息")
     private List<FunctionalCaseAttachmentDTO> attachments;
+
+    @Schema(description = "关注标识")
+    private Boolean followFlag;
 }

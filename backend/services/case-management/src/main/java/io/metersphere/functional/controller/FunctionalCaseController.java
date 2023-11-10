@@ -75,7 +75,8 @@ public class FunctionalCaseController {
     @Operation(summary = "功能用例-查看用例详情")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     public FunctionalCaseDetailDTO getFunctionalCaseDetail(@PathVariable String id) {
-        return functionalCaseService.getFunctionalCaseDetail(id);
+        String userId = SessionUtils.getUserId();
+        return functionalCaseService.getFunctionalCaseDetail(id, userId);
     }
 
 
@@ -96,14 +97,6 @@ public class FunctionalCaseController {
     public void editFollower(@Validated @RequestBody FunctionalCaseFollowerRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.editFollower(request.getFunctionalCaseId(), userId);
-    }
-
-
-    @GetMapping("/follower/{id}")
-    @Operation(summary = "功能用例-获取用例关注人")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    public List<String> getFollower(@PathVariable @NotBlank(message = "{functional_case.id.not_blank}") String id) {
-        return functionalCaseService.getFollower(id);
     }
 
 
