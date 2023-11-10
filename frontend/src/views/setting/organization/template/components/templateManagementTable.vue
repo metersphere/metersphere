@@ -1,9 +1,11 @@
 <template>
   <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">
     <template #name="{ record }">
-      <MsIcon v-if="!record.internal" :type="getIconType(record.type)?.iconName || ''" size="16" />
-      <span class="ml-2">{{ record.name }}</span>
-      <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
+      <div class="flex items-center">
+        <MsIcon v-if="!record.internal" :type="getIconType(record.type)?.iconName || ''" size="16" />
+        <span class="ml-2">{{ record.name }}</span>
+        <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
+      </div>
     </template>
     <template #apiFieldId="{ record }">
       <a-input

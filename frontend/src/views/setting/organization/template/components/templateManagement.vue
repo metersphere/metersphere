@@ -19,8 +19,10 @@
     </div>
     <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">
       <template #name="{ record }">
-        <span class="ml-2">{{ record.name }}</span>
-        <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
+        <div class="flex items-center">
+          <span class="ml-2">{{ record.name }}</span>
+          <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag>
+        </div>
       </template>
       <template #enableThirdPart="{ record }">
         {{ record.enableThirdPart ? t('system.orgTemplate.yes') : t('system.orgTemplate.no') }}
