@@ -33,13 +33,23 @@
     </div>
   </div>
   <FilterPanel v-show="isExpandFilter"></FilterPanel>
-  <MinderEditor :tags="['模块', '用例', '前置条件', '备注', '步骤', '预期结果']" tag-enable sequence-enable />
+  <MinderEditor
+    :import-json="importJson"
+    :tags="['模块', '用例', '前置条件', '备注', '步骤', '预期结果']"
+    tag-enable
+    sequence-enable
+    @node-click="handleNodeClick"
+  />
+  <MsDrawer v-model:visible="visible" :width="480" :mask="false">
+    {{ nodeData.text }}
+  </MsDrawer>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
 
   import MinderEditor from '@/components/pure/minder-editor/minderEditor.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import FilterPanel from '@/components/business/ms-filter-panel/searchForm.vue';
 
@@ -65,6 +75,62 @@
   const isExpandFilterHandler = () => {
     isExpandFilter.value = !isExpandFilter.value;
   };
+
+  const visible = ref<boolean>(false);
+  const nodeData = ref<any>({});
+
+  const importJson = ref<any>({});
+
+  function handleNodeClick(data: any) {
+    if (data.resource && data.resource.includes('用例')) {
+      visible.value = true;
+      nodeData.value = data;
+    }
+  }
+
+  onBeforeMount(() => {
+    importJson.value = {
+      root: {
+        data: {
+          text: '测试用例',
+          id: 'xxxx',
+        },
+        children: [
+          {
+            data: {
+              id: 'sdasdas',
+              text: '模块 1',
+              resource: ['模块'],
+            },
+          },
+          {
+            data: {
+              id: 'dasdasda',
+              text: '模块 2',
+              expandState: 'collapse',
+            },
+            children: [
+              {
+                data: {
+                  id: 'frihofiuho3f',
+                  text: '用例 1',
+                  resource: ['用例'],
+                },
+              },
+              {
+                data: {
+                  id: 'df09348f034f',
+                  text: ' 用例 2',
+                  resource: ['用例'],
+                },
+              },
+            ],
+          },
+        ],
+      },
+      template: 'default',
+    };
+  });
 </script>
 
 <style scoped lang="less">

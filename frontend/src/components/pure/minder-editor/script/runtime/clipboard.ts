@@ -13,10 +13,6 @@ interface IData {
   };
 }
 
-interface ICliboardEvent extends ClipboardEvent {
-  clipboardData: DataTransfer;
-}
-
 export default function ClipboardRuntime(this: any) {
   const { minder } = this;
   const { receiver } = this;
@@ -38,11 +34,10 @@ export default function ClipboardRuntime(this: any) {
     return kmencode(Data.getRegisterProtocol('json').encode(_nodes));
   }
 
-  const beforeCopy = (e: ICliboardEvent) => {
+  const beforeCopy = (e: ClipboardEvent) => {
     if (document.activeElement === receiver.element) {
       const clipBoardEvent = e;
       const state = this.fsm.state();
-
       switch (state) {
         case 'input': {
           break;
@@ -80,7 +75,7 @@ export default function ClipboardRuntime(this: any) {
               }
             }
             const str = encode(nodes);
-            clipBoardEvent.clipboardData.setData('text/plain', str);
+            clipBoardEvent.clipboardData?.setData('text/plain', str);
           }
           e.preventDefault();
           break;
@@ -193,7 +188,7 @@ export default function ClipboardRuntime(this: any) {
    * @Editor: Naixor
    * @Date: 2015.9.24
    */
-  document.addEventListener('copy', () => beforeCopy);
-  document.addEventListener('cut', () => beforeCut);
-  document.addEventListener('paste', () => beforePaste);
+  document.addEventListener('copy', (e) => beforeCopy(e));
+  document.addEventListener('cut', (e) => beforeCut(e));
+  document.addEventListener('paste', (e) => beforePaste(e));
 }

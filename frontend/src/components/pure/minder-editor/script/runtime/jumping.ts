@@ -65,7 +65,6 @@ function isIntendToInput(e: KeyboardEvent): boolean {
 function JumpingRuntime(this: IJumpingRuntime): void {
   const { fsm, minder, receiver, container, hotbox } = this;
   const receiverElement = receiver.element;
-
   // normal -> *
   receiver.listen('normal', (e: KeyboardEvent) => {
     // 为了防止处理进入edit模式而丢失处理的首字母,此时receiver必须为enable
@@ -141,6 +140,7 @@ function JumpingRuntime(this: IJumpingRuntime): void {
   /// ///////////////////////////////////////////
   let downX: number;
   let downY: number;
+  const MOUSE_LB = 1; // 左键
   const MOUSE_RB = 2; // 右键
 
   container.addEventListener(
@@ -149,10 +149,10 @@ function JumpingRuntime(this: IJumpingRuntime): void {
       if (e.button === MOUSE_RB) {
         e.preventDefault();
       }
-      if (fsm.state() === 'hotbox') {
-        hotbox.active(HotBox.STATE_IDLE);
+
+      if (fsm.state() === 'hotbox' && e.button === MOUSE_LB) {
         fsm.jump('normal', 'blur');
-      } else if (fsm.state() === 'normal' && e.button === MOUSE_RB) {
+      } else if (e.button === MOUSE_RB) {
         downX = e.clientX;
         downY = e.clientY;
       }
@@ -164,7 +164,6 @@ function JumpingRuntime(this: IJumpingRuntime): void {
     'mousewheel',
     () => {
       if (fsm.state() === 'hotbox') {
-        hotbox.active(HotBox.STATE_IDLE);
         fsm.jump('normal', 'mousemove-blur');
       }
     },
@@ -178,14 +177,14 @@ function JumpingRuntime(this: IJumpingRuntime): void {
   container.addEventListener(
     'mouseup',
     (e) => {
-      if (fsm.state() !== 'normal') {
+      if (fsm.state() !== 'normal' && e.button === MOUSE_LB) {
         return;
       }
       if (e.button !== MOUSE_RB || e.clientX !== downX || e.clientY !== downY) {
         return;
       }
       if (!minder.getSelectedNode()) {
-        return;
+        return false;
       }
       fsm.jump('hotbox', 'content-menu');
     },

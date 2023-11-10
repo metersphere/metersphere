@@ -7,25 +7,9 @@ export const mainEditorProps = {
     type: Object,
     default() {
       return {
-        root: {
-          data: {
-            text: 'test111',
-          },
-          children: [
-            {
-              data: {
-                text: '地图',
-              },
-            },
-            {
-              data: {
-                text: '百科',
-                expandState: 'collapse',
-              },
-            },
-          ],
-        },
+        root: {},
         template: 'default',
+        treePath: [] as any[],
       };
     },
   },
@@ -94,6 +78,10 @@ export const editMenuProps = {
   moveEnable: {
     type: Boolean,
     default: true,
+  },
+  moveConfirm: {
+    type: Function,
+    default: null,
   },
 };
 

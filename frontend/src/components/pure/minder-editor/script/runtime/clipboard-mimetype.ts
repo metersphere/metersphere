@@ -16,20 +16,20 @@ const MimeType = () => {
     '\uFFFF': 'application/km',
   };
 
-  function getSpitor(): string {
+  function getSplitor(): string {
     return SPLITOR;
   }
 
   function isPureText(text: string): boolean {
     // eslint-disable-next-line no-bitwise
-    return !~text.indexOf(getSpitor());
+    return !~text.indexOf(getSplitor());
   }
 
   function getPureText(text: string): string {
     if (isPureText(text)) {
       return text;
     }
-    return text.split(getSpitor())[1];
+    return text.split(getSplitor())[1];
   }
 
   function getMimeType(sign?: string): MimeTypes | string | null {
@@ -43,7 +43,7 @@ const MimeType = () => {
     if (isPureText(text)) {
       return null;
     }
-    return getMimeType(text.split(getSpitor())[0]);
+    return getMimeType(text.split(getSplitor())[0]);
   }
 
   function process(mimetype: string | false, text: string): string {
@@ -84,8 +84,12 @@ const MimeType = () => {
   return {
     registerMimeTypeProtocol,
     getMimeTypeProtocol,
-    getSpitor,
+    getSplitor,
     getMimeType,
+    whichMimeType,
+    process,
+    getPureText,
+    isPureText,
   };
 };
 

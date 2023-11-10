@@ -51,7 +51,7 @@ class FSM {
     }
 
     const oldState = this.currentState;
-    const notify = [oldState, newState].concat([].slice.call(args, 1));
+    const notify = [oldState, newState].concat([reason, args[0]]);
     let i;
     let handler;
 
@@ -67,7 +67,6 @@ class FSM {
 
     this.currentState = newState;
     this.debug.log('[{0}] {1} -> {2}', reason, oldState, newState);
-
     // 跳转后
     for (i = 0; i < this.handlers.length; i++) {
       handler = this.handlers[i];
@@ -99,8 +98,9 @@ class FSM {
    *         * to - 跳转后的状态
    *         * reason - 跳转的原因
    */
-  public when(condition: string, handler: Handler | string): void {
-    if (arguments.length === 1) {
+  public when(...args: any[]): void {
+    let [condition, handler] = args;
+    if (args.length === 1) {
       handler = condition;
       condition = '* -> *';
     }
@@ -138,8 +138,8 @@ class FSM {
   }
 }
 
-function FSMRumtime(this: any) {
+function FSMRuntime(this: any) {
   this.fsm = new FSM('normal');
 }
 
-export default FSMRumtime;
+export default FSMRuntime;

@@ -92,7 +92,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import { useTableStore } from '@/store';
-  import { TableOpenDetailMode } from '@/store/modules/ms-table/types';
+  import { TableOpenDetailMode } from '@/store/modules/components/ms-table/types';
 
   import { MsTableColumn } from './type';
   import Draggable from 'vuedraggable';
@@ -219,3 +219,4 @@
     font-size: 12px;
   }
 </style>
+@/store/modules/components/ms-table/types

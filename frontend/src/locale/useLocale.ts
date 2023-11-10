@@ -35,10 +35,10 @@ function setI18nLanguage(locale: LocaleType) {
 async function changeLocale(locale: LocaleType) {
   const globalI18n = i18n.global;
   const currentLocale = unref(globalI18n.locale);
-  Message.loading(currentLocale === 'zh-CN' ? '语言切换中...' : 'Language switching...');
   if (currentLocale === locale) {
     return locale;
   }
+  Message.loading(currentLocale === 'zh-CN' ? '语言切换中...' : 'Language switching...');
 
   if (loadLocalePool.includes(locale)) {
     setI18nLanguage(locale);

@@ -40,6 +40,7 @@
 
   const props = defineProps<{
     moveEnable: boolean;
+    moveConfirm: any;
   }>();
 
   let minder = reactive<any>({});

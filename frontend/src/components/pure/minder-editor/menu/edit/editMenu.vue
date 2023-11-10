@@ -17,7 +17,7 @@
         </a-button>
         {{ t('minder.menu.expand.folding') }}
       </div>
-      <move-box :move-enable="props.moveEnable" />
+      <move-box :move-enable="props.moveEnable" :move-confirm="props.moveConfirm" />
       <insert-box />
       <edit-del :del-confirm="props.delConfirm" />
     </div>
@@ -39,10 +39,14 @@
         :priority-start-with-zero="props.priorityStartWithZero"
       />
     </div>
+    <div class="menu-group">
+      <mold v-if="props.moldEnable" :default-mold="props.defaultMold" @mold-change="handleMoldChange" />
+    </div>
   </div>
 </template>
 
 <script lang="ts" name="editMenu" setup>
+  import mold from '../view/mold.vue';
   import editDel from './editDel.vue';
   import insertBox from './insertBox.vue';
   import moveBox from './moveBox.vue';
@@ -51,9 +55,19 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { delProps, editMenuProps, priorityProps, tagProps } from '../../props';
+  import { delProps, editMenuProps, moleProps, priorityProps, tagProps, viewMenuProps } from '../../props';
 
-  const props = defineProps({ ...editMenuProps, ...priorityProps, ...tagProps, ...delProps });
+  const props = defineProps({
+    ...editMenuProps,
+    ...priorityProps,
+    ...tagProps,
+    ...delProps,
+    ...viewMenuProps,
+    ...moleProps,
+  });
+  const emit = defineEmits<{
+    (e: 'moldChange', data: number): void;
+  }>();
 
   const { t } = useI18n();
 
@@ -93,5 +107,9 @@
     } else {
       window.minder?.execCommand('ExpandToLevel', 1);
     }
+  }
+
+  function handleMoldChange(data: number) {
+    emit('moldChange', data);
   }
 </script>

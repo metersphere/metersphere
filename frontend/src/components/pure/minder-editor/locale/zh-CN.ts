@@ -84,5 +84,16 @@ export default {
       priority: '优先级',
       tag: '标签',
     },
+    hotboxMenu: {
+      expand: '展开/收起',
+      insetParent: '插入上一级',
+      insetSon: '插入下一级',
+      insetBrother: '插入同级',
+      copy: '复制',
+      cut: '剪切',
+      paste: '粘贴',
+      delete: '删除',
+      enterNode: '进入当前节点',
+    },
   },
 };
