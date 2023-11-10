@@ -38,12 +38,11 @@
         @change="changeWorkspace"
         class="ms-header-workspace"
         size="small">
-        <el-option
-          v-for="item in workspaceList"
-          :key="item.id"
-          :label="item.name"
-          :value="item.id"
-          :title="item.name" />
+        <el-option v-for="item in workspaceList" :key="item.id" :value="item.id" :title="item.name">
+          <div style="max-width: 450px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
+            {{ item.name }}
+          </div>
+        </el-option>
       </el-select>
       <select-menu
         :data="projects"
@@ -197,7 +196,6 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .menu-title {
   color: darkgrey;
@@ -208,10 +206,5 @@ export default {
 .ms-header-workspace {
   width: 155px;
   margin-bottom: 10px;
-}
-</style>
-<style>
-.el-select-dropdown__wrap {
-  max-width: 500px;
 }
 </style>
