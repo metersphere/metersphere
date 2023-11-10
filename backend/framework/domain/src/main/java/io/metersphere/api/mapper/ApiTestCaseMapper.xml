@@ -5,7 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="priority" jdbcType="VARCHAR" property="priority" />
-    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="num" jdbcType="BIGINT" property="num" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="last_report_status" jdbcType="VARCHAR" property="lastReportStatus" />
@@ -14,7 +14,6 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="api_definition_id" jdbcType="VARCHAR" property="apiDefinitionId" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
-    <result column="principal" jdbcType="VARCHAR" property="principal" />
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
@@ -84,8 +83,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, priority, num, tags, `status`, last_report_status, last_report_id, pos, 
-    project_id, api_definition_id, version_id, principal, environment_id, create_time, 
-    create_user, update_time, update_user, delete_time, delete_user, deleted
+    project_id, api_definition_id, version_id, environment_id, create_time, create_user, 
+    update_time, update_user, delete_time, delete_user, deleted
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiTestCaseExample" resultMap="BaseResultMap">
     select
@@ -119,21 +118,19 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiTestCase">
     insert into api_test_case (id, `name`, priority, 
-      num, tags, `status`, 
-      last_report_status, last_report_id, pos, 
-      project_id, api_definition_id, version_id, 
-      principal, environment_id, create_time, 
-      create_user, update_time, update_user, 
-      delete_time, delete_user, deleted
-      )
+      num, tags, `status`, last_report_status, 
+      last_report_id, pos, project_id, 
+      api_definition_id, version_id, environment_id, 
+      create_time, create_user, update_time, 
+      update_user, delete_time, delete_user, 
+      deleted)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
-      #{num,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, 
-      #{projectId,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, 
-      #{principal,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, 
-      #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}
-      )
+      #{num,jdbcType=BIGINT}, #{tags,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{lastReportStatus,jdbcType=VARCHAR}, 
+      #{lastReportId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
+      #{apiDefinitionId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
+      #{updateUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
+      #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiTestCase">
     insert into api_test_case
@@ -174,9 +171,6 @@
       <if test="versionId != null">
         version_id,
       </if>
-      <if test="principal != null">
-        principal,
-      </if>
       <if test="environmentId != null">
         environment_id,
       </if>
@@ -213,7 +207,7 @@
         #{priority,jdbcType=VARCHAR},
       </if>
       <if test="num != null">
-        #{num,jdbcType=INTEGER},
+        #{num,jdbcType=BIGINT},
       </if>
       <if test="tags != null">
         #{tags,jdbcType=VARCHAR},
@@ -238,9 +232,6 @@
       </if>
       <if test="versionId != null">
         #{versionId,jdbcType=VARCHAR},
-      </if>
-      <if test="principal != null">
-        #{principal,jdbcType=VARCHAR},
       </if>
       <if test="environmentId != null">
         #{environmentId,jdbcType=VARCHAR},
@@ -287,7 +278,7 @@
         priority = #{record.priority,jdbcType=VARCHAR},
       </if>
       <if test="record.num != null">
-        num = #{record.num,jdbcType=INTEGER},
+        num = #{record.num,jdbcType=BIGINT},
       </if>
       <if test="record.tags != null">
         tags = #{record.tags,jdbcType=VARCHAR},
@@ -312,9 +303,6 @@
       </if>
       <if test="record.versionId != null">
         version_id = #{record.versionId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.principal != null">
-        principal = #{record.principal,jdbcType=VARCHAR},
       </if>
       <if test="record.environmentId != null">
         environment_id = #{record.environmentId,jdbcType=VARCHAR},
@@ -350,7 +338,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       priority = #{record.priority,jdbcType=VARCHAR},
-      num = #{record.num,jdbcType=INTEGER},
+      num = #{record.num,jdbcType=BIGINT},
       tags = #{record.tags,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       last_report_status = #{record.lastReportStatus,jdbcType=VARCHAR},
@@ -359,7 +347,6 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       api_definition_id = #{record.apiDefinitionId,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
-      principal = #{record.principal,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -382,7 +369,7 @@
         priority = #{priority,jdbcType=VARCHAR},
       </if>
       <if test="num != null">
-        num = #{num,jdbcType=INTEGER},
+        num = #{num,jdbcType=BIGINT},
       </if>
       <if test="tags != null">
         tags = #{tags,jdbcType=VARCHAR},
@@ -407,9 +394,6 @@
       </if>
       <if test="versionId != null">
         version_id = #{versionId,jdbcType=VARCHAR},
-      </if>
-      <if test="principal != null">
-        principal = #{principal,jdbcType=VARCHAR},
       </if>
       <if test="environmentId != null">
         environment_id = #{environmentId,jdbcType=VARCHAR},
@@ -442,7 +426,7 @@
     update api_test_case
     set `name` = #{name,jdbcType=VARCHAR},
       priority = #{priority,jdbcType=VARCHAR},
-      num = #{num,jdbcType=INTEGER},
+      num = #{num,jdbcType=BIGINT},
       tags = #{tags,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       last_report_status = #{lastReportStatus,jdbcType=VARCHAR},
@@ -451,7 +435,6 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       api_definition_id = #{apiDefinitionId,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
-      principal = #{principal,jdbcType=VARCHAR},
       environment_id = #{environmentId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
@@ -465,18 +448,18 @@
   <insert id="batchInsert" parameterType="map">
     insert into api_test_case
     (id, `name`, priority, num, tags, `status`, last_report_status, last_report_id, pos, 
-      project_id, api_definition_id, version_id, principal, environment_id, create_time, 
-      create_user, update_time, update_user, delete_time, delete_user, deleted)
+      project_id, api_definition_id, version_id, environment_id, create_time, create_user, 
+      update_time, update_user, delete_time, delete_user, deleted)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.priority,jdbcType=VARCHAR}, 
-        #{item.num,jdbcType=INTEGER}, #{item.tags,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, 
+        #{item.num,jdbcType=BIGINT}, #{item.tags,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, 
         #{item.lastReportStatus,jdbcType=VARCHAR}, #{item.lastReportId,jdbcType=VARCHAR}, 
         #{item.pos,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, #{item.apiDefinitionId,jdbcType=VARCHAR}, 
-        #{item.versionId,jdbcType=VARCHAR}, #{item.principal,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.updateUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, 
-        #{item.deleted,jdbcType=BIT})
+        #{item.versionId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, 
+        #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -499,7 +482,7 @@
           #{item.priority,jdbcType=VARCHAR}
         </if>
         <if test="'num'.toString() == column.value">
-          #{item.num,jdbcType=INTEGER}
+          #{item.num,jdbcType=BIGINT}
         </if>
         <if test="'tags'.toString() == column.value">
           #{item.tags,jdbcType=VARCHAR}
@@ -524,9 +507,6 @@
         </if>
         <if test="'version_id'.toString() == column.value">
           #{item.versionId,jdbcType=VARCHAR}
-        </if>
-        <if test="'principal'.toString() == column.value">
-          #{item.principal,jdbcType=VARCHAR}
         </if>
         <if test="'environment_id'.toString() == column.value">
           #{item.environmentId,jdbcType=VARCHAR}

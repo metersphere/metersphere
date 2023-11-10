@@ -1,6 +1,6 @@
 [
   {
-    "id": "API",
+    "id": "API_TEST",
     "name": "permission.api_test.name",
     "type": "PROJECT",
     "children": [
