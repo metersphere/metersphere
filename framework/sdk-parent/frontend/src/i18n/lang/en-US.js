@@ -632,9 +632,9 @@ const message = {
   },
   custom_field: {
     add_option: "Add Option",
-    case_status: "Case Status",
+    case_status: "Case status",
     case_maintainer: "Maintainer",
-    case_priority: "Case Priority",
+    case_priority: "Priority",
     issue_creator: "Creator",
     issue_processor: "Processor",
     issue_status: "Status",
