@@ -96,14 +96,14 @@ public class TestCaseController {
     }
 
     @PostMapping("/list/minder")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_MINDER_OPERATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<TestCaseDTO> listForMinder(@RequestBody QueryTestCaseRequest request) {
         baseCheckPermissionService.checkProjectOwner(request.getProjectId());
         return testCaseService.listTestCaseForMinder(request);
     }
 
     @PostMapping("/list/minder/{goPage}/{pageSize}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_MINDER_OPERATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> listForMinder(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         baseCheckPermissionService.checkProjectOwner(request.getProjectId());
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);

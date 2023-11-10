@@ -20,7 +20,7 @@ public class MinderExtraNodeController {
     MinderExtraNodeService minderExtraNodeService;
 
     @GetMapping("/list/{groupId}/{parentId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_MINDER_OPERATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<MinderExtraNode> list(@PathVariable String groupId, @PathVariable String parentId) {
         return minderExtraNodeService.selectByParentId(parentId, groupId);
     }
