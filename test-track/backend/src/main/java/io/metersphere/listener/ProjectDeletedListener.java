@@ -4,13 +4,14 @@ import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plan.service.TestPlanProjectService;
 import io.metersphere.plan.service.TestPlanService;
+import io.metersphere.service.IssuesService;
 import io.metersphere.service.TestCaseService;
+import jakarta.annotation.Resource;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 @Component
@@ -23,6 +24,8 @@ public class ProjectDeletedListener {
     private TestPlanService testPlanService;
     @Resource
     private TestCaseService testCaseService;
+    @Resource
+    private IssuesService issuesService;
 
     @KafkaListener(id = CONSUME_ID, topics = KafkaTopicConstants.PROJECT_DELETED_TOPIC, groupId = "${spring.application.name}")
     public void consume(ConsumerRecord<?, String> record) {
@@ -39,5 +42,6 @@ public class ProjectDeletedListener {
             });
         }
         testCaseService.deleteTestCaseByProjectId(projectId);
+        issuesService.deleteIssueByProjectId(projectId);
     }
 }

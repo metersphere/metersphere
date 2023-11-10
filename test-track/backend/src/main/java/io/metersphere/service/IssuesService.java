@@ -55,7 +55,6 @@ import io.metersphere.service.remote.project.TrackIssueTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.service.wapper.UserService;
 import io.metersphere.utils.DistinctKeyUtil;
-import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.dto.PlatformUser;
 import io.metersphere.xpack.track.dto.*;
@@ -606,6 +605,12 @@ public class IssuesService {
         });
         customFieldIssuesService.deleteByResourceId(id);
         testCaseIssuesMapper.deleteByExample(example);
+    }
+
+    public void deleteIssueByProjectId(String projectId) {
+        IssuesExample example = new IssuesExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        issuesMapper.deleteByExample(example);
     }
 
     public void deleteIssueRelate(IssuesRequest request) {
