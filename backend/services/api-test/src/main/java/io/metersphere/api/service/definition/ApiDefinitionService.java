@@ -9,8 +9,6 @@ import io.metersphere.api.dto.request.ApiDefinitionPageRequest;
 import io.metersphere.api.enums.ApiReportStatus;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
-import io.metersphere.project.domain.Project;
-import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
@@ -33,8 +31,6 @@ public class ApiDefinitionService {
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
 
-    @Resource
-    private BaseProjectMapper baseProjectMapper;
     @Resource
     private UserLoginService userLoginService;
 
@@ -60,15 +56,15 @@ public class ApiDefinitionService {
 
     }
 
-    public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request){
-        List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
+    public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, Boolean deleted){
+        List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request, deleted);
         if (!CollectionUtils.isEmpty(list)) {
-            buildConvertInfo(list);
+            convertUserIdToName(list);
             calculateApiCase(list, request.getProjectId());
         }
         return list;
     }
-    private void buildConvertInfo(List<ApiDefinitionDTO> list) {
+    private void convertUserIdToName(List<ApiDefinitionDTO> list) {
         Set<String> userIds = extractUserIds(list);
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
 
@@ -85,14 +81,6 @@ public class ApiDefinitionService {
                 .collect(Collectors.toSet());
     }
 
-    private Map<String, String> fetchProjectNames(List<ApiDefinitionDTO> list) {
-        List<String> projectIds = list.stream()
-                .map(ApiDefinitionDTO::getProjectId)
-                .collect(Collectors.toList());
-        List<Project> projects = baseProjectMapper.selectProjectByIdList(projectIds);
-        return projects.stream().collect(Collectors.toMap(Project::getId, Project::getName));
-    }
-
     private void calculateApiCase(List<ApiDefinitionDTO> list, String projectId) {
         List<String> ids = list.stream().map(ApiDefinitionDTO::getId).toList();
         List<ApiCaseComputeDTO> apiCaseComputeList = extApiDefinitionMapper.selectApiCaseByIdsAndStatusIsNotTrash(ids, projectId);
@@ -103,11 +91,13 @@ public class ApiDefinitionService {
             if (apiCaseComputeDTO != null) {
                 item.setCaseTotal(apiCaseComputeDTO.getCaseTotal());
                 item.setCasePassRate(apiCaseComputeDTO.getCasePassRate());
-                // 状态优先级 未执行，未通过，通过
+                // 状态优先级 未执行，未通过，误报（FAKE_ERROR），通过
                 if ((apiCaseComputeDTO.getError() + apiCaseComputeDTO.getSuccess()) < apiCaseComputeDTO.getCaseTotal()) {
                     item.setCaseStatus(ApiReportStatus.PENDING.name());
                 } else if (apiCaseComputeDTO.getError() > 0) {
                     item.setCaseStatus(ApiReportStatus.ERROR.name());
+                } else if (apiCaseComputeDTO.getFakeError() > 0) {
+                    item.setCaseStatus(ApiReportStatus.FAKE_ERROR.name());
                 } else {
                     item.setCaseStatus(ApiReportStatus.SUCCESS.name());
                 }

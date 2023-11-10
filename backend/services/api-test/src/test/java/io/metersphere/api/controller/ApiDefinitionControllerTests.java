@@ -128,13 +128,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Test
     @Order(6)
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
-    public void getListBPage() throws Exception {
+    public void getPage() throws Exception {
         ApiDefinitionPageRequest request = new ApiDefinitionPageRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setCurrent(1);
         request.setPageSize(10);
+        this.requestPost(URL_DEFINITION_PAGE, request);
         request.setSort(new HashMap<>() {{
-            put("createTime", "desc");
+            put("createTime", "asc");
         }});
 
         // ALL 全部 KEYWORD 关键字 FILTER 筛选 COMBINE 自定义

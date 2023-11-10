@@ -10,7 +10,7 @@ import java.util.List;
 public interface ExtApiDefinitionMapper {
     void deleteApiToGc(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("time") long time);
 
-    List<ApiDefinitionDTO> list(@Param("request") ApiDefinitionPageRequest request);
+    List<ApiDefinitionDTO> list(@Param("request") ApiDefinitionPageRequest request, @Param("deleted") boolean deleted);
 
     List<ApiCaseComputeDTO> selectApiCaseByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 

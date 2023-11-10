@@ -10,17 +10,7 @@ import lombok.EqualsAndHashCode;
  * @version: 1.0
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class ApiCaseComputeDTO {
-
-    @Schema(description = "更新人名称")
-    private String updateUserName;
-
-    @Schema(description = "删除人名称")
-    private String deleteUserName;
-
-    @Schema(description = "版本名称")
-    private String versionName;
 
     @Schema(description = "接口ID")
     private String apiDefinitionId;
@@ -34,10 +24,13 @@ public class ApiCaseComputeDTO {
     @Schema(description = "用例通过率")
     private String casePassRate;
 
-    @Schema(description = "用例成功")
+    @Schema(description = "成功用例")
     private int success;
 
-    @Schema(description = "用例失败")
+    @Schema(description = "失败用例")
     private int error;
+
+    @Schema(description = "误报用例")
+    private int fakeError;
 
 }
