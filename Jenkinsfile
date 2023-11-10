@@ -124,7 +124,7 @@ pipeline {
             when {
                 expression {
                     def reg = "^\\d+\\.\\w+\$"
-                    return env.REVISION.matches(reg)
+                    return env.REVISION.matches(reg) && env.BUILD_SDK == 'false'
                 }
             }
             steps {
