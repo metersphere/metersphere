@@ -43,7 +43,12 @@
     :mask="false"
     @cancel="authVisible = false"
   >
-    <AuthTable ref="authRef" :show-bottom="false" :current="currentItem" />
+    <AuthTable
+      ref="authRef"
+      :show-bottom="false"
+      :scroll="{ x: 800, y: 'calc(100vh - 150px)' }"
+      :current="currentItem"
+    />
     <template #footer>
       <div class="flex items-center justify-between">
         <ms-button class="btn" :disabled="!canSave" @click="handleAuthReset">{{
