@@ -178,7 +178,7 @@ export default {
         homeTestPlanFailureCaseGet(
           this.projectId,
           this.pageSize,
-          this.currentPage - 1
+          this.currentPage
         )
           .then((r) => {
             this.loading = false;
