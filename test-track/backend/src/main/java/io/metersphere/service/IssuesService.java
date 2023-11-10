@@ -1331,7 +1331,7 @@ public class IssuesService {
     }
 
 
-    public void calculateReportByIssueList(List<IssuesDao> issueList, TestPlanReportDataStruct report) {
+    public void calculateReportByIssueList(List<IssuesDao> issueList, TestPlanReportDataStruct report, String projectId) {
         if (CollectionUtils.isNotEmpty(issueList)) {
             List<PlanReportIssueDTO> planReportIssueDTOList = new ArrayList<>();
             issueList.forEach(issue -> {
@@ -1342,21 +1342,22 @@ public class IssuesService {
                 issueDTO.setPlatformStatus(issue.getPlatformStatus());
                 planReportIssueDTOList.add(issueDTO);
             });
-            calculatePlanReport(planReportIssueDTOList, report);
+            calculatePlanReport(planReportIssueDTOList, report, projectId);
         }
     }
 
     public void calculatePlanReport(String planId, TestPlanReportDataStruct report) {
+        TestPlan testPlan = testPlanService.getTestPlan(planId);
         List<PlanReportIssueDTO> planReportIssueDTOList = extIssuesMapper.selectForPlanReport(planId);
-        calculatePlanReport(planReportIssueDTOList, report);
+        calculatePlanReport(planReportIssueDTOList, report, testPlan.getProjectId());
     }
 
-    public void calculatePlanReport(List<PlanReportIssueDTO> planReportIssueDTOList, TestPlanReportDataStruct report) {
+    public void calculatePlanReport(List<PlanReportIssueDTO> planReportIssueDTOList, TestPlanReportDataStruct report, String planProjectId) {
         planReportIssueDTOList = DistinctKeyUtil.distinctByKey(planReportIssueDTOList, PlanReportIssueDTO::getId);
         // 缺陷状态为自定义字段
         List<String> issueIds = planReportIssueDTOList.stream().map(PlanReportIssueDTO::getId).collect(Collectors.toList());
-        Map<String, String> customStatusMap = customFieldIssuesService.getIssueStatusMap(issueIds, SessionUtils.getCurrentProjectId());
-        CustomField customField = baseCustomFieldService.getCustomFieldByName(SessionUtils.getCurrentProjectId(), SystemCustomField.ISSUE_STATUS);
+        Map<String, String> customStatusMap = customFieldIssuesService.getIssueStatusMap(issueIds, planProjectId);
+        CustomField customField = baseCustomFieldService.getCustomFieldByName(planProjectId, SystemCustomField.ISSUE_STATUS);
         JSONArray statusArray = JSONArray.parseArray(customField.getOptions());
 
         TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
