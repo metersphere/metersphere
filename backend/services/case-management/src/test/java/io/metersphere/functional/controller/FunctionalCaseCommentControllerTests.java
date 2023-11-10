@@ -70,7 +70,7 @@ public class FunctionalCaseCommentControllerTests {
 
     private static String sessionId;
     private static String csrfToken;
-    private static final String projectId = "100001100001";
+    private static final String projectId = "project-case-comment-test";
 
     @Test
     @Order(0)
@@ -98,6 +98,7 @@ public class FunctionalCaseCommentControllerTests {
         NotificationExample notificationExample = new NotificationExample();
         notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTest").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
         List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        System.out.println(JSON.toJSONString(notifications));
         Assertions.assertFalse(notifications.isEmpty());
         Assertions.assertEquals(2, notifications.size());
         Assertions.assertTrue(StringUtils.equals(notifications.get(0).getReceiver(), "default-project-member-user-guo-1"));
@@ -121,6 +122,7 @@ public class FunctionalCaseCommentControllerTests {
         NotificationExample notificationExample = new NotificationExample();
         notificationExample.createCriteria().andResourceIdEqualTo(functionalCaseComment1.getCaseId()).andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
         List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        System.out.println(JSON.toJSONString(notifications));
         Assertions.assertFalse(notifications.isEmpty());
         Assertions.assertTrue(StringUtils.equals(notifications.get(0).getReceiver(), functionalCaseComment1.getNotifier()));
         FunctionalCaseComment functionalCaseComment2 = functionalCaseCommentMapper.selectByPrimaryKey(functionalCaseComment1.getId());
@@ -325,6 +327,7 @@ public class FunctionalCaseCommentControllerTests {
         notificationExample = new NotificationExample();
         notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTestOne").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
         List<Notification> notificationUpdate2 = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        System.out.println(JSON.toJSONString(notificationUpdate2));
         Assertions.assertTrue(notifications.size()<notificationUpdate2.size());
     }
 
@@ -371,6 +374,7 @@ public class FunctionalCaseCommentControllerTests {
         NotificationExample notificationExample = new NotificationExample();
         notificationExample.createCriteria().andResourceIdEqualTo("xiaomeinvGTest").andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK).andReceiverEqualTo("default-project-member-user-guo-2");
         List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        System.out.println(JSON.toJSONString(notifications));
         Assertions.assertFalse(notifications.isEmpty());
         System.out.println(JSON.toJSONString(notifications));
         Assertions.assertTrue(StringUtils.equals(notifications.get(0).getReceiver(), "default-project-member-user-guo-2"));
