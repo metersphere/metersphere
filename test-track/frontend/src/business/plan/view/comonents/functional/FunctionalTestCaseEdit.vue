@@ -197,38 +197,27 @@
 <script>
 import TestPlanTestCaseStatusButton from "../../../common/TestPlanTestCaseStatusButton";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import {
-  getUUID,
-  listenGoBack,
-  removeGoBackListener,
-} from "metersphere-frontend/src/utils";
-import { hasPermission } from "metersphere-frontend/src/utils/permission";
+import {getUUID, listenGoBack, removeGoBackListener,} from "metersphere-frontend/src/utils";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
 import CaseComment from "@/business/case/components/CaseComment";
 import MsPreviousNextButton from "metersphere-frontend/src/components/MsPreviousNextButton";
 import ReviewComment from "@/business/review/commom/ReviewComment";
-import {
-  buildTestCaseOldFields,
-  parseCustomField,
-} from "metersphere-frontend/src/utils/custom_field";
+import {buildTestCaseOldFields, parseCustomField,} from "metersphere-frontend/src/utils/custom_field";
 import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/case/components/TestCaseEditOtherInfo";
 import CustomFiledComponent from "metersphere-frontend/src/components/new-ui/MsCustomFiledComponent";
-import { SYSTEM_FIELD_NAME_MAP } from "metersphere-frontend/src/utils/table-constants";
+import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
 import StepChangeItem from "@/business/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
 import TestPlanCaseStepResultsItem from "@/business/plan/view/comonents/functional/TestPlanCaseStepResultsItem";
 import TestPlanFunctionalExecute from "@/business/plan/view/comonents/functional/TestPlanFunctionalExecute";
 import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
-import {
-  testPlanTestCaseEdit,
-  testPlanTestCaseGet,
-} from "@/api/remote/plan/test-plan-test-case";
-import { testPlanEditStatus } from "@/api/remote/plan/test-plan";
-import { getTestTemplate } from "@/api/custom-field-template";
-import { checkProjectPermission } from "@/api/testCase";
+import {testPlanTestCaseEdit, testPlanTestCaseGet,} from "@/api/remote/plan/test-plan-test-case";
+import {testPlanEditStatus} from "@/api/remote/plan/test-plan";
+import {getTestTemplate} from "@/api/custom-field-template";
+import {checkProjectPermission} from "@/api/testCase";
 import {openCaseEdit, resetPlanCaseSystemField} from "@/business/case/test-case";
 import CustomFieldFormItems from "@/business/common/CustomFieldFormItems";
 import {getCurrentProjectID, parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
@@ -313,7 +302,7 @@ export default {
     },
     cancel() {
       this.handleClose();
-      this.$emit("refreshTable");
+      this.$emit("refresh");
     },
     getOption(param) {
       let formData = new FormData();
