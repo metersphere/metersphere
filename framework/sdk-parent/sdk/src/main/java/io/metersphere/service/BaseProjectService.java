@@ -10,8 +10,11 @@ import io.metersphere.base.mapper.ext.BaseUserGroupMapper;
 import io.metersphere.base.mapper.ext.BaseUserMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.FileOperationRequest;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.ProjectDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
@@ -31,6 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -390,5 +396,22 @@ public class BaseProjectService {
     public boolean isProjectMember(String projectId, String userId) {
         List<String> projectUserId = baseUserGroupMapper.getProjectUserId(projectId);
         return projectUserId.contains(userId);
+    }
+
+    public byte[] loadFileAsBytes(FileOperationRequest fileOperationRequest) {
+        if (fileOperationRequest.getId().contains("/") || fileOperationRequest.getName().contains("/"))
+            MSException.throwException(Translator.get("invalid_parameter"));
+        File file = new File(FileUtils.BODY_FILE_DIR + "/" + fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
+        try (FileInputStream fis = new FileInputStream(file); ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);) {
+            byte[] b = new byte[1000];
+            int n;
+            while ((n = fis.read(b)) != -1) {
+                bos.write(b, 0, n);
+            }
+            return bos.toByteArray();
+        } catch (Exception ex) {
+            LogUtil.error(ex);
+        }
+        return null;
     }
 }

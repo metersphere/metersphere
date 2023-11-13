@@ -143,7 +143,6 @@ export default {
     },
   },
   created() {
-    console.log(this.httpConfig)
     this.list();
   },
   data() {
