@@ -44,11 +44,11 @@ export default {
   methods: {
     handleSizeChange: function (size) {
       this.$emit('update:pageSize', size)
-      this.change();
+      this.change('size');
     },
     handleCurrentChange(current) {
       this.$emit('update:currentPage', current)
-      this.change();
+      this.change('current');
     }
   }
 }
