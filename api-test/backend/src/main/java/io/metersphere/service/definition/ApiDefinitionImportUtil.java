@@ -312,6 +312,11 @@ public class ApiDefinitionImportUtil {
 
         Iterator<Map.Entry<String, JsonNode>> apiFields = apiProperties.fields();
         Iterator<Map.Entry<String, JsonNode>> exApiFields = exApiProperties.fields();
+        Map<String, JsonNode> apiFieldMap = convertToMap(apiFields);
+        Map<String, JsonNode> exApiFileMap = convertToMap(exApiFields);
+        if (apiFieldMap.size() != exApiFileMap.size()) {
+            return true;
+        }
         boolean diffProp = false;
         while (apiFields.hasNext()) {
             Map.Entry<String, JsonNode> apiNode = apiFields.next();
@@ -319,18 +324,12 @@ public class ApiDefinitionImportUtil {
                 break;
             }
             if (exApiFields.hasNext()) {
-                Map.Entry<String, JsonNode> exChildNode = null;
-                Map.Entry<String, JsonNode> exNode = exApiFields.next();
-                if (StringUtils.equalsIgnoreCase(apiNode.getKey(), exNode.getKey())) {
-                    exChildNode = exNode;
-                } else {
+                JsonNode value1 = exApiFileMap.get(apiNode.getKey());
+                if (value1 == null) {
                     diffProp = true;
-                }
-                if (exChildNode == null) {
                     continue;
                 }
                 JsonNode value = apiNode.getValue();
-                JsonNode value1 = exChildNode.getValue();
                 JsonNode apiPropertiesNode = value.get(PROPERTIES);
                 JsonNode exApiPropertiesNode = value1.get(PROPERTIES);
                 if (apiPropertiesNode == null || exApiPropertiesNode == null) {
@@ -341,7 +340,20 @@ public class ApiDefinitionImportUtil {
                 return true;
             }
         }
-        return false;
+        return diffProp;
+    }
+
+
+    // 将迭代器转换为Map
+    private static Map<String, JsonNode> convertToMap(Iterator<Map.Entry<String, JsonNode>> iterator) {
+        Map<String, JsonNode> map = new LinkedHashMap<>();
+
+        while (iterator.hasNext()) {
+            Map.Entry<String, JsonNode> entry = iterator.next();
+            map.put(entry.getKey(), entry.getValue());
+        }
+
+        return map;
     }
 
     public static ApiTestCaseWithBLOBs addNewCase(ApiDefinitionWithBLOBs apiDefinition) {
