@@ -2,10 +2,10 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
-import io.metersphere.api.mapper.ApiDefinitionMapper;
-import io.metersphere.api.mapper.ApiTestCaseBlobMapper;
-import io.metersphere.api.mapper.ApiTestCaseMapper;
-import io.metersphere.api.mapper.ExtApiTestCaseMapper;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.mapper.*;
+import io.metersphere.api.util.ApiDataUtils;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -38,6 +38,8 @@ public class ApiTestCaseService {
     private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ApiTestCaseFollowerMapper apiTestCaseFollowerMapper;
     @Resource
     private MinioRepository minioRepository;
 
@@ -125,4 +127,82 @@ public class ApiTestCaseService {
         }
     }
 
+    private ApiTestCase checkResourceExist(String id) {
+        ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(id);
+        if (testCase == null) {
+            throw new MSException(Translator.get("api_test_case_not_exist"));
+        }
+        return testCase;
+    }
+
+    public ApiTestCaseDTO get(String id, String userId) {
+        ApiTestCaseDTO apiTestCaseDTO = new ApiTestCaseDTO();
+        ApiTestCase testCase = checkResourceExist(id);
+        ApiTestCaseBlob testCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
+        BeanUtils.copyBean(apiTestCaseDTO, testCase);
+        ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
+        example.createCriteria().andCaseIdEqualTo(id).andUserIdEqualTo(userId);
+        List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
+        apiTestCaseDTO.setFollow(CollectionUtils.isNotEmpty(followers));
+        apiTestCaseDTO.setRequest(ApiDataUtils.parseObject(new String(testCaseBlob.getRequest()), AbstractMsTestElement.class));
+        return apiTestCaseDTO;
+    }
+
+    public void deleteToGc(String id, String userId) {
+        checkResourceExist(id);
+        ApiTestCase apiTestCase = new ApiTestCase();
+        apiTestCase.setId(id);
+        apiTestCase.setDeleted(true);
+        apiTestCase.setDeleteUser(userId);
+        apiTestCase.setDeleteTime(System.currentTimeMillis());
+        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+    }
+
+    public void recover(String id) {
+        checkResourceExist(id);
+        ApiTestCase apiTestCase = new ApiTestCase();
+        apiTestCase.setId(id);
+        apiTestCase.setDeleted(false);
+        apiTestCase.setDeleteUser(null);
+        apiTestCase.setDeleteTime(null);
+        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+    }
+
+    public void follow(String id, String userId) {
+        checkResourceExist(id);
+        ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
+        example.createCriteria().andCaseIdEqualTo(id).andUserIdEqualTo(userId);
+        List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(followers)) {
+            ApiTestCaseFollower follower = new ApiTestCaseFollower();
+            follower.setCaseId(id);
+            follower.setUserId(userId);
+            apiTestCaseFollowerMapper.insert(follower);
+        }
+    }
+
+    public void unfollow(String id, String userId) {
+        checkResourceExist(id);
+        ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
+        example.createCriteria().andCaseIdEqualTo(id).andUserIdEqualTo(userId);
+        apiTestCaseFollowerMapper.deleteByExample(example);
+    }
+
+    public void delete(String id) {
+        ApiTestCase apiCase = checkResourceExist(id);
+        apiTestCaseMapper.deleteByPrimaryKey(id);
+        apiTestCaseBlobMapper.deleteByPrimaryKey(id);
+        ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
+        example.createCriteria().andCaseIdEqualTo(id);
+        apiTestCaseFollowerMapper.deleteByExample(example);
+        try {
+            FileRequest request = new FileRequest();
+            request.setProjectId(StringUtils.join(MsFileUtils.API_CASE_DIR, id));
+            request.setProjectId(StringUtils.join(MsFileUtils.API_CASE_DIR, apiCase.getProjectId()));
+            request.setResourceId(id);
+            minioRepository.deleteFolder(request);
+        } catch (Exception e) {
+            LogUtils.info("删除body文件失败:  文件名称:" + id, e);
+        }
+    }
 }

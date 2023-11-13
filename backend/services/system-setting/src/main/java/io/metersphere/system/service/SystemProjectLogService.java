@@ -52,7 +52,7 @@ public class SystemProjectLogService {
                     OperationLogConstants.SYSTEM,
                     OperationLogConstants.SYSTEM,
                     project.getId(),
-                    project.getCreateUser(),
+                    null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_ORGANIZATION,
                     request.getName());
@@ -70,7 +70,7 @@ public class SystemProjectLogService {
                     OperationLogConstants.SYSTEM,
                     OperationLogConstants.SYSTEM,
                     project.getId(),
-                    project.getCreateUser(),
+                    null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_ORGANIZATION,
                     request.getName());
@@ -88,7 +88,7 @@ public class SystemProjectLogService {
                     OperationLogConstants.SYSTEM,
                     OperationLogConstants.SYSTEM,
                     project.getId(),
-                    project.getCreateUser(),
+                    null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_ORGANIZATION,
                     project.getName());
@@ -114,7 +114,7 @@ public class SystemProjectLogService {
                     OperationLogConstants.SYSTEM,
                     OperationLogConstants.SYSTEM,
                     id,
-                    project.getCreateUser(),
+                    null,
                     OperationLogType.DELETE.name(),
                     OperationLogModule.SETTING_SYSTEM_ORGANIZATION,
                     project.getName());

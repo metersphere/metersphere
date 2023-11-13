@@ -52,7 +52,7 @@ public class OrganizationProjectLogService {
                     OperationLogConstants.ORGANIZATION,
                     project.getOrganizationId(),
                     project.getId(),
-                    project.getCreateUser(),
+                    null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_ORGANIZATION_PROJECT,
                     request.getName());
@@ -70,7 +70,7 @@ public class OrganizationProjectLogService {
                     OperationLogConstants.ORGANIZATION,
                     project.getOrganizationId(),
                     project.getId(),
-                    project.getCreateUser(),
+                    null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_ORGANIZATION_PROJECT,
                     request.getName());
@@ -88,9 +88,9 @@ public class OrganizationProjectLogService {
                     OperationLogConstants.ORGANIZATION,
                     project.getOrganizationId(),
                     project.getId(),
-                    project.getCreateUser(),
+                    null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_PROJECT,
+                    OperationLogModule.SETTING_ORGANIZATION_PROJECT,
                     project.getName());
             dto.setMethod(HttpMethodConstants.GET.name());
 
@@ -113,7 +113,7 @@ public class OrganizationProjectLogService {
                     OperationLogConstants.ORGANIZATION,
                     project.getOrganizationId(),
                     id,
-                    project.getCreateUser(),
+                    null,
                     OperationLogType.DELETE.name(),
                     OperationLogModule.SETTING_ORGANIZATION_PROJECT,
                     project.getName());
