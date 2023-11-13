@@ -71,6 +71,8 @@ public class FileMetadataService {
     private FileService fileService;
 
     @Value("${metersphere.file.batch-download-max:600MB}")
+    private DataSize batchDownloadMaxSize;
+    @Value("50MB")
     private DataSize maxFileSize;
 
     public FileMetadata selectById(String id) {
@@ -123,6 +125,9 @@ public class FileMetadataService {
     }
 
     public FileMetadata genFileMetadata(String filePath, String storage, long size, boolean enable, String projectId, String moduleId, String operator) {
+        if (size > maxFileSize.toBytes()) {
+            throw new MSException(Translator.get("file.size.is.too.large"));
+        }
         String fileName = TempFileUtils.getFileNameByPath(filePath);
         FileMetadata fileMetadata = new FileMetadata();
         if (StringUtils.lastIndexOf(fileName, ".") > 0) {
@@ -401,11 +406,11 @@ public class FileMetadataService {
         }
 
         if (fileSize.get() == 0) {
-            throw new MSException(Translator.get("file.size.is.zero"));
+            throw new MSException(Translator.get("file.is.empty"));
         }
 
         DataSize dataSize = DataSize.ofBytes(fileSize.get());
-        if (maxFileSize.compareTo(dataSize) < 0) {
+        if (batchDownloadMaxSize.compareTo(dataSize) < 0) {
             throw new MSException(Translator.get("file.size.is.too.large"));
         }
     }

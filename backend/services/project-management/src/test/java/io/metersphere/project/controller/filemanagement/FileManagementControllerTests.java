@@ -573,6 +573,17 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         this.requestMultipart(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap).andExpect(status().is5xxServerError());
 
+        //上传大于50M的文件
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/largeFile.zip")).getPath();
+        file = new MockMultipartFile("file", "largeFile.zip", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
+        fileUploadRequest = new FileUploadRequest();
+        fileUploadRequest.setProjectId(project.getId());
+        fileUploadRequest.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(fileUploadRequest));
+
+        this.requestMultipart(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap).andExpect(status().is5xxServerError());
     }
 
     @Test
