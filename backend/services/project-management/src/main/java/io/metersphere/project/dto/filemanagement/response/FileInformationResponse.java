@@ -49,6 +49,9 @@ public class FileInformationResponse {
     @Schema(description = "更新时间")
     private long updateTime;
 
+    @Schema(description = "存储库类型")
+    private String storage;
+
     @Schema(description = "文件大小")
     private long size;
 
@@ -75,6 +78,7 @@ public class FileInformationResponse {
             this.createUser = fileMetadata.getCreateUser();
             this.updateUser = fileMetadata.getUpdateUser();
             this.updateTime = fileMetadata.getUpdateTime();
+            this.storage = fileMetadata.getStorage();
             this.refId = fileMetadata.getRefId();
         }
     }
