@@ -16,6 +16,7 @@
 <script>
 
 import IssueExportFieldList from "@/business/issue/components/export/IssueExportFieldList";
+
 export default {
   name: "IssueExportFieldSelectItem",
   components: {IssueExportFieldList},
@@ -81,9 +82,12 @@ export default {
 
       let isSelectAll = true;
       for (let field of this.fields) {
-        if (enableKeys) {
-          if (enableKeys.indexOf(field.key) > -1) {
-            field.enable = true;
+        if (field.id === 'id' || field.id === 'title') {
+          // 缺陷的ID, 标题默认必须勾选
+          field.enable = true;
+        } else {
+          if (enableKeys) {
+            field.enable = enableKeys.indexOf(field.key) > -1;
           } else {
             field.enable = false;
           }
