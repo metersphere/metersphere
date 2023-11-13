@@ -284,7 +284,7 @@
         :pre-page-data="prePageData"
         @nextPage="nextPage"
         @prePage="prePage"
-        @refresh="initTableData"
+        @refresh="search"
         :test-cases="tableData"
         :is-read-only="isReadOnly"
         :total="total"
