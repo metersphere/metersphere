@@ -30,6 +30,12 @@ public class FileModuleController {
         return fileModuleService.getNodeTreeByProjectId(projectId);
     }
 
+    @GetMapping("/type/list/{projectId}/{moduleType}")
+    public List<FileModuleVo> getTypeNodeByProjectId(@PathVariable String projectId, @PathVariable String moduleType) {
+        baseCheckPermissionService.checkProjectOwner(projectId);
+        return fileModuleService.getTypeNodeByProjectId(projectId, moduleType);
+    }
+
     @PostMapping("/add")
     @RequiresPermissions("PROJECT_FILE:READ+UPLOAD+JAR")
     @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.CREATE, title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = FileModuleService.class)

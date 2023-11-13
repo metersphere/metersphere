@@ -17,6 +17,16 @@
         where file_module.project_id = #{projectId}
         order by file_module.pos asc
     </select>
+
+
+    <select id="getTypeNodeTreeByProjectId" resultType="io.metersphere.metadata.vo.FileModuleVo">
+        select
+        <include refid="io.metersphere.base.mapper.FileModuleMapper.Base_Column_List"/>
+        from file_module
+        where file_module.project_id = #{projectId} and file_module.module_type = #{moduleType}
+        order by file_module.pos asc
+    </select>
+
     <select id="getNameById" resultType="java.lang.String">
         select name from file_module
         where id = #{0}

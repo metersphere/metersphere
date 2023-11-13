@@ -11,6 +11,8 @@ public interface BaseFileModuleMapper {
 
     List<FileModuleVo> getNodeTreeByProjectId(@Param("projectId") String projectId);
 
+    List<FileModuleVo> getTypeNodeTreeByProjectId(@Param("projectId") String projectId, @Param("moduleType") String moduleType);
+
     void updatePos(String id, Double pos);
 
     String getNameById(String moduleId);

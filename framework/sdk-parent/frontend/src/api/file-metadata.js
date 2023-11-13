@@ -11,6 +11,11 @@ export function getFileModules(projectId) {
   return get(url);
 }
 
+export function getTypeNodeByProjectId(projectId, moduleType) {
+  let url = '/file/module/type/list/' + projectId + "/" + moduleType;
+  return get(url);
+}
+
 export function getMetadataTypes() {
   let url = '/file/metadata/get/type/all';
   return get(url);
