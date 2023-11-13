@@ -55,6 +55,7 @@ import io.metersphere.service.remote.project.TrackIssueTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.service.wapper.UserService;
 import io.metersphere.utils.DistinctKeyUtil;
+import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.dto.PlatformUser;
 import io.metersphere.xpack.track.dto.*;
