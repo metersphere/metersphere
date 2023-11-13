@@ -53,6 +53,18 @@ public class TestCaseNodeController {
                 Optional.ofNullable(request).orElse(new QueryTestCaseRequest()));
     }
 
+    @PostMapping("/relationship/list/{projectId}")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ})
+    public List<TestCaseNodeDTO> getRelationshipNodeByCondition(@PathVariable String projectId, @RequestBody(required = false) QueryTestCaseRequest request) {
+        // 高级搜索所属模块搜索时, 切换项目时需替换projectId为参数中切换项目
+        if (request != null && request.getProjectId() != null) {
+            projectId = request.getProjectId();
+        }
+        baseCheckPermissionService.checkProjectOwner(projectId);
+        return testCaseNodeService.getRelationshipNodeByCondition(projectId,
+                Optional.ofNullable(request).orElse(new QueryTestCaseRequest()));
+    }
+
     @PostMapping("/count/{projectId}")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ})
     public Map<String, Integer> getNodeCountMapByProjectId(@PathVariable String projectId, @RequestBody(required = false) QueryTestCaseRequest request) {

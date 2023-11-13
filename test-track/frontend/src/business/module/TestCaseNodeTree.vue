@@ -119,6 +119,9 @@ export default {
       type: Boolean,
       default: false
     },
+    getNodeTree: {
+      type: Function,
+    },
   },
   watch: {
     treeNodes() {
@@ -183,6 +186,10 @@ export default {
       this.$emit('toPublic', 'public');
     },
     list() {
+      if (this.getNodeTree) {
+        this.getNodeTree(this, this.caseCondition);
+        return;
+      }
       if (this.projectId) {
         this.caseCondition.casePublic = false;
         this.loading = true;
@@ -219,6 +226,10 @@ export default {
       }
     },
     async waitList() {
+      if (this.getNodeTree) {
+        this.getNodeTree(this, this.caseCondition);
+        return;
+      }
       if (this.projectId) {
         this.caseCondition.casePublic = false;
         this.loading = true;

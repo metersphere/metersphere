@@ -45,3 +45,7 @@ export function testCaseNodeListReview(reviewId) {
 export function testCaseNodeListReviewRelate(param) {
   return post(BASE_URL + "list/review/relate", param);
 }
+
+export function getRelationshipNodesByCaseFilter(projectId, param) {
+  return post(BASE_URL + 'relationship/list/' + projectId, param);
+}

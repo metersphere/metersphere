@@ -15,7 +15,8 @@
   import {getPageDate, getPageInfo} from "metersphere-frontend/src/utils/tableUtils";
   import {TEST_PLAN_RELEVANCE_FUNC_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
   import FunctionalRelevance from "./CaseFunctionalRelevance";
-  import {addTestCaseRelationship, getTestCaseNodesByCaseFilter, testCaseRelationshipRelateList} from "@/api/testCase";
+  import {addTestCaseRelationship, testCaseRelationshipRelateList} from "@/api/testCase";
+  import {getRelationshipNodesByCaseFilter} from "@/api/test-case-node";
 
   export default {
     name: "CaseRelationshipFunctionalRelevance",
@@ -93,7 +94,8 @@
           })
       },
       getTreeNodes(vueObj) {
-        vueObj.nodeResult = getTestCaseNodesByCaseFilter(vueObj.projectId, {})
+        this.page.condition.relationshipCaseId = this.caseId;
+        vueObj.nodeResult = getRelationshipNodesByCaseFilter(vueObj.projectId, this.page.condition)
           .then(r => {
             vueObj.treeNodes = r.data;
             vueObj.selectNodeIds = [];

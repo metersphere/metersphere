@@ -41,6 +41,7 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
     private long createTime = 0;
     private long relevanceCreateTime = 0;
     private List<String> testCaseContainIds;
+    private String relationshipCaseId;
 
 
     // 接口定义
