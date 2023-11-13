@@ -2,21 +2,22 @@ package io.metersphere.api.controller.definition;
 
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.service.definition.ApiTestCaseLogService;
+import io.metersphere.api.service.definition.ApiTestCaseNoticeService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.notice.annotation.SendNotice;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -33,9 +34,56 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-新增")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiTestCaseLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_CREATE, target = "#targetClass.getCaseDTO(#request)", targetClass = ApiTestCaseNoticeService.class)
     public ApiTestCase add(@Validated @RequestPart("request") ApiTestCaseAddRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         return apiTestCaseService.addCase(request, files, SessionUtils.getUserId());
     }
 
+    @GetMapping(value = "/get-detail/{id}")
+    @Operation(summary = "接口测试-接口管理-接口用例-获取详情")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    public ApiTestCaseDTO get(@PathVariable String id) {
+        return apiTestCaseService.get(id, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/move-gc/{id}")
+    @Operation(summary = "接口测试-接口管理-接口用例-移动到回收站")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.moveToGcLog(#id)", msClass = ApiTestCaseLogService.class)
+    public void deleteToGc(@PathVariable String id) {
+        apiTestCaseService.deleteToGc(id, SessionUtils.getUserId());
+    }
+
+    @GetMapping("recover/{id}")
+    @Operation(summary = "接口测试-接口管理-接口用例-恢复")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER)
+    @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#id)", msClass = ApiTestCaseLogService.class)
+    public void recover(@PathVariable String id) {
+        apiTestCaseService.recover(id);
+    }
+
+    @GetMapping("follow/{id}")
+    @Operation(summary = "接口测试-接口管理-接口用例-关注")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.followLog(#id)", msClass = ApiTestCaseLogService.class)
+    public void follow(@PathVariable String id) {
+        apiTestCaseService.follow(id, SessionUtils.getUserId());
+    }
+
+    @GetMapping("unfollow/{id}")
+    @Operation(summary = "接口测试-接口管理-接口用例-取消关注")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.unfollowLog(#id)", msClass = ApiTestCaseLogService.class)
+    public void unfollow(@PathVariable String id) {
+        apiTestCaseService.unfollow(id, SessionUtils.getUserId());
+    }
+
+    @GetMapping("delete/{id}")
+    @Operation(summary = "接口测试-接口管理-接口用例-删除")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiTestCaseLogService.class)
+    public void delete(@PathVariable String id) {
+        apiTestCaseService.delete(id);
+    }
 
 }
