@@ -285,8 +285,8 @@ export default {
         this.getTableData();
       }
     },
-    pageChange() {
-      this.getTestCases("page")
+    pageChange(type) {
+      this.getTestCases(type === 'current' ? "page" : null)
     },
     saveCaseRelevance(item) {
       this.isSaving = true;
