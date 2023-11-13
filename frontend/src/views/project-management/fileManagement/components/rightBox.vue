@@ -187,6 +187,20 @@
   >
     <a-form ref="storageFormRef" class="rounded-[4px]" :model="storageForm" layout="vertical">
       <a-form-item
+        v-if="isMyOrAllFolder"
+        field="storage"
+        :label="t('project.fileManagement.storage')"
+        :rules="[{ required: true, message: t('project.fileManagement.storageNotNull') }]"
+        required
+        asterisk-position="end"
+      >
+        <a-select
+          v-model:model-value="storageForm.storage"
+          :placeholder="t('project.fileManagement.storagePlaceholder')"
+          :options="storageList.map((e) => ({ ...e, label: e.name, value: e.id }))"
+        />
+      </a-form-item>
+      <a-form-item
         field="branch"
         :label="t('project.fileManagement.gitBranch')"
         :rules="[{ required: true, message: t('project.fileManagement.gitBranchNotNull') }]"
@@ -292,12 +306,14 @@
   import FolderTree from './folderTree.vue';
 
   import {
+    addRepositoryFile,
     batchDownloadFile,
     batchMoveFile,
     deleteFile,
     downloadFile,
     getFileList,
     getFileTypes,
+    getRepositories,
     getRepositoryFileTypes,
     toggleJarFileStatus,
     uploadFile,
@@ -311,7 +327,7 @@
   import useUserStore from '@/store/modules/user';
   import { characterLimit, downloadByteFile, formatFileSize } from '@/utils';
 
-  import type { FileItem, FileListQueryParams } from '@/models/projectManagement/file';
+  import type { FileItem, FileListQueryParams, Repository } from '@/models/projectManagement/file';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { UploadStatus } from '@/enums/uploadEnum';
@@ -387,20 +403,31 @@
     return 'file-type-card';
   }
 
-  const normalFileActions: ActionsItem[] = [
-    {
-      label: 'project.fileManagement.move',
-      eventTag: 'move',
-    },
-    {
-      isDivider: true,
-    },
-    {
-      label: 'project.fileManagement.delete',
-      eventTag: 'delete',
-      danger: true,
-    },
-  ];
+  const normalFileActions = computed(() => {
+    if (fileType.value === 'storage') {
+      return [
+        {
+          label: 'project.fileManagement.delete',
+          eventTag: 'delete',
+          danger: true,
+        },
+      ];
+    }
+    return [
+      {
+        label: 'project.fileManagement.move',
+        eventTag: 'move',
+      },
+      {
+        isDivider: true,
+      },
+      {
+        label: 'project.fileManagement.delete',
+        eventTag: 'delete',
+        danger: true,
+      },
+    ];
+  });
 
   function getJarFileActions(record: FileItem) {
     const jarFileActions: ActionsItem[] = [
@@ -536,6 +563,7 @@
     currentSelectCount: 0,
   });
   const combine = ref<Record<string, any>>({});
+  const isMyOrAllFolder = computed(() => ['my', 'all'].includes(props.activeFolder)); // 是否是我的文件/全部文件
 
   /**
    * 处理表格选中
@@ -554,7 +582,7 @@
         selectIds: batchParams.value?.selectedIds || [],
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
-        condition: { keyword: keyword.value, comebine: combine.value },
+        condition: { keyword: keyword.value, combine: combine.value },
         projectId: appStore.currentProjectId,
         fileType: tableFileType.value,
         moduleIds: [props.activeFolder],
@@ -573,11 +601,11 @@
     emit('init', {
       keyword: keyword.value,
       fileType: tableFileType.value,
-      moduleIds: ['all', 'my'].includes(props.activeFolder) ? [] : [props.activeFolder],
+      moduleIds: isMyOrAllFolder.value ? [] : [props.activeFolder],
       projectId: appStore.currentProjectId,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
-      comebine:
+      combine:
         props.activeFolder === 'my'
           ? {
               createUser: userStore.id,
@@ -616,7 +644,7 @@
             selectIds,
             selectAll: !!batchParams.value?.selectAll,
             excludeIds: batchParams.value?.excludeIds || [],
-            condition: { keyword: keyword.value, comebine: combine.value },
+            condition: { keyword: keyword.value, combine: combine.value },
             projectId: appStore.currentProjectId,
             fileType: tableFileType.value,
             moduleIds: [props.activeFolder],
@@ -684,7 +712,7 @@
         selectIds: isBatchMove.value ? batchParams.value?.selectedIds || [] : [activeFile.value?.id || ''],
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
-        condition: { keyword: keyword.value, comebine: combine.value },
+        condition: { keyword: keyword.value, combine: combine.value },
         projectId: appStore.currentProjectId,
         fileType: tableFileType.value,
         moduleIds: [props.activeFolder],
@@ -726,10 +754,10 @@
     if (fileType.value === 'storage') {
       combine.value.storage = 'git';
     } else {
-      combine.value.storage = 'module';
+      combine.value.storage = 'minio';
     }
     let moduleIds: string[] = [props.activeFolder, ...props.offspringIds];
-    if (['all', 'my'].includes(props.activeFolder)) {
+    if (isMyOrAllFolder.value) {
       moduleIds = [];
     }
     setLoadListParams({
@@ -737,7 +765,7 @@
       fileType: tableFileType.value,
       moduleIds,
       projectId: appStore.currentProjectId,
-      comebine: combine.value,
+      combine: combine.value,
     });
   }
 
@@ -1025,11 +1053,27 @@
 
   const storageDialogVisible = ref(false); // 存储库-上传文件弹窗
   const storageForm = ref({
+    storage: '',
     branch: '',
     path: '',
   }); // 存储库-上传文件表单
   const storageFormRef = ref<FormInstance>(); // 存储库-上传文件表单ref
   const storageModalLoading = ref(false); // 存储库-上传文件弹窗loading
+  const storageList = ref<Repository[]>([]); // 存储库列表
+  const storageListLoading = ref(false); // 存储库列表loading
+
+  async function initStorageList() {
+    try {
+      storageListLoading.value = true;
+      const res = await getRepositories(appStore.currentProjectId);
+      storageList.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      storageListLoading.value = false;
+    }
+  }
 
   /**
    * 处理添加文件按钮点击事件，根据当前查看的文件类型，打开不同的弹窗
@@ -1039,6 +1083,10 @@
       uploadDrawerVisible.value = true;
     } else if (fileType.value === 'storage') {
       storageDialogVisible.value = true;
+      if (isMyOrAllFolder.value) {
+        // 如果是我的/全部文件夹，需要先获取存储库列表，因为此时添加存储库需要指定存储库id
+        initStorageList();
+      }
     }
   }
 
@@ -1053,10 +1101,12 @@
    */
   async function addStorageFile(isContinue?: boolean) {
     const params = {
+      moduleId: isMyOrAllFolder.value ? storageForm.value.storage : props.activeFolder,
       branch: storageForm.value.branch,
-      path: storageForm.value.path,
+      filePath: storageForm.value.path,
+      enable: false,
     };
-    // await batchCreateUser(params);
+    await addRepositoryFile(params);
     Message.success(t('common.addSuccess'));
     if (!isContinue) {
       storageDialogVisible.value = false;

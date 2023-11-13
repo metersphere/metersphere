@@ -51,7 +51,12 @@
   import { ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
-  import { addModule, updateFile, updateModule } from '@/api/modules/project-management/fileManagement';
+  import {
+    addModule,
+    updateFile,
+    updateModule,
+    updateRepository,
+  } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -66,7 +71,7 @@
   }
 
   const props = defineProps<{
-    mode: 'add' | 'rename' | 'fileRename' | 'fileUpdateDesc';
+    mode: 'add' | 'rename' | 'fileRename' | 'fileUpdateDesc' | 'repositoryRename';
     visible?: boolean;
     title?: string;
     allNames: string[];
@@ -153,6 +158,14 @@
             });
             Message.success(t('project.fileManagement.updateDescSuccess'));
             emit('updateDescFinish', form.value.field);
+          } else if (props.mode === 'repositoryRename') {
+            // 模块重命名
+            await updateRepository({
+              id: props.nodeId || '',
+              name: form.value.field,
+            });
+            Message.success(t('project.fileManagement.renameSuccess'));
+            emit('renameFinish', form.value.field);
           }
           if (done) {
             done(true);

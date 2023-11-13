@@ -34,11 +34,12 @@
         {{ t('project.fileManagement.download') }}
       </MsButton>
       <MsButton
-        v-if="detail?.storage !== 'minio'"
+        v-if="detail?.storage === 'git'"
         type="icon"
         status="secondary"
         class="!rounded-[var(--border-radius-small)] !text-[var(--color-text-1)]"
         :disabled="loading"
+        @click="upgradeRepositoryFile"
       >
         <MsIcon type="icon-icon_reset_outlined" class="mr-[4px]" />
         {{ t('project.fileManagement.updateFile') }}
@@ -58,7 +59,7 @@
           </a-skeleton>
           <template v-else>
             <div class="mb-[16px] h-[102px] w-[102px]">
-              <a-spin class="h-full w-full" :loading="replaceLoading">
+              <a-spin class="h-full w-full" :loading="fileLoading">
                 <MsThumbnailCard
                   mode="hover"
                   :type="detail?.fileType"
@@ -205,12 +206,13 @@
     reuploadFile,
     toggleJarFileStatus,
     updateFile,
+    updateRepositoryFile,
   } from '@/api/modules/project-management/fileManagement';
   import { CompressImgUrl, OriginImgUrl } from '@/api/requrls/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
   import useUserStore from '@/store/modules/user';
-  import { downloadByteFile, downloadUrlFile, formatFileSize } from '@/utils';
+  import { downloadByteFile, formatFileSize } from '@/utils';
 
   import { FileDetail } from '@/models/projectManagement/file';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -349,13 +351,13 @@
     }
   }
 
-  const replaceLoading = ref(false);
+  const fileLoading = ref(false);
   watch(
     () => newFile.value,
     async (data) => {
       if (data) {
         try {
-          replaceLoading.value = true;
+          fileLoading.value = true;
           await reuploadFile({
             request: {
               fileId: props.fileId,
@@ -369,7 +371,7 @@
           // eslint-disable-next-line no-console
           console.log(error);
         } finally {
-          replaceLoading.value = false;
+          fileLoading.value = false;
         }
       }
     }
@@ -398,6 +400,23 @@
       id: props.fileId,
       tags: Array.isArray(item.value) ? item.value.filter((e) => e !== tag) : [],
     });
+  }
+
+  /**
+   * 更新仓库文件
+   */
+  async function upgradeRepositoryFile() {
+    try {
+      fileLoading.value = true;
+      await updateRepositoryFile(props.fileId);
+      Message.success(t('common.updateSuccess'));
+      detailDrawerRef.value?.initDetail();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      fileLoading.value = false;
+    }
   }
 
   const activeTab = ref('case');

@@ -22,3 +22,6 @@ export const GetRepositoryFileTypesUrl = '/project/file/repository/file-type'; /
 export const UpdateRepositoryUrl = '/project/file/repository/update-repository'; // 修改存储库信息
 export const ConnectRepositoryUrl = '/project/file/repository/connect'; // 测试存储库连接
 export const AddRepositoryUrl = '/project/file/repository/add-repository'; // 添加存储库
+export const AddRepositoryFileUrl = '/project/file/repository/add-file'; // 添加存储库文件
+export const UpdateRepositoryFileUrl = '/project/file/repository/pull-file'; // 更新存储库文件
+export const GetRepositoryInfoUrl = '/project/file/repository/info'; // 获取存储库信息

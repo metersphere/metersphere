@@ -111,12 +111,25 @@ export interface AddRepositoryParams extends RepositoryCommon {
   url: string;
 }
 // 更新存储库信息入参
-export interface UpdateRepositoryParams extends RepositoryCommon {
+export interface UpdateRepositoryParams extends Partial<RepositoryCommon> {
   id: string;
+}
+// 存储库信息
+export interface RepositoryInfo extends RepositoryCommon {
+  id: string;
+  url: string;
+  projectId: string;
 }
 // 测试存储库连接
 export interface TestRepositoryConnectParams {
   url: string;
   token: string;
   userName: string;
+}
+// 添加存储库文件入参
+export interface AddRepositoryFileParams {
+  moduleId: string;
+  branch: string;
+  filePath: string;
+  enable: boolean;
 }
