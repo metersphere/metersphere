@@ -11,7 +11,7 @@ import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
-import io.metersphere.project.mapper.ExtProjectVersionMapper;
+import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
@@ -75,7 +75,7 @@ public class FunctionalCaseService {
     SqlSessionFactory sqlSessionFactory;
 
     @Resource
-    private ExtProjectVersionMapper extProjectVersionMapper;
+    private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
         String caseId = IDGenerator.nextStr();
@@ -111,7 +111,7 @@ public class FunctionalCaseService {
         functionalCase.setCreateUser(userId);
         functionalCase.setCreateTime(System.currentTimeMillis());
         functionalCase.setUpdateTime(System.currentTimeMillis());
-        functionalCase.setVersionId(StringUtils.defaultIfBlank(request.getVersionId(), extProjectVersionMapper.getDefaultVersion(request.getProjectId())));
+        functionalCase.setVersionId(StringUtils.defaultIfBlank(request.getVersionId(), extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId())));
         functionalCaseMapper.insertSelective(functionalCase);
         //附属表
         FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
