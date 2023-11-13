@@ -765,7 +765,7 @@ export default {
 .node-tree {
   margin-top: 15px;
   overflow: auto;
-  height: calc(100% - 45px);
+  height: calc(100% - 50px);
 }
 
 .father .child {

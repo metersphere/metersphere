@@ -75,7 +75,7 @@
 <script>
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
-import {CUSTOM_FIELD_LIST} from "metersphere-frontend/src/utils/default-table-header";
+import { CUSTOM_FIELD_LIST } from "metersphere-frontend/src/utils/default-table-header";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
@@ -84,8 +84,8 @@ import TestCaseRelevanceBase from "@/business/plan/view/comonents/base/TestCaseR
 import MsNodeTree from "metersphere-frontend/src/components/module/MsNodeTree";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "@/business/common/tableItems/planview/TypeTableItem";
-import {getTestCaseRelateIssue} from "@/api/testCase";
-import {testCaseNodeListProject} from "@/api/test-case-node";
+import { getTestCaseRelateIssue } from "@/api/testCase";
+import { testCaseNodeListProject } from "@/api/test-case-node";
 
 export default {
   name: "TestCaseRelateList",
@@ -194,7 +194,7 @@ export default {
 
 <style scoped>
 .node-tree {
-  height: calc(100% - 45px);
+  height: calc(100% - 50px);
   position: relative;
   overflow: hidden;
 }
