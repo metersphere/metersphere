@@ -9,6 +9,7 @@ import io.metersphere.project.dto.filemanagement.request.FileRepositoryCreateReq
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryUpdateRequest;
 import io.metersphere.project.dto.filemanagement.request.RepositoryFileAddRequest;
 import io.metersphere.project.dto.filemanagement.response.FileRepositoryResponse;
+import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleRepositoryMapper;
 import io.metersphere.sdk.constants.ModuleConstants;
@@ -36,6 +37,8 @@ public class FileRepositoryService extends FileModuleService {
     private FileMetadataLogService fileMetadataLogService;
     @Resource
     private FileMetadataService fileMetadataService;
+    @Resource
+    private FileMetadataMapper fileMetadataMapper;
     @Resource
     private FileModuleRepositoryMapper fileModuleRepositoryMapper;
     @Resource
@@ -95,6 +98,9 @@ public class FileRepositoryService extends FileModuleService {
         if (ObjectUtils.anyNull(fileModule, repository)) {
             throw new MSException(Translator.get("file_repository.connect.error"));
         }
+
+        FileRepositoryLog oldLog = new FileRepositoryLog(fileModule, repository);
+
         this.connect(repository.getUrl(),
                 request.getToken() == null ? repository.getToken() : request.getToken(),
                 request.getUserName() == null ? repository.getUserName() : request.getUserName());
@@ -115,8 +121,9 @@ public class FileRepositoryService extends FileModuleService {
             }
             fileModuleRepositoryMapper.updateByPrimaryKeySelective(repository);
         }
+
         //记录日志
-        fileModuleLogService.saveUpdateRepositoryLog(new FileRepositoryLog(fileModule, repository), operator);
+        fileModuleLogService.saveUpdateRepositoryLog(oldLog, new FileRepositoryLog(fileModule, repository), operator);
     }
 
     private void checkPlatForm(String platform) {
@@ -137,9 +144,11 @@ public class FileRepositoryService extends FileModuleService {
         if (fileAttachInfo == null) {
             throw new MSException(Translator.get("file.not.exist"));
         }
+        FileMetadata fileMetadata = fileMetadataService.genFileMetadata(request.getFilePath(), StorageType.GIT.name(), fileAttachInfo.getSize(), request.isEnable(),
+                fileModule.getProjectId(), fileModule.getId(), operator);
+        fileMetadata.setFileVersion(fileAttachInfo.getCommitId());
+        fileMetadataMapper.insert(fileMetadata);
 
-        FileMetadata fileMetadata = fileMetadataService.saveFileMetadata(
-                fileModule.getProjectId(), fileModule.getId(), request.getFilePath(), StorageType.GIT.name(), operator, fileAttachInfo.getSize(), request.isEnable());
         FileMetadataRepository fileMetadataRepository = new FileMetadataRepository();
         fileMetadataRepository.setFileMetadataId(fileMetadata.getId());
         fileMetadataRepository.setBranch(fileAttachInfo.getBranch());

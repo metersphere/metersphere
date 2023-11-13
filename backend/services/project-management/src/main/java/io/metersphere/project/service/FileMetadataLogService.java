@@ -60,12 +60,12 @@ public class FileMetadataLogService {
                 .path("/project/file/re-upload")
                 .sourceId(module.getId())
                 .content(Translator.get("file.log.re-upload") + " " + module.getName())
-                .originalValue(JSON.toJSONBytes(module))
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);
     }
-    public void saveUpdateLog(FileMetadata module, String projectId, String operator) {
+
+    public void saveUpdateLog(FileMetadata oldFile, FileMetadata newFile, String projectId, String operator) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         LogDTO dto = LogDTOBuilder.builder()
                 .projectId(projectId)
@@ -74,9 +74,10 @@ public class FileMetadataLogService {
                 .module(logModule)
                 .method(HttpMethodConstants.POST.name())
                 .path("/project/file/update")
-                .sourceId(module.getId())
-                .content(module.getName())
-                .originalValue(JSON.toJSONBytes(module))
+                .sourceId(newFile.getId())
+                .content(newFile.getName())
+                .originalValue(JSON.toJSONBytes(oldFile))
+                .modifiedValue(JSON.toJSONBytes(newFile))
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);
@@ -115,7 +116,6 @@ public class FileMetadataLogService {
                 .path("/project/file/jar-file-status")
                 .sourceId(module.getId())
                 .content(Translator.get("change.jar.enable") + ":" + enable)
-                .originalValue(JSON.toJSONBytes(module))
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);
@@ -162,7 +162,7 @@ public class FileMetadataLogService {
         operationLogService.add(dto);
     }
 
-    public void saveFilePullLog(FileMetadata module, String operator) {
+    public void saveFilePullLog(FileMetadata oldFile, FileMetadata module, String operator) {
         Project project = projectMapper.selectByPrimaryKey(module.getProjectId());
         LogDTO dto = LogDTOBuilder.builder()
                 .projectId(module.getProjectId())
@@ -173,7 +173,8 @@ public class FileMetadataLogService {
                 .path("/project/file/repository/pull-file")
                 .sourceId(module.getId())
                 .content(Translator.get("file.log.pull") + " " + module.getName())
-                .originalValue(JSON.toJSONBytes(module))
+                .originalValue(JSON.toJSONBytes(oldFile))
+                .modifiedValue(JSON.toJSONBytes(module))
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);

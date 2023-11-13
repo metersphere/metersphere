@@ -48,7 +48,7 @@ public class FileManagementController {
     @Operation(summary = "项目管理-文件管理-查看文件详情")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
     public FileInformationResponse page(@PathVariable String id) {
-        return fileMetadataService.get(id);
+        return fileMetadataService.getFileInformation(id);
     }
 
 

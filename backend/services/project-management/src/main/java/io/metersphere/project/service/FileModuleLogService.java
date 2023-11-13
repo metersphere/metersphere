@@ -64,7 +64,7 @@ public class FileModuleLogService {
         operationLogService.add(dto);
     }
 
-    public void saveUpdateLog(FileModule module, String projectId, String operator) {
+    public void saveUpdateLog(FileModule oldModule, FileModule newModule, String projectId, String operator) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         LogDTO dto = LogDTOBuilder.builder()
                 .projectId(projectId)
@@ -73,26 +73,28 @@ public class FileModuleLogService {
                 .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
                 .method(HttpMethodConstants.POST.name())
                 .path("/project/file-module/update")
-                .sourceId(module.getId())
-                .content(module.getName())
-                .originalValue(JSON.toJSONBytes(module))
+                .sourceId(newModule.getId())
+                .content(newModule.getName())
+                .originalValue(JSON.toJSONBytes(oldModule))
+                .modifiedValue(JSON.toJSONBytes(newModule))
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);
     }
 
-    public void saveUpdateRepositoryLog(FileRepositoryLog fileRepositoryLog, String operator) {
-        Project project = projectMapper.selectByPrimaryKey(fileRepositoryLog.getProjectId());
+    public void saveUpdateRepositoryLog(FileRepositoryLog oldRepositoryLog, FileRepositoryLog newRepositoryLog, String operator) {
+        Project project = projectMapper.selectByPrimaryKey(newRepositoryLog.getProjectId());
         LogDTO dto = LogDTOBuilder.builder()
-                .projectId(fileRepositoryLog.getProjectId())
+                .projectId(newRepositoryLog.getProjectId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.UPDATE.name())
                 .module(OperationLogModule.PROJECT_FILE_MANAGEMENT)
                 .method(HttpMethodConstants.POST.name())
                 .path("/project/file/repository/update-repository")
-                .sourceId(fileRepositoryLog.getId())
-                .content(fileRepositoryLog.getName())
-                .originalValue(JSON.toJSONBytes(fileRepositoryLog))
+                .sourceId(newRepositoryLog.getId())
+                .content(newRepositoryLog.getName())
+                .originalValue(JSON.toJSONBytes(oldRepositoryLog))
+                .modifiedValue(JSON.toJSONBytes(newRepositoryLog))
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);
@@ -142,7 +144,6 @@ public class FileModuleLogService {
                 .path("/project/file-module/move")
                 .sourceId(moveNode.getId())
                 .content(logContent)
-                .originalValue(JSON.toJSONBytes(moveNode))
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);

@@ -131,8 +131,9 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         updateModule.setUpdateTime(System.currentTimeMillis());
         updateModule.setUpdateUser(userId);
         fileModuleMapper.updateByPrimaryKeySelective(updateModule);
+        FileModule newModule = fileModuleMapper.selectByPrimaryKey(request.getId());
         //记录日志
-        fileModuleLogService.saveUpdateLog(updateModule, module.getProjectId(), userId);
+        fileModuleLogService.saveUpdateLog(module, newModule, module.getProjectId(), userId);
     }
 
 

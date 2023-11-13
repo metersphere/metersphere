@@ -15,11 +15,6 @@ public class FileAssociation implements Serializable {
     @Size(min = 1, max = 50, message = "{file_association.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description = "多用于场景步骤内具体的步骤ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_association.source_item_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{file_association.source_item_id.length_range}", groups = {Created.class, Updated.class})
-    private String sourceItemId;
-
     @Schema(description = "资源类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_association.source_type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{file_association.source_type.length_range}", groups = {Created.class, Updated.class})
@@ -61,7 +56,6 @@ public class FileAssociation implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        sourceItemId("source_item_id", "sourceItemId", "VARCHAR", false),
         sourceType("source_type", "sourceType", "VARCHAR", false),
         sourceId("source_id", "sourceId", "VARCHAR", false),
         fileId("file_id", "fileId", "VARCHAR", false),

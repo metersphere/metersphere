@@ -41,8 +41,8 @@ public class FileManagementRequestUtils {
     //文件批量移动（权限判断需要提前上传文件，所以放在了主测试类里）
     public static final String URL_FILE_BATCH_UPDATE = "/project/file/batch-move";
 
-    /**
-     * 存储库相关路径
+    /*
+    存储库相关路径
      */
     //存储库列表
     public static final String URL_FILE_REPOSITORY_LIST = "/project/file/repository/list/%s";
@@ -59,4 +59,13 @@ public class FileManagementRequestUtils {
     //添加文件
     public static final String URL_FILE_REPOSITORY_FILE_ADD = "/project/file/repository/add-file";
     public static final String URL_FILE_REPOSITORY_FILE_PULL = "/project/file/repository/pull-file/%s";
+
+    /*
+    文件关联
+     */
+    public static final String URL_FILE_ASSOCIATION_LIST = "/project/file/association/list/%s";
+    public static final String URL_FILE_ASSOCIATION_UPGRADE = "/project/file/association/upgrade/%s/%s";
+    public static final String URL_FILE_ASSOCIATION_DELETE = "/project/file/association/delete";
+
+
 }
