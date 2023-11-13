@@ -102,8 +102,11 @@
     </update>
 
     <sql id="queryWhereCondition">
-        <if test="request.projectId">
+        <if test="request.projectId != null">
             and functional_case.project_id = #{request.projectId}
+        </if>
+        <if test="request.moduleId != null">
+            and functional_case.module_id = #{request.moduleId}
         </if>
         <if test="request.keyword != null">
             and (

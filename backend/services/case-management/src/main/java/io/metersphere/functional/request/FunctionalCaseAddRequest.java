@@ -61,7 +61,7 @@ public class FunctionalCaseAddRequest implements Serializable {
     private String versionId;
 
     @Schema(description = "标签")
-    private String tags;
+    private List<String> tags;
 
 
     @Schema(description = "自定义字段集合")

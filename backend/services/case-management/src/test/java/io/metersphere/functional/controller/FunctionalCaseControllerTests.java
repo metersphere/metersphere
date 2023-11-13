@@ -304,6 +304,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setSelectIds(Arrays.asList("TEST_FUNCTIONAL_CASE_ID_5", "TEST_FUNCTIONAL_CASE_ID_7"));
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_DELETE_URL, request);
         request.setSelectAll(true);
+        request.setDeleteAll(false);
         request.setExcludeIds(Arrays.asList("TEST_FUNCTIONAL_CASE_ID_2"));
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_DELETE_URL, request);
     }
