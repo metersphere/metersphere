@@ -22,6 +22,10 @@ public class IssueSyncRequest {
      * 缺陷创建时间
      */
     private Long createTime;
+    /**
+     * 同步人
+     */
+    private String operateUser;
 
     /**
      * TRUE: 创建时间之前
