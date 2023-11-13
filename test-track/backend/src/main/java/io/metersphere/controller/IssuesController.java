@@ -12,6 +12,7 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.IssuesStatusCountDao;
 import io.metersphere.excel.domain.ExcelResponse;
@@ -177,6 +178,7 @@ public class IssuesController {
     @PostMapping("/sync/all")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     public void syncThirdPartyAllIssues(@RequestBody IssueSyncRequest request) {
+        request.setOperateUser(SessionUtils.getUserId());
         issuesSyncService.syncAllIssues(request);
     }
 
