@@ -48,14 +48,29 @@ export default {
     },
     change: Function
   },
+  data() {
+    return {
+      timer: null
+    };
+  },
   methods: {
     handleSizeChange: function (size) {
-      this.$emit('update:pageSize', size)
-      this.change();
+      this.$emit('update:pageSize', size);
+      if (this.timer === null) {
+        this.timer = setTimeout(() => {
+          this.change();
+          this.timer = null;
+        }, 0);
+      }
     },
     handleCurrentChange(current) {
-      this.$emit('update:currentPage', current)
-      this.change();
+      this.$emit('update:currentPage', current);
+      if (this.timer === null) {
+        this.timer = setTimeout(() => {
+          this.change();
+          this.timer = null;
+        }, 0);
+      }
     }
   }
 }
