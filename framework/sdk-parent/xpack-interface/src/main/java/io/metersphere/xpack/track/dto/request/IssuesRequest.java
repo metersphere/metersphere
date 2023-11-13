@@ -73,4 +73,8 @@ public class IssuesRequest extends BaseQueryRequest {
      * 过滤缺陷ID
      */
     private List<String> filterIds;
+    /**
+     * Local平台的状态自定义字段ID
+     */
+    private String statusFieldId;
 }
