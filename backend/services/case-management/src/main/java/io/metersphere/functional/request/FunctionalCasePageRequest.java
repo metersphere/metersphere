@@ -24,4 +24,7 @@ public class FunctionalCasePageRequest extends BasePageRequest {
 
     @Schema(description = "版本来源")
     private String refId;
+
+    @Schema(description = "模块id")
+    private String moduleId;
 }

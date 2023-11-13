@@ -5,10 +5,7 @@ import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
-import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
-import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
-import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
-import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -19,6 +16,7 @@ import io.metersphere.sdk.constants.FunctionalCaseReviewStatus;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
@@ -77,6 +75,9 @@ public class FunctionalCaseService {
     @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
 
+    @Resource
+    private FunctionalCaseModuleMapper functionalCaseModuleMapper;
+
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
         String caseId = IDGenerator.nextStr();
         //添加功能用例
@@ -112,6 +113,7 @@ public class FunctionalCaseService {
         functionalCase.setCreateTime(System.currentTimeMillis());
         functionalCase.setUpdateTime(System.currentTimeMillis());
         functionalCase.setVersionId(StringUtils.defaultIfBlank(request.getVersionId(), extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId())));
+        functionalCase.setTags(JSON.toJSONString(request.getTags()));
         functionalCaseMapper.insertSelective(functionalCase);
         //附属表
         FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
@@ -157,12 +159,19 @@ public class FunctionalCaseService {
         Boolean isFollow = checkIsFollowCase(functionalCase.getId(), userId);
         functionalCaseDetailDTO.setFollowFlag(isFollow);
 
-
         //获取附件信息
         functionalCaseAttachmentService.getAttachmentInfo(functionalCaseDetailDTO);
 
+        handData(functionalCaseDetailDTO);
+
+
         return functionalCaseDetailDTO;
 
+    }
+
+    private void handData(FunctionalCaseDetailDTO functionalCaseDetailDTO) {
+        FunctionalCaseModule caseModule = functionalCaseModuleMapper.selectByPrimaryKey(functionalCaseDetailDTO.getModuleId());
+        functionalCaseDetailDTO.setModuleName(caseModule.getName());
     }
 
     private Boolean checkIsFollowCase(String caseId, String userId) {
@@ -304,36 +313,26 @@ public class FunctionalCaseService {
      * @param userId
      */
     public void deleteFunctionalCase(FunctionalCaseDeleteRequest request, String userId) {
-        List<FunctionalCaseVersionDTO> versionDTOList = getFunctionalCaseVersion(request.getId());
-        if (versionDTOList.size() > 1) {
-            //存在多个版本
-            List<String> ids = versionDTOList.stream().map(FunctionalCaseVersionDTO::getId).collect(Collectors.toList());
-            String projectId = versionDTOList.get(0).getProjectId();
-            handleFunctionalCaseByVersions(request, projectId, ids, userId);
-        } else {
-            //只有一个版本 直接放入回收站
-            doDelete(request.getId(), userId);
-        }
-
+        handDeleteFunctionalCase(Arrays.asList(request.getId()), request.getDeleteAll(), userId);
     }
 
-
-    /**
-     * 用例存在多个版本情况下 删除用例的处理
-     *
-     * @param request
-     * @param ids
-     * @param userId
-     */
-    private void handleFunctionalCaseByVersions(FunctionalCaseDeleteRequest request, String projectId, List<String> ids, String userId) {
-        if (request.getDeleteAll()) {
-            //删除所有版本
-            ids.forEach(id -> {
-                doDelete(id, userId);
-            });
+    private void handDeleteFunctionalCase(List<String> ids, Boolean deleteAll, String userId) {
+        if (deleteAll) {
+            //全部删除  进入回收站
+            List<String> refId = extFunctionalCaseMapper.getRefIds(ids);
+            extFunctionalCaseMapper.batchDelete(refId, userId);
         } else {
-            //删除指定版本(用例多版本情况下 删除单个版本用例)
-            deleteFunctionalCaseService.deleteFunctionalCaseResource(Arrays.asList(request.getId()), projectId);
+            //列表删除 需要判断是否存在多个版本问题
+            ids.forEach(id -> {
+                List<FunctionalCaseVersionDTO> versionDTOList = getFunctionalCaseVersion(id);
+                if (versionDTOList.size() > 1) {
+                    String projectId = versionDTOList.get(0).getProjectId();
+                    deleteFunctionalCaseService.deleteFunctionalCaseResource(Arrays.asList(id), projectId);
+                } else {
+                    //只有一个版本 直接放入回收站
+                    doDelete(id, userId);
+                }
+            });
         }
     }
 
@@ -389,8 +388,7 @@ public class FunctionalCaseService {
     public void batchDeleteFunctionalCaseToGc(FunctionalCaseBatchRequest request, String userId) {
         List<String> ids = doSelectIds(request, request.getProjectId());
         if (CollectionUtils.isNotEmpty(ids)) {
-            List<String> refId = extFunctionalCaseMapper.getRefIds(ids);
-            extFunctionalCaseMapper.batchDelete(refId, userId);
+            handDeleteFunctionalCase(ids, request.getDeleteAll(), userId);
         }
     }
 
