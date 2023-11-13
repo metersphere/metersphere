@@ -1,6 +1,7 @@
 import MSR from '@/api/http/index';
 import {
   AddModuleUrl,
+  AddRepositoryFileUrl,
   AddRepositoryUrl,
   BatchDownloadFileUrl,
   BatchMoveFileUrl,
@@ -15,11 +16,13 @@ import {
   GetModuleUrl,
   GetRepositoryFileTypesUrl,
   GetRepositoryFileUrl,
+  GetRepositoryInfoUrl,
   MoveModuleUrl,
   ReuploadFileUrl,
   ToggleJarFileUrl,
   UpdateFileUrl,
   UpdateModuleUrl,
+  UpdateRepositoryFileUrl,
   UpdateRepositoryUrl,
   UploadFileUrl,
 } from '@/api/requrls/project-management/fileManagement';
@@ -27,6 +30,7 @@ import {
 import type { CommonList } from '@/models/common';
 import type {
   AddModuleParams,
+  AddRepositoryFileParams,
   AddRepositoryParams,
   BatchFileApiParams,
   FileDetail,
@@ -36,6 +40,7 @@ import type {
   ModuleTreeNode,
   MoveModuleParams,
   Repository,
+  RepositoryInfo,
   ReuploadFileParams,
   TestRepositoryConnectParams,
   UpdateFileParams,
@@ -152,4 +157,19 @@ export function connectRepository(data: TestRepositoryConnectParams) {
 // 修改存储库信息
 export function updateRepository(data: UpdateRepositoryParams) {
   return MSR.post({ url: UpdateRepositoryUrl, data });
+}
+
+// 添加存储库文件
+export function addRepositoryFile(data: AddRepositoryFileParams) {
+  return MSR.post({ url: AddRepositoryFileUrl, data });
+}
+
+// 更新存储库文件
+export function updateRepositoryFile(id: string) {
+  return MSR.get({ url: UpdateRepositoryFileUrl, params: id });
+}
+
+// 获取存储库信息
+export function getRepositoryInfo(id: string) {
+  return MSR.get<RepositoryInfo>({ url: GetRepositoryInfoUrl, params: id });
 }

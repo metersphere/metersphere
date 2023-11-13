@@ -113,6 +113,8 @@ export default {
   'project.fileManagement.record': 'Update history',
   'project.fileManagement.caseList': 'Use case list',
   'project.fileManagement.search': 'Enter name to search',
+  'project.fileManagement.storagePlaceholder': 'Please select a repository',
+  'project.fileManagement.storageNotNull': 'Repository cannot be empty',
   'project.fileManagement.gitBranchNotNull': 'Git branch cannot be empty',
   'project.fileManagement.gitBranchPlaceholder': 'Please enter the git branch, such as: master',
   'project.fileManagement.gitFilePath': 'File path',

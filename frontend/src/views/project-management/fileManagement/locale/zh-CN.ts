@@ -105,6 +105,8 @@ export default {
   'project.fileManagement.record': '更新历史',
   'project.fileManagement.caseList': '用例列表',
   'project.fileManagement.search': '输入名称搜索',
+  'project.fileManagement.storagePlaceholder': '请选择存储库',
+  'project.fileManagement.storageNotNull': '存储库不能为空',
   'project.fileManagement.gitBranchNotNull': 'git 分支不能为空',
   'project.fileManagement.gitBranchPlaceholder': '请输入 git 分支，如：master',
   'project.fileManagement.gitFilePath': '文件路径',

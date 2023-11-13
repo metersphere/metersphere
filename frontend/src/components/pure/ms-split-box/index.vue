@@ -11,14 +11,16 @@
       </div>
     </template>
     <template #second>
-      <div class="ms-split-box ms-split-box--right">
-        <div class="expand-icon" @click="changeFolderExpand">
+      <div class="absolute flex h-full w-[16px] items-center">
+        <div class="expand-icon" @click="changeLeftExpand">
           <MsIcon
             :type="isExpandedLeft ? 'icon-icon_up-left_outlined' : 'icon-icon_down-right_outlined'"
             class="text-[var(--color-text-brand)]"
             size="12"
           />
         </div>
+      </div>
+      <div class="ms-split-box ms-split-box--right">
         <slot name="right"></slot>
       </div>
     </template>
@@ -66,7 +68,7 @@
   const isExpandedLeft = ref(true);
   const isExpandAnimating = ref(false); // 控制动画类
 
-  function changeFolderExpand() {
+  function changeLeftExpand() {
     isExpandAnimating.value = true;
     isExpandedLeft.value = !isExpandedLeft.value;
     if (isExpandedLeft.value) {
@@ -90,12 +92,16 @@
       @apply hidden;
     }
     :deep(.arco-split-pane) {
-      overflow: hidden;
+      @apply relative overflow-hidden;
     }
+  }
+  :deep(.arco-split-pane) {
+    @apply relative overflow-hidden;
   }
   .animating {
     :deep(.arco-split-pane) {
-      overflow: hidden;
+      @apply relative overflow-hidden;
+
       transition: flex 0.3s ease;
     }
   }
@@ -106,17 +112,15 @@
   .ms-split-box--left {
     width: calc(v-bind(innerWidth) - 4px);
   }
+  .expand-icon {
+    @apply z-10 cursor-pointer;
+
+    padding: 8px 2px;
+    border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
+    background-color: var(--color-text-n8);
+  }
   .ms-split-box--right {
     @apply w-full;
-    .expand-icon {
-      @apply absolute cursor-pointer;
-
-      top: 50%;
-      transform: translateY(-50%);
-      padding: 8px 2px;
-      border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
-      background-color: var(--color-text-n8);
-    }
   }
   :deep(.arco-split-trigger-icon) {
     font-size: 14px;

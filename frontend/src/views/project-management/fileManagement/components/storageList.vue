@@ -9,35 +9,37 @@
     <MsList
       v-model:focus-item-key="focusItemKey"
       :virtual-list-props="{
-        height: 'calc(100vh - 310px)',
+        height: 'calc(100vh - 325px)',
       }"
       :data="storageList"
       :bordered="false"
       :split="false"
       :item-more-actions="folderMoreActions"
       :empty-text="t('project.fileManagement.noStorage')"
+      item-key-field="id"
       class="mr-[-6px]"
       @more-action-select="handleMoreSelect"
       @more-actions-close="moreActionsClose"
     >
       <template #title="{ item, index }">
-        <div :key="index" class="storage" @click="setActiveFolder(item.key)">
-          <div :class="props.activeFolder === item.key ? 'storage-text storage-text--active' : 'storage-text'">
+        <div :key="index" class="storage" @click="setActiveFolder(item.id)">
+          <div :class="props.activeFolder === item.id ? 'storage-text storage-text--active' : 'storage-text'">
             <MsIcon type="icon-icon_git" class="storage-icon" />
-            <div class="storage-name">{{ item.title }}</div>
+            <div class="storage-name">{{ item.name }}</div>
             <div class="storage-count">({{ item.count }})</div>
           </div>
         </div>
       </template>
       <template #itemAction="{ item }">
         <popConfirm
-          mode="rename"
-          :parent-id="item.key"
+          mode="repositoryRename"
+          :node-id="item.id"
           :field-config="{ field: renameStorageTitle }"
           :all-names="[]"
           @close="resetFocusItemKey"
+          @rename-finish="(val) => (item.name = val)"
         >
-          <span :id="`renameSpan${item.key}`" class="relative"></span>
+          <span :id="`renameSpan${item.id}`" class="relative"></span>
         </popConfirm>
       </template>
     </MsList>
@@ -146,13 +148,19 @@
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import popConfirm from './popConfirm.vue';
 
-  import { addRepository, connectRepository, getRepositories } from '@/api/modules/project-management/fileManagement';
+  import {
+    addRepository,
+    connectRepository,
+    getRepositories,
+    getRepositoryInfo,
+    updateRepository,
+  } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { validateGitUrl } from '@/utils/validate';
 
-  import { Repository } from '@/models/projectManagement/file';
+  import { Repository, RepositoryInfo } from '@/models/projectManagement/file';
   import { GitPlatformEnum } from '@/enums/commonEnum';
 
   const props = defineProps<{
@@ -209,6 +217,7 @@
       loading.value = true;
       const res = await getRepositories(appStore.currentProjectId);
       originStorageList.value = res;
+      storageList.value = [...originStorageList.value];
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -241,7 +250,7 @@
   function deleteStorage(item: any) {
     openModal({
       type: 'error',
-      title: t('project.fileManagement.deleteStorageTipTitle', { name: item.title }),
+      title: t('project.fileManagement.deleteStorageTipTitle', { name: item.name }),
       content: t('project.fileManagement.deleteStorageTipContent'),
       okText: t('project.fileManagement.deleteConfirm'),
       okButtonProps: {
@@ -292,7 +301,9 @@
 
   const drawerLoading = ref(false);
   const isEdit = ref(false);
-  const activeStorageForm = ref({
+  const activeStorageForm = ref<RepositoryInfo>({
+    id: '',
+    projectId: '',
     name: '',
     platform: GitPlatformEnum.GITHUB,
     url: '',
@@ -305,13 +316,8 @@
   async function getStorageDetail(id: string) {
     try {
       drawerLoading.value = true;
-      activeStorageForm.value = {
-        name: 'xxx',
-        platform: GitPlatformEnum.GITHUB,
-        url: 'xxxxxxx',
-        token: 'sxsxsx',
-        userName: 'ddwdwdwwd',
-      };
+      const res = await getRepositoryInfo(id);
+      activeStorageForm.value = res;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -325,21 +331,21 @@
    * @param item
    * @param listItem
    */
-  function handleMoreSelect(item: ActionsItem, listItem: any) {
+  function handleMoreSelect(item: ActionsItem, listItem: Repository) {
     switch (item.eventTag) {
       case 'delete':
         deleteStorage(listItem);
         resetFocusItemKey();
         break;
       case 'rename':
-        renameStorageTitle.value = listItem.title || '';
+        renameStorageTitle.value = listItem.name || '';
         renamePopVisible.value = true;
-        document.querySelector(`#renameSpan${listItem.key}`)?.dispatchEvent(new Event('click'));
+        document.querySelector(`#renameSpan${listItem.id}`)?.dispatchEvent(new Event('click'));
         break;
       case 'edit':
         isEdit.value = true;
         showDrawer.value = true;
-        getStorageDetail(listItem.key);
+        getStorageDetail(listItem.id);
         break;
       default:
         break;
@@ -382,14 +388,20 @@
   async function saveStorage(isContinue: boolean) {
     try {
       drawerLoading.value = true;
-      await addRepository({
-        ...activeStorageForm.value,
-        projectId: appStore.currentProjectId,
-      });
+      if (isEdit.value) {
+        await updateRepository({
+          ...activeStorageForm.value,
+        });
+      } else {
+        await addRepository({
+          ...activeStorageForm.value,
+          projectId: appStore.currentProjectId,
+        });
+      }
       if (!isContinue) {
         handleDrawerCancel();
       }
-      Message.success(t('common.addSuccess'));
+      Message.success(isEdit.value ? t('common.updateSuccess') : t('common.addSuccess'));
       initRepositories();
     } catch (error) {
       // eslint-disable-next-line no-console

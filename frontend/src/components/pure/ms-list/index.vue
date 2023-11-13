@@ -139,11 +139,10 @@
 
   const listRef: Ref = ref(null);
 
-  const { isArrivedBottom, isInitListener, containerStatusClass, setContainer, initScrollListener } =
-    useContainerShadow({
-      overHeight: props.itemHeight,
-      containerClassName: 'ms-list',
-    });
+  const { isInitListener, containerStatusClass, setContainer, initScrollListener } = useContainerShadow({
+    overHeight: props.itemHeight,
+    containerClassName: 'ms-list',
+  });
 
   watch(
     props.data,
