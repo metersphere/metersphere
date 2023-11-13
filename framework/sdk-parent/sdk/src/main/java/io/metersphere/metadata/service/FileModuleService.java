@@ -10,9 +10,7 @@ import io.metersphere.base.mapper.ext.BaseFileMetadataMapper;
 import io.metersphere.base.mapper.ext.BaseFileModuleMapper;
 import io.metersphere.commons.constants.ApiTestConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -389,4 +387,36 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
         return baseFileModuleMapper.getNameById(moduleId);
     }
 
+    public List<FileModuleVo> getTypeNodeByProjectId(String projectId, String moduleType) {
+        // 判断当前项目下是否有默认模块，没有添加默认模块
+        FileModule fileModule = this.initDefaultNode(projectId);
+        FileModuleVo fileModuleVo = new FileModuleVo();
+        BeanUtils.copyBean(fileModuleVo, fileModule);
+        List<FileModuleVo> modules = baseFileModuleMapper.getTypeNodeTreeByProjectId(projectId, moduleType);
+        if (StringUtils.equals(moduleType, "module")) {
+            modules.add(0, fileModuleVo);
+        }
+        List<String> ids = modules.stream().map(FileModuleVo::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(ids)) {
+            return getNodeTrees(modules);
+        }
+        List<Map<String, Object>> moduleCounts = baseFileMetadataMapper.moduleCountByMetadataIds(ids);
+        Map<String, Integer> moduleCountMap = this.nodeCalculate(moduleCounts);
+        // 逐层统计
+        if (MapUtils.isNotEmpty(moduleCountMap)) {
+            modules.forEach(node -> {
+                int countNum = 0;
+                List<String> moduleIds = new ArrayList<>();
+                moduleIds = this.nodeList(modules, node.getId(), moduleIds);
+                moduleIds.add(node.getId());
+                for (String moduleId : moduleIds) {
+                    if (moduleCountMap.containsKey(moduleId)) {
+                        countNum += moduleCountMap.get(moduleId).intValue();
+                    }
+                }
+                node.setCaseNum(countNum);
+            });
+        }
+        return getNodeTrees(modules);
+    }
 }
