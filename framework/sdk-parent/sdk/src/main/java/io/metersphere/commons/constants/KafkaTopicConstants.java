@@ -6,7 +6,7 @@ public interface KafkaTopicConstants {
     String PROJECT_CREATED_TOPIC = "PROJECT_CREATED";
     String CLEAN_UP_REPORT_SCHEDULE = "CLEAN_UP_REPORT_SCHEDULE";
     // 原接口执行结果TOPIC
-    String API_REPORT_TOPIC = "ms-api-exec-topic-4321";
+    String API_REPORT_TOPIC = "ms-api-exec-topic";
     String DEBUG_TOPICS = "MS-API-DEBUG-TOPIC";
     String UI_DEBUG_TOPICS = "MS-UI-DEBUG-TOPIC";
     // 测试计划接收执行结果TOPIC
