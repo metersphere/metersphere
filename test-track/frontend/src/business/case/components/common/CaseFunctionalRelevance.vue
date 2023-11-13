@@ -16,6 +16,7 @@
         class="node-tree"
         :case-condition="page.condition"
         :scroll="true"
+        :get-node-tree="getNodeTree"
         v-loading="nodeResult.loading"
         local-suffix="test_case"
         default-label="未规划用例"
@@ -23,16 +24,6 @@
         :tree-nodes="treeNodes"
         ref="nodeTree"
       ></TestCaseNodeTree>
-      <!-- <node-tree
-        class="node-tree"
-        :scroll="true"
-        v-loading="nodeResult.loading"
-        local-suffix="test_case"
-        default-label="未规划用例"
-        @nodeSelectEvent="nodeChange"
-        :tree-nodes="treeNodes"
-        ref="nodeTree"
-      /> -->
     </template>
 
     <!-- 表格头部 搜索栏 -->
@@ -161,12 +152,6 @@
             <ms-create-time-column />
           </ms-table>
         </div>
-        <!-- <ms-table-pagination
-      :change="getTestCases"
-      :current-page.sync="page.currentPage"
-      :page-size.sync="page.pageSize"
-      :total="page.total"
-    /> -->
 
         <div class="pagenation-wrap">
           <home-pagination

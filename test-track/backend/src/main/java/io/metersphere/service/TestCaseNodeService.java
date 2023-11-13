@@ -73,6 +73,8 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     TestPlanService testPlanService;
     @Resource
     private RedissonClient redissonClient;
+    @Resource
+    private RelationshipEdgeService relationshipEdgeService;
 
     private static final String TEST_CASE_DEFAULT_NODE_CREATE_KEY = "TEST_CASE:DEFAULT_NODE:CREATE";
 
@@ -223,6 +225,11 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         return getNodeTrees(testCaseNodes, getCountMap(countNodes));
     }
 
+    public List<TestCaseNodeDTO> getRelationshipNodeByCondition(String projectId, QueryTestCaseRequest request) {
+        List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getRelationshipCaseId());
+        request.setTestCaseContainIds(relationshipIds);
+        return this.getNodeTreeByProjectId(projectId, request);
+    }
 
     public Map<String, Integer> getNodeCountMapByProjectId(String projectId, QueryTestCaseRequest request) {
         boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);

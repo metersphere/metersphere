@@ -638,6 +638,13 @@
                 </include>
             </if>
 
+            <if test="request.testCaseContainIds != null and request.testCaseContainIds.size() > 0">
+                and test_case.id not in
+                <foreach collection="request.testCaseContainIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+
             <if test="request.statusIsNot != null">
                 and test_case.status != #{request.statusIsNot}
             </if>
