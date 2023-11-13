@@ -46,7 +46,6 @@ CREATE INDEX idx_name ON fake_error (name);
 CREATE TABLE IF NOT EXISTS file_association
 (
     `id`             VARCHAR(50) NOT NULL COMMENT '',
-    `source_item_id` VARCHAR(50) NOT NULL COMMENT '多用于场景步骤内具体的步骤ID',
     `source_type`    VARCHAR(50) NOT NULL COMMENT '资源类型',
     `source_id`      VARCHAR(50) NOT NULL COMMENT '资源ID',
     `file_id`        VARCHAR(50) NOT NULL COMMENT '文件ID',

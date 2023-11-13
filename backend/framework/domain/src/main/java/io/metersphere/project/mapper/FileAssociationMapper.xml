@@ -3,7 +3,6 @@
 <mapper namespace="io.metersphere.project.mapper.FileAssociationMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FileAssociation">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="source_item_id" jdbcType="VARCHAR" property="sourceItemId" />
     <result column="source_type" jdbcType="VARCHAR" property="sourceType" />
     <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
     <result column="file_id" jdbcType="VARCHAR" property="fileId" />
@@ -73,8 +72,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, source_item_id, source_type, source_id, file_id, file_ref_id, file_version, create_time, 
-    update_user, update_time, create_user
+    id, source_type, source_id, file_id, file_ref_id, file_version, create_time, update_user, 
+    update_time, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.FileAssociationExample" resultMap="BaseResultMap">
     select
@@ -107,23 +106,20 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.FileAssociation">
-    insert into file_association (id, source_item_id, source_type, 
-      source_id, file_id, file_ref_id, 
-      file_version, create_time, update_user, 
-      update_time, create_user)
-    values (#{id,jdbcType=VARCHAR}, #{sourceItemId,jdbcType=VARCHAR}, #{sourceType,jdbcType=VARCHAR}, 
-      #{sourceId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{fileRefId,jdbcType=VARCHAR}, 
-      #{fileVersion,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, 
-      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR})
+    insert into file_association (id, source_type, source_id, 
+      file_id, file_ref_id, file_version, 
+      create_time, update_user, update_time, 
+      create_user)
+    values (#{id,jdbcType=VARCHAR}, #{sourceType,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, 
+      #{fileId,jdbcType=VARCHAR}, #{fileRefId,jdbcType=VARCHAR}, #{fileVersion,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
+      #{createUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileAssociation">
     insert into file_association
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
-      </if>
-      <if test="sourceItemId != null">
-        source_item_id,
       </if>
       <if test="sourceType != null">
         source_type,
@@ -156,9 +152,6 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
-      </if>
-      <if test="sourceItemId != null">
-        #{sourceItemId,jdbcType=VARCHAR},
       </if>
       <if test="sourceType != null">
         #{sourceType,jdbcType=VARCHAR},
@@ -201,9 +194,6 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.sourceItemId != null">
-        source_item_id = #{record.sourceItemId,jdbcType=VARCHAR},
-      </if>
       <if test="record.sourceType != null">
         source_type = #{record.sourceType,jdbcType=VARCHAR},
       </if>
@@ -239,7 +229,6 @@
   <update id="updateByExample" parameterType="map">
     update file_association
     set id = #{record.id,jdbcType=VARCHAR},
-      source_item_id = #{record.sourceItemId,jdbcType=VARCHAR},
       source_type = #{record.sourceType,jdbcType=VARCHAR},
       source_id = #{record.sourceId,jdbcType=VARCHAR},
       file_id = #{record.fileId,jdbcType=VARCHAR},
@@ -256,9 +245,6 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.project.domain.FileAssociation">
     update file_association
     <set>
-      <if test="sourceItemId != null">
-        source_item_id = #{sourceItemId,jdbcType=VARCHAR},
-      </if>
       <if test="sourceType != null">
         source_type = #{sourceType,jdbcType=VARCHAR},
       </if>
@@ -291,8 +277,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.FileAssociation">
     update file_association
-    set source_item_id = #{sourceItemId,jdbcType=VARCHAR},
-      source_type = #{sourceType,jdbcType=VARCHAR},
+    set source_type = #{sourceType,jdbcType=VARCHAR},
       source_id = #{sourceId,jdbcType=VARCHAR},
       file_id = #{fileId,jdbcType=VARCHAR},
       file_ref_id = #{fileRefId,jdbcType=VARCHAR},
@@ -305,14 +290,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into file_association
-    (id, source_item_id, source_type, source_id, file_id, file_ref_id, file_version, 
-      create_time, update_user, update_time, create_user)
+    (id, source_type, source_id, file_id, file_ref_id, file_version, create_time, update_user, 
+      update_time, create_user)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.sourceItemId,jdbcType=VARCHAR}, #{item.sourceType,jdbcType=VARCHAR}, 
-        #{item.sourceId,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, #{item.fileRefId,jdbcType=VARCHAR}, 
-        #{item.fileVersion,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR})
+      (#{item.id,jdbcType=VARCHAR}, #{item.sourceType,jdbcType=VARCHAR}, #{item.sourceId,jdbcType=VARCHAR}, 
+        #{item.fileId,jdbcType=VARCHAR}, #{item.fileRefId,jdbcType=VARCHAR}, #{item.fileVersion,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.createUser,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -327,9 +312,6 @@
       <foreach collection="selective" item="column" separator=",">
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
-        </if>
-        <if test="'source_item_id'.toString() == column.value">
-          #{item.sourceItemId,jdbcType=VARCHAR}
         </if>
         <if test="'source_type'.toString() == column.value">
           #{item.sourceType,jdbcType=VARCHAR}

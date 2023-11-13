@@ -3,8 +3,10 @@ package io.metersphere.project.dto.filemanagement;
 import io.metersphere.project.domain.FileModule;
 import io.metersphere.project.domain.FileModuleRepository;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class FileRepositoryLog {
     private String id;
 

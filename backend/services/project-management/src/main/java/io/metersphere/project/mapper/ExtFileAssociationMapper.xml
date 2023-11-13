@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.project.mapper.ExtFileAssociationMapper">
+    <select id="selectNameBySourceTableAndId"
+            resultType="io.metersphere.project.dto.filemanagement.FileAssociationSource">
+        ${querySql}
+        WHERE id = #{sourceId}
+    </select>
+    <select id="selectAssociationSourceBySourceTableAndIdList"
+            resultType="io.metersphere.project.dto.filemanagement.FileAssociationSource">
+        ${querySql}
+        WHERE id IN
+        <foreach collection="idList" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

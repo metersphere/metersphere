@@ -1,17 +1,19 @@
 package io.metersphere.project.controller.filemanagement;
 
 import io.metersphere.project.domain.*;
+import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.dto.filemanagement.request.*;
+import io.metersphere.project.dto.filemanagement.response.FileAssociationResponse;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
+import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
+import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
-import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.TempFileUtils;
 import io.metersphere.system.base.BaseTest;
@@ -32,6 +34,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
@@ -41,6 +45,7 @@ import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -61,6 +66,14 @@ public class FileManagementControllerTests extends BaseTest {
 
     private static String picFileId;
     private static String jarFileId;
+
+    private static String fileAssociationOldFileId;
+    private static String fileAssociationNewFileId;
+    private static String fileAssociationNewFilesOne;
+    private static String fileAssociationNewFilesTwo;
+    private static String fileAssociationNewFilesThree;
+    private static String fileAssociationNewFilesFour;
+    private static Map<String, List<String>> sourceAssociationFileMap = new HashMap<>();
 
     @Resource
     private FileModuleService fileModuleService;
@@ -569,12 +582,22 @@ public class FileManagementControllerTests extends BaseTest {
             this.fileUploadTestSuccess();
         }
         for (String key : FILE_ID_PATH.keySet()) {
-            reUploadFileId = key;
+            if (StringUtils.isEmpty(fileAssociationNewFilesOne)) {
+                fileAssociationNewFilesOne = key;
+            } else if (StringUtils.isEmpty(fileAssociationNewFilesTwo)) {
+                fileAssociationNewFilesTwo = key;
+            } else if (StringUtils.isEmpty(fileAssociationNewFilesThree)) {
+                fileAssociationNewFilesThree = key;
+            } else if (StringUtils.isEmpty(fileAssociationNewFilesFour)) {
+                fileAssociationNewFilesFour = key;
+            } else {
+                reUploadFileId = key;
+            }
         }
 
         FileUploadRequest fileUploadRequest = new FileUploadRequest();
         fileUploadRequest.setProjectId(project.getId());
-
+        fileAssociationOldFileId = reUploadFileId;
         //构建参数
         FileReUploadRequest fileReUploadRequest = new FileReUploadRequest();
         fileReUploadRequest.setFileId(reUploadFileId);
@@ -600,6 +623,7 @@ public class FileManagementControllerTests extends BaseTest {
         checkLog(reUploadId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_RE_UPLOAD);
         FILE_ID_PATH.put(reUploadId, filePath);
         FILE_VERSIONS_ID_MAP.put(reUploadId, reUploadFileId);
+        fileAssociationNewFileId = reUploadId;
     }
 
     @Test
@@ -922,45 +946,6 @@ public class FileManagementControllerTests extends BaseTest {
                 .andExpect(status().is5xxServerError());
     }
 
-    @Test
-    @Order(20)
-    public void fileDeleteSuccess() throws Exception {
-        if (MapUtils.isEmpty(FILE_VERSIONS_ID_MAP)) {
-            this.fileReUploadTestSuccess();
-        }
-        FileBatchProcessRequest fileBatchProcessRequest;
-        //删除指定文件
-        for (Map.Entry<String, String> entry : FILE_VERSIONS_ID_MAP.entrySet()) {
-            String fileMetadataId = entry.getKey();
-            String refId = entry.getValue();
-
-            fileBatchProcessRequest = new FileBatchProcessRequest();
-            fileBatchProcessRequest.setProjectId(project.getId());
-            fileBatchProcessRequest.setSelectIds(new ArrayList<>() {{
-                this.add(fileMetadataId);
-            }});
-            this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
-
-            this.checkFileIsDeleted(fileMetadataId, refId);
-            checkLog(fileMetadataId, OperationLogType.DELETE, FileManagementRequestUtils.URL_FILE_DELETE);
-        }
-        FILE_VERSIONS_ID_MAP.clear();
-
-        //全部删除
-        fileBatchProcessRequest = new FileBatchProcessRequest();
-        fileBatchProcessRequest.setSelectAll(true);
-        fileBatchProcessRequest.setProjectId(project.getId());
-        fileBatchProcessRequest.setExcludeIds(new ArrayList<>() {{
-            this.add(IDGenerator.nextStr());
-        }});
-        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
-        FileMetadataExample example = new FileMetadataExample();
-        example.createCriteria().andProjectIdEqualTo(project.getId());
-        Assertions.assertEquals(fileMetadataMapper.countByExample(example), 0);
-        //重新上传，用于后续的测试
-        this.fileUploadTestSuccess();
-    }
-
 
     @Test
     @Order(21)
@@ -1082,6 +1067,507 @@ public class FileManagementControllerTests extends BaseTest {
         this.requestGet(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, picFileId, true));
     }
 
+    /*
+      30-80之间是测试文件关联的
+     */
+    @Resource
+    private FileAssociationMapper fileAssociationMapper;
+    @Resource
+    private FileAssociationService fileAssociationService;
+
+    @Test
+    @Order(30)
+    public void fileAssociationCheckFileVersionTest() throws Exception {
+        if (StringUtils.isAnyEmpty(fileAssociationOldFileId, fileAssociationNewFileId, fileAssociationNewFilesOne, fileAssociationNewFilesTwo, fileAssociationNewFilesThree)) {
+            this.fileReUploadTestSuccess();
+        }
+        //1.没有要更新的文件
+        List<String> fileIdList = new ArrayList<>() {{
+            this.add(fileAssociationNewFileId);
+            this.add(fileAssociationNewFilesOne);
+        }};
+        List<String> newVersionFileIdList = fileAssociationService.checkFilesVersion(fileIdList);
+        Assertions.assertTrue(CollectionUtils.isEmpty(newVersionFileIdList));
+        //2.有要更新的文件
+        fileIdList = new ArrayList<>() {{
+            this.add(fileAssociationOldFileId);
+            this.add(fileAssociationNewFilesOne);
+        }};
+        newVersionFileIdList = fileAssociationService.checkFilesVersion(fileIdList);
+        Assertions.assertEquals(newVersionFileIdList.size(), 1);
+        Assertions.assertTrue(newVersionFileIdList.contains(fileAssociationOldFileId));
+        //3.参数为空
+        boolean error = false;
+        try {
+            fileAssociationService.checkFilesVersion(new ArrayList<>());
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+    }
+
+    /**
+     * 文件关联的相关测试。由于要注入sql，拆分多个单元测试方法时无法保证sql的注入性。所以合在一个方法中。
+     *
+     * @throws Exception
+     */
+    @Test
+    @Order(31)
+    @Sql(scripts = {"/dml/init_bug.sql"},
+            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void fileAssociationTests() throws Exception {
+        //检查文件版本
+        fileAssociationCheckFileVersionTest();
+        //预备：手动关联缺陷过期文件. bug-id-1和bug-id-2用来后续测试更新， bug-id-3用于本轮测试
+        List<String> oldFileIdList = new ArrayList<>();
+        oldFileIdList.add(this.addFileAssociation("sty-file-association-bug-id-2", "BUG", fileAssociationOldFileId));
+        this.saveSourceAssociationId("sty-file-association-bug-id-2", oldFileIdList);
+
+        oldFileIdList = new ArrayList<>();
+        oldFileIdList.add(this.addFileAssociation("sty-file-association-bug-id-3", "BUG", fileAssociationOldFileId));
+        this.saveSourceAssociationId("sty-file-association-bug-id-3", oldFileIdList);
+
+        oldFileIdList = new ArrayList<>();
+        oldFileIdList.add(this.addFileAssociation("sty-file-association-bug-id-4", "BUG", fileAssociationOldFileId));
+        this.saveSourceAssociationId("sty-file-association-bug-id-4", oldFileIdList);
+        //文件关联
+        this.associationFile();
+        //文件更新
+        this.associationUpgrade();
+        //文件转存并关联
+        this.transferAndAssociation();
+        //文件管理页面-查询关联文件
+        this.fileAssociationControllerPage();
+        //文件管理页面-更新关联文件
+        this.fileAssociationControllerUpgrade();
+        //文件管理页面-取消关联文件
+        this.fileAssociationControllerDelete();
+        //文件取消关联
+        this.associationDelete();
+    }
+
+    @Test
+    @Order(40)
+    public void fileDeleteSuccess() throws Exception {
+        if (MapUtils.isEmpty(FILE_VERSIONS_ID_MAP)) {
+            this.fileReUploadTestSuccess();
+        }
+        FileBatchProcessRequest fileBatchProcessRequest;
+        //删除指定文件
+        for (Map.Entry<String, String> entry : FILE_VERSIONS_ID_MAP.entrySet()) {
+            String fileMetadataId = entry.getKey();
+            String refId = entry.getValue();
+
+            fileBatchProcessRequest = new FileBatchProcessRequest();
+            fileBatchProcessRequest.setProjectId(project.getId());
+            fileBatchProcessRequest.setSelectIds(new ArrayList<>() {{
+                this.add(fileMetadataId);
+            }});
+            this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
+
+            this.checkFileIsDeleted(fileMetadataId, refId);
+            checkLog(fileMetadataId, OperationLogType.DELETE, FileManagementRequestUtils.URL_FILE_DELETE);
+        }
+        FILE_VERSIONS_ID_MAP.clear();
+
+        //全部删除
+        fileBatchProcessRequest = new FileBatchProcessRequest();
+        fileBatchProcessRequest.setSelectAll(true);
+        fileBatchProcessRequest.setProjectId(project.getId());
+        fileBatchProcessRequest.setExcludeIds(new ArrayList<>() {{
+            this.add(IDGenerator.nextStr());
+        }});
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andProjectIdEqualTo(project.getId());
+        Assertions.assertEquals(fileMetadataMapper.countByExample(example), 0);
+        //重新上传，用于后续的测试
+        this.fileUploadTestSuccess();
+    }
+
+    private void fileAssociationControllerDelete() throws Exception {
+        //删除bug-id-4的
+        FileAssociationDeleteRequest deleteRequest = new FileAssociationDeleteRequest();
+        deleteRequest.setAssociationIds(sourceAssociationFileMap.get("sty-file-association-bug-id-4"));
+        deleteRequest.setProjectId(project.getId());
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_ASSOCIATION_DELETE, deleteRequest);
+        int returnCount = Integer.parseInt(JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString());
+        Assertions.assertEquals(returnCount, sourceAssociationFileMap.get("sty-file-association-bug-id-4").size());
+        //重复删除
+        mvcResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_ASSOCIATION_DELETE, deleteRequest);
+        returnCount = Integer.parseInt(JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString());
+        Assertions.assertEquals(returnCount, 0);
+        //参数不合法
+        deleteRequest = new FileAssociationDeleteRequest();
+        deleteRequest.setProjectId(project.getId());
+        deleteRequest.setAssociationIds(null);
+        this.requestPost(FileManagementRequestUtils.URL_FILE_ASSOCIATION_DELETE, deleteRequest).andExpect(status().isBadRequest());
+        deleteRequest.setAssociationIds(new ArrayList<>());
+        this.requestPost(FileManagementRequestUtils.URL_FILE_ASSOCIATION_DELETE, deleteRequest).andExpect(status().isBadRequest());
+
+        deleteRequest = new FileAssociationDeleteRequest();
+        deleteRequest.setAssociationIds(sourceAssociationFileMap.get("sty-file-association-bug-id-4"));
+        this.requestPost(FileManagementRequestUtils.URL_FILE_ASSOCIATION_DELETE, deleteRequest).andExpect(status().isBadRequest());
+
+
+        FileAssociationDeleteRequest permisionRequest = new FileAssociationDeleteRequest();
+        permisionRequest.setAssociationIds(sourceAssociationFileMap.get("sty-file-association-bug-id-4"));
+        permisionRequest.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE, FileManagementRequestUtils.URL_FILE_ASSOCIATION_DELETE, permisionRequest);
+    }
+
+    private void fileAssociationControllerPage() throws Exception {
+        //关联过的
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE_ASSOCIATION_LIST, fileAssociationNewFilesOne));
+        List<FileAssociationResponse> fileAssociationResponseList = JSON.parseArray(JSON.toJSONString(JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()), FileAssociationResponse.class);
+        Assertions.assertEquals(fileAssociationResponseList.size(), 2);//这个文件只关联了id-2和id-3
+        //没有关联过
+        mvcResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE_ASSOCIATION_LIST, fileAssociationNewFilesFour));
+        fileAssociationResponseList = JSON.parseArray(JSON.toJSONString(JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()), FileAssociationResponse.class);
+        Assertions.assertEquals(fileAssociationResponseList.size(), 0);
+        //数据不存在
+        this.requestGet(String.format(FileManagementRequestUtils.URL_FILE_ASSOCIATION_LIST, "sty-file-association-bug-id-0")).andExpect(status().is5xxServerError());
+
+        this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ, String.format(FileManagementRequestUtils.URL_FILE_ASSOCIATION_LIST, fileAssociationNewFilesOne));
+    }
+
+    private void fileAssociationControllerUpgrade() throws Exception {
+        String associationId = sourceAssociationFileMap.get("sty-file-association-bug-id-2").get(0);
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE_ASSOCIATION_UPGRADE, project.getId(), associationId));
+        String fileId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdEqualTo(fileId).andLatestEqualTo(true);
+        Assertions.assertEquals(fileMetadataMapper.countByExample(example), 1);
+
+        //重复更新
+        mvcResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE_ASSOCIATION_UPGRADE, project.getId(), associationId));
+        String newFileId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
+        Assertions.assertEquals(newFileId, fileId);
+
+        this.requestGetPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE, String.format(FileManagementRequestUtils.URL_FILE_ASSOCIATION_UPGRADE, DEFAULT_PROJECT_ID, associationId));
+    }
+
+
+    private void saveSourceAssociationId(String sourceId, List<String> associationIdList) {
+        if (CollectionUtils.isEmpty(associationIdList)) {
+            return;
+        }
+        if (sourceAssociationFileMap.containsKey(sourceId)) {
+            sourceAssociationFileMap.get(sourceId).addAll(associationIdList);
+            sourceAssociationFileMap.get(sourceId).stream().distinct().collect(Collectors.toList());
+        } else {
+            sourceAssociationFileMap.put(sourceId, associationIdList);
+        }
+    }
+
+    public void associationFile() {
+        //关联id-1和id-3 （不覆盖）
+        List<String> fileIdList = new ArrayList<>() {{
+            this.add(fileAssociationNewFileId);
+            this.add(fileAssociationNewFilesOne);
+        }};
+        FileLogRecord fileLogRecord = FileLogRecord.builder()
+                .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .requestMethod(HttpMethodConstants.POST.name())
+                .requestUrl("/project/file/association/test")
+                .operator("admin")
+                .projectId(project.getId())
+                .build();
+        List<String> associationIdList = fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, false, fileLogRecord);
+        this.checkFileAssociation("sty-file-association-bug-id-3", fileIdList, new ArrayList<>() {{
+            this.add(fileAssociationOldFileId);
+        }});
+        this.saveSourceAssociationId("sty-file-association-bug-id-3", associationIdList);
+        //关联id-3 （覆盖）
+        associationIdList = fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, true, fileLogRecord);
+        this.checkFileAssociation("sty-file-association-bug-id-3", fileIdList, null);
+        this.saveSourceAssociationId("sty-file-association-bug-id-3", associationIdList);
+        //重新关联（检查是否会重复插入数据）
+        associationIdList = fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, true, fileLogRecord);
+        this.checkFileAssociation("sty-file-association-bug-id-3", fileIdList, null);
+        this.saveSourceAssociationId("sty-file-association-bug-id-3", associationIdList);
+        //关联id-2 关联所有正常文件
+        List<String> bug2IdList = new ArrayList<>() {{
+            this.add(fileAssociationNewFilesOne);
+            this.add(fileAssociationNewFilesTwo);
+            this.add(fileAssociationNewFilesThree);
+        }};
+        associationIdList = fileAssociationService.association("sty-file-association-bug-id-2", FileAssociationSourceUtil.SOURCE_TYPE_BUG, bug2IdList, true, fileLogRecord);
+        this.checkFileAssociation("sty-file-association-bug-id-2", bug2IdList, null);
+        this.saveSourceAssociationId("sty-file-association-bug-id-2", associationIdList);
+
+        //反例：
+        // 文件参数为空
+        boolean error = false;
+        try {
+            fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, null, true, fileLogRecord);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+        error = false;
+        try {
+            fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, new ArrayList<>(), true, fileLogRecord);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+        //资源不存在
+        error = false;
+        try {
+            fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, new ArrayList<>() {{
+
+            }}, true, fileLogRecord);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+        //文件数量对不上（含有不存在的文件ID）
+        error = false;
+        fileIdList.add(IDGenerator.nextStr());
+        try {
+            fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, true, fileLogRecord);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+    }
+
+    public void associationUpgrade() {
+        FileLogRecord fileLogRecord = FileLogRecord.builder()
+                .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .requestMethod(HttpMethodConstants.POST.name())
+                .requestUrl("/project/file/association/upgrade-test")
+                .operator("admin")
+                .projectId(project.getId())
+                .build();
+
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria().andFileIdEqualTo(fileAssociationOldFileId).andSourceIdEqualTo("sty-file-association-bug-id-4");
+        FileAssociation upgradeFileAssociation = fileAssociationMapper.selectByExample(example).get(0);
+        Assertions.assertTrue(sourceAssociationFileMap.get("sty-file-association-bug-id-4").contains(upgradeFileAssociation.getId()));
+        //当前文件不是最新的
+        fileAssociationService.upgrade(upgradeFileAssociation.getId(), fileLogRecord);
+        FileAssociation newAssociation1 = fileAssociationMapper.selectByPrimaryKey(upgradeFileAssociation.getId());
+        Assertions.assertEquals(newAssociation1.getFileId(), fileAssociationNewFileId);
+
+        //当前文件是最新的
+        fileAssociationService.upgrade(upgradeFileAssociation.getId(), fileLogRecord);
+        FileAssociation newAssociation2 = fileAssociationMapper.selectByPrimaryKey(upgradeFileAssociation.getId());
+        Assertions.assertEquals(newAssociation1.getFileId(), newAssociation2.getFileId());
+
+
+        //关联ID不存在
+        boolean error = false;
+        try {
+            fileAssociationService.upgrade(IDGenerator.nextStr(), fileLogRecord);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+
+        //使用bug-id-2测试： 1.关联表中的文件ID不存在
+        example.clear();
+        example.createCriteria().andFileIdEqualTo(fileAssociationOldFileId).andSourceIdEqualTo("sty-file-association-bug-id-2");
+        FileAssociation upgrade2 = fileAssociationMapper.selectByExample(example).get(0);
+        //先把文件id改成别的，测试完成改回来
+        String originalFileId = upgrade2.getFileId();
+        String originalRefId = upgrade2.getFileRefId();
+        upgrade2.setFileId(IDGenerator.nextStr());
+        upgrade2.setFileRefId(upgrade2.getFileId());
+        fileAssociationMapper.updateByPrimaryKeySelective(upgrade2);
+        error = false;
+        try {
+            fileAssociationService.upgrade(upgrade2.getId(), fileLogRecord);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+        upgrade2.setFileId(originalFileId);
+        upgrade2.setFileRefId(originalRefId);
+        fileAssociationMapper.updateByPrimaryKeySelective(upgrade2);
+
+        //使用bug-id-2测试： 脏数据->refId找不到最新文件
+        FileMetadata updateMetadata = new FileMetadata();
+        updateMetadata.setId(fileAssociationNewFileId);
+        updateMetadata.setLatest(false);
+        fileMetadataMapper.updateByPrimaryKeySelective(updateMetadata);
+        error = false;
+        try {
+            fileAssociationService.upgrade(upgrade2.getId(), fileLogRecord);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+        updateMetadata.setLatest(true);
+        fileMetadataMapper.updateByPrimaryKeySelective(updateMetadata);
+    }
+
+    public void transferAndAssociation() throws Exception {
+        FileLogRecord fileLogRecord = FileLogRecord.builder()
+                .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .requestMethod(HttpMethodConstants.POST.name())
+                .requestUrl("/project/file/association/transferAndAssociation-test")
+                .operator("admin")
+                .projectId(project.getId())
+                .build();
+        //关联正常文件
+        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_upload.JPG")).getPath();
+        String fileID = fileAssociationService.transferAndAssociation("testTransferFile.jpg", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdEqualTo(fileID).andNameEqualTo("testTransferFile").andTypeEqualTo("JPG");
+        Assertions.assertEquals(fileMetadataMapper.countByExample(example), 1);
+        //重复转存检查文件名是否加1
+        fileID = fileAssociationService.transferAndAssociation("testTransferFile.jpg", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+        example.clear();
+        example.createCriteria().andIdEqualTo(fileID).andNameEqualTo("testTransferFile(1)").andTypeEqualTo("JPG");
+
+        Assertions.assertEquals(fileMetadataMapper.countByExample(example), 1);
+        //重复转存检查文件名是否加1
+        fileID = fileAssociationService.transferAndAssociation("testTransferFile.jpg", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+        example.clear();
+        example.createCriteria().andIdEqualTo(fileID).andNameEqualTo("testTransferFile(2)").andTypeEqualTo("JPG");
+
+        Assertions.assertEquals(fileMetadataMapper.countByExample(example), 1);
+        //测试没有后缀的文件名
+        fileID = fileAssociationService.transferAndAssociation("testTransfer", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+        example.clear();
+        example.createCriteria().andIdEqualTo(fileID).andNameEqualTo("testTransfer");
+        Assertions.assertEquals(fileMetadataMapper.countByExample(example), 1);
+        //资源不存在
+        boolean error = false;
+        try {
+            fileAssociationService.transferAndAssociation("testTransferFile.jpg", TempFileUtils.getFile(filePath), IDGenerator.nextStr(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+        //文件名称不合法
+        error = false;
+        try {
+            fileAssociationService.transferAndAssociation("testTransfer/File.jpg", TempFileUtils.getFile(filePath), IDGenerator.nextStr(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+    }
+
+    public void associationDelete() {
+        FileLogRecord fileLogRecord = FileLogRecord.builder()
+                .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .requestMethod(HttpMethodConstants.POST.name())
+                .requestUrl("/project/file/association/delete-test")
+                .operator("admin")
+                .projectId(project.getId())
+                .build();
+
+        //1.正常删除 资源为bug-1
+        FileAssociationExample example = new FileAssociationExample();
+        example.clear();
+        example.createCriteria().andSourceIdEqualTo("sty-file-association-bug-id-1");
+        List<FileAssociation> bug1AssociationList = fileAssociationMapper.selectByExample(example);
+        List<String> idList = bug1AssociationList.stream().map(FileAssociation::getId).collect(Collectors.toList());
+        int deleteCount = fileAssociationService.deleteBySourceId(idList, fileLogRecord);
+        Assertions.assertEquals(idList.size(), deleteCount);
+        //2.入参集合为空
+        deleteCount = fileAssociationService.deleteBySourceId(new ArrayList<>(), fileLogRecord);
+        Assertions.assertEquals(0, deleteCount);
+        deleteCount = fileAssociationService.deleteBySourceId(null, fileLogRecord);
+        Assertions.assertEquals(0, deleteCount);
+
+        //3.里面包含一条已经文件已经删除了的ID 资源为bug-2
+        example.clear();
+        example.createCriteria().andSourceIdEqualTo("sty-file-association-bug-id-2").andFileIdEqualTo(fileAssociationNewFilesThree);
+        FileAssociation association = fileAssociationMapper.selectByExample(example).get(0);
+        //先把文件id改成别的，测试完成改回来
+        association.setFileId(IDGenerator.nextStr());
+        association.setFileRefId(association.getFileId());
+        fileAssociationMapper.updateByPrimaryKeySelective(association);
+        idList = new ArrayList<>() {{
+            this.add(association.getId());
+        }};
+        fileAssociationService.deleteBySourceId(idList, fileLogRecord);
+
+        //4.入参集合包括1条不存在的关联ID 资源为bug-2
+        example.clear();
+        example.createCriteria().andSourceIdEqualTo("sty-file-association-bug-id-2");
+        List<FileAssociation> bug2AssociationList = fileAssociationMapper.selectByExample(example);
+        idList = bug2AssociationList.stream().map(FileAssociation::getId).collect(Collectors.toList());
+        idList.add(IDGenerator.nextStr());
+        deleteCount = fileAssociationService.deleteBySourceId(idList, fileLogRecord);
+        Assertions.assertEquals(idList.size() - 1, deleteCount);
+    }
+
+
+    /**
+     * @param sourceId   资源ID
+     * @param fileIdList 关联的文件集合
+     * @param oldFileIds 检查关联的文件中是否有过期文件
+     */
+    private void checkFileAssociation(String sourceId, List<String> fileIdList, List<String> oldFileIds) {
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria().andSourceIdEqualTo(sourceId).andFileIdIn(fileIdList);
+        long count = fileAssociationMapper.countByExample(example);
+        if (CollectionUtils.isEmpty(oldFileIds)) {
+            Assertions.assertEquals(count, fileIdList.size());
+        } else {
+            Assertions.assertEquals(count, fileIdList.size() - oldFileIds.size());
+            example.clear();
+            example.createCriteria().andSourceIdEqualTo(sourceId).andFileIdIn(oldFileIds);
+            Assertions.assertEquals(fileAssociationMapper.countByExample(example), oldFileIds.size());
+        }
+    }
+
+    private String addFileAssociation(String sourceId, String sourceType, String fileId) {
+        FileAssociation fileAssociation = new FileAssociation();
+        fileAssociation.setId(IDGenerator.nextStr());
+        fileAssociation.setFileId(fileId);
+        fileAssociation.setFileRefId(fileId);
+        fileAssociation.setSourceId(sourceId);
+        fileAssociation.setSourceType(sourceType);
+        fileAssociation.setCreateTime(System.currentTimeMillis());
+        fileAssociation.setCreateUser("admin");
+        fileAssociation.setUpdateTime(System.currentTimeMillis());
+        fileAssociation.setUpdateUser("admin");
+        fileAssociation.setFileVersion(fileId);
+        fileAssociationMapper.insert(fileAssociation);
+        return fileAssociation.getId();
+    }
+
+    @Test
+    @Order(31)
+    public void upgradeFileAssociationTest() throws Exception {
+        //预备：在fileAssociationTest中已经将【sty-file-association-bug-id-1】的文件关联过过期文件
+        //1.首先测试反例：手动修改过期文件所有的版本latest都为false。测试之后改过来
+        //2.升级id-3的
+        //3.升级id-1的
+
+        //反例：
+        //文件不存在
+    }
+
+    @Test
+    @Order(32)
+    public void deleteFileAssociationTest() throws Exception {
+        //删除id-1和id-2的
+        //参数校验：空集合
+        //集合里有个假文件id
+        //id-3里关联的文件数据里删除1条源文件数据
+    }
+
+    @Test
+    @Order(40)
+    @Sql(scripts = {"/dml/delete_bug.sql"},
+            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void fileAssociationTestOver() throws Exception {
+
+    }
+
+    /*
+    80以后是文件、模块的移动和删除
+     */
     @Test
     @Order(80)
     public void moveTest() throws Exception {

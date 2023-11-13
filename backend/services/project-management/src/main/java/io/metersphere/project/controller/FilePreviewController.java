@@ -29,7 +29,7 @@ public class FilePreviewController {
     @GetMapping(value = "/original/{userId}/{fileId}")
     @Operation(summary = "预览原图")
     public ResponseEntity<byte[]> originalImg(@PathVariable String userId, @PathVariable String fileId) throws Exception {
-        FileInformationResponse fileInformationResponse = fileMetadataService.get(fileId);
+        FileInformationResponse fileInformationResponse = fileMetadataService.getFileInformation(fileId);
         if (StringUtils.isEmpty(fileInformationResponse.getId())) {
             throw new MSException("file.not.exist");
         }
@@ -42,7 +42,7 @@ public class FilePreviewController {
     @GetMapping(value = "/compressed/{userId}/{fileId}")
     @Operation(summary = "预览缩略图")
     public ResponseEntity<byte[]> compressedImg(@PathVariable String userId, @PathVariable String fileId) throws Exception {
-        FileInformationResponse fileInformationResponse = fileMetadataService.get(fileId);
+        FileInformationResponse fileInformationResponse = fileMetadataService.getFileInformation(fileId);
         if (StringUtils.isEmpty(fileInformationResponse.getId())) {
             throw new MSException("file.not.exist");
         }

@@ -18,11 +18,14 @@ import io.metersphere.project.utils.FileDownloadUtils;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.TempFileUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.RemoteFileAttachInfo;
+import io.metersphere.system.file.FileRepository;
 import io.metersphere.system.file.FileRequest;
+import io.metersphere.system.file.MinioRepository;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.GitRepositoryUtil;
 import io.metersphere.system.utils.PageUtils;
@@ -70,7 +73,11 @@ public class FileMetadataService {
     @Value("${metersphere.file.batch-download-max:600MB}")
     private DataSize maxFileSize;
 
-    public FileInformationResponse get(String id) {
+    public FileMetadata selectById(String id) {
+        return fileMetadataMapper.selectByPrimaryKey(id);
+    }
+
+    public FileInformationResponse getFileInformation(String id) {
         FileMetadata fileMetadata = extFileMetadataMapper.getById(id);
         FileInformationResponse dto = new FileInformationResponse(fileMetadata);
         initModuleName(dto);
@@ -115,7 +122,7 @@ public class FileMetadataService {
         }
     }
 
-    public FileMetadata saveFileMetadata(String projectId, String moduleId, String filePath, String storage, String operator, long size, boolean enable) {
+    public FileMetadata genFileMetadata(String filePath, String storage, long size, boolean enable, String projectId, String moduleId, String operator) {
         String fileName = TempFileUtils.getFileNameByPath(filePath);
         FileMetadata fileMetadata = new FileMetadata();
         if (StringUtils.lastIndexOf(fileName, ".") > 0) {
@@ -131,7 +138,16 @@ public class FileMetadataService {
             this.checkEnableFile(fileMetadata.getType());
         }
         //检查处理后的用户名合法性
-        this.checkFileName(null, fileMetadata.getName(), projectId);
+        if (StringUtils.equals(storage, StorageType.MINIO.name())) {
+            this.checkMinIOFileName(null, fileMetadata.getName(), projectId);
+        } else {
+            //Git： 存储库下的文件路径不能重复
+            FileMetadataExample example = new FileMetadataExample();
+            example.createCriteria().andPathEqualTo(filePath).andProjectIdEqualTo(projectId).andStorageEqualTo(StorageType.GIT.name()).andModuleIdEqualTo(moduleId);
+            if (fileMetadataMapper.countByExample(example) > 0) {
+                throw new MSException(Translator.get("file.name.exist") + ":" + fileName);
+            }
+        }
 
         fileMetadata.setId(IDGenerator.nextStr());
         fileMetadata.setStorage(storage);
@@ -147,7 +163,6 @@ public class FileMetadataService {
         fileMetadata.setLatest(true);
         fileMetadata.setRefId(fileMetadata.getId());
         fileMetadata.setEnable(false);
-        fileMetadataMapper.insert(fileMetadata);
         return fileMetadata;
     }
 
@@ -157,31 +172,95 @@ public class FileMetadataService {
 
         String fileName = StringUtils.trim(uploadFile.getOriginalFilename());
 
-        FileMetadata fileMetadata = this.saveFileMetadata(request.getProjectId(), request.getModuleId(), fileName, StorageType.MINIO.name(), operator, uploadFile.getSize(), request.isEnable());
-
-        //记录日志
-        fileMetadataLogService.saveUploadLog(fileMetadata, operator);
+        FileMetadata fileMetadata = this.genFileMetadata(fileName, StorageType.MINIO.name(), uploadFile.getSize(), request.isEnable(), request.getProjectId(), request.getModuleId(), operator);
 
         // 上传文件
         String filePath = this.uploadFile(fileMetadata, uploadFile);
-        FileMetadata updateFileMetadata = new FileMetadata();
-        updateFileMetadata.setId(fileMetadata.getId());
-        updateFileMetadata.setPath(filePath);
-        updateFileMetadata.setFileVersion(fileMetadata.getId());
-        fileMetadataMapper.updateByPrimaryKeySelective(updateFileMetadata);
+
+        fileMetadata.setPath(filePath);
+        fileMetadata.setFileVersion(fileMetadata.getId());
+        fileMetadataMapper.insert(fileMetadata);
+        //记录日志
+        fileMetadataLogService.saveUploadLog(fileMetadata, operator);
 
         return fileMetadata.getId();
     }
 
-    private void checkFileName(String id, String fileName, String projectId) {
+
+    /**
+     * 文件转存
+     *
+     * @param fileName  文件名
+     * @param projectId 项目ID
+     * @param operator  操作人
+     * @param fileBytes 文件字节
+     * @return
+     * @throws Exception
+     */
+    public String transferFile(String fileName, String projectId, String operator, byte[] fileBytes) throws Exception {
+        if (StringUtils.isBlank(fileName)) {
+            throw new MSException(Translator.get("file.name.cannot.be.empty"));
+        }
+        fileName = this.genTransferFileName(StringUtils.trim(fileName), projectId);
+        String moduleId = ModuleConstants.NODE_TYPE_DEFAULT;
+
+        FileMetadata fileMetadata = this.genFileMetadata(fileName, StorageType.MINIO.name(), fileBytes.length, false, projectId, moduleId, operator);
+
+        FileRequest uploadFileRequest = new FileRequest();
+        uploadFileRequest.setFileName(fileMetadata.getId());
+        uploadFileRequest.setProjectId(fileMetadata.getProjectId());
+        uploadFileRequest.setStorage(StorageType.MINIO.name());
+
+        FileRepository minio = CommonBeanFactory.getBean(MinioRepository.class);
+        String filePath = minio.saveFile(fileBytes, uploadFileRequest);
+        fileMetadata.setPath(filePath);
+        fileMetadata.setFileVersion(fileMetadata.getId());
+        fileMetadataMapper.insert(fileMetadata);
+        return fileMetadata.getId();
+    }
+
+    private String genTransferFileName(String fullFileName, String projectId) {
+        if (StringUtils.containsAny(fullFileName, "/")) {
+            throw new MSException(Translator.get("file.name.error"));
+        }
+
+        String fileName;
+        String fileType = null;
+        if (StringUtils.lastIndexOf(fullFileName, ".") > 0) {
+            //采用这种判断方式，可以避免将隐藏文件的后缀名作为文件类型
+            fileName = StringUtils.substring(fullFileName, 0, fullFileName.lastIndexOf("."));
+            fileType = StringUtils.substring(fullFileName, fullFileName.lastIndexOf(".") + 1);
+        } else {
+            fileName = fullFileName;
+        }
+
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId);
+
+        int fileIndex = 0;
+        String originFileName = fileName;
+        while (fileMetadataMapper.countByExample(example) > 0) {
+            fileIndex++;
+            fileName = originFileName + "(" + fileIndex + ")";
+            example = new FileMetadataExample();
+            example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId);
+        }
+
+        if (StringUtils.isNotEmpty(fileType)) {
+            fileName = fileName + "." + fileType;
+        }
+        return fileName;
+    }
+
+    private void checkMinIOFileName(String id, String fileName, String projectId) {
         if (StringUtils.isBlank(fileName)) {
             throw new MSException(Translator.get("file.name.cannot.be.empty"));
         }
         FileMetadataExample example = new FileMetadataExample();
         if (StringUtils.isBlank(id)) {
-            example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId);
+            example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId).andStorageEqualTo(StorageType.MINIO.name());
         } else {
-            example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId).andIdNotEqualTo(id);
+            example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId).andIdNotEqualTo(id).andStorageEqualTo(StorageType.MINIO.name());
         }
         if (fileMetadataMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("file.name.exist") + ":" + fileName);
@@ -263,7 +342,7 @@ public class FileMetadataService {
             updateExample.setDescription(request.getDescription());
             updateExample.setModuleId(request.getModuleId());
             if (StringUtils.isNotBlank(request.getName())) {
-                this.checkFileName(request.getId(), request.getName(), fileMetadata.getProjectId());
+                this.checkMinIOFileName(request.getId(), request.getName(), fileMetadata.getProjectId());
                 updateExample.setName(request.getName());
             }
             if (CollectionUtils.isNotEmpty(request.getTags())) {
@@ -278,8 +357,10 @@ public class FileMetadataService {
             updateExample.setUpdateUser(operator);
             updateExample.setUpdateTime(System.currentTimeMillis());
             fileMetadataMapper.updateByPrimaryKeySelective(updateExample);
+
+            FileMetadata newFile = fileMetadataMapper.selectByPrimaryKey(request.getId());
             //记录日志
-            fileMetadataLogService.saveUpdateLog(fileMetadata, fileMetadata.getProjectId(), operator);
+            fileMetadataLogService.saveUpdateLog(fileMetadata, newFile, fileMetadata.getProjectId(), operator);
         }
     }
 
@@ -491,6 +572,7 @@ public class FileMetadataService {
                 if (!StringUtils.equals(gitFileAttachInfo.getCommitId(), metadataRepository.getCommitId())) {
                     this.setFileVersionIsOld(oldFile, operator);
                     FileMetadata fileMetadata = this.genNewVersion(oldFile, operator);
+                    fileMetadata.setFileVersion(gitFileAttachInfo.getCommitId());
                     fileMetadata.setSize(gitFileAttachInfo.getSize());
                     fileMetadataMapper.insert(fileMetadata);
                     returnFileId = fileMetadata.getId();
@@ -503,10 +585,27 @@ public class FileMetadataService {
                     fileMetadataRepositoryMapper.insert(fileMetadataRepository);
 
                     //记录日志
-                    fileMetadataLogService.saveFilePullLog(fileMetadata, operator);
+                    fileMetadataLogService.saveFilePullLog(oldFile, fileMetadata, operator);
                 }
             }
         }
         return returnFileId;
+    }
+
+    public List<FileMetadata> selectByList(List<String> fileIds) {
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdIn(fileIds);
+        return fileMetadataMapper.selectByExample(example);
+    }
+
+    public FileMetadata selectLatestFileByRefId(String refId) {
+        FileMetadataExample fileMetadataExample = new FileMetadataExample();
+        fileMetadataExample.createCriteria().andRefIdEqualTo(refId).andLatestEqualTo(true);
+        List<FileMetadata> fileMetadataList = fileMetadataMapper.selectByExample(fileMetadataExample);
+        if (CollectionUtils.isNotEmpty(fileMetadataList)) {
+            return fileMetadataList.get(0);
+        } else {
+            throw new MSException(Translator.get("latest.file.not.exist"));
+        }
     }
 }
