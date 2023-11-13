@@ -216,6 +216,7 @@
                     <property name="condition" value="request.combine"/>
                     <property name="name" value="request.name"/>
                     <property name="objectKey" value="request.combine.tags"/>
+                    <property name="statusFieldId" value="request.statusFieldId"/>
                 </include>
             </if>
             <if test="request.name != null">
@@ -361,11 +362,14 @@
                 )
                 or
                 (
-                    issues.platform = 'Local' and
-                    issues.status
-                    <include refid="condition">
-                        <property name="object" value="${condition}.doneStatus"/>
-                    </include>
+                    issues.platform = 'Local' and issues.id in
+                    (
+                        select resource_id from custom_field_issues where field_id = #{${statusFieldId}}
+                        and trim(both '"' from value)
+                        <include refid="condition">
+                            <property name="object" value="${condition}.doneStatus"/>
+                        </include>
+                    )
                 )
             )
         </if>

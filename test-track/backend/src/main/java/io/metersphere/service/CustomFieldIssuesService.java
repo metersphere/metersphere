@@ -11,13 +11,13 @@ import io.metersphere.commons.utils.SubListUtil;
 import io.metersphere.constants.SystemCustomField;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldResourceDTO;
+import jakarta.annotation.Resource;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -73,7 +73,7 @@ public class CustomFieldIssuesService extends CustomFieldResourceService {
         if (customFieldMap == null || customFieldMap.size() == 0) {
             return;
         }
-        this.checkInit();
+        checkInit();
         SqlSession sqlSession = ServiceUtils.getBatchSqlSession();
         BaseCustomFieldResourceMapper batchMapper = sqlSession.getMapper(BaseCustomFieldResourceMapper.class);
         List<CustomFieldResourceDTO> addList = new ArrayList<>();

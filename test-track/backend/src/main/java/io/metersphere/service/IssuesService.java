@@ -2067,7 +2067,7 @@ public class IssuesService {
         });
     }
 
-    public void setFilterIds(IssuesRequest request) {
+    public void setFilterParam(IssuesRequest request) {
         List<String> issueIds;
         if (request.getThisWeekUnClosedTestPlanIssue()) {
             Map<String, Date> weedFirstTimeAndLastTime = io.metersphere.commons.utils.DateUtils.getWeedFirstTimeAndLastTime(new Date());
@@ -2104,6 +2104,13 @@ public class IssuesService {
             } else {
                 request.setFilterIds(issueIds);
             }
+        }
+
+        // 状态过滤时, 设置自定义状态字段ID
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        if (StringUtils.equals(project.getPlatform(), "Local")) {
+            CustomField statusField = baseCustomFieldService.getCustomFieldByName(request.getProjectId(), SystemCustomField.ISSUE_STATUS);
+            request.setStatusFieldId(statusField.getId());
         }
     }
 
