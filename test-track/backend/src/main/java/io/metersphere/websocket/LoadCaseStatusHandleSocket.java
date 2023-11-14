@@ -40,7 +40,9 @@ public class LoadCaseStatusHandleSocket {
     }
 
     public static void sendMessageSingle(String planId, String message) {
-        ONLINE_PLAN_LOAD_SESSIONS.get(planId).forEach(session -> sendMessage(session, message));
+        if (ONLINE_PLAN_LOAD_SESSIONS.containsKey(planId)) {
+            ONLINE_PLAN_LOAD_SESSIONS.get(planId).forEach(session -> sendMessage(session, message));
+        }
     }
 
     /**
