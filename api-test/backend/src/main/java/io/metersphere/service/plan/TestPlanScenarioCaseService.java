@@ -236,6 +236,10 @@ public class TestPlanScenarioCaseService {
         for (String id : relevanceIds) {
             Map<String, String> newEnvMap = new HashMap<>(16);
             List<String> list = mapping.get(id);
+            //由于代码历史原因，场景本身没有选择环境，期对应的list数据格式会变成 [""]。这里要进行校验。
+            if (list.size() == 1 && StringUtils.isEmpty(list.get(0))) {
+                list = new ArrayList<>();
+            }
             if (CollectionUtils.isEmpty(list)) {
                 EnvironmentCheckDTO scenarioEnv = apiAutomationService.getApiScenarioProjectId(id);
                 list = new ArrayList<>(scenarioEnv.getProjectIds());

@@ -62,20 +62,6 @@
       </el-tab-pane>
 
       <el-tab-pane
-        :label="$t('api_test.request.extract.label')"
-        name="label"
-        class="pane"
-      >
-        <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="responseResult.vars"
-          v-if="activeName === 'label'"
-          ref="codeEdit"
-        />
-      </el-tab-pane>
-
-      <el-tab-pane
         :label="$t('api_report.request_body')"
         name="request_body"
         class="pane"

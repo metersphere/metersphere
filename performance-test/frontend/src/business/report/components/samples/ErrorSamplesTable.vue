@@ -24,13 +24,13 @@
 
       <el-table-column
           prop="percentOfErrors"
-          label="% In Errors"
+          label="% In All Errors"
           min-width="180">
       </el-table-column>
 
       <el-table-column
           prop="percentOfSamples"
-          label="% In Samples"
+          label="% In All Samples"
           min-width="180">
       </el-table-column>
 
