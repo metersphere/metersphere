@@ -48,6 +48,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_BATCH_MOVE_URL = "/functional/case/batch/move";
     public static final String FUNCTIONAL_CASE_BATCH_COPY_URL = "/functional/case/batch/copy";
     public static final String FUNCTIONAL_CASE_VERSION_URL = "/functional/case/version/";
+    public static final String FUNCTIONAL_CASE_BATCH_EDIT_URL = "/functional/case/batch/edit";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -350,6 +351,29 @@ public class FunctionalCaseControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(2)
+    public void testBatchEdit() throws Exception {
+        FunctionalCaseBatchEditRequest request = new FunctionalCaseBatchEditRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setAppend(false);
+        request.setSelectAll(false);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
+        request.setSelectIds(Arrays.asList("TEST_FUNCTIONAL_CASE_ID_1", "TEST_FUNCTIONAL_CASE_ID_2"));
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
+        request.setAppend(true);
+        request.setTags(Arrays.asList("追加标签_1", "追加标签_2"));
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
+        request.setAppend(false);
+        request.setTags(Arrays.asList("覆盖标签1", "覆盖标签2"));
+        request.setSelectAll(true);
+        CaseCustomFieldDTO caseCustomFieldDTO = new CaseCustomFieldDTO();
+        caseCustomFieldDTO.setFieldId("TEST_FIELD_ID");
+        caseCustomFieldDTO.setValue("批量编辑自定义字段");
+        request.setCustomField(caseCustomFieldDTO);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
     }
 
 }

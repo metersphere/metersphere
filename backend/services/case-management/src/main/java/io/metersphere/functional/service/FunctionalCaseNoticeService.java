@@ -7,12 +7,15 @@ import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDTO;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.request.FunctionalCaseBatchEditRequest;
+import io.metersphere.functional.request.FunctionalCaseBatchRequest;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.CustomFieldMapper;
+import io.metersphere.system.mapper.ExtOrganizationCustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
@@ -21,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +38,15 @@ public class FunctionalCaseNoticeService {
 
     @Resource
     private CustomFieldMapper customFieldMapper;
+
+    @Resource
+    private FunctionalCaseService functionalCaseService;
+
+    @Resource
+    private FunctionalCaseCustomFieldService functionalCaseCustomFieldService;
+    @Resource
+    private ExtOrganizationCustomFieldMapper extOrganizationCustomFieldMapper;
+
 
     public FunctionalCaseDTO getFunctionalCaseDTO(FunctionalCaseCommentRequest functionalCaseCommentRequest) {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(functionalCaseCommentRequest.getCaseId());
@@ -66,8 +79,7 @@ public class FunctionalCaseNoticeService {
             } else {
                 functionalCaseDTO.setRelatedUsers(replyUser);
             }
-        }
-        else {
+        } else {
             if (StringUtils.isNotBlank(replyUser) && StringUtils.isNotBlank(notifier)) {
                 List<String> notifierList = Arrays.asList(notifier.split(";"));
                 StringBuilder notifierStr = new StringBuilder();
@@ -114,7 +126,7 @@ public class FunctionalCaseNoticeService {
         return optionDTOList;
     }
 
-    public FunctionalCaseDTO getMainFunctionalCaseDTO(String name, String caseEditType,String projectId, List<CaseCustomFieldDTO> customFields) {
+    public FunctionalCaseDTO getMainFunctionalCaseDTO(String name, String caseEditType, String projectId, List<CaseCustomFieldDTO> customFields) {
         String userId = SessionUtils.getUserId();
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
         functionalCaseDTO.setName(name);
@@ -141,7 +153,7 @@ public class FunctionalCaseNoticeService {
     }
 
 
-    public FunctionalCaseDTO getDeleteFunctionalCaseDTO(String id){
+    public FunctionalCaseDTO getDeleteFunctionalCaseDTO(String id) {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(id);
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
         Optional.ofNullable(functionalCase).ifPresent(functional -> {
@@ -155,4 +167,43 @@ public class FunctionalCaseNoticeService {
         return functionalCaseDTO;
     }
 
+
+    public List<FunctionalCaseDTO> getBatchDeleteFunctionalCaseDTO(FunctionalCaseBatchRequest request) {
+        List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
+        return handleBatchNotice(request.getProjectId(), ids);
+    }
+
+    private List<FunctionalCaseDTO> handleBatchNotice(String projectId, List<String> ids) {
+        List<FunctionalCaseDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            Map<String, FunctionalCase> functionalCaseMap = functionalCaseService.copyBaseInfo(projectId, ids);
+            Map<String, List<FunctionalCaseCustomField>> customFieldMap = functionalCaseCustomFieldService.getCustomFieldMapByCaseIds(ids);
+            String userId = SessionUtils.getUserId();
+            AtomicReference<List<OptionDTO>> optionDTOS = new AtomicReference<>(new ArrayList<>());
+            ids.forEach(id -> {
+                FunctionalCase functionalCase = functionalCaseMap.get(id);
+                List<FunctionalCaseCustomField> customFields = customFieldMap.get(id);
+                if (CollectionUtils.isNotEmpty(customFields)) {
+                    List<String> fields = customFields.stream().map(functionalCaseCustomField -> functionalCaseCustomField.getFieldId()).toList();
+                    optionDTOS.set(extOrganizationCustomFieldMapper.getCustomFieldOptions(fields));
+                }
+                FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
+                functionalCaseDTO.setName(functionalCase.getName());
+                functionalCaseDTO.setProjectId(functionalCase.getProjectId());
+                functionalCaseDTO.setCaseEditType(functionalCase.getCaseEditType());
+                functionalCaseDTO.setCreateUser(userId);
+                functionalCaseDTO.setFields(optionDTOS.get());
+                dtoList.add(functionalCaseDTO);
+            });
+            //TODO:设置测试计划名称
+            //TODO：设置用例评审名称
+        }
+        return dtoList;
+    }
+
+
+    public List<FunctionalCaseDTO> getBatchEditFunctionalCaseDTO(FunctionalCaseBatchEditRequest request) {
+        List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
+        return handleBatchNotice(request.getProjectId(), ids);
+    }
 }

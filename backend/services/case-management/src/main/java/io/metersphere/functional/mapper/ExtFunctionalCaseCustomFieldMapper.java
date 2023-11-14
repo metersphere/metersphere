@@ -12,4 +12,6 @@ public interface ExtFunctionalCaseCustomFieldMapper {
 
 
     List<FunctionalCaseCustomField> getCustomFieldByCaseIds(@Param("ids") List<String> ids);
+
+    void batchUpdate(@Param("functionalCaseCustomField") FunctionalCaseCustomField functionalCaseCustomField, @Param("ids") List<String> ids);
 }

@@ -507,7 +507,7 @@ public class FunctionalCaseService {
     }
 
 
-    private Map<String, FunctionalCaseBlob> copyBlobInfo(List<String> ids) {
+    public Map<String, FunctionalCaseBlob> copyBlobInfo(List<String> ids) {
         FunctionalCaseBlobExample blobExample = new FunctionalCaseBlobExample();
         blobExample.createCriteria().andIdIn(ids);
         List<FunctionalCaseBlob> functionalCaseBlobs = functionalCaseBlobMapper.selectByExampleWithBLOBs(blobExample);
@@ -515,11 +515,79 @@ public class FunctionalCaseService {
         return functionalCaseBlobMap;
     }
 
-    private Map<String, FunctionalCase> copyBaseInfo(String projectId, List<String> ids) {
+    public Map<String, FunctionalCase> copyBaseInfo(String projectId, List<String> ids) {
         FunctionalCaseExample example = new FunctionalCaseExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andDeletedEqualTo(false).andIdIn(ids);
         List<FunctionalCase> functionalCaseLists = functionalCaseMapper.selectByExample(example);
         Map<String, FunctionalCase> functionalMap = functionalCaseLists.stream().collect(Collectors.toMap(FunctionalCase::getId, functionalCase -> functionalCase));
         return functionalMap;
+    }
+
+
+    /**
+     * 批量编辑
+     *
+     * @param request
+     * @param userId
+     */
+    public void batchEditFunctionalCase(FunctionalCaseBatchEditRequest request, String userId) {
+        List<String> ids = doSelectIds(request, request.getProjectId());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            //标签处理
+            handleTags(request, userId, ids);
+            //自定义字段处理
+            handleCustomFields(request, userId, ids);
+        }
+
+    }
+
+    private void handleCustomFields(FunctionalCaseBatchEditRequest request, String userId, List<String> ids) {
+        Optional.ofNullable(request.getCustomField()).ifPresent(customField -> {
+            functionalCaseCustomFieldService.batchUpdate(customField, ids);
+
+            FunctionalCase functionalCase = new FunctionalCase();
+            functionalCase.setProjectId(request.getProjectId());
+            functionalCase.setUpdateTime(System.currentTimeMillis());
+            functionalCase.setUpdateUser(userId);
+            extFunctionalCaseMapper.batchUpdate(functionalCase, ids);
+        });
+    }
+
+    private void handleTags(FunctionalCaseBatchEditRequest request, String userId, List<String> ids) {
+        if (CollectionUtils.isNotEmpty(request.getTags())) {
+            if (request.isAppend()) {
+                //追加标签
+                List<FunctionalCase> caseList = extFunctionalCaseMapper.getTagsByIds(ids);
+                Map<String, FunctionalCase> collect = caseList.stream().collect(Collectors.toMap(FunctionalCase::getId, v -> v));
+
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                FunctionalCaseMapper caseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+                ids.forEach(id -> {
+                    FunctionalCase functionalCase = new FunctionalCase();
+                    if (StringUtils.isNotBlank(collect.get(id).getTags())) {
+                        List<String> tags = JSON.parseArray(collect.get(id).getTags(), String.class);
+                        tags.addAll(request.getTags());
+                        functionalCase.setTags(JSON.toJSONString(tags));
+                    } else {
+                        functionalCase.setTags(JSON.toJSONString(request.getTags()));
+                    }
+                    functionalCase.setId(id);
+                    functionalCase.setUpdateTime(System.currentTimeMillis());
+                    functionalCase.setUpdateUser(userId);
+                    caseMapper.updateByPrimaryKeySelective(functionalCase);
+                });
+                sqlSession.flushStatements();
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            } else {
+                //替换标签
+                FunctionalCase functionalCase = new FunctionalCase();
+                functionalCase.setTags(JSON.toJSONString(request.getTags()));
+                functionalCase.setProjectId(request.getProjectId());
+                functionalCase.setUpdateTime(System.currentTimeMillis());
+                functionalCase.setUpdateUser(userId);
+                extFunctionalCaseMapper.batchUpdate(functionalCase, ids);
+            }
+        }
+
     }
 }

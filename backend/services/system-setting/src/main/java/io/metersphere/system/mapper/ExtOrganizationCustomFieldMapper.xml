@@ -4,4 +4,12 @@
     <select id="getCustomFieldByRefId" resultType="java.lang.String">
         SELECT id FROM custom_field WHERE ref_id = #{refId}
     </select>
+
+    <select id="getCustomFieldOptions" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        SELECT id, name FROM custom_field
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

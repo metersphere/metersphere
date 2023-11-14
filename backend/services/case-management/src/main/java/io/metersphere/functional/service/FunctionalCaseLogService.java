@@ -3,10 +3,7 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
-import io.metersphere.functional.request.FunctionalCaseAddRequest;
-import io.metersphere.functional.request.FunctionalCaseBatchRequest;
-import io.metersphere.functional.request.FunctionalCaseDeleteRequest;
-import io.metersphere.functional.request.FunctionalCaseEditRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -164,6 +161,7 @@ public class FunctionalCaseLogService {
 
     /**
      * 恢复项目
+     *
      * @param id 接口请求参数
      * @return 日志详情
      */
@@ -186,6 +184,7 @@ public class FunctionalCaseLogService {
 
     /**
      * 彻底删除
+     *
      * @param id 接口请求参数
      * @return 日志详情
      */
@@ -207,5 +206,30 @@ public class FunctionalCaseLogService {
             return dto;
         }
         return null;
+    }
+
+
+    public List<LogDTO> batchEditFunctionalCaseLog(FunctionalCaseBatchEditRequest request) {
+        List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
+        List<LogDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids);
+            functionalCases.forEach(functionalCase -> {
+                LogDTO dto = new LogDTO(
+                        functionalCase.getProjectId(),
+                        null,
+                        functionalCase.getId(),
+                        null,
+                        OperationLogType.DELETE.name(),
+                        OperationLogModule.FUNCTIONAL_CASE,
+                        functionalCase.getName());
+
+                dto.setPath("/functional/case/batch/edit");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+                dtoList.add(dto);
+            });
+        }
+        return dtoList;
     }
 }

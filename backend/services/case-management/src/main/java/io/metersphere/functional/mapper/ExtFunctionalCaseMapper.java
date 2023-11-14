@@ -29,7 +29,7 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCasePageDTO> list(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
 
-    void recoverCase(@Param("ids") List<String> ids,  @Param("userId") String userId, @Param("time") long time);
+    void recoverCase(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("time") long time);
 
 
     List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("deleted") boolean deleted);
@@ -41,4 +41,9 @@ public interface ExtFunctionalCaseMapper {
     List<String> getRefIds(@Param("ids") List<String> ids);
 
     void batchMoveModule(@Param("request") FunctionalCaseBatchMoveRequest request, @Param("ids") List<String> ids, @Param("userId") String userId);
+
+    List<FunctionalCase> getTagsByIds(@Param("ids") List<String> ids);
+
+
+    void batchUpdate(@Param("functionalCase") FunctionalCase functionalCase, @Param("ids") List<String> ids);
 }

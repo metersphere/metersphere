@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * @author wx
  */
@@ -26,5 +28,5 @@ public class FunctionalCasePageRequest extends BasePageRequest {
     private String refId;
 
     @Schema(description = "模块id")
-    private String moduleId;
+    private List<String> moduleIds;
 }
