@@ -121,4 +121,17 @@ public class FunctionalCaseCustomFieldService {
     public void batchSaveCustomField(List<FunctionalCaseCustomField> customFields) {
         functionalCaseCustomFieldMapper.batchInsert(customFields);
     }
+
+    /**
+     * 批量更新自定义字段
+     *
+     * @param customField
+     * @param ids
+     */
+    public void batchUpdate(CaseCustomFieldDTO customField, List<String> ids) {
+        FunctionalCaseCustomField functionalCaseCustomField = new FunctionalCaseCustomField();
+        functionalCaseCustomField.setFieldId(customField.getFieldId());
+        functionalCaseCustomField.setValue(customField.getValue());
+        extFunctionalCaseCustomFieldMapper.batchUpdate(functionalCaseCustomField, ids);
+    }
 }

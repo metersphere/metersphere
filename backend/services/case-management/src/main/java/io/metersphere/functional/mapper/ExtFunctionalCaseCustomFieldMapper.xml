@@ -9,4 +9,14 @@
         </foreach>
     </select>
 
+    <update id="batchUpdate">
+        update functional_case_custom_field
+        set  `value` = #{functionalCaseCustomField.value}
+        where field_id = #{functionalCaseCustomField.fieldId}
+        and case_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
 </mapper>

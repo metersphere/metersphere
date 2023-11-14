@@ -105,8 +105,11 @@
         <if test="request.projectId != null">
             and functional_case.project_id = #{request.projectId}
         </if>
-        <if test="request.moduleId != null">
-            and functional_case.module_id = #{request.moduleId}
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and functional_case.module_id in
+            <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
+                #{moduleId}
+            </foreach>
         </if>
         <if test="request.keyword != null">
             and (
@@ -306,5 +309,37 @@
         </foreach>
         and deleted = false
         and project_id = #{request.projectId}
+    </update>
+
+
+    <select id="getTagsByIds" resultType="io.metersphere.functional.domain.FunctionalCase">
+        select id, tags from functional_case
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and deleted = false
+    </select>
+
+
+    <update id="batchUpdate">
+        update functional_case
+        <set>
+            <if test="functionalCase.tags != null and functionalCase.tags != ''">
+                tags = #{functionalCase.tags},
+            </if>
+            <if test="functionalCase.updateUser != null and functionalCase.updateUser != ''">
+                update_user = #{functionalCase.updateUser},
+            </if>
+            <if test="functionalCase.updateTime != null">
+                update_time = #{functionalCase.updateTime},
+            </if>
+        </set>
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and deleted = false
+        and project_id = #{functionalCase.projectId}
     </update>
 </mapper>

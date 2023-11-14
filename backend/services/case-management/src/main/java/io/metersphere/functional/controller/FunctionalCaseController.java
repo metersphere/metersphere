@@ -133,6 +133,7 @@ public class FunctionalCaseController {
     @Operation(summary = "功能用例-批量删除用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDeleteFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBatchDeleteFunctionalCaseDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
     public void batchDeleteFunctionalCaseToGc(@Validated @RequestBody FunctionalCaseBatchRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.batchDeleteFunctionalCaseToGc(request, userId);
@@ -160,6 +161,17 @@ public class FunctionalCaseController {
     public void batchCopyFunctionalCase(@Validated @RequestBody FunctionalCaseBatchMoveRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.batchCopyFunctionalCase(request, userId);
+    }
+
+
+    @PostMapping("/batch/edit")
+    @Operation(summary = "功能用例-批量编辑用例")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchEditFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBatchEditFunctionalCaseDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
+    public void batchEditFunctionalCase(@Validated @RequestBody FunctionalCaseBatchEditRequest request) {
+        String userId = SessionUtils.getUserId();
+        functionalCaseService.batchEditFunctionalCase(request, userId);
     }
 
 }
