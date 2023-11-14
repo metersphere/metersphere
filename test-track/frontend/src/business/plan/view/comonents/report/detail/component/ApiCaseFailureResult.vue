@@ -4,6 +4,7 @@
         width="500px"
         :default-hidden-bottom-top="200"
         :enable-auto-height="true"
+        pageKey="API_CASE_FAILURE_RESULT"
     >
       <el-card>
         <el-scrollbar>

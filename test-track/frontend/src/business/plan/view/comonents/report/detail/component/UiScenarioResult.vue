@@ -4,6 +4,7 @@
       width="500px"
       :default-hidden-bottom-top="200"
       :enable-auto-height="true"
+      pageKey="UI_SCENARIO_FAILURE_RESULT"
     >
       <el-card>
         <el-scrollbar>
@@ -45,7 +46,11 @@
               prop="lastResult"
             >
               <template v-slot:default="{ row }">
-                <ms-test-plan-api-status :status="row.lastResult === 'UnExecute' ? 'PENDING' : row.lastResult" />
+                <ms-test-plan-api-status
+                  :status="
+                    row.lastResult === 'UnExecute' ? 'PENDING' : row.lastResult
+                  "
+                />
               </template>
             </ms-table-column>
           </ms-table>
@@ -56,7 +61,7 @@
       <div v-if="showResponse">
         <micro-app
           v-show="!isTemplate"
-          v-if="reportId!==null"
+          v-if="reportId !== null"
           service="ui"
           route-name="ApiReportView"
           :route-params="getRouteParams()"
@@ -134,7 +139,6 @@ export default {
         Running: "Running",
         UnExecute: "Prepare",
       },
-
     };
   },
   mounted() {

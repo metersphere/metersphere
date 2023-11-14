@@ -109,7 +109,7 @@
       <!--前置返回-->
       <el-tab-pane :label="$t('api_test.definition.request.pre_return')" v-if="scenarioDefinition != undefined">
         <ms-container :class="{ 'maximize-container': !asideHidden }" v-outside-click="outsideClick">
-          <ms-aside-container @setAsideHidden="setAsideHidden" style="padding-top: 0px">
+          <ms-aside-container @setAsideHidden="setAsideHidden" style="padding-top: 0px" pageKey="API_VARIABLE_ADVANCE">
             <div v-loading="loading" v-show="!asideHidden">
               <el-tree
                 node-key="resourceId"
