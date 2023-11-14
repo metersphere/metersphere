@@ -1222,7 +1222,7 @@ public class ElementUtil {
     public static Map<String, String> getProjectEnvMap(List<String> projectIdLists, Map<String, String> projectEnvMap) {
         if (CollectionUtils.isNotEmpty(projectIdLists)) {
             projectEnvMap = projectEnvMap.entrySet().stream()
-                    .filter(entry -> projectIdLists.contains(entry.getKey()))
+                    .filter(entry -> projectIdLists.contains(entry.getKey()) && StringUtils.isNotEmpty(entry.getValue()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
         return projectEnvMap;
