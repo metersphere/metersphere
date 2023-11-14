@@ -342,7 +342,7 @@
         select tcn.id, count(*) as caseNum
         from test_case
         left join test_case_node tcn on test_case.node_id = tcn.id
-        <include refid="queryWhereCondition"/>
+        <include refid="notInQueryWhereCondition"/>
         group by tcn.id
     </select>
     <select id="getTestPlanRelateCountNodes" resultType="io.metersphere.dto.TestCaseNodeDTO">
@@ -636,13 +636,6 @@
                     <property name="name" value="request.name"/>
                     <property name="objectKey" value="request.combine.tags"/>
                 </include>
-            </if>
-
-            <if test="request.testCaseContainIds != null and request.testCaseContainIds.size() > 0">
-                and test_case.id not in
-                <foreach collection="request.testCaseContainIds" item="id" separator="," open="(" close=")">
-                    #{id}
-                </foreach>
             </if>
 
             <if test="request.statusIsNot != null">
@@ -1135,8 +1128,7 @@
         test_case.last_execute_result
         FROM
         test_case AS test_case
-        inner join project_version on project_version.project_id = test_case.project_id and project_version.id =
-        test_case.version_id
+        inner join project_version on project_version.id = test_case.version_id
         <include refid="notInQueryWhereCondition"></include>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
