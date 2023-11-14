@@ -1119,7 +1119,7 @@ public class ElementUtil {
             }
             dataSource = ElementUtil.initDataSource(environmentId, dataSourceId);
             if (dataSource == null && CollectionUtils.isNotEmpty(environmentConfig.getDatabaseConfigs())) {
-                dataSource = environmentConfig.getDatabaseConfigs().get(0);
+                return environmentConfig.getDatabaseConfigs().get(0);
             }
         } else {
             // 取当前环境下默认的一个数据源
@@ -1127,10 +1127,10 @@ public class ElementUtil {
                 LoggerUtil.info(processorName + "：开始获取当前环境下默认数据源");
                 DatabaseConfig dataSourceOrg = ElementUtil.dataSource(projectId, dataSourceId, config.get(projectId));
                 if (dataSourceOrg != null) {
-                    dataSource = dataSourceOrg;
+                    return dataSourceOrg;
                 } else {
                     LoggerUtil.info(processorName + "：获取当前环境下默认数据源结束！未查找到默认数据源");
-                    dataSource = config.get(projectId).getDatabaseConfigs().get(0);
+                    return config.get(projectId).getDatabaseConfigs().get(0);
                 }
             }
         }
@@ -1222,7 +1222,7 @@ public class ElementUtil {
     public static Map<String, String> getProjectEnvMap(List<String> projectIdLists, Map<String, String> projectEnvMap) {
         if (CollectionUtils.isNotEmpty(projectIdLists)) {
             projectEnvMap = projectEnvMap.entrySet().stream()
-                    .filter(entry -> projectIdLists.contains(entry.getKey()))
+                    .filter(entry -> projectIdLists.contains(entry.getKey()) && StringUtils.isNotEmpty(entry.getValue()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
         return projectEnvMap;
