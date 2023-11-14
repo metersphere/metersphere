@@ -6,3 +6,4 @@
 **/*.svg
 **/*.sh
 src/auto-import.d.ts
+src/assets/js

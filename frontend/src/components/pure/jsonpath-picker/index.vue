@@ -6,8 +6,9 @@
 <script setup lang="ts">
   import { onMounted, onUnmounted, Ref, ref } from 'vue';
 
+  import JPPicker from '@/assets/js/jsonpath-picker-vanilla/jsonpath-picker-vanilla';
+
   import { Recordable } from '#/global';
-  import JPPicker from 'jsonpath-picker-vanilla';
 
   const jr: Ref<HTMLElement | null> = ref(null);
   const ip: Ref<HTMLInputElement | null> = ref(null);
@@ -21,10 +22,40 @@
     }>(),
     {
       data: () => ({
-        name1: 'val1',
-        name2: {
-          name3: 'val2',
-        },
+        users: [
+          {
+            id: 1,
+            name: 'John',
+            age: 'Number(25.0000000000000000000)',
+          },
+          {
+            id: 2,
+            name: 'Jane',
+            age: 30,
+          },
+          {
+            id: 3,
+            name: 'Mike',
+            age: 28,
+          },
+        ],
+        products: [
+          {
+            id: 101,
+            name: 'iPhone',
+            price: 999,
+          },
+          {
+            id: 102,
+            name: 'MacBook',
+            price: 1599,
+          },
+          {
+            id: 103,
+            name: 'iPad',
+            price: 799,
+          },
+        ],
       }),
       opt: () => ({}),
     }
@@ -55,5 +86,5 @@
 </script>
 
 <style lang="css">
-  @import url('jsonpath-picker-vanilla/lib/jsonpath-picker.css');
+  @import url('@/assets/js/jsonpath-picker-vanilla/jsonpath-picker.css');
 </style>
