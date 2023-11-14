@@ -2444,47 +2444,6 @@ public class TestCaseService {
         return editTestCase(request);
     }
 
-    public String editTestCase(EditTestCaseRequest request, List<MultipartFile> files) {
-        String testCaseId = testPlanTestCaseMapper.selectByPrimaryKey(request.getId()).getCaseId();
-        request.setId(testCaseId);
-        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCaseId);
-        if (testCaseWithBLOBs == null) {
-            MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
-        }
-        testCaseWithBLOBs.setRemark(request.getRemark());
-        // 新选择了一个文件，删除原来的文件
-        List<FileMetadata> updatedFiles = request.getUpdatedFileList();
-        List<FileMetadata> originFiles = attachmentService.getFileMetadataByCaseId(testCaseId);
-        List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
-        List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
-        // 相减
-        List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
-        fileService.deleteFileRelatedByIds(deleteFileIds);
-
-        if (!CollectionUtils.isEmpty(deleteFileIds)) {
-            TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
-            testCaseFileExample.createCriteria().andFileIdIn(deleteFileIds);
-            testCaseFileMapper.deleteByExample(testCaseFileExample);
-        }
-
-
-        if (files != null) {
-            files.forEach(file -> {
-                final FileMetadata fileMetadata = fileService.saveFile(file, testCaseWithBLOBs.getProjectId());
-                TestCaseFile testCaseFile = new TestCaseFile();
-                testCaseFile.setFileId(fileMetadata.getId());
-                testCaseFile.setCaseId(testCaseId);
-                testCaseFileMapper.insert(testCaseFile);
-            });
-        }
-        setNode(request);
-        request.setStatus(null); // 不更新状态
-        request.setRefId(testCaseWithBLOBs.getRefId());
-        request.setVersionId(testCaseWithBLOBs.getVersionId());
-        editTestCase(request);
-        return request.getId();
-    }
-
     public void minderEdit(TestCaseMinderEditRequest request) {
         deleteToGcBatch(request.getIds(), request.getProjectId());
         testCaseNodeService.minderEdit(request);

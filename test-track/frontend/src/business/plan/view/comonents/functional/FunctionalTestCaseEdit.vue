@@ -304,44 +304,6 @@ export default {
       this.handleClose();
       this.$emit("refresh");
     },
-    getOption(param) {
-      let formData = new FormData();
-      let url = "/test/case/edit/testPlan";
-
-      if (this.$refs.otherInfo && this.$refs.otherInfo.uploadList) {
-        this.$refs.otherInfo.uploadList.forEach((f) => {
-          formData.append("file", f);
-        });
-      }
-
-      if (this.$refs.otherInfo && this.$refs.otherInfo.fileList) {
-        param.updatedFileList = this.$refs.otherInfo.fileList;
-      } else {
-        param.fileIds = [];
-        param.updatedFileList = [];
-      }
-
-      // param.updatedFileList = this.fileList;
-      let requestJson = JSON.stringify(param, function (key, value) {
-        return key === "file" ? undefined : value;
-      });
-
-      formData.append(
-        "request",
-        new Blob([requestJson], {
-          type: "application/json ",
-        })
-      );
-
-      return {
-        method: "POST",
-        url: url,
-        data: formData,
-        headers: {
-          "Content-Type": undefined,
-        },
-      };
-    },
     saveCase(command) {
       let param = {};
       param.id = this.testCase.id;
@@ -354,7 +316,6 @@ export default {
       param.demandId = this.testCase.demandId;
       param.name = this.testCase.name;
       param.comment = this.testCase.comment;
-      let option = this.getOption(param);
       for (let i = 0; i < this.testCase.steptResults.length; i++) {
         let result = {};
         result.actualResult = this.testCase.steptResults[i].actualResult;
@@ -380,8 +341,6 @@ export default {
       param.results = JSON.stringify(param.results);
       param.actualResult = this.testCase.actualResult;
       testPlanTestCaseEdit(param).then((response) => {
-        this.$request(option);
-
         this.$success(this.$t("commons.save_success"));
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);

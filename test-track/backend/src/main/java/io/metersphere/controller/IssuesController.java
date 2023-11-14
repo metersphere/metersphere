@@ -36,6 +36,7 @@ import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -100,7 +101,7 @@ public class IssuesController {
     }
 
     @GetMapping("/get/case/{refType}/{id}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ, PermissionConstants.PROJECT_TRACK_PLAN_READ}, logical = Logical.OR)
     public List<IssuesDao> getIssues(@PathVariable String refType, @PathVariable String id) {
         return issuesService.getIssues(id, refType);
     }
