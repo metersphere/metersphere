@@ -1,27 +1,29 @@
 <template>
   <div>
     <ms-container v-if="renderComponent">
-      <ms-aside-container v-show="isAsideHidden">
-        <ms-api-module
-          :show-operator="true"
-          :default-protocol="defaultProtocol"
-          :select-default-protocol="isSelectDefaultProtocol"
-          @nodeSelectEvent="nodeChange"
-          @protocolChange="handleProtocolChange"
-          @refreshTable="refresh"
-          @exportAPI="exportAPI"
-          @debug="debug"
-          @saveAsEdit="editApi"
-          @setModuleOptions="setModuleOptions"
-          @setNodeTree="setNodeTree"
-          @enableTrash="enableTrash"
-          @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
-          :type="'edit'"
-          page-source="definition"
-          :is-trash-data="trashEnable"
-          :total="total"
-          :current-version="currentVersion"
-          ref="nodeTree" />
+      <ms-aside-container v-show="isAsideHidden" pageKey="API_DEFINITION">
+        <template #default>
+          <ms-api-module
+            :show-operator="true"
+            :default-protocol="defaultProtocol"
+            :select-default-protocol="isSelectDefaultProtocol"
+            @nodeSelectEvent="nodeChange"
+            @protocolChange="handleProtocolChange"
+            @refreshTable="refresh"
+            @exportAPI="exportAPI"
+            @debug="debug"
+            @saveAsEdit="editApi"
+            @setModuleOptions="setModuleOptions"
+            @setNodeTree="setNodeTree"
+            @enableTrash="enableTrash"
+            @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
+            :type="'edit'"
+            page-source="definition"
+            :is-trash-data="trashEnable"
+            :total="total"
+            :current-version="currentVersion"
+            ref="nodeTree" />
+        </template>
       </ms-aside-container>
 
       <ms-main-container>
@@ -261,9 +263,9 @@
   </div>
 </template>
 <script>
-import {createDefinitionEnv, getDefinitionById, getDefinitionEnv} from '@/api/definition';
-import {getProjectConfig} from '@/api/project';
-import {getApiModuleByProjectIdAndProtocol, trashCount} from '@/api/definition-module';
+import { createDefinitionEnv, getDefinitionById, getDefinitionEnv } from '@/api/definition';
+import { getProjectConfig } from '@/api/project';
+import { getApiModuleByProjectIdAndProtocol, trashCount } from '@/api/definition-module';
 import MsApiList from './components/list/ApiList';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
@@ -277,9 +279,9 @@ import MsRunTestHttpPage from './components/runtest/RunTestHTTPPage';
 import MsRunTestTcpPage from './components/runtest/RunTestTCPPage';
 import MsRunTestSqlPage from './components/runtest/RunTestSQLPage';
 import MsRunTestDubboPage from './components/runtest/RunTestDubboPage';
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId} from 'metersphere-frontend/src/utils/token';
-import {hasPermission} from 'metersphere-frontend/src/utils/permission';
-import {getUUID} from 'metersphere-frontend/src/utils';
+import { getCurrentProjectID, getCurrentUser, getCurrentUserId } from 'metersphere-frontend/src/utils/token';
+import { hasPermission } from 'metersphere-frontend/src/utils/permission';
+import { getUUID } from 'metersphere-frontend/src/utils';
 import MsApiModule from './components/module/ApiModule';
 import ApiCaseSimpleList from './components/list/ApiCaseSimpleList';
 import ApiDocumentsPage from '@/business/definition/components/list/ApiDocumentsPage';
@@ -288,12 +290,12 @@ import MsTabButton from '@/business/commons/MsTabs';
 import ApiSchedule from '@/business/definition/components/import/ApiSchedule';
 import MsEditCompleteContainer from './components/EditCompleteContainer';
 import MsEnvironmentSelect from './components/case/MsEnvironmentSelect';
-import {PROJECT_ID, WORKSPACE_ID} from 'metersphere-frontend/src/utils/constants';
-import {useApiStore} from '@/store';
-import {buildTree} from 'metersphere-frontend/src/model/NodeTree';
-import {createMockConfig, getMockApiParams, mockExpectConfig} from '@/api/api-mock';
+import { PROJECT_ID, WORKSPACE_ID } from 'metersphere-frontend/src/utils/constants';
+import { useApiStore } from '@/store';
+import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
+import { createMockConfig, getMockApiParams, mockExpectConfig } from '@/api/api-mock';
 import MockEditDrawer from '@/business/definition/components/mock/MockEditDrawer';
-import {getUserDefaultApiType} from "metersphere-frontend/src/api/environment";
+import { getUserDefaultApiType } from 'metersphere-frontend/src/api/environment';
 
 const store = useApiStore();
 export default {
@@ -482,11 +484,11 @@ export default {
     },
   },
   beforeCreate() {
-    getUserDefaultApiType().then(response => {
+    getUserDefaultApiType().then((response) => {
       if (!this.currentProtocol) {
         this.currentProtocol = response.data;
       }
-    })
+    });
   },
   created() {
     let routeParamObj = this.$route.params;
@@ -690,10 +692,10 @@ export default {
       this.handleTabsEdit(this.$t('api_test.definition.request.title'), e, api);
     },
     _getCurrentUserId() {
-      const {id, userGroups} = getCurrentUser();
+      const { id, userGroups } = getCurrentUser();
       if (userGroups) {
         // 是否是当前项目下的成员
-        let index = userGroups.findIndex(ug => ug.sourceId === getCurrentProjectID());
+        let index = userGroups.findIndex((ug) => ug.sourceId === getCurrentProjectID());
         if (index !== -1) {
           return id;
         }

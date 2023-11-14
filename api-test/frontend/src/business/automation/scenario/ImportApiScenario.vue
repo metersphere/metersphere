@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-aside-container>
+    <ms-aside-container pageKey="API_SCENARIO">
       <ms-api-scenario-module
         @selectModule="selectModule"
         @getApiModuleTree="initTree"

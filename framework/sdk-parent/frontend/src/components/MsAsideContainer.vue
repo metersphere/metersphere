@@ -1,76 +1,87 @@
 <template>
-  <el-aside :width="width" class="ms-aside-container"
-            :id="id"
-            :style="{
-              'margin-left': !asideHidden ? 0 : '-' + width,
-              'min-width': minWidth + 'px',
-              'max-width': maxWidth + 'px',
-              'height': calHeight,
-             }">
-    <div v-if="enableAsideHidden" class="hiddenBottom" :style="{'top': hiddenBottomTop ? hiddenBottomTop : 0}" @click="asideHidden = !asideHidden">
-      <i v-if="!asideHidden" class="el-icon-arrow-left"/>
-      <i v-if="asideHidden" class="el-icon-arrow-right"/>
+  <el-aside
+    :width="asideHidden ? '0' : defaultWidth"
+    class="ms-aside-container"
+    :id="id"
+    :style="{ 'min-width': minWidth, 'max-width': maxWidth }"
+  >
+    <div
+      v-if="enableAsideHidden"
+      class="hiddenBottom"
+      :style="{ top: hiddenBottomTop ? hiddenBottomTop : 0 }"
+      @click="asideHidden = !asideHidden"
+    >
+      <i v-if="!asideHidden" class="el-icon-arrow-left" />
+      <i v-if="asideHidden" class="el-icon-arrow-right" />
     </div>
-    <div style="overflow: scroll" class="ms-aside-node-tree" :style="{'height': containerCalHeight }">
+    <div
+      style="overflow: scroll"
+      class="ms-aside-node-tree"
+      :style="{ height: containerCalHeight }"
+    >
       <slot></slot>
     </div>
-    <ms-horizontal-drag-bar v-if="draggable"/>
+    <ms-horizontal-drag-bar v-if="draggable" />
   </el-aside>
 </template>
 
 <script>
 import MsHorizontalDragBar from "./dragbar/MsLeft2RightDragBar";
-import {getUUID} from "../utils";
-import {boolean} from "../../public/js/dev/mock";
+import { getUUID } from "../utils";
 
 export default {
   name: "MsAsideContainer",
-  components: {MsHorizontalDragBar},
+  components: { MsHorizontalDragBar },
   props: {
-    width: {
-      type: String,
-      default: '300px'
-    },
     enableAsideHidden: {
       type: Boolean,
-      default: true
+      default: true,
+    },
+    width: {
+      type: String,
+      default: "300px",
     },
     minWidth: {
       type: String,
-      default: null
+      default: null,
     },
     maxWidth: {
       type: String,
-      default: null
+      default: null,
     },
     height: {
       type: String,
-      default: null
+      default: null,
     },
     enableAutoHeight: {
       type: Boolean,
-      default: false
+      default: false,
     },
     defaultHiddenBottomTop: {
       type: Number,
-      default: null
+      default: null,
+    },
+    pageKey: {
+      type: String,
+      default: null,
     },
     draggable: {
       type: Boolean,
       default: true,
-    }
+    },
   },
   watch: {
     asideHidden() {
-      this.$emit('setAsideHidden', this.asideHidden);
-    }
+      this.$emit("setAsideHidden", this.asideHidden);
+    },
   },
   computed: {
-    calHeight() {
-      return this.height ? (this.height + 'px') : (this.enableAutoHeight ? null : 'calc(100vh - 50px)')
-    },
     containerCalHeight() {
-      return this.height ? (this.height - 30 + 'px') : (this.enableAutoHeight ? null : 'calc(100vh - 62px)')
+      return this.height
+        ? this.height - 30 + "px"
+        : this.enableAutoHeight
+        ? null
+        : "calc(100vh - 62px)";
     },
   },
   created() {
@@ -80,37 +91,76 @@ export default {
     this.$nextTick(() => {
       this.setHiddenBottomTop();
     });
+    if (this.pageKey) {
+      const rememberKey = "WIDTH_" + this.pageKey;
+      const rememberWidth = localStorage.getItem(rememberKey);
+
+      if (rememberWidth) {
+        // 获取上次记住的宽度
+        this.defaultWidth = rememberWidth;
+      } else {
+        this.defaultWidth = this.width;
+      }
+
+      const element = document.getElementById(this.id);
+      const MutationObserver =
+        window.MutationObserver ||
+        window.WebKitMutationObserver ||
+        window.MozMutationObserver;
+      this.observer = new MutationObserver(() => {
+        // 监听元素的宽度变化，保存在 localStorage 中
+        const width = getComputedStyle(element).getPropertyValue("width");
+        if (!this.asideHidden) {
+          localStorage.setItem(rememberKey, width);
+          // 这里宽度变化设置下默认宽度，否则页面有更新，会导致宽度变回到原来的默认宽度
+          this.defaultWidth = width;
+        }
+      });
+      this.observer.observe(element, {
+        attributes: true,
+        attributeFilter: ["style"],
+        attributeOldValue: true,
+      });
+    }
+  },
+  beforeDestroyed() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer.takeRecords();
+      this.observer = null;
+    }
   },
   data() {
     return {
       asideHidden: false,
       hiddenBottomTop: null,
-      id: null
-    }
+      id: null,
+      defaultWidth: this.width,
+      observer: null,
+    };
   },
   methods: {
     setHiddenBottomTop() {
       if (this.defaultHiddenBottomTop) {
-        this.hiddenBottomTop = this.defaultHiddenBottomTop + 'px';
+        this.hiddenBottomTop = this.defaultHiddenBottomTop + "px";
       } else {
-        let e = document.getElementById(this.id);
+        const e = document.getElementById(this.id);
         if (!e) return;
         // 默认在 3/1 的位置
-        this.hiddenBottomTop = e.clientHeight / 3 + 'px';
+        this.hiddenBottomTop = e.clientHeight / 3 + "px";
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .ms-aside-container {
-  border: 1px solid #E6E6E6;
+  border: 1px solid #e6e6e6;
   padding: 10px;
   border-radius: 2px;
   box-sizing: border-box;
-  background-color: #FFF;
+  background-color: #fff;
   /*height: calc(100vh - 80px);*/
   border-right: 0px;
   position: relative;
@@ -148,5 +198,4 @@ export default {
   margin-left: 0;
   color: white;
 }
-
 </style>

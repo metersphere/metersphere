@@ -1,6 +1,6 @@
 <template>
   <ms-container :is-show-warning="isShowWarning && isSystemGroup">
-    <ms-aside-container :enable-aside-hidden="enableAsideHidden" :width="enableAsideHidden ? '300px' : '0px'">
+    <ms-aside-container pageKey="SETTING" :enable-aside-hidden="enableAsideHidden" :width="enableAsideHidden ? '300px' : '0px'">
       <ms-setting-menu/>
     </ms-aside-container>
     <ms-main-container>

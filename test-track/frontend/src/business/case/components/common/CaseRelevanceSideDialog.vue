@@ -48,14 +48,17 @@
       <div class="content-box">
         <div class="body-wrap">
           <ms-aside-container
-            :min-width="'350'"
-            :max-width="'800'"
+            min-width="350px"
+            max-width="800px"
             :enable-aside-hidden="false"
             :default-hidden-bottom-top="200"
             :enable-auto-height="true"
+            pageKey="CASE_RELEVANCE"
           >
             <div class="aside-wrap">
-              <span v-if="isAcrossSpace" class="menu-title">{{ $t("commons.space") }}:</span>
+              <span v-if="isAcrossSpace" class="menu-title"
+                >{{ $t("commons.space") }}:</span
+              >
               <el-select
                 v-if="isAcrossSpace"
                 filterable
@@ -92,8 +95,13 @@
             <div class="options">
               <div class="options-btn">
                 <div class="check-row" v-if="selectCounts > 0">
-                  <div class="label">{{$t('case.selected')}} {{ selectCounts }} {{$t('case.strip')}}</div>
-                  <div class="clear" @click="clearSelect">{{$t('case.clear')}}</div>
+                  <div class="label">
+                    {{ $t("case.selected") }} {{ selectCounts }}
+                    {{ $t("case.strip") }}
+                  </div>
+                  <div class="clear" @click="clearSelect">
+                    {{ $t("case.clear") }}
+                  </div>
                 </div>
                 <div class="cancel">
                   <el-button size="small" @click="visible = false">{{
@@ -139,7 +147,7 @@ export default {
     SelectMenu,
     MsDialogHeader,
     TableSelectCountBar,
-    MsAsideContainer
+    MsAsideContainer,
   },
   data() {
     return {

@@ -1,7 +1,8 @@
 <template>
   <ms-container v-if="renderComponent" v-loading="loading">
-    <ms-aside-container v-show="isAsideHidden">
-      <ms-api-scenario-module
+    <ms-aside-container v-show="isAsideHidden" pageKey="API_AUTOMATION">
+      <template #default>
+        <ms-api-scenario-module
         :show-operator="true"
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
@@ -17,6 +18,7 @@
         :type="'edit'"
         :total="total"
         ref="nodeTree" />
+      </template>
     </ms-aside-container>
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">

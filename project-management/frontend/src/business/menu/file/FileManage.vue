@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-aside-container>
+    <ms-aside-container pageKey="FILE_MANAGE">
       <ms-file-module @nodeSelectEvent="change" @myFile="myFile" @setNodeTree="setNodeTree" ref="module"/>
     </ms-aside-container>
     <ms-main-container>
