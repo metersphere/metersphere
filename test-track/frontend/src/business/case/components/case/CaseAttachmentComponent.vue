@@ -112,15 +112,11 @@
 <script>
 import CaseAttachmentViewer from "@/business/case/components/case/CaseAttachmentViewer";
 import MsFileMetadataList from "../common/MsFileMetadataList";
-import { TokenKey } from "metersphere-frontend/src/utils/constants";
-import {
-  byteToSize,
-  getCurrentUser,
-  getTypeByFileName, hasPermission,
-} from "@/business/utils/sdk-utils";
+import {TokenKey} from "metersphere-frontend/src/utils/constants";
+import {byteToSize, getCurrentUser, getTypeByFileName, hasPermission,} from "@/business/utils/sdk-utils";
 import axios from "axios";
-import { getUUID } from "metersphere-frontend/src/utils";
-import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
+import {getUUID} from "metersphere-frontend/src/utils";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 
 import {
   attachmentList,
@@ -244,7 +240,7 @@ export default {
     async uploadFile(param, progressCallback) {
       let progress = 0;
       let file = param.file;
-      let data = { belongId: this.targetId, belongType: this.belongType };
+      let data = this.targetId;
       let CancelToken = axios.CancelToken;
       let self = this;
 
