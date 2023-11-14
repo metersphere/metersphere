@@ -1091,6 +1091,9 @@ public class TestPlanService {
             } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
                 scenarioRequest.setTriggerMode(ReportTriggerMode.MANUAL.name());
                 scenarioRequest.setRunMode(ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name());
+            } else if (StringUtils.equals(triggerMode, ReportTriggerMode.BATCH.name())) {
+                scenarioRequest.setTriggerMode(ReportTriggerMode.BATCH.name());
+                scenarioRequest.setRunMode(ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name());
             } else {
                 scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
                 scenarioRequest.setRunMode(ApiRunMode.UI_SCHEDULE_SCENARIO_PLAN.name());
