@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {$error} from "./message"
 import {getCurrentProjectID, getCurrentWorkspaceId} from "../utils/token";
-import {PROJECT_ID, TokenKey, WORKSPACE_ID, TASK_PATH, TASK_DATA} from "../utils/constants";
+import {PROJECT_ID, TASK_PATH, TokenKey, WORKSPACE_ID} from "../utils/constants";
 import packageJSON from '@/../package.json'
 import {getUrlParams, getUUID} from "../utils";
 import {initTaskData} from "../api/novice";
@@ -184,12 +184,12 @@ export function fileUploadWithProcessAndCancel(url, file, param, CancelTokenObj,
   if (file) {
     formData.append("file", file);
   }
-  formData.append('request', new Blob([JSON.stringify(param)], {type: "application/json"}));
+  formData.append('sourceId', param);
   let axiosRequestConfig = {
     method: 'POST',
     url: url,
     data: formData,
-    headers: {'Content-Type': 'application/json;charset=UTF-8'},
+    headers: {'Content-Type': 'multipart/form-data'},
     cancelToken: new CancelTokenObj(function executor(c) {
       cancelFileTokenList.push({"name": file.name, "cancelFunc": c});
     }),

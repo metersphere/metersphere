@@ -337,28 +337,18 @@
 import TemplateComponentEditHeader from "@/business/plan/view/comonents/report/TemplateComponentEditHeader";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
-import {
-  buildCustomFields,
-  parseCustomFieldForId,
-} from "metersphere-frontend/src/utils/custom_field";
+import {buildCustomFields, parseCustomFieldForId,} from "metersphere-frontend/src/utils/custom_field";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/issue/IssueEditDetail";
-import {
-  byteToSize,
-  getTypeByFileName,
-  getUUID,
-} from "metersphere-frontend/src/utils";
+import {byteToSize, getTypeByFileName, getUUID,} from "metersphere-frontend/src/utils";
 import {
   getCurrentProjectID,
   getCurrentUser,
   getCurrentUserId,
   getCurrentWorkspaceId,
 } from "metersphere-frontend/src/utils/token";
-import {
-  hasLicense,
-  hasPermission,
-} from "metersphere-frontend/src/utils/permission";
+import {hasLicense, hasPermission,} from "metersphere-frontend/src/utils/permission";
 import {
   enableThirdPartTemplate,
   getComments,
@@ -383,7 +373,7 @@ import CustomFiledFormItem from "metersphere-frontend/src/components/form/Custom
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 import IssueComment from "@/business/issue/IssueComment";
 import ReviewCommentItem from "@/business/review/commom/ReviewCommentItem";
-import { TokenKey } from "metersphere-frontend/src/utils/constants";
+import {TokenKey} from "metersphere-frontend/src/utils/constants";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
 import axios from "axios";
 import MsFileMetadataList from "metersphere-frontend/src/components/environment/commons/variable/QuoteFileList";
@@ -912,7 +902,7 @@ export default {
     async uploadFile(param, progressCallback) {
       let progress = 0;
       let file = param.file;
-      let data = { belongId: this.issueId, belongType: "issue" };
+      let data = this.issueId;
       let CancelToken = axios.CancelToken;
       let self = this;
       uploadIssueAttachment(

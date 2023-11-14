@@ -10,8 +10,9 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.attachment.AttachmentDumpRequest;
-import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.service.AttachmentService;
+import io.metersphere.xpack.track.dto.AttachmentRequest;
+import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,14 +39,20 @@ public class AttachmentController {
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #file.getOriginalFilename(), false)", msClass = AttachmentService.class)
     @PostMapping(value = "/issue/upload", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
-    public void uploadIssueAttachment(@RequestPart("request") AttachmentRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+    public void uploadIssueAttachment(@RequestParam(value = "sourceId") String belongId, @RequestParam(value = "file") MultipartFile file) {
+        AttachmentRequest request = new AttachmentRequest();
+        request.setBelongId(belongId);
+        request.setBelongType(AttachmentType.ISSUE.type());
         attachmentService.uploadAttachment(request, file);
     }
 
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #file.getOriginalFilename(), false)", msClass = AttachmentService.class)
     @PostMapping(value = "/testcase/upload", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
-    public void uploadTestCaseAttachment(@RequestPart("request") AttachmentRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+    public void uploadTestCaseAttachment(@RequestParam(value = "sourceId") String belongId, @RequestParam(value = "file") MultipartFile file) {
+        AttachmentRequest request = new AttachmentRequest();
+        request.setBelongId(belongId);
+        request.setBelongType(AttachmentType.TEST_CASE.type());
         attachmentService.uploadAttachment(request, file);
     }
 
