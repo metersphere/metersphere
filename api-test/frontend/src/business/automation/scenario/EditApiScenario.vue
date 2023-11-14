@@ -2060,10 +2060,10 @@ export default {
         }
         this.projectIds.add(this.projectId);
         if (this.projectIds.size > 1) {
-          let projects = [];
+          let projects = new Set();
           this.projectIds.forEach((item) => {
             if (this.projectList.filter((project) => project.id === item).length > 0) {
-              projects.push(item);
+              projects.add(item);
             }
           });
           this.projectIds = projects;
