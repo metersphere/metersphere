@@ -162,7 +162,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/edit/status/{planId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
     public void editTestPlanStatus(@PathVariable String planId) {
         checkPermissionService.checkTestPlanOwner(planId);

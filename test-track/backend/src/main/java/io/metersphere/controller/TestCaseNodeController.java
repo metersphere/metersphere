@@ -100,14 +100,14 @@ public class TestCaseNodeController {
     }
 
     @GetMapping("/list/plan/{planId}")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ})
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ})
     public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId) {
         trackCheckPermissionService.checkTestPlanOwner(planId);
         return testCaseNodeService.getNodeByPlanId(planId);
     }
 
     @PostMapping("/list/plan/{planId}")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ})
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ})
     public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId, @RequestBody(required = false) QueryTestPlanCaseRequest request) {
         trackCheckPermissionService.checkTestPlanOwner(planId);
         return testCaseNodeService.getNodeByPlanId(planId, Optional.ofNullable(request).orElse(new QueryTestPlanCaseRequest()));

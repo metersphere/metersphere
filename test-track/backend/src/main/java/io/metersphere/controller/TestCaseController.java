@@ -124,7 +124,7 @@ public class TestCaseController {
     }
 
     @GetMapping("/relationship/case/count/{id}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ, PermissionConstants.PROJECT_TRACK_PLAN_READ}, logical = Logical.OR)
     public int getRelationshipCase(@PathVariable("id") String id) {
         return testCaseService.getRelationshipCount(id);
     }
@@ -160,7 +160,7 @@ public class TestCaseController {
     }
 
     @GetMapping("/relate/test/list/{caseId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ, PermissionConstants.PROJECT_TRACK_PLAN_READ}, logical = Logical.OR)
     public List<TestCaseTestDao> getRelateTest(@PathVariable String caseId) {
         return testCaseService.getRelateTest(caseId);
     }
@@ -252,12 +252,6 @@ public class TestCaseController {
     @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT, PermissionConstants.PROJECT_TRACK_CASE_READ_CREATE}, logical = Logical.OR)
     public TestCase editTestCase(@RequestPart("request") EditTestCaseRequest request) {
         return testCaseService.edit(request);
-    }
-
-    @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT, PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN}, logical = Logical.OR)
-    public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        return testCaseService.editTestCase(request, files);
     }
 
     @PostMapping("/delete/{testCaseId}")
