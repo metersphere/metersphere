@@ -47,7 +47,7 @@
                   :label="$t('api_test.request.sql.dataSource')"
                   prop="dataSourceId"
                   style="margin-left: 10px">
-                  <el-select v-model="request.dataSourceId" size="small" @change="reload">
+                  <el-select v-model="request.dataSourceId" size="small" @change="reloadDataSource">
                     <el-option
                       v-for="(item, index) in databaseConfigsOptions"
                       :key="index"
@@ -287,6 +287,14 @@ export default {
     },
   },
   methods: {
+    reloadDataSource(dataSourceId) {
+      this.databaseConfigsOptions.forEach((item) => {
+        if (item.id === dataSourceId) {
+          this.request.targetDataSourceName = item.name;
+        }
+      });
+      this.reload();
+    },
     tabClick() {
       if (this.activeName === 'preOperate') {
         this.$refs.preStep.filter();
@@ -440,6 +448,13 @@ export default {
             if (!this.isCase) {
               this.environments = [currentEnvironment];
             }
+            if (environment.config && environment.config.databaseConfigs) {
+              environment.config.databaseConfigs.forEach((item) => {
+                if (item.id === this.request.dataSourceId) {
+                  this.request.targetDataSourceName = item.name;
+                }
+              });
+            }
           }
         });
         if (!hasEnvironment) {
@@ -452,6 +467,9 @@ export default {
       this.$refs.environmentConfig.open(this.request.projectId ? this.request.projectId : getCurrentProjectID());
     },
     initDataSource(envId, currentEnvironment, targetDataSourceName) {
+      if (!targetDataSourceName) {
+        targetDataSourceName = this.request.targetDataSourceName;
+      }
       this.databaseConfigsOptions = [];
       if (envId) {
         this.request.environmentId = envId;
