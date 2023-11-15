@@ -109,7 +109,9 @@
 
     </ms-table>
 
-    <ms-table-pagination :change="pageChange" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
+    <ms-table-pagination :change-current="currentPageChange"
+                         :change-size="pageSizeChange"
+                         :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
                          :total="page.total"/>
   </test-case-relevance-base>
 
@@ -285,8 +287,11 @@ export default {
         this.getTableData();
       }
     },
-    pageChange(type) {
-      this.getTestCases(type === 'current' ? "page" : null)
+    pageSizeChange() {
+      this.getTestCases()
+    },
+    currentPageChange() {
+      this.getTestCases("page")
     },
     saveCaseRelevance(item) {
       this.isSaving = true;
