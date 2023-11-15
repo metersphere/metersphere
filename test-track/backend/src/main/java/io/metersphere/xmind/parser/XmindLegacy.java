@@ -1,21 +1,12 @@
 package io.metersphere.xmind.parser;
 
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.utils.XmlUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
+import org.dom4j.*;
 import org.json.JSONObject;
 import org.json.XML;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,16 +27,12 @@ public class XmindLegacy {
         xmlContent = xmlContent.replace("xmlns:fo=\"http://www.w3.org/1999/XSL/Format\"", StringUtils.EMPTY);
         try {
             xmlContent = removeTopicsFromString(xmlContent);
-            // 反转义 xml 中的 < > 字符
-            xmlContent = StringEscapeUtils.unescapeXml(xmlContent);
-            xmlContent = xmlContent.replace("&gt;", ">");
-            xmlContent = xmlContent.replace("&lt;", "<");
         } catch (Exception e) {
             LogUtil.error("移除xml中的Topic出错：", e);
         }
         // 去除title中svg:width属性
         xmlContent = xmlContent.replaceAll("<title svg:width=\"[0-9]*\">", "<title>");
-        Document document = XmlUtils.getDocument(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8.name())));// 读取XML文件,获得document对象
+        Document document = DocumentHelper.parseText(xmlContent);// 读取XML文件,获得document对象
         Element root = document.getRootElement();
         List<Node> topics = root.selectNodes("//topic");
 
@@ -54,7 +41,7 @@ public class XmindLegacy {
             xmlComments = xmlComments.replace("xmlns=\"urn:xmind:xmap:xmlns:comments:2.0\"", StringUtils.EMPTY);
 
             // 添加评论到content中
-            Document commentDocument = XmlUtils.getDocument(new ByteArrayInputStream(xmlComments.getBytes(StandardCharsets.UTF_8.name())));
+            Document commentDocument = DocumentHelper.parseText(xmlComments);
             List<Node> commentsList = commentDocument.selectNodes("//comment");
 
             for (Node topic : topics) {
@@ -107,7 +94,7 @@ public class XmindLegacy {
      * @throws Exception
      */
     private static String removeTopicsFromString(String xmlContent) throws Exception {
-        Document doc = XmlUtils.getDocument(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8.name())));
+        Document doc = DocumentHelper.parseText(xmlContent);
         if (doc != null) {
             Element root = doc.getRootElement();
             List<Element> childrenElement = root.elements();
