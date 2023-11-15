@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-aside-container :height="'calc(100vh - 20px)'">
+    <ms-aside-container pageKey="EDIT_API_SCENARIO" :height="'calc(100vh - 20px)'">
       <div @click="showAll" style="overflow-x: hidden">
         <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
         <el-form

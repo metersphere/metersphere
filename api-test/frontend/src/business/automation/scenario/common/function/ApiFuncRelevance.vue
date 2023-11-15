@@ -1,5 +1,6 @@
 <template>
   <test-case-relevance-base
+      pageKey="API_FUNC_RELEVANCE_DIALOG"
       @setProject="setProject"
       @save="save"
       :plan-id="planId"

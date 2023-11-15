@@ -17,16 +17,10 @@
     </el-header>
 
     <el-container v-if="dialogVisible" class="main-content">
-      <el-aside class="ms-aside-container"
-        :style="{
-        'min-width': '300px',
-        'max-width': '600px',
-        'height': calHeight,
-        'max-height': calHeight,
-        }">
+      
+      <ms-aside-container :min-height="calHeight" :enableAsideHidden="false" :height="calHeight" min-width="300px" max-width="600px" :pageKey="pageKey">
         <slot name="aside"></slot>
-        <ms-horizontal-drag-bar v-if="draggable"/>
-      </el-aside>
+      </ms-aside-container>
 
       <el-container>
         <el-main class="case-content">
@@ -47,6 +41,7 @@
 import MsHorizontalDragBar from "metersphere-frontend/src/components/dragbar/MsLeft2RightDragBar"
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter'
 import SelectMenu from "@/business/common/SelectMenu";
+import MsAsideContainer from 'metersphere-frontend/src/components/MsAsideContainer';
 
 export default {
   name: "RelevanceDialog",
@@ -54,6 +49,7 @@ export default {
     MsHorizontalDragBar,
     SelectMenu,
     MsDialogFooter,
+    MsAsideContainer,
   },
   data() {
     return {
@@ -74,6 +70,10 @@ export default {
     draggable: {
       type: Boolean,
       default: true
+    },
+    pageKey: {
+      type: String,
+      default: null
     }
   },
   computed: {

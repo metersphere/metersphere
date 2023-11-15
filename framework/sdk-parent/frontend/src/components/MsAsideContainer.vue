@@ -3,7 +3,7 @@
     :width="asideHidden ? '0' : defaultWidth"
     class="ms-aside-container"
     :id="id"
-    :style="{ 'min-width': minWidth, 'max-width': maxWidth }"
+    :style="{ 'min-width': minWidth, 'max-width': maxWidth, 'min-height': minHeight }"
   >
     <div
       v-if="enableAsideHidden"
@@ -50,6 +50,10 @@ export default {
       default: null,
     },
     height: {
+      type: String,
+      default: null,
+    },
+    minHeight: {
       type: String,
       default: null,
     },

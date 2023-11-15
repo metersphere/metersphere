@@ -1,5 +1,6 @@
 <template>
   <test-case-relevance-base
+    pageKey="API_CASE_RELEVANCE_DIALOG"
     @setProject="setProject"
     @save="saveCaseRelevance"
     :multiple-project="false"
