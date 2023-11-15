@@ -26,14 +26,14 @@ public class FileAssociationController {
     private FileAssociationService fileAssociationService;
 
     @GetMapping("/list/{id}")
-    @Operation(summary = "项目管理-文件管理-表格分页查询文件")
+    @Operation(summary = "项目管理-文件管理-文件关联-文件资源关联列表")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
     public List<FileAssociationResponse> getAssociationList(@PathVariable String id) {
         return fileAssociationService.selectFileAllVersionAssociation(id);
     }
 
     @GetMapping("/upgrade/{projectId}/{id}")
-    @Operation(summary = "项目管理-文件管理-表格分页查询文件")
+    @Operation(summary = "项目管理-文件管理-文件关联-更新资源关联的文件到最新版本")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
     public String upgrade(@PathVariable String projectId,@PathVariable String id) {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
@@ -48,7 +48,7 @@ public class FileAssociationController {
     }
 
     @PostMapping("/delete")
-    @Operation(summary = "项目管理-文件管理-表格分页查询文件")
+    @Operation(summary = "项目管理-文件管理-文件关联-取消文件和资源的关联")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
     public int delete(@RequestBody @Validated FileAssociationDeleteRequest request) {
         FileLogRecord fileLogRecord = FileLogRecord.builder()

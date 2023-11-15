@@ -114,4 +114,5 @@ public class FileManagementController {
     public void batchMoveFiles(@Validated @RequestBody FileBatchMoveRequest request) {
         fileMetadataService.batchMove(request, SessionUtils.getUserId());
     }
+
 }

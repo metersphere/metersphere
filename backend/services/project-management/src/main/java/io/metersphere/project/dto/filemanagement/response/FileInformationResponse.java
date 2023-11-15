@@ -1,6 +1,7 @@
 package io.metersphere.project.dto.filemanagement.response;
 
 import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.domain.FileMetadataRepository;
 import io.metersphere.sdk.util.JSON;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -61,7 +62,22 @@ public class FileInformationResponse {
     @Schema(description = "关联ID")
     private String refId;
 
-    public FileInformationResponse(FileMetadata fileMetadata) {
+    @Schema(description = "文件版本")
+    private String fileVersion;
+
+    @Schema(description = "文件路径")
+    private String filePath;
+
+    @Schema(description = "文件分支")
+    private String branch;
+
+    @Schema(description = "文件分支")
+    private String commitId;
+
+    @Schema(description = "文件分支")
+    private String commitMessage;
+
+    public FileInformationResponse(FileMetadata fileMetadata, FileMetadataRepository repositoryFile) {
         if (fileMetadata != null) {
             this.id = fileMetadata.getId();
             this.projectId = fileMetadata.getProjectId();
@@ -80,6 +96,13 @@ public class FileInformationResponse {
             this.updateTime = fileMetadata.getUpdateTime();
             this.storage = fileMetadata.getStorage();
             this.refId = fileMetadata.getRefId();
+            this.fileVersion = fileMetadata.getFileVersion();
+            this.filePath = fileMetadata.getPath();
+        }
+        if (repositoryFile != null) {
+            this.branch = repositoryFile.getBranch();
+            this.commitId = repositoryFile.getCommitId();
+            this.commitMessage = repositoryFile.getCommitMessage();
         }
     }
 }

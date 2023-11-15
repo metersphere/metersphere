@@ -81,7 +81,8 @@ public class FileMetadataService {
 
     public FileInformationResponse getFileInformation(String id) {
         FileMetadata fileMetadata = extFileMetadataMapper.getById(id);
-        FileInformationResponse dto = new FileInformationResponse(fileMetadata);
+        FileMetadataRepository repositoryMap = fileMetadataRepositoryMapper.selectByPrimaryKey(id);
+        FileInformationResponse dto = new FileInformationResponse(fileMetadata, repositoryMap);
         initModuleName(dto);
         return dto;
     }
@@ -91,7 +92,7 @@ public class FileMetadataService {
         FileManagementQuery pageDTO = new FileManagementQuery(request);
         List<FileMetadata> fileMetadataList = extFileMetadataMapper.selectByKeywordAndFileType(pageDTO);
         fileMetadataList.forEach(fileMetadata -> {
-            FileInformationResponse fileInformationResponse = new FileInformationResponse(fileMetadata);
+            FileInformationResponse fileInformationResponse = new FileInformationResponse(fileMetadata, null);
             returnList.add(fileInformationResponse);
         });
         this.initModuleName(returnList);
@@ -284,7 +285,7 @@ public class FileMetadataService {
 
     public byte[] getFileByte(FileMetadata fileMetadata) {
         String filePath = null;
-        if (TempFileUtils.isImgPreviewFileExists(fileMetadata.getId())) {
+        if (TempFileUtils.isImgTmpFileExists(fileMetadata.getId())) {
             filePath = TempFileUtils.getTmpFilePath(fileMetadata.getId());
         } else {
             try {
@@ -292,8 +293,7 @@ public class FileMetadataService {
             } catch (Exception ignore) {
             }
         }
-        byte[] bytes = TempFileUtils.getFile(filePath);
-        return bytes;
+        return TempFileUtils.getFile(filePath);
     }
 
     public ResponseEntity<byte[]> downloadById(String id) {
@@ -350,7 +350,7 @@ public class FileMetadataService {
                 this.checkMinIOFileName(request.getId(), request.getName(), fileMetadata.getProjectId());
                 updateExample.setName(request.getName());
             }
-            if (CollectionUtils.isNotEmpty(request.getTags())) {
+            if (request.getTags() != null) {
                 updateExample.setTags(JSON.toJSONString(request.getTags()));
             } else {
                 updateExample.setTags(null);

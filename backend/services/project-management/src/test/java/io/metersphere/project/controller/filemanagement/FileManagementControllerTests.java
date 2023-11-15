@@ -992,6 +992,14 @@ public class FileManagementControllerTests extends BaseTest {
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
         this.checkFileInformation(updateFileId, oldFileMetadata, updateRequest);
 
+        //取消标签
+        oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
+        updateRequest = new FileUpdateRequest();
+        updateRequest.setId(updateFileId);
+        updateRequest.setTags(new ArrayList<>());
+        this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
+        this.checkFileInformation(updateFileId, oldFileMetadata, updateRequest);
+
         //判断更改jar文件的启用禁用
         oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(jarFileId);
         updateRequest = new FileUpdateRequest();
@@ -1057,6 +1065,30 @@ public class FileManagementControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         FileInformationResponse dto = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FileInformationResponse.class);
         Assertions.assertTrue(StringUtils.isEmpty(dto.getId()));
+
+        if (StringUtils.isAnyEmpty(fileAssociationOldFileId, fileAssociationNewFileId, fileAssociationNewFilesOne, fileAssociationNewFilesTwo, fileAssociationNewFilesThree)) {
+            this.fileReUploadTestSuccess();
+        }
+        fileTypeResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE, fileAssociationNewFilesTwo));
+        returnData = fileTypeResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        dto = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FileInformationResponse.class);
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getId()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getName()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getProjectId()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getModuleName()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getModuleId()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getCreateUser()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getUpdateUser()));
+        Assertions.assertTrue(dto.getUpdateTime() > 0);
+        Assertions.assertTrue(dto.getCreateTime() > 0);
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getStorage()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getRefId()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getFileVersion()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getFilePath()));
+        Assertions.assertTrue(StringUtils.isEmpty(dto.getBranch()));
+        Assertions.assertTrue(StringUtils.isEmpty(dto.getCommitId()));
+        Assertions.assertTrue(StringUtils.isEmpty(dto.getCommitMessage()));
     }
 
     @Test
@@ -1193,6 +1225,7 @@ public class FileManagementControllerTests extends BaseTest {
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andProjectIdEqualTo(project.getId());
         Assertions.assertEquals(fileMetadataMapper.countByExample(example), 0);
+        
         //重新上传，用于后续的测试
         this.fileUploadTestSuccess();
     }
@@ -2119,7 +2152,7 @@ public class FileManagementControllerTests extends BaseTest {
             Assertions.assertEquals(oldFileMetadata.getEnable(), fileMetadata.getEnable());
         }
 
-        if (!CollectionUtils.isEmpty(updateRequest.getTags())) {
+        if (updateRequest.getTags() != null) {
             Assertions.assertTrue(CollectionUtils.isEqualCollection(JSON.parseArray(fileMetadata.getTags(), String.class), updateRequest.getTags()));
         } else {
             List<String> fileTags = fileMetadata.getTags() == null ? new ArrayList<>() : JSON.parseArray(fileMetadata.getTags(), String.class);
