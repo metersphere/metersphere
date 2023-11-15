@@ -39,16 +39,28 @@ export default {
       type: Number,
       default: 0
     },
-    change: Function
+    change: Function,
+    changeSize: Function,
+    changeCurrent: Function
   },
   methods: {
     handleSizeChange: function (size) {
       this.$emit('update:pageSize', size)
-      this.change('size');
+      if (this.change) {
+        this.change();
+      }
+      if (this.changeSize) {
+        this.changeSize();
+      }
     },
     handleCurrentChange(current) {
       this.$emit('update:currentPage', current)
-      this.change('current');
+      if (this.change) {
+        this.change();
+      }
+      if (this.changeCurrent) {
+        this.changeCurrent();
+      }
     }
   }
 }
