@@ -3,6 +3,7 @@ package io.metersphere.service.remote.api;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.dto.ApiCaseRelevanceRequest;
+import io.metersphere.plan.dto.ApiTestCaseDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,5 +23,9 @@ public class RelevanceApiCaseService extends TrackApiTestService{
 
     public List<ApiScenario> getScenarioCaseByIds(List<String> ids) {
         return microService.postForDataArray(serviceName, BASE_URL + "/getScenarioCaseByIds", ids, ApiScenario.class);
+    }
+
+    public ApiTestCaseDTO getApiTestCaseDTO(String id) {
+        return microService.getForData(serviceName, BASE_URL + "/" + id, ApiTestCaseDTO.class);
     }
 }

@@ -300,4 +300,9 @@ public class ApiTestCaseController {
     public int getCaseCountById(@RequestBody SaveApiTestCaseRequest request) {
         return apiTestCaseService.getCaseCountById(request.getId());
     }
+
+    @GetMapping("/{id}")
+    public ApiTestCaseDTO getApiTestCaseDTO(@PathVariable String id) {
+        return apiTestCaseService.getApiTestCaseDTO(id);
+    }
 }

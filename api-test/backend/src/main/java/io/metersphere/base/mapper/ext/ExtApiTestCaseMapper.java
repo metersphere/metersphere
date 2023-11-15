@@ -116,4 +116,6 @@ public interface ExtApiTestCaseMapper {
     String findPassRateById(String id);
 
     List<ApiTestCaseInfo> selectByCaseIds(List<String> ids);
+
+    ApiTestCaseDTO getApiTestCaseDTO(String id);
 }

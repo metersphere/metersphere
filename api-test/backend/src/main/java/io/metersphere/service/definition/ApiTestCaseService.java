@@ -1409,4 +1409,7 @@ public class ApiTestCaseService {
         }
     }
 
+    public ApiTestCaseDTO getApiTestCaseDTO(String id) {
+        return extApiTestCaseMapper.getApiTestCaseDTO(id);
+    }
 }
