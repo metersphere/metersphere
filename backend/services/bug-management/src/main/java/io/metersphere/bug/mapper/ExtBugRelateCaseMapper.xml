@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.bug.mapper.ExtBugRelateCaseMapper">
+    <select id="countRelationCases" resultType="io.metersphere.bug.dto.BugRelateCaseCountDTO">
+        select count(id) as relationCaseCount, bug_id as bugId from bug_relation_case brc
+        where brc.bug_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by brc.bug_id
+    </select>
+
+    <select id="list" resultType="io.metersphere.bug.dto.BugRelateCaseDTO">
+        select fc.num, fc.name, fc.project_id, fc.version_id, brc.case_type relateCaseType, brc.id relateId,
+               brc.test_plan_id is not null relatePlanCase, brc.case_id is not null relateCase
+        from bug_relation_case brc join functional_case fc on (brc.case_id = fc.id or brc.test_plan_case_id = fc.id)
+        where brc.bug_id = #{request.bugId}
+        <if test="request.keyword != null and request.keyword != ''">
+            and fc.name like concat('%', #{request.keyword}, '%')
+        </if>
+    </select>
+</mapper>
