@@ -66,7 +66,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -2903,21 +2902,21 @@ public class TestCaseService {
         List<TestCaseTestDao> testCaseTestList = new ArrayList<>();
         apiCases.forEach(item -> {
             getTestCaseTestDaoList(TestCaseTestType.testcase.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
-                    testCaseTestList, testCaseTestsMap);
+                    testCaseTestList, testCaseTestsMap, item.getProjectId());
         });
         apiScenarios.forEach(item -> {
             // 所属项目是否开启自定义场景ID
             String customType = customTypeMap.get(item.getProjectId());
             getTestCaseTestDaoList(TestCaseTestType.automation.name(), StringUtils.equals(customType, "true") ? item.getCustomNum() : item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
-                    testCaseTestList, testCaseTestsMap);
+                    testCaseTestList, testCaseTestsMap, item.getProjectId());
         });
         apiLoadTests.forEach(item -> {
             getTestCaseTestDaoList(TestCaseTestType.performance.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
-                    testCaseTestList, testCaseTestsMap);
+                    testCaseTestList, testCaseTestsMap, item.getProjectId());
         });
         uiScenarios.forEach(item -> {
             getTestCaseTestDaoList(TestCaseTestType.uiAutomation.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
-                    testCaseTestList, testCaseTestsMap);
+                    testCaseTestList, testCaseTestsMap, item.getProjectId());
         });
         // 根据关联记录时间展示
         Collections.sort(testCaseTestList, Comparator.comparingLong(TestCaseTestDao::getCreateTime));
@@ -2925,7 +2924,7 @@ public class TestCaseService {
     }
 
     public void getTestCaseTestDaoList(String type, Object num, String name, String testId, String projectName, String versionName,
-                                       List<TestCaseTestDao> testCaseTestList, Map<String, TestCaseTest> testCaseTestsMap) {
+                                       List<TestCaseTestDao> testCaseTestList, Map<String, TestCaseTest> testCaseTestsMap, String projectId) {
         TestCaseTestDao testCaseTestDao = new TestCaseTestDao();
         BeanUtils.copyBean(testCaseTestDao, testCaseTestsMap.get(testId));
         testCaseTestDao.setNum(num.toString());
@@ -2933,6 +2932,7 @@ public class TestCaseService {
         testCaseTestDao.setTestType(type);
         testCaseTestDao.setProjectName(projectName);
         testCaseTestDao.setVersionName(versionName);
+        testCaseTestDao.setProjectId(projectId);
         testCaseTestList.add(testCaseTestDao);
     }
 

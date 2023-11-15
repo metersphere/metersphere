@@ -51,6 +51,19 @@
           min-width="100px"
           width="100px"
         >
+          <template v-slot:default="scope">
+             <span
+                 style="cursor: pointer"
+                 v-if="!isHasPermission(scope.row)"
+             >
+                {{ scope.row.num }}
+              </span>
+            <el-link @click="openById(scope.row)" v-else>
+                <span>
+                  {{ scope.row.num }}
+                </span>
+            </el-link>
+          </template>
         </ms-table-column>
 
         <ms-table-column
@@ -127,11 +140,14 @@ import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import TestCaseApiRelate from "@/business/case/components/case/relate/CaseApiRelate";
 import { deleteRelateTest, getRelateTest } from "@/api/testCase";
-import { operationConfirm } from "@/business/utils/sdk-utils";
+import {hasPermission,} from "metersphere-frontend/src/utils/permission";
+import {getUUID} from "metersphere-frontend/src/utils";
 import TestCaseScenarioRelate from "@/business/case/components/case/relate/CaseScenarioRelate";
 import TestCaseUiScenarioRelate from "@/business/case/components/case/relate/CaseUiScenarioRelate";
 import TestCaseLoadRelate from "@/business/case/components/case/relate/CaseLoadRelate";
 import TestCaseUiScenarioRelevance from "@/business/plan/view/comonents/ui/TestCaseUiScenarioRelevance";
+import {getProject} from "@/api/project";
+import {getApiCaseProtocol} from "@/api/testCase";
 
 export default {
   name: "CaseTestRelate",
@@ -187,6 +203,7 @@ export default {
     this.initTable();
   },
   methods: {
+    hasPermission,
     handleCommand(key) {
       if (!this.caseId) {
         this.$warning(this.$t("api_test.automation.save_case_info"));
@@ -245,6 +262,66 @@ export default {
       }
       target = target + "";
       return target.indexOf(key) !== -1;
+    },
+    isHasPermission(item) {
+      return (item.testType === 'testcase' && hasPermission("PROJECT_API_DEFINITION:READ+EDIT_CASE")) ||
+          (item.testType === 'automation' && hasPermission("PROJECT_API_SCENARIO:READ+EDIT")) ||
+          (item.testType === 'uiAutomation') ||
+          (item.testType === 'performance');
+    },
+    openById(item) {
+      let projectId = item.projectId;
+      getProject(projectId).then((rsp) => {
+        if (rsp.data) {
+          let workspaceId = rsp.data.workspaceId;
+          let url;
+          if (item.testType === "testcase") {
+            getApiCaseProtocol(item.testId).then((rsp) => {
+              if (rsp.data) {
+                url = "/api/definition/default/" +
+                    getUUID() +
+                    "/apiTestCase/single:" +
+                    item.testId +
+                    "/" +
+                    projectId +
+                    "/" +
+                    rsp.data.protocol +
+                    "/" +
+                    workspaceId;
+                window.open(this.$router.resolve(url).href, "_blank");
+              }
+            });
+          } else if (item.testType === "automation") {
+            url = "/api/automation/default/" +
+                getUUID() +
+                "/scenario/edit:" +
+                item.testId +
+                "/" +
+                projectId +
+                "/" +
+                workspaceId;
+          } else if (item.testType === "uiAutomation") {
+            url = {
+              path: "/ui/automation",
+              query: {
+                redirectID: getUUID(),
+                dataType: "scenario",
+                dataSelectRange: "edit:" + item.testId,
+                projectId: projectId,
+                workspaceId: workspaceId,
+              }
+            }
+          } else if (item.testType === "performance") {
+            url = {
+              path: '/performance/test/edit/' + item.testId,
+              query: {projectId: projectId}
+            }
+          }
+          if (url) {
+            window.open(this.$router.resolve(url).href, "_blank");
+          }
+        }
+      });
     },
   },
 };

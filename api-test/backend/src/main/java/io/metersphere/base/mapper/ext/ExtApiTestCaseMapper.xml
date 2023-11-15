@@ -339,6 +339,14 @@
         WHERE t1.id = #{0}
     </select>
 
+    <select id="getApiTestCaseDTO" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
+        SELECT t1.*,
+               a.protocol             AS protocol
+        FROM api_test_case t1
+                 inner join api_definition a on t1.api_definition_id = a.id
+        WHERE t1.id = #{0}
+    </select>
+
     <select id="selectByCaseIds" resultType="io.metersphere.api.dto.definition.ApiTestCaseInfo">
         SELECT t1.*,
                a.method AS apiMethod,
