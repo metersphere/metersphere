@@ -4,7 +4,7 @@
                              v-if="condition.components !== undefined && condition.components.length > 0"
                              @search="filterSearch"/>
 
-    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="filterSearch"
+    <el-input :placeholder="$t('api_test.definition.request.select_case')" @change="filterSearch"
               @keyup.enter.native="filterSearch" class="search-input" size="small" v-model="condition.name"/>
 
     <ms-table ref="scenarioTable"
