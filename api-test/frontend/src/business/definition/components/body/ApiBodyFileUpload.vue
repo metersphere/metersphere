@@ -164,7 +164,7 @@ export default {
       this.parameter.files.push(file);
     },
     uploadValidate(file) {
-      if (file.size / 1024 / 1024 > 500) {
+      if (file.size / 1024 / 1024 > 50) {
         this.$warning(this.$t('api_test.request.body_upload_limit_size'));
         return false;
       }
