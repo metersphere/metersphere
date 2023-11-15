@@ -1,8 +1,7 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-DROP TABLE IF EXISTS api_debug;
-CREATE TABLE api_debug(
+CREATE TABLE IF NOT EXISTS api_debug(
     `id` VARCHAR(50) NOT NULL   COMMENT '接口pk' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '接口名称' ,
     `protocol` VARCHAR(20) NOT NULL   COMMENT '接口协议' ,
@@ -28,8 +27,7 @@ CREATE INDEX idx_create_user ON api_debug(create_user);
 CREATE INDEX idx_name ON api_debug(name);
 
 
-DROP TABLE IF EXISTS api_debug_blob;
-CREATE TABLE api_debug_blob(
+CREATE TABLE IF NOT EXISTS api_debug_blob(
     `id` VARCHAR(50) NOT NULL   COMMENT '接口fk/ 一对一关系' ,
     `request` LONGBLOB    COMMENT '请求内容' ,
     `response` LONGBLOB    COMMENT '响应内容' ,
@@ -38,8 +36,7 @@ CREATE TABLE api_debug_blob(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '接口调试详情内容';
 
-DROP TABLE IF EXISTS api_debug_module;
-CREATE TABLE api_debug_module(
+CREATE TABLE IF NOT EXISTS api_debug_module(
     `id` VARCHAR(50) NOT NULL   COMMENT '接口模块pk' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
     `protocol` VARCHAR(20) NOT NULL   COMMENT '协议' ,
@@ -61,8 +58,7 @@ CREATE INDEX idx_pos ON api_debug_module(pos);
 CREATE INDEX idx_create_user ON api_debug_module(create_user);
 
 
-DROP TABLE IF EXISTS api_definition;
-CREATE TABLE api_definition
+CREATE TABLE IF NOT EXISTS api_definition
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '接口pk',
     `name`        VARCHAR(255) NOT NULL COMMENT '接口名称',
@@ -103,8 +99,7 @@ CREATE INDEX idx_create_time ON api_definition(create_time);
 CREATE INDEX idx_create_user ON api_definition(create_user);
 CREATE INDEX idx_name ON api_definition(name);
 
-DROP TABLE IF EXISTS api_environment_config;
-CREATE TABLE api_environment_config(
+CREATE TABLE IF NOT EXISTS api_environment_config(
   `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
   `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
@@ -115,8 +110,7 @@ CREATE TABLE api_environment_config(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '接口定义公共部分环境';
 
-DROP TABLE IF EXISTS api_report;
-CREATE TABLE api_report(
+CREATE TABLE IF NOT EXISTS api_report(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口结果报告pk' ,
   `name` VARCHAR(200) NOT NULL   COMMENT '接口报告名称' ,
   `resource_id` VARCHAR(50) NOT NULL   COMMENT '资源fk/api_definition_id/api_test_case_id' ,
@@ -148,8 +142,7 @@ CREATE INDEX idx_resource_id ON api_report(resource_id);
 CREATE INDEX idx_status ON api_report(status);
 CREATE INDEX idx_create_user ON api_report(create_user);
 
-DROP TABLE IF EXISTS api_definition_follower;
-CREATE TABLE api_definition_follower(
+CREATE TABLE IF NOT EXISTS api_definition_follower(
   `api_definition_id` VARCHAR(50) NOT NULL   COMMENT '接口fk' ,
   `user_id` VARCHAR(50) NOT NULL   COMMENT '关注人/用户fk' ,
   PRIMARY KEY (api_definition_id,user_id)
@@ -157,8 +150,7 @@ CREATE TABLE api_definition_follower(
  DEFAULT CHARSET = utf8mb4
  COLLATE = utf8mb4_general_ci COMMENT = '接口定义关注人';
 
-DROP TABLE IF EXISTS api_definition_module;
-CREATE TABLE api_definition_module(
+CREATE TABLE IF NOT EXISTS api_definition_module(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口模块pk' ,
   `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
   `protocol` VARCHAR(20) NOT NULL   COMMENT '协议' ,
@@ -179,8 +171,7 @@ CREATE INDEX idx_project_id ON api_definition_module(project_id);
 CREATE INDEX idx_protocol ON api_definition_module(protocol);
 CREATE INDEX idx_pos ON api_definition_module(pos);
 
-DROP TABLE IF EXISTS api_scenario;
-CREATE TABLE api_scenario(
+CREATE TABLE IF NOT EXISTS api_scenario(
     `id` VARCHAR(50) NOT NULL   COMMENT '' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '场景名称' ,
     `level` VARCHAR(10) NOT NULL   COMMENT '场景级别/P0/P1等' ,
@@ -227,8 +218,7 @@ CREATE INDEX idx_num ON api_scenario(num);
 CREATE INDEX idx_level ON api_scenario(level);
 CREATE INDEX idx_name ON api_scenario(name);
 
-DROP TABLE IF EXISTS api_scenario_follower;
-CREATE TABLE api_scenario_follower(
+CREATE TABLE IF NOT EXISTS api_scenario_follower(
   `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
   `user_id` VARCHAR(50) NOT NULL   COMMENT '关注人/用户fk' ,
   PRIMARY KEY (api_scenario_id,user_id)
@@ -239,8 +229,7 @@ CREATE TABLE api_scenario_follower(
 
 CREATE INDEX uk_api_scenario_id_follow_id ON api_scenario_follower(api_scenario_id,user_id);
 
-DROP TABLE IF EXISTS api_scenario_module;
-CREATE TABLE api_scenario_module(
+CREATE TABLE IF NOT EXISTS api_scenario_module(
   `id` VARCHAR(50) NOT NULL   COMMENT '场景模块pk' ,
   `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
   `level` INT NOT NULL  DEFAULT 1 COMMENT '模块级别' ,
@@ -259,8 +248,7 @@ CREATE TABLE api_scenario_module(
 
 CREATE INDEX idx_project_id ON api_scenario_module(project_id);
 
-DROP TABLE IF EXISTS api_scenario_reference;
-CREATE TABLE api_scenario_reference(
+CREATE TABLE IF NOT EXISTS api_scenario_reference(
   `id` VARCHAR(50) NOT NULL   COMMENT '引用关系pk' ,
   `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
@@ -279,8 +267,7 @@ CREATE INDEX idx_reference_id ON api_scenario_reference(reference_id);
 CREATE INDEX idx_create_user ON api_scenario_reference(create_user);
 CREATE INDEX idx_reference_type ON api_scenario_reference(reference_type);
 
-DROP TABLE IF EXISTS api_scenario_report;
-CREATE TABLE api_scenario_report(
+CREATE TABLE IF NOT EXISTS api_scenario_report(
   `id` VARCHAR(50) NOT NULL   COMMENT '场景报告pk' ,
   `name` VARCHAR(255) NOT NULL   COMMENT '报告名称' ,
   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
@@ -315,8 +302,7 @@ CREATE INDEX idx_create_user ON api_scenario_report(create_user);
 CREATE INDEX idx_name ON api_scenario_report(name);
 CREATE INDEX idx_pool_id ON api_scenario_report(pool_id);
 
-DROP TABLE IF EXISTS api_scenario_report_detail;
-CREATE TABLE api_scenario_report_detail(
+CREATE TABLE IF NOT EXISTS api_scenario_report_detail(
   `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
   `report_id` VARCHAR(50) NOT NULL   COMMENT '报告fk' ,
   `resource_id` VARCHAR(50) NOT NULL   COMMENT '场景中各个步骤请求唯一标识' ,
@@ -342,8 +328,7 @@ CREATE INDEX idx_report_id ON api_scenario_report_detail(report_id);
 CREATE INDEX idx_resource_id ON api_scenario_report_detail(resource_id);
 CREATE INDEX idx_project_id ON api_scenario_report_detail(project_id);
 
-DROP TABLE IF EXISTS api_scenario_report_structure;
-CREATE TABLE api_scenario_report_structure(
+CREATE TABLE IF NOT EXISTS api_scenario_report_structure(
                                               `report_id` VARCHAR(50) NOT NULL   COMMENT '请求资源 id' ,
                                               `resource_tree` LONGBLOB    COMMENT '资源步骤结构树' ,
                                               PRIMARY KEY (report_id)
@@ -351,8 +336,7 @@ CREATE TABLE api_scenario_report_structure(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '场景报告结构';
 
-DROP TABLE IF EXISTS api_sync_config;
-CREATE TABLE api_sync_config(
+CREATE TABLE IF NOT EXISTS api_sync_config(
   `id` VARCHAR(50) NOT NULL   COMMENT '' ,
   `resource_id` VARCHAR(50) NOT NULL   COMMENT 'API/CASE 来源fk' ,
   `resource_type` VARCHAR(50) NOT NULL   COMMENT '来源类型/API/CASE' ,
@@ -370,8 +354,7 @@ CREATE TABLE api_sync_config(
 
 CREATE INDEX idx_resource_id ON api_sync_config(resource_id);
 
-DROP TABLE IF EXISTS api_test_case;
-CREATE TABLE api_test_case
+CREATE TABLE IF NOT EXISTS api_test_case
 (
     `id`                 VARCHAR(50)  NOT NULL COMMENT '接口用例pk',
     `name`               VARCHAR(255) NOT NULL COMMENT '接口用例名称',
@@ -410,8 +393,7 @@ CREATE INDEX idx_create_user ON api_test_case(create_user);
 CREATE INDEX idx_name ON api_test_case(name);
 CREATE INDEX idx_num ON api_test_case(num);
 
-DROP TABLE IF EXISTS api_test_case_follower;
-CREATE TABLE api_test_case_follower(
+CREATE TABLE IF NOT EXISTS api_test_case_follower(
   `case_id` VARCHAR(50) NOT NULL   COMMENT '用例fk' ,
   `user_id` VARCHAR(50) NOT NULL   COMMENT '关注人/用户fk' ,
   PRIMARY KEY (case_id,user_id)
@@ -419,8 +401,7 @@ CREATE TABLE api_test_case_follower(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '接口用例关注人';
 
-DROP TABLE IF EXISTS api_definition_mock;
-CREATE TABLE api_definition_mock(
+CREATE TABLE IF NOT EXISTS api_definition_mock(
   `id` VARCHAR(50) NOT NULL   COMMENT 'mock pk' ,
   `api_path` VARCHAR(500)    COMMENT '接口路径' ,
   `api_method` VARCHAR(50)    COMMENT '接口类型' ,
@@ -442,8 +423,7 @@ CREATE TABLE api_definition_mock(
 CREATE INDEX idx_api_definition_id ON api_definition_mock(api_definition_id);
 CREATE INDEX idx_project_id ON api_definition_mock(project_id);
 
-DROP TABLE IF EXISTS api_definition_mock_config;
-CREATE TABLE api_definition_mock_config(
+CREATE TABLE IF NOT EXISTS api_definition_mock_config(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口mock pk' ,
   `request` LONGBLOB    COMMENT '请求内容' ,
   `response` LONGBLOB    COMMENT '响应内容' ,
@@ -452,8 +432,7 @@ CREATE TABLE api_definition_mock_config(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = 'mock期望值配置-暂留';
 
-DROP TABLE IF EXISTS api_definition_swagger;
-CREATE TABLE api_definition_swagger(
+CREATE TABLE IF NOT EXISTS api_definition_swagger(
   `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
   `swagger_url` VARCHAR(500) NOT NULL   COMMENT 'url地址' ,
   `module_id` VARCHAR(50)    COMMENT '模块fk' ,
@@ -470,8 +449,7 @@ CREATE TABLE api_definition_swagger(
 
 CREATE INDEX idx_project_id ON api_definition_swagger(project_id);
 
-DROP TABLE IF EXISTS api_definition_blob;
-CREATE TABLE api_definition_blob(
+CREATE TABLE IF NOT EXISTS api_definition_blob(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口fk/ 一对一关系' ,
   `request` LONGBLOB    COMMENT '请求内容' ,
   `response` LONGBLOB    COMMENT '响应内容' ,
@@ -480,8 +458,7 @@ CREATE TABLE api_definition_blob(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '接口定义详情内容';
 
-DROP TABLE IF EXISTS api_report_blob;
-CREATE TABLE api_report_blob(
+CREATE TABLE IF NOT EXISTS api_report_blob(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口报告fk' ,
   `content` LONGBLOB    COMMENT '结果内容详情' ,
   `config` BLOB    COMMENT '执行环境配置' ,
@@ -491,8 +468,7 @@ CREATE TABLE api_report_blob(
    DEFAULT CHARSET = utf8mb4
    COLLATE = utf8mb4_general_ci COMMENT = 'API/CASE执行结果详情';
 
-DROP TABLE IF EXISTS api_scenario_blob;
-CREATE TABLE api_scenario_blob(
+CREATE TABLE IF NOT EXISTS api_scenario_blob(
   `id` VARCHAR(50) NOT NULL   COMMENT '场景pk' ,
   `content` LONGBLOB    COMMENT '场景步骤内容' ,
   PRIMARY KEY (id)
@@ -500,8 +476,7 @@ CREATE TABLE api_scenario_blob(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '场景步骤详情';
 
-DROP TABLE IF EXISTS api_test_case_blob;
-CREATE TABLE api_test_case_blob(
+CREATE TABLE IF NOT EXISTS api_test_case_blob(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口用例pk' ,
   `request` LONGBLOB    COMMENT '请求内容' ,
   PRIMARY KEY (id)
@@ -509,8 +484,7 @@ CREATE TABLE api_test_case_blob(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '接口用例详情';
 
-DROP TABLE IF EXISTS api_scenario_report_log;
-CREATE TABLE api_scenario_report_log(
+CREATE TABLE IF NOT EXISTS api_scenario_report_log(
   `report_id` VARCHAR(50) NOT NULL   COMMENT '请求资源 id' ,
   `console` LONGBLOB    COMMENT '执行日志' ,
   PRIMARY KEY (report_id)
@@ -518,8 +492,7 @@ CREATE TABLE api_scenario_report_log(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '场景报告过程日志';
 
-DROP TABLE IF EXISTS api_scenario_environment;
-CREATE TABLE api_scenario_environment(
+CREATE TABLE IF NOT EXISTS api_scenario_environment(
   `id` VARCHAR(50) NOT NULL   COMMENT '场景环境pk' ,
   `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
   `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
