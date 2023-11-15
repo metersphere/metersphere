@@ -1,6 +1,6 @@
 <template>
   <ms-container v-if="isShow && !loading">
-    <ms-aside-container >
+    <ms-aside-container pageKey="API_EDIT_BASE_INFO" >
       <api-base-info
         ref="apiBaseInfo"
         :api-template="apiTemplate"
@@ -158,7 +158,7 @@ export default {
     MsApiCaseList,
     ApiBaseInfo,
     MsMainContainer: () => import('metersphere-frontend/src/components/MsMainContainer'),
-    MsAsideContainer: () => import('./CustomAsideContainer.vue'),
+    MsAsideContainer: () => import('metersphere-frontend/src/components/MsAsideContainer'),
     MsContainer: () => import('metersphere-frontend/src/components/MsContainer'),
   },
   data() {

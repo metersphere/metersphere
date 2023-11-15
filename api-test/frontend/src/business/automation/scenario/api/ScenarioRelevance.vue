@@ -1,5 +1,6 @@
 <template>
   <test-case-relevance-base
+    pageKey="SCENARIO_RELEVANCE_DIALOG"
     :is-across-space="isAcrossSpace"
     :dialog-title="$t('api_test.automation.scenario_import')"
     @setProject="setProject"

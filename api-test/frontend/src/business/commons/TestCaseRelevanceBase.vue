@@ -1,5 +1,5 @@
 <template>
-  <relevance-dialog :width="width" :title="dialogTitle" ref="relevanceDialog" :full-screen="isFullScreen">
+  <relevance-dialog :width="width" :page-key="pageKey" :title="dialogTitle" ref="relevanceDialog" :full-screen="isFullScreen">
     <!-- todo -->
     <template slot="headerBtn" v-if="$slots.headerBtn">
       <div>
@@ -118,6 +118,9 @@ export default {
     multipleProject: {
       type: Boolean,
       default: true,
+    },
+    pageKey: {
+      type: String,
     },
   },
   methods: {

@@ -5,6 +5,7 @@
     ref="relevanceDialog"
     @close="handleCloseEven"
     :full-screen="isFullScreen"
+    :pageKey="pageKey"
   >
     <!-- todo -->
     <template slot="headerBtn" v-if="$slots.headerBtn">
@@ -141,6 +142,12 @@ export default {
       type: Boolean,
       default() {
         return true;
+      },
+    },
+    pageKey: {
+      type: String,
+      default() {
+        return "TEST_TRACK_TEST_CASE_RELEVANCE_BASE";
       },
     },
   },

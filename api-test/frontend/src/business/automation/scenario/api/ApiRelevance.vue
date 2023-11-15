@@ -1,5 +1,6 @@
 <template>
   <test-case-relevance-base
+    pageKey="API_RELEVANCE_DIALOG"
     :is-across-space="isAcrossSpace"
     @setProject="setProject"
     :dialog-title="$t('api_test.definition.api_import')"
