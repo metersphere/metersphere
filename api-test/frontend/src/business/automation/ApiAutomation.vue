@@ -538,10 +538,10 @@ export default {
           if (item.headers && item.headers.length <= 1) {
             delete item.headers;
           }
-          if (item.arguments && item.arguments.length <= 1) {
+          if (item.arguments) {
             delete item.arguments;
           }
-          if (item.arguments && item.arguments.length > 0) {
+          if (item.arguments && item.arguments.length > 1) {
             item.arguments.forEach((arg) => {
               if (!arg.isEdit || arg.isEdit) {
                 delete arg.isEdit;
