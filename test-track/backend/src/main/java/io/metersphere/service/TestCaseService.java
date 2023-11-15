@@ -2846,29 +2846,41 @@ public class TestCaseService {
         List<UiScenario> uiScenarios = new ArrayList<>();
 
         if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
-            apiCases = relevanceApiCaseService.getApiCaseByIds(
-                    getTestIds(testCaseTests, TestCaseTestType.testcase.name()));
-            apiScenarios = relevanceApiCaseService.getScenarioCaseByIds(
-                    getTestIds(testCaseTests, TestCaseTestType.automation.name()));
-            projectIds.addAll(apiCases.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
-            scenarioProjectIds = apiScenarios.stream().map(s -> s.getProjectId()).distinct().collect(Collectors.toList());
-            projectIds.addAll(scenarioProjectIds);
-            versionIds.addAll(apiCases.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
-            versionIds.addAll(apiScenarios.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
+            try {
+                apiCases = relevanceApiCaseService.getApiCaseByIds(
+                        getTestIds(testCaseTests, TestCaseTestType.testcase.name()));
+                apiScenarios = relevanceApiCaseService.getScenarioCaseByIds(
+                        getTestIds(testCaseTests, TestCaseTestType.automation.name()));
+                projectIds.addAll(apiCases.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+                scenarioProjectIds = apiScenarios.stream().map(s -> s.getProjectId()).distinct().collect(Collectors.toList());
+                projectIds.addAll(scenarioProjectIds);
+                versionIds.addAll(apiCases.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
+                versionIds.addAll(apiScenarios.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
         }
 
         if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
-            apiLoadTests = relevanceLoadCaseService.getLoadCaseByIds(
-                    getTestIds(testCaseTests, TestCaseTestType.performance.name()));
-            projectIds.addAll(apiLoadTests.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
-            versionIds.addAll(apiLoadTests.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
+            try {
+                apiLoadTests = relevanceLoadCaseService.getLoadCaseByIds(
+                        getTestIds(testCaseTests, TestCaseTestType.performance.name()));
+                projectIds.addAll(apiLoadTests.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+                versionIds.addAll(apiLoadTests.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
         }
 
         if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
-            uiScenarios = relevanceUiCaseService.getUiCaseByIds(
-                    getTestIds(testCaseTests, TestCaseTestType.uiAutomation.name()));
-            projectIds.addAll(uiScenarios.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
-            versionIds.addAll(uiScenarios.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
+            try {
+                uiScenarios = relevanceUiCaseService.getUiCaseByIds(
+                        getTestIds(testCaseTests, TestCaseTestType.uiAutomation.name()));
+                projectIds.addAll(uiScenarios.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+                versionIds.addAll(uiScenarios.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
         }
 
 

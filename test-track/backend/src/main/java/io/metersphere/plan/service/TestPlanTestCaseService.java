@@ -327,25 +327,37 @@ public class TestPlanTestCaseService {
         switch (type) {
             case "performance":
                 if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
-                    LoadTest loadTest = planPerformanceTestService.get(id);
-                    if (loadTest != null) {
-                        dto.setTestName(loadTest.getName());
+                    try {
+                        LoadTest loadTest = planPerformanceTestService.get(id);
+                        if (loadTest != null) {
+                            dto.setTestName(loadTest.getName());
+                        }
+                    } catch (Exception e) {
+                        LogUtil.error(e);
                     }
                 }
                 break;
             case "testcase":
                 if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
-                    ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = planApiTestCaseService.get(id);
-                    if (apiTestCaseWithBLOBs != null) {
-                        dto.setTestName(apiTestCaseWithBLOBs.getName());
+                    try {
+                        ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = planApiTestCaseService.get(id);
+                        if (apiTestCaseWithBLOBs != null) {
+                            dto.setTestName(apiTestCaseWithBLOBs.getName());
+                        }
+                    } catch (Exception e) {
+                        LogUtil.error(e);
                     }
                 }
                 break;
             case "automation":
                 if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
-                    ApiScenarioWithBLOBs apiScenarioWithBLOBs = panApiAutomationService.get(id);
-                    if (apiScenarioWithBLOBs != null) {
-                        dto.setTestName(apiScenarioWithBLOBs.getName());
+                    try {
+                        ApiScenarioWithBLOBs apiScenarioWithBLOBs = panApiAutomationService.get(id);
+                        if (apiScenarioWithBLOBs != null) {
+                            dto.setTestName(apiScenarioWithBLOBs.getName());
+                        }
+                    } catch (Exception e) {
+                        LogUtil.error(e);
                     }
                 }
                 break;
