@@ -261,7 +261,7 @@ export default {
       return store.selectStep;
     },
     colorStyle() {
-      if (this.selectStep?.resourceId === this.data.resourceId) {
+      if (this.selectStep?.resourceId === this.data.resourceId && this.selectStep?.index === this.data.index) {
         return this.color;
       } else {
         return '';
