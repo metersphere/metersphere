@@ -369,8 +369,7 @@ CREATE TABLE IF NOT EXISTS ui_scenario_follower(
 CREATE INDEX idx_user_id ON ui_scenario_follower(user_id);
 
 
-DROP TABLE IF EXISTS ui_scenario_variable;
-CREATE TABLE ui_scenario_variable(
+CREATE TABLE IF NOT EXISTS ui_scenario_variable(
                                      `resource_id` VARCHAR(50) NOT NULL   COMMENT '场景ID' ,
                                      `type` VARCHAR(100) NOT NULL   COMMENT '变量类型' ,
                                      `value` VARCHAR(1000) NOT NULL   COMMENT '变量值' ,
@@ -386,8 +385,7 @@ CREATE INDEX idx_resource_id ON ui_scenario_variable(resource_id);
 CREATE INDEX idx_name ON ui_scenario_variable(name);
 CREATE INDEX idx_type ON ui_scenario_variable(type);
 
-DROP TABLE IF EXISTS ui_custom_variable;
-CREATE TABLE ui_custom_variable(
+CREATE TABLE IF NOT EXISTS ui_custom_variable(
                                    `resource_id` VARCHAR(50) NOT NULL   COMMENT '指令ID' ,
                                    `type` VARCHAR(100) NOT NULL   COMMENT '变量类型' ,
                                    `value` VARCHAR(1000) NOT NULL   COMMENT '变量值' ,

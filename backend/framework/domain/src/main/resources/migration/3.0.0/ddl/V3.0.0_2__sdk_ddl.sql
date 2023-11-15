@@ -29,8 +29,7 @@ CREATE INDEX idx_organization_id ON operation_log(organization_id);
 CREATE INDEX idx_source_id ON operation_log(source_id);
 
 
-DROP TABLE IF EXISTS operation_log_blob;
-CREATE TABLE operation_log_blob(
+CREATE TABLE IF NOT EXISTS operation_log_blob(
    `id` BIGINT NOT NULL  COMMENT '主键,与operation_log表id一致' ,
    `original_value` LONGBLOB    COMMENT '变更前内容' ,
    `modified_value` LONGBLOB    COMMENT '变更后内容' ,
@@ -40,8 +39,7 @@ CREATE TABLE operation_log_blob(
   COLLATE = utf8mb4_general_ci COMMENT = '操作日志内容详情';
 
 
-DROP TABLE IF EXISTS environment;
-CREATE TABLE environment
+CREATE TABLE IF NOT EXISTS environment
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '环境ID',
     `name`        VARCHAR(255) NOT NULL COMMENT '环境名称',
@@ -116,8 +114,7 @@ CREATE TABLE IF NOT EXISTS project_parameters(
 CREATE INDEX idx_project_id ON project_parameters(project_id);
 
 
-DROP TABLE IF EXISTS worker_node;
-CREATE TABLE worker_node
+CREATE TABLE IF NOT EXISTS worker_node
 (
     id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'auto increment id',
     host_name VARCHAR(64) NOT NULL COMMENT 'host name',
