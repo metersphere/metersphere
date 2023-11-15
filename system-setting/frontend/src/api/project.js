@@ -58,6 +58,6 @@ export function getFieldTemplateApiOption(projectId) {
   return get(projectId ? `/project/field/template/api/option/${projectId}` : `/project/field/template/api/option`);
 }
 
-export function getproject() {
+export function getProject() {
   return get('/project/list');
 }

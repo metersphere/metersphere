@@ -42,9 +42,9 @@
 
 <script>
 import {GROUP_SYSTEM} from "metersphere-frontend/src/utils/constants";
-import {createUserGroup, modifyUserGroup} from "../../../api/user-group";
-import {getWorkspaces} from "../../../api/workspace";
-import {getproject} from "../../../api/project";
+import {createUserGroup, modifyUserGroup} from "@/api/user-group";
+import {getWorkspaces} from "@/api/workspace";
+import {getProject} from "@/api/project";
 
 export default {
   name: "EditUserGroup",
@@ -122,11 +122,11 @@ export default {
     },
     open(row, type, title) {
       this.workspaces = [];
+      this.initWorkspace(row.scopeId);
       this.showLabel = '';
       this.title = title;
       this.isSystem = false;
       this.show = true;
-      this.dialogVisible = true;
       this.dialogType = type;
       this.form = Object.assign({}, row);
       if (type !== 'create') {
@@ -138,10 +138,7 @@ export default {
           this.show = !this.form.global;
         }
       }
-      this.getWorkspace();
-      if(type === 'edit'){
-        this.getproject();
-      }
+      this.dialogVisible = true;
     },
     cancel() {
       this.dialogVisible = false;
@@ -158,28 +155,29 @@ export default {
         this.isSystem = false;
       }
     },
-    getWorkspace() {
+    initWorkspace(scopeId) {
+      // 获取工作空间选项
       getWorkspaces().then(res => {
         let data = res.data;
         if (data) {
           this.workspaces = data;
-          let name = this.workspaces.find(item => item.id === this.form.scopeId)
-          if (name) {
+          let workspace = this.workspaces.find(item => item.id === scopeId);
+          if (workspace) {
+            // 所属范围为工作空间
             this.showLabel = this.$t('project.owning_workspace');
           } else {
+            // 所属范围为项目
             this.showLabel = this.$t('project.owning_project');
+            getProject().then(res => {
+              let data = res.data;
+              if (data) {
+                this.workspaces = data;
+              }
+            })
           }
         }
       })
     },
-    getproject() {
-      getproject().then(res => {
-        let data = res.data;
-        if (data) {
-          this.workspaces = this.workspaces.concat(data);
-        }
-      })
-    }
   }
 }
 </script>
