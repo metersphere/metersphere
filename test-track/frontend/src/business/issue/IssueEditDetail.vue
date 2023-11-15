@@ -343,31 +343,31 @@ import TestCaseIssueList from "@/business/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/issue/IssueEditDetail";
 import {byteToSize, getTypeByFileName, getUUID,} from "metersphere-frontend/src/utils";
 import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentUserId,
-  getCurrentWorkspaceId,
+    getCurrentProjectID,
+    getCurrentUser,
+    getCurrentUserId,
+    getCurrentWorkspaceId,
 } from "metersphere-frontend/src/utils/token";
 import {hasLicense, hasPermission,} from "metersphere-frontend/src/utils/permission";
 import {
-  enableThirdPartTemplate,
-  getComments,
-  getFollow,
-  getIssuePartTemplateWithProject,
-  getPlatformFormOption,
-  getPlatformTransitions,
-  getTapdCurrentOwner,
-  getTapdUser,
-  saveFollow,
-  saveOrUpdateIssue,
+    enableThirdPartTemplate,
+    getComments,
+    getFollow,
+    getIssuePartTemplateWithProject,
+    getPlatformFormOption,
+    getPlatformTransitions,
+    getTapdCurrentOwner,
+    getTapdUser,
+    saveFollow,
+    saveOrUpdateIssue,
 } from "@/api/issue";
 import {
-  attachmentList,
-  deleteIssueAttachment,
-  dumpAttachment,
-  relatedIssueAttachment,
-  unrelatedIssueAttachment,
-  uploadIssueAttachment,
+    attachmentList,
+    deleteIssueAttachment,
+    dumpAttachment,
+    relatedIssueAttachment,
+    unrelatedIssueAttachment,
+    uploadIssueAttachment,
 } from "@/api/attachment";
 import CustomFiledFormItem from "metersphere-frontend/src/components/form/CustomFiledFormItem";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
@@ -856,16 +856,16 @@ export default {
       }
     },
     fileValidator(file) {
-      return file.size < 500 * 1024 * 1024;
+      return file.size < 50 * 1024 * 1024;
     },
     beforeUpload(file) {
       if (!this.fileValidator(file)) {
-        this.$error(this.$t("load_test.file_size_out_of_bounds") + file.name);
+        this.$error(this.$t("case.file_size_out_of_bounds"), false);
         return false;
       }
 
       if (this.tableData.filter((f) => f.name === file.name).length > 0) {
-        this.$error(this.$t("load_test.delete_file") + ", name: " + file.name);
+        this.$error(this.$t("load_test.delete_file") + ", name: " + file.name, false);
         return false;
       }
     },
@@ -917,6 +917,7 @@ export default {
           progress = 100;
           param.onSuccess(response);
           progressCallback({ progress, status: "success" });
+          self.$success(this.$t('attachment.upload_success'), false)
           self.cancelFileToken.forEach((token, index, array) => {
             if (token.name == file.name) {
               array.splice(token, 1);
@@ -1011,7 +1012,7 @@ export default {
           this.filterCopyFiles.push(file.id);
         } else {
           deleteIssueAttachment(file.id).then(() => {
-            this.$success(this.$t("commons.delete_success"));
+            this.$success(this.$t("commons.delete_success"), false);
             this.getFileMetaData(this.issueId);
           });
         }
