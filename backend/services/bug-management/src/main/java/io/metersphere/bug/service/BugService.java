@@ -3,7 +3,7 @@ package io.metersphere.bug.service;
 import io.metersphere.bug.domain.*;
 import io.metersphere.bug.dto.BugCustomFieldDTO;
 import io.metersphere.bug.dto.BugDTO;
-import io.metersphere.bug.dto.BugRelationCaseCountDTO;
+import io.metersphere.bug.dto.BugRelateCaseCountDTO;
 import io.metersphere.bug.dto.BugTagEditDTO;
 import io.metersphere.bug.dto.request.BugBatchRequest;
 import io.metersphere.bug.dto.request.BugBatchUpdateRequest;
@@ -76,7 +76,7 @@ public class BugService {
     @Resource
     private ExtBugCustomFieldMapper extBugCustomFieldMapper;
     @Resource
-    private ExtBugRelationCaseMapper extBugRelationCaseMapper;
+    private ExtBugRelateCaseMapper extBugRelateCaseMapper;
     @Resource
     private FileMetadataMapper fileMetadataMapper;
     @Resource
@@ -561,8 +561,8 @@ public class BugService {
         Map<String, String> userMap = userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
         // 根据缺陷ID获取关联用例数
         List<String> ids = bugs.stream().map(BugDTO::getId).toList();
-        List<BugRelationCaseCountDTO> relationCaseCount = extBugRelationCaseMapper.countRelationCases(ids);
-        Map<String, Integer> countMap = relationCaseCount.stream().collect(Collectors.toMap(BugRelationCaseCountDTO::getBugId, BugRelationCaseCountDTO::getRelationCaseCount));
+        List<BugRelateCaseCountDTO> relationCaseCount = extBugRelateCaseMapper.countRelationCases(ids);
+        Map<String, Integer> countMap = relationCaseCount.stream().collect(Collectors.toMap(BugRelateCaseCountDTO::getBugId, BugRelateCaseCountDTO::getRelationCaseCount));
         bugs.forEach(bug -> {
             bug.setRelationCaseCount(countMap.get(bug.getId()));
             bug.setCreateUserName(userMap.get(bug.getCreateUser()));

@@ -7,7 +7,7 @@ import lombok.Data;
  * @author song-cc-rock
  */
 @Data
-public class BugRelationCaseCountDTO {
+public class BugRelateCaseCountDTO {
 
     @Schema(description = "缺陷ID")
     private String bugId;

@@ -8,7 +8,6 @@ import io.metersphere.sdk.exception.IResultCode;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.base.param.InvalidateParamInfo;
 import io.metersphere.system.base.param.ParamGeneratorFactory;
 import io.metersphere.system.domain.User;
@@ -18,6 +17,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRolePermissionMapper;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;
@@ -131,6 +131,13 @@ public abstract class BaseTest {
     protected MockHttpServletRequestBuilder getRequestBuilder(String url, Object... uriVariables) {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(getBasePath() + url, uriVariables);
         return setRequestBuilderHeader(requestBuilder, adminAuthInfo);
+    }
+
+    protected MockHttpServletRequestBuilder getRequestBuilderByRole(String url, String userRoleType, Object... uriVariables) {
+        // 使用对应的用户认证信息来请求, 非Admin
+        AuthInfo authInfo = permissionAuthInfoMap.get(userRoleType);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(getBasePath() + url, uriVariables);
+        return setRequestBuilderHeader(requestBuilder, authInfo == null ? adminAuthInfo : authInfo);
     }
 
     protected ResultActions requestPost(String url, Object param, Object... uriVariables) throws Exception {
@@ -503,6 +510,11 @@ public abstract class BaseTest {
 
     protected void requestMultipartPermissionsTest(List<String> permissionIds, String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
         requestPermissionsTest(permissionIds, url, () -> getPermissionMultipartRequestBuilder(permissionIds.get(0).split("_")[0], url, paramMap, uriVariables));
+    }
+
+    protected ResultActions requestGetWithNoAdmin(String url, String userRoleType, Object... uriVariables) throws Exception {
+        return mockMvc.perform(getRequestBuilderByRole(url, userRoleType, uriVariables))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     /**
