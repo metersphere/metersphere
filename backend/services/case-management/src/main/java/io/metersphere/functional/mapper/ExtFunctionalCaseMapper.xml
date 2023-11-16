@@ -84,7 +84,17 @@
         FROM
             functional_case
         where deleted = #{deleted}
-        <include refid="queryWhereCondition"/>
+        and functional_case.project_id = #{request.projectId}
+        <choose>
+            <when test='request.searchMode == "AND"'>
+               AND <include refid="queryWhereCondition"/>
+            </when>
+            <when test='request.searchMode == "OR"'>
+                and (
+                <include refid="queryWhereCondition"/>
+                )
+            </when>
+        </choose>
 
     </select>
 
@@ -102,21 +112,24 @@
     </update>
 
     <sql id="queryWhereCondition">
-        <if test="request.projectId != null">
-            and functional_case.project_id = #{request.projectId}
-        </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-            and functional_case.module_id in
+            functional_case.module_id in
             <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
                 #{moduleId}
             </foreach>
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
         </if>
         <if test="request.keyword != null">
-            and (
+            (
             functional_case.name like concat('%', #{request.keyword},'%')
             or functional_case.num like concat('%', #{request.keyword},'%')
-            or functional_case.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            or JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
             )
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
         </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
@@ -135,34 +148,52 @@
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='review_status'">
-                            and functional_case.review_status in
+                            functional_case.review_status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
                         </when>
                         <when test="key=='last_execute_result'">
-                            and functional_case.last_execute_result in
+                            functional_case.last_execute_result in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
                         </when>
                         <when test="key=='version_id'">
-                            and functional_case.version_id in
+                            functional_case.version_id in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
                         </when>
                         <when test="key.startsWith('custom_single')">
-                            and test_case.id in (
+                            test_case.id in (
                             select resource_id from custom_field_test_case where concat('custom_single-',field_id) =
                             #{key}
                             and trim(both '"' from `value`) in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                             )
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
                         </when>
                         <when test="key.startsWith('custom_multiple')">
-                            and test_case.id in (
+                            test_case.id in (
                             select resource_id from custom_field_test_case where concat('custom_multiple-',field_id) =
                             #{key}
-                            and and JSON_CONTAINS(`value`, json_array(#{value}))
+                            and JSON_CONTAINS(`value`, json_array(#{value}))
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
                         </when>
                         <when test="key=='create_user'">
-                            and functional_case.create_user in
+                            functional_case.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
                         </when>
                     </choose>
                 </if>
@@ -173,20 +204,26 @@
     <sql id="combine">
         <if test="request.combine != null">
             <if test='${condition}.name != null'>
-                and functional_case.name
+                functional_case.name
                 <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                     <property name="object" value="${condition}.name"/>
                 </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
             </if>
             <if test='${condition}.id != null'>
-                and functional_case.num
+                functional_case.num
                 <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                     <property name="object" value="${condition}.id"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
                 </include>
             </if>
             <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
                 <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
-                    and functional_case.id ${custom.operator} (
+                    functional_case.id ${custom.operator} (
                     select case_id from functional_case_custom_field where field_id = #{custom.id}
                     <choose>
                         <when test="custom.type == 'List'">
@@ -206,6 +243,9 @@
                         </otherwise>
                     </choose>
                     )
+                    <include refid="queryType">
+                        <property name="searchMode" value="request.searchMode"/>
+                    </include>
                 </foreach>
             </if>
         </if>
@@ -213,16 +253,33 @@
 
     <sql id="queryVersionCondition">
         <if test="request.versionId != null">
-            and ${versionTable}.version_id = #{request.versionId}
+            ${versionTable}.version_id = #{request.versionId}
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
         </if>
         <if test="request.refId != null">
-            and ${versionTable}.ref_id = #{request.refId}
+            ${versionTable}.ref_id = #{request.refId}
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
         </if>
         <if test="request.versionId == null and request.refId == null">
-            AND ${versionTable}.latest = 1
+            ${versionTable}.latest = 1
         </if>
     </sql>
 
+
+    <sql id="queryType">
+        <choose>
+            <when test='${searchMode} == "AND"'>
+                AND
+            </when>
+            <when test='${searchMode} == "OR"'>
+                OR
+            </when>
+        </choose>
+    </sql>
 
 
     <select id="getIds" resultType="java.lang.String">
@@ -231,30 +288,51 @@
         FROM
             functional_case
         WHERE
-            project_id = #{projectId}
-            and deleted = #{deleted}
-        <include refid="queryWhereConditionByBaseQueryRequest"/>
+            functional_case.project_id = #{projectId}
+            and functional_case.deleted = #{deleted}
+        <choose>
+            <when test='request.searchMode == "AND"'>
+                AND <include refid="queryWhereConditionByBaseQueryRequest"/>
+            </when>
+            <when test='request.searchMode == "OR"'>
+                and (
+                <include refid="queryWhereConditionByBaseQueryRequest"/>
+                )
+            </when>
+        </choose>
     </select>
 
     <sql id="queryWhereConditionByBaseQueryRequest">
-        <where>
-            <if test="request.condition.combine != null">
-                <include refid="combine">
-                    <property name="condition" value="request.condition.combine"/>
-                </include>
-            </if>
-            <if test="request.condition.keyword != null">
-                and (
-                functional_case.name like concat('%', #{request.keyword},'%')
-                or functional_case.num like concat('%', #{request.keyword},'%')
-                or functional_case.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
-                )
-            </if>
-            <include refid="filters">
-                <property name="filter" value="request.condition.filter"/>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            functional_case.module_id in
+            <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
+                #{moduleId}
+            </foreach>
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
             </include>
-
-        </where>
+        </if>
+        <if test="request.condition.keyword != null">
+            (
+            functional_case.name like concat('%', #{request.keyword},'%')
+            or functional_case.num like concat('%', #{request.keyword},'%')
+            or JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            )
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+        <if test="request.condition.combine != null">
+            <include refid="combine">
+                <property name="condition" value="request.condition.combine"/>
+            </include>
+        </if>
+        <include refid="queryVersionCondition">
+            <property name="versionTable" value="functional_case"/>
+        </include>
     </sql>
 
     <select id="getRefIds" resultType="java.lang.String">

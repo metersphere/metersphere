@@ -1,10 +1,7 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.*;
-import io.metersphere.functional.dto.CaseCustomFieldDTO;
-import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
-import io.metersphere.functional.dto.FunctionalCasePageDTO;
-import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
+import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
@@ -19,7 +16,6 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
-import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
@@ -394,7 +390,7 @@ public class FunctionalCaseService {
 
 
     public <T> List<String> doSelectIds(T dto, String projectId) {
-        TableBatchProcessDTO request = (TableBatchProcessDTO) dto;
+        BaseFunctionalCaseBatchDTO request = (BaseFunctionalCaseBatchDTO) dto;
         if (request.isSelectAll()) {
             List<String> ids = extFunctionalCaseMapper.getIds(request, projectId, false);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
