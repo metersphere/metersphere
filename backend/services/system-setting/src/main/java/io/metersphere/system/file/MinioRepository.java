@@ -24,7 +24,7 @@ public class MinioRepository implements FileRepository {
     private static final int BUFFER_SIZE = 8192;
 
     private String getPath(FileRequest request) {
-        String mainFolder = StringUtils.isBlank(request.getMainFolder()) ? "default" : request.getMainFolder() + "/";
+        String mainFolder = (StringUtils.isBlank(request.getMainFolder()) ? "default" : request.getMainFolder()) + "/";
         String appName = StringUtils.isBlank(request.getAppName()) ? StringUtils.EMPTY : (request.getAppName() + "/");
         //如果sourceGroupFolder为空， 取projectId
         String sourceGroupFolder = StringUtils.isNotBlank(request.getSourceGroupFolder()) ? (request.getSourceGroupFolder() + "/") :
@@ -32,8 +32,7 @@ public class MinioRepository implements FileRepository {
         String resourceId = StringUtils.isBlank(request.getResourceId()) ? StringUtils.EMPTY : (request.getResourceId() + "/");
 
         // 文件存储路径
-        return StringUtils.join(
-                "metersphere/", mainFolder, sourceGroupFolder, appName, resourceId, request.getFileName());
+        return StringUtils.join(mainFolder, sourceGroupFolder, appName, resourceId, request.getFileName());
     }
 
     @Override
