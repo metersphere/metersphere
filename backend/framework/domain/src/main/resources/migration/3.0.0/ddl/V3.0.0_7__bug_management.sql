@@ -53,17 +53,16 @@ CREATE TABLE IF NOT EXISTS bug_follower(
 
 CREATE INDEX idx_follow_id ON bug_follower(user_id);
 
-CREATE TABLE IF NOT EXISTS bug_attachment(
-    `id` VARCHAR(255) NOT NULL   COMMENT 'ID' ,
-    `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
-    `file_id` VARCHAR(50) NOT NULL   COMMENT '文件ID' ,
-    `file_name` VARCHAR(255) NOT NULL   COMMENT '文件名称' ,
-    `size` BIGINT NOT NULL   COMMENT '文件大小' ,
-    `local` BIT(1) NOT NULL   COMMENT '是否本地' ,
-    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-    PRIMARY KEY (id)
-)  COMMENT = '缺陷附件';
+CREATE TABLE IF NOT EXISTS bug_local_attachment(
+   `id` VARCHAR(255) NOT NULL   COMMENT 'ID' ,
+   `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
+   `file_id` VARCHAR(50) NOT NULL   COMMENT '文件ID' ,
+   `file_name` VARCHAR(255) NOT NULL   COMMENT '文件名称' ,
+   `size` BIGINT NOT NULL   COMMENT '文件大小' ,
+   `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+   PRIMARY KEY (id)
+)  COMMENT = '缺陷本地附件';
 
 CREATE TABLE IF NOT EXISTS bug_comment(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,

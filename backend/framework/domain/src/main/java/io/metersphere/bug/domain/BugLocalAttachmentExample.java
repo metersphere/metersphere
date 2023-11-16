@@ -3,14 +3,14 @@ package io.metersphere.bug.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BugAttachmentExample {
+public class BugLocalAttachmentExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public BugAttachmentExample() {
+    public BugLocalAttachmentExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -441,66 +441,6 @@ public class BugAttachmentExample {
 
         public Criteria andSizeNotBetween(Long value1, Long value2) {
             addCriterion("`size` not between", value1, value2, "size");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalIsNull() {
-            addCriterion("`local` is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalIsNotNull() {
-            addCriterion("`local` is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalEqualTo(Boolean value) {
-            addCriterion("`local` =", value, "local");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalNotEqualTo(Boolean value) {
-            addCriterion("`local` <>", value, "local");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalGreaterThan(Boolean value) {
-            addCriterion("`local` >", value, "local");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("`local` >=", value, "local");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalLessThan(Boolean value) {
-            addCriterion("`local` <", value, "local");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalLessThanOrEqualTo(Boolean value) {
-            addCriterion("`local` <=", value, "local");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalIn(List<Boolean> values) {
-            addCriterion("`local` in", values, "local");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalNotIn(List<Boolean> values) {
-            addCriterion("`local` not in", values, "local");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalBetween(Boolean value1, Boolean value2) {
-            addCriterion("`local` between", value1, value2, "local");
-            return (Criteria) this;
-        }
-
-        public Criteria andLocalNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("`local` not between", value1, value2, "local");
             return (Criteria) this;
         }
 

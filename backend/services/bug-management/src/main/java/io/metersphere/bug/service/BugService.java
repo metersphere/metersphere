@@ -12,22 +12,23 @@ import io.metersphere.bug.dto.request.BugPageRequest;
 import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.mapper.*;
 import io.metersphere.bug.utils.CustomFieldUtils;
-import io.metersphere.project.domain.FileMetadata;
-import io.metersphere.project.domain.FileMetadataExample;
-import io.metersphere.project.mapper.FileMetadataMapper;
+import io.metersphere.project.dto.filemanagement.FileLogRecord;
+import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.MsFileUtils;
+import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.file.FileRequest;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.TemplateMapper;
 import io.metersphere.system.service.BaseTemplateService;
@@ -78,17 +79,22 @@ public class BugService {
     @Resource
     private ExtBugRelateCaseMapper extBugRelateCaseMapper;
     @Resource
-    private FileMetadataMapper fileMetadataMapper;
+    private FileAssociationService fileAssociationService;
     @Resource
-    private BugAttachmentMapper bugAttachmentMapper;
+    private BugLocalAttachmentMapper bugLocalAttachmentMapper;
     @Resource
-    private ExtBugAttachmentMapper extBugAttachmentMapper;
+    private ExtBugLocalAttachmentMapper extBugLocalAttachmentMapper;
     @Resource
     private FileService fileService;
     @Resource
     private BaseTemplateService baseTemplateService;
     @Resource
     private BugFollowerMapper bugFollowerMapper;
+
+    public static final String ADD_BUG_FILE_LOG_URL = "/bug/add";
+    public static final String UPDATE_BUG_FILE_LOG_URL = "/bug/update";
+    public static final String UPLOAD_SOURCE_DIR = "/project";
+    public static final String UPLOAD_APP_DIR = "/bug";
 
     /**
      * 缺陷列表查询
@@ -144,7 +150,7 @@ public class BugService {
         // 自定义字段
         handleAndSaveCustomFields(request, false, false);
         // 附件
-        handleAndSaveAttachments(request, files, currentUser);
+        handleAndSaveAttachments(request, files, currentUser, ADD_BUG_FILE_LOG_URL);
     }
 
     /**
@@ -166,7 +172,7 @@ public class BugService {
         // 自定义字段
         handleAndSaveCustomFields(request, true, false);
         // 附件
-        handleAndSaveAttachments(request, files, currentUser);
+        handleAndSaveAttachments(request, files, currentUser, UPDATE_BUG_FILE_LOG_URL);
     }
 
     /**
@@ -360,7 +366,6 @@ public class BugService {
 //        }
         if (StringUtils.isEmpty(bug.getId())) {
             bug.setId(IDGenerator.nextStr());
-            // TODO: 业务ID生成规则, 暂保留, 后续补充
             bug.setNum(Long.valueOf(NumGenerator.nextNum(request.getProjectId(), ApplicationNumScope.BUG_MANAGEMENT)).intValue());
             bug.setHandleUsers(request.getHandleUser());
             bug.setCreateUser(currentUser);
@@ -473,89 +478,62 @@ public class BugService {
      * @param request 请求参数
      * @param files 上传附件集合
      */
-    private void handleAndSaveAttachments(BugEditRequest request, List<MultipartFile> files, String currentUser) {
-        Map<String, MultipartFile> uploadMinioFiles = new HashMap<>(16);
-        List<BugAttachment> addFiles = new ArrayList<>();
-        // 处理删除的本地上传附件及取消关联的附件
-        List<String> deleteIds = new ArrayList<>();
+    private void handleAndSaveAttachments(BugEditRequest request, List<MultipartFile> files, String currentUser, String fileLogUrl) {
+        /*
+         * 附件处理逻辑
+         * 1. 先处理删除, 及取消关联的附件
+         * 2. 再处理新上传的, 新关联的附件
+         */
         if (CollectionUtils.isNotEmpty(request.getDeleteLocalFileIds())) {
-            deleteIds.addAll(request.getDeleteLocalFileIds());
+            // 删除本地上传的附件, BUG_LOCAL_ATTACHMENT表
             request.getDeleteLocalFileIds().forEach(deleteFileId -> {
-                FileRequest fileRequest = new FileRequest();
-                fileRequest.setProjectId(request.getProjectId());
-                fileRequest.setFileName(deleteFileId);
-                fileRequest.setStorage(StorageType.MINIO.name());
+                FileRequest fileRequest = buildBugFileRequest(request.getProjectId(), deleteFileId, null);
                 try {
                     fileService.deleteFile(fileRequest);
                 } catch (Exception e) {
                     throw new MSException(Translator.get("bug_attachment_delete_error"));
                 }
             });
+            BugLocalAttachmentExample example = new BugLocalAttachmentExample();
+            example.createCriteria().andBugIdEqualTo(request.getId()).andFileIdIn(request.getDeleteLocalFileIds());
+            bugLocalAttachmentMapper.deleteByExample(example);
         }
-        if (CollectionUtils.isNotEmpty(request.getUnLinkFileIds())) {
-            deleteIds.addAll(request.getUnLinkFileIds());
+        if (CollectionUtils.isNotEmpty(request.getUnLinkRefIds())) {
+            // 取消关联的附件, FILE_ASSOCIATION表
+            fileAssociationService.deleteBySourceId(request.getUnLinkRefIds(), createFileLogRecord(fileLogUrl, currentUser, request.getProjectId()));
         }
-        if (CollectionUtils.isNotEmpty(deleteIds)) {
-            BugAttachmentExample example = new BugAttachmentExample();
-            example.createCriteria().andBugIdEqualTo(request.getId()).andFileIdIn(deleteIds);
-            bugAttachmentMapper.deleteByExample(example);
-            // TODO: 如果是第三方平台, 需调用平台插件同步删除附件
-        }
+
         // 新本地上传的附件
+        List<BugLocalAttachment> addFiles = new ArrayList<>();
+        Map<String, MultipartFile> uploadMinioFiles = new HashMap<>(16);
         if (CollectionUtils.isNotEmpty(files)) {
             files.forEach(file -> {
-                BugAttachment bugAttachment = new BugAttachment();
+                BugLocalAttachment bugAttachment = new BugLocalAttachment();
                 bugAttachment.setId(IDGenerator.nextStr());
                 bugAttachment.setBugId(request.getId());
                 bugAttachment.setFileId(IDGenerator.nextStr());
                 bugAttachment.setFileName(file.getOriginalFilename());
                 bugAttachment.setSize(file.getSize());
-                bugAttachment.setLocal(true);
                 bugAttachment.setCreateTime(System.currentTimeMillis());
                 bugAttachment.setCreateUser(currentUser);
                 addFiles.add(bugAttachment);
                 uploadMinioFiles.put(bugAttachment.getFileId(), file);
             });
-        }
-        // 新关联的附件
-        List<String> linkIds = request.getLinkFileIds();
-        if (CollectionUtils.isNotEmpty(linkIds)) {
-            FileMetadataExample example = new FileMetadataExample();
-            example.createCriteria().andIdIn(linkIds);
-            List<FileMetadata> linkFiles = fileMetadataMapper.selectByExample(example);
-            Map<String, FileMetadata> linkFileMap = linkFiles.stream().collect(Collectors.toMap(FileMetadata::getId, v -> v));
-            linkIds.forEach(fileId -> {
-                FileMetadata fileMetadata = linkFileMap.get(fileId);
-                if (fileMetadata == null) {
-                    return;
+            extBugLocalAttachmentMapper.batchInsert(addFiles);
+            uploadMinioFiles.forEach((fileId, file) -> {
+                FileRequest fileRequest = buildBugFileRequest(request.getProjectId(), fileId, file.getOriginalFilename());
+                try {
+                    fileService.upload(file, fileRequest);
+                } catch (Exception e) {
+                    throw new MSException(Translator.get("bug_attachment_upload_error"));
                 }
-                BugAttachment bugAttachment = new BugAttachment();
-                bugAttachment.setId(IDGenerator.nextStr());
-                bugAttachment.setBugId(request.getId());
-                bugAttachment.setFileId(fileId);
-                bugAttachment.setFileName(fileMetadata.getName());
-                bugAttachment.setSize(fileMetadata.getSize());
-                bugAttachment.setLocal(false);
-                bugAttachment.setCreateTime(System.currentTimeMillis());
-                bugAttachment.setCreateUser(currentUser);
-                addFiles.add(bugAttachment);
             });
         }
-        if (CollectionUtils.isNotEmpty(addFiles)) {
-            extBugAttachmentMapper.batchInsert(addFiles);
+        // 新关联的附件
+        if (CollectionUtils.isNotEmpty(request.getLinkFileIds())) {
+            fileAssociationService.association(request.getId(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, request.getLinkFileIds(), false,
+                    createFileLogRecord(fileLogUrl, currentUser, request.getProjectId()));
         }
-        // TODO: 如果是第三方平台, 需调用平台插件同步上传附件
-        uploadMinioFiles.forEach((fileId, file) -> {
-            FileRequest fileRequest = new FileRequest();
-            fileRequest.setFileName(file.getOriginalFilename());
-            fileRequest.setResourceId("/" + MsFileUtils.BUG_MANAGEMENT_DIR + "/" + request.getProjectId() + "/" + fileId);
-            fileRequest.setStorage(StorageType.MINIO.name());
-            try {
-                fileService.upload(file, fileRequest);
-            } catch (Exception e) {
-                throw new MSException(Translator.get("bug_attachment_upload_error"));
-            }
-        });
     }
 
 //    /**
@@ -653,4 +631,24 @@ public class BugService {
 //        }
 //        return template;
 //    }
+
+    private FileLogRecord createFileLogRecord(String logUrl, String operator, String projectId){
+        return FileLogRecord.builder()
+                .logModule(OperationLogModule.BUG_MANAGEMENT)
+                .requestMethod(HttpMethodConstants.POST.name())
+                .requestUrl(logUrl)
+                .operator(operator)
+                .projectId(projectId)
+                .build();
+    }
+
+    private FileRequest buildBugFileRequest(String projectId, String resourceId, String fileName) {
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFolder(UPLOAD_SOURCE_DIR + "/" + projectId + UPLOAD_APP_DIR + "/" + resourceId);
+        fileRequest.setProjectId(projectId);
+        fileRequest.setResourceId(resourceId);
+        fileRequest.setFileName(StringUtils.isEmpty(fileName) ? null : fileName);
+        fileRequest.setStorage(StorageType.MINIO.name());
+        return fileRequest;
+    }
 }

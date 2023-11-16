@@ -13,34 +13,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @Data
-public class BugAttachment implements Serializable {
+public class BugLocalAttachment implements Serializable {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug_attachment.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 255, message = "{bug_attachment.id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{bug_local_attachment.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 255, message = "{bug_local_attachment.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(description = "缺陷ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug_attachment.bug_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{bug_attachment.bug_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{bug_local_attachment.bug_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{bug_local_attachment.bug_id.length_range}", groups = {Created.class, Updated.class})
     private String bugId;
 
     @Schema(description = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug_attachment.file_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{bug_attachment.file_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{bug_local_attachment.file_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{bug_local_attachment.file_id.length_range}", groups = {Created.class, Updated.class})
     private String fileId;
 
     @Schema(description = "文件名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug_attachment.file_name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{bug_attachment.file_name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{bug_local_attachment.file_name.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{bug_local_attachment.file_name.length_range}", groups = {Created.class, Updated.class})
     private String fileName;
 
     @Schema(description = "文件大小", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{bug_attachment.size.not_blank}", groups = {Created.class})
+    @NotNull(message = "{bug_local_attachment.size.not_blank}", groups = {Created.class})
     private Long size;
-
-    @Schema(description = "是否本地", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{bug_attachment.local.not_blank}", groups = {Created.class})
-    private Boolean local;
 
     @Schema(description = "创建人")
     private String createUser;
@@ -56,7 +52,6 @@ public class BugAttachment implements Serializable {
         fileId("file_id", "fileId", "VARCHAR", false),
         fileName("file_name", "fileName", "VARCHAR", false),
         size("size", "size", "BIGINT", true),
-        local("local", "local", "BIT", true),
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false);
 
