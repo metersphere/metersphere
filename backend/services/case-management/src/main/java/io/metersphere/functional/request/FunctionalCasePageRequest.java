@@ -1,5 +1,6 @@
 package io.metersphere.functional.request;
 
+import io.metersphere.functional.dto.AssociationDTO;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -29,4 +30,18 @@ public class FunctionalCasePageRequest extends BasePageRequest {
 
     @Schema(description = "模块id")
     private List<String> moduleIds;
+
+    @Schema(description = "匹配模式 所有/任一", allowableValues = {"AND", "OR"})
+    private String searchMode = "AND";
+
+
+    @Schema(description = "关联用例")
+    private AssociationDTO associationCase;
+
+    @Schema(description = "关联需求")
+    private AssociationDTO associationDemand;
+
+    @Schema(description = "关联缺陷")
+    private AssociationDTO associationBug;
+
 }

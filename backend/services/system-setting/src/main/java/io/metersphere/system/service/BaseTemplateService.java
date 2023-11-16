@@ -6,10 +6,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.CustomField;
-import io.metersphere.system.domain.Template;
-import io.metersphere.system.domain.TemplateCustomField;
-import io.metersphere.system.domain.TemplateExample;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
@@ -49,6 +46,9 @@ public class BaseTemplateService {
     protected UserLoginService userLoginService;
     @Resource
     protected BaseCustomFieldService baseCustomFieldService;
+
+    @Resource
+    private BaseCustomFieldOptionService baseCustomFieldOptionService;
 
     public List<Template> list(String scopeId, String scene) {
         checkScene(scene);
@@ -130,6 +130,14 @@ public class BaseTemplateService {
                     return templateCustomFieldDTO;
                 }).toList();
 
+        List<String> ids = fieldDTOS.stream().map(TemplateCustomFieldDTO::getFieldId).toList();
+        List<CustomFieldOption> fieldOptions = baseCustomFieldOptionService.getByFieldIds(ids);
+        Map<String, List<CustomFieldOption>> collect = fieldOptions.stream().collect(Collectors.groupingBy(CustomFieldOption::getFieldId));
+
+        fieldDTOS.forEach(item -> {
+            item.setOptions(collect.get(item.getFieldId()));
+        });
+
         // 封装系统字段信息
         List<TemplateCustomFieldDTO> systemFieldDTOS = templateCustomFields.stream()
                 .filter(i -> BooleanUtils.isTrue(i.getSystemField()))
@@ -139,6 +147,14 @@ public class BaseTemplateService {
                     templateCustomFieldDTO.setDefaultValue(i.getDefaultValue());
                     return templateCustomFieldDTO;
                 }).toList();
+
+        List<String> sysIds = systemFieldDTOS.stream().map(TemplateCustomFieldDTO::getFieldId).toList();
+        List<CustomFieldOption> sysFieldOptions = baseCustomFieldOptionService.getByFieldIds(sysIds);
+        Map<String, List<CustomFieldOption>> sysCollect = sysFieldOptions.stream().collect(Collectors.groupingBy(CustomFieldOption::getFieldId));
+
+        systemFieldDTOS.forEach(item -> {
+            item.setOptions(sysCollect.get(item.getFieldId()));
+        });
 
         TemplateDTO templateDTO = BeanUtils.copyBean(new TemplateDTO(), template);
         templateDTO.setCustomFields(fieldDTOS);

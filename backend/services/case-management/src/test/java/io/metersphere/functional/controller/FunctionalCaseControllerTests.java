@@ -118,6 +118,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     @Order(3)
     public void testFunctionalCaseDetail() throws Exception {
         assertErrorCode(this.requestGet(FUNCTIONAL_CASE_DETAIL_URL + "ERROR_TEST_FUNCTIONAL_CASE_ID"), FunctionalCaseResultCode.FUNCTIONAL_CASE_NOT_FOUND);
+        this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL_URL + "TEST_FUNCTIONAL_CASE_ID_1");
         MvcResult mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL_URL + "TEST_FUNCTIONAL_CASE_ID");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -262,7 +263,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
         //自定义字段 测试
         Map<String, Object> map = new HashMap<>();
-        map.put("custom", Arrays.asList(new LinkedHashMap() {{
+        map.put("customs", Arrays.asList(new LinkedHashMap() {{
             put("id", "TEST_FIELD_ID");
             put("operator", "in");
             put("value", "222");
@@ -370,7 +371,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setTags(Arrays.asList("覆盖标签1", "覆盖标签2"));
         request.setSelectAll(true);
         CaseCustomFieldDTO caseCustomFieldDTO = new CaseCustomFieldDTO();
-        caseCustomFieldDTO.setFieldId("TEST_FIELD_ID");
+        caseCustomFieldDTO.setFieldId("TEST_FIELD_ID_1");
         caseCustomFieldDTO.setValue("批量编辑自定义字段");
         request.setCustomField(caseCustomFieldDTO);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
