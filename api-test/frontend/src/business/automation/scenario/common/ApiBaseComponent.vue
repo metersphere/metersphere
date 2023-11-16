@@ -21,16 +21,14 @@
           <i
             class="icon el-icon-arrow-right"
             :class="{ 'is-active': data.active }"
-            @click="active(data)"
-            v-if="data.type != 'scenario' && !isMax"
-            @click.stop />
+            @click.stop="active(data)"
+            v-if="data.type != 'scenario' && !isMax" />
           <span @click.stop v-if="isShowInput && isShowNameInput">
             <el-input
               draggable="disabled"
               size="mini"
               v-model="data.name"
               class="name-input"
-              @focus="active(data)"
               @blur="isShowInput = false"
               :placeholder="$t('commons.input_name')"
               ref="nameEdit"
@@ -46,7 +44,7 @@
             <i
               class="el-icon-edit"
               style="cursor: pointer"
-              @click="editName"
+              @click.stop="editName"
               v-show="data.referenced != 'REF' && !data.disabled" />
             <span>{{ data.name }}</span>
             <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{
