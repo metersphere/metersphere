@@ -216,7 +216,9 @@ public class FileMetadataService {
 
         FileRequest uploadFileRequest = new FileRequest();
         uploadFileRequest.setFileName(fileMetadata.getId());
-        uploadFileRequest.setProjectId(fileMetadata.getProjectId());
+        uploadFileRequest.setMainFolder(FileRequest.MAIN_FOLDER_PROJECT);
+        uploadFileRequest.setAppName(FileRequest.APP_NAME_FILE_MANAGEMENT);
+        uploadFileRequest.setSourceGroupFolder(fileMetadata.getProjectId());
         uploadFileRequest.setStorage(StorageType.MINIO.name());
 
         FileRepository minio = CommonBeanFactory.getBean(MinioRepository.class);
@@ -280,7 +282,9 @@ public class FileMetadataService {
     private String uploadFile(FileMetadata fileMetadata, MultipartFile file) throws Exception {
         FileRequest uploadFileRequest = new FileRequest();
         uploadFileRequest.setFileName(fileMetadata.getId());
-        uploadFileRequest.setProjectId(fileMetadata.getProjectId());
+        uploadFileRequest.setSourceGroupFolder(fileMetadata.getProjectId());
+        uploadFileRequest.setMainFolder(FileRequest.MAIN_FOLDER_PROJECT);
+        uploadFileRequest.setAppName(FileRequest.APP_NAME_FILE_MANAGEMENT);
         uploadFileRequest.setStorage(StorageType.MINIO.name());
         return fileService.upload(file, uploadFileRequest);
     }
@@ -320,7 +324,9 @@ public class FileMetadataService {
         }
         FileRequest fileRequest = new FileRequest();
         fileRequest.setFileName(fileMetadata.getId());
-        fileRequest.setProjectId(fileMetadata.getProjectId());
+        fileRequest.setSourceGroupFolder(fileMetadata.getProjectId());
+        fileRequest.setMainFolder(FileRequest.MAIN_FOLDER_PROJECT);
+        fileRequest.setAppName(FileRequest.APP_NAME_FILE_MANAGEMENT);
         fileRequest.setStorage(fileMetadata.getStorage());
 
         //获取git文件下载
