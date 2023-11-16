@@ -25,3 +25,6 @@ export const AddRepositoryUrl = '/project/file/repository/add-repository'; // �
 export const AddRepositoryFileUrl = '/project/file/repository/add-file'; // 添加存储库文件
 export const UpdateRepositoryFileUrl = '/project/file/repository/pull-file'; // 更新存储库文件
 export const GetRepositoryInfoUrl = '/project/file/repository/info'; // 获取存储库信息
+export const DeleteAssociationUrl = '/project/file/association/delete'; // 删除关联用例
+export const UpgradeAssociationUrl = '/project/file/association/upgrade'; // 更新关联用例文件
+export const GetAssociationListUrl = '/project/file/association/list'; // 获取关联用例列表

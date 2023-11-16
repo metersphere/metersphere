@@ -10,6 +10,7 @@ import {
   DeleteModuleUrl,
   DownloadFileUrl,
   FilePageUrl,
+  GetAssociationListUrl,
   GetFileDetailUrl,
   GetFileTypesUrl,
   GetModuleCountUrl,
@@ -24,6 +25,7 @@ import {
   UpdateModuleUrl,
   UpdateRepositoryFileUrl,
   UpdateRepositoryUrl,
+  UpgradeAssociationUrl,
   UploadFileUrl,
 } from '@/api/requrls/project-management/fileManagement';
 
@@ -32,6 +34,7 @@ import type {
   AddModuleParams,
   AddRepositoryFileParams,
   AddRepositoryParams,
+  AssociationItem,
   BatchFileApiParams,
   FileDetail,
   FileItem,
@@ -172,4 +175,14 @@ export function updateRepositoryFile(id: string) {
 // 获取存储库信息
 export function getRepositoryInfo(id: string) {
   return MSR.get<RepositoryInfo>({ url: GetRepositoryInfoUrl, params: id });
+}
+
+// 更新关联用例文件
+export function upgradeAssociation(projectId: string, id: string) {
+  return MSR.get({ url: `${UpgradeAssociationUrl}/${projectId}`, params: id });
+}
+
+// 获取文件关联用例列表
+export function getAssociationList(params: { id: string }) {
+  return MSR.get<AssociationItem[]>({ url: GetAssociationListUrl, params: params.id });
 }

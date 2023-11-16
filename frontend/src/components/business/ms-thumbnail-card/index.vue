@@ -1,8 +1,8 @@
 <template>
   <div :class="['ms-thumbnail-card', `ms-thumbnail-card--${props.mode}`]" @click="handleCardClick">
     <div class="ms-thumbnail-card-content">
-      <div class="ms-thumbnail-card-more">
-        <MsTableMoreAction v-if="props.moreActions" :list="props.moreActions" @select="handleMoreActionSelect" />
+      <div v-if="props.moreActions" class="ms-thumbnail-card-more">
+        <MsTableMoreAction :list="props.moreActions" @select="handleMoreActionSelect" />
       </div>
       <a-image
         v-if="fileType === 'image'"

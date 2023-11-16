@@ -33,7 +33,7 @@
         </a-radio-group>
       </div>
     </div>
-    <a-spin class="w-full" :loading="loading">
+    <a-spin class="h-[calc(100%-48px)] w-full" :loading="loading">
       <ms-base-table
         v-if="showType === 'list'"
         v-bind="propsRes"
@@ -80,6 +80,7 @@
           projectId: appStore.currentProjectId,
           moduleId: props.activeFolder,
           fileType: tableFileType,
+          combine,
           keyword,
         }"
         :shadow-limit="50"
@@ -372,6 +373,7 @@
       } else {
         res = await getFileTypes(appStore.currentProjectId);
       }
+      tableFileType.value = '';
       tableFileTypeOptions.value = res;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -772,11 +774,24 @@
   /**
    * 更改文件展示类型：模块/存储库
    */
-  function changeFileType() {
-    initFileTypes();
+  async function changeFileType() {
+    await initFileTypes();
     setTableParams();
-    loadList();
+    if (showType.value === 'card') {
+      cardListRef.value?.reload();
+    } else {
+      loadList();
+    }
   }
+
+  watch(
+    () => showType.value,
+    (val) => {
+      if (val === 'list') {
+        loadList();
+      }
+    }
+  );
 
   watch(
     () => props.activeFolderType,
