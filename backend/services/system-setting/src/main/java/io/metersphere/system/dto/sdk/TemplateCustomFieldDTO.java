@@ -1,7 +1,10 @@
 package io.metersphere.system.dto.sdk;
 
+import io.metersphere.system.domain.CustomFieldOption;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class TemplateCustomFieldDTO {
@@ -20,5 +23,8 @@ public class TemplateCustomFieldDTO {
 
     @Schema(title = "默认值")
     private Object defaultValue;
+
+    @Schema(title = "选项值")
+    private List<CustomFieldOption> options;
 
 }

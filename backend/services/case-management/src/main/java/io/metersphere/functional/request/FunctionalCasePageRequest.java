@@ -29,4 +29,9 @@ public class FunctionalCasePageRequest extends BasePageRequest {
 
     @Schema(description = "模块id")
     private List<String> moduleIds;
+
+    @Schema(description = "匹配模式 所有/任一", allowableValues = {"AND", "OR"})
+    private String searchMode = "AND";
+
+
 }

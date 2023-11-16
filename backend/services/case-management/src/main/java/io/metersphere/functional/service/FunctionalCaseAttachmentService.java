@@ -79,7 +79,7 @@ public class FunctionalCaseAttachmentService {
                 String fileId = IDGenerator.nextStr();
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(file.getName());
-                fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + request.getProjectId() + fileId);
+                fileRequest.setResourceId("project/" + request.getProjectId() + "/" + MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + fileId);
                 fileRequest.setStorage(StorageType.MINIO.name());
                 try {
                     minioRepository.saveFile(file, fileRequest);
@@ -174,7 +174,7 @@ public class FunctionalCaseAttachmentService {
             files.forEach(file -> {
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(file.getFileName());
-                fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + projectId + file.getFileId());
+                fileRequest.setResourceId("project/" + projectId + "/" + MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + file.getFileId());
                 fileRequest.setStorage(StorageType.MINIO.name());
                 try {
                     minioRepository.delete(fileRequest);
