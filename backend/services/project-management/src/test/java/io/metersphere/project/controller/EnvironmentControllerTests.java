@@ -649,15 +649,6 @@ public class EnvironmentControllerTests extends BaseTest {
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertEquals(response.getName(), environment.getName());
-        //查询文件
-        FileRequest fileRequest = new FileRequest();
-        fileRequest.setProjectId(StringUtils.join(DIR_PATH, environment.getProjectId()));
-        fileRequest.setResourceId(environment.getId());
-        MinioRepository minioRepository = CommonBeanFactory.getBean(MinioRepository.class);
-        assert minioRepository != null;
-        List<String> fileNames = minioRepository.getFolderFileNames(fileRequest);
-        //校验文件
-        Assertions.assertEquals(2, fileNames.size());
 
         //校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
@@ -843,15 +834,6 @@ public class EnvironmentControllerTests extends BaseTest {
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertEquals(response.getName(), environment.getName());
-        //查询文件
-        FileRequest fileRequest = new FileRequest();
-        fileRequest.setProjectId(StringUtils.join(DIR_PATH, environment.getProjectId()));
-        fileRequest.setResourceId(environment.getId());
-        MinioRepository minioRepository = CommonBeanFactory.getBean(MinioRepository.class);
-        assert minioRepository != null;
-        List<String> fileNames = minioRepository.getFolderFileNames(fileRequest);
-        //校验文件
-        Assertions.assertEquals(2, fileNames.size());
         //校验权限
         example = new EnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("校验权限");

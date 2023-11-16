@@ -24,15 +24,9 @@ public class MinioRepository implements FileRepository {
     private static final int BUFFER_SIZE = 8192;
 
     private String getPath(FileRequest request) {
-        String mainFolder = (StringUtils.isBlank(request.getMainFolder()) ? "default" : request.getMainFolder()) + "/";
-        String appName = StringUtils.isBlank(request.getAppName()) ? StringUtils.EMPTY : (request.getAppName() + "/");
-        //如果sourceGroupFolder为空， 取projectId
-        String sourceGroupFolder = StringUtils.isNotBlank(request.getSourceGroupFolder()) ? (request.getSourceGroupFolder() + "/") :
-                (StringUtils.isNotBlank(request.getProjectId()) ? (request.getProjectId() + "/") : StringUtils.EMPTY);
-        String resourceId = StringUtils.isBlank(request.getResourceId()) ? StringUtils.EMPTY : (request.getResourceId() + "/");
-
-        // 文件存储路径
-        return StringUtils.join(mainFolder, sourceGroupFolder, appName, resourceId, request.getFileName());
+        String folder = StringUtils.isNotEmpty(request.getFolder()) ? request.getFolder() : request.getProjectId();
+        //todo 后续要增加对folder起始路径的校验: system / project / organization
+        return StringUtils.join(folder, "/", request.getFileName());
     }
 
     @Override
