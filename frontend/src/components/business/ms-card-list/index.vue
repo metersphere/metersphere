@@ -96,12 +96,11 @@
   );
 
   const listSize = ref(0);
-  const listPage = ref(0);
   const listTotal = ref(0);
   const remoteList = ref<any[]>([]);
   const noMore = ref(false);
   const isInit = ref(false);
-
+  const endPage = ref(0); // 列表数据已加载的底部页码
   const topLoading = ref(false);
   const bottomLoading = ref(false);
   const isLoadError = ref(false); // 是否加载失败 TODO:加载失败重试
@@ -109,26 +108,28 @@
   /**
    * 加载上一页
    */
-  async function loadPrevList() {
-    try {
-      if (props.mode === 'remote' && typeof props.remoteFunc === 'function') {
-        topLoading.value = true;
-        listPage.value -= 1;
-        const res = await props.remoteFunc({
-          current: listPage.value,
-          pageSize: listSize.value,
-          ...(props.remoteParams || {}),
-        });
-        remoteList.value = res.list;
-        listTotal.value = res.total;
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      topLoading.value = false;
-    }
-  }
+  // async function loadPrevList() {
+  //   try {
+  //     if (props.mode === 'remote' && typeof props.remoteFunc === 'function') {
+  //       topLoading.value = true;
+  //       endPage.value -= 1;
+  //       const res = await props.remoteFunc({
+  //         current: startPage.value,
+  //         pageSize: listSize.value,
+  //         ...(props.remoteParams || {}),
+  //       });
+  //       remoteList.value = isApartMax.value
+  //         ? [...res.list, remoteList.value.slice(0, listSize.value * endPage.value)]
+  //         : remoteList.value.concat(res.list);
+  //       listTotal.value = res.total;
+  //     }
+  //   } catch (error) {
+  //     // eslint-disable-next-line no-console
+  //     console.log(error);
+  //   } finally {
+  //     topLoading.value = false;
+  //   }
+  // }
 
   /**
    * 加载下一页
@@ -138,19 +139,23 @@
     try {
       if (props.mode === 'remote' && typeof props.remoteFunc === 'function') {
         bottomLoading.value = true;
-        listPage.value += 1;
+        endPage.value += 1;
         if (isReload) {
-          listPage.value = 1;
+          endPage.value = 1;
         }
         const res = await props.remoteFunc({
-          current: listPage.value,
+          current: endPage.value,
           pageSize: listSize.value,
           ...(props.remoteParams || {}),
         });
-        remoteList.value = isReload ? res.list : remoteList.value.concat(res.list);
+        if (isReload) {
+          remoteList.value = res.list;
+        } else {
+          remoteList.value = remoteList.value.concat(res.list);
+        }
         listTotal.value = res.total;
         bottomLoading.value = false;
-        noMore.value = listSize.value * (listPage.value - 1) + remoteList.value.length >= listTotal.value;
+        noMore.value = listSize.value * endPage.value >= listTotal.value;
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -186,8 +191,8 @@
       isInit.value = true;
     }, 400);
     // 列表显示数量发生变化，重置列表页码，重新加载列表
-    listPage.value = 0;
-    await loadNextList();
+    endPage.value = 0;
+    await loadNextList(true);
   }
 
   /**
@@ -221,16 +226,7 @@
   watchEffect(async () => {
     // 远程数据模式下，滚动到顶部或者底部时，加载上一页或者下一页
     if (props.mode === 'remote' && typeof props.remoteFunc === 'function') {
-      if (isArrivedTop.value && !isArrivedBottom.value && listPage.value > 1 && !topLoading.value) {
-        // 滚动到顶部且未滚动到底部（也就是数据量大于 1 页），且不是第一页，且不是正在加载上一页，则加载上一页
-        loadPrevList();
-      } else if (
-        isArrivedBottom.value &&
-        !isArrivedTop.value &&
-        !noMore.value &&
-        !bottomLoading.value &&
-        !isLoadError.value
-      ) {
+      if (isArrivedBottom.value && !isArrivedTop.value && !noMore.value && !bottomLoading.value && !isLoadError.value) {
         // 滚动到底部且未滚动到顶部（也就是数据量大于 1 页），且不是正在加载下一页，则加载下一页
         loadNextList();
       }
@@ -248,7 +244,7 @@
 
 <style lang="less" scoped>
   .ms-card-list-container {
-    @apply overflow-hidden;
+    @apply h-full overflow-hidden;
     .ms-container--shadow();
     .ms-card-list {
       @apply grid max-h-full overflow-auto;

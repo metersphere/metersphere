@@ -167,6 +167,7 @@
     activeFolder: string | number;
     drawerVisible: boolean;
     showType: string;
+    modulesCount?: Record<string, number>; // 模块数量统计对象
   }>();
   const emit = defineEmits(['update:drawerVisible', 'itemClick']);
 
@@ -217,7 +218,10 @@
       loading.value = true;
       const res = await getRepositories(appStore.currentProjectId);
       originStorageList.value = res;
-      storageList.value = [...originStorageList.value];
+      storageList.value = originStorageList.value.map((e) => ({
+        ...e,
+        count: props.modulesCount?.[e.id] || 0,
+      }));
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

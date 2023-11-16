@@ -188,6 +188,8 @@
         @apply w-full;
       }
       .arco-drawer-close-btn {
+        @apply flex items-center;
+
         margin-left: 16px;
         color: var(--color-text-2);
       }

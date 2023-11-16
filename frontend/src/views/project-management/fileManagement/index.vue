@@ -67,6 +67,7 @@
             <StorageList
               v-model:drawer-visible="storageDrawerVisible"
               :active-folder="activeFolder"
+              :modules-count="modulesCount"
               :show-type="showType"
               @item-click="storageItemSelect"
             />
@@ -148,13 +149,6 @@
     return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
   }
 
-  type FileShowType = 'Module' | 'Storage';
-  const showType = ref<FileShowType>('Module');
-
-  function changeShowType(val: string | number | boolean) {
-    showType.value = val as FileShowType;
-  }
-
   /**
    * 处理文件夹树节点选中事件
    */
@@ -179,6 +173,14 @@
   function setRootModules(names: string[]) {
     rootModulesName.value = names;
   }
+
+  type FileShowType = 'Module' | 'Storage';
+  const showType = ref<FileShowType>('Module');
+  const tableFilterParams = ref<FileListQueryParams>({
+    moduleIds: [],
+    fileType: '',
+    projectId: '',
+  });
 
   const folderTreeRef = ref<InstanceType<typeof FolderTree>>();
   /**
@@ -208,13 +210,27 @@
     }
   }
 
+  function changeShowType(val: string | number | boolean) {
+    showType.value = val as FileShowType;
+    if (val === 'Storage') {
+      initModulesCount({
+        ...tableFilterParams.value,
+        combine: {
+          ...tableFilterParams.value.combine,
+          storage: 'git',
+        },
+      });
+    } else {
+      initModulesCount(tableFilterParams.value);
+    }
+  }
+
   /**
    * 右侧表格数据刷新后，若当前展示的是模块，则刷新模块树的统计数量
    */
   function handleModuleTableInit(params: FileListQueryParams) {
-    if (showType.value === 'Module') {
-      initModulesCount(params);
-    }
+    initModulesCount(params);
+    tableFilterParams.value = { ...params };
   }
 </script>
 

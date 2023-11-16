@@ -133,3 +133,12 @@ export interface AddRepositoryFileParams {
   filePath: string;
   enable: boolean;
 }
+// 关联用例列表项
+export interface AssociationItem {
+  id: string;
+  sourceId: string; // 资源Id
+  fileId: string; // 文件Id
+  sourceName: string; // 资源名称
+  sourceType: string; // 资源类型
+  fileVersion: string; // 文件版本
+}

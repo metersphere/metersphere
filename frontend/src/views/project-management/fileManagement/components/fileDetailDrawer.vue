@@ -34,7 +34,7 @@
         {{ t('project.fileManagement.download') }}
       </MsButton>
       <MsButton
-        v-if="detail?.storage === 'git'"
+        v-if="detail?.storage === 'GIT'"
         type="icon"
         status="secondary"
         class="!rounded-[var(--border-radius-small)] !text-[var(--color-text-1)]"
@@ -142,7 +142,7 @@
             <a-tab-pane key="version" :title="t('project.fileManagement.versionHistory')" />
           </a-tabs>
           <div class="h-[16px] bg-[var(--color-text-n9)]"></div>
-          <div v-if="activeTab === 'case'" class="flex items-center justify-between p-[16px]">
+          <div v-if="activeTab === 'case'" class="flex items-center justify-between px-[16px] pt-[16px]">
             <div class="text-[var(--color-text-1)]">{{ t('project.fileManagement.caseList') }}</div>
             <a-input-search
               v-model:model-value="keyword"
@@ -155,9 +155,10 @@
             </a-input-search>
           </div>
           <div class="p-[16px]">
-            <!-- <ms-base-table
+            <ms-base-table
               v-if="activeTab === 'case'"
               v-bind="caseTableProps"
+              :data="caseList"
               no-disable
               :action-config="caseBatchActions"
               v-on="caseTableEvent"
@@ -168,7 +169,7 @@
                 </MsButton>
               </template>
             </ms-base-table>
-            <ms-base-table
+            <!-- <ms-base-table
               v-if="activeTab === 'version'"
               v-bind="versionTableProps"
               no-disable
@@ -184,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch, watchEffect } from 'vue';
+  import { ref, watch } from 'vue';
   import { useFileSystemAccess } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
@@ -202,6 +203,7 @@
 
   import {
     downloadFile,
+    getAssociationList,
     getFileDetail,
     reuploadFile,
     toggleJarFileStatus,
@@ -215,7 +217,6 @@
   import { downloadByteFile, formatFileSize } from '@/utils';
 
   import { FileDetail } from '@/models/projectManagement/file';
-  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     visible: boolean;
@@ -329,7 +330,7 @@
         value: dayjs(detail.createTime).format('YYYY-MM-DD HH:mm:ss'),
       },
     ];
-    if (detail?.storage !== 'minio') {
+    if (detail?.storage !== 'MINIO') {
       fileDescriptions.value.splice(
         3,
         0,
@@ -421,61 +422,68 @@
 
   const activeTab = ref('case');
 
-  // const caseColumns: MsTableColumn = [
-  //   {
-  //     title: 'project.fileManagement.id',
-  //     dataIndex: 'id',
-  //     width: 100,
-  //   },
-  //   {
-  //     title: 'project.fileManagement.name',
-  //     dataIndex: 'name',
-  //     showTooltip: true,
-  //     width: 200,
-  //   },
-  //   {
-  //     title: 'project.fileManagement.type',
-  //     dataIndex: 'type',
-  //   },
-  //   {
-  //     title: 'project.fileManagement.fileVersion',
-  //     dataIndex: 'fileVersion',
-  //   },
-  //   {
-  //     title: 'common.operation',
-  //     slotName: 'action',
-  //     fixed: 'right',
-  //     width: 130,
-  //   },
-  // ];
-  // const {
-  //   propsRes: caseTableProps,
-  //   propsEvent: caseTableEvent,
-  //   loadList: loadCaseList,
-  //   setKeyword,
-  // } = useTable(getFileCases, {
-  //   tableKey: TableKeyEnum.FILE_MANAGEMENT_CASE,
-  //   scroll: { x: 800 },
-  //   columns: caseColumns,
-  //   selectable: true,
-  //   showSelectAll: true,
-  //   size: 'default',
-  // });
+  const caseColumns: MsTableColumn = [
+    {
+      title: 'project.fileManagement.id',
+      dataIndex: 'id',
+      width: 100,
+    },
+    {
+      title: 'project.fileManagement.name',
+      dataIndex: 'sourceName',
+      showTooltip: true,
+      width: 200,
+    },
+    {
+      title: 'project.fileManagement.type',
+      dataIndex: 'sourceType',
+    },
+    {
+      title: 'project.fileManagement.fileVersion',
+      dataIndex: 'fileVersion',
+    },
+    {
+      title: 'common.operation',
+      slotName: 'action',
+      fixed: 'right',
+      width: 130,
+    },
+  ];
+  const {
+    propsRes: caseTableProps,
+    propsEvent: caseTableEvent,
+    loadList: loadCaseList,
+    setLoadListParams,
+    setKeyword,
+  } = useTable(getAssociationList, {
+    scroll: { x: 800 },
+    columns: caseColumns,
+    selectable: true,
+    showSelectAll: true,
+    showPagination: false,
+    size: 'default',
+  });
 
-  // const caseBatchActions = {
-  //   baseAction: [
-  //     {
-  //       label: 'project.fileManagement.updateCaseFile',
-  //       eventTag: 'updateCaseFile',
-  //     },
-  //   ],
-  // };
+  const caseBatchActions = {
+    baseAction: [
+      {
+        label: 'project.fileManagement.updateCaseFile',
+        eventTag: 'updateCaseFile',
+      },
+    ],
+  };
 
   const keyword = ref('');
+  const caseList = ref<any[]>([]);
 
-  function searchCase() {
-    // setKeyword(keyword.value);
-    // loadCaseList();
+  function filterCaseList() {
+    caseList.value = caseTableProps.value.data.filter((item) => item.sourceName.includes(keyword.value));
+  }
+
+  async function searchCase() {
+    setKeyword(keyword.value);
+    await loadCaseList();
+    filterCaseList();
   }
 
   function updateCase(record: any) {
@@ -514,15 +522,19 @@
   //   selectable: false,
   // });
 
-  // watchEffect(() => {
-  //   if (innerVisible.value) {
-  //     if (activeTab.value === 'case') {
-  //       loadCaseList();
-  //     } else {
-  //       loadVersionList();
-  //     }
-  //   }
-  // });
+  watchEffect(async () => {
+    if (innerVisible.value) {
+      if (activeTab.value === 'case') {
+        setLoadListParams({
+          id: props.fileId,
+        });
+        await loadCaseList();
+        filterCaseList();
+      } else {
+        // loadVersionList();
+      }
+    }
+  });
 </script>
 
 <style lang="less" scoped>
