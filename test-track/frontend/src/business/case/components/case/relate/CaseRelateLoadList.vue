@@ -129,7 +129,7 @@ export default {
         components: TEST_CASE_RELEVANCE_LOAD_CASE,
       },
       result: {},
-      screenHeight: "100vh - 300px", //屏幕高度
+      screenHeight: "calc(60vh - 15px)", //屏幕高度
       tableData: [],
       currentPage: 1,
       pageSize: 10,
