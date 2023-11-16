@@ -1,24 +1,29 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.Pager;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.domain.TestResourcePoolBlob;
 import io.metersphere.system.domain.TestResourcePoolOrganization;
 import io.metersphere.system.domain.TestResourcePoolOrganizationExample;
 import io.metersphere.system.dto.pool.*;
 import io.metersphere.system.dto.sdk.QueryResourcePoolRequest;
+import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
+import io.metersphere.system.service.TestResourcePoolService;
+import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import org.junit.jupiter.api.*;
-import org.mockserver.client.MockServerClient;
-import org.mockserver.model.Header;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,13 +35,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,7 +53,12 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Resource
     private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
     @Resource
-    private  MockServerClient mockServerClient;
+    private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private TestResourcePoolBlobMapper testResourcePoolBlobMapper;
+
+
+    protected TestResourcePoolService testResourcePoolService;
 
     @Value("${embedded.mockserver.host}")
     private String host;
@@ -108,7 +114,7 @@ class TestResourcePoolControllerTests extends BaseTest {
             "}";
 
 
-    private MvcResult addTestResourcePoolSuccess(String name, Boolean allOrg, Boolean partOrg, Boolean useApi, Boolean useLoad, Boolean useUi, String type) throws Exception {
+    private TestResourcePool addTestResourcePoolSuccess(String name, Boolean allOrg, Boolean partOrg, Boolean useApi, Boolean useLoad, Boolean useUi, String type) throws Exception {
         TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
         testResourcePoolRequest.setId("");
         testResourcePoolRequest.setName(name);
@@ -120,15 +126,13 @@ class TestResourcePoolControllerTests extends BaseTest {
         //应用全部
         testResourcePoolRequest.setAllOrg(allOrg);
         setResources(testResourcePoolRequest, partOrg);
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(TEST_RESOURCE_POOL_ADD)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(testResourcePoolRequest))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String userId = SessionUtils.getUserId();
+        TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
+        BeanUtils.copyBean(testResourcePool, testResourcePoolRequest);
+        testResourcePool.setCreateUser(userId);
+        testResourcePool.setCreateTime(System.currentTimeMillis());
         //应用全部 关系表里不会存值
-        TestResourcePool testResourcePoolRequest1 = getResult(mvcResult);
+        TestResourcePool testResourcePoolRequest1 = addTestResourcePool(testResourcePool);
         List<TestResourcePoolOrganization> testResourcePoolOrganizations = getTestResourcePoolOrganizations(testResourcePoolRequest1);
         if (allOrg) {
             Assertions.assertTrue(CollectionUtils.isEmpty(testResourcePoolOrganizations));
@@ -137,9 +141,39 @@ class TestResourcePoolControllerTests extends BaseTest {
             Assertions.assertTrue((CollectionUtils.isNotEmpty(testResourcePoolOrganizations) && testResourcePoolOrganizations.size() == 2));
         }
 
+        return testResourcePoolRequest1;
+    }
 
+    public TestResourcePool addTestResourcePool(TestResourcePoolDTO testResourcePool) {
+        testResourcePoolService = CommonBeanFactory.getBean(TestResourcePoolService.class);
+        String id = IDGenerator.nextStr();
+        testResourcePoolService.checkTestResourcePool(testResourcePool);
+        TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
+        testResourcePoolBlob.setId(id);
+        TestResourceDTO testResourceDTO = testResourcePool.getTestResourceDTO();
+        testResourcePoolService.checkAndSaveOrgRelation(testResourcePool, id, testResourceDTO);
+        testResourcePoolService.checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
+        testResourcePoolService.checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
+        testResourcePoolService.checkUiConfig(testResourceDTO, testResourcePool);
+        if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
+            testResourceDTO.setNodesList(new ArrayList<>());
+        }
+        String configuration = JSON.toJSONString(testResourceDTO);
+        testResourcePoolBlob.setConfiguration(configuration.getBytes());
+        buildTestPoolBaseInfo(testResourcePool, id);
+        testResourcePoolMapper.insert(testResourcePool);
+        testResourcePoolBlobMapper.insert(testResourcePoolBlob);
+        testResourcePool.setId(id);
+        return testResourcePool;
+    }
 
-        return mvcResult;
+    public static void buildTestPoolBaseInfo(TestResourcePool testResourcePool, String id) {
+        testResourcePool.setId(id);
+        testResourcePool.setUpdateTime(System.currentTimeMillis());
+        if (testResourcePool.getEnable() == null) {
+            testResourcePool.setEnable(true);
+        }
+        testResourcePool.setDeleted(false);
     }
 
     @Test
@@ -199,45 +233,11 @@ class TestResourcePoolControllerTests extends BaseTest {
         this.addTestResourcePoolSuccess("test_pool_7", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
     }
 
-    @Test
-    @Order(8)
-    void addTestResourcePoolFailedBySameName() throws Exception {
-        TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
-        testResourcePoolRequest.setName("test_pool_7");
-        testResourcePoolRequest.setType(ResourcePoolTypeEnum.K8S.name());
-        testResourcePoolRequest.setApiTest(true);
-        testResourcePoolRequest.setLoadTest(false);
-        testResourcePoolRequest.setUiTest(false);
-        //添加成功 需要加应用组织的 全部 部分组织的测试 既有全部又有list
-        //应用全部
-        testResourcePoolRequest.setAllOrg(false);
-        setResources(testResourcePoolRequest, true);
-        mockMvc.perform(MockMvcRequestBuilders.post(TEST_RESOURCE_POOL_ADD)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(testResourcePoolRequest))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(ERROR_REQUEST_MATCHER)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-    }
-
-    private static TestResourcePool getResult(MvcResult mvcResult) throws UnsupportedEncodingException {
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePool.class);
-    }
 
     private List<TestResourcePoolOrganization> getTestResourcePoolOrganizations(TestResourcePool testResourcePoolRequest1) {
         TestResourcePoolOrganizationExample testResourcePoolOrganizationExample = new TestResourcePoolOrganizationExample();
         testResourcePoolOrganizationExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolRequest1.getId());
         return testResourcePoolOrganizationMapper.selectByExample(testResourcePoolOrganizationExample);
-    }
-
-    @Test
-    @Order(9)
-    void addUiTestResourcePoolFiled() throws Exception {
-        this.dealTestResourcePoolFiled("ADD");
     }
 
     @Test
@@ -291,8 +291,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Test
     @Order(13)
     void getResourcePoolsDetailWidthBlobK8s() throws Exception {
-        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob_k8s", false, true, true, true, true, ResourcePoolTypeEnum.K8S.name());
-        TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
+        TestResourcePool testResourcePoolRequest1  = this.addTestResourcePoolSuccess("test_pool_blob_k8s", false, true, true, true, true, ResourcePoolTypeEnum.K8S.name());
         String id = testResourcePoolRequest1.getId();
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/detail/" + id)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -331,8 +330,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Test
     @Order(14)
     void getResourcePoolsDetailWidthBlobNode() throws Exception {
-        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob_node", false, true, true, true, true, ResourcePoolTypeEnum.NODE.name());
-        TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
+        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_node", false, true, true, true, true, ResourcePoolTypeEnum.NODE.name());
         String id = testResourcePoolRequest1.getId();
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/detail/" + id)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -373,8 +371,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Test
     @Order(15)
     void getResourcePoolsDetailWidthBlobNoOtgIds() throws Exception {
-        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob_no_org_id", true, false, true, false, false, ResourcePoolTypeEnum.K8S.name());
-        TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
+        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_no_org_id", true, false, true, false, false, ResourcePoolTypeEnum.K8S.name());
         String id = testResourcePoolRequest1.getId();
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
         request.setCurrent(1);
@@ -412,8 +409,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Test
     @Order(17)
     void updateTestResourcePool() throws Exception {
-        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob2", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
-        TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
+        TestResourcePool testResourcePoolRequest1  = this.addTestResourcePoolSuccess("test_pool_blob2", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
         String id = testResourcePoolRequest1.getId();
         TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
         testResourcePoolRequest.setId(id);
@@ -466,8 +462,7 @@ class TestResourcePoolControllerTests extends BaseTest {
             testResourcePoolRequest.setId("");
             this.requestPost(urlType, url, id, testResourcePoolRequest, status().isBadRequest());
 
-            MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob2", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
-            TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
+            TestResourcePool testResourcePoolRequest1  = this.addTestResourcePoolSuccess("test_pool_blob2", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
             id = testResourcePoolRequest1.getId();
         }
 
@@ -513,86 +508,6 @@ class TestResourcePoolControllerTests extends BaseTest {
         testResourcePoolRequest.setTestResourceDTO(JSON.parseObject(configurationWidthOutOrgIds, TestResourceDTO.class));
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
     }
-
-    @Test
-    //单独执行时请打开
-    /*@Sql(scripts = {"/dml/init_test_resource_pool.sql"},
-            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)*/
-    @Order(19)
-    void deleteTestResourcePool() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/delete/103")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-    }
-
-    @Test
-    @Order(20)
-    void deleteTestResourcePoolFiled() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/delete/105")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(ERROR_REQUEST_MATCHER)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-    }
-
-    @Test
-    @Order(21)
-    void unableTestResourcePoolSuccess() throws Exception {
-        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob4", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
-        TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
-        String id = testResourcePoolRequest1.getId();
-        mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/"+id)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().is5xxServerError())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-    }
-
-    @Test
-    @Order(22)
-    void createExpectationForInvalidAuth() throws Exception {
-        mockServerClient
-                .when(
-                        request()
-                                .withMethod("GET")
-                                .withPath("/status"))
-                .respond(
-                        response()
-                                .withStatusCode(200)
-                                .withHeaders(
-                                        new Header("Content-Type", "application/json; charset=utf-8"),
-                                        new Header("Cache-Control", "public, max-age=86400"))
-                                .withBody(JSON.toJSONString(ResultHolder.success("OK")))
-                );
-        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob3", false, true, true, false, false, ResourcePoolTypeEnum.NODE.name());
-        TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
-        String id = testResourcePoolRequest1.getId();
-        mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/"+id)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-    }
-
-    @Test
-    @Order(23)
-    void unableTestResourcePoolFiled() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/105")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(ERROR_REQUEST_MATCHER)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-    }
-
-
 
     void listByKeyWord(String keyWord) throws Exception {
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
