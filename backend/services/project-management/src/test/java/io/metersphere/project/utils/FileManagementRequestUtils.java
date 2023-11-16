@@ -40,6 +40,8 @@ public class FileManagementRequestUtils {
     public static final String URL_FILE_UPDATE = "/project/file/update";
     //文件批量移动（权限判断需要提前上传文件，所以放在了主测试类里）
     public static final String URL_FILE_BATCH_UPDATE = "/project/file/batch-move";
+    //文件批量移动（权限判断需要提前上传文件，所以放在了主测试类里）
+    public static final String URL_FILE_VERSION = "/project/file/file-version/%s";
 
     /*
     存储库相关路径

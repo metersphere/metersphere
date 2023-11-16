@@ -12,7 +12,11 @@ import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.UserRegisterRequest;
+import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
+import io.metersphere.system.dto.request.user.UserEditRequest;
+import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserInviteResponse;
+import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import io.metersphere.system.dto.sdk.SessionUser;
@@ -26,10 +30,6 @@ import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.sender.impl.MailNoticeSender;
-import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
-import io.metersphere.system.dto.request.user.UserEditRequest;
-import io.metersphere.system.dto.response.UserImportResponse;
-import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.UserImportEventListener;
 import jakarta.annotation.Resource;
@@ -438,7 +438,6 @@ public class UserService {
     }
 
     public void sendInviteEmailTemporary(HashMap<String, String> hashMap) throws Exception {
-        //todo 发送邮件  等小美女的消息通知提交完毕之后删除。
         JavaMailSenderImpl javaMailSender = null;
         try {
             javaMailSender = mailNoticeSender.getMailSender(hashMap);

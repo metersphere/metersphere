@@ -14,6 +14,8 @@ public interface BaseUserMapper {
 
     UserDTO selectById(String id);
 
+    String selectNameById(String id);
+
     List<User> findAll();
 
     void batchSave(@Param("users") List<User> users);

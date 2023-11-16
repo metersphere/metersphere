@@ -381,7 +381,9 @@ public class FileRepositoryControllerTest extends BaseTest {
         String fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkRepositoryFile(fileId, request);
         this.checkLog(fileId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD);
+        getFileMessage(fileId);
         fileList.add(fileId);
+
         //测试其他分支的多层目录的文件
         String otherBranch = "develop";
         String folderFilePath1 = "test-folder/gitee/test.txt";
@@ -392,6 +394,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkRepositoryFile(fileId, request);
+        getFileMessage(fileId);
         fileList.add(fileId);
         //测试隐藏文件
         String folderFilePath2 = "test-folder/.keep";
@@ -402,6 +405,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkRepositoryFile(fileId, request);
+        getFileMessage(fileId);
         fileList.add(fileId);
         //测试添加jar包并且启用
         request = new RepositoryFileAddRequest();
@@ -412,6 +416,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkRepositoryFile(fileId, request);
+        getFileMessage(fileId);
         fileList.add(fileId);
         //获取图片信息
         request = new RepositoryFileAddRequest();
@@ -421,6 +426,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkRepositoryFile(fileId, request);
+        getFileMessage(fileId);
         this.picFileId = fileId;
         fileList.add(fileId);
         {
@@ -495,6 +501,29 @@ public class FileRepositoryControllerTest extends BaseTest {
         Pager<List<FileInformationResponse>> tableResult = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
         Assertions.assertEquals(tableResult.getTotal(), fileList.size());
 
+    }
+
+    private void getFileMessage(String fileId) throws Exception {
+        MvcResult fileTypeResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE, fileId));
+        String returnData = fileTypeResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        FileInformationResponse dto = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FileInformationResponse.class);
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getId()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getName()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getProjectId()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getModuleName()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getModuleId()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getCreateUser()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getUpdateUser()));
+        Assertions.assertTrue(dto.getUpdateTime() > 0);
+        Assertions.assertTrue(dto.getCreateTime() > 0);
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getStorage()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getRefId()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getFileVersion()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getFilePath()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getBranch()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getCommitId()));
+        Assertions.assertTrue(StringUtils.isNotEmpty(dto.getCommitMessage()));
     }
 
     @Test
