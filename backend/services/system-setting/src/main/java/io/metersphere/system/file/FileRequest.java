@@ -7,28 +7,8 @@ import lombok.Data;
 
 @Data
 public class FileRequest {
-    public static final String MAIN_FOLDER_SYSTEM = "system";
-    public static final String MAIN_FOLDER_PROJECT = "project";
-    public static final String MAIN_FOLDER_ORGANIZATION = "organization";
 
-    public static final String APP_NAME_FILE_MANAGEMENT = "fileManagement";
-
-    //主文件夹  取值：system、project、organization
-    private String mainFolder;
-
-    /*
-    资源所属组目录。
-        当mainFolder为system时，这里可以是plugin（存放插件）
-        当mainFolder为project时，这里可以是项目ID
-        可为空
-     */
-    private String sourceGroupFolder;
-
-    /*
-        可以为空
-        取值参照：fileManagement、api
-     */
-    private String appName;
+    private String folder;
 
     //项目ID
     private String projectId;

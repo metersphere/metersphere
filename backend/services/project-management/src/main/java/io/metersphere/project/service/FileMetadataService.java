@@ -216,9 +216,7 @@ public class FileMetadataService {
 
         FileRequest uploadFileRequest = new FileRequest();
         uploadFileRequest.setFileName(fileMetadata.getId());
-        uploadFileRequest.setMainFolder(FileRequest.MAIN_FOLDER_PROJECT);
-        uploadFileRequest.setAppName(FileRequest.APP_NAME_FILE_MANAGEMENT);
-        uploadFileRequest.setSourceGroupFolder(fileMetadata.getProjectId());
+        uploadFileRequest.setFolder(this.generateMinIOFilePath(projectId));
         uploadFileRequest.setStorage(StorageType.MINIO.name());
 
         FileRepository minio = CommonBeanFactory.getBean(MinioRepository.class);
@@ -282,9 +280,7 @@ public class FileMetadataService {
     private String uploadFile(FileMetadata fileMetadata, MultipartFile file) throws Exception {
         FileRequest uploadFileRequest = new FileRequest();
         uploadFileRequest.setFileName(fileMetadata.getId());
-        uploadFileRequest.setSourceGroupFolder(fileMetadata.getProjectId());
-        uploadFileRequest.setMainFolder(FileRequest.MAIN_FOLDER_PROJECT);
-        uploadFileRequest.setAppName(FileRequest.APP_NAME_FILE_MANAGEMENT);
+        uploadFileRequest.setFolder(this.generateMinIOFilePath(fileMetadata.getProjectId()));
         uploadFileRequest.setStorage(StorageType.MINIO.name());
         return fileService.upload(file, uploadFileRequest);
     }
@@ -324,9 +320,7 @@ public class FileMetadataService {
         }
         FileRequest fileRequest = new FileRequest();
         fileRequest.setFileName(fileMetadata.getId());
-        fileRequest.setSourceGroupFolder(fileMetadata.getProjectId());
-        fileRequest.setMainFolder(FileRequest.MAIN_FOLDER_PROJECT);
-        fileRequest.setAppName(FileRequest.APP_NAME_FILE_MANAGEMENT);
+        fileRequest.setFolder(this.generateMinIOFilePath(fileMetadata.getProjectId()));
         fileRequest.setStorage(fileMetadata.getStorage());
 
         //获取git文件下载
@@ -665,5 +659,12 @@ public class FileMetadataService {
             fileVersionResponseList.add(fileVersionResponse);
         });
         return fileVersionResponseList;
+    }
+
+    private static final String MAIN_FOLDER_PROJECT = "project";
+    private static final String APP_NAME_FILE_MANAGEMENT = "fileManagement";
+
+    private String generateMinIOFilePath(String projectId) {
+        return StringUtils.join(MAIN_FOLDER_PROJECT, "/", projectId, "/", APP_NAME_FILE_MANAGEMENT);
     }
 }
