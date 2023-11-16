@@ -63,11 +63,13 @@ public class EnvironmentService {
     @Resource
     private ExtEnvironmentMapper extEnvironmentMapper;
 
-    private static final String DIR_PATH = "/project-management/environment/";
     private static final String USERNAME = "user";
     private static final String PASSWORD = "password";
     private static final String PATH = "/project/environment/import";
     private static final String MOCK_EVN_SOCKET = "/api/mock/";
+
+    private static final String MAIN_FOLDER_PROJECT = "project";
+    private static final String APP_NAME_ENVIRONMENT = "environment";
 
     public List<OptionDTO> getDriverOptions(String organizationId) {
         return jdbcDriverPluginService.getJdbcDriverOption(organizationId);
@@ -95,7 +97,7 @@ public class EnvironmentService {
         }
         //删除环境的ssl文件
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setProjectId(StringUtils.join(DIR_PATH, environment.getProjectId()));
+        fileRequest.setFolder(minioEnvPath(environment.getProjectId()));
         fileRequest.setResourceId(id);
         try {
             minioRepository.deleteFolder(fileRequest);
@@ -128,11 +130,16 @@ public class EnvironmentService {
         environmentBlob.setId(environment.getId());
         environmentBlob.setConfig(JSON.toJSONBytes(request.getConfig()));
         environmentBlobMapper.insert(environmentBlob);
+        uploadFileToMinio(sslFiles, environment);
+        return request;
+    }
+
+    private void uploadFileToMinio(List<MultipartFile> sslFiles, Environment environment) {
         if (CollectionUtils.isNotEmpty(sslFiles)) {
             sslFiles.forEach(sslFile -> {
                 FileRequest fileRequest = new FileRequest();
-                fileRequest.setFileName(sslFile.getOriginalFilename());
-                fileRequest.setProjectId(StringUtils.join(DIR_PATH, environment.getProjectId()));
+                fileRequest.setFolder(minioEnvPath(environment.getProjectId()));
+                fileRequest.setFileName(sslFile.getName());
                 fileRequest.setResourceId(environment.getId());
                 try {
                     minioRepository.saveFile(sslFile, fileRequest);
@@ -142,7 +149,6 @@ public class EnvironmentService {
                 }
             });
         }
-        return request;
     }
 
     public EnvironmentRequest get(String environmentId) {
@@ -296,20 +302,12 @@ public class EnvironmentService {
         environmentBlob.setId(environment.getId());
         environmentBlob.setConfig(JSON.toJSONBytes(request.getConfig()));
         environmentBlobMapper.updateByPrimaryKeySelective(environmentBlob);
-        if (CollectionUtils.isNotEmpty(sslFiles)) {
-            sslFiles.forEach(sslFile -> {
-                FileRequest fileRequest = new FileRequest();
-                fileRequest.setFileName(sslFile.getOriginalFilename());
-                fileRequest.setProjectId(StringUtils.join(DIR_PATH, environment.getProjectId()));
-                fileRequest.setResourceId(request.getId());
-                try {
-                    minioRepository.saveFile(sslFile, fileRequest);
-                } catch (Exception e) {
-                    LogUtils.info("上传ssl文件失败:  文件名称:" + sslFile.getOriginalFilename(), e);
-                }
-            });
-        }
+        uploadFileToMinio(sslFiles, environment);
         return request;
+    }
+
+    private String minioEnvPath(String projectId) {
+        return StringUtils.join(MAIN_FOLDER_PROJECT, "/", projectId, "/", APP_NAME_ENVIRONMENT);
     }
 
 }

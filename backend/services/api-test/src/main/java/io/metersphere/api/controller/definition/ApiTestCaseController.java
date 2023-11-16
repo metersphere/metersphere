@@ -1,8 +1,12 @@
 package io.metersphere.api.controller.definition;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
+import io.metersphere.api.dto.request.ApiTestCasePageRequest;
 import io.metersphere.api.service.definition.ApiTestCaseLogService;
 import io.metersphere.api.service.definition.ApiTestCaseNoticeService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
@@ -11,10 +15,13 @@ import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -85,5 +92,31 @@ public class ApiTestCaseController {
     public void delete(@PathVariable String id) {
         apiTestCaseService.delete(id);
     }
+
+    @PostMapping(value = "/update")
+    @Operation(summary = "接口测试-接口管理-接口用例-更新")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiTestCaseLogService.class)
+    public ApiTestCase update(@Validated @RequestPart("request") ApiTestCaseUpdateRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        return apiTestCaseService.update(request, files, SessionUtils.getUserId());
+    }
+
+    @GetMapping(value = "/update-status/{id}/{status}")
+    @Operation(summary = "接口测试-接口管理-接口用例-更新状态")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiTestCaseLogService.class)
+    public void updateStatus(@PathVariable String id, @PathVariable String status) {
+        apiTestCaseService.updateStatus(id, status, SessionUtils.getUserId());
+    }
+
+    @PostMapping(value = "/page")
+    @Operation(summary = "接口测试-接口管理-接口用例-分页查询")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    public Pager<List<ApiTestCaseDTO>> page(@Validated @RequestBody ApiTestCasePageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, apiTestCaseService.page(request));
+    }
+
 
 }

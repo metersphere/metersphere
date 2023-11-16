@@ -2,6 +2,7 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -131,6 +132,42 @@ public class ApiTestCaseLogService {
 
         dto.setPath("/api/testCase/unfollow/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
+        dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
+        return dto;
+    }
+
+    public LogDTO updateLog(ApiTestCaseUpdateRequest request) {
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(request.getId());
+        Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
+        LogDTO dto = new LogDTO(
+                apiTestCase.getProjectId(),
+                project.getOrganizationId(),
+                request.getId(),
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.API_DEFINITION_CASE,
+                request.getName());
+
+        dto.setPath("/api/testCase/update");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(request));
+        return dto;
+    }
+
+    public LogDTO updateLog(String id) {
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(id);
+        Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
+        LogDTO dto = new LogDTO(
+                apiTestCase.getProjectId(),
+                project.getOrganizationId(),
+                id,
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.API_DEFINITION_CASE,
+                apiTestCase.getName());
+
+        dto.setPath("/api/testCase/update");
+        dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
     }

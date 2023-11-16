@@ -58,7 +58,7 @@ public class ApiDebugController {
     @Operation(summary = "更新接口调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDebugLogService.class)
-    public ApiDebug update(@Validated @RequestBody ApiDebugUpdateRequest request) {;
+    public ApiDebug update(@Validated @RequestBody ApiDebugUpdateRequest request) {
         return apiDebugService.update(request, SessionUtils.getUserId());
     }
 

@@ -11,4 +11,115 @@
         LIMIT 1;
 
     </select>
+    <select id="listByRequest" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
+        SELECT
+        t1.id,
+        t1.project_id,
+        t1.name,
+        t1.status,
+        t1.api_definition_id,
+        t1.priority,
+        t1.create_user,
+        t1.update_user,
+        t1.create_time,
+        t1.update_time,
+        t1.num,
+        t1.last_report_status,
+        t1.last_report_id,
+        t1.delete_time,
+        t1.environment_id
+        FROM
+        api_test_case t1
+        LEFT JOIN api_report t3 ON t1.last_report_id = t3.id
+        INNER JOIN api_definition a ON t1.api_definition_id = a.id
+        WHERE t1.deleted =#{deleted}
+        <include refid="queryWhereCondition"/>
+    </select>
+
+    <sql id="queryWhereCondition">
+        <if test="request.protocol != null and request.protocol!=''">
+            and a.protocol = #{request.protocol}
+        </if>
+        <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
+            and t1.api_definition_id = #{request.apiDefinitionId}
+        </if>
+        <if test="request.projectId != null and request.projectId!=''">
+            and t1.project_id = #{request.projectId}
+        </if>
+        <if test="request.keyword != null">
+            and (
+            t1.name like concat('%', #{request.keyword},'%')
+            or t1.num like concat('%', #{request.keyword},'%')
+            or t1.tags like JSON_CONTAINS(t1.tags, concat('["',#{request.keyword},'"]'))
+            )
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and a.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+        <include refid="queryVersionCondition">
+            <property name="versionTable" value="t1"/>
+        </include>
+    </sql>
+
+    <sql id="filters">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key == 'priority'">
+                            and t1.priority in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='status'">
+                            and t1.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='caseStatus' or key=='case_status'">
+                            and t1.case_status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='last_execute_result'">
+                            and t1.last_execute_result in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='create_user' or key=='createUser'">
+                            and t1.create_user in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                (#{value})
+                            </foreach>
+                        </when>
+                        <when test="key=='update_user' or key=='updateUser'">
+                            and t1.update_user in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                (#{value})
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="queryVersionCondition">
+        <if test="request.versionId != null">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.versionId == null and request.apiDefinitionId == null">
+            AND a.latest = 1
+        </if>
+    </sql>
 </mapper>

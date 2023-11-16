@@ -84,7 +84,6 @@ public class EnvironmentControllerTests extends BaseTest {
     private static final String getOptions = prefix + "/database/driver-options/";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
-    private static final String DIR_PATH = "/project-management/environment/";
     private static String MOCKID;
     @Resource
     private MockMvc mockMvc;
@@ -910,7 +909,7 @@ public class EnvironmentControllerTests extends BaseTest {
         this.requestGet(delete + id);
         //查询文件
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setProjectId(StringUtils.join(DIR_PATH, DEFAULT_PROJECT_ID));
+        fileRequest.setFolder("/meterSphere/" + DEFAULT_PROJECT_ID + "/" + "environment");
         fileRequest.setResourceId(id);
         MinioRepository minioRepository = CommonBeanFactory.getBean(MinioRepository.class);
         assert minioRepository != null;

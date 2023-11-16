@@ -3,6 +3,8 @@ package io.metersphere.api.service.definition;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
+import io.metersphere.api.dto.request.ApiTestCasePageRequest;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -10,24 +12,39 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.mapper.EnvironmentMapper;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.file.MinioRepository;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ApiTestCaseService {
 
     public static final Long ORDER_STEP = 5000L;
+
+
+    private static final String MAIN_FOLDER_PROJECT = "project";
+    private static final String APP_NAME_API_CASE = "apiCase";
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
@@ -42,6 +59,10 @@ public class ApiTestCaseService {
     private ApiTestCaseFollowerMapper apiTestCaseFollowerMapper;
     @Resource
     private MinioRepository minioRepository;
+    @Resource
+    private UserLoginService userLoginService;
+    @Resource
+    private EnvironmentMapper environmentMapper;
 
     public ApiTestCase addCase(ApiTestCaseAddRequest request, List<MultipartFile> files, String userId) {
         ApiTestCase testCase = new ApiTestCase();
@@ -114,7 +135,7 @@ public class ApiTestCaseService {
             files.forEach(file -> {
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(file.getName());
-                fileRequest.setProjectId(StringUtils.join(MsFileUtils.API_CASE_DIR, projectId));
+                fileRequest.setFolder(minioPath(projectId));
                 fileRequest.setResourceId(caseId);
                 fileRequest.setStorage(StorageType.MINIO.name());
                 try {
@@ -140,6 +161,14 @@ public class ApiTestCaseService {
         ApiTestCase testCase = checkResourceExist(id);
         ApiTestCaseBlob testCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
         BeanUtils.copyBean(apiTestCaseDTO, testCase);
+        if (StringUtils.isNotBlank(testCase.getTags())) {
+            apiTestCaseDTO.setTags(JSON.parseArray(testCase.getTags(), String.class));
+        } else {
+            apiTestCaseDTO.setTags(new ArrayList<>());
+        }
+        ApiDefinition apiDefinition = getApiDefinition(testCase.getApiDefinitionId());
+        apiTestCaseDTO.setMethod(apiDefinition.getMethod());
+        apiTestCaseDTO.setPath(apiDefinition.getPath());
         ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
         example.createCriteria().andCaseIdEqualTo(id).andUserIdEqualTo(userId);
         List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
@@ -197,12 +226,76 @@ public class ApiTestCaseService {
         apiTestCaseFollowerMapper.deleteByExample(example);
         try {
             FileRequest request = new FileRequest();
-            request.setProjectId(StringUtils.join(MsFileUtils.API_CASE_DIR, id));
-            request.setProjectId(StringUtils.join(MsFileUtils.API_CASE_DIR, apiCase.getProjectId()));
+            request.setFolder(minioPath(apiCase.getProjectId()));
             request.setResourceId(id);
             minioRepository.deleteFolder(request);
         } catch (Exception e) {
             LogUtils.info("删除body文件失败:  文件名称:" + id, e);
         }
+    }
+
+    public ApiTestCase update(ApiTestCaseUpdateRequest request, List<MultipartFile> files, String userId) {
+        ApiTestCase testCase = checkResourceExist(request.getId());
+        BeanUtils.copyBean(testCase, request);
+        checkNameExist(testCase);
+        testCase.setUpdateUser(userId);
+        testCase.setUpdateTime(System.currentTimeMillis());
+        if (CollectionUtils.isNotEmpty(request.getTags())) {
+            testCase.setTags(JSON.toJSONString(request.getTags()));
+        } else {
+            testCase.setTags(null);
+        }
+        apiTestCaseMapper.updateByPrimaryKey(testCase);
+        ApiTestCaseBlob apiTestCaseBlob = new ApiTestCaseBlob();
+        apiTestCaseBlob.setId(request.getId());
+        apiTestCaseBlob.setRequest(request.getRequest().getBytes());
+        apiTestCaseBlobMapper.updateByPrimaryKeySelective(apiTestCaseBlob);
+        uploadBodyFile(files, request.getId(), testCase.getProjectId());
+        return testCase;
+    }
+
+    public void updateStatus(String id, String status, String userId) {
+        checkResourceExist(id);
+        ApiTestCase update = new ApiTestCase();
+        update.setId(id);
+        update.setStatus(status);
+        update.setUpdateUser(userId);
+        update.setUpdateTime(System.currentTimeMillis());
+        apiTestCaseMapper.updateByPrimaryKeySelective(update);
+    }
+
+    public List<ApiTestCaseDTO> page(ApiTestCasePageRequest request) {
+        List<ApiTestCaseDTO> apiCaseLists = extApiTestCaseMapper.listByRequest(request, false);
+        buildApiTestCaseDTO(apiCaseLists);
+        return apiCaseLists;
+    }
+
+    private void buildApiTestCaseDTO(List<ApiTestCaseDTO> apiCaseLists) {
+        if (CollectionUtils.isNotEmpty(apiCaseLists)) {
+            List<String> userIds = new ArrayList<>();
+            userIds.addAll(apiCaseLists.stream().map(ApiTestCaseDTO::getCreateUser).toList());
+            userIds.addAll(apiCaseLists.stream().map(ApiTestCaseDTO::getUpdateUser).toList());
+            userIds.addAll(apiCaseLists.stream().map(ApiTestCaseDTO::getDeleteUser).toList());
+            Map<String, String> userMap = userLoginService.getUserNameMap(userIds.stream().filter(StringUtils::isNotBlank).distinct().toList());
+            List<String> envIds = apiCaseLists.stream().map(ApiTestCaseDTO::getEnvironmentId).toList();
+            EnvironmentExample environmentExample = new EnvironmentExample();
+            environmentExample.createCriteria().andIdIn(envIds);
+            List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+            Map<String, String> envMap = environments.stream().collect(Collectors.toMap(Environment::getId, Environment::getName));
+            apiCaseLists.forEach(apiCase -> {
+                apiCase.setCreateName(userMap.get(apiCase.getCreateUser()));
+                apiCase.setUpdateName(userMap.get(apiCase.getUpdateUser()));
+                apiCase.setDeleteName(userMap.get(apiCase.getDeleteUser()));
+                if (StringUtils.isNotBlank(apiCase.getEnvironmentId())
+                        && MapUtils.isNotEmpty(envMap)
+                        && envMap.containsKey(apiCase.getEnvironmentId())) {
+                    apiCase.setEnvironmentName(envMap.get(apiCase.getEnvironmentId()));
+                }
+            });
+        }
+    }
+
+    private String minioPath(String projectId) {
+        return StringUtils.join(MAIN_FOLDER_PROJECT, "/", projectId, "/", APP_NAME_API_CASE);
     }
 }
