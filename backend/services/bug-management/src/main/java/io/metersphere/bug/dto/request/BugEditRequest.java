@@ -60,8 +60,8 @@ public class BugEditRequest {
     @Schema(description = "删除的本地附件集合")
     private List<String> deleteLocalFileIds;
 
-    @Schema(description = "取消关联附件集合")
-    private List<String> unLinkFileIds;
+    @Schema(description = "取消关联附件关系ID集合")
+    private List<String> unLinkRefIds;
 
     @Schema(description = "关联附件集合")
     private List<String> linkFileIds;

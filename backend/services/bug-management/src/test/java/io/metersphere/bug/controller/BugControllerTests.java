@@ -440,13 +440,13 @@ public class BugControllerTests extends BaseTest {
         request.setHandleUser("admin");
         request.setTemplateId("default-bug-template");
         request.setStatus("prepare");
-        request.setLinkFileIds(List.of("default-bug-file-id-1", "default-bug-file-id-3"));
+        request.setLinkFileIds(List.of("default-bug-file-id-1"));
         Map<String, String> customFieldMap = new HashMap<>();
         customFieldMap.put("custom-field", "oasis");
         customFieldMap.put("test_field", JSON.toJSONString(List.of("test")));
         if (isUpdate) {
             request.setId("default-bug-id");
-            request.setUnLinkFileIds(List.of("default-bug-file-id-1"));
+            request.setUnLinkRefIds(List.of("default-bug-file-id-1"));
             request.setDeleteLocalFileIds(List.of("default-bug-file-id"));
             request.setLinkFileIds(List.of("default-bug-file-id-2"));
         }

@@ -102,4 +102,6 @@ public class OperationLogModule {
     public static final String API_DEBUG = "API_DEBUG";
     //接口管理-环境
     public static final String API_DEFINITION_ENVIRONMENT = "API_DEFINITION_ENVIRONMENT";
+    // 缺陷管理
+    public static final String BUG_MANAGEMENT = "BUG_MANAGEMENT";
 }

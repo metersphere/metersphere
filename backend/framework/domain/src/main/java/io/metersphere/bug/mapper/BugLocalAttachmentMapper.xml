@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.bug.mapper.BugAttachmentMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.bug.domain.BugAttachment">
+<mapper namespace="io.metersphere.bug.mapper.BugLocalAttachmentMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.bug.domain.BugLocalAttachment">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="bug_id" jdbcType="VARCHAR" property="bugId" />
     <result column="file_id" jdbcType="VARCHAR" property="fileId" />
     <result column="file_name" jdbcType="VARCHAR" property="fileName" />
     <result column="size" jdbcType="BIGINT" property="size" />
-    <result column="local" jdbcType="BIT" property="local" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
   </resultMap>
@@ -70,15 +69,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, bug_id, file_id, file_name, `size`, `local`, create_user, create_time
+    id, bug_id, file_id, file_name, `size`, create_user, create_time
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugAttachmentExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugLocalAttachmentExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from bug_attachment
+    from bug_local_attachment
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,29 +88,29 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from bug_attachment
+    from bug_local_attachment
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from bug_attachment
+    delete from bug_local_attachment
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.bug.domain.BugAttachmentExample">
-    delete from bug_attachment
+  <delete id="deleteByExample" parameterType="io.metersphere.bug.domain.BugLocalAttachmentExample">
+    delete from bug_local_attachment
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.bug.domain.BugAttachment">
-    insert into bug_attachment (id, bug_id, file_id, 
-      file_name, `size`, `local`, create_user, 
+  <insert id="insert" parameterType="io.metersphere.bug.domain.BugLocalAttachment">
+    insert into bug_local_attachment (id, bug_id, file_id, 
+      file_name, `size`, create_user, 
       create_time)
     values (#{id,jdbcType=VARCHAR}, #{bugId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
-      #{fileName,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{local,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
+      #{fileName,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugAttachment">
-    insert into bug_attachment
+  <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugLocalAttachment">
+    insert into bug_local_attachment
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -127,9 +126,6 @@
       </if>
       <if test="size != null">
         `size`,
-      </if>
-      <if test="local != null">
-        `local`,
       </if>
       <if test="createUser != null">
         create_user,
@@ -154,9 +150,6 @@
       <if test="size != null">
         #{size,jdbcType=BIGINT},
       </if>
-      <if test="local != null">
-        #{local,jdbcType=BIT},
-      </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
       </if>
@@ -165,14 +158,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.bug.domain.BugAttachmentExample" resultType="java.lang.Long">
-    select count(*) from bug_attachment
+  <select id="countByExample" parameterType="io.metersphere.bug.domain.BugLocalAttachmentExample" resultType="java.lang.Long">
+    select count(*) from bug_local_attachment
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update bug_attachment
+    update bug_local_attachment
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -189,9 +182,6 @@
       <if test="record.size != null">
         `size` = #{record.size,jdbcType=BIGINT},
       </if>
-      <if test="record.local != null">
-        `local` = #{record.local,jdbcType=BIT},
-      </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
@@ -204,21 +194,20 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update bug_attachment
+    update bug_local_attachment
     set id = #{record.id,jdbcType=VARCHAR},
       bug_id = #{record.bugId,jdbcType=VARCHAR},
       file_id = #{record.fileId,jdbcType=VARCHAR},
       file_name = #{record.fileName,jdbcType=VARCHAR},
       `size` = #{record.size,jdbcType=BIGINT},
-      `local` = #{record.local,jdbcType=BIT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.bug.domain.BugAttachment">
-    update bug_attachment
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.bug.domain.BugLocalAttachment">
+    update bug_local_attachment
     <set>
       <if test="bugId != null">
         bug_id = #{bugId,jdbcType=VARCHAR},
@@ -232,9 +221,6 @@
       <if test="size != null">
         `size` = #{size,jdbcType=BIGINT},
       </if>
-      <if test="local != null">
-        `local` = #{local,jdbcType=BIT},
-      </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
@@ -244,29 +230,28 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.bug.domain.BugAttachment">
-    update bug_attachment
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.bug.domain.BugLocalAttachment">
+    update bug_local_attachment
     set bug_id = #{bugId,jdbcType=VARCHAR},
       file_id = #{fileId,jdbcType=VARCHAR},
       file_name = #{fileName,jdbcType=VARCHAR},
       `size` = #{size,jdbcType=BIGINT},
-      `local` = #{local,jdbcType=BIT},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into bug_attachment
-    (id, bug_id, file_id, file_name, `size`, `local`, create_user, create_time)
+    insert into bug_local_attachment
+    (id, bug_id, file_id, file_name, `size`, create_user, create_time)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.bugId,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, 
-        #{item.fileName,jdbcType=VARCHAR}, #{item.size,jdbcType=BIGINT}, #{item.local,jdbcType=BIT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT})
+        #{item.fileName,jdbcType=VARCHAR}, #{item.size,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into bug_attachment (
+    insert into bug_local_attachment (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>
@@ -289,9 +274,6 @@
         </if>
         <if test="'size'.toString() == column.value">
           #{item.size,jdbcType=BIGINT}
-        </if>
-        <if test="'local'.toString() == column.value">
-          #{item.local,jdbcType=BIT}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
