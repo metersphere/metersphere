@@ -11,8 +11,6 @@ public class MsFileUtils {
     public static final String PLUGIN_DIR_NAME = "plugins";
     public static final String PLUGIN_DIR = DATA_ROOT_DIR + "/" + PLUGIN_DIR_NAME;
     public static final String FUNCTIONAL_CASE_DIR_NAME = "functionalCase";
-    public static final String API_CASE_DIR_NAME = "apiCase";
-    public static final String API_CASE_DIR = DATA_ROOT_DIR + "/" + API_CASE_DIR_NAME;
     public static final String BUG_MANAGEMENT_DIR = "bug";
 
     public static void validateFileName(String... fileNames) {

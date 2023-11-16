@@ -31,7 +31,8 @@ public class CleanOrganizationJob {
     public void cleanOrganization() {
         LogUtils.info("clean up organization start.");
         try {
-            LocalDate date = LocalDate.now().minusMonths(1);
+            //TODO 为了测试改成一天  正是后改成一个月
+            LocalDate date = LocalDate.now().minusDays(1);
             long timestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
             this.doCleanupOrganization(timestamp);
         } catch (Exception e) {
