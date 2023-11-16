@@ -3,15 +3,23 @@ package io.metersphere.api.controller;
 import io.metersphere.api.engine.ApiEngine;
 import io.metersphere.api.engine.EngineFactory;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
-import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequest;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
-import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.domain.TestResourcePoolBlob;
 import io.metersphere.system.dto.pool.TestResourceDTO;
+import io.metersphere.system.dto.pool.TestResourcePoolDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolRequest;
+import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
+import io.metersphere.system.service.TestResourcePoolService;
+import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -19,24 +27,20 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.UnsupportedEncodingException;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.util.ArrayList;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class KubernetesEngineTests extends BaseTest {
+
     @Resource
-    private MockMvc mockMvc;
-    private static final String TEST_RESOURCE_POOL_ADD = "/test/resource/pool/add";
+    private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private TestResourcePoolBlobMapper testResourcePoolBlobMapper;
+
     private static final String configurationWidthOutOrgIds = "{\n" +
             "  \"loadTestImage\": \"123\",\n" +
             "  \"loadTestHeap\": \"123\",\n" +
@@ -85,6 +89,8 @@ public class KubernetesEngineTests extends BaseTest {
     @Value("${embedded.mockserver.port}")
     private int port;
 
+    protected TestResourcePoolService testResourcePoolService;
+
     private void setResources(TestResourcePoolRequest testResourcePoolDTO, boolean isPart) {
         TestResourceDTO testResourceDTO;
         if (isPart) {
@@ -99,13 +105,7 @@ public class KubernetesEngineTests extends BaseTest {
         testResourcePoolDTO.setTestResourceDTO(testResourceDTO);
     }
 
-    private static TestResourcePool getResult(MvcResult mvcResult) throws UnsupportedEncodingException {
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePool.class);
-    }
-
-    private String addPool(String type) throws Exception {
+    private String addPool(String type) {
         TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
         testResourcePoolRequest.setId("");
         testResourcePoolRequest.setName("api_test_pool");
@@ -117,16 +117,47 @@ public class KubernetesEngineTests extends BaseTest {
         //应用全部
         testResourcePoolRequest.setAllOrg(true);
         setResources(testResourcePoolRequest, false);
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(TEST_RESOURCE_POOL_ADD)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(testResourcePoolRequest))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String userId = SessionUtils.getUserId();
+        TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
+        BeanUtils.copyBean(testResourcePool, testResourcePoolRequest);
+        testResourcePool.setCreateUser(userId);
+        testResourcePool.setCreateTime(System.currentTimeMillis());
         //应用全部 关系表里不会存值
-        TestResourcePool testResourcePool = getResult(mvcResult);
-        return testResourcePool.getId();
+        TestResourcePool testResourcePoolRequest1 = addTestResourcePool(testResourcePool);
+
+        return testResourcePoolRequest1.getId();
+    }
+
+    public TestResourcePool addTestResourcePool(TestResourcePoolDTO testResourcePool) {
+        testResourcePoolService = CommonBeanFactory.getBean(TestResourcePoolService.class);
+        String id = IDGenerator.nextStr();
+        testResourcePoolService.checkTestResourcePool(testResourcePool);
+        TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
+        testResourcePoolBlob.setId(id);
+        TestResourceDTO testResourceDTO = testResourcePool.getTestResourceDTO();
+        testResourcePoolService.checkAndSaveOrgRelation(testResourcePool, id, testResourceDTO);
+        testResourcePoolService.checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
+        testResourcePoolService.checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
+        testResourcePoolService.checkUiConfig(testResourceDTO, testResourcePool);
+        if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
+            testResourceDTO.setNodesList(new ArrayList<>());
+        }
+        String configuration = JSON.toJSONString(testResourceDTO);
+        testResourcePoolBlob.setConfiguration(configuration.getBytes());
+        buildTestPoolBaseInfo(testResourcePool, id);
+        testResourcePoolMapper.insert(testResourcePool);
+        testResourcePoolBlobMapper.insert(testResourcePoolBlob);
+        testResourcePool.setId(id);
+        return testResourcePool;
+    }
+
+    public static void buildTestPoolBaseInfo(TestResourcePool testResourcePool, String id) {
+        testResourcePool.setId(id);
+        testResourcePool.setUpdateTime(System.currentTimeMillis());
+        if (testResourcePool.getEnable() == null) {
+            testResourcePool.setEnable(true);
+        }
+        testResourcePool.setDeleted(false);
     }
 
     @Test

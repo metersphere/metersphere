@@ -1,7 +1,5 @@
 package io.metersphere.system.service;
 
-import io.metersphere.project.domain.ProjectTestResourcePoolExample;
-import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
@@ -49,35 +47,9 @@ public class TestResourcePoolService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private OrganizationMapper organizationMapper;
-    @Resource
-    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
 
 
-    public TestResourcePool addTestResourcePool(TestResourcePoolDTO testResourcePool) {
-        String id = IDGenerator.nextStr();
-
-        checkTestResourcePool(testResourcePool);
-
-        TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
-        testResourcePoolBlob.setId(id);
-        TestResourceDTO testResourceDTO = testResourcePool.getTestResourceDTO();
-        checkAndSaveOrgRelation(testResourcePool, id, testResourceDTO);
-        checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
-        checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
-        checkUiConfig(testResourceDTO, testResourcePool);
-        if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
-            testResourceDTO.setNodesList(new ArrayList<>());
-        }
-        String configuration = JSON.toJSONString(testResourceDTO);
-        testResourcePoolBlob.setConfiguration(configuration.getBytes());
-        buildTestPoolBaseInfo(testResourcePool, id);
-        testResourcePoolMapper.insert(testResourcePool);
-        testResourcePoolBlobMapper.insert(testResourcePoolBlob);
-        testResourcePool.setId(id);
-        return testResourcePool;
-    }
-
-    private void checkAndSaveOrgRelation(TestResourcePool testResourcePool, String id, TestResourceDTO testResourceDTO) {
+    public void checkAndSaveOrgRelation(TestResourcePool testResourcePool, String id, TestResourceDTO testResourceDTO) {
         //防止前端传入的应用组织为空
         if ((testResourcePool.getAllOrg() == null || !testResourcePool.getAllOrg()) && CollectionUtils.isEmpty(testResourceDTO.getOrgIds())) {
             throw new MSException(Translator.get("resource_pool_application_organization_is_empty"));
@@ -105,16 +77,7 @@ public class TestResourcePoolService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
-    private static void buildTestPoolBaseInfo(TestResourcePool testResourcePool, String id) {
-        testResourcePool.setId(id);
-        testResourcePool.setUpdateTime(System.currentTimeMillis());
-        if (testResourcePool.getEnable() == null) {
-            testResourcePool.setEnable(true);
-        }
-        testResourcePool.setDeleted(false);
-    }
-
-    private boolean checkLoadConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
+    public boolean checkLoadConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
         if (testResourcePool.getLoadTest() == null || !testResourcePool.getLoadTest()) {
             return true;
         }
@@ -142,18 +105,18 @@ public class TestResourcePoolService {
         }
     }
 
-    private boolean checkUiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool) {
+    public void checkUiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool) {
         if (testResourcePool.getUiTest() == null || !testResourcePool.getUiTest()) {
-            return true;
+            return;
         }
         UiResourceService resourcePoolService = CommonBeanFactory.getBean(UiResourceService.class);
         if (resourcePoolService == null) {
-            return false;
+            return;
         }
-        return resourcePoolService.validate(testResourceDTO);
+        resourcePoolService.validate(testResourceDTO);
     }
 
-    private boolean checkApiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
+    public boolean checkApiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
         if (testResourcePool.getApiTest() == null || !testResourcePool.getApiTest()) {
             return true;
         }
@@ -162,32 +125,6 @@ public class TestResourcePoolService {
             testResourcePool.setEnable(false);
         }
         return validate;
-    }
-
-    public void deleteTestResourcePool(String testResourcePoolId) {
-        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
-        if (testResourcePool == null) {
-            throw new MSException(Translator.get("test_resource_pool_not_exists"));
-        }
-        //删除与组织的关系
-        deleteOrgRelation(testResourcePoolId);
-        deleteProjectRelation(testResourcePoolId);
-        testResourcePool.setUpdateTime(System.currentTimeMillis());
-        testResourcePool.setEnable(false);
-        testResourcePool.setDeleted(true);
-        testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
-    }
-
-    private void deleteProjectRelation(String testResourcePoolId) {
-        ProjectTestResourcePoolExample projectTestResourcePoolExample = new ProjectTestResourcePoolExample();
-        projectTestResourcePoolExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolId);
-        projectTestResourcePoolMapper.deleteByExample(projectTestResourcePoolExample);
-    }
-
-    private void deleteOrgRelation(String testResourcePoolId) {
-        TestResourcePoolOrganizationExample testResourcePoolOrganizationExample = new TestResourcePoolOrganizationExample();
-        testResourcePoolOrganizationExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolId);
-        testResourcePoolOrganizationMapper.deleteByExample(testResourcePoolOrganizationExample);
     }
 
     public void updateTestResourcePool(TestResourcePoolDTO testResourcePool) {
@@ -200,6 +137,10 @@ public class TestResourcePoolService {
         checkUiConfig(testResourceDTO, testResourcePool);
         if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
             testResourceDTO.setNodesList(new ArrayList<>());
+        }
+        TestResourcePoolValidateService testResourcePoolValidateService = CommonBeanFactory.getBean(TestResourcePoolValidateService.class);
+        if (testResourcePoolValidateService!=null) {
+            testResourcePoolValidateService.validateNodeList(testResourceDTO.getNodesList());
         }
         String configuration = JSON.toJSONString(testResourceDTO);
         TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
@@ -302,43 +243,6 @@ public class TestResourcePoolService {
         return testResourcePoolReturnDTO;
     }
 
-    public LogDTO addLog(TestResourcePoolRequest request) {
-        LogDTO dto = new LogDTO(
-                OperationLogConstants.SYSTEM,
-                OperationLogConstants.SYSTEM,
-                request.getId(),
-                null,
-                OperationLogType.ADD.name(),
-                OperationLogModule.SETTING_SYSTEM_RESOURCE_POOL,
-                request.getName());
-
-        dto.setPath("/test/resource/pool/add");
-        dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(request));
-        return dto;
-    }
-
-    public LogDTO deleteLog(String id) {
-        TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(id);
-        if (pool != null) {
-            LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
-                    id,
-                    pool.getCreateUser(),
-                    OperationLogType.DELETE.name(),
-                    OperationLogModule.SETTING_SYSTEM_RESOURCE_POOL,
-                    pool.getName());
-
-            dto.setPath("/delete");
-            dto.setMethod(HttpMethodConstants.POST.name());
-
-            dto.setOriginalValue(JSON.toJSONBytes(pool));
-            return dto;
-        }
-        return null;
-    }
-
     public LogDTO updateLog(String resourcePoolId) {
         TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
         if (pool != null) {
@@ -360,32 +264,4 @@ public class TestResourcePoolService {
     }
 
 
-    public void unableTestResourcePool(String testResourcePoolId) {
-        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
-        if (testResourcePool == null) {
-            throw new MSException(Translator.get("test_resource_pool_not_exists"));
-        }
-        testResourcePool.setUpdateTime(System.currentTimeMillis());
-        Boolean enable = testResourcePool.getEnable();
-        if (!enable) {
-            TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(testResourcePoolId);
-            byte[] configuration = testResourcePoolBlob.getConfiguration();
-            String testResourceDTOStr = new String(configuration);
-            TestResourceDTO testResourceDTO = JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
-            boolean apiValidate = checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
-            if (! apiValidate) {
-                throw new MSException(Translator.get("test_resource_pool_is_valid_fail"));
-            }
-            boolean loadValidate = checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
-            if (! loadValidate) {
-                throw new MSException(Translator.get("test_resource_pool_is_valid_fail"));
-            }
-        }
-        if (enable) {
-            testResourcePool.setEnable(false);
-        } else {
-            testResourcePool.setEnable(true);
-        }
-        testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
-    }
 }
