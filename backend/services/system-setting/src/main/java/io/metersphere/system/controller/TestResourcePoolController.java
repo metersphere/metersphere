@@ -3,20 +3,17 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.dto.sdk.QueryResourcePoolRequest;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.consul.CacheNode;
 import io.metersphere.system.dto.pool.TestResourcePoolDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolRequest;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
+import io.metersphere.system.dto.sdk.QueryResourcePoolRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.TestResourcePoolService;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
-import io.metersphere.system.utils.SessionUtils;
-import io.metersphere.system.consul.CacheNode;
-import io.metersphere.system.domain.TestResourcePool;
-import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,28 +31,6 @@ public class TestResourcePoolController {
 
     @Resource
     private TestResourcePoolService testResourcePoolService;
-
-    @PostMapping("/add")
-    @Operation(summary = "系统设置-系统-资源池-添加资源池")
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_ADD)
-    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = TestResourcePoolService.class)
-    public TestResourcePool addTestResourcePool(@Validated({Created.class}) @RequestBody TestResourcePoolRequest request) {
-        String userId = SessionUtils.getUserId();
-        TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
-        BeanUtils.copyBean(testResourcePool, request);
-        testResourcePool.setCreateUser(userId);
-        testResourcePool.setCreateTime(System.currentTimeMillis());
-        return testResourcePoolService.addTestResourcePool(testResourcePool);
-    }
-
-    @GetMapping("/delete/{poolId}")
-    @CacheNode // 把监控节点缓存起来
-    @Operation(summary = "系统设置-系统-资源池-删除资源池")
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#testResourcePoolId)", msClass = TestResourcePoolService.class)
-    public void deleteTestResourcePool(@PathVariable(value = "poolId") String testResourcePoolId) {
-        testResourcePoolService.deleteTestResourcePool(testResourcePoolId);
-    }
 
     @PostMapping("/update")
     @CacheNode // 把监控节点缓存起来
@@ -85,13 +60,7 @@ public class TestResourcePoolController {
         return testResourcePoolService.getTestResourcePoolDetail(testResourcePoolId);
     }
 
-    @PostMapping("/set/enable/{poolId}")
-    @Operation(summary = "系统设置-系统-资源池-资源池禁用")
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#testResourcePoolId)", msClass = TestResourcePoolService.class)
-    public void unableTestResourcePool(@PathVariable(value = "poolId") String testResourcePoolId) {
-        testResourcePoolService.unableTestResourcePool(testResourcePoolId);
-    }
+
 
 
 }
