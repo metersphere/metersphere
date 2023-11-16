@@ -21,6 +21,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,7 +105,8 @@ public class GitRepositoryUtil {
                     if (StringUtils.isEmpty(fileLastCommitId)) {
                         fileLastCommitId = lastCommitId.getName();
                     }
-                    return new RemoteFileAttachInfo(repositoryUrl, userName, token, branch, fileLastCommitId, filePath, commit.getFullMessage(), loader.getSize());
+
+                    return new RemoteFileAttachInfo(repositoryUrl, userName, token, branch, fileLastCommitId, filePath, this.genCommitMessageWithCommitTime(commit.getFullMessage(), commit.getCommitTime()), loader.getSize());
                 }
             }
         } catch (Exception e) {
@@ -116,6 +118,11 @@ public class GitRepositoryUtil {
             this.closeConnection(repo);
         }
         return new RemoteFileAttachInfo();
+    }
+
+    private String genCommitMessageWithCommitTime(String commitMessage, int commitTime) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return commitMessage + StringUtils.LF + simpleDateFormat.format(new Date(commitTime * 1000L));
     }
 
     private String getFileLastCommitId(ObjectId objectId, String filePath) throws Exception {

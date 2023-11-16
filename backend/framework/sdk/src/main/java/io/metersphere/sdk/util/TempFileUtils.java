@@ -139,6 +139,12 @@ public class TempFileUtils {
         return file.exists();
     }
 
+    //图片原图是否存在
+    public static boolean isImgTmpFileExists(String fileId) {
+        File file = new File(getTmpFilePath(fileId));
+        return file.exists();
+    }
+
     public static byte[] getFile(String filePath) {
         File file = new File(filePath);
         byte[] previewByte = new byte[0];

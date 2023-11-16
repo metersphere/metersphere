@@ -9,6 +9,12 @@
             `email`     = id
         WHERE `id` = #{id}
     </update>
+
+    <select id="selectNameById" resultType="java.lang.String">
+        SELECT user.name
+        FROM user
+        WHERE user.id = #{id}
+    </select>
     <select id="selectById" resultType="io.metersphere.system.dto.user.UserDTO">
         SELECT *
         FROM user

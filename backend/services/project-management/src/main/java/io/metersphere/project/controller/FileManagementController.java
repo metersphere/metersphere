@@ -2,6 +2,7 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.dto.filemanagement.request.*;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
+import io.metersphere.project.dto.filemanagement.response.FileVersionResponse;
 import io.metersphere.project.service.FileManagementService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -113,5 +114,13 @@ public class FileManagementController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
     public void batchMoveFiles(@Validated @RequestBody FileBatchMoveRequest request) {
         fileMetadataService.batchMove(request, SessionUtils.getUserId());
+    }
+
+
+    @GetMapping(value = "/file-version/{fileId}")
+    @Operation(summary = "项目管理-文件管理-文件历史版本")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
+    public List<FileVersionResponse> getFileVersion(@PathVariable String fileId) {
+        return fileMetadataService.getFileVersion(fileId);
     }
 }

@@ -2,14 +2,12 @@ package io.metersphere.project.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.project.domain.FileMetadata;
-import io.metersphere.project.domain.FileMetadataExample;
-import io.metersphere.project.domain.FileMetadataRepository;
-import io.metersphere.project.domain.FileModuleRepository;
+import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.filemanagement.FileManagementQuery;
 import io.metersphere.project.dto.filemanagement.request.*;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
+import io.metersphere.project.dto.filemanagement.response.FileVersionResponse;
 import io.metersphere.project.mapper.ExtFileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
@@ -26,6 +24,7 @@ import io.metersphere.system.dto.sdk.RemoteFileAttachInfo;
 import io.metersphere.system.file.FileRepository;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.file.MinioRepository;
+import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.GitRepositoryUtil;
 import io.metersphere.system.utils.PageUtils;
@@ -42,11 +41,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -62,6 +60,9 @@ public class FileMetadataService {
     @Resource
     private FileModuleRepositoryMapper fileModuleRepositoryMapper;
     @Resource
+    private BaseUserMapper baseUserMapper;
+
+    @Resource
     private FileMetadataLogService fileMetadataLogService;
     @Resource
     private FileManagementService fileManagementService;
@@ -69,6 +70,7 @@ public class FileMetadataService {
     private FileModuleService fileModuleService;
     @Resource
     private FileService fileService;
+
 
     @Value("${metersphere.file.batch-download-max:600MB}")
     private DataSize batchDownloadMaxSize;
@@ -81,7 +83,8 @@ public class FileMetadataService {
 
     public FileInformationResponse getFileInformation(String id) {
         FileMetadata fileMetadata = extFileMetadataMapper.getById(id);
-        FileInformationResponse dto = new FileInformationResponse(fileMetadata);
+        FileMetadataRepository repositoryMap = fileMetadataRepositoryMapper.selectByPrimaryKey(id);
+        FileInformationResponse dto = new FileInformationResponse(fileMetadata, repositoryMap);
         initModuleName(dto);
         return dto;
     }
@@ -91,7 +94,7 @@ public class FileMetadataService {
         FileManagementQuery pageDTO = new FileManagementQuery(request);
         List<FileMetadata> fileMetadataList = extFileMetadataMapper.selectByKeywordAndFileType(pageDTO);
         fileMetadataList.forEach(fileMetadata -> {
-            FileInformationResponse fileInformationResponse = new FileInformationResponse(fileMetadata);
+            FileInformationResponse fileInformationResponse = new FileInformationResponse(fileMetadata, null);
             returnList.add(fileInformationResponse);
         });
         this.initModuleName(returnList);
@@ -284,7 +287,7 @@ public class FileMetadataService {
 
     public byte[] getFileByte(FileMetadata fileMetadata) {
         String filePath = null;
-        if (TempFileUtils.isImgPreviewFileExists(fileMetadata.getId())) {
+        if (TempFileUtils.isImgTmpFileExists(fileMetadata.getId())) {
             filePath = TempFileUtils.getTmpFilePath(fileMetadata.getId());
         } else {
             try {
@@ -292,8 +295,7 @@ public class FileMetadataService {
             } catch (Exception ignore) {
             }
         }
-        byte[] bytes = TempFileUtils.getFile(filePath);
-        return bytes;
+        return TempFileUtils.getFile(filePath);
     }
 
     public ResponseEntity<byte[]> downloadById(String id) {
@@ -350,7 +352,7 @@ public class FileMetadataService {
                 this.checkMinIOFileName(request.getId(), request.getName(), fileMetadata.getProjectId());
                 updateExample.setName(request.getName());
             }
-            if (CollectionUtils.isNotEmpty(request.getTags())) {
+            if (request.getTags() != null) {
                 updateExample.setTags(JSON.toJSONString(request.getTags()));
             } else {
                 updateExample.setTags(null);
@@ -612,5 +614,50 @@ public class FileMetadataService {
         } else {
             throw new MSException(Translator.get("latest.file.not.exist"));
         }
+    }
+
+    public List<FileVersionResponse> getFileVersion(String fileId) {
+        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
+        if (fileMetadata == null) {
+            throw new MSException(Translator.get("file.not.exist"));
+        }
+
+        //获取fileMetadata以及可能存在的fileMetadataRepository
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andRefIdEqualTo(fileMetadata.getRefId());
+        List<FileMetadata> fileMetadataList = fileMetadataMapper.selectByExample(example);
+        List<String> fileIdList = fileMetadataList.stream().map(FileMetadata::getId).toList();
+        FileMetadataRepositoryExample repositoryExample = new FileMetadataRepositoryExample();
+        repositoryExample.createCriteria().andFileMetadataIdIn(fileIdList);
+        List<FileMetadataRepository> fileMetadataRepositoryList = fileMetadataRepositoryMapper.selectByExample(repositoryExample);
+        Map<String, FileMetadataRepository> fileIdMap = fileMetadataRepositoryList.stream().collect(Collectors.toMap(FileMetadataRepository::getFileMetadataId, Function.identity()));
+
+        //用户ID-用户名的映射
+        Map<String, String> userNameMap = new HashMap<>();
+
+        List<FileVersionResponse> fileVersionResponseList = new ArrayList<>();
+        fileMetadataList.forEach(item -> {
+
+            FileVersionResponse fileVersionResponse = new FileVersionResponse();
+            String userName = userNameMap.get(item.getCreateUser());
+            if (userName == null) {
+                userName = baseUserMapper.selectNameById(item.getCreateUser());
+                userNameMap.put(item.getCreateUser(), userName);
+            }
+
+            fileVersionResponse.setId(item.getId());
+            fileVersionResponse.setFileVersion(item.getFileVersion());
+            fileVersionResponse.setOperator(userName);
+            fileVersionResponse.setOperateTime(item.getCreateTime());
+
+            FileMetadataRepository fileRepository = fileIdMap.get(item.getId());
+            if (fileRepository == null) {
+                fileVersionResponse.setUpdateHistory(Translator.get("file.log.re-upload"));
+            } else {
+                fileVersionResponse.setUpdateHistory(fileRepository.getCommitMessage());
+            }
+            fileVersionResponseList.add(fileVersionResponse);
+        });
+        return fileVersionResponseList;
     }
 }
