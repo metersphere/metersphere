@@ -1,11 +1,11 @@
 package io.metersphere.functional.mapper;
 
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.request.FunctionalCaseBatchMoveRequest;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
-import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public interface ExtFunctionalCaseMapper {
     void recoverCase(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("time") long time);
 
 
-    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("deleted") boolean deleted);
+    List<String> getIds(@Param("request") BaseFunctionalCaseBatchDTO request, @Param("projectId") String projectId, @Param("deleted") boolean deleted);
 
     void batchDelete(@Param("ids") List<String> ids, @Param("userId") String userId);
 

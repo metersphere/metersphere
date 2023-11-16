@@ -52,6 +52,8 @@ public class FunctionalCaseAttachmentService {
     @Resource
     private MinioRepository minioRepository;
 
+    public static final String UPLOAD_SOURCE_DIR = "/project";
+
     /**
      * 保存本地上传文件和用例关联关系
      *
@@ -79,7 +81,7 @@ public class FunctionalCaseAttachmentService {
                 String fileId = IDGenerator.nextStr();
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(file.getName());
-                fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + request.getProjectId() + fileId);
+                fileRequest.setResourceId(UPLOAD_SOURCE_DIR + "/" + request.getProjectId() + "/" + MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + fileId);
                 fileRequest.setStorage(StorageType.MINIO.name());
                 try {
                     minioRepository.saveFile(file, fileRequest);
@@ -174,7 +176,7 @@ public class FunctionalCaseAttachmentService {
             files.forEach(file -> {
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(file.getFileName());
-                fileRequest.setResourceId(MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + projectId + file.getFileId());
+                fileRequest.setResourceId(UPLOAD_SOURCE_DIR + "/" + projectId + "/" + MsFileUtils.FUNCTIONAL_CASE_DIR_NAME + "/" + file.getFileId());
                 fileRequest.setStorage(StorageType.MINIO.name());
                 try {
                     minioRepository.delete(fileRequest);
