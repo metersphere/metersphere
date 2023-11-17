@@ -116,7 +116,7 @@ public class JSONSchemaBuilder {
             propertyObjType = object.get(PropertyConstant.TYPE).getAsString();
         }
         if (propertyObjType.equals(PropertyConstant.STRING) || propertyObjType.equals(PropertyConstant.ENUM)) {
-            concept.put(propertyName, FormatterUtil.getMockValue(object));
+            concept.put(propertyName, object.has(PropertyConstant.MOCK) ? FormatterUtil.getMockValue(object) : StringUtils.EMPTY);
         } else if (propertyObjType.equals(PropertyConstant.INTEGER) || propertyObjType.equals(PropertyConstant.NUMBER)) {
             try {
                 concept.put(propertyName, 0);
