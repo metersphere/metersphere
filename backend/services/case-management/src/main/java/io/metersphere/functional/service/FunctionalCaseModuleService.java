@@ -17,13 +17,20 @@ import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseModuleMapper;
 import io.metersphere.functional.request.FunctionalCaseModuleCreateRequest;
 import io.metersphere.functional.request.FunctionalCaseModuleUpdateRequest;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.service.ModuleTreeService;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -54,7 +62,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
-    private  FunctionalCaseLogService functionalCaseLogService;
+    private OperationLogService operationLogService;
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
@@ -113,8 +121,28 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         FunctionalCaseModule deleteModule = functionalCaseModuleMapper.selectByPrimaryKey(moduleId);
         if (deleteModule != null) {
             List<FunctionalCase> functionalCases = this.deleteModuleByIds(Collections.singletonList(moduleId), new ArrayList<>());
-            functionalCaseLogService.batchDelLog(functionalCases, deleteModule.getProjectId());
+            batchDelLog(functionalCases, deleteModule.getProjectId());
         }
+    }
+
+    public void batchDelLog(List<FunctionalCase> functionalCases, String projectId) {
+        List<LogDTO> dtoList = new ArrayList<>();
+        functionalCases.forEach(item -> {
+            LogDTO dto = new LogDTO(
+                    projectId,
+                    "",
+                    item.getId(),
+                    item.getCreateUser(),
+                    OperationLogType.DELETE.name(),
+                    OperationLogModule.FUNCTIONAL_CASE,
+                    item.getName());
+
+            dto.setPath("/functional/case/module/delete/");
+            dto.setMethod(HttpMethodConstants.GET.name());
+            dto.setOriginalValue(JSON.toJSONBytes(item));
+            dtoList.add(dto);
+        });
+        operationLogService.batchAdd(dtoList);
     }
 
     public List<FunctionalCase> deleteModuleByIds(List<String>deleteIds,  List<FunctionalCase>functionalCases){
@@ -143,6 +171,24 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         } else {
             return maxPos + LIMIT_POS;
         }
+    }
+
+    /**
+     * 查找当前项目下模块每个节点对应的资源统计
+     *
+     */
+    public Map<String, Long> getModuleCountMap(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
+
+        //构建模块树，并计算每个节点下的所有数量（包含子节点）
+        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, moduleCountDTOList);
+        //通过广度遍历的方式构建返回值
+        return super.getIdCountMapByBreadth(treeNodeList);
+    }
+
+    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
+        //节点内容只有Id和parentId
+        List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectIdAndParentIdByProjectId(projectId);
+        return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("default.module"));
     }
 
     /**

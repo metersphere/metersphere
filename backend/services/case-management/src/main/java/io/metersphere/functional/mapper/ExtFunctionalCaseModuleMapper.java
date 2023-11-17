@@ -21,4 +21,7 @@ public interface ExtFunctionalCaseModuleMapper {
     BaseModule selectBaseModuleById(String dragNodeId);
 
     BaseModule selectModuleByParentIdAndPosOperator(NodeSortQueryParam nodeSortQueryParam);
+
+    List<BaseTreeNode> selectIdAndParentIdByProjectId(String projectId);
+
 }

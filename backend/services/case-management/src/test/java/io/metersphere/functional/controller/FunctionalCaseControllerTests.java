@@ -2,6 +2,7 @@ package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
+import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
@@ -17,6 +18,7 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,6 +45,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_EDIT_FOLLOWER_URL = "/functional/case/edit/follower";
     public static final String FUNCTIONAL_CASE_DELETE_URL = "/functional/case/delete";
     public static final String FUNCTIONAL_CASE_LIST_URL = "/functional/case/page";
+    public static final String FUNCTIONAL_CASE_MODULE_COUNT = "/functional/case/module/count";
     public static final String FUNCTIONAL_CASE_BATCH_DELETE_URL = "/functional/case/batch/delete-to-gc";
     public static final String FUNCTIONAL_CASE_TABLE_URL = "/functional/case/custom/field/";
     public static final String FUNCTIONAL_CASE_BATCH_MOVE_URL = "/functional/case/batch/move";
@@ -272,7 +275,35 @@ public class FunctionalCaseControllerTests extends BaseTest {
             put("type", "List");
         }}));
         request.setCombine(map);
-        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        Pager<List<FunctionalCasePageDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+
+        MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_MODULE_COUNT, request);
+        Map<String, Integer> moduleCount = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Map.class);
+
+        //返回值的页码和当前页码相同
+        Assertions.assertEquals(tableData.getCurrent(), request.getCurrent());
+        //返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(tableData.getList())).size() <= request.getPageSize());
+
+        //如果没有数据，则返回的模块节点也不应该有数据
+        boolean moduleHaveResource = false;
+        for (int countByModuleId : moduleCount.values()) {
+            if (countByModuleId > 0) {
+                moduleHaveResource = true;
+                break;
+            }
+        }
+        Assertions.assertEquals(request.getPageSize(), tableData.getPageSize());
+        if (tableData.getTotal() > 0) {
+            Assertions.assertTrue(moduleHaveResource);
+        }
+
+        Assertions.assertTrue(moduleCount.containsKey("all"));
     }
 
 

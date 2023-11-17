@@ -26,10 +26,50 @@ INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, r
 VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_4', 4, 'Trash_TEST_MOUDLE_ID', 'project-case-trash-test', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID', 'UN_EXECUTED',true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
 
 
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_5', 1, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-1', '100001', 'copy_测试多版本5', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_5', 'UN_EXECUTED',true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_6', 2, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-1', '100001', 'copy_测试多版本6', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_5', 'UN_EXECUTED',true, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_7', 3, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-1', '100001', 'copy_测试多版本7', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_7', 'UN_EXECUTED',true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_8', 4, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-1', '100001', 'copy_测试多版本8', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_7', 'UN_EXECUTED',true, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_9', 5, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-1', '100001', 'copy_测试多版本9', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_9', 'UN_EXECUTED',true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_a', 6, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-1', '100001', 'copy_测试多版本a', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_9', 'UN_EXECUTED',true, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_b', 7, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-1', '100001', 'copy_测试多版本b', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_b', 'UN_EXECUTED',true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_c', 8, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-1', '100001', 'copy_测试多版本c', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_b', 'UN_EXECUTED',true, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_d', 7, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-2', '100001', 'copy_测试多版本d', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_d', 'UN_EXECUTED',true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_e', 8, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-2', '100001', 'copy_测试多版本e', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_d', 'UN_EXECUTED',true, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_f', 7, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-2', '100001', 'copy_测试多版本f', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_f', 'UN_EXECUTED',true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_g', 8, 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test-2', '100001', 'copy_测试多版本g', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_f', 'UN_EXECUTED',true, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
+
+
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID', 'gyq_custom_id1', '22');
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID', 'gyq_custom_id2', '33');
 
-
+INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_5', 'gyq_custom_id1', '22');
+INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_5', 'gyq_custom_id2', '33');
 
 
 INSERT INTO custom_field(id, name, scene, `type`, remark, internal, scope_type, create_time, update_time, create_user, scope_id)
@@ -41,3 +81,4 @@ VALUES('gyq_custom_id2', 'level', 'FUNCTIONAL', 'SELECT', '', 1, 'ORGANIZATION',
 INSERT INTO functional_case_comment(id, case_id, create_user, status, parent_id, resource_id, notifier, content, reply_user, create_time, update_time)
 VALUES ('trash_comment_id', 'Trash_TEST_FUNCTIONAL_CASE_ID', 'gyq', null, null, null, 'gyq','你好', null, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
 
+INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('Trash_TEST_MOUDLE_ID', '100001100001', '测试回收站所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');

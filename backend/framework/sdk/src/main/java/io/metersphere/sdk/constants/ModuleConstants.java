@@ -3,8 +3,8 @@ package io.metersphere.sdk.constants;
 public class ModuleConstants {
     //未规划节点的ID
     public static final String DEFAULT_NODE_ID = "root";
-    //没有父类的节点，parent_id为none
-    public static final String ROOT_NODE_PARENT_ID = "none";
+    //没有父类的节点，parent_id为NONE
+    public static final String ROOT_NODE_PARENT_ID = "NONE";
     //默认节点类型
     public static final String NODE_TYPE_DEFAULT = "module";
     //Git节点类型

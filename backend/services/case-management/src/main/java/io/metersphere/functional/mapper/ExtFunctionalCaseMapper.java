@@ -6,6 +6,7 @@ import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.request.FunctionalCaseBatchMoveRequest;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
+import io.metersphere.project.dto.ModuleCountDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -36,9 +37,9 @@ public interface ExtFunctionalCaseMapper {
 
     void batchDelete(@Param("ids") List<String> ids, @Param("userId") String userId);
 
-    List<FunctionalCase> getLogInfo(@Param("ids") List<String> ids);
+    List<FunctionalCase> getLogInfo(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
-    List<String> getRefIds(@Param("ids") List<String> ids);
+    List<String> getRefIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
     void batchMoveModule(@Param("request") FunctionalCaseBatchMoveRequest request, @Param("ids") List<String> ids, @Param("userId") String userId);
 
@@ -46,4 +47,11 @@ public interface ExtFunctionalCaseMapper {
 
 
     void batchUpdate(@Param("functionalCase") FunctionalCase functionalCase, @Param("ids") List<String> ids);
+
+    void recoverCaseByRefIds(@Param("refIds") List<String> refIds, @Param("userId") String userId, @Param("time") long time);
+
+    List<ModuleCountDTO> countModuleIdByKeywordAndFileType(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
+
+    long caseCount(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
+
 }
