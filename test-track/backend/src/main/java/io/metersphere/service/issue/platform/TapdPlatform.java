@@ -226,6 +226,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 IssuesDao issuesDao = new IssuesDao();
                 issuesDao.setId(idMap.get(id));
                 issuesDao.setPlatformStatus(IssuesStatus.DELETE.toString());
+                issuesDao.setCreator(null);
                 issuesMapper.updateByPrimaryKeySelective(issuesDao);
             }
         });
