@@ -16,10 +16,7 @@ import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileService;
 import io.metersphere.project.service.ProjectTemplateService;
-import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.constants.StorageType;
-import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
@@ -93,8 +90,6 @@ public class BugService {
 
     public static final String ADD_BUG_FILE_LOG_URL = "/bug/add";
     public static final String UPDATE_BUG_FILE_LOG_URL = "/bug/update";
-    public static final String UPLOAD_SOURCE_DIR = "/project";
-    public static final String UPLOAD_APP_DIR = "/bug";
 
     /**
      * 缺陷列表查询
@@ -644,9 +639,7 @@ public class BugService {
 
     private FileRequest buildBugFileRequest(String projectId, String resourceId, String fileName) {
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFolder(UPLOAD_SOURCE_DIR + "/" + projectId + UPLOAD_APP_DIR + "/" + resourceId);
-        fileRequest.setProjectId(projectId);
-        fileRequest.setResourceId(resourceId);
+        fileRequest.setFolder(DefaultRepositoryDir.getBugDir(projectId, resourceId));
         fileRequest.setFileName(StringUtils.isEmpty(fileName) ? null : fileName);
         fileRequest.setStorage(StorageType.MINIO.name());
         return fileRequest;

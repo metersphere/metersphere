@@ -1,6 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.plugin.sdk.spi.MsPlugin;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.constants.LocalRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.system.controller.handler.result.CommonResultCode;
 import io.metersphere.sdk.exception.MSException;
@@ -56,7 +58,7 @@ public class PluginLoadService {
      */
     public String loadPlugin(String fileName) {
         MsFileUtils.validateFileName(fileName);
-        String filePath = MsFileUtils.PLUGIN_DIR + "/" + fileName;
+        String filePath = LocalRepositoryDir.getPluginDir() + "/" + fileName;
         File file = new File(filePath);
         if (!file.exists()) {
             // 文件不存在，则从对象存储重新下载
@@ -74,11 +76,12 @@ public class PluginLoadService {
      */
     public void loadPluginFromRepository(String fileName) {
         MsFileUtils.validateFileName(fileName);
-        String filePath = MsFileUtils.PLUGIN_DIR + "/" + fileName;
+        String filePath = LocalRepositoryDir.getPluginDir() + "/" + fileName;
         File file = new File(filePath);
         try {
             if (!file.exists()) {
-                InputStream fileAsStream = FileCenter.getDefaultRepository().getFileAsStream(getFileRequest(fileName));
+                InputStream fileAsStream = FileCenter.getDefaultRepository()
+                        .getFileAsStream(getDefaultRepositoryFileRequest(fileName));
                 FileUtils.copyInputStreamToFile(fileAsStream, file);
             }
             msPluginManager.loadPlugin(Paths.get(filePath));
@@ -95,7 +98,8 @@ public class PluginLoadService {
      */
     public String uploadPlugin2Local(MultipartFile file) {
         try {
-            return FileCenter.getRepository(StorageType.LOCAL).saveFile(file, getFileRequest(file.getOriginalFilename()));
+            return FileCenter.getRepository(StorageType.LOCAL)
+                    .saveFile(file, getLocalRepositoryFileRequest(file.getOriginalFilename()));
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException("文件上传异常", e);
@@ -109,7 +113,8 @@ public class PluginLoadService {
      */
     public void uploadPlugin2Repository(MultipartFile file) {
         try {
-            FileCenter.getDefaultRepository().saveFile(file, getFileRequest(file.getOriginalFilename()));
+            FileCenter.getDefaultRepository()
+                    .saveFile(file, getDefaultRepositoryFileRequest(file.getOriginalFilename()));
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException("文件上传异常", e);
@@ -123,17 +128,26 @@ public class PluginLoadService {
      */
     public void downloadPluginFromRepository(String fileName) {
         try {
-            InputStream inputStream = FileCenter.getDefaultRepository().getFileAsStream(getFileRequest(fileName));
-            FileCenter.getRepository(StorageType.LOCAL).saveFile(inputStream, getFileRequest(fileName));
+            InputStream inputStream = FileCenter.getDefaultRepository()
+                    .getFileAsStream(getDefaultRepositoryFileRequest(fileName));
+            FileCenter.getRepository(StorageType.LOCAL)
+                    .saveFile(inputStream, getLocalRepositoryFileRequest(fileName));
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException("下载插件异常", e);
         }
     }
 
-    private FileRequest getFileRequest(String name) {
+    private FileRequest getDefaultRepositoryFileRequest(String name) {
         FileRequest request = new FileRequest();
-        request.setProjectId(MsFileUtils.PLUGIN_DIR_NAME);
+        request.setFolder(DefaultRepositoryDir.getPluginDir());
+        request.setFileName(name);
+        return request;
+    }
+
+    private FileRequest getLocalRepositoryFileRequest(String name) {
+        FileRequest request = new FileRequest();
+        request.setFolder(LocalRepositoryDir.getPluginDir());
         request.setFileName(name);
         return request;
     }
@@ -202,10 +216,10 @@ public class PluginLoadService {
      * 删除插件
      */
     public void deletePluginFile(String fileName) {
-        FileRequest fileRequest = getFileRequest(fileName);
         try {
-            FileCenter.getRepository(StorageType.LOCAL).delete(fileRequest);
-            FileCenter.getDefaultRepository().delete(fileRequest);
+            this.deleteLocalPluginFile(fileName);
+            FileCenter.getDefaultRepository()
+                    .delete(getDefaultRepositoryFileRequest(fileName));
         } catch (Exception e) {
             LogUtils.error(e);
         }
@@ -216,9 +230,10 @@ public class PluginLoadService {
      * @param fileName
      */
     public void deleteLocalPluginFile(String fileName) {
-        FileRequest fileRequest = getFileRequest(fileName);
+        FileRequest fileRequest = getLocalRepositoryFileRequest(fileName);
         try {
-            FileCenter.getRepository(StorageType.LOCAL).delete(fileRequest);
+            FileCenter.getRepository(StorageType.LOCAL)
+                    .delete(fileRequest);
         } catch (Exception e) {
             LogUtils.error(e);
         }

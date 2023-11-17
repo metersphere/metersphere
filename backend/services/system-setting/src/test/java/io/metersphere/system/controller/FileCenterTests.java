@@ -35,24 +35,25 @@ public class FileCenterTests {
                 "Hello, World!".getBytes()
         );
         // 创建一个FileRequest对象作为测试用的请求参数
-        FileRequest request = new FileRequest();
-        request.setFileName("test.txt");
-        request.setProjectId("test-project");
-        request.setResourceId("test-resource-id");
+        FileRequest request = getFileRequest();
         repository.saveFile(mockFile, request);
         Assertions.assertTrue(repository.saveFile(mockFile, request) != null);
         Assertions.assertTrue(repository.saveFile("Hello, World!".getBytes(), request) != null);
 
     }
 
+    private static FileRequest getFileRequest() {
+        FileRequest request = new FileRequest();
+        request.setFileName("test.txt");
+        request.setFolder("test-project/test-resource-id");
+        return request;
+    }
+
     @Test
     @Order(3)
     public void testGetFile() throws Exception {
         // 创建一个FileRequest对象作为测试用的请求参数
-        FileRequest request = new FileRequest();
-        request.setFileName("test.txt");
-        request.setProjectId("test-project");
-        request.setResourceId("test-resource-id");
+        FileRequest request = getFileRequest();
         repository.getFile(request);
         Assertions.assertTrue(repository.getFile(request) != null);
     }
@@ -61,11 +62,7 @@ public class FileCenterTests {
     @Order(4)
     public void testDelFile() throws Exception {
         // 创建一个FileRequest对象作为测试用的请求参数
-        FileRequest request = new FileRequest();
-        request.setFileName("test.txt");
-        request.setProjectId("test-project");
-        request.setResourceId("test-resource-id");
-        repository.delete(request);
+        repository.delete(getFileRequest());
     }
 
     @Test
@@ -80,7 +77,7 @@ public class FileCenterTests {
         // 创建一个FileRequest对象作为测试用的请求参数
         FileRequest request = new FileRequest();
         request.setFileName("test.txt");
-        request.setProjectId("test-project");
+        request.setFolder("test-project");
         repository.saveFile(mockFile, request);
         Assertions.assertTrue(repository.saveFile(mockFile, request) != null);
         Assertions.assertTrue(repository.saveFile("Hello, World!".getBytes(), request) != null);

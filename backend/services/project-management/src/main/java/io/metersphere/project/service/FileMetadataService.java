@@ -13,6 +13,7 @@ import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleRepositoryMapper;
 import io.metersphere.project.utils.FileDownloadUtils;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
@@ -674,10 +675,7 @@ public class FileMetadataService {
         return fileVersionResponseList;
     }
 
-    private static final String MAIN_FOLDER_PROJECT = "project";
-    private static final String APP_NAME_FILE_MANAGEMENT = "fileManagement";
-
     private String generateMinIOFilePath(String projectId) {
-        return StringUtils.join(MAIN_FOLDER_PROJECT, "/", projectId, "/", APP_NAME_FILE_MANAGEMENT);
+        return DefaultRepositoryDir.getFileManagementDir(projectId);
     }
 }

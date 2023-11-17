@@ -1,5 +1,6 @@
 package io.metersphere.system.controller;
 
+import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.constants.SessionConstants;
@@ -11,6 +12,8 @@ import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.PluginDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.file.FileRequest;
+import io.metersphere.system.file.LocalFileRepository;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.PluginOrganizationMapper;
@@ -27,11 +30,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.MultiValueMap;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,11 +72,13 @@ public class PluginControllerTests extends BaseTest {
     private JdbcDriverPluginService jdbcDriverPluginService;
     @Resource
     private PluginScriptService pluginScriptService;
+    @Resource
+    private LocalFileRepository localFileRepository;
     private static Plugin addPlugin;
     private static Plugin anotherAddPlugin;
 
     @Resource
-    private PluginService pluginService;
+    private PluginLoadService pluginLoadService;
     public static final String PLUGIN_OPTIONS_URL = "/plugin/options";
     @Resource
     private MockServerClient mockServerClient;
@@ -128,6 +135,19 @@ public class PluginControllerTests extends BaseTest {
         Assertions.assertEquals(Arrays.asList("connect", "disconnect", "pub", "sub"), getScriptIdsByPlugId(plugin.getId()));
         addPlugin = plugin;
 
+        // 模拟其他节点加载插件
+        pluginLoadService.handlePluginDeleteNotified(plugin.getId(), jarFile.getName());
+        pluginLoadService.handlePluginAddNotified(plugin.getId(), jarFile.getName());
+
+        // 增加覆盖率
+        pluginLoadService.handlePluginDeleteNotified(plugin.getId(), jarFile.getName());
+        pluginLoadService.loadPlugin(jarFile.getName());
+
+        pluginLoadService.handlePluginDeleteNotified(plugin.getId(), jarFile.getName());
+        pluginLoadService.loadPlugins();
+
+        pluginLoadService.getExtensions(Platform.class);
+
         // 增加覆盖率
         this.requestGetWithOkAndReturn(DEFAULT_LIST);
         pluginScriptService.add(null, null);
@@ -173,6 +193,14 @@ public class PluginControllerTests extends BaseTest {
                 getDefaultMultiPartParam(request, quota));
         // 清理掉
         this.requestGetWithOk(DEFAULT_DELETE, "cloud-quota-plugin");
+
+
+        try {
+            MockMultipartFile mockMultipartFile =
+                    new MockMultipartFile(jarFile.getName(), jarFile.getName(), "jar", new FileInputStream("/d/d"));
+            pluginLoadService.uploadPlugin2Local(mockMultipartFile);
+        } catch (Exception e) {
+        }
 
         // @@重名校验异常
         // 校验插件名称重名
@@ -391,6 +419,22 @@ public class PluginControllerTests extends BaseTest {
         this.requestPostTest(PLUGIN_OPTIONS_URL, optionsRequest);
         // 获取返回值
     }
+
+    @Test
+    @Order(8)
+    public void testLocalFileRepository() throws Exception {
+        // 增加覆盖率
+        MockMultipartFile mockMultipartFile =
+                new MockMultipartFile("test file", "test file", "jar",
+                        new FileInputStream(this.getClass().getClassLoader().getResource("file/my-driver-1.0.jar").getPath()));
+       localFileRepository.saveFile(mockMultipartFile, null);
+       try {
+           localFileRepository.downloadFile(null, null);
+       } catch (UnsupportedOperationException e) {
+       }
+        localFileRepository.getFolderFileNames(new FileRequest());
+    }
+
 
     private void requestPostTest(String url, Object param) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(url)

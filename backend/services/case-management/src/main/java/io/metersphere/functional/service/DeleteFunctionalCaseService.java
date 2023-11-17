@@ -18,8 +18,6 @@ public class DeleteFunctionalCaseService {
     @Resource
     private FunctionalCaseTestMapper functionalCaseTestMapper;
     @Resource
-    private FunctionalCaseAttachmentService functionalCaseAttachmentService;
-    @Resource
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
     @Resource
     private FunctionalCaseBlobMapper functionalCaseBlobMapper;
@@ -39,8 +37,7 @@ public class DeleteFunctionalCaseService {
         FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
         functionalCaseCommentExample.createCriteria().andCaseIdIn(ids);
         functionalCaseCommentMapper.deleteByExample(functionalCaseCommentExample);
-        //9.附件
-        functionalCaseAttachmentService.deleteAttachmentResource(ids, projectId);
+        //9.附件 todo 删除关联关系
         //10.自定义字段
         FunctionalCaseCustomFieldExample fieldExample = new FunctionalCaseCustomFieldExample();
         fieldExample.createCriteria().andCaseIdIn(ids);
