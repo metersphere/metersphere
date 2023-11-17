@@ -190,11 +190,11 @@ import StatusTableItem from "@/business/common/tableItems/planview/StatusTableIt
 import ReviewStatus from "@/business/case/components/ReviewStatus";
 import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCaseReviewStatusTableItem";
 import TestPlanCaseStatusTableItem from "@/business/common/tableItems/TestPlanCaseStatusTableItem";
-import { TEST_CASE_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
+import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
-import { getProjectApplicationConfig } from "@/api/project-application";
-import { getVersionFilters } from "@/business/utils/sdk-utils";
-import { getTestTemplate } from "@/api/custom-field-template";
+import {getProjectApplicationConfig} from "@/api/project-application";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
+import {getTestTemplate} from "@/api/custom-field-template";
 import {getTagToolTips, initTestCaseConditionComponents, parseColumnTag} from "@/business/case/test-case";
 
 export default {
@@ -340,8 +340,13 @@ export default {
       }
       condition.projectId = this.projectId;
       if (this.projectId) {
+        // 加载树
+        this.refreshTreeByCaseFilter();
         this.getTableData();
       }
+    },
+    refreshTreeByCaseFilter() {
+      this.$refs.nodeTree.list();
     },
     saveCaseRelevance(item) {
       this.isSaving = true;

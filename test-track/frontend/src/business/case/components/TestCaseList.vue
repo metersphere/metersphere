@@ -271,14 +271,16 @@ import {TEST_CASE_LIST} from "metersphere-frontend/src/utils/constants";
 import MsSingleTag from "metersphere-frontend/src/components/new-ui/MsSingleTag";
 import {
   buildBatchParam,
-  getCustomFieldBatchEditOption, getCustomFieldFilter,
+  getCustomFieldBatchEditOption,
+  getCustomFieldFilter,
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
   getPageInfo,
   getSelectDataCounts,
   getTableHeaderWithCustomFields,
-  initCondition, parseCustomFilesForList,
+  initCondition,
+  parseCustomFilesForList,
 } from "metersphere-frontend/src/utils/tableUtils";
 import PlanStatusTableItem from "@/business/common/tableItems/plan/PlanStatusTableItem";
 import {getCurrentProjectID, getCurrentWorkspaceId, setCurrentProjectID} from "metersphere-frontend/src/utils/token";
@@ -296,11 +298,15 @@ import {
   editTestCaseOrder,
   getTestCase,
   getTestCaseStep,
-  getTestCaseVersions, testCaseBatchCopy,
+  getTestCaseVersions,
+  testCaseBatchCopy,
   testCaseBatchDelete,
-  testCaseBatchDeleteToGc, testCaseBatchEdit, testCaseBatchRelateDemand,
+  testCaseBatchDeleteToGc,
+  testCaseBatchEdit,
+  testCaseBatchRelateDemand,
   testCaseDelete,
-  testCaseDeleteToGc, testCaseList,
+  testCaseDeleteToGc,
+  testCaseList,
   testCaseReduction
 } from "@/api/testCase";
 import {getGraphByCondition} from "@/api/graph";
@@ -549,7 +555,6 @@ export default {
       this.userFilter = data;
     });
     this.getTemplateField();
-    this.$emit('setCondition', this.condition);
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
@@ -837,6 +842,7 @@ export default {
       if (this.projectId) {
         this.condition.projectId = this.projectId;
         this.$emit('setCondition', this.condition);
+        this.$emit('refreshTree', this.currentVersion);
         this.loading = true;
         testCaseList({pageNum: this.page.currentPage, pageSize: this.page.pageSize}, this.condition)
           .then(response => {
@@ -861,7 +867,6 @@ export default {
       // 添加搜索条件时，当前页设置成第一页
       this.page.currentPage = 1;
       this.initTableData();
-      this.$emit('search');
     },
     callBackSelect(selection) {
       this.selectCounts = this.$refs.table.selectDataCounts;
@@ -871,7 +876,7 @@ export default {
     },
     changeVersion(currentVersion) {
       this.currentVersion = currentVersion || null;
-      this.$emit('search',currentVersion);
+      this.search();
     },
     toggleAdvanceSearch() {
       this.$refs.advanceSearch.toggle();

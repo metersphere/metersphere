@@ -26,7 +26,7 @@
 
     <!-- public, trash back header  -->
     <div v-show="showPublicNode || showTrashNode" class="back-layout">
-      <i class="el-icon-back" style="float: left;position: relative;top: 15px;left: 21px;" @click="activeName = 'default'"/>
+      <i class="el-icon-back" style="float: left;position: relative;top: 15px;left: 21px;" @click="backDefault"/>
       <span class="back-content">{{showPublicNode? $t('project.case_public') : $t('commons.trash')}}</span>
     </div>
 
@@ -102,7 +102,7 @@
             @refreshAll="refreshAll"
             @setCondition="setCondition"
             @decrease="decrease"
-            @search="refreshTreeByCaseFilter"
+            @refreshTree="refreshTreeByCaseFilter"
             ref="testCaseList">
           </test-case-list>
           <test-case-minder
@@ -134,7 +134,7 @@
             @refreshAll="refreshAll"
             @refreshPublic="refreshPublic"
             @setCondition="setPublicCondition"
-            @search="refreshTreeByCaseFilter"
+            @refreshTree="refreshTreeByCaseFilter"
             ref="testCasePublicList"/>
         </el-card>
       </ms-main-container>
@@ -151,7 +151,7 @@
             @refresh="refreshTrashNode"
             @refreshAll="refreshAll"
             @setCondition="setTrashCondition"
-            @search="refreshTreeByCaseFilter"
+            @refreshTree="refreshTreeByCaseFilter"
             ref="testCaseTrashList">
           </test-case-list>
         </el-card>
@@ -520,13 +520,21 @@ export default {
           }
         });
     },
+    backDefault() {
+      // 回到默认列表页
+      this.activeName = 'default';
+      this.trashEnable = false;
+      this.publicEnable = false;
+    },
     enableTrash(data) {
+      // 进入回收站列表
       this.trashEnable = !data;
       this.$nextTick(() => {
         this.trashEnable = data;
       })
     },
     enablePublic(data) {
+      //进入公共用例列表
       this.publicEnable = !data;
       this.$nextTick(() => {
         this.publicEnable = data;

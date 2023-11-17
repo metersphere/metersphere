@@ -226,7 +226,7 @@ import {
 } from "metersphere-frontend/src/utils/tableUtils";
 import PlanStatusTableItem from "@/business/common/tableItems/plan/PlanStatusTableItem";
 import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import {getUUID, parseTag} from "metersphere-frontend/src/utils"
+import {parseTag} from "metersphere-frontend/src/utils"
 import {hasLicense} from "metersphere-frontend/src/utils/permission"
 import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
@@ -237,9 +237,14 @@ import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCase
 import BatchMove from "@/business/case/components/BatchMove";
 import TestCasePreview from "@/business/case/components/TestCasePreview";
 import {
-  deletePublicTestCaseVersion, editTestCaseOrder, getEditSimpleTestCase,
-  getTestCaseStep, getTestCaseVersions, testCasePublicBatchCopy,
-  testCasePublicBatchDeleteToGc, testCasePublicList,
+  deletePublicTestCaseVersion,
+  editTestCaseOrder,
+  getEditSimpleTestCase,
+  getTestCaseStep,
+  getTestCaseVersions,
+  testCasePublicBatchCopy,
+  testCasePublicBatchDeleteToGc,
+  testCasePublicList,
 } from "@/api/testCase";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
 import {TEST_CASE_STATUS_MAP} from "@/business/constants/table-constants";
@@ -433,6 +438,7 @@ export default {
         // 公共用例暂不支持所属项目过滤
         // this.condition.projectId = this.projectId;
         this.$emit('setCondition', this.condition);
+        this.$emit('refreshTree');
         this.condition.casePublic = true;
         this.condition.workspaceId = getCurrentWorkspaceId();
         this.loading = true;
@@ -450,7 +456,6 @@ export default {
       // 添加搜索条件时，当前页设置成第一页
       this.page.currentPage = 1;
       this.initTableData();
-      this.$emit('search');
     },
     clearTableSelect() {
       this.$refs.table.clear();
