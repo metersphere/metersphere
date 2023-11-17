@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.util.List;
+import java.util.LinkedHashSet;
 
 @Data
 public class FileUpdateRequest {
@@ -15,8 +15,9 @@ public class FileUpdateRequest {
     @Schema(description = "文件名称")
     private String name;
 
+    //注： tags内的数据确保不重复且有序。所以使用这个数据结构接受
     @Schema(description = "标签")
-    private List<
+    private LinkedHashSet<
             @NotBlank
                     String> tags;
 

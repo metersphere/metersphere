@@ -975,7 +975,7 @@ public class FileManagementControllerTests extends BaseTest {
         FileUpdateRequest updateRequest = new FileUpdateRequest();
         updateRequest.setId(updateFileId);
         updateRequest.setName("update_" + updateFileId);
-        updateRequest.setTags(new ArrayList<>() {{
+        updateRequest.setTags(new LinkedHashSet<>() {{
             this.add("tag1");
         }});
         updateRequest.setDescription("updateDesc_" + updateFileId);
@@ -997,7 +997,7 @@ public class FileManagementControllerTests extends BaseTest {
         oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
         updateRequest = new FileUpdateRequest();
         updateRequest.setId(updateFileId);
-        updateRequest.setTags(new ArrayList<>());
+        updateRequest.setTags(new LinkedHashSet<>());
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
         this.checkFileInformation(updateFileId, oldFileMetadata, updateRequest);
 
@@ -1013,7 +1013,7 @@ public class FileManagementControllerTests extends BaseTest {
         oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
         updateRequest = new FileUpdateRequest();
         updateRequest.setId(updateFileId);
-        updateRequest.setTags(new ArrayList<>());
+        updateRequest.setTags(new LinkedHashSet<>());
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
         this.checkFileInformation(updateFileId, oldFileMetadata, updateRequest);
 

@@ -21,6 +21,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -121,7 +122,7 @@ public class FileManagementPermissionControllerTests extends BaseTest {
         FileUpdateRequest updateRequest = new FileUpdateRequest();
         updateRequest.setId(TEST_ID);
         updateRequest.setName("update_" + TEST_ID);
-        updateRequest.setTags(new ArrayList<>() {{
+        updateRequest.setTags(new LinkedHashSet<>() {{
             this.add("tag1");
         }});
         this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE, FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
