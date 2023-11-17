@@ -230,6 +230,12 @@
                     #{nodeId}
                 </foreach>
             </if>
+            <if test="request.caseCoverage == 'uncoverage' ">
+                and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
+            </if>
+            <if test="request.caseCoverage == 'coverage' ">
+                and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
+            </if>
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="test_case"/>
             </include>

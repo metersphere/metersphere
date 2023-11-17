@@ -50,7 +50,7 @@ import MsNodeTree from "metersphere-frontend/src/components/new-ui/MsNodeTree";
 import TestCaseCreate from "@/business/case/components/TestCaseCreate";
 import TestCaseImport from "@/business/case/components/import/TestCaseImport";
 import MsSearchBar from "metersphere-frontend/src/components/new-ui/MsSearchBar";
-import {buildTree, buildNodePath} from "metersphere-frontend/src/model/NodeTree";
+import {buildNodePath, buildTree} from "metersphere-frontend/src/model/NodeTree";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import ModuleTrashButton from "metersphere-frontend/src/components/ModuleTrashButton";
 import {getTestCaseNodesByCaseFilter, getTestCaseNodesCountMap} from "@/api/testCase";
@@ -129,15 +129,6 @@ export default {
     },
     'condition.filterText'() {
       this.filter();
-    },
-    caseCondition: {
-      handler() {
-        this.$nextTick(() => {
-          this.list();
-        });
-      },
-      deep: true,
-      immediate: true
     }
   },
   mounted() {
