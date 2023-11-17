@@ -11,6 +11,7 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
@@ -42,9 +43,6 @@ public class ApiTestCaseService {
 
     public static final Long ORDER_STEP = 5000L;
 
-
-    private static final String MAIN_FOLDER_PROJECT = "project";
-    private static final String APP_NAME_API_CASE = "apiCase";
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
@@ -135,8 +133,7 @@ public class ApiTestCaseService {
             files.forEach(file -> {
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(file.getName());
-                fileRequest.setFolder(minioPath(projectId));
-                fileRequest.setResourceId(caseId);
+                fileRequest.setFolder(DefaultRepositoryDir.getApiCaseDir(projectId, caseId));
                 fileRequest.setStorage(StorageType.MINIO.name());
                 try {
                     minioRepository.saveFile(file, fileRequest);
@@ -226,8 +223,7 @@ public class ApiTestCaseService {
         apiTestCaseFollowerMapper.deleteByExample(example);
         try {
             FileRequest request = new FileRequest();
-            request.setFolder(minioPath(apiCase.getProjectId()));
-            request.setResourceId(id);
+            request.setFolder(DefaultRepositoryDir.getApiCaseDir(apiCase.getProjectId(), id));
             minioRepository.deleteFolder(request);
         } catch (Exception e) {
             LogUtils.info("删除body文件失败:  文件名称:" + id, e);
@@ -293,9 +289,5 @@ public class ApiTestCaseService {
                 }
             });
         }
-    }
-
-    private String minioPath(String projectId) {
-        return StringUtils.join(MAIN_FOLDER_PROJECT, "/", projectId, "/", APP_NAME_API_CASE);
     }
 }

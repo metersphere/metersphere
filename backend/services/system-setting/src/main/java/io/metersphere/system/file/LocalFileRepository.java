@@ -16,10 +16,10 @@ public class LocalFileRepository implements FileRepository {
 
     @Override
     public String saveFile(MultipartFile multipartFile, FileRequest request) throws IOException {
-        if (multipartFile == null || request == null || StringUtils.isEmpty(request.getFileName()) || StringUtils.isEmpty(request.getProjectId())) {
+        if (multipartFile == null || request == null || StringUtils.isEmpty(request.getFileName()) || StringUtils.isEmpty(request.getFolder())) {
             return null;
         }
-        MsFileUtils.validateFileName(request.getProjectId(), request.getFileName());
+        MsFileUtils.validateFileName(request.getFolder(), request.getFileName());
         createFileDir(request);
         File file = new File(getFilePath(request));
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
@@ -62,7 +62,7 @@ public class LocalFileRepository implements FileRepository {
 
     @Override
     public void deleteFolder(FileRequest request) throws Exception {
-        MsFileUtils.validateFileName(request.getProjectId(), request.getFileName());
+        MsFileUtils.validateFileName(request.getFolder(), request.getFileName());
         this.delete(request);
     }
 
@@ -88,12 +88,12 @@ public class LocalFileRepository implements FileRepository {
     }
 
     private String getFilePath(FileRequest request) {
-        MsFileUtils.validateFileName(request.getProjectId(), request.getFileName());
+        MsFileUtils.validateFileName(request.getFolder(), request.getFileName());
         return StringUtils.join(getFileDir(request), "/", request.getFileName());
     }
 
     private String getFileDir(FileRequest request) {
-        MsFileUtils.validateFileName(request.getProjectId(), request.getFileName());
-        return StringUtils.join(MsFileUtils.DATA_ROOT_DIR, "/", request.getProjectId());
+        MsFileUtils.validateFileName(request.getFolder(), request.getFileName());
+        return request.getFolder();
     }
 }

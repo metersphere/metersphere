@@ -2,6 +2,7 @@ package io.metersphere.project.service;
 
 
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
+  import io.metersphere.sdk.constants.LocalRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -24,7 +25,7 @@ public class CommandService {
 
     public static String createFile(MultipartFile bodyFile) {
         MsFileUtils.validateFileName(bodyFile.getOriginalFilename());
-        String dir = MsFileUtils.DATA_ROOT_DIR + "/body/environment/tmp";
+        String dir = LocalRepositoryDir.getBodyEnvironmentTmpDir();
         File fileDir = new File(dir);
         if (!fileDir.exists()) {
             fileDir.mkdirs();

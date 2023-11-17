@@ -10,13 +10,19 @@ public class FileRequest {
 
     private String folder;
 
-    //项目ID
+    /**
+     * @Deprecated 月底移除
+     */
+    @Deprecated(since="3.x", forRemoval=true)
     private String projectId;
 
     // 存储类型
     private String storage;
 
-    // 资源id为空时存储在项目目录下
+    /**
+     * @Deprecated 月底移除
+     */
+    @Deprecated(since="3.x", forRemoval=true)
     private String resourceId;
 
     // 文件名称
