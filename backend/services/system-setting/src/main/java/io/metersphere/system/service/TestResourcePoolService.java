@@ -77,15 +77,14 @@ public class TestResourcePoolService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
-    public boolean checkLoadConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
+    public void checkLoadConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
         if (testResourcePool.getLoadTest() == null || !testResourcePool.getLoadTest()) {
-            return true;
+            return;
         }
         boolean validate = checkNodeOrK8s(testResourceDTO, type, false);
         if (!validate) {
             testResourcePool.setEnable(false);
         }
-        return validate;
     }
 
     private static boolean checkNodeOrK8s(TestResourceDTO testResourceDTO, String type, Boolean usedApiType) {
@@ -116,15 +115,14 @@ public class TestResourcePoolService {
         resourcePoolService.validate(testResourceDTO);
     }
 
-    public boolean checkApiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
+    public void checkApiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
         if (testResourcePool.getApiTest() == null || !testResourcePool.getApiTest()) {
-            return true;
+            return;
         }
         boolean validate = checkNodeOrK8s(testResourceDTO, type, true);
         if (!validate) {
             testResourcePool.setEnable(false);
         }
-        return validate;
     }
 
     public void updateTestResourcePool(TestResourcePoolDTO testResourcePool) {
@@ -185,12 +183,6 @@ public class TestResourcePoolService {
 
     public void checkTestResourcePool(TestResourcePool testResourcePool) {
         String resourcePoolName = testResourcePool.getName();
-        if (StringUtils.isBlank(resourcePoolName)) {
-            throw new MSException(Translator.get("test_resource_pool_name_is_null"));
-        }
-        if (StringUtils.isBlank(testResourcePool.getType())) {
-            throw new MSException(Translator.get("test_resource_pool_type_is_null"));
-        }
         TestResourcePoolExample example = new TestResourcePoolExample();
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
         criteria.andNameEqualTo(resourcePoolName);
