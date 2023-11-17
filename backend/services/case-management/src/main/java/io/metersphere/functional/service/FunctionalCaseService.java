@@ -5,6 +5,7 @@ import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -74,6 +75,11 @@ public class FunctionalCaseService {
     @Resource
     private FunctionalCaseModuleMapper functionalCaseModuleMapper;
 
+    @Resource
+    private FunctionalCaseModuleService functionalCaseModuleService;
+
+    private static final String CASE_MODULE_COUNT_ALL = "all";
+
     private static final String ADD_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/add";
     private static final String UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/update";
 
@@ -98,7 +104,7 @@ public class FunctionalCaseService {
     /**
      * 添加功能用例
      *
-     * @param request
+     * @param request request
      */
     private FunctionalCase addCase(String caseId, FunctionalCaseAddRequest request, String userId) {
         FunctionalCase functionalCase = new FunctionalCase();
@@ -143,8 +149,8 @@ public class FunctionalCaseService {
     /**
      * 查看用例获取详情
      *
-     * @param functionalCaseId
-     * @return
+     * @param functionalCaseId functionalCaseId
+     * @return FunctionalCaseDetailDTO
      */
     public FunctionalCaseDetailDTO getFunctionalCaseDetail(String functionalCaseId, String userId) {
         FunctionalCase functionalCase = checkFunctionalCase(functionalCaseId);
@@ -185,8 +191,8 @@ public class FunctionalCaseService {
     /**
      * 校验用例是否存在
      *
-     * @param functionalCaseId
-     * @return
+     * @param functionalCaseId functionalCaseId
+     * @return FunctionalCase
      */
     private FunctionalCase checkFunctionalCase(String functionalCaseId) {
         FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
@@ -202,7 +208,7 @@ public class FunctionalCaseService {
     /**
      * 获取模板自定义字段
      *
-     * @param functionalCase
+     * @param functionalCase functionalCase
      */
     private FunctionalCaseDetailDTO checkTemplateCustomField(FunctionalCaseDetailDTO functionalCaseDetailDTO, FunctionalCase functionalCase) {
         TemplateDTO templateDTO = projectTemplateService.getTemplateDTOById(functionalCase.getTemplateId(), functionalCase.getProjectId(), TemplateScene.FUNCTIONAL.name());
@@ -224,10 +230,10 @@ public class FunctionalCaseService {
     /**
      * 更新用例 基本信息
      *
-     * @param request
-     * @param files
-     * @param userId
-     * @return
+     * @param request request
+     * @param files files
+     * @param userId userId
+     * @return FunctionalCase
      */
     public FunctionalCase updateFunctionalCase(FunctionalCaseEditRequest request, List<MultipartFile> files, String userId) {
         FunctionalCase checked = checkFunctionalCase(request.getId());
@@ -270,8 +276,8 @@ public class FunctionalCaseService {
     /**
      * 多版本所属模块更新处理
      *
-     * @param refId
-     * @param moduleId
+     * @param refId refId
+     * @param moduleId moduleId
      */
     private void updateFunctionalCaseModule(String refId, String moduleId) {
         extFunctionalCaseMapper.updateFunctionalCaseModule(refId, moduleId);
@@ -296,8 +302,8 @@ public class FunctionalCaseService {
     /**
      * 关注/取消关注用例
      *
-     * @param functionalCaseId
-     * @param userId
+     * @param functionalCaseId functionalCaseId
+     * @param userId userId
      */
     public void editFollower(String functionalCaseId, String userId) {
         checkFunctionalCase(functionalCaseId);
@@ -317,17 +323,17 @@ public class FunctionalCaseService {
     /**
      * 删除用例
      *
-     * @param request
-     * @param userId
+     * @param request request
+     * @param userId userId
      */
     public void deleteFunctionalCase(FunctionalCaseDeleteRequest request, String userId) {
-        handDeleteFunctionalCase(Arrays.asList(request.getId()), request.getDeleteAll(), userId);
+        handDeleteFunctionalCase(Collections.singletonList(request.getId()), request.getDeleteAll(), userId);
     }
 
     private void handDeleteFunctionalCase(List<String> ids, Boolean deleteAll, String userId) {
         if (deleteAll) {
             //全部删除  进入回收站
-            List<String> refId = extFunctionalCaseMapper.getRefIds(ids);
+            List<String> refId = extFunctionalCaseMapper.getRefIds(ids, false);
             extFunctionalCaseMapper.batchDelete(refId, userId);
         } else {
             //列表删除 需要判断是否存在多个版本问题
@@ -335,7 +341,7 @@ public class FunctionalCaseService {
                 List<FunctionalCaseVersionDTO> versionDTOList = getFunctionalCaseVersion(id);
                 if (versionDTOList.size() > 1) {
                     String projectId = versionDTOList.get(0).getProjectId();
-                    deleteFunctionalCaseService.deleteFunctionalCaseResource(Arrays.asList(id), projectId);
+                    deleteFunctionalCaseService.deleteFunctionalCaseResource(Collections.singletonList(id), projectId);
                 } else {
                     //只有一个版本 直接放入回收站
                     doDelete(id, userId);
@@ -358,20 +364,19 @@ public class FunctionalCaseService {
     /**
      * 根据用例id 获取用例是否存在多个版本
      *
-     * @param functionalCaseId
-     * @return
+     * @param functionalCaseId functionalCaseId
+     * @return List<FunctionalCaseVersionDTO>
      */
     public List<FunctionalCaseVersionDTO> getFunctionalCaseVersion(String functionalCaseId) {
         FunctionalCase functionalCase = checkFunctionalCase(functionalCaseId);
-        List<FunctionalCaseVersionDTO> list = extFunctionalCaseMapper.getFunctionalCaseByRefId(functionalCase.getRefId());
-        return list;
+        return extFunctionalCaseMapper.getFunctionalCaseByRefId(functionalCase.getRefId());
     }
 
     /**
      * 列表查询
      *
-     * @param request
-     * @return
+     * @param request request
+     * @return List<FunctionalCasePageDTO>
      */
     public List<FunctionalCasePageDTO> getFunctionalCasePage(FunctionalCasePageRequest request, Boolean deleted) {
         List<FunctionalCasePageDTO> functionalCaseLists = extFunctionalCaseMapper.list(request, deleted);
@@ -418,13 +423,13 @@ public class FunctionalCaseService {
     /**
      * 批量移动用例
      *
-     * @param request
-     * @param userId
+     * @param request request
+     * @param userId userId
      */
     public void batchMoveFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId) {
         List<String> ids = doSelectIds(request, request.getProjectId());
         if (CollectionUtils.isNotEmpty(ids)) {
-            List<String> refId = extFunctionalCaseMapper.getRefIds(ids);
+            List<String> refId = extFunctionalCaseMapper.getRefIds(ids, false);
             extFunctionalCaseMapper.batchMoveModule(request, refId, userId);
         }
     }
@@ -432,8 +437,8 @@ public class FunctionalCaseService {
     /**
      * 批量复制用例
      *
-     * @param request
-     * @param userId
+     * @param request request
+     * @param userId userId
      */
     public void batchCopyFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId) {
         List<String> ids = doSelectIds(request, request.getProjectId());
@@ -479,7 +484,7 @@ public class FunctionalCaseService {
                     });
 
                     if (CollectionUtils.isNotEmpty(caseAttachments)) {
-                        caseAttachments.stream().forEach(attachment -> {
+                        caseAttachments.forEach(attachment -> {
                             attachment.setId(IDGenerator.nextStr());
                             attachment.setCaseId(id);
                             attachment.setCreateUser(userId);
@@ -489,7 +494,7 @@ public class FunctionalCaseService {
                     }
 
                     if (CollectionUtils.isNotEmpty(customFields)) {
-                        customFields.stream().forEach(customField -> {
+                        customFields.forEach(customField -> {
                             customField.setCaseId(id);
                         });
                         functionalCaseCustomFieldService.batchSaveCustomField(customFields);
@@ -519,24 +524,22 @@ public class FunctionalCaseService {
         FunctionalCaseBlobExample blobExample = new FunctionalCaseBlobExample();
         blobExample.createCriteria().andIdIn(ids);
         List<FunctionalCaseBlob> functionalCaseBlobs = functionalCaseBlobMapper.selectByExampleWithBLOBs(blobExample);
-        Map<String, FunctionalCaseBlob> functionalCaseBlobMap = functionalCaseBlobs.stream().collect(Collectors.toMap(FunctionalCaseBlob::getId, functionalCaseBlob -> functionalCaseBlob));
-        return functionalCaseBlobMap;
+        return functionalCaseBlobs.stream().collect(Collectors.toMap(FunctionalCaseBlob::getId, functionalCaseBlob -> functionalCaseBlob));
     }
 
     public Map<String, FunctionalCase> copyBaseInfo(String projectId, List<String> ids) {
         FunctionalCaseExample example = new FunctionalCaseExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andDeletedEqualTo(false).andIdIn(ids);
         List<FunctionalCase> functionalCaseLists = functionalCaseMapper.selectByExample(example);
-        Map<String, FunctionalCase> functionalMap = functionalCaseLists.stream().collect(Collectors.toMap(FunctionalCase::getId, functionalCase -> functionalCase));
-        return functionalMap;
+        return functionalCaseLists.stream().collect(Collectors.toMap(FunctionalCase::getId, functionalCase -> functionalCase));
     }
 
 
     /**
      * 批量编辑
      *
-     * @param request
-     * @param userId
+     * @param request request
+     * @param userId userId
      */
     public void batchEditFunctionalCase(FunctionalCaseBatchEditRequest request, String userId) {
         List<String> ids = doSelectIds(request, request.getProjectId());
@@ -597,6 +600,17 @@ public class FunctionalCaseService {
                 extFunctionalCaseMapper.batchUpdate(functionalCase, ids);
             }
         }
+
+    }
+
+    public Map<String, Long> moduleCount(FunctionalCasePageRequest request, boolean delete) {
+        //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
+        List<ModuleCountDTO> moduleCountDTOList = extFunctionalCaseMapper.countModuleIdByKeywordAndFileType(request, delete);
+        Map<String, Long> moduleCountMap = functionalCaseModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
+        //查出全部文件和我的文件的数量
+        long allCount = extFunctionalCaseMapper.caseCount(request, delete);
+        moduleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
+        return moduleCountMap;
 
     }
 }

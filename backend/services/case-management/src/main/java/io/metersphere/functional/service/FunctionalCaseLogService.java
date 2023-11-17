@@ -1,6 +1,7 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
@@ -139,7 +140,7 @@ public class FunctionalCaseLogService {
         List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
-            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids);
+            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids, false);
             functionalCases.forEach(functionalCase -> {
                 LogDTO dto = new LogDTO(
                         functionalCase.getProjectId(),
@@ -183,6 +184,36 @@ public class FunctionalCaseLogService {
     }
 
     /**
+     * 恢复项目
+     *
+     * @param request 接口请求参数
+     * @return 日志详情
+     */
+    public List<LogDTO> batchRecoverLog(FunctionalCaseBatchRequest request) {
+        List<String> ids = getSelectIdsByTrash(request, request.getProjectId());
+        List<LogDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids, true);
+            functionalCases.forEach(functionalCase -> {
+                LogDTO dto = new LogDTO(
+                        functionalCase.getProjectId(),
+                        "",
+                        functionalCase.getId(),
+                        functionalCase.getCreateUser(),
+                        OperationLogType.RECOVER.name(),
+                        OperationLogModule.FUNCTIONAL_CASE,
+                        functionalCase.getName());
+
+                dto.setPath("/functional/case/batch/recover");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+                dtoList.add(dto);
+            });
+        }
+        return dtoList;
+    }
+
+    /**
      * 彻底删除
      *
      * @param id 接口请求参数
@@ -213,7 +244,7 @@ public class FunctionalCaseLogService {
         List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
-            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids);
+            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids, false);
             functionalCases.forEach(functionalCase -> {
                 LogDTO dto = new LogDTO(
                         functionalCase.getProjectId(),
@@ -231,5 +262,42 @@ public class FunctionalCaseLogService {
             });
         }
         return dtoList;
+    }
+
+    public List<LogDTO> batchDeleteTrashCaseLog(FunctionalCaseBatchRequest request) {
+        List<String> ids = getSelectIdsByTrash(request, request.getProjectId());
+        List<LogDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids, true);
+            functionalCases.forEach(functionalCase -> {
+                LogDTO dto = new LogDTO(
+                        functionalCase.getProjectId(),
+                        null,
+                        functionalCase.getId(),
+                        functionalCase.getCreateUser(),
+                        OperationLogType.DELETE.name(),
+                        OperationLogModule.FUNCTIONAL_CASE,
+                        functionalCase.getName());
+
+                dto.setPath("/functional/case/batch/delete");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+                dtoList.add(dto);
+            });
+        }
+        return dtoList;
+    }
+
+    public <T> List<String> getSelectIdsByTrash(T dto, String projectId) {
+        BaseFunctionalCaseBatchDTO request = (BaseFunctionalCaseBatchDTO) dto;
+        if (request.isSelectAll()) {
+            List<String> ids = extFunctionalCaseMapper.getIds(request, projectId, true);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
     }
 }

@@ -34,6 +34,7 @@ CREATE INDEX idx_module_id ON functional_case(module_id);
 CREATE INDEX idx_project_id_pos ON functional_case(project_id,pos);
 CREATE INDEX idx_public_case_pos ON functional_case(public_case,pos);
 CREATE INDEX idx_ref_id ON functional_case(ref_id);
+CREATE INDEX idx_project_id ON functional_case(project_id);
 CREATE INDEX idx_version_id ON functional_case(version_id);
 CREATE INDEX idx_create_time ON functional_case(create_time);
 CREATE INDEX idx_delete_time ON functional_case(delete_time);

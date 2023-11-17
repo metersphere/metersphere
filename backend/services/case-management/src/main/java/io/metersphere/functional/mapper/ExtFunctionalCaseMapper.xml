@@ -111,6 +111,19 @@
         </foreach>
     </update>
 
+    <update id="recoverCaseByRefIds">
+        UPDATE functional_case
+        SET deleted = false,
+        update_user =  #{userId},
+        update_time = #{time},
+        delete_user = null,
+        delete_time = null
+        WHERE ref_id IN
+        <foreach collection="refIds" item="refId" open="(" separator="," close=")">
+            #{refId}
+        </foreach>
+    </update>
+
     <sql id="queryWhereCondition">
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             functional_case.module_id in
@@ -422,7 +435,7 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
-        and deleted = false
+        and deleted = #{deleted}
         group by ref_id
     </select>
 
@@ -450,7 +463,7 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
-        and deleted = false
+        and deleted = #{deleted}
     </select>
 
 
@@ -498,4 +511,40 @@
         and deleted = false
         and project_id = #{functionalCase.projectId}
     </update>
+
+    <select id="countModuleIdByKeywordAndFileType"  resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT module_id AS moduleId, count(id) AS dataCount
+        FROM functional_case
+        WHERE deleted = #{deleted}
+        AND project_id = #{request.projectId}
+        <choose>
+            <when test='request.searchMode == "AND"'>
+                AND <include refid="queryWhereCondition"/>
+            </when>
+            <when test='request.searchMode == "OR"'>
+                and (
+                <include refid="queryWhereCondition"/>
+                )
+            </when>
+        </choose>
+        GROUP BY module_id
+    </select>
+
+    <select id="caseCount"
+            resultType="java.lang.Long">
+        SELECT count(id)
+        FROM functional_case
+        WHERE deleted = #{deleted}
+        AND project_id = #{request.projectId}
+        <choose>
+            <when test='request.searchMode == "AND"'>
+                AND <include refid="queryWhereCondition"/>
+            </when>
+            <when test='request.searchMode == "OR"'>
+                and (
+                <include refid="queryWhereCondition"/>
+                )
+            </when>
+        </choose>
+    </select>
 </mapper>

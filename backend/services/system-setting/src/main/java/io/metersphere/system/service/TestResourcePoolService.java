@@ -77,14 +77,15 @@ public class TestResourcePoolService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
-    public void checkLoadConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
+    public boolean checkLoadConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
         if (testResourcePool.getLoadTest() == null || !testResourcePool.getLoadTest()) {
-            return;
+            return true;
         }
         boolean validate = checkNodeOrK8s(testResourceDTO, type, false);
         if (!validate) {
             testResourcePool.setEnable(false);
         }
+        return validate;
     }
 
     private static boolean checkNodeOrK8s(TestResourceDTO testResourceDTO, String type, Boolean usedApiType) {
@@ -115,14 +116,15 @@ public class TestResourcePoolService {
         resourcePoolService.validate(testResourceDTO);
     }
 
-    public void checkApiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
+    public boolean checkApiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
         if (testResourcePool.getApiTest() == null || !testResourcePool.getApiTest()) {
-            return;
+            return true;
         }
         boolean validate = checkNodeOrK8s(testResourceDTO, type, true);
         if (!validate) {
             testResourcePool.setEnable(false);
         }
+        return validate;
     }
 
     public void updateTestResourcePool(TestResourcePoolDTO testResourcePool) {
