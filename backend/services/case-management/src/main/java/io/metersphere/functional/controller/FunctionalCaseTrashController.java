@@ -1,19 +1,28 @@
 package io.metersphere.functional.controller;
 
+import com.alibaba.excel.util.StringUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import io.metersphere.functional.dto.FunctionalCasePageDTO;
+import io.metersphere.functional.request.FunctionalCaseBatchRequest;
+import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.functional.service.FunctionalCaseLogService;
+import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.functional.service.FunctionalCaseTrashService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "用例管理-功能用例-回收站")
 @RestController
@@ -21,6 +30,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class FunctionalCaseTrashController {
     @Resource
     private FunctionalCaseTrashService functionalCaseTrashService;
+
+    @Resource
+    private FunctionalCaseService functionalCaseService;
+
+    @PostMapping("/page")
+    @Operation(summary = "用例管理-功能用例-回收站-用例列表查询")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody FunctionalCasePageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, true));
+    }
 
     @GetMapping("/recover/{id}")
     @Operation(summary = "用例管理-功能用例-回收站-恢复用例")
@@ -30,12 +51,28 @@ public class FunctionalCaseTrashController {
         functionalCaseTrashService.recoverCase(id, SessionUtils.getUserId());
     }
 
+    @PostMapping("/batch/recover")
+    @Operation(summary = "用例管理-功能用例-回收站-批量恢复用例")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
+    @Log(type = OperationLogType.RECOVER, expression = "#msClass.batchRecoverLog(#request)", msClass = FunctionalCaseLogService.class)
+    public void batchRecoverCase(@Validated @RequestBody FunctionalCaseBatchRequest request) {
+        functionalCaseTrashService.batchRecoverCase(request, SessionUtils.getUserId());
+    }
+
     @GetMapping("/delete/{id}")
     @Operation(summary = "用例管理-功能用例-回收站-彻底删除用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteTrashCaseLog(#id)", msClass = FunctionalCaseLogService.class)
     public void deleteCase(@PathVariable String id) {
         functionalCaseTrashService.deleteCase(id);
+    }
+
+    @PostMapping("/batch/delete")
+    @Operation(summary = "用例管理-功能用例-回收站-批量彻底删除用例")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDeleteTrashCaseLog(#request)", msClass = FunctionalCaseLogService.class)
+    public void batchDeleteCase(@Validated @RequestBody FunctionalCaseBatchRequest request) {
+        functionalCaseTrashService.batchDeleteCase(request);
     }
 
 }

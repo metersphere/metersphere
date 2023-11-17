@@ -315,7 +315,7 @@ public class FunctionalCaseService {
     private void handDeleteFunctionalCase(List<String> ids, Boolean deleteAll, String userId) {
         if (deleteAll) {
             //全部删除  进入回收站
-            List<String> refId = extFunctionalCaseMapper.getRefIds(ids);
+            List<String> refId = extFunctionalCaseMapper.getRefIds(ids, false);
             extFunctionalCaseMapper.batchDelete(refId, userId);
         } else {
             //列表删除 需要判断是否存在多个版本问题
@@ -412,7 +412,7 @@ public class FunctionalCaseService {
     public void batchMoveFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId) {
         List<String> ids = doSelectIds(request, request.getProjectId());
         if (CollectionUtils.isNotEmpty(ids)) {
-            List<String> refId = extFunctionalCaseMapper.getRefIds(ids);
+            List<String> refId = extFunctionalCaseMapper.getRefIds(ids, false);
             extFunctionalCaseMapper.batchMoveModule(request, refId, userId);
         }
     }
