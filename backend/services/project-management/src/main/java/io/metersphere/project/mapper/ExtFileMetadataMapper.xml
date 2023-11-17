@@ -49,7 +49,7 @@
         GROUP BY f.module_id
     </select>
 
-    <select id="countMyFile"
+    <select id="fileCount"
             parameterType="io.metersphere.project.dto.filemanagement.FileManagementQuery"
             resultType="java.lang.Long">
         SELECT count(f.id)
