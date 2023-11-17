@@ -14,7 +14,7 @@ public interface ExtFileMetadataMapper {
 
     List<ModuleCountDTO> countModuleIdByKeywordAndFileType(FileManagementQuery fileManagementQuery);
 
-    long countMyFile(FileManagementQuery fileManagementQuery);
+    long fileCount(FileManagementQuery fileManagementQuery);
 
     FileMetadata getById(String id);
 

@@ -30,6 +30,7 @@ import io.metersphere.system.utils.GitRepositoryUtil;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -127,12 +128,8 @@ public class FileMetadataService {
         }
     }
 
-    public FileMetadata genFileMetadata(String filePath, String storage, long size, boolean enable, String projectId, String moduleId, String operator) {
-        if (size > maxFileSize.toBytes()) {
-            throw new MSException(Translator.get("file.size.is.too.large"));
-        }
+    private void parseAndSetFileNameAndType(String filePath, @NotNull FileMetadata fileMetadata) {
         String fileName = TempFileUtils.getFileNameByPath(filePath);
-        FileMetadata fileMetadata = new FileMetadata();
         if (StringUtils.lastIndexOf(fileName, ".") > 0) {
             //采用这种判断方式，可以避免将隐藏文件的后缀名作为文件类型
             fileMetadata.setName(StringUtils.substring(fileName, 0, fileName.lastIndexOf(".")));
@@ -141,6 +138,14 @@ public class FileMetadataService {
             fileMetadata.setName(fileName);
             fileMetadata.setType(StringUtils.EMPTY);
         }
+    }
+
+    public FileMetadata genFileMetadata(String filePath, String storage, long size, boolean enable, String projectId, String moduleId, String operator) {
+        if (size > maxFileSize.toBytes()) {
+            throw new MSException(Translator.get("file.size.is.too.large"));
+        }
+        FileMetadata fileMetadata = new FileMetadata();
+        this.parseAndSetFileNameAndType(filePath, fileMetadata);
         //如果开启了开关，检查是否是jar文件
         if (enable) {
             this.checkEnableFile(fileMetadata.getType());
@@ -153,7 +158,7 @@ public class FileMetadataService {
             FileMetadataExample example = new FileMetadataExample();
             example.createCriteria().andPathEqualTo(filePath).andProjectIdEqualTo(projectId).andStorageEqualTo(StorageType.GIT.name()).andModuleIdEqualTo(moduleId);
             if (fileMetadataMapper.countByExample(example) > 0) {
-                throw new MSException(Translator.get("file.name.exist") + ":" + fileName);
+                throw new MSException(Translator.get("file.name.exist") + ":" + fileMetadata.getName());
             }
         }
 
@@ -427,24 +432,28 @@ public class FileMetadataService {
         if (oldFile == null) {
             throw new MSException(Translator.get("old.file.not.exist"));
         }
-
+        //非minio类型文件不允许重新上传
         if (!StringUtils.equals(oldFile.getStorage(), StorageType.MINIO.name())) {
-            //非minio类型文件不允许重新上传
             throw new MSException(Translator.get("file.not.exist"));
         }
+        //旧文件latest修改
         this.setFileVersionIsOld(oldFile, operator);
-        FileMetadata fileMetadata = this.genNewVersion(oldFile, operator);
+
+        FileMetadata fileMetadata = new FileMetadata();
+        // 解析新上传的文件名和文件类型
+        String uploadFilePath = StringUtils.trim(uploadFile.getOriginalFilename());
+        this.parseAndSetFileNameAndType(uploadFilePath, fileMetadata);
+        //部分文件信息内容要和旧版本的信息内容保持一致
+        this.genNewFileVersionByOldFile(oldFile, fileMetadata, operator);
+        // 存储文件
+        String filePath = this.uploadFile(fileMetadata, uploadFile);
         fileMetadata.setSize(uploadFile.getSize());
+        fileMetadata.setPath(filePath);
+        fileMetadata.setFileVersion(fileMetadata.getId());
+        //数据入库
         fileMetadataMapper.insert(fileMetadata);
         //记录日志
         fileMetadataLogService.saveReUploadLog(fileMetadata, operator);
-        // 上传文件
-        String filePath = this.uploadFile(fileMetadata, uploadFile);
-        FileMetadata updateFileMetadata = new FileMetadata();
-        updateFileMetadata.setId(fileMetadata.getId());
-        updateFileMetadata.setPath(filePath);
-        updateFileMetadata.setFileVersion(fileMetadata.getId());
-        fileMetadataMapper.updateByPrimaryKeySelective(updateFileMetadata);
 
         return fileMetadata.getId();
     }
@@ -455,11 +464,14 @@ public class FileMetadataService {
         FileManagementQuery pageDTO = new FileManagementQuery(request);
         pageDTO.setModuleIds(null);
         List<ModuleCountDTO> moduleCountDTOList = extFileMetadataMapper.countModuleIdByKeywordAndFileType(pageDTO);
-        long allCount = fileModuleService.getAllCount(moduleCountDTOList);
-        //查出我的文件数量
-        pageDTO.setOperator(operator);
-        long myFileCount = extFileMetadataMapper.countMyFile(pageDTO);
         Map<String, Long> moduleCountMap = fileModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
+
+        //查出全部文件和我的文件的数量
+        FileManagementQuery myFileCountDTO = new FileManagementQuery();
+        myFileCountDTO.setProjectId(request.getProjectId());
+        long allCount = extFileMetadataMapper.fileCount(myFileCountDTO);
+        myFileCountDTO.setOperator(operator);
+        long myFileCount = extFileMetadataMapper.fileCount(myFileCountDTO);
         moduleCountMap.put(FILE_MODULE_COUNT_MY, myFileCount);
         moduleCountMap.put(FILE_MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
@@ -545,16 +557,14 @@ public class FileMetadataService {
         fileMetadataMapper.updateByPrimaryKeySelective(updateModel);
     }
 
-    private FileMetadata genNewVersion(FileMetadata oldFile, String operator) {
+    private void genNewFileVersionByOldFile(FileMetadata oldFile, FileMetadata fileMetadata, String operator) {
         long operationTime = System.currentTimeMillis();
-        FileMetadata fileMetadata = new FileMetadata();
         fileMetadata.setId(IDGenerator.nextStr());
         fileMetadata.setStorage(oldFile.getStorage());
         fileMetadata.setProjectId(oldFile.getProjectId());
         fileMetadata.setModuleId(oldFile.getModuleId());
         fileMetadata.setName(oldFile.getName());
-        fileMetadata.setType(oldFile.getType());
-        fileMetadata.setCreateTime(operationTime);
+        fileMetadata.setCreateTime(oldFile.getCreateTime());
         fileMetadata.setCreateUser(oldFile.getCreateUser());
         fileMetadata.setUpdateTime(operationTime);
         fileMetadata.setPath(oldFile.getPath());
@@ -562,7 +572,6 @@ public class FileMetadataService {
         fileMetadata.setRefId(oldFile.getRefId());
         fileMetadata.setEnable(oldFile.getEnable());
         fileMetadata.setLatest(true);
-        return fileMetadata;
     }
 
     public String pullFile(String fileId, String operator) {
@@ -578,7 +587,9 @@ public class FileMetadataService {
 
                 if (!StringUtils.equals(gitFileAttachInfo.getCommitId(), metadataRepository.getCommitId())) {
                     this.setFileVersionIsOld(oldFile, operator);
-                    FileMetadata fileMetadata = this.genNewVersion(oldFile, operator);
+                    FileMetadata fileMetadata = new FileMetadata();
+                    this.genNewFileVersionByOldFile(oldFile, fileMetadata, operator);
+                    fileMetadata.setType(oldFile.getType());
                     fileMetadata.setFileVersion(gitFileAttachInfo.getCommitId());
                     fileMetadata.setSize(gitFileAttachInfo.getSize());
                     fileMetadataMapper.insert(fileMetadata);
