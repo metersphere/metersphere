@@ -106,16 +106,10 @@ export default {
       }
 
       let dataPercentObj = {};
-      let percentCount = 0;
       for (let i = 0; i < data.length; i++) {
         let dataName = data[i].name;
         let value = data[i].value;
-        let percent = 100 - percentCount;
-        if (i !== data.length - 1) {
-          percent = new Number(((value / total) * 100).toFixed(0));
-          percentCount += percent;
-        }
-        dataPercentObj[dataName] = percent;
+        dataPercentObj[dataName] = new Number(((value / total) * 100).toFixed(2));
       }
       this.options.legend.formatter = (name) => {
         let target = 0;
@@ -124,13 +118,26 @@ export default {
             target = data[i].value;
           }
         }
-        return name + "  |  " + target + "     " + dataPercentObj[name] + "%";
+
+        return name + "  |  " + target + "     " + this.formatNumber( dataPercentObj[name], 2) + "%";
       };
 
       this.options.series[0].label.formatter = (params) => {
         return title + "\n" + count;
       };
     },
+    formatNumber(num, decimalPlaces) {
+      let fixedNum = num.toFixed(decimalPlaces); // 先使用 toFixed 获取指定小数位数的字符串
+      let parts = fixedNum.split("."); // 将整数部分和小数部分分开
+
+      // 如果小数部分存在，且小数部分的长度小于指定的小数位数，则补齐0
+      if (parts.length > 1 && parts[1].length < decimalPlaces) {
+        parts[1] = parts[1].padEnd(decimalPlaces, "0");
+      }
+
+      // 将整数部分和小数部分重新拼接起来
+      return parts.join(".");
+    }
   },
 };
 </script>
