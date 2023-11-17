@@ -1058,7 +1058,10 @@ public class IssuesService {
             AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
 
             // 批量更新
-            updateIssues.forEach(issueBatchMapper::updateByPrimaryKeySelective);
+            updateIssues.forEach(issue -> {
+                issue.setCreator(null);
+                issueBatchMapper.updateByPrimaryKeySelective(issue);
+            });
 
             // 批量删除
             syncIssuesResult.getDeleteIssuesIds()
