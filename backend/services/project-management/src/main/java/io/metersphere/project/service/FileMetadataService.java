@@ -480,7 +480,9 @@ public class FileMetadataService {
     public ResponseEntity<byte[]> downloadPreviewImgById(String id) throws Exception {
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(id);
         String previewImgPath = null;
-        if (TempFileUtils.isImage(fileMetadata.getType())) {
+        if (StringUtils.equalsIgnoreCase(fileMetadata.getType(), "svg")) {
+            return this.downloadById(id);
+        } else if (TempFileUtils.isImage(fileMetadata.getType())) {
             if (TempFileUtils.isImgPreviewFileExists(fileMetadata.getId())) {
                 previewImgPath = TempFileUtils.getPreviewImgFilePath(fileMetadata.getId());
             } else {
