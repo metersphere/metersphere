@@ -620,9 +620,11 @@ public class ElementUtil {
         return processor;
     }
 
-    public static void setBaseParams(TestElement sampler, MsTestElement parent, ParameterConfig config, String id, String indexPath) {
+    public static String setBaseParams(TestElement sampler, MsTestElement parent, ParameterConfig config, String id, String indexPath) {
         sampler.setProperty("MS-ID", id);
-        sampler.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(id, config, parent, indexPath));
+        String resourceId = ElementUtil.getResourceId(id, config, parent, indexPath);
+        sampler.setProperty("MS-RESOURCE-ID", resourceId);
+        return resourceId;
     }
 
     private static final List<String> preOperates = new ArrayList<String>() {{

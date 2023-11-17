@@ -17,8 +17,12 @@
 
 package org.apache.jmeter.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.jmeter.config.KeystoreDTO;
 import org.apache.jmeter.gui.GuiPackage;
+import org.apache.jmeter.threads.JMeterContext;
+import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.util.keystore.JmeterKeyStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +34,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 
 /**
@@ -42,7 +48,6 @@ import java.util.Locale;
  * more information.
  * <p>
  * TODO? - N.B. does not currently allow the selection of a client certificate.
- *
  */
 public abstract class SSLManager {
     private static final Logger log = LoggerFactory.getLogger(SSLManager.class);
@@ -57,20 +62,30 @@ public abstract class SSLManager {
 
     private static final String PKCS12 = "pkcs12"; // $NON-NLS-1$
 
-    /** Singleton instance of the manager */
+    public static final Map<String, KeystoreDTO> keyMap = new HashMap<>();
+
+    /**
+     * Singleton instance of the manager
+     */
     private static SSLManager manager;
 
     private static final boolean IS_SSL_SUPPORTED = true;
 
-    /** Cache the KeyStore instance */
+    /**
+     * Cache the KeyStore instance
+     */
     private JmeterKeyStore keyStore;
 
-    /** Cache the TrustStore instance - null if no truststore name was provided */
+    /**
+     * Cache the TrustStore instance - null if no truststore name was provided
+     */
     private KeyStore trustStore = null;
     // Have we yet tried to load the truststore?
-    private volatile boolean truststoreLoaded=false;
+    private volatile boolean truststoreLoaded = false;
 
-    /** Have the password available */
+    /**
+     * Have the password available
+     */
     protected volatile String defaultpw = System.getProperty(KEY_STORE_PASSWORD);
 
     private int keystoreAliasStartIndex;
@@ -91,8 +106,7 @@ public abstract class SSLManager {
     /**
      * Default implementation of setting the Provider
      *
-     * @param provider
-     *            the provider to use
+     * @param provider the provider to use
      */
     protected void setProvider(Provider provider) {
         if (null != provider) {
@@ -102,7 +116,7 @@ public abstract class SSLManager {
 
     protected synchronized JmeterKeyStore getKeyStore() {
         if (null == this.keyStore) {
-            String fileName = System.getProperty(JAVAX_NET_SSL_KEY_STORE,""); // empty if not provided
+            String fileName = System.getProperty(JAVAX_NET_SSL_KEY_STORE, ""); // empty if not provided
             String fileType = System.getProperty(JAVAX_NET_SSL_KEY_STORE_TYPE, // use the system property to determine the type
                     fileName.toLowerCase(Locale.ENGLISH).endsWith(".p12") ? PKCS12 : "JKS"); // otherwise use the name
             log.info("JmeterKeyStore Location: {} type {}", fileName, fileType);
@@ -111,7 +125,7 @@ public abstract class SSLManager {
                 log.info("KeyStore created OK");
             } catch (Exception e) {
                 this.keyStore = null;
-                throw new IllegalArgumentException("Could not create keystore: "+e.getMessage(), e);
+                throw new IllegalArgumentException("Could not create keystore: " + e.getMessage(), e);
             }
 
             try {
@@ -154,9 +168,9 @@ public abstract class SSLManager {
      *
      * @return the configured {@link JmeterKeyStore}
      */
-    protected synchronized JmeterKeyStore getKeyStore(InputStream is,String password) {
+    protected synchronized JmeterKeyStore getKeyStore(InputStream is, String password) {
         if (null == this.keyStore) {
-            String fileName = System.getProperty(JAVAX_NET_SSL_KEY_STORE,""); // empty if not provided
+            String fileName = System.getProperty(JAVAX_NET_SSL_KEY_STORE, ""); // empty if not provided
             String fileType = System.getProperty(JAVAX_NET_SSL_KEY_STORE_TYPE, // use the system property to determine the type
                     fileName.toLowerCase(Locale.ENGLISH).endsWith(".p12") ? PKCS12 : "JKS"); // otherwise use the name
             log.info("JmeterKeyStore Location: {} type {}", fileName, fileType);
@@ -165,7 +179,7 @@ public abstract class SSLManager {
                 log.info("KeyStore created OK");
             } catch (Exception e) {
                 this.keyStore = null;
-                throw new IllegalArgumentException("Could not create keystore: "+e.getMessage(), e);
+                throw new IllegalArgumentException("Could not create keystore: " + e.getMessage(), e);
             }
 
             try {
@@ -267,7 +281,7 @@ public abstract class SSLManager {
 
     /**
      * Opens and initializes the TrustStore.
-     *
+     * <p>
      * There are 3 possibilities:
      * <ul>
      * <li>no truststore name provided, in which case the default Java truststore
@@ -280,16 +294,14 @@ public abstract class SSLManager {
      * If the KeyStore object cannot be created, then this is currently treated the
      * same as if no truststore name was provided.
      *
-     * @return
-     *         {@code null} when Java truststore should be used.
-     *         Otherwise the truststore, which may be empty if the file could not be
-     *         loaded.
-     *
+     * @return {@code null} when Java truststore should be used.
+     * Otherwise the truststore, which may be empty if the file could not be
+     * loaded.
      */
     protected KeyStore getTrustStore() {
         if (!truststoreLoaded) {
 
-            truststoreLoaded=true;// we've tried ...
+            truststoreLoaded = true;// we've tried ...
 
             String fileName = System.getProperty(SSL_TRUST_STORE);
             if (fileName == null) {
@@ -302,7 +314,7 @@ public abstract class SSLManager {
                 log.info("TrustStore created OK, Type: JKS");
             } catch (Exception e) {
                 this.trustStore = null;
-                throw new RuntimeException("Problem creating truststore: "+e.getMessage(), e);
+                throw new RuntimeException("Problem creating truststore: " + e.getMessage(), e);
             }
 
             try {
@@ -342,6 +354,26 @@ public abstract class SSLManager {
         if (null == SSLManager.manager) {
             SSLManager.manager = new JsseSSLManager(null);
         }
+        try {
+            // 重新加载认证文件
+            JMeterContext threadContext = JMeterContextService.getContext();
+            if (SSLManager.manager.keyStore == null && threadContext != null && threadContext.getCurrentSampler() != null) {
+
+                String resourceId = threadContext.getCurrentSampler().getPropertyAsString("MS-RESOURCE-ID");
+                log.info("重新加载认证文件{}", resourceId);
+                if (StringUtils.isNotBlank(resourceId) && keyMap.containsKey(resourceId)) {
+                    KeystoreDTO dto = keyMap.get(resourceId);
+                    // 加载认证文件
+                    InputStream in = new FileInputStream(new File(dto.getPath()));
+                    SSLManager.manager.configureKeystore(Boolean.parseBoolean(dto.getPreload()), dto.getStartIndex(),
+                            dto.getEndIndex(), dto.getClientCertAliasVarName(), in, dto.getPwd());
+                    keyMap.remove(resourceId);
+                    log.info("移除认证文件{}", resourceId);
+                }
+            }
+        } catch (Exception e) {
+            log.error("证书处理失败{}", e.getMessage());
+        }
 
         return SSLManager.manager;
     }
@@ -358,23 +390,19 @@ public abstract class SSLManager {
     /**
      * Configure Keystore
      *
-     * @param preload
-     *            flag whether the keystore should be opened within this method,
-     *            or the opening should be delayed
-     * @param startIndex
-     *            first index to consider for a key
-     * @param endIndex
-     *            last index to consider for a key
-     * @param clientCertAliasVarName
-     *            name of the default key, if empty the first key will be used
-     *            as default key
+     * @param preload                flag whether the keystore should be opened within this method,
+     *                               or the opening should be delayed
+     * @param startIndex             first index to consider for a key
+     * @param endIndex               last index to consider for a key
+     * @param clientCertAliasVarName name of the default key, if empty the first key will be used
+     *                               as default key
      */
-    public synchronized void configureKeystore(boolean preload, int startIndex, int endIndex, String clientCertAliasVarName,InputStream is,String password) {
+    public synchronized void configureKeystore(boolean preload, int startIndex, int endIndex, String clientCertAliasVarName, InputStream is, String password) {
         this.keystoreAliasStartIndex = startIndex;
         this.keystoreAliasEndIndex = endIndex;
         this.clientCertAliasVarName = clientCertAliasVarName;
-        if(preload) {
-            keyStore = getKeyStore(is,password);
+        if (preload) {
+            keyStore = getKeyStore(is, password);
         }
     }
 
@@ -382,6 +410,16 @@ public abstract class SSLManager {
      * Destroy Keystore
      */
     public synchronized void destroyKeystore() {
-        keyStore=null;
+        keyStore = null;
+    }
+
+    /**
+     * Destroy Keystore
+     */
+    public synchronized void destroyKeystore(String resourceId) {
+        if (StringUtils.isNotBlank(resourceId)) {
+            keyMap.remove(resourceId);
+        }
+        keyStore = null;
     }
 }

@@ -61,7 +61,8 @@ public class KeystoreConfig extends ConfigTestElement implements TestBean, TestS
     @Override
     public void testEnded(String host) {
         log.info("Destroying Keystore");
-        SSLManager.getInstance().destroyKeystore();
+        String resourceId = this.getPropertyAsString("MS-RESOURCE-ID");
+        SSLManager.getInstance().destroyKeystore(resourceId);
     }
 
     @Override
@@ -110,10 +111,23 @@ public class KeystoreConfig extends ConfigTestElement implements TestBean, TestS
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+        // 获取请求上的资源ID
+        String resourceId = this.getPropertyAsString("MS-RESOURCE-ID");
+        if (StringUtils.isNotBlank(resourceId)) {
+            KeystoreDTO dto = new KeystoreDTO();
+            dto.setStartIndex(startIndexAsInt);
+            dto.setEndIndex(endIndexAsInt);
+            dto.setPreload(this.preload);
+            dto.setClientCertAliasVarName(this.clientCertAliasVarName);
+            dto.setPwd(password);
+            dto.setPath(path);
+            SSLManager.keyMap.put(resourceId, dto);
+        }
         SSLManager.getInstance().configureKeystore(Boolean.parseBoolean(preload),
                 startIndexAsInt,
                 endIndexAsInt,
                 clientCertAliasVarName, in, password);
+
     }
 
     /**
