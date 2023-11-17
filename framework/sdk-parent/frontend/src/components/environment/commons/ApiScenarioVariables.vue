@@ -256,13 +256,18 @@ export default {
   methods: {
     remove: function (index) {
       const dataIndex = this.pageData.findIndex((d) => d.name === index.name);
-      this.pageData.splice(dataIndex, 1);
+      if (dataIndex !== -1) {
+        this.pageData.splice(dataIndex, 1);
+      }
 
       const allDataIndex = this.allData.findIndex((d) => d.name === index.name);
-      this.allData.splice(allDataIndex, 1);
-
+      if (allDataIndex !== -1) {
+        this.allData.splice(allDataIndex, 1);
+      }
       const itemsIndex = this.items.findIndex((d) => d.name === index.name);
-      this.items.splice(itemsIndex, 1);
+      if (itemsIndex !== -1) {
+        this.items.splice(itemsIndex, 1);
+      }
       this.sortParameters();
       this.queryPage();
     },
