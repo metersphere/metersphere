@@ -129,7 +129,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
-        ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
+        String resourceId = ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
+
         sampler.setMethod(this.getMethod());
         sampler.setContentEncoding(StandardCharsets.UTF_8.name());
         sampler.setFollowRedirects(this.isFollowRedirects());
@@ -227,7 +228,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (this.authManager != null && MsAuthManager.mechanismMap.containsKey(this.authManager.getVerification())) {
             this.authManager.setAuth(httpSamplerTree, this.authManager, sampler);
         }
-        addCertificate(config, httpSamplerTree);
+        addCertificate(config, httpSamplerTree, resourceId);
         if (httpConfig != null) {
             //根据配置增加全局前后至脚本
             JMeterScriptUtil.setScriptByHttpConfig(httpConfig, httpSamplerTree, config, useEnvironment, this.getEnvironmentId(), false);
@@ -500,7 +501,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     /**
      * 加载SSL认证
      */
-    private void addCertificate(ParameterConfig config, HashTree httpSamplerTree) {
+    private void addCertificate(ParameterConfig config, HashTree httpSamplerTree, String resourceId) {
         if (config != null && config.isEffective(this.getProjectId()) && getEnvironmentConfig(config).getSslConfig() != null) {
             KeyStoreConfig sslConfig = getEnvironmentConfig(config).getSslConfig();
             List<KeyStoreFile> files = sslConfig.getFiles();
@@ -542,6 +543,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     keystoreConfig.setProperty("startIndex", 0);
                     keystoreConfig.setProperty(ElementConstants.MS_KEYSTORE_FILE_PATH, msKeyStore.getPath());
                     keystoreConfig.setProperty(ElementConstants.MS_KEYSTORE_FILE_PASSWORD, msKeyStore.getPassword());
+                    keystoreConfig.setProperty("MS-RESOURCE-ID", resourceId);
                     httpSamplerTree.add(keystoreConfig);
                     config.getKeyStoreMap().put(this.getProjectId(), new MsKeyStore(msKeyStore.getPath(), msKeyStore.getPassword()));
                 }
