@@ -49,6 +49,96 @@
             #{value}
         </foreach>
     </select>
+
+    <select id="getPos" resultType="java.lang.Long">
+        SELECT pos
+        FROM api_definition
+        WHERE project_id = #{projectId}
+        ORDER BY pos DESC
+            LIMIT 1;
+    </select>
+
+    <select id="getIds" resultType="java.lang.String">
+        SELECT id
+        FROM api_definition
+        where project_id = #{projectId} and deleted = #{deleted}
+        <include refid="queryWhereConditionByBaseQueryRequest"/>
+    </select>
+
+
+    <select id="getRefIds" resultType="java.lang.String">
+        SELECT
+        ref_id
+        FROM
+        api_definition
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and deleted = false
+        group by ref_id
+    </select>
+    <select id="getApiDefinitionByRefId" resultType="io.metersphere.api.dto.definition.ApiDefinitionVersionDTO">
+        SELECT
+            id,
+            `name`,
+            version_id,
+            ref_id,
+            project_id
+        FROM
+            api_definition
+        WHERE
+            ref_id = #{refId}
+    </select>
+    <select id="getTagsByIds" resultType="io.metersphere.api.domain.ApiDefinition">
+        select id, tags from api_definition
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and deleted = false
+    </select>
+
+
+    <update id="batchDelete">
+        update api_definition
+        set deleted = 1,
+        delete_user = #{userId},
+        delete_time = UNIX_TIMESTAMP()*1000
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and deleted = false
+    </update>
+
+    <update id="batchMove">
+        update api_definition
+        set module_id = #{request.moduleId},
+        update_user = #{userId},
+        update_time = UNIX_TIMESTAMP()*1000
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and deleted = false
+        and project_id = #{request.projectId}
+    </update>
+
+    <update id="clearLatestVersion">
+        update api_definition
+        set latest = 0
+        where ref_id = #{refId}
+          and project_id = #{projectId}
+    </update>
+
+    <update id="updateLatestVersion">
+        update api_definition
+        set latest = 1
+        where id = #{id}
+          and project_id = #{projectId}
+    </update>
+
     <sql id="queryWhereCondition">
         <if test="request.keyword != null and request.keyword != ''">
             and (
@@ -185,6 +275,22 @@
         </if>
     </sql>
 
-
+    <sql id="queryWhereConditionByBaseQueryRequest">
+        <if test="request.condition.combine != null">
+            <include refid="combine">
+                <property name="condition" value="request.condition.combine"/>
+            </include>
+        </if>
+        <if test="request.condition.keyword != null">
+            and (
+            api_definition.num like concat('%', #{request.condition.keyword},'%')
+            or api_definition.name like concat('%', #{request.condition.keyword},'%')
+            or api_definition.tags like JSON_CONTAINS(tags, concat('["',#{request.condition.keyword},'"]'))
+            )
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+    </sql>
 
 </mapper>
