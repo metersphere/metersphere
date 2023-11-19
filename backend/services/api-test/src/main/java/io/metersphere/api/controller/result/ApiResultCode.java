@@ -7,7 +7,9 @@ import io.metersphere.sdk.exception.IResultCode;
  */
 public enum ApiResultCode implements IResultCode {
 
-    API_DEBUG_EXIST(104001, "api_debug_exist");
+    API_DEBUG_EXIST(104001, "api_debug_exist"),
+    API_DEFINITION_EXIST(104002, "api_definition_exist"),
+    API_DEFINITION_NOT_EXIST(104003, "resource_not_exist");
 
 
     private final int code;
