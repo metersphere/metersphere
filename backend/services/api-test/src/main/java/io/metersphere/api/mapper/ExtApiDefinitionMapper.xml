@@ -61,7 +61,7 @@
     <select id="getIds" resultType="java.lang.String">
         SELECT id
         FROM api_definition
-        where project_id = #{projectId} and deleted = #{deleted}
+        where project_id = #{projectId} AND protocol = #{protocol} and deleted = #{deleted}
         <include refid="queryWhereConditionByBaseQueryRequest"/>
     </select>
 
@@ -152,6 +152,12 @@
         </if>
         <if test="request.protocol != null and request.protocol != ''">
             AND api_definition.protocol = #{request.protocol}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and api_definition.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
         </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>

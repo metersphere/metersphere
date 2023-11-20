@@ -1,7 +1,6 @@
 -- 插入测试数据
 
 TRUNCATE TABLE api_definition;
-TRUNCATE TABLE project_version;
 TRUNCATE TABLE api_test_case;
 TRUNCATE TABLE api_report;
 
@@ -12,6 +11,7 @@ INSERT INTO `api_definition` (`id`, `name`, `protocol`, `method`, `path`, `statu
 INSERT INTO `api_definition` (`id`, `name`, `protocol`, `method`, `path`, `status`, `num`, `tags`, `pos`, `project_id`, `module_id`, `latest`, `version_id`, `ref_id`, `description`, `create_time`, `create_user`, `update_time`, `update_user`, `delete_user`, `delete_time`, `deleted`) VALUES ('1005', 'test-5', 'HTTP', 'POST', '/api/admin/5', 'Underway', 1005, '[\"test5\",\"te\"]', 1, '100001100001', 'root', b'0', '1005704995741369851', '1004', NULL, 1699500298164, 'admin', 1699500298164, 'admin', NULL, NULL, b'0');
 INSERT INTO `api_definition` (`id`, `name`, `protocol`, `method`, `path`, `status`, `num`, `tags`, `pos`, `project_id`, `module_id`, `latest`, `version_id`, `ref_id`, `description`, `create_time`, `create_user`, `update_time`, `update_user`, `delete_user`, `delete_time`, `deleted`) VALUES ('1006', 'test-6', 'HTTP', 'GET', '/api/admin/6', 'Completed', 1006, '[\"test6\",\"te\"]', 1, '100001100001', 'root', b'1', '100570499574136985', '1006', NULL, 1699500298164, 'admin', 1699500298164, 'admin', NULL, NULL, b'0');
 
+DELETE FROM `project_version` WHERE `id` = '100570499574136985';
 INSERT INTO project_version (id, project_id, name, description, status, latest, publish_time, start_time, end_time, create_time, create_user) VALUES ('100570499574136985', '100001100001', 'v1.0.0', NULL, 'open', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin');
 
 INSERT INTO `api_test_case` (`id`, `name`, `priority`, `num`, `tags`, `status`, `last_report_status`, `last_report_id`, `pos`, `project_id`, `api_definition_id`, `version_id`, `environment_id`, `create_time`, `create_user`, `update_time`, `update_user`, `delete_time`, `delete_user`, `deleted`) VALUES ('12df5721-c5e6-a38b-e999-3eafcb992094', '查询windows主机', 'P0', 100002001, NULL, 'PENDING', NULL, '10001', 10000, '100001100001', '1001', '100570499574136985', 'admin', 1699500298164, 'admin', 1699500298164, 'admin', NULL, NULL, b'0');
