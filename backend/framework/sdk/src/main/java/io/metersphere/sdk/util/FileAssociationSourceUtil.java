@@ -12,10 +12,12 @@ import java.util.Map;
  */
 public class FileAssociationSourceUtil {
     public static final String SOURCE_TYPE_BUG = "BUG";
+    public static final String SOURCE_TYPE_FUNCTIONAL_CASE = "FUNCTIONAL_CASE";
     public static final Map<String, String> QUERY_SQL = new HashMap<>();
 
     static {
         QUERY_SQL.put(SOURCE_TYPE_BUG, "SELECT id AS sourceId,title AS sourceName FROM bug");
+        QUERY_SQL.put(SOURCE_TYPE_FUNCTIONAL_CASE, "SELECT id AS sourceId,name AS sourceName FROM functional_case");
     }
 
     public static void validate(String type) {

@@ -4,6 +4,7 @@ import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileAssociationExample;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.dto.filemanagement.FileAssociationSource;
+import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.dto.filemanagement.response.FileAssociationResponse;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
@@ -325,5 +326,17 @@ public class FileAssociationService {
         if(source == null){
              throw new MSException(Translator.get("file.association.source.not.exist"));
         }
+    }
+
+
+    /**
+     * 获取文件列表接口
+     *
+     * @param sourceId
+     * @param sourceType
+     * @return
+     */
+    public List<FileInfo> getFiles(String sourceId, String sourceType) {
+        return extFileAssociationMapper.selectAssociationFileInfo(sourceId, sourceType);
     }
 }

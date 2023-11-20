@@ -14,4 +14,20 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="selectAssociationFileInfo" resultType="io.metersphere.project.dto.filemanagement.FileInfo">
+        SELECT
+            file_association.file_id AS fileId,
+            CONCAT( file_metadata.`name`, file_metadata.type ) AS fileName,
+            file_metadata.size AS size,
+	        'false' AS local,
+	        file_association.create_user AS createUser,
+	        file_association.create_time AS createTime
+        FROM
+            file_association
+            LEFT JOIN file_metadata ON file_association.file_id = file_metadata.id
+        WHERE
+            file_association.source_id = #{sourceId}
+          AND file_association.source_type = #{sourceType}
+    </select>
 </mapper>

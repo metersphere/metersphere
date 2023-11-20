@@ -316,7 +316,7 @@ public class ProjectApplicationService {
      * @return
      */
     public LogDTO updateTestPlanLog(ProjectApplication application) {
-        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "测试计划配置");
+        return delLog(application, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, "测试计划配置");
     }
 
 
@@ -327,7 +327,7 @@ public class ProjectApplicationService {
      * @return
      */
     public LogDTO updateUiLog(ProjectApplication application) {
-        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "UI配置");
+        return delLog(application, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, "UI配置");
     }
 
     /**
@@ -337,7 +337,7 @@ public class ProjectApplicationService {
      * @return
      */
     public LogDTO updatePerformanceLog(ProjectApplication application) {
-        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "性能测试配置");
+        return delLog(application, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, "性能测试配置");
     }
 
     /**
@@ -347,7 +347,7 @@ public class ProjectApplicationService {
      * @return
      */
     public LogDTO updateApiLog(ProjectApplication application) {
-        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "接口测试配置");
+        return delLog(application, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, "接口测试配置");
     }
 
 
@@ -358,7 +358,7 @@ public class ProjectApplicationService {
      * @return
      */
     public LogDTO updateCaseLog(ProjectApplication application) {
-        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "用例管理配置");
+        return delLog(application, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, "功能测试配置");
     }
 
     /**
@@ -368,7 +368,11 @@ public class ProjectApplicationService {
      * @return
      */
     public LogDTO updateWorkstationLog(ProjectApplication application) {
-        return delLog(application, OperationLogModule.PROJECT_PROJECT_MANAGER, "工作台配置");
+        return delLog(application, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, "工作台配置");
+    }
+
+    public LogDTO updateBugLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, "缺陷管理配置");
     }
 
     private LogDTO delLog(ProjectApplication application, String module, String content) {

@@ -245,7 +245,7 @@ public class ProjectApplicationController {
     @PostMapping("/update/bug")
     @Operation(summary = "缺陷管理-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#application)", msClass = ProjectApplicationService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateBugLog(#application)", msClass = ProjectApplicationService.class)
     public void updateBug(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
         if (ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name().equals(application.getType())) {
             String projectBugThirdPartConfig = projectApplicationService.getProjectBugThirdPartConfig(application.getProjectId());

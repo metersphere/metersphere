@@ -256,13 +256,23 @@
     <sql id="queryVersionCondition">
         <if test="request.versionId != null">
             ${versionTable}.version_id = #{request.versionId}
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
         </if>
         <if test="request.refId != null">
             ${versionTable}.ref_id = #{request.refId}
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
         </if>
         <if test="request.versionId == null and request.refId == null">
             ${versionTable}.latest = 1
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
         </if>
+        1 = 1
     </sql>
 
     <sql id="queryAssociationCase">
