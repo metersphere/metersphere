@@ -94,7 +94,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
      */
     protected void checkDataValidity(FileModule fileModule) {
         FileModuleExample example = new FileModuleExample();
-        if (!StringUtils.equals(fileModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+        if (!StringUtils.equalsIgnoreCase(fileModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
             //检查父ID是否存在
             example.createCriteria().andIdEqualTo(fileModule.getParentId());
             if (fileModuleMapper.countByExample(example) == 0) {
