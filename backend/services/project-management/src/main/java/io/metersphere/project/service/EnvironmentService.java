@@ -46,7 +46,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class EnvironmentService {
     @Resource
     private EnvironmentMapper environmentMapper;

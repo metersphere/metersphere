@@ -2,6 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="io.metersphere.api.mapper.ExtApiTestCaseMapper">
+    <update id="batchMoveGc">
+        UPDATE api_test_case
+        SET deleted = 1,
+        delete_time = UNIX_TIMESTAMP()*1000,
+        delete_user = #{userId}
+        WHERE id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 
     <select id="getPos" resultType="java.lang.Long">
         SELECT pos
@@ -35,6 +45,65 @@
         WHERE t1.deleted =#{deleted}
         <include refid="queryWhereCondition"/>
     </select>
+    <select id="getIds" resultType="java.lang.String">
+        SELECT
+        t1.id
+        FROM
+        api_test_case t1
+        LEFT JOIN api_report t3 ON t1.last_report_id = t3.id
+        INNER JOIN api_definition a ON t1.api_definition_id = a.id
+        WHERE t1.deleted =#{deleted}
+        <include refid="queryWhereConditionByBatch"/>
+    </select>
+    <select id="getCaseInfoByApiIds" resultType="io.metersphere.api.domain.ApiTestCase">
+        SELECT id,
+        name
+        FROM api_test_case
+        WHERE deleted = #{deleted} and api_definition_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getCaseInfoByIds" resultType="io.metersphere.api.domain.ApiTestCase">
+        SELECT id,
+        name
+        FROM api_test_case
+        WHERE deleted = #{deleted} and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <sql id="queryWhereConditionByBatch">
+        <if test="request.protocol != null and request.protocol!=''">
+            and a.protocol = #{request.protocol}
+        </if>
+        <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
+            and t1.api_definition_id = #{request.apiDefinitionId}
+        </if>
+        <if test="request.projectId != null and request.projectId!=''">
+            and t1.project_id = #{request.projectId}
+        </if>
+        <if test="request.condition.keyword != null">
+            and (
+            t1.name like concat('%', #{request.condition.keyword},'%')
+            or t1.num like concat('%', #{request.condition.keyword},'%')
+            or t1.tags like JSON_CONTAINS(t1.tags, concat('["',#{request.condition.keyword},'"]'))
+            )
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and a.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+        <include refid="queryVersionCondition">
+            <property name="versionTable" value="t1"/>
+        </include>
+    </sql>
 
     <sql id="queryWhereCondition">
         <if test="request.protocol != null and request.protocol!=''">
@@ -68,8 +137,8 @@
     </sql>
 
     <sql id="filters">
-        <if test="request.filter != null and request.filter.size() > 0">
-            <foreach collection="request.filter.entrySet()" index="key" item="values">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key == 'priority'">

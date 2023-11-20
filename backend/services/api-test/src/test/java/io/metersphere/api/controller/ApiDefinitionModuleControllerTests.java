@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
+import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -66,6 +67,8 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
     @Resource
     private ApiDefinitionModuleService apiDefinitionModuleService;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
 
     @Autowired
     public ApiDefinitionModuleControllerTests(ProjectServiceInvoker serviceInvoker) {
@@ -142,6 +145,27 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         apiDefinitionBlob.setRequest(new byte[0]);
         apiDefinitionBlob.setResponse(new byte[0]);
         apiDefinitionBlobMapper.insertSelective(apiDefinitionBlob);
+
+        List<ApiTestCase> apiTestCasesList = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            ApiTestCase apiTestCase = new ApiTestCase();
+            apiTestCase.setId(IDGenerator.nextStr());
+            apiTestCase.setApiDefinitionId(apiDefinition.getId());
+            apiTestCase.setProjectId(DEFAULT_PROJECT_ID);
+            apiTestCase.setName(StringUtils.join("接口用例", apiTestCase.getId()));
+            apiTestCase.setPriority("P0");
+            apiTestCase.setStatus("Underway");
+            apiTestCase.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID + "_" + apiDefinition.getNum(), ApplicationNumScope.API_TEST_CASE));
+            apiTestCase.setPos(0L);
+            apiTestCase.setCreateTime(System.currentTimeMillis());
+            apiTestCase.setUpdateTime(System.currentTimeMillis());
+            apiTestCase.setCreateUser("admin");
+            apiTestCase.setUpdateUser("admin");
+            apiTestCase.setVersionId("1.0");
+            apiTestCase.setDeleted(false);
+            apiTestCasesList.add(apiTestCase);
+        }
+        apiTestCaseMapper.batchInsert(apiTestCasesList);
     }
 
     @Test

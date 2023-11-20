@@ -3,10 +3,7 @@ package io.metersphere.api.controller.definition;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiTestCase;
-import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseDTO;
-import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
-import io.metersphere.api.dto.request.ApiTestCasePageRequest;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.service.definition.ApiTestCaseLogService;
 import io.metersphere.api.service.definition.ApiTestCaseNoticeService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
@@ -90,7 +87,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiTestCaseLogService.class)
     public void delete(@PathVariable String id) {
-        apiTestCaseService.delete(id);
+        apiTestCaseService.delete(id, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/update")
@@ -116,6 +113,24 @@ public class ApiTestCaseController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, apiTestCaseService.page(request));
+    }
+
+    @PostMapping("/batch/delete")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
+    public void deleteBatchByParam(@RequestBody ApiTestCaseBatchRequest request) {
+        apiTestCaseService.batchDelete(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/batch/move-gc")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
+    public void deleteToGcByParam(@RequestBody ApiTestCaseBatchRequest request) {
+        apiTestCaseService.batchMoveGc(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/batch/edit")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    public void batchUpdate(@Validated @RequestBody ApiCaseBatchEditRequest request) {
+        apiTestCaseService.batchEdit(request, SessionUtils.getUserId());
     }
 
 
