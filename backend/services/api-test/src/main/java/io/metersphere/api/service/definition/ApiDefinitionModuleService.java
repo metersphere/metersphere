@@ -1,18 +1,12 @@
 package io.metersphere.api.service.definition;
 
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.domain.ApiDefinition;
-import io.metersphere.api.domain.ApiDefinitionExample;
-import io.metersphere.api.domain.ApiDefinitionModule;
-import io.metersphere.api.domain.ApiDefinitionModuleExample;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiTreeNode;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
-import io.metersphere.api.mapper.ApiDefinitionMapper;
-import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
-import io.metersphere.api.mapper.ExtApiDefinitionMapper;
-import io.metersphere.api.mapper.ExtApiDefinitionModuleMapper;
+import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.debug.ApiDebugModuleService;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
@@ -56,6 +50,12 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
     private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiTestCaseLogService apiTestCaseLogService;
 
     public List<BaseTreeNode> getTree(ApiModuleRequest request) {
         //接口的树结构是  模块：子模块+接口 接口为非delete状态的
@@ -180,8 +180,12 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
             //删除接口
             extApiDefinitionMapper.deleteApiToGc(refIds, userId, System.currentTimeMillis());
             apiDefinitionModuleLogService.saveDeleteDataLog(apiDefinitions, userId, projectId);
-            //删除接口用例 TODO  这里有点问题  如果把接口下的用例放到回收站里了  把回收站的用例恢复 但是接口没有恢复，那这些用例应该挂在哪个接口下面
-
+            //删除接口用例
+            List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).distinct().toList();
+            List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(apiIds, false);
+            List<String> caseIds = caseLists.stream().map(ApiTestCase::getId).distinct().toList();
+            apiTestCaseService.batchDeleteToGc(caseIds, userId, projectId, false);
+            apiDefinitionModuleLogService.saveDeleteCaseLog(caseLists, userId, projectId);
             apiCount = apiDefinitionMapper.countByExample(example);
         }
     }

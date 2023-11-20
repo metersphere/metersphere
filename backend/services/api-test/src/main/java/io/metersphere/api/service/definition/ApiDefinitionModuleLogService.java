@@ -2,6 +2,7 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionModule;
+import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -97,6 +98,27 @@ public class ApiDefinitionModuleLogService {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         List<LogDTO> logs = new ArrayList<>();
         deleteData.forEach(item -> {
+                    LogDTO dto = LogDTOBuilder.builder()
+                            .projectId(project.getId())
+                            .organizationId(project.getOrganizationId())
+                            .type(OperationLogType.DELETE.name())
+                            .module(OperationLogModule.API_DEFINITION)
+                            .method(HttpMethodConstants.GET.name())
+                            .path(DELETE + "/%s")
+                            .sourceId(item.getId())
+                            .content(item.getName())
+                            .createUser(operator)
+                            .build().getLogDTO();
+                    logs.add(dto);
+                }
+        );
+        operationLogService.batchAdd(logs);
+    }
+
+    public void saveDeleteCaseLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        List<LogDTO> logs = new ArrayList<>();
+        apiTestCases.forEach(item -> {
                     LogDTO dto = LogDTOBuilder.builder()
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())

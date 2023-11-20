@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.LinkedHashSet;
 
 @Data
 public class ApiTestCaseAddRequest implements Serializable {
@@ -39,7 +39,7 @@ public class ApiTestCaseAddRequest implements Serializable {
     private String apiDefinitionId;
 
     @Schema(description = "标签")
-    private List<
+    private LinkedHashSet<
             @NotBlank
                     String> tags;
 
