@@ -11,12 +11,14 @@ import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
-import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.file.MinioRepository;
@@ -56,9 +58,6 @@ public class ApiDefinitionService {
     private ApiDefinitionFollowerMapper apiDefinitionFollowerMapper;
 
     @Resource
-    private ProjectMapper projectMapper;
-
-    @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
 
     @Resource
@@ -73,11 +72,13 @@ public class ApiDefinitionService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+
     public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, Boolean deleted){
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request, deleted);
         if (!CollectionUtils.isEmpty(list)) {
-            convertUserIdToName(list);
-            calculateApiCase(list, request.getProjectId());
+            processApiDefinitions(list, request.getProjectId());
         }
         return list;
     }
@@ -152,9 +153,9 @@ public class ApiDefinitionService {
 
     public void batchUpdate(ApiDefinitionBatchUpdateRequest request, String userId) {
         ProjectService.checkResourceExist(request.getProjectId());
-        List<String> ids = getBatchApiIds(request, request.getProjectId());
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol());
         if (CollectionUtils.isNotEmpty(ids)) {
-            if (CollectionUtils.isNotEmpty(request.getTags())) {
+            if (request.getType().equals("tags")) {
                 handleTags(request, userId, ids);
             } else {
                 ApiDefinition apiDefinition = new ApiDefinition();
@@ -197,66 +198,43 @@ public class ApiDefinitionService {
         return apiDefinition;
     }
 
-    public void batchCopy(ApiDefinitionBatchUpdateRequest request, String userId) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId());
-        if (CollectionUtils.isNotEmpty(ids)) {
-            // TODO 批量复制
-            List<String> refId = extApiDefinitionMapper.getRefIds(ids);
-        }
-    }
-
     public void delete(ApiDefinitionDeleteRequest request, String userId) {
         checkApiDefinition(request.getId());
         handleDeleteApiDefinition(Collections.singletonList(request.getId()),request.getDeleteAll(), userId);
     }
 
     public void batchDelete(ApiDefinitionBatchRequest request, String userId) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId());
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol());
         if (CollectionUtils.isNotEmpty(ids)) {
             handleDeleteApiDefinition(ids, request.getDeleteAll(), userId);
         }
     }
 
     public void batchMove(ApiDefinitionBatchMoveRequest request, String userId) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId());
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol());
         if (CollectionUtils.isNotEmpty(ids)) {
             List<String> refId = extApiDefinitionMapper.getRefIds(ids);
             extApiDefinitionMapper.batchMove(request, refId, userId);
         }
     }
 
-
-    public void recycleDelete(){
-        // todo 删除接口用例
-
-        // todo 是否有自定义字段关联关系，删除自定义字段关系
-
-        // todo 是否删除关注人（如果删除，回收站恢复的时候如何处理）
-    }
-
-    private void convertUserIdToName(List<ApiDefinitionDTO> list) {
+    private void processApiDefinitions(List<ApiDefinitionDTO> list, String projectId) {
         Set<String> userIds = extractUserIds(list);
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
 
-        list.forEach(item -> {
-            item.setCreateUserName(userMap.get(item.getCreateUser()));
-            item.setDeleteUserName(userMap.get(item.getDeleteUser()));
-            item.setUpdateUserName(userMap.get(item.getUpdateUser()));
-        });
-    }
-
-    private Set<String> extractUserIds(List<ApiDefinitionDTO> list) {
-        return list.stream()
-                .flatMap(apiDefinition -> Stream.of(apiDefinition.getUpdateUser(), apiDefinition.getDeleteUser(), apiDefinition.getCreateUser()))
-                .collect(Collectors.toSet());
-    }
-
-    private void calculateApiCase(List<ApiDefinitionDTO> list, String projectId) {
-        List<String> ids = list.stream().map(ApiDefinitionDTO::getId).toList();
-        List<ApiCaseComputeDTO> apiCaseComputeList = extApiDefinitionMapper.selectApiCaseByIdsAndStatusIsNotTrash(ids, projectId);
+        List<String> apiDefinitionIds = list.stream().map(ApiDefinitionDTO::getId).toList();
+        List<ApiCaseComputeDTO> apiCaseComputeList = extApiDefinitionMapper.selectApiCaseByIdsAndStatusIsNotTrash(apiDefinitionIds, projectId);
         Map<String, ApiCaseComputeDTO> resultMap = apiCaseComputeList.stream().collect(Collectors.toMap(ApiCaseComputeDTO::getApiDefinitionId, Function.identity()));
 
         list.forEach(item -> {
+            // Convert User IDs to Names
+            item.setCreateUserName(userMap.get(item.getCreateUser()));
+            item.setDeleteUserName(userMap.get(item.getDeleteUser()));
+            item.setUpdateUserName(userMap.get(item.getUpdateUser()));
+
+            // Convert tags
+
+            // Calculate API Case Metrics
             ApiCaseComputeDTO apiCaseComputeDTO = resultMap.get(item.getId());
             if (apiCaseComputeDTO != null) {
                 item.setCaseTotal(apiCaseComputeDTO.getCaseTotal());
@@ -277,6 +255,12 @@ public class ApiDefinitionService {
                 item.setCaseStatus("-");
             }
         });
+    }
+
+    private Set<String> extractUserIds(List<ApiDefinitionDTO> list) {
+        return list.stream()
+                .flatMap(apiDefinition -> Stream.of(apiDefinition.getUpdateUser(), apiDefinition.getDeleteUser(), apiDefinition.getCreateUser()))
+                .collect(Collectors.toSet());
     }
 
     public Long getNextOrder(String projectId) {
@@ -350,10 +334,10 @@ public class ApiDefinitionService {
         return apiDefinitionBlobMapper.selectByPrimaryKey(apiId);
     }
 
-    public <T> List<String> getBatchApiIds(T dto, String projectId) {
+    public <T> List<String> getBatchApiIds(T dto, String projectId, String protocol) {
         TableBatchProcessDTO request = (TableBatchProcessDTO) dto;
         if (request.isSelectAll()) {
-            List<String> ids = extApiDefinitionMapper.getIds(request, projectId, false);
+            List<String> ids = extApiDefinitionMapper.getIds(request, projectId, protocol, false);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
@@ -399,7 +383,7 @@ public class ApiDefinitionService {
                 ids.forEach(id -> {
                     ApiDefinition apiDefinition = new ApiDefinition();
                     if (StringUtils.isNotBlank(collect.get(id).getTags())) {
-                        List<String> tags = JSON.parseArray(collect.get(id).getTags(), String.class);
+                        LinkedHashSet<String> tags = new LinkedHashSet<>((JSON.parseArray(collect.get(id).getTags(), String.class)));
                         tags.addAll(request.getTags());
                         apiDefinition.setTags(JSON.toJSONString(tags));
                     } else {
@@ -492,22 +476,6 @@ public class ApiDefinitionService {
     // 更新最新版本标识
     private void updateLatestVersion(String id, String projectId){
         extApiDefinitionMapper.updateLatestVersion(id, projectId);
-    }
-
-
-    private void deleteAll(String apiDefinitionId, String userId) {
-        // 查找全部版本
-        List<ApiDefinitionVersionDTO> apiDefinitionVersions = getApiDefinitionVersion(apiDefinitionId);
-
-        if (!apiDefinitionVersions.isEmpty()) {
-            // 获取所有版本的ID
-            List<String> ids = apiDefinitionVersions.stream()
-                    .map(ApiDefinitionVersionDTO::getId)
-                    .toList();
-
-            // 删除所有版本
-            ids.forEach(id -> doDelete(id, userId));
-        }
     }
 
     private void doDelete(String id, String userId) {

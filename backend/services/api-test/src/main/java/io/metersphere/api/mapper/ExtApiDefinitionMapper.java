@@ -16,7 +16,7 @@ public interface ExtApiDefinitionMapper {
 
     Long getPos(@Param("projectId") String projectId);
 
-    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("deleted") boolean deleted);
+    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocol") String protocol, @Param("deleted") boolean deleted);
 
     List<String> getRefIds(@Param("ids") List<String> ids);
 
@@ -29,6 +29,7 @@ public interface ExtApiDefinitionMapper {
     void batchDelete(@Param("ids") List<String> ids, @Param("userId") String userId);
 
     void clearLatestVersion(@Param("refId") String refId, @Param("projectId") String projectId);
+
     void updateLatestVersion(@Param("id") String id, @Param("projectId") String projectId);
 
 }

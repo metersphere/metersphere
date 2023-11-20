@@ -3,13 +3,18 @@ package io.metersphere.api.dto.definition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * @author: LAN
  * @date: 2023/11/8 19:17
  * @version: 1.0
  */
 @Data
-public class ApiCaseComputeDTO {
+public class ApiCaseComputeDTO implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "接口ID")
     private String apiDefinitionId;

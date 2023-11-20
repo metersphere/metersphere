@@ -63,14 +63,14 @@ public class ApiDefinitionController {
     }
 
     @PostMapping(value = "/delete")
-    @Operation(summary = "接口测试-接口管理-删除接口定义")
+    @Operation(summary = "接口测试-接口管理-删除接口定义到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.delLog(#request)", msClass = ApiDefinitionLogService.class)
     public void delete(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
         apiDefinitionService.delete(request, SessionUtils.getUserId());
     }
     @PostMapping(value = "/batch-del")
-    @Operation(summary = "接口测试-接口管理-批量删除接口定义")
+    @Operation(summary = "接口测试-接口管理-批量删除接口定义到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDelLog(#request)", msClass = ApiDefinitionLogService.class)
     public void batchDelete(@Validated @RequestBody ApiDefinitionBatchRequest request) {
