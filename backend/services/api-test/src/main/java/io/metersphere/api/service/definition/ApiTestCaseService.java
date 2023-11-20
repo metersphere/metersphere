@@ -46,10 +46,7 @@ import java.util.stream.Collectors;
 public class ApiTestCaseService {
 
     public static final Long ORDER_STEP = 5000L;
-
-
-    private static final String MAIN_FOLDER_PROJECT = "project";
-    private static final String APP_NAME_API_CASE = "apiCase";
+    
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
     public static final String TAGS = "Tags";

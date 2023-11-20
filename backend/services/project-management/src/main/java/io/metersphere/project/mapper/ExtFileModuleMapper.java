@@ -10,7 +10,7 @@ import java.util.List;
 public interface ExtFileModuleMapper {
     List<BaseTreeNode> selectBaseByProjectId(@Param("projectId") String projectId, @Param("moduleType") String moduleType);
 
-    List<BaseTreeNode> selectIdAndParentIdByProjectId(String projectId);
+    List<BaseTreeNode> selectIdAndParentIdByProjectId(@Param("projectId") String projectId, @Param("storage") String storage);
 
     List<String> selectChildrenIdsByParentIds(@Param("ids") List<String> deleteIds);
 
