@@ -112,7 +112,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public List<LogDTO> batchDelLog(ApiDefinitionBatchRequest request) {
-        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId());
+        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol());
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
             ApiDefinitionExample example = new ApiDefinitionExample();
@@ -144,7 +144,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public List<LogDTO> batchUpdateLog(ApiDefinitionBatchUpdateRequest request) {
-        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId());
+        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol());
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(ids);
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
@@ -188,7 +188,7 @@ public class ApiDefinitionLogService {
     }
 
     public List<LogDTO> batchMoveLog(ApiDefinitionBatchMoveRequest request) {
-        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId());
+        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol());
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(ids);
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);

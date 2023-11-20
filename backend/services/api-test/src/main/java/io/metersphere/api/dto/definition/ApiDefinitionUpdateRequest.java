@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serial;
+
 /**
  * @author lan
  */
@@ -13,6 +15,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class ApiDefinitionUpdateRequest extends ApiDefinitionAddRequest {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "接口pk", requiredMode = Schema.RequiredMode.REQUIRED)
