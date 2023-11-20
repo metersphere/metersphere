@@ -22,6 +22,9 @@ export interface FileItem {
   previewSrc: string; // 预览地址
   size: number;
   enable: boolean; // jar文件启用禁用
+  branch?: string; // 分支
+  filePath?: string; // 文件路径
+  fileVersion?: string; // 文件版本
 }
 // 文件详情
 export interface FileDetail extends FileItem {
@@ -87,6 +90,14 @@ export interface ModuleTreeNode {
   name: string;
   type: string;
   children: ModuleTreeNode[];
+}
+// 文件历史列表项
+export interface FileHistoryItem {
+  id: string;
+  fileVersion: string;
+  updateHistory: string;
+  operator: string;
+  operateTime: number;
 }
 // 存储库列表
 export interface Repository {

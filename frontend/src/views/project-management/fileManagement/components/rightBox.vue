@@ -587,7 +587,7 @@
         condition: { keyword: keyword.value, combine: combine.value },
         projectId: appStore.currentProjectId,
         fileType: tableFileType.value,
-        moduleIds: [props.activeFolder],
+        moduleIds: isMyOrAllFolder.value ? [] : [props.activeFolder],
       });
       downloadByteFile(res, 'files.zip');
       resetSelector();
@@ -603,7 +603,7 @@
     emit('init', {
       keyword: keyword.value,
       fileType: tableFileType.value,
-      moduleIds: isMyOrAllFolder.value ? [] : [props.activeFolder],
+      moduleIds: [],
       projectId: appStore.currentProjectId,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
@@ -649,7 +649,7 @@
             condition: { keyword: keyword.value, combine: combine.value },
             projectId: appStore.currentProjectId,
             fileType: tableFileType.value,
-            moduleIds: [props.activeFolder],
+            moduleIds: isMyOrAllFolder.value ? [] : [props.activeFolder],
           });
           Message.success(t('common.deleteSuccess'));
           if (showType.value === 'card') {
@@ -717,7 +717,7 @@
         condition: { keyword: keyword.value, combine: combine.value },
         projectId: appStore.currentProjectId,
         fileType: tableFileType.value,
-        moduleIds: [props.activeFolder],
+        moduleIds: isMyOrAllFolder.value ? [] : [props.activeFolder],
         moveModuleId: selectedModuleKeys.value[0],
       });
       Message.success(t('project.fileManagement.batchMoveSuccess'));

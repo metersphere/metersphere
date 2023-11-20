@@ -46,7 +46,7 @@
       </MsButton>
     </template>
     <template #default="{ loading, detail }">
-      <div class="flex h-full">
+      <div class="flex h-full w-full">
         <div class="file-detail">
           <a-skeleton v-if="loading" :loading="loading" :animation="true">
             <a-skeleton-shape size="large" class="mb-[16px] h-[102px] w-[102px]" />
@@ -149,33 +149,33 @@
               :placeholder="t('project.fileManagement.search')"
               allow-clear
               class="w-[240px]"
-              @press-enter="searchCase"
-              @search="searchCase"
             >
             </a-input-search>
           </div>
           <div class="p-[16px]">
+            <a-spin class="w-full" :loading="caseLoading">
+              <ms-base-table
+                v-if="activeTab === 'case'"
+                v-bind="caseTableProps"
+                :data="caseList"
+                no-disable
+                :action-config="caseBatchActions"
+                v-on="caseTableEvent"
+              >
+                <template #action="{ record }">
+                  <MsButton type="text" class="mr-[8px]" @click="updateCase(record)">
+                    {{ t('project.fileManagement.updateCaseFile') }}
+                  </MsButton>
+                </template>
+              </ms-base-table>
+            </a-spin>
             <ms-base-table
-              v-if="activeTab === 'case'"
-              v-bind="caseTableProps"
-              :data="caseList"
-              no-disable
-              :action-config="caseBatchActions"
-              v-on="caseTableEvent"
-            >
-              <template #action="{ record }">
-                <MsButton type="text" class="mr-[8px]" @click="updateCase(record)">
-                  {{ t('project.fileManagement.updateCaseFile') }}
-                </MsButton>
-              </template>
-            </ms-base-table>
-            <!-- <ms-base-table
               v-if="activeTab === 'version'"
               v-bind="versionTableProps"
               no-disable
               v-on="versionTableEvent"
             >
-            </ms-base-table> -->
+            </ms-base-table>
           </div>
         </div>
       </div>
@@ -185,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { useFileSystemAccess } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
@@ -205,18 +205,21 @@
     downloadFile,
     getAssociationList,
     getFileDetail,
+    getFileHistoryList,
     reuploadFile,
     toggleJarFileStatus,
     updateFile,
     updateRepositoryFile,
+    upgradeAssociation,
   } from '@/api/modules/project-management/fileManagement';
   import { CompressImgUrl, OriginImgUrl } from '@/api/requrls/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
+  import { useAppStore } from '@/store';
   import useUserStore from '@/store/modules/user';
   import { downloadByteFile, formatFileSize } from '@/utils';
 
-  import { FileDetail } from '@/models/projectManagement/file';
+  import { AssociationItem, FileDetail } from '@/models/projectManagement/file';
 
   const props = defineProps<{
     visible: boolean;
@@ -233,6 +236,7 @@
   const { t } = useI18n();
   const { currentLocale } = useLocale();
   const userStore = useUserStore();
+  const appStore = useAppStore();
 
   const innerVisible = ref(false);
   const fileDescriptions = ref<Description[]>([]);
@@ -335,18 +339,18 @@
         3,
         0,
         ...[
-          // {
-          //   label: t('project.fileManagement.gitBranch'),
-          //   value: detail.gitBranch,
-          // },
-          // {
-          //   label: t('project.fileManagement.gitPath'),
-          //   value: detail.gitPath,
-          // },
-          // {
-          //   label: t('project.fileManagement.gitVersion'),
-          //   value: detail.gitVersion,
-          // },
+          {
+            label: t('project.fileManagement.gitBranch'),
+            value: detail.branch || '',
+          },
+          {
+            label: t('project.fileManagement.gitPath'),
+            value: detail.filePath || '',
+          },
+          {
+            label: t('project.fileManagement.gitVersion'),
+            value: detail.fileVersion || '',
+          },
         ]
       );
     }
@@ -454,7 +458,6 @@
     propsEvent: caseTableEvent,
     loadList: loadCaseList,
     setLoadListParams,
-    setKeyword,
   } = useTable(getAssociationList, {
     scroll: { x: 800 },
     columns: caseColumns,
@@ -474,65 +477,82 @@
   };
 
   const keyword = ref('');
-  const caseList = ref<any[]>([]);
+  const caseList = computed(() => caseTableProps.value.data.filter((item) => item.sourceName.includes(keyword.value)));
+  const caseLoading = ref(false);
 
-  function filterCaseList() {
-    caseList.value = caseTableProps.value.data.filter((item) => item.sourceName.includes(keyword.value));
+  async function updateCase(record: AssociationItem) {
+    try {
+      caseLoading.value = true;
+      await upgradeAssociation(appStore.currentProjectId, record.id);
+      Message.success(t('project.fileManagement.updateCaseFileSuccess'));
+      loadCaseList();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      caseLoading.value = false;
+    }
   }
 
-  async function searchCase() {
-    setKeyword(keyword.value);
-    await loadCaseList();
-    filterCaseList();
-  }
+  const versionColumns: MsTableColumn = [
+    {
+      title: 'project.fileManagement.fileVersion',
+      dataIndex: 'fileVersion',
+      showTooltip: true,
+      width: 180,
+    },
+    {
+      title: 'project.fileManagement.record',
+      dataIndex: 'updateHistory',
+      showTooltip: true,
+    },
+    {
+      title: 'project.fileManagement.operator',
+      dataIndex: 'operator',
+      showTooltip: true,
+    },
+    {
+      title: 'project.fileManagement.operatorTime',
+      dataIndex: 'operateTime',
+      width: 180,
+    },
+  ];
+  const {
+    propsRes: versionTableProps,
+    propsEvent: versionTableEvent,
+    loadList: loadVersionList,
+    setLoadListParams: setVersionLoadListParams,
+  } = useTable(
+    getFileHistoryList,
+    {
+      scroll: { x: '100%' },
+      columns: versionColumns,
+      selectable: false,
+      showPagination: false,
+    },
+    (item) => {
+      return {
+        ...item,
+        operateTime: dayjs(item.operateTime).format('YYYY-MM-DD HH:mm:ss'),
+      };
+    }
+  );
 
-  function updateCase(record: any) {
-    console.log(record);
-  }
-
-  // const versionColumns: MsTableColumn = [
-  //   {
-  //     title: 'project.fileManagement.fileVersion',
-  //     dataIndex: 'fileVersion',
-  //   },
-  //   {
-  //     title: 'project.fileManagement.record',
-  //     dataIndex: 'record',
-  //     showTooltip: true,
-  //   },
-  //   {
-  //     title: 'project.fileManagement.creator',
-  //     dataIndex: 'creator',
-  //     showTooltip: true,
-  //   },
-  //   {
-  //     title: 'project.fileManagement.createTime',
-  //     dataIndex: 'createTime',
-  //     width: 180,
-  //   },
-  // ];
-  // const {
-  //   propsRes: versionTableProps,
-  //   propsEvent: versionTableEvent,
-  //   loadList: loadVersionList,
-  // } = useTable(getFileVersions, {
-  //   tableKey: TableKeyEnum.FILE_MANAGEMENT_VERSION,
-  //   scroll: { x: '100%' },
-  //   columns: versionColumns,
-  //   selectable: false,
-  // });
-
-  watchEffect(async () => {
+  watchEffect(() => {
     if (innerVisible.value) {
       if (activeTab.value === 'case') {
         setLoadListParams({
           id: props.fileId,
         });
-        await loadCaseList();
-        filterCaseList();
+        loadCaseList();
       } else {
-        // loadVersionList();
+        setVersionLoadListParams({
+          id: props.fileId,
+        });
+        loadVersionList();
       }
+    } else {
+      activeTab.value = 'case';
     }
   });
 </script>
@@ -546,7 +566,7 @@
     border-right: 1px solid var(--color-text-n8);
   }
   .file-relation {
-    width: 660px;
+    width: calc(100% - 300px);
   }
   :deep(.no-content) {
     .arco-tabs-tab {

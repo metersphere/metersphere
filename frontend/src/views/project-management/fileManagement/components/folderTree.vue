@@ -161,6 +161,7 @@
           hideMoreAction: e.id === 'root',
           draggable: e.id !== 'root' && !props.isModal,
           disabled: e.id === props.activeFolder && props.isModal,
+          count: props.modulesCount?.[e.id] || 0,
         };
       });
       if (isSetDefaultKey) {

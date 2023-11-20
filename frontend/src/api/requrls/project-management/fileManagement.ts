@@ -28,3 +28,4 @@ export const GetRepositoryInfoUrl = '/project/file/repository/info'; // 获取�
 export const DeleteAssociationUrl = '/project/file/association/delete'; // 删除关联用例
 export const UpgradeAssociationUrl = '/project/file/association/upgrade'; // 更新关联用例文件
 export const GetAssociationListUrl = '/project/file/association/list'; // 获取关联用例列表
+export const GetFileHistoryListUrl = '/project/file/file-version'; // 获取文件历史版本列表
