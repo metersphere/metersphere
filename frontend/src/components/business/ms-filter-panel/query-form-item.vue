@@ -92,7 +92,6 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { TEST_PLAN_TEST_CASE } from './caseUtils';
-  import type { SearchKeyType } from './type';
   import type { FormInstance } from '@arco-design/web-vue';
 
   const { t } = useI18n();

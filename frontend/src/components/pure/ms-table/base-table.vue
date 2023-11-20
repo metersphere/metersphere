@@ -36,7 +36,7 @@
         <a-table-column
           v-for="(item, idx) in currentColumns"
           :key="idx"
-          :width="item.width"
+          :width="item.isTag || item.isStringTag ? item.width || 360 : item.width"
           :align="item.align"
           :fixed="item.fixed"
           :sortable="item.sortable"
