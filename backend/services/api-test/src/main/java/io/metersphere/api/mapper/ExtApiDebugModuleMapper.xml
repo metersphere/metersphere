@@ -5,7 +5,7 @@
         SELECT id,
                NAME,
                parent_id AS parentId,
-               'module'  AS type
+               'MODULE' AS type
         FROM api_debug_module
         WHERE protocol = #{protocol}
           AND create_user = #{userId}
@@ -64,7 +64,7 @@
         SELECT id,
                NAME,
                module_id AS parentId,
-               'api'     AS type,
+               'API' AS type,
                method
         FROM api_debug
         WHERE protocol = #{protocol}
@@ -107,7 +107,7 @@
         SELECT id,
         NAME,
         parent_id AS parentId,
-        'module' AS type
+        'MODULE' AS type
         FROM api_debug_module
         WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">

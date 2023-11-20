@@ -465,7 +465,7 @@ public class FileMetadataService {
         FileManagementQuery pageDTO = new FileManagementQuery(request);
         pageDTO.setModuleIds(null);
         List<ModuleCountDTO> moduleCountDTOList = extFileMetadataMapper.countModuleIdByKeywordAndFileType(pageDTO);
-        Map<String, Long> moduleCountMap = fileModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
+        Map<String, Long> moduleCountMap = fileModuleService.getModuleCountMap(request.getProjectId(), pageDTO.getStorage(), moduleCountDTOList);
 
         //查出全部文件和我的文件的数量
         FileManagementQuery myFileCountDTO = new FileManagementQuery();
@@ -480,26 +480,27 @@ public class FileMetadataService {
 
     public ResponseEntity<byte[]> downloadPreviewImgById(String id) throws Exception {
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(id);
-        String previewImgPath = null;
-        if (StringUtils.equalsIgnoreCase(fileMetadata.getType(), "svg")) {
-            return this.downloadById(id);
-        } else if (TempFileUtils.isImage(fileMetadata.getType())) {
-            if (TempFileUtils.isImgPreviewFileExists(fileMetadata.getId())) {
-                previewImgPath = TempFileUtils.getPreviewImgFilePath(fileMetadata.getId());
+        byte[] bytes = new byte[]{};
+
+        MediaType contentType = MediaType.parseMediaType("application/octet-stream");
+        if (TempFileUtils.isImage(fileMetadata.getType())) {
+            if (StringUtils.equalsIgnoreCase(fileMetadata.getType(), "svg")) {
+                //svg图片不压缩
+                contentType = MediaType.parseMediaType("image/svg+xml");
+                bytes = this.getFileByte(fileMetadata);
+            } else if (TempFileUtils.isImgPreviewFileExists(fileMetadata.getId())) {
+                //获取压缩过的图片
+                bytes = TempFileUtils.getFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
             } else {
-                previewImgPath = TempFileUtils.catchCompressImgIfNotExists(fileMetadata.getId(), this.getFile(fileMetadata));
+                //压缩图片并保存在临时文件夹中
+                bytes = TempFileUtils.getFile(
+                        TempFileUtils.catchCompressImgIfNotExists(fileMetadata.getId(), this.getFile(fileMetadata))
+                );
             }
         }
 
-        byte[] bytes;
-        if (StringUtils.isNotBlank(previewImgPath)) {
-            bytes = TempFileUtils.getFile(previewImgPath);
-        } else {
-            bytes = new byte[]{};
-        }
-
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .contentType(contentType)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + this.getFileName(fileMetadata.getId(), fileMetadata.getType()) + "\"")
                 .body(bytes);
     }

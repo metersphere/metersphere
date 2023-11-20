@@ -57,6 +57,7 @@ public abstract class ModuleTreeService {
         int lastSize = 0;
         Map<String, BaseTreeNode> baseTreeNodeMap = new HashMap<>();
         while (CollectionUtils.isNotEmpty(traverseList) && traverseList.size() != lastSize) {
+            lastSize = traverseList.size();
             List<BaseTreeNode> notMatchedList = new ArrayList<>();
             for (BaseTreeNode treeNode : traverseList) {
                 if (StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
@@ -75,11 +76,6 @@ public abstract class ModuleTreeService {
             }
             traverseList = notMatchedList;
         }
-        //剩余的节点没有匹配上，直接放到根节点下
-        traverseList.forEach(treeNode -> {
-            BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), ModuleConstants.NODE_TYPE_DEFAULT, treeNode.getParentId());
-            baseTreeNodeMap.get(treeNode.getParentId()).addChild(node);
-        });
         return baseTreeNodeList;
     }
 
