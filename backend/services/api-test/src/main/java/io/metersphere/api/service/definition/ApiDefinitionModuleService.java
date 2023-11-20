@@ -54,8 +54,6 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ApiTestCaseService apiTestCaseService;
-    @Resource
-    private ApiTestCaseLogService apiTestCaseLogService;
 
     public List<BaseTreeNode> getTree(ApiModuleRequest request) {
         //接口的树结构是  模块：子模块+接口 接口为非delete状态的

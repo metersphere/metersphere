@@ -53,7 +53,7 @@
         SELECT id,
         NAME,
         module_id AS parentId,
-        'api' AS type,
+        'API' AS type,
         method
         FROM api_definition
         <include refid="api_request"/>
@@ -95,7 +95,7 @@
         m.name,
         m.pos,
         m.project_id,
-        'module' AS type
+        'MODULE' AS type
         FROM api_definition_module m
         <include refid="module_request"/>
         ORDER BY pos
@@ -106,7 +106,7 @@
         m.name,
         m.pos,
         m.project_id,
-        'module' AS type
+        'MODULE' AS type
         FROM api_definition_module m
         WHERE m.id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
