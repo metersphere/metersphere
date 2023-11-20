@@ -145,25 +145,27 @@ public class ApiDefinitionLogService {
      */
     public List<LogDTO> batchUpdateLog(ApiDefinitionBatchUpdateRequest request) {
         List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol());
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andIdIn(ids);
-        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
         List<LogDTO> dtoList = new ArrayList<>();
-        apiDefinitions.forEach(item -> {
-            LogDTO dto = new LogDTO(
-                    item.getProjectId(),
-                    "",
-                    item.getId(),
-                    item.getCreateUser(),
-                    OperationLogType.UPDATE.name(),
-                    OperationLogModule.API_DEFINITION,
-                    item.getName());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+            apiDefinitions.forEach(item -> {
+                LogDTO dto = new LogDTO(
+                        item.getProjectId(),
+                        "",
+                        item.getId(),
+                        item.getCreateUser(),
+                        OperationLogType.UPDATE.name(),
+                        OperationLogModule.API_DEFINITION,
+                        item.getName());
 
-            dto.setPath("/api/definition/batch-update");
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(item));
-            dtoList.add(dto);
-        });
+                dto.setPath("/api/definition/batch-update");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(item));
+                dtoList.add(dto);
+            });
+        }
         return dtoList;
     }
 
@@ -189,12 +191,13 @@ public class ApiDefinitionLogService {
 
     public List<LogDTO> batchMoveLog(ApiDefinitionBatchMoveRequest request) {
         List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol());
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andIdIn(ids);
-        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
         List<LogDTO> dtoList = new ArrayList<>();
-        apiDefinitions.forEach(item -> {
-            LogDTO dto = new LogDTO(
+        if (CollectionUtils.isNotEmpty(ids)) {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+            apiDefinitions.forEach(item -> {
+                LogDTO dto = new LogDTO(
                     item.getProjectId(),
                     "",
                     item.getId(),
@@ -203,29 +206,33 @@ public class ApiDefinitionLogService {
                     OperationLogModule.API_DEFINITION,
                     item.getName());
 
-            dto.setPath("/api/definition/batch-move");
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(item));
-            dtoList.add(dto);
-        });
+                dto.setPath("/api/definition/batch-move");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(item));
+                dtoList.add(dto);
+            });
+        }
         return dtoList;
     }
 
     public LogDTO followLog(String id) {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
-        Project project = projectMapper.selectByPrimaryKey(apiDefinition.getProjectId());
-        LogDTO dto = new LogDTO(
-                apiDefinition.getProjectId(),
-                project.getOrganizationId(),
-                id,
-                null,
-                OperationLogType.UPDATE.name(),
-                OperationLogModule.API_DEFINITION,
-                Translator.get("follow") + apiDefinition.getName());
+        if(apiDefinition != null){
+            Project project = projectMapper.selectByPrimaryKey(apiDefinition.getProjectId());
+            LogDTO dto = new LogDTO(
+                    apiDefinition.getProjectId(),
+                    project.getOrganizationId(),
+                    id,
+                    null,
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.API_DEFINITION,
+                    Translator.get("follow") + apiDefinition.getName());
 
-        dto.setPath("/api/definition/follow/" + id);
-        dto.setMethod(HttpMethodConstants.GET.name());
-        dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
-        return dto;
+            dto.setPath("/api/definition/follow/" + id);
+            dto.setMethod(HttpMethodConstants.GET.name());
+            dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
+            return dto;
+        }
+        return null;
     }
 }
