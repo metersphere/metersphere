@@ -210,7 +210,8 @@ export default {
               if (this.isMinderMode) {
                 this.forceSetCurrentKey();
               } else {
-                this.setCurrentKey();
+                // 这里模块点击后, 只设置当前节点Key, 并不刷新Tree
+                this.justSetCurrentKey();
               }
             }
           });
@@ -243,6 +244,11 @@ export default {
     setCurrentKey() {
       if (this.$refs.nodeTree) {
         this.$refs.nodeTree.setCurrentKey(this.currentNode);
+      }
+    },
+    justSetCurrentKey() {
+      if (this.$refs.nodeTree) {
+        this.$refs.nodeTree.justSetCurrentKey(this.currentNode.data.id)
       }
     },
     // 重新获取 currentNode ，因为脑图更新完之后可能存在 currentNode 过时的情况
