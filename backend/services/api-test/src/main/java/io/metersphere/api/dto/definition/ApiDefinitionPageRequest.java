@@ -8,14 +8,14 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * @author lan
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ApiDefinitionPageRequest extends BasePageRequest {
-
-    private static final long serialVersionUID = 1L;
 
     @Schema(description = "接口pk")
     @Size(min = 1, max = 50, message = "{api_definition.id.length_range}")
@@ -42,4 +42,7 @@ public class ApiDefinitionPageRequest extends BasePageRequest {
     @Schema(description = "版本引用fk")
     @Size(min = 1, max = 50, message = "{api_definition.ref_id.length_range}")
     private String refId;
+
+    @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
+    private List<String> moduleIds;
 }

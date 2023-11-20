@@ -162,7 +162,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setModuleId("root");
         request.setVersionId(defaultVersion);
         request.setDescription("描述内容");
-        request.setTags(List.of("tag1", "tag2"));
+        request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
         return request;
     }
 
@@ -272,25 +272,29 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1001","1002","1005"));
         apiDefinitionBatchUpdateRequest.setExcludeIds(List.of("1005"));
         apiDefinitionBatchUpdateRequest.setSelectAll(false);
+        apiDefinitionBatchUpdateRequest.setType("tags");
         // 修改标签，追加
         apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1001","1002"));
-        apiDefinitionBatchUpdateRequest.setTags(List.of("tag-append","tag-append1"));
+        apiDefinitionBatchUpdateRequest.setTags(new LinkedHashSet<>(List.of("tag-append","tag-append1")));
         apiDefinitionBatchUpdateRequest.setAppend(true);
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         assertBatchUpdateApiDefinition(apiDefinitionBatchUpdateRequest, List.of("1001","1002"));
         // 修改标签，覆盖
         apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1003","1004"));
-        apiDefinitionBatchUpdateRequest.setTags(List.of("tag-append","tag-append1"));
+        apiDefinitionBatchUpdateRequest.setTags(new LinkedHashSet<>(List.of("tag-append","tag-append1")));
         apiDefinitionBatchUpdateRequest.setAppend(false);
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         assertBatchUpdateApiDefinition(apiDefinitionBatchUpdateRequest, List.of("1003","1004"));
         // 修改协议类型
+        apiDefinitionBatchUpdateRequest.setType("method");
         apiDefinitionBatchUpdateRequest.setMethod("batch-method");
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         // 修改状态
+        apiDefinitionBatchUpdateRequest.setType("status");
         apiDefinitionBatchUpdateRequest.setStatus(ApiDefinitionStatus.DEBUGGING.getValue());
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         // 修改版本
+        apiDefinitionBatchUpdateRequest.setType("version");
         apiDefinitionBatchUpdateRequest.setVersionId("batch-version");
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         // 修改全部

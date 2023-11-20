@@ -6,8 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
+import java.util.LinkedHashSet;
 
 /**
  * @author lan
@@ -15,6 +16,7 @@ import java.util.List;
 @Data
 public class ApiDefinitionAddRequest implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
 
@@ -56,7 +58,7 @@ public class ApiDefinitionAddRequest implements Serializable {
     private String description;
 
     @Schema(description = "标签")
-    private List<@NotBlank String> tags;
+    private LinkedHashSet<@NotBlank String> tags;
 
     @Schema(description = "请求内容")
     @NotBlank

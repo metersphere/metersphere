@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.List;
+import java.util.LinkedHashSet;
 
 /**
  * @author lan
@@ -16,6 +16,9 @@ import java.util.List;
 public class ApiDefinitionBatchUpdateRequest extends ApiDefinitionBatchRequest {
 
     private static final long serialVersionUID = 1L;
+
+    @Schema(description = "所需更新的字段名", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String type;
 
     @Schema(description = "http协议类型post/get/其它协议则是协议名(mqtt)")
     private String method;
@@ -29,7 +32,7 @@ public class ApiDefinitionBatchUpdateRequest extends ApiDefinitionBatchRequest {
     private String versionId;
 
     @Schema(description = "标签")
-    private List<@NotBlank String> tags;
+    private LinkedHashSet<@NotBlank String> tags;
 
     @Schema(description = "是否追加", requiredMode = Schema.RequiredMode.REQUIRED)
     private boolean append = false;
