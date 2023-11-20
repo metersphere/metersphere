@@ -54,9 +54,9 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
     }
 
-    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
+    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, String storage, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
-        List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectIdAndParentIdByProjectId(projectId);
+        List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectIdAndParentIdByProjectId(projectId, storage);
         return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("default.module"));
     }
 
@@ -192,10 +192,10 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
      * 查找当前项目下模块每个节点对应的资源统计
      *
      */
-    public Map<String, Long> getModuleCountMap(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
+    public Map<String, Long> getModuleCountMap(String projectId, String storage, List<ModuleCountDTO> moduleCountDTOList) {
 
         //构建模块树，并计算每个节点下的所有数量（包含子节点）
-        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, moduleCountDTOList);
+        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, storage, moduleCountDTOList);
         //通过广度遍历的方式构建返回值
         return super.getIdCountMapByBreadth(treeNodeList);
     }

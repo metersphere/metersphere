@@ -919,7 +919,13 @@ public class FileManagementControllerTests extends BaseTest {
         for (FileInformationResponse fileDTO : fileList) {
             MvcResult originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()));
             Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
-            MvcResult compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+            MvcResult compressedResult;
+            if (StringUtils.equalsIgnoreCase(fileDTO.getFileType(), "svg")) {
+                compressedResult = this.downloadSvgFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+            } else {
+                compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+            }
+
             byte[] fileBytes = compressedResult.getResponse().getContentAsByteArray();
             if (TempFileUtils.isImage(fileDTO.getFileType())) {
                 if (StringUtils.equals(reUploadFileId, fileDTO.getId())) {
@@ -936,7 +942,13 @@ public class FileManagementControllerTests extends BaseTest {
         for (FileInformationResponse fileDTO : fileList) {
             MvcResult originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()));
             Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
-            MvcResult compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+
+            MvcResult compressedResult;
+            if (StringUtils.equalsIgnoreCase(fileDTO.getFileType(), "svg")) {
+                compressedResult = this.downloadSvgFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+            } else {
+                compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+            }
             byte[] fileBytes = compressedResult.getResponse().getContentAsByteArray();
             if (TempFileUtils.isImage(fileDTO.getFileType())) {
                 if (StringUtils.equals(reUploadFileId, fileDTO.getId())) {
@@ -2066,6 +2078,12 @@ public class FileManagementControllerTests extends BaseTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
+    }
+
+    protected MvcResult downloadSvgFile(String url, Object... uriVariables) throws Exception {
+        return mockMvc.perform(getRequestBuilder(url, uriVariables))
+                .andExpect(content().contentType(MediaType.valueOf("image/svg+xml")))
+                .andExpect(status().isOk()).andReturn();
     }
 
     protected MvcResult downloadFile(String url, Object... uriVariables) throws Exception {
