@@ -1,10 +1,7 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseDTO;
-import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
-import io.metersphere.api.dto.request.ApiTestCasePageRequest;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -30,19 +27,33 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class ApiTestCaseService {
 
     public static final Long ORDER_STEP = 5000L;
 
+
+    private static final String MAIN_FOLDER_PROJECT = "project";
+    private static final String APP_NAME_API_CASE = "apiCase";
+    public static final String PRIORITY = "Priority";
+    public static final String STATUS = "Status";
+    public static final String TAGS = "Tags";
+    public static final String ENVIRONMENT = "Environment";
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
@@ -61,13 +72,17 @@ public class ApiTestCaseService {
     private UserLoginService userLoginService;
     @Resource
     private EnvironmentMapper environmentMapper;
+    @Resource
+    private ApiTestCaseLogService apiTestCaseLogService;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     public ApiTestCase addCase(ApiTestCaseAddRequest request, List<MultipartFile> files, String userId) {
         ApiTestCase testCase = new ApiTestCase();
         testCase.setId(IDGenerator.nextStr());
         BeanUtils.copyBean(testCase, request);
         ApiDefinition apiDefinition = getApiDefinition(request.getApiDefinitionId());
-        testCase.setNum(NumGenerator.nextNum(request.getProjectId()+ "_" + apiDefinition.getNum(), ApplicationNumScope.API_TEST_CASE));
+        testCase.setNum(NumGenerator.nextNum(request.getProjectId() + "_" + apiDefinition.getNum(), ApplicationNumScope.API_TEST_CASE));
         testCase.setApiDefinitionId(request.getApiDefinitionId());
         testCase.setName(request.getName());
         testCase.setPos(getNextOrder(request.getProjectId()));
@@ -184,14 +199,12 @@ public class ApiTestCaseService {
         apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
     }
 
-    public void recover(String id) {
-        checkResourceExist(id);
-        ApiTestCase apiTestCase = new ApiTestCase();
-        apiTestCase.setId(id);
-        apiTestCase.setDeleted(false);
-        apiTestCase.setDeleteUser(null);
-        apiTestCase.setDeleteTime(null);
-        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+    private void checkApiExist(String id) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
+        if (apiDefinitionMapper.countByExample(example) == 0) {
+            throw new MSException(Translator.get("please_recover_the_interface_data_first"));
+        }
     }
 
     public void follow(String id, String userId) {
@@ -212,22 +225,6 @@ public class ApiTestCaseService {
         ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
         example.createCriteria().andCaseIdEqualTo(id).andUserIdEqualTo(userId);
         apiTestCaseFollowerMapper.deleteByExample(example);
-    }
-
-    public void delete(String id) {
-        ApiTestCase apiCase = checkResourceExist(id);
-        apiTestCaseMapper.deleteByPrimaryKey(id);
-        apiTestCaseBlobMapper.deleteByPrimaryKey(id);
-        ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
-        example.createCriteria().andCaseIdEqualTo(id);
-        apiTestCaseFollowerMapper.deleteByExample(example);
-        try {
-            FileRequest request = new FileRequest();
-            request.setFolder(DefaultRepositoryDir.getApiCaseDir(apiCase.getProjectId(), id));
-            minioRepository.deleteFolder(request);
-        } catch (Exception e) {
-            LogUtils.info("删除body文件失败:  文件名称:" + id, e);
-        }
     }
 
     public ApiTestCase update(ApiTestCaseUpdateRequest request, List<MultipartFile> files, String userId) {
@@ -289,5 +286,207 @@ public class ApiTestCaseService {
                 }
             });
         }
+    }
+
+    public void recover(String id) {
+        ApiTestCase testCase = checkResourceExist(id);
+        checkApiExist(testCase.getApiDefinitionId());
+        checkNameExist(testCase);
+        ApiTestCase apiTestCase = new ApiTestCase();
+        apiTestCase.setId(id);
+        apiTestCase.setDeleted(false);
+        apiTestCase.setDeleteUser(null);
+        apiTestCase.setDeleteTime(null);
+        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+    }
+
+    public void delete(String id, String userId) {
+        ApiTestCase apiCase = checkResourceExist(id);
+        deleteResourceByIds(List.of(id), apiCase.getProjectId(), userId);
+    }
+
+    public void batchDelete(ApiTestCaseBatchRequest request, String userId) {
+        List<String> ids = doSelectIds(request, true);
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        while (!ids.isEmpty()) {
+            if (ids.size() <= 2000) {
+                deleteResourceByIds(ids, request.getProjectId(), userId);
+                break;
+            }
+            List<String> subList = ids.subList(0, 2000);
+            deleteResourceByIds(subList, request.getProjectId(), userId);
+            ids.removeAll(subList);
+        }
+    }
+
+    public void deleteResourceByIds(List<String> ids, String projectId, String userId) {
+        deleteFollows(ids);
+        List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByIds(ids, true);
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(ids);
+        apiTestCaseMapper.deleteByExample(example);
+        ApiTestCaseBlobExample blobExample = new ApiTestCaseBlobExample();
+        blobExample.createCriteria().andIdIn(ids);
+        apiTestCaseBlobMapper.deleteByExample(blobExample);
+        //删除body文件
+        FileRequest request = new FileRequest();
+        ids.forEach(id -> {
+            try {
+                request.setFolder(DefaultRepositoryDir.getApiCaseDir(projectId, id));
+                minioRepository.deleteFolder(request);
+            } catch (Exception e) {
+                LogUtils.info("删除body文件失败:  文件名称:" + id, e);
+            }
+        });
+        //记录删除日志
+        apiTestCaseLogService.deleteBatchLog(caseLists, userId, projectId);
+        //TODO 需要删除测试计划与用例的中间表 功能用例的关联表等
+        //TODO 删除附件关系
+        //extFileAssociationService.deleteByResourceIds(ids);
+    }
+
+    private void deleteFollows(List<String> caseIds) {
+        ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
+        example.createCriteria().andCaseIdIn(caseIds);
+        apiTestCaseFollowerMapper.deleteByExample(example);
+    }
+
+    public List<String> doSelectIds(ApiTestCaseBatchRequest request, boolean deleted) {
+        if (request.isSelectAll()) {
+            List<String> ids = extApiTestCaseMapper.getIds(request, deleted);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
+    }
+
+    public void batchMoveGc(ApiTestCaseBatchRequest request, String userId) {
+        List<String> ids = doSelectIds(request, false);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            batchDeleteToGc(ids, userId, request.getProjectId(), true);
+        }
+    }
+
+    public void batchDeleteToGc(List<String> ids, String userId, String projectId, boolean saveLog) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        while (!ids.isEmpty()) {
+            if (ids.size() <= 2000) {
+                batchMoveToGc(ids, userId, projectId, saveLog);
+                break;
+            }
+            List<String> subList = ids.subList(0, 2000);
+            batchMoveToGc(subList, userId, projectId, saveLog);
+            ids.removeAll(subList);
+        }
+    }
+
+    private void batchMoveToGc(List<String> ids, String userId, String projectId, boolean saveLog) {
+        extApiTestCaseMapper.batchMoveGc(ids, userId);
+        if (saveLog) {
+            List<ApiTestCase> apiTestCases = extApiTestCaseMapper.getCaseInfoByIds(ids, true);
+            apiTestCaseLogService.batchToGcLog(apiTestCases, userId, projectId);
+        }
+    }
+
+    public void batchEdit(ApiCaseBatchEditRequest request, String userId) {
+        List<String> ids = doSelectIds(request, false);
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        while (!ids.isEmpty()) {
+            if (ids.size() <= 2000) {
+                batchEditByType(request, ids, userId, request.getProjectId());
+                break;
+            }
+            List<String> subList = ids.subList(0, 2000);
+            batchEditByType(request, subList, userId, request.getProjectId());
+            ids.removeAll(subList);
+        }
+    }
+
+    private void batchEditByType(ApiCaseBatchEditRequest request, List<String> ids, String userId, String projectId) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(ids);
+        ApiTestCase updateCase = new ApiTestCase();
+        updateCase.setUpdateUser(userId);
+        updateCase.setUpdateTime(System.currentTimeMillis());
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiTestCaseMapper mapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+
+        switch (request.getType()) {
+            case PRIORITY -> batchUpdatePriority(example, updateCase, request.getPriority());
+            case STATUS -> batchUpdateStatus(example, updateCase, request.getStatus());
+            case TAGS ->
+                    batchUpdateTags(example, updateCase, request.getTags(), request.isAppendTag(), sqlSession, mapper);
+            case ENVIRONMENT -> batchUpdateEnvironment(example, updateCase, request.getEnvId());
+            default -> throw new MSException(Translator.get("batch_edit_type_error"));
+        }
+        List<ApiTestCase> caseInfoByIds = extApiTestCaseMapper.getCaseInfoByIds(ids, false);
+        apiTestCaseLogService.batchEditLog(caseInfoByIds, userId, projectId);
+    }
+
+    private void batchUpdateEnvironment(ApiTestCaseExample example, ApiTestCase updateCase, String envId) {
+        if (StringUtils.isBlank(envId)) {
+            throw new MSException(Translator.get("environment_id_is_null"));
+        }
+        Environment environment = environmentMapper.selectByPrimaryKey(envId);
+        if (environment == null) {
+            throw new MSException(Translator.get("environment_is_not_exist"));
+        }
+        updateCase.setEnvironmentId(envId);
+        apiTestCaseMapper.updateByExampleSelective(updateCase, example);
+    }
+
+    private void batchUpdateTags(ApiTestCaseExample example, ApiTestCase updateCase,
+                                 LinkedHashSet<String> tags, boolean appendTag,
+                                 SqlSession sqlSession, ApiTestCaseMapper mapper) {
+        if (CollectionUtils.isEmpty(tags)) {
+            throw new MSException(Translator.get("tags_is_null"));
+        }
+        if (appendTag) {
+            List<ApiTestCase> caseList = apiTestCaseMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(caseList)) {
+                caseList.forEach(apiTestCase -> {
+                    if (StringUtils.isNotBlank(apiTestCase.getTags())) {
+                        LinkedHashSet orgTags = ApiDataUtils.parseObject(apiTestCase.getTags(), LinkedHashSet.class);
+                        orgTags.addAll(tags);
+                        apiTestCase.setTags(JSON.toJSONString(orgTags));
+                    } else {
+                        apiTestCase.setTags(JSON.toJSONString(tags));
+                    }
+                    mapper.updateByPrimaryKey(apiTestCase);
+                });
+                sqlSession.flushStatements();
+                if (sqlSessionFactory != null) {
+                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+                }
+            }
+        } else {
+            updateCase.setTags(JSON.toJSONString(tags));
+            apiTestCaseMapper.updateByExampleSelective(updateCase, example);
+        }
+    }
+
+    private void batchUpdateStatus(ApiTestCaseExample example, ApiTestCase updateCase, String status) {
+        if (StringUtils.isBlank(status)) {
+            throw new MSException(Translator.get("status_is_null"));
+        }
+        updateCase.setStatus(status);
+        apiTestCaseMapper.updateByExampleSelective(updateCase, example);
+    }
+
+    private void batchUpdatePriority(ApiTestCaseExample example, ApiTestCase updateCase, String priority) {
+        if (StringUtils.isBlank(priority)) {
+            throw new MSException(Translator.get("priority_is_null"));
+        }
+        updateCase.setPriority(priority);
+        apiTestCaseMapper.updateByExampleSelective(updateCase, example);
     }
 }
