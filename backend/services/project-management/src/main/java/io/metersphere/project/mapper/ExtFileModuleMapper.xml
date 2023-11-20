@@ -11,7 +11,14 @@
     <select id="selectIdAndParentIdByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         SELECT id, parent_id AS parentId
         FROM file_module
-        WHERE project_id = #{0}
+        WHERE project_id = #{projectId}
+        <if test="storage == 'MINIO'">
+            AND module_type = 'MODULE'
+        </if>
+        <if test="storage == 'GIT'">
+            AND module_type = 'GIT'
+        </if>
+
     </select>
     <select id="selectIdsByProjectId" resultType="java.lang.String">
         SELECT id
