@@ -74,6 +74,9 @@ public class FunctionalCaseService {
     @Resource
     private FunctionalCaseModuleMapper functionalCaseModuleMapper;
 
+    private static final String ADD_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/add";
+    private static final String UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/update";
+
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
         String caseId = IDGenerator.nextStr();
         //添加功能用例
@@ -83,7 +86,9 @@ public class FunctionalCaseService {
         functionalCaseAttachmentService.uploadFile(request, caseId, files, true, userId);
 
         //关联附件
-        functionalCaseAttachmentService.relateFileMeta(request.getRelateFileMetaIds(), caseId, userId);
+        if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
+            functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), caseId, userId, ADD_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
+        }
 
         //TODO 记录变更历史
 
@@ -242,11 +247,18 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.deleteCaseAttachment(request.getDeleteFileMetaIds(), request.getId(), request.getProjectId());
         }
 
+        //处理取消关联文件id
+        if (CollectionUtils.isNotEmpty(request.getUnLinkFilesIds())) {
+            functionalCaseAttachmentService.unAssociation(request.getUnLinkFilesIds(), UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL, userId, request.getProjectId());
+        }
+
         //上传新文件
         functionalCaseAttachmentService.uploadFile(request, request.getId(), files, true, userId);
 
         //关联新附件
-        functionalCaseAttachmentService.relateFileMeta(request.getRelateFileMetaIds(), request.getId(), userId);
+        if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
+            functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), request.getId(), userId, UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
+        }
 
         //TODO 记录变更历史 addFunctionalCaseHistory
 
@@ -563,7 +575,8 @@ public class FunctionalCaseService {
                     if (StringUtils.isNotBlank(collect.get(id).getTags())) {
                         List<String> tags = JSON.parseArray(collect.get(id).getTags(), String.class);
                         tags.addAll(request.getTags());
-                        functionalCase.setTags(JSON.toJSONString(tags));
+                        List<String> newTags = tags.stream().distinct().collect(Collectors.toList());
+                        functionalCase.setTags(JSON.toJSONString(newTags));
                     } else {
                         functionalCase.setTags(JSON.toJSONString(request.getTags()));
                     }

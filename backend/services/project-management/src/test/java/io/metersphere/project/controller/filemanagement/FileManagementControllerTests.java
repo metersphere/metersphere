@@ -2205,4 +2205,10 @@ public class FileManagementControllerTests extends BaseTest {
         example.createCriteria().andProjectIdEqualTo(projectId).andModuleIdNotEqualTo(moduleId).andLatestEqualTo(true);
         Assertions.assertEquals(fileMetadataMapper.countByExample(example), 0);
     }
+
+    @Test
+    @Order(91)
+    public void testQuery() throws Exception {
+        fileAssociationService.getFiles("TEST", FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE);
+    }
 }
