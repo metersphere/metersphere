@@ -8,6 +8,7 @@
         props.isFullscreen ? 'ms-card--no-radius' : '',
         props.autoHeight ? '' : 'min-h-[500px]',
         props.noContentPadding ? 'ms-card--noContentPadding' : 'p-[24px]',
+        props.noBottomRadius ? 'ms-card--noBottomRadius' : '',
       ]"
     >
       <div v-if="!props.simple" class="card-header">
@@ -20,7 +21,7 @@
       </div>
       <a-divider v-if="!props.simple" class="mb-[16px]" />
       <div class="ms-card-container">
-        <a-scrollbar class="pr-[5px]" :style="getComputedContentStyle">
+        <a-scrollbar :class="props.noContentPadding ? '' : 'pr-[5px]'" :style="getComputedContentStyle">
           <div class="relative h-full w-full" :style="{ minWidth: `${props.minWidth || 1000}px` }">
             <slot></slot>
           </div>
@@ -74,6 +75,7 @@
         minWidth: number; // 卡片最小宽度
         hasBreadcrumb: boolean; // 是否有面包屑，如果有面包屑，高度需要减去面包屑的高度
         noContentPadding: boolean; // 内容区域是否有padding
+        noBottomRadius?: boolean; // 底部是否有圆角
         isFullscreen?: boolean; // 是否全屏
         handleBack: () => void; // 自定义返回按钮触发事件
       }>
@@ -88,6 +90,7 @@
       autoHeight: false,
       hasBreadcrumb: false,
       noContentPadding: false,
+      noBottomRadius: false,
     }
   );
 
@@ -107,7 +110,7 @@
   const cardOverHeight = computed(() => {
     if (props.simple) {
       // 简单模式没有标题、没有底部
-      return 136 + _specialHeight;
+      return props.noContentPadding ? 88 : 136 + _specialHeight;
     }
     if (props.hideFooter) {
       // 隐藏底部
@@ -117,6 +120,13 @@
   });
 
   const getComputedContentStyle = computed(() => {
+    if (props.noContentPadding) {
+      return {
+        overflow: 'auto',
+        width: 'auto',
+        height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight.value}px)`,
+      };
+    }
     if (props.isFullscreen) {
       return {
         overflow: 'auto',
@@ -149,13 +159,16 @@
     border-radius: var(--border-radius-large);
     box-shadow: 0 0 10px rgb(120 56 135 / 5%);
     &--noContentPadding {
-      border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+      border-radius: var(--border-radius-large);
       .card-header {
         padding: 24px 24px 0;
       }
       .arco-divider {
         @apply mb-0;
       }
+    }
+    &--noBottomRadius {
+      border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
     }
     .card-header {
       @apply flex items-center;

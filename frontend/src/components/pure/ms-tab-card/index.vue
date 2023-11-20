@@ -1,5 +1,5 @@
 <template>
-  <MsCard class="mb-[16px]" :title="props.title" hide-back hide-footer auto-height no-content-padding>
+  <MsCard class="mb-[16px]" :title="props.title" hide-back hide-footer auto-height no-content-padding no-bottom-radius>
     <a-tabs v-model:active-key="innerTab" class="no-content">
       <a-tab-pane v-for="item of tabList" :key="item.key" :title="item.title" />
     </a-tabs>

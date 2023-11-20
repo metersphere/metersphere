@@ -12,6 +12,7 @@ import {
   FilePageUrl,
   GetAssociationListUrl,
   GetFileDetailUrl,
+  GetFileHistoryListUrl,
   GetFileTypesUrl,
   GetModuleCountUrl,
   GetModuleUrl,
@@ -37,6 +38,7 @@ import type {
   AssociationItem,
   BatchFileApiParams,
   FileDetail,
+  FileHistoryItem,
   FileItem,
   FileListQueryParams,
   ModuleCount,
@@ -125,6 +127,11 @@ export function getFileTypes(id: string) {
 // 获取文件详情
 export function getFileDetail(id: string) {
   return MSR.get<FileDetail>({ url: GetFileDetailUrl, params: id });
+}
+
+// 获取文件历史版本列表
+export function getFileHistoryList(params: { id: string }) {
+  return MSR.get<FileHistoryItem[]>({ url: GetFileHistoryListUrl, params: params.id });
 }
 
 // jar文件启用禁用
