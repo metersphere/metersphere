@@ -72,30 +72,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private ApiDefinitionFollowerMapper apiDefinitionFollowerMapper;
 
     @Resource
-    private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
-
-    @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
 
-    @Test
-    @Order(0)
-    @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
-    public void initData(){
-        LogUtils.info("init api test data");
-        ApiDefinitionModule request = new ApiDefinitionModule();
-        request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setName("a1");
-        request.setId(DEFAULT_MODULE_ID);
-        request.setProtocol("HTTP");
-        request.setParentId("root");
-        request.setPos(10L);
-        request.setCreateTime(0L);
-        request.setUpdateTime(0L);
-        request.setUpdateUser("admin");
-        request.setCreateUser("admin");
-        apiDefinitionModuleMapper.insertSelective(request);
-
-    }
 
     @Test
     @Order(1)
@@ -121,7 +99,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinition resultData = getResultData(mvcResult, ApiDefinition.class);
         ApiDefinition apiDefinition = assertAddApiDefinition(request, msHttpElement, resultData.getId());
         // 再插入一条数据，便于修改时重名校验
-        request.setName("接口定义test1");
+        request.setName("接口定义test-6");
         paramMap.clear();
         paramMap.add("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(ADD, paramMap);
@@ -210,7 +188,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(3)
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testUpdate() throws Exception {
-        LogUtils.info("delete api test");
+        LogUtils.info("update api test");
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         ApiDefinitionUpdateRequest request = new ApiDefinitionUpdateRequest();
         BeanUtils.copyBean(request, apiDefinition);
@@ -461,49 +439,58 @@ public class ApiDefinitionControllerTests extends BaseTest {
         checkLog(apiDefinition.getId(), OperationLogType.DELETE);
         ApiDefinition apiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
         Assertions.assertTrue(apiDefinitionInfo.getDeleted());
-        Assertions.assertEquals(apiDefinitionInfo.getDeleteUser(), "admin");
+        Assertions.assertEquals("admin", apiDefinitionInfo.getDeleteUser());
         Assertions.assertNotNull(apiDefinitionInfo.getDeleteTime());
 
         // @存在多个版本
-        MvcResult mvcResult = this.requestGetWithOk(VERSION + apiDefinition.getId()).andReturn();
+        // 列表删除
+        apiDefinitionDeleteRequest.setDeleteAll(false);
+        apiDefinitionDeleteRequest.setId("1004");
+        ApiDefinition delApiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionDeleteRequest.getId());
+        MvcResult mvcResult = this.requestGetWithOk(VERSION + apiDefinitionDeleteRequest.getId()).andReturn();
         ApiDataUtils.setResolver(MsHTTPElement.class);
         List<ApiDefinitionVersionDTO> apiDefinitionVersionDTO =  getResultDataArray(mvcResult, ApiDefinitionVersionDTO.class);
         if(!apiDefinitionVersionDTO.isEmpty()){
-            ApiDefinition delApiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionDeleteRequest.getId());
-            // 列表删除
-            apiDefinitionDeleteRequest.setDeleteAll(false);
-            apiDefinitionDeleteRequest.setId("1004");
             this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);
-            checkLog(apiDefinitionDeleteRequest.getId(), OperationLogType.DELETE);
-            Assertions.assertTrue(delApiDefinition.getDeleted());
-            Assertions.assertEquals(delApiDefinition.getDeleteUser(), "admin");
-            Assertions.assertNotNull(delApiDefinition.getDeleteTime());
+            // 效验数据
             // 删除的数据为最新版本需要更新最近一条数据为最新数据
             if(delApiDefinition.getLatest()){
                 ApiDefinitionExample example = new ApiDefinitionExample();
                 example.createCriteria().andRefIdEqualTo(delApiDefinition.getRefId()).andDeletedEqualTo(false).andProjectIdEqualTo(delApiDefinition.getProjectId());
                 example.setOrderByClause("update_time DESC");
-                apiDefinitionMapper.selectByExample(example).stream().findFirst().ifPresent(updateApiDefinition -> Assertions.assertTrue(updateApiDefinition.getLatest()));
+                ApiDefinition updateApiDefinition = apiDefinitionMapper.selectByExample(example).stream().findFirst().orElse(null);
+                if(updateApiDefinition != null) {
+                    Assertions.assertTrue(updateApiDefinition.getLatest());
+                    Assertions.assertFalse(updateApiDefinition.getDeleted());
+                }
             }
-            // 全部删除
-            apiDefinitionDeleteRequest.setDeleteAll(true);
-            apiDefinitionDeleteRequest.setId("1006");
-            // @@请求成功
-            this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);
-
-            List<String> ids = extApiDefinitionMapper.getApiDefinitionByRefId(apiDefinitionDeleteRequest.getId()).stream().map(ApiDefinitionVersionDTO::getId).toList();
-            ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
-            apiDefinitionExample.createCriteria().andIdIn(ids).andDeletedEqualTo(false);
-            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
-            if(CollectionUtils.isNotEmpty(apiDefinitions)){
-                apiDefinitions.forEach(item -> {
-                    Assertions.assertTrue(item.getDeleted());
-                    Assertions.assertEquals(item.getDeleteUser(), "admin");
-                    Assertions.assertNotNull(item.getDeleteTime());
-                });
+            ApiDefinition delApiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionDeleteRequest.getId());
+            if(delApiDefinitionInfo != null){
+                Assertions.assertTrue(delApiDefinitionInfo.getDeleted());
+                Assertions.assertEquals("admin", delApiDefinitionInfo.getDeleteUser());
+                Assertions.assertNotNull(delApiDefinitionInfo.getDeleteTime());
             }
             checkLog(apiDefinitionDeleteRequest.getId(), OperationLogType.DELETE);
+
         }
+        // 全部删除
+        apiDefinitionDeleteRequest.setDeleteAll(true);
+        apiDefinitionDeleteRequest.setId("1002");
+        // @@请求成功
+        this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);
+
+        List<String> ids = extApiDefinitionMapper.getApiDefinitionByRefId(apiDefinitionDeleteRequest.getId()).stream().map(ApiDefinitionVersionDTO::getId).toList();
+        ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+        apiDefinitionExample.createCriteria().andIdIn(ids);
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        if(CollectionUtils.isNotEmpty(apiDefinitions)){
+            apiDefinitions.forEach(item -> {
+                Assertions.assertTrue(item.getDeleted());
+                Assertions.assertEquals("admin", item.getDeleteUser());
+                Assertions.assertNotNull(item.getDeleteTime());
+            });
+        }
+        checkLog(apiDefinitionDeleteRequest.getId(), OperationLogType.DELETE);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, DELETE, apiDefinitionDeleteRequest);
     }
@@ -527,6 +514,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         checkLog("1002", OperationLogType.DELETE);
         checkLog("1005", OperationLogType.DELETE);
         // 删除全部 条件为关键字为st-6的数据
+        request.setDeleteAll(true);
         request.setSelectAll(true);
         BaseCondition baseCondition = new BaseCondition();
         baseCondition.setKeyword("st-6");
