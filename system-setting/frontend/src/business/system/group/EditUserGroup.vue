@@ -162,7 +162,7 @@ export default {
         if (data) {
           this.workspaces = data;
           let workspace = this.workspaces.find(item => item.id === scopeId);
-          if (workspace) {
+          if (workspace || !scopeId) {
             // 所属范围为工作空间
             this.showLabel = this.$t('project.owning_workspace');
           } else {
