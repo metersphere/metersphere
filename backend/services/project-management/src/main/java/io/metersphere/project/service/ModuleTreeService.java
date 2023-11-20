@@ -59,7 +59,7 @@ public abstract class ModuleTreeService {
         while (CollectionUtils.isNotEmpty(traverseList) && traverseList.size() != lastSize) {
             List<BaseTreeNode> notMatchedList = new ArrayList<>();
             for (BaseTreeNode treeNode : traverseList) {
-                if (StringUtils.equals(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                if (StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
                     BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
                     baseTreeNodeList.add(node);
                     baseTreeNodeMap.put(treeNode.getId(), node);
