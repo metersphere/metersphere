@@ -25,4 +25,6 @@ public interface BaseFileMetadataMapper {
     List<String> selectRefIdsByIds(@Param("ids") List<String> nodeIds);
 
     List<String> selectIllegalModuleIdListByProjectId(String projectId);
+
+    long countRepositoryFileByIds(@Param("ids") List<String> metadataIds);
 }

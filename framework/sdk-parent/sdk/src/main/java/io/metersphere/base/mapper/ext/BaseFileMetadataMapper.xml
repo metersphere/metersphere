@@ -165,6 +165,15 @@
         WHERE project_id = #{0}
           AND module_id = '';
     </select>
+    <select id="countRepositoryFileByIds" resultType="java.lang.Long">
+        SELECT count(id)
+        FROM file_metadata
+        WHERE id in
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+        AND storage = 'GIT';
+    </select>
 
     <update id="updateModuleIdByProjectId">
         update file_metadata

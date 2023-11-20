@@ -233,10 +233,15 @@ public class FileMetadataService {
     public void move(MoveFIleMetadataRequest request) {
         //不可移动到存储库模块节点
         FileModule fileModule = fileModuleService.get(request.getModuleId());
-        if (fileModule != null && !org.apache.commons.collections.CollectionUtils.isEmpty(request.getMetadataIds()) && StringUtils.isNotEmpty(request.getModuleId())) {
-            if (StringUtils.equals(fileModule.getModuleType(), FileModuleTypeConstants.REPOSITORY.getValue())) {
+        if (fileModule != null && CollectionUtils.isNotEmpty(request.getMetadataIds())) {
+            if (fileModule.getModuleType() != null && StringUtils.equals(fileModule.getModuleType(), FileModuleTypeConstants.REPOSITORY.getValue())) {
                 MSException.throwException(Translator.get("can_not_move_to_repository_node"));
             } else {
+                //检查所选id中是否含有存储库文件
+                long repositoryFileCount = baseFileMetadataMapper.countRepositoryFileByIds(request.getMetadataIds());
+                if (repositoryFileCount > 0) {
+                    MSException.throwException(Translator.get("can_not_move_to_repository_file"));
+                }
                 baseFileMetadataMapper.move(request);
             }
         }
