@@ -65,6 +65,9 @@ export default {
           if (this.$refs.publicNodeTree) {
             this.publicTreeNodes.forEach(firstLevel => {
               this.$refs.publicNodeTree.nodeExpand(firstLevel);
+              if (this.$refs.publicNodeTree) {
+                this.$refs.publicNodeTree.justSetCurrentKey(store.testCasePublicSelectNode.data.id);
+              }
             })
           }
         });
