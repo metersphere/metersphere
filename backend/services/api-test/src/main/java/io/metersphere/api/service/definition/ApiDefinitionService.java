@@ -72,8 +72,6 @@ public class ApiDefinitionService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
-    @Resource
-    private ApiTestCaseService apiTestCaseService;
 
     public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, Boolean deleted){
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request, deleted);
@@ -212,16 +210,17 @@ public class ApiDefinitionService {
 
     public void batchMove(ApiDefinitionBatchMoveRequest request, String userId) {
         List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol());
-        if (CollectionUtils.isNotEmpty(ids)) {
-            List<String> refId = extApiDefinitionMapper.getRefIds(ids);
-            extApiDefinitionMapper.batchMove(request, refId, userId);
+        if (!ids.isEmpty()) {
+            List<String> refIds = extApiDefinitionMapper.getRefIds(ids);
+            if (!refIds.isEmpty()) {
+                extApiDefinitionMapper.batchMove(request, refIds, userId);
+            }
         }
     }
 
     private void processApiDefinitions(List<ApiDefinitionDTO> list, String projectId) {
         Set<String> userIds = extractUserIds(list);
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
-
         List<String> apiDefinitionIds = list.stream().map(ApiDefinitionDTO::getId).toList();
         List<ApiCaseComputeDTO> apiCaseComputeList = extApiDefinitionMapper.selectApiCaseByIdsAndStatusIsNotTrash(apiDefinitionIds, projectId);
         Map<String, ApiCaseComputeDTO> resultMap = apiCaseComputeList.stream().collect(Collectors.toMap(ApiCaseComputeDTO::getApiDefinitionId, Function.identity()));
@@ -278,8 +277,6 @@ public class ApiDefinitionService {
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(file.getName());
                 fileRequest.setFolder(minioPath(projectId));
-                fileRequest.setProjectId(projectId);
-                fileRequest.setResourceId(apiId);
                 fileRequest.setStorage(StorageType.MINIO.name());
                 try {
                     minioRepository.saveFile(file, fileRequest);
@@ -418,19 +415,13 @@ public class ApiDefinitionService {
         return copyName;
     }
 
-
-    public Map<String, ApiDefinitionBlob> copyBlobInfo(List<String> ids) {
-        ApiDefinitionBlobExample blobExample = new ApiDefinitionBlobExample();
-        blobExample.createCriteria().andIdIn(ids);
-        List<ApiDefinitionBlob> apiDefinitionBlobs = apiDefinitionBlobMapper.selectByExampleWithBLOBs(blobExample);
-        return apiDefinitionBlobs.stream().collect(Collectors.toMap(ApiDefinitionBlob::getId, apiDefinitionBlob -> apiDefinitionBlob));
-    }
-
     private void handleDeleteApiDefinition(List<String> ids, Boolean deleteAll, String userId) {
         if (deleteAll) {
             //全部删除  进入回收站
             List<String> refId = extApiDefinitionMapper.getRefIds(ids);
-            extApiDefinitionMapper.batchDelete(refId, userId);
+            if(CollectionUtils.isNotEmpty(refId)){
+                extApiDefinitionMapper.batchDelete(refId, userId);
+            }
         } else {
             //列表删除 需要判断是否存在多个版本问题
             ids.forEach(id -> {

@@ -105,7 +105,7 @@
         set deleted = 1,
         delete_user = #{userId},
         delete_time = UNIX_TIMESTAMP()*1000
-        where id in
+        where ref_id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
