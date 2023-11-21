@@ -17,6 +17,7 @@
 
     <select id="selectAssociationFileInfo" resultType="io.metersphere.project.dto.filemanagement.FileInfo">
         SELECT
+            file_association.id AS id,
             file_association.file_id AS fileId,
             CONCAT( file_metadata.`name`, file_metadata.type ) AS fileName,
             file_metadata.size AS size,

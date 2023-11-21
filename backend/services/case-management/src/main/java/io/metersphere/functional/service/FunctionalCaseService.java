@@ -21,6 +21,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -128,12 +129,23 @@ public class FunctionalCaseService {
         BeanUtils.copyBean(functionalCaseBlob, request);
         functionalCaseBlobMapper.insertSelective(functionalCaseBlob);
         //保存自定义字段
-        List<CaseCustomFieldDTO> customFields = request.getCustomFields();
-        if (CollectionUtils.isNotEmpty(customFields)) {
-            customFields = customFields.stream().distinct().collect(Collectors.toList());
-            functionalCaseCustomFieldService.saveCustomField(caseId, customFields);
+        Map<String, Object> customFields = request.getCustomFields();
+        if (MapUtils.isNotEmpty(customFields)) {
+            List<CaseCustomFieldDTO> list = getCustomFields(customFields);
+            functionalCaseCustomFieldService.saveCustomField(caseId, list);
         }
         return functionalCase;
+    }
+
+    private List<CaseCustomFieldDTO> getCustomFields(Map<String, Object> customFields) {
+        List<CaseCustomFieldDTO> list = new ArrayList<>();
+        customFields.keySet().forEach(key -> {
+            CaseCustomFieldDTO caseCustomFieldDTO = new CaseCustomFieldDTO();
+            caseCustomFieldDTO.setFieldId(key);
+            caseCustomFieldDTO.setValue(JSON.toJSONString(customFields.get(key)));
+            list.add(caseCustomFieldDTO);
+        });
+        return list;
     }
 
     public Long getNextOrder(String projectId) {
@@ -231,8 +243,8 @@ public class FunctionalCaseService {
      * 更新用例 基本信息
      *
      * @param request request
-     * @param files files
-     * @param userId userId
+     * @param files   files
+     * @param userId  userId
      * @return FunctionalCase
      */
     public FunctionalCase updateFunctionalCase(FunctionalCaseEditRequest request, List<MultipartFile> files, String userId) {
@@ -276,7 +288,7 @@ public class FunctionalCaseService {
     /**
      * 多版本所属模块更新处理
      *
-     * @param refId refId
+     * @param refId    refId
      * @param moduleId moduleId
      */
     private void updateFunctionalCaseModule(String refId, String moduleId) {
@@ -295,7 +307,11 @@ public class FunctionalCaseService {
         functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
 
         //更新自定义字段
-        functionalCaseCustomFieldService.updateCustomField(request.getId(), request.getCustomFields());
+        Map<String, Object> customFields = request.getCustomFields();
+        if (MapUtils.isNotEmpty(customFields)) {
+            List<CaseCustomFieldDTO> list = getCustomFields(customFields);
+            functionalCaseCustomFieldService.updateCustomField(request.getId(), list);
+        }
     }
 
 
@@ -303,7 +319,7 @@ public class FunctionalCaseService {
      * 关注/取消关注用例
      *
      * @param functionalCaseId functionalCaseId
-     * @param userId userId
+     * @param userId           userId
      */
     public void editFollower(String functionalCaseId, String userId) {
         checkFunctionalCase(functionalCaseId);
@@ -324,7 +340,7 @@ public class FunctionalCaseService {
      * 删除用例
      *
      * @param request request
-     * @param userId userId
+     * @param userId  userId
      */
     public void deleteFunctionalCase(FunctionalCaseDeleteRequest request, String userId) {
         handDeleteFunctionalCase(Collections.singletonList(request.getId()), request.getDeleteAll(), userId);
@@ -424,7 +440,7 @@ public class FunctionalCaseService {
      * 批量移动用例
      *
      * @param request request
-     * @param userId userId
+     * @param userId  userId
      */
     public void batchMoveFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId) {
         List<String> ids = doSelectIds(request, request.getProjectId());
@@ -438,7 +454,7 @@ public class FunctionalCaseService {
      * 批量复制用例
      *
      * @param request request
-     * @param userId userId
+     * @param userId  userId
      */
     public void batchCopyFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId) {
         List<String> ids = doSelectIds(request, request.getProjectId());
@@ -539,7 +555,7 @@ public class FunctionalCaseService {
      * 批量编辑
      *
      * @param request request
-     * @param userId userId
+     * @param userId  userId
      */
     public void batchEditFunctionalCase(FunctionalCaseBatchEditRequest request, String userId) {
         List<String> ids = doSelectIds(request, request.getProjectId());

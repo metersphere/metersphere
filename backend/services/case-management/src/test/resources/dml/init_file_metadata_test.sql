@@ -48,3 +48,5 @@ INSERT INTO functional_case_attachment(id, case_id, file_id, file_name, size, lo
 INSERT INTO functional_case_attachment(id, case_id, file_id, file_name, size, local, create_user, create_time) VALUES ('TEST_CASE_ATTACHMENT_ID_2', 'TEST_FUNCTIONAL_CASE_ID', 'delete_file_meta_id_1', '测试删除', 1, b'1', 'admin', 1698058347559);
 
 INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('TEST_MODULE_ID', '100001100001', '测试所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
+
+INSERT INTO custom_field(id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, ref_id, enable_option_key, scope_id) VALUES ('custom_field_id_1', 'functional_priority', 'FUNCTIONAL', 'SELECT', '', b'1', 'ORGANIZATION', 1698983187000, 1698983187000, 'admin', NULL, b'0', '100001');

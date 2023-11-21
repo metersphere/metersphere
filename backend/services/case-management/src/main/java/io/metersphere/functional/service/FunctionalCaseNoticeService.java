@@ -3,7 +3,6 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.domain.FunctionalCaseCustomFieldExample;
-import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDTO;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
@@ -20,6 +19,7 @@ import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -126,7 +126,7 @@ public class FunctionalCaseNoticeService {
         return optionDTOList;
     }
 
-    public FunctionalCaseDTO getMainFunctionalCaseDTO(String name, String caseEditType, String projectId, List<CaseCustomFieldDTO> customFields) {
+    public FunctionalCaseDTO getMainFunctionalCaseDTO(String name, String caseEditType, String projectId, Map<String, Object> customFields) {
         String userId = SessionUtils.getUserId();
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
         functionalCaseDTO.setName(name);
@@ -134,17 +134,16 @@ public class FunctionalCaseNoticeService {
         functionalCaseDTO.setCaseEditType(caseEditType);
         functionalCaseDTO.setCreateUser(userId);
         List<OptionDTO> fields = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(customFields)) {
-            for (CaseCustomFieldDTO customFieldDTO : customFields) {
-                OptionDTO optionDTO = new OptionDTO();
-                CustomField customField = customFieldMapper.selectByPrimaryKey(customFieldDTO.getFieldId());
-                if (customField == null) {
-                    continue;
-                }
-                optionDTO.setId(customField.getName());
-                optionDTO.setName(customFieldDTO.getValue());
-                fields.add(optionDTO);
-            }
+        if (MapUtils.isNotEmpty(customFields)) {
+            customFields.keySet().forEach(key -> {
+                CustomField customField = customFieldMapper.selectByPrimaryKey(key);
+                Optional.ofNullable(customField).ifPresent(item -> {
+                    OptionDTO optionDTO = new OptionDTO();
+                    optionDTO.setId(customField.getId());
+                    optionDTO.setName(customField.getName());
+                    fields.add(optionDTO);
+                });
+            });
         }
         functionalCaseDTO.setFields(fields);
         //TODO:设置测试计划名称
