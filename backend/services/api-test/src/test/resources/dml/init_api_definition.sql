@@ -28,4 +28,4 @@ INSERT INTO `api_report` (`id`, `name`, `resource_id`, `create_time`, `update_ti
 INSERT INTO `api_report` (`id`, `name`, `resource_id`, `create_time`, `update_time`, `create_user`, `update_user`, `deleted`, `status`, `start_time`, `end_time`, `run_mode`, `pool_id`, `trigger_mode`, `version_id`, `project_id`, `integrated_report_id`, `integrated`) VALUES ('10006', '报告006', 'resource_id_10001', 1680624405386, 1680624405386, 'admin', 'admin', b'0', 'SUCCESS', 1680624405386, 1680624405386, 'API', 'pol_id_100001', 'hand', NULL, '100001100001', 'NONE', b'0');
 
 DELETE FROM `api_definition_module` WHERE `id` = '10001';
-INSERT INTO `api_definition_module` (`id`, `name`, `protocol`, `parent_id`, `project_id`, `pos`, `create_time`, `update_time`, `update_user`, `create_user`) VALUES ('10001', 'module1', 'HTTP', 'root', '100001100001', 10, 0, 0, 'admin', 'admin');
+INSERT INTO `api_definition_module` (`id`, `name`, `protocol`, `parent_id`, `project_id`, `pos`, `create_time`, `update_time`, `update_user`, `create_user`) VALUES ('10001', 'module1', 'HTTP', 'NONE', '100001100001', 10, 0, 0, 'admin', 'admin');
