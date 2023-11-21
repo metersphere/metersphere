@@ -51,9 +51,8 @@ public class JSONSchemaBuilder {
             if (object.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.ARRAY)) {
                 analyzeProperty(rootObj, PropertyConstant.MS_OBJECT, object, map);
             } else if (!object.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.OBJECT) && !(object instanceof JsonObject)) {
-                String asString = object.getAsString();
                 analyzeProperty(rootObj, object.getAsString(), object, map);
-            } else {
+            } else if (object instanceof JsonObject){
                 formatObject(map, object, rootObj);
             }
         }
