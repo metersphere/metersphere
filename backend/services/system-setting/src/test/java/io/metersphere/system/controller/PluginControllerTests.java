@@ -316,7 +316,7 @@ public class PluginControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(DEFAULT_LIST);
         // 校验数据是否正确
         List<PluginDTO> pluginList = getResultDataArray(mvcResult, PluginDTO.class);
-        Assertions.assertEquals(3, pluginList.size());
+        Assertions.assertEquals(pluginMapper.selectByExample(new PluginExample()).size(), pluginList.size());
 
         // 获取数据库数据
         List<String> pluginIds = pluginList.stream().map(PluginDTO::getId).toList();
