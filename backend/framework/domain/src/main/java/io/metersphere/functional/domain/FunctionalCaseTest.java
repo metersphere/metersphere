@@ -1,10 +1,8 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,31 +10,37 @@ import lombok.Data;
 
 @Data
 public class FunctionalCaseTest implements Serializable {
-    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_test.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{functional_case_test.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_test.case_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{functional_case_test.case_id.length_range}", groups = {Created.class, Updated.class})
     private String caseId;
 
-    @Schema(description =  "其他类型用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "其他类型用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_test.source_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{functional_case_test.source_id.length_range}", groups = {Created.class, Updated.class})
     private String sourceId;
 
-    @Schema(description =  "用例类型：接口用例/场景用例/性能用例/UI用例", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "用例类型：接口用例/场景用例/性能用例/UI用例", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_test.source_type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{functional_case_test.source_type.length_range}", groups = {Created.class, Updated.class})
     private String sourceType;
 
-    @Schema(description =  "创建时间")
+    @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "更新时间")
+    @Schema(description = "更新时间")
     private Long updateTime;
+
+    @Schema(description = "创建人")
+    private String createUser;
+
+    @Schema(description = "更新人")
+    private String updateUser;
 
     private static final long serialVersionUID = 1L;
 
@@ -46,7 +50,9 @@ public class FunctionalCaseTest implements Serializable {
         sourceId("source_id", "sourceId", "VARCHAR", false),
         sourceType("source_type", "sourceType", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
-        updateTime("update_time", "updateTime", "BIGINT", false);
+        updateTime("update_time", "updateTime", "BIGINT", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
+        updateUser("update_user", "updateUser", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

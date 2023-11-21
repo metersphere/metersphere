@@ -1,7 +1,8 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-CREATE TABLE IF NOT EXISTS functional_case(
+CREATE TABLE IF NOT EXISTS functional_case
+(
     `id`                  VARCHAR(50)  NOT NULL COMMENT 'ID',
     `num`                 BIGINT       NOT NULL COMMENT '业务ID',
     `module_id`           VARCHAR(50)  NOT NULL DEFAULT '' COMMENT '模块ID',
@@ -41,7 +42,8 @@ CREATE INDEX idx_num ON functional_case (num);
 CREATE INDEX idx_project_id ON functional_case (project_id);
 
 
-CREATE TABLE IF NOT EXISTS functional_case_blob(
+CREATE TABLE IF NOT EXISTS functional_case_blob
+(
     `id`               VARCHAR(50) NOT NULL COMMENT '功能用例ID',
     `steps`            LONGTEXT COMMENT '用例步骤（JSON)，step_model 为 Step 时启用',
     `text_description` LONGTEXT COMMENT '文本描述，step_model 为 Text 时启用',
@@ -54,7 +56,8 @@ CREATE TABLE IF NOT EXISTS functional_case_blob(
   COLLATE = utf8mb4_general_ci COMMENT = '功能用例';
 
 
-CREATE TABLE IF NOT EXISTS functional_case_comment(
+CREATE TABLE IF NOT EXISTS functional_case_comment
+(
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `case_id`     VARCHAR(50) NOT NULL COMMENT '功能用例ID',
     `create_user` VARCHAR(50) NOT NULL COMMENT '评论人',
@@ -79,7 +82,8 @@ CREATE INDEX idx_status ON functional_case_comment (status);
 CREATE INDEX idx_type ON functional_case_comment (type);
 CREATE INDEX idx_resource_id ON functional_case_comment (resource_id);
 
-CREATE TABLE IF NOT EXISTS functional_case_module(
+CREATE TABLE IF NOT EXISTS functional_case_module
+(
     `id`          VARCHAR(50)  NOT NULL COMMENT 'ID',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
     `name`        VARCHAR(100) NOT NULL COMMENT '名称',
@@ -105,7 +109,8 @@ CREATE INDEX idx_create_time ON functional_case_module (create_time);
 CREATE INDEX idx_update_time ON functional_case_module (update_time);
 
 
-CREATE TABLE IF NOT EXISTS functional_case_attachment(
+CREATE TABLE IF NOT EXISTS functional_case_attachment
+(
     `id`          VARCHAR(50)  NOT NULL COMMENT 'id',
     `case_id`     VARCHAR(50)  NOT NULL COMMENT '功能用例ID',
     `file_id`     VARCHAR(50)  NOT NULL COMMENT '文件的ID',
@@ -126,7 +131,8 @@ CREATE INDEX idx_file_id ON functional_case_attachment (file_id);
 CREATE INDEX idx_file_name ON functional_case_attachment (file_name);
 
 
-CREATE TABLE IF NOT EXISTS functional_case_follower(
+CREATE TABLE IF NOT EXISTS functional_case_follower
+(
     `case_id` VARCHAR(50) NOT NULL COMMENT '功能用例ID',
     `user_id` VARCHAR(50) NOT NULL COMMENT '关注人ID',
     PRIMARY KEY (case_id, user_id)
@@ -135,7 +141,8 @@ CREATE TABLE IF NOT EXISTS functional_case_follower(
   COLLATE = utf8mb4_general_ci COMMENT = '功能用例和关注人的中间表';
 
 
-CREATE TABLE IF NOT EXISTS functional_case_relationship_edge(
+CREATE TABLE IF NOT EXISTS functional_case_relationship_edge
+(
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `source_id`   VARCHAR(50) NOT NULL COMMENT '源节点的ID',
     `target_id`   VARCHAR(50) NOT NULL COMMENT '目标节点的ID',
@@ -153,23 +160,27 @@ CREATE INDEX source_id_index ON functional_case_relationship_edge (source_id);
 CREATE INDEX target_id_index ON functional_case_relationship_edge (target_id);
 
 
-CREATE TABLE IF NOT EXISTS functional_case_test(
+CREATE TABLE IF NOT EXISTS functional_case_test
+(
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `case_id`     VARCHAR(50) NOT NULL COMMENT '功能用例ID',
     `source_id`   VARCHAR(50) NOT NULL COMMENT '其他类型用例ID',
     `source_type` VARCHAR(64) NOT NULL COMMENT '用例类型：接口用例/场景用例/性能用例/UI用例',
     `create_time` BIGINT      NOT NULL COMMENT '创建时间',
     `update_time` BIGINT      NOT NULL COMMENT '更新时间',
+    `create_user` VARCHAR(50) NOT NULL COMMENT '创建人',
+    `update_user` VARCHAR(50) NOT NULL COMMENT '更新人',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '功能用例和其他用例的中间表';
 
 
-CREATE INDEX idx_case_id ON functional_case_test(case_id);
-CREATE INDEX idx_source_id ON functional_case_test(source_id);
+CREATE INDEX idx_case_id ON functional_case_test (case_id);
+CREATE INDEX idx_source_id ON functional_case_test (source_id);
 
-CREATE TABLE IF NOT EXISTS functional_case_demand(
+CREATE TABLE IF NOT EXISTS functional_case_demand
+(
     `id`              VARCHAR(50) NOT NULL COMMENT 'ID',
     `case_id`         VARCHAR(50) NOT NULL COMMENT '功能用例ID',
     `demand_id`       VARCHAR(50) COMMENT '需求ID',
@@ -178,17 +189,20 @@ CREATE TABLE IF NOT EXISTS functional_case_demand(
     `demand_platform` VARCHAR(64) NOT NULL DEFAULT 'LOCAL' COMMENT '需求所属平台',
     `create_time`     BIGINT      NOT NULL COMMENT '创建时间',
     `update_time`     BIGINT      NOT NULL COMMENT '更新时间',
+    `create_user`     VARCHAR(50) NOT NULL COMMENT '创建人',
+    `update_user`     VARCHAR(50) NOT NULL COMMENT '更新人',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '功能用例和需求的中间表';
 
 
-CREATE INDEX idx_case_id ON functional_case_demand(case_id);
-CREATE INDEX idx_demand_name ON functional_case_demand(demand_name);
-CREATE INDEX idx_demand_platform ON functional_case_demand(demand_platform);
+CREATE INDEX idx_case_id ON functional_case_demand (case_id);
+CREATE INDEX idx_demand_name ON functional_case_demand (demand_name);
+CREATE INDEX idx_demand_platform ON functional_case_demand (demand_platform);
 
-CREATE TABLE IF NOT EXISTS functional_minder_extra_node(
+CREATE TABLE IF NOT EXISTS functional_minder_extra_node
+(
     `id`        VARCHAR(50) NOT NULL COMMENT 'ID',
     `parent_id` VARCHAR(50) NOT NULL COMMENT '父节点的ID，即模块ID',
     `group_id`  VARCHAR(50) NOT NULL COMMENT '项目ID，可扩展为其他资源ID',
@@ -202,7 +216,8 @@ CREATE TABLE IF NOT EXISTS functional_minder_extra_node(
 CREATE INDEX idx_parent_id ON functional_minder_extra_node (parent_id);
 
 
-CREATE TABLE IF NOT EXISTS functional_case_custom_field(
+CREATE TABLE IF NOT EXISTS functional_case_custom_field
+(
     `case_id`  VARCHAR(50) NOT NULL COMMENT '资源ID',
     `field_id` VARCHAR(50) NOT NULL COMMENT '字段ID',
     `value`    VARCHAR(1000) COMMENT '字段值',
@@ -212,7 +227,8 @@ CREATE TABLE IF NOT EXISTS functional_case_custom_field(
   COLLATE = utf8mb4_general_ci COMMENT = '自定义字段功能用例关系';
 
 
-CREATE TABLE IF NOT EXISTS functional_case_history(
+CREATE TABLE IF NOT EXISTS functional_case_history
+(
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `case_id`     VARCHAR(50) NOT NULL COMMENT '用例ID',
     `num`         INT         NOT NULL COMMENT '变更记录批次号',
@@ -228,7 +244,8 @@ CREATE TABLE IF NOT EXISTS functional_case_history(
 CREATE INDEX idx_case_id ON functional_case_history (case_id);
 
 
-CREATE TABLE IF NOT EXISTS case_review(
+CREATE TABLE IF NOT EXISTS case_review
+(
     `id`               VARCHAR(50)  NOT NULL COMMENT 'ID',
     `name`             VARCHAR(255) NOT NULL COMMENT '名称',
     `module_id`        VARCHAR(50)  NOT NULL COMMENT '模块id',
@@ -260,7 +277,8 @@ CREATE INDEX idx_update_user ON case_review (update_user);
 CREATE INDEX idx_module_id ON case_review (module_id);
 
 
-CREATE TABLE IF NOT EXISTS case_review_user(
+CREATE TABLE IF NOT EXISTS case_review_user
+(
     `review_id` VARCHAR(50) NOT NULL COMMENT '评审ID',
     `user_id`   VARCHAR(50) NOT NULL COMMENT '评审人ID',
     PRIMARY KEY (review_id, user_id)
@@ -269,7 +287,8 @@ CREATE TABLE IF NOT EXISTS case_review_user(
   COLLATE = utf8mb4_general_ci COMMENT = '评审和评审人中间表';
 
 
-CREATE TABLE IF NOT EXISTS case_review_functional_case(
+CREATE TABLE IF NOT EXISTS case_review_functional_case
+(
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `review_id`   VARCHAR(50) NOT NULL COMMENT '评审ID',
     `case_id`     VARCHAR(50) NOT NULL COMMENT '用例ID',
@@ -288,8 +307,22 @@ CREATE INDEX idx_case_id ON case_review_functional_case (case_id);
 CREATE INDEX idx_review_id ON case_review_functional_case (review_id);
 CREATE INDEX idx_status ON case_review_functional_case (status);
 
+CREATE TABLE IF NOT EXISTS case_review_functional_case_archive(
+    `review_id` VARCHAR(50) NOT NULL COMMENT '用例评审ID',
+    `case_id`   VARCHAR(50) NOT NULL COMMENT '功能用例ID',
+    `content`   LONGTEXT COMMENT '功能用例快照（JSON)'
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '用例评审归档表';
 
-CREATE TABLE IF NOT EXISTS case_review_functional_case_user(
+
+CREATE INDEX idx_review_id ON case_review_functional_case_archive (review_id);
+CREATE INDEX idx_case_id ON case_review_functional_case_archive (case_id);
+CREATE INDEX idx_review_id_case_id ON case_review_functional_case_archive (review_id, case_id);
+
+
+CREATE TABLE IF NOT EXISTS case_review_functional_case_user
+(
     `case_id`   VARCHAR(50) NOT NULL COMMENT '功能用例ID',
     `review_id` VARCHAR(50) NOT NULL COMMENT '评审ID',
     `user_id`   VARCHAR(50) NOT NULL COMMENT '评审人ID'
@@ -305,7 +338,8 @@ CREATE INDEX idx_review_id ON case_review_functional_case_user (review_id);
 CREATE INDEX idx_user_id ON case_review_functional_case_user (user_id);
 
 
-CREATE TABLE IF NOT EXISTS case_review_follower(
+CREATE TABLE IF NOT EXISTS case_review_follower
+(
     `review_id` VARCHAR(50) NOT NULL COMMENT '评审ID',
     `user_id`   VARCHAR(50) NOT NULL COMMENT '关注人',
     PRIMARY KEY (review_id, user_id)
@@ -313,7 +347,8 @@ CREATE TABLE IF NOT EXISTS case_review_follower(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '用例评审和关注人的中间表';
 
-CREATE TABLE IF NOT EXISTS case_review_history(
+CREATE TABLE IF NOT EXISTS case_review_history
+(
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `review_id`   VARCHAR(50) NOT NULL COMMENT '评审ID',
     `case_id`     VARCHAR(50) NOT NULL COMMENT '用例ID',
@@ -328,11 +363,12 @@ CREATE TABLE IF NOT EXISTS case_review_history(
   COLLATE = utf8mb4_general_ci COMMENT = '评审变更记录';
 
 
-CREATE INDEX idx_case_id ON case_review_history(case_id);
-CREATE INDEX idx_review_id ON case_review_history(review_id);
-CREATE INDEX idx_review_id_case_id ON case_review_history(review_id,case_id);
+CREATE INDEX idx_case_id ON case_review_history (case_id);
+CREATE INDEX idx_review_id ON case_review_history (review_id);
+CREATE INDEX idx_review_id_case_id ON case_review_history (review_id, case_id);
 
-CREATE TABLE IF NOT EXISTS case_review_module(
+CREATE TABLE IF NOT EXISTS case_review_module
+(
     `id`          VARCHAR(50)  NOT NULL COMMENT 'ID',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
     `name`        VARCHAR(100) NOT NULL COMMENT '名称',
