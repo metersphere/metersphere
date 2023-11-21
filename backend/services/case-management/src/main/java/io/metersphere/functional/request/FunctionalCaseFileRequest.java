@@ -11,7 +11,7 @@ import java.io.Serializable;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class FileDumpRequest implements Serializable {
+public class FunctionalCaseFileRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -24,5 +24,7 @@ public class FileDumpRequest implements Serializable {
     @Schema(description = "文件id",requiredMode = Schema.RequiredMode.REQUIRED)
     private String fileId;
 
+    @Schema(description = "是否本地",requiredMode = Schema.RequiredMode.REQUIRED)
+    private Boolean local;
 
 }

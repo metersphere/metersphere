@@ -15,6 +15,9 @@ public class FileInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Schema(description = "ID")
+    private String id;
+
     @Schema(description = "文件ID")
     private String fileId;
 

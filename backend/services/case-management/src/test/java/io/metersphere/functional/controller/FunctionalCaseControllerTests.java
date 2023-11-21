@@ -77,8 +77,10 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
 
         //设置自定义字段
-        List<CaseCustomFieldDTO> dtoList = creatCustomFields();
-        request.setCustomFields(dtoList);
+        Map<String, Object> map = new HashMap<>();
+        map.put("custom_field_id_1", "custom_field_value_1");
+        map.put("custom_field_id_2", "custom_field_value_2");
+        request.setCustomFields(map);
 
         //设置文件
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.JPG")).getPath();
@@ -130,19 +132,6 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
     }
 
-    private List<CaseCustomFieldDTO> creatCustomFields() {
-        insertCustomField();
-        List<CaseCustomFieldDTO> list = new ArrayList<>();
-        CaseCustomFieldDTO customFieldDTO = new CaseCustomFieldDTO();
-        customFieldDTO.setFieldId("custom_field_id_1");
-        customFieldDTO.setValue("custom_field_value_1");
-        list.add(customFieldDTO);
-        CaseCustomFieldDTO customFieldDTO2 = new CaseCustomFieldDTO();
-        customFieldDTO2.setFieldId("custom_field_id_2");
-        customFieldDTO2.setValue("custom_field_value_2");
-        list.add(customFieldDTO2);
-        return list;
-    }
 
     private void insertCustomField() {
         CustomField customField = new CustomField();
@@ -178,8 +167,10 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public void testUpdateFunctionalCase() throws Exception {
         FunctionalCaseEditRequest request = creatEditRequest();
         //设置自定义字段
-        List<CaseCustomFieldDTO> list = updateCustomFields(request);
-        request.setCustomFields(list);
+        Map<String, Object> map = new HashMap<>();
+        map.put("custom_field_id_1", "测试更新");
+        map.put("custom_field_id_2", "更新时存在新字段");
+        request.setCustomFields(map);
         LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         List<MockMultipartFile> files = new ArrayList<>();
         paramMap.add("request", JSON.toJSONString(request));
@@ -203,19 +194,6 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
     }
 
-    private List<CaseCustomFieldDTO> updateCustomFields(FunctionalCaseEditRequest editRequest) {
-        List<CaseCustomFieldDTO> list = new ArrayList<>() {{
-            add(new CaseCustomFieldDTO() {{
-                setFieldId("custom_field_id_1");
-                setValue("测试更新");
-            }});
-            add(new CaseCustomFieldDTO() {{
-                setFieldId("custom_field_id_2");
-                setValue("更新时存在新字段");
-            }});
-        }};
-        return list;
-    }
 
     private FunctionalCaseEditRequest creatEditRequest() {
         FunctionalCaseEditRequest editRequest = new FunctionalCaseEditRequest();
