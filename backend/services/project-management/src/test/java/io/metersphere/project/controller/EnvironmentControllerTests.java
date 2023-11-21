@@ -18,6 +18,7 @@ import io.metersphere.project.dto.environment.ssl.KeyStoreConfig;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
 import io.metersphere.project.dto.environment.ssl.KeyStoreFile;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
@@ -909,8 +910,7 @@ public class EnvironmentControllerTests extends BaseTest {
         this.requestGet(delete + id);
         //查询文件
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFolder("/meterSphere/" + DEFAULT_PROJECT_ID + "/" + "environment");
-        fileRequest.setResourceId(id);
+        fileRequest.setFolder(DefaultRepositoryDir.getEnvSslDir(DEFAULT_PROJECT_ID, id));
         MinioRepository minioRepository = CommonBeanFactory.getBean(MinioRepository.class);
         assert minioRepository != null;
         List<String> fileNames = minioRepository.getFolderFileNames(fileRequest);

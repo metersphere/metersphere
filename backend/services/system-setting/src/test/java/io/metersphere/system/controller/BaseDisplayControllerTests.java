@@ -1,10 +1,10 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.system.base.BaseTest;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.file.MinioRepository;
-import io.metersphere.system.log.constants.OperationLogModule;
 import jakarta.annotation.Resource;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.MethodOrderer;
@@ -78,8 +78,7 @@ public class BaseDisplayControllerTests extends BaseTest {
         MockMultipartFile mockFile = new MockMultipartFile(name, originalFileName, "application/octet-stream", bytes);
         FileRequest request = new FileRequest();
         request.setFileName(fileName);
-        request.setProjectId("system");
-        request.setResourceId(OperationLogModule.SYSTEM_PARAMETER_SETTING);
+        request.setFolder(DefaultRepositoryDir.getSystemRootDir());
         repository.saveFile(mockFile, request);
     }
 

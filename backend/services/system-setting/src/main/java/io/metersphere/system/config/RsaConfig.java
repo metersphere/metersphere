@@ -1,12 +1,12 @@
 package io.metersphere.system.config;
 
 
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.util.RsaKey;
+import io.metersphere.sdk.util.RsaUtils;
 import io.metersphere.system.file.FileCenter;
 import io.metersphere.system.file.FileRepository;
 import io.metersphere.system.file.FileRequest;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.sdk.util.RsaKey;
-import io.metersphere.sdk.util.RsaUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -19,8 +19,7 @@ public class RsaConfig implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         FileRequest request = new FileRequest();
         request.setFileName("rsa.key");
-        request.setProjectId("system");
-        request.setResourceId(OperationLogModule.SYSTEM_PARAMETER_SETTING);
+        request.setFolder(DefaultRepositoryDir.getSystemRootDir());
         FileRepository fileRepository = FileCenter.getDefaultRepository();
 
         try {

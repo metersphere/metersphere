@@ -1,10 +1,10 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.domain.SystemParameter;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.file.MinioRepository;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.domain.SystemParameter;
 import io.metersphere.system.mapper.SystemParameterMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.io.IOUtils;
@@ -34,8 +34,7 @@ public class BaseDisplayService {
         if (systemParameter != null) {
             FileRequest request = new FileRequest();
             request.setFileName(systemParameter.getParamValue());
-            request.setProjectId("system");
-            request.setResourceId(OperationLogModule.SYSTEM_PARAMETER_SETTING);
+            request.setFolder(DefaultRepositoryDir.getSystemRootDir());
             try {
                 bytes = repository.getFile(request);
             } catch (Exception e) {
