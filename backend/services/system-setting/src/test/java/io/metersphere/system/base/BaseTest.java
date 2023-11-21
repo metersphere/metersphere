@@ -39,6 +39,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -56,7 +57,7 @@ import java.util.function.Supplier;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public abstract class BaseTest {
@@ -228,18 +229,29 @@ public abstract class BaseTest {
             List list = value;
             for (Object o : list) {
                 try {
-                    MockMultipartFile multipartFile;
-                    if (o instanceof File) {
-                        File file = (File) o;
-                        multipartFile = new MockMultipartFile(key, file.getName(),
-                                MediaType.APPLICATION_OCTET_STREAM_VALUE, Files.readAllBytes(file.toPath()));
-                    } else if (o instanceof MockMultipartFile) {
-                        multipartFile = (MockMultipartFile) o;
-                    } else {
-                        multipartFile = new MockMultipartFile(key, null,
-                                MediaType.APPLICATION_JSON_VALUE, o.toString().getBytes());
+                    if (o == null) {
+                        continue;
                     }
-                    requestBuilder.file(multipartFile);
+                    MockMultipartFile multipartFile;
+                    if (o instanceof List) {
+                        List listObject = ((List) o);
+                        if (CollectionUtils.isEmpty(listObject)) {
+                            continue;
+                        }
+                        if (listObject.get(0) instanceof File || listObject.get(0) instanceof MockMultipartFile) {
+                            // 参数是多个文件时,设置多个文件
+                            for (Object subObject : ((List) o)) {
+                                multipartFile = getMockMultipartFile(key, subObject);
+                                requestBuilder.file(multipartFile);
+                            }
+                        } else {
+                            multipartFile = getMockMultipartFile(key, o);
+                            requestBuilder.file(multipartFile);
+                        }
+                    } else {
+                        multipartFile = getMockMultipartFile(key, o);
+                        requestBuilder.file(multipartFile);
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -249,9 +261,51 @@ public abstract class BaseTest {
         return requestBuilder;
     }
 
+    private static MockMultipartFile getMockMultipartFile(String key, Object value) throws IOException {
+        MockMultipartFile multipartFile;
+        if (value instanceof File) {
+            File file = (File) value;
+            multipartFile = new MockMultipartFile(key, file.getName(),
+                    MediaType.APPLICATION_OCTET_STREAM_VALUE, Files.readAllBytes(file.toPath()));
+        } else if (value instanceof MockMultipartFile) {
+            multipartFile = (MockMultipartFile) value;
+            // 有些地方的参数 name 写的是文件名，这里统一处理成参数名 key
+            multipartFile = new MockMultipartFile(key, multipartFile.getOriginalFilename(),
+                    MediaType.APPLICATION_OCTET_STREAM_VALUE, multipartFile.getBytes());
+        } else {
+            multipartFile = new MockMultipartFile(key, key,
+                    MediaType.APPLICATION_JSON_VALUE, value.toString().getBytes());
+        }
+        return multipartFile;
+    }
+
+    /**
+     * 获取默认的 MultiValue 参数
+     *
+     * @param param
+     * @param file
+     * @return
+     */
     protected MultiValueMap<String, Object> getDefaultMultiPartParam(Object param, File file) {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(param));
+        return paramMap;
+    }
+
+    /**
+     * 获取默认的 MultiValue 参数
+     * 这里参数位置与上面的方法对调
+     * 以便于方法重载时，可以 files 可以传 null
+     * 不会与上面方法混淆
+     *
+     * @param files
+     * @param param
+     * @return
+     */
+    protected MultiValueMap<String, Object> getDefaultMultiPartParam(List<File> files, Object param) {
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("files", files);
         paramMap.add("request", JSON.toJSONString(param));
         return paramMap;
     }

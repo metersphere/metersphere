@@ -17,6 +17,7 @@ import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -50,16 +51,18 @@ public class ApiDebugController {
     @Operation(summary = "创建接口调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDebugLogService.class)
-    public ApiDebug add(@Validated @RequestBody ApiDebugAddRequest request) {
-        return apiDebugService.add(request, SessionUtils.getUserId());
+    public ApiDebug add(@Validated @RequestPart("request") ApiDebugAddRequest request,
+                        @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        return apiDebugService.add(request, files, SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
     @Operation(summary = "更新接口调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDebugLogService.class)
-    public ApiDebug update(@Validated @RequestBody ApiDebugUpdateRequest request) {
-        return apiDebugService.update(request, SessionUtils.getUserId());
+    public ApiDebug update(@Validated @RequestPart("request") ApiDebugUpdateRequest request,
+                           @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        return apiDebugService.update(request, files, SessionUtils.getUserId());
     }
 
     @GetMapping("/delete/{id}")
