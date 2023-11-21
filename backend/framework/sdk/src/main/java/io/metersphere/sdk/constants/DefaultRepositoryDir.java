@@ -37,9 +37,10 @@ public class DefaultRepositoryDir {
      * 接口用例相关文件的存储目录
      * project/{projectId}/apiCase/{apiCaseId}
      */
-    private static final String PROJECT_API_CASE_DIR = PROJECT_DIR + "/apiCase/%s";
-    private static final String PROJECT_FUNCTIONAL_CASE_DIR = PROJECT_DIR + "/functionalCase/%s";
-    private static final String PROJECT_FILE_MANAGEMENT_DIR = PROJECT_DIR + "/fileManagement";
+    private static final String PROJECT_API_CASE_DIR = PROJECT_DIR + "/api-case/%s";
+    private static final String PROJECT_ENV_SSL_DIR = PROJECT_DIR + "/environment/%s";
+    private static final String PROJECT_FUNCTIONAL_CASE_DIR = PROJECT_DIR + "/functional-case/%s";
+    private static final String PROJECT_FILE_MANAGEMENT_DIR = PROJECT_DIR + "/file-management";
     private static final String PROJECT_BUG_DIR = PROJECT_DIR + "/bug/%s";
 
     /*------ end: 项目下资源目录 --------*/
@@ -49,8 +50,16 @@ public class DefaultRepositoryDir {
         return String.format(PROJECT_API_CASE_DIR, projectId, apiCaseId);
     }
 
+    public static String getEnvSslDir(String projectId, String envId) {
+        return String.format(PROJECT_ENV_SSL_DIR, projectId, envId);
+    }
+
     public static String getPluginDir() {
         return SYSTEM_PLUGIN_DIR;
+    }
+
+    public static String getSystemRootDir() {
+        return SYSTEM_ROOT_DIR;
     }
 
     public static String getFunctionalCaseDir(String projectId, String functionalCaseId) {

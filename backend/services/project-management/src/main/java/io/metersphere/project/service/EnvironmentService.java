@@ -9,6 +9,7 @@ import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentBlob;
@@ -68,9 +69,6 @@ public class EnvironmentService {
     private static final String PATH = "/project/environment/import";
     private static final String MOCK_EVN_SOCKET = "/api/mock/";
 
-    private static final String MAIN_FOLDER_PROJECT = "project";
-    private static final String APP_NAME_ENVIRONMENT = "environment";
-
     public List<OptionDTO> getDriverOptions(String organizationId) {
         return jdbcDriverPluginService.getJdbcDriverOption(organizationId);
     }
@@ -97,8 +95,7 @@ public class EnvironmentService {
         }
         //删除环境的ssl文件
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFolder(minioEnvPath(environment.getProjectId()));
-        fileRequest.setResourceId(id);
+        fileRequest.setFolder(DefaultRepositoryDir.getEnvSslDir(environment.getProjectId(), environment.getId()));
         try {
             minioRepository.deleteFolder(fileRequest);
         } catch (Exception e) {
@@ -138,9 +135,8 @@ public class EnvironmentService {
         if (CollectionUtils.isNotEmpty(sslFiles)) {
             sslFiles.forEach(sslFile -> {
                 FileRequest fileRequest = new FileRequest();
-                fileRequest.setFolder(minioEnvPath(environment.getProjectId()));
                 fileRequest.setFileName(sslFile.getName());
-                fileRequest.setResourceId(environment.getId());
+                fileRequest.setFolder(DefaultRepositoryDir.getEnvSslDir(environment.getProjectId(), environment.getId()));
                 try {
                     minioRepository.saveFile(sslFile, fileRequest);
                 } catch (Exception e) {
@@ -304,10 +300,6 @@ public class EnvironmentService {
         environmentBlobMapper.updateByPrimaryKeySelective(environmentBlob);
         uploadFileToMinio(sslFiles, environment);
         return request;
-    }
-
-    private String minioEnvPath(String projectId) {
-        return StringUtils.join(MAIN_FOLDER_PROJECT, "/", projectId, "/", APP_NAME_ENVIRONMENT);
     }
 
 }

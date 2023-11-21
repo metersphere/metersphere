@@ -7,6 +7,7 @@ import io.metersphere.api.mapper.*;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
@@ -608,8 +609,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isEmpty(followers));
         //校验minio文件为空
         FileRequest request = new FileRequest();
-        request.setFolder("/meterSphere/" + DEFAULT_PROJECT_ID + "/apiCase/");
-        request.setResourceId(apiTestCase.getId());
+        request.setFolder(DefaultRepositoryDir.getApiCaseDir(DEFAULT_PROJECT_ID, apiTestCase.getId()));
         MinioRepository minioRepository = CommonBeanFactory.getBean(MinioRepository.class);
         assert minioRepository != null;
         List<String> fileNames = minioRepository.getFolderFileNames(request);
