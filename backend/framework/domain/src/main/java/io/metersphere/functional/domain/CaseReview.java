@@ -1,10 +1,8 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,49 +10,48 @@ import lombok.Data;
 
 @Data
 public class CaseReview implements Serializable {
-    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{case_review.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{case_review.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{case_review.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 200, message = "{case_review.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description =  "评审状态：未开始/进行中/已完成/已结束/已归档", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "评审状态：未开始/进行中/已完成/已结束/已归档", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{case_review.status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{case_review.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
-    @Schema(description =  "创建时间")
+    @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "更新时间")
+    @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description =  "评审结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review.end_time.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{case_review.end_time.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "评审结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{case_review.end_time.not_blank}", groups = {Created.class})
     private Long endTime;
 
-    @Schema(description =  "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{case_review.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{case_review.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description =  "标签")
+    @Schema(description = "标签")
     private String tags;
 
-    @Schema(description =  "创建人")
+    @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description =  "评审规则：单人通过/全部通过", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "评审规则：单人通过/全部通过", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{case_review.review_pass_rule.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{case_review.review_pass_rule.length_range}", groups = {Created.class, Updated.class})
     private String reviewPassRule;
 
-    @Schema(description =  "描述")
+    @Schema(description = "描述")
     private String description;
 
     private static final long serialVersionUID = 1L;

@@ -9,43 +9,37 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class CaseReviewFunctionalCase implements Serializable {
+public class CaseReviewHistory implements Serializable {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{case_review_functional_case.id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{case_review_history.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{case_review_history.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(description = "评审ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case.review_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{case_review_functional_case.review_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{case_review_history.review_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{case_review_history.review_id.length_range}", groups = {Created.class, Updated.class})
     private String reviewId;
 
     @Schema(description = "用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case.case_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{case_review_functional_case.case_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{case_review_history.case_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{case_review_history.case_id.length_range}", groups = {Created.class, Updated.class})
     private String caseId;
 
-    @Schema(description = "评审状态：进行中/通过/不通过/重新提审", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case.status.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{case_review_functional_case.status.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "评审结果：通过/不通过")
     private String status;
 
-    @Schema(description = "创建时间")
-    private Long createTime;
+    @Schema(description = "通知人")
+    private String notifier;
 
-    @Schema(description = "更新时间")
-    private Long updateTime;
-
-    @Schema(description = "创建人")
+    @Schema(description = "操作人")
     private String createUser;
 
-    @Schema(description = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{case_review_functional_case.pos.not_blank}", groups = {Created.class})
-    private Long pos;
+    @Schema(description = "操作时间")
+    private Long createTime;
 
-    @Schema(description = "关联的用例是否放入回收站", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{case_review_functional_case.deleted.not_blank}", groups = {Created.class})
-    private Boolean deleted;
+    @Schema(description = "评审意见", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{case_review_history.content.not_blank}", groups = {Created.class})
+    private byte[] content;
 
     private static final long serialVersionUID = 1L;
 
@@ -54,11 +48,10 @@ public class CaseReviewFunctionalCase implements Serializable {
         reviewId("review_id", "reviewId", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
-        createTime("create_time", "createTime", "BIGINT", false),
-        updateTime("update_time", "updateTime", "BIGINT", false),
+        notifier("notifier", "notifier", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
-        pos("pos", "pos", "BIGINT", false),
-        deleted("deleted", "deleted", "BIT", false);
+        createTime("create_time", "createTime", "BIGINT", false),
+        content("content", "content", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
