@@ -9,57 +9,39 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class CaseReview implements Serializable {
+public class CaseReviewModule implements Serializable {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{case_review.id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{case_review_module.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{case_review_module.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review.name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{case_review.name.length_range}", groups = {Created.class, Updated.class})
-    private String name;
-
-    @Schema(description = "模块id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review.module_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{case_review.module_id.length_range}", groups = {Created.class, Updated.class})
-    private String moduleId;
-
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review.project_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{case_review.project_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{case_review_module.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{case_review_module.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description = "评审状态：未开始/进行中/已完成/已结束/已归档", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review.status.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{case_review.status.length_range}", groups = {Created.class, Updated.class})
-    private String status;
+    @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{case_review_module.name.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 100, message = "{case_review_module.name.length_range}", groups = {Created.class, Updated.class})
+    private String name;
 
-    @Schema(description = "通过标准：单人通过/全部通过", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review.review_pass_rule.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{case_review.review_pass_rule.length_range}", groups = {Created.class, Updated.class})
-    private String reviewPassRule;
+    @Schema(description = "父节点ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{case_review_module.parent_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{case_review_module.parent_id.length_range}", groups = {Created.class, Updated.class})
+    private String parentId;
 
-    @Schema(description = "评审开始时间")
-    private Long startTime;
-
-    @Schema(description = "评审结束时间")
-    private Long endTime;
-
-    @Schema(description = "标签")
-    private String tags;
-
-    @Schema(description = "描述")
-    private String description;
+    @Schema(description = "同一节点下的顺序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{case_review_module.pos.not_blank}", groups = {Created.class})
+    private Long pos;
 
     @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description = "创建人")
-    private String createUser;
-
     @Schema(description = "更新时间")
     private Long updateTime;
+
+    @Schema(description = "创建人")
+    private String createUser;
 
     @Schema(description = "更新人")
     private String updateUser;
@@ -68,18 +50,13 @@ public class CaseReview implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        name("name", "name", "VARCHAR", true),
-        moduleId("module_id", "moduleId", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
-        status("status", "status", "VARCHAR", true),
-        reviewPassRule("review_pass_rule", "reviewPassRule", "VARCHAR", false),
-        startTime("start_time", "startTime", "BIGINT", false),
-        endTime("end_time", "endTime", "BIGINT", false),
-        tags("tags", "tags", "VARCHAR", false),
-        description("description", "description", "VARCHAR", false),
+        name("name", "name", "VARCHAR", true),
+        parentId("parent_id", "parentId", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false),
         createTime("create_time", "createTime", "BIGINT", false),
-        createUser("create_user", "createUser", "VARCHAR", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
         updateUser("update_user", "updateUser", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";

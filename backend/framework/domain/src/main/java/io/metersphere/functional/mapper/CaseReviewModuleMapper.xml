@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.CaseReviewFunctionalCase">
+<mapper namespace="io.metersphere.functional.mapper.CaseReviewModuleMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.CaseReviewModule">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="review_id" jdbcType="VARCHAR" property="reviewId" />
-    <result column="case_id" jdbcType="VARCHAR" property="caseId" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="create_time" jdbcType="BIGINT" property="createTime" />
-    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
-    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="pos" jdbcType="BIGINT" property="pos" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,15 +71,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, review_id, case_id, `status`, create_time, create_user, update_time, pos
+    id, project_id, `name`, parent_id, pos, create_time, update_time, create_user, update_user
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCaseExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.functional.domain.CaseReviewModuleExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from case_review_functional_case
+    from case_review_module
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,114 +90,125 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from case_review_functional_case
+    from case_review_module
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from case_review_functional_case
+    delete from case_review_module
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCaseExample">
-    delete from case_review_functional_case
+  <delete id="deleteByExample" parameterType="io.metersphere.functional.domain.CaseReviewModuleExample">
+    delete from case_review_module
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
-    insert into case_review_functional_case (id, review_id, case_id, 
-      `status`, create_time, create_user, 
-      update_time, pos)
-    values (#{id,jdbcType=VARCHAR}, #{reviewId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=BIGINT})
+  <insert id="insert" parameterType="io.metersphere.functional.domain.CaseReviewModule">
+    insert into case_review_module (id, project_id, `name`, 
+      parent_id, pos, create_time, 
+      update_time, create_user, update_user
+      )
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
-    insert into case_review_functional_case
+  <insert id="insertSelective" parameterType="io.metersphere.functional.domain.CaseReviewModule">
+    insert into case_review_module
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
       </if>
-      <if test="reviewId != null">
-        review_id,
+      <if test="projectId != null">
+        project_id,
       </if>
-      <if test="caseId != null">
-        case_id,
+      <if test="name != null">
+        `name`,
       </if>
-      <if test="status != null">
-        `status`,
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="pos != null">
+        pos,
       </if>
       <if test="createTime != null">
         create_time,
       </if>
-      <if test="createUser != null">
-        create_user,
-      </if>
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="pos != null">
-        pos,
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="updateUser != null">
+        update_user,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="reviewId != null">
-        #{reviewId,jdbcType=VARCHAR},
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="caseId != null">
-        #{caseId,jdbcType=VARCHAR},
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=BIGINT},
-      </if>
-      <if test="createUser != null">
-        #{createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="updateTime != null">
-        #{updateTime,jdbcType=BIGINT},
+      <if test="parentId != null">
+        #{parentId,jdbcType=VARCHAR},
       </if>
       <if test="pos != null">
         #{pos,jdbcType=BIGINT},
       </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCaseExample" resultType="java.lang.Long">
-    select count(*) from case_review_functional_case
+  <select id="countByExample" parameterType="io.metersphere.functional.domain.CaseReviewModuleExample" resultType="java.lang.Long">
+    select count(*) from case_review_module
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update case_review_functional_case
+    update case_review_module
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.reviewId != null">
-        review_id = #{record.reviewId,jdbcType=VARCHAR},
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
-      <if test="record.caseId != null">
-        case_id = #{record.caseId,jdbcType=VARCHAR},
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
+      <if test="record.parentId != null">
+        parent_id = #{record.parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
-      <if test="record.createUser != null">
-        create_user = #{record.createUser,jdbcType=VARCHAR},
-      </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=BIGINT},
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -204,69 +216,76 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update case_review_functional_case
+    update case_review_module
     set id = #{record.id,jdbcType=VARCHAR},
-      review_id = #{record.reviewId,jdbcType=VARCHAR},
-      case_id = #{record.caseId,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      parent_id = #{record.parentId,jdbcType=VARCHAR},
+      pos = #{record.pos,jdbcType=BIGINT},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      create_user = #{record.createUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      pos = #{record.pos,jdbcType=BIGINT}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      update_user = #{record.updateUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
-    update case_review_functional_case
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.functional.domain.CaseReviewModule">
+    update case_review_module
     <set>
-      <if test="reviewId != null">
-        review_id = #{reviewId,jdbcType=VARCHAR},
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="caseId != null">
-        case_id = #{caseId,jdbcType=VARCHAR},
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=BIGINT},
-      </if>
-      <if test="createUser != null">
-        create_user = #{createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=BIGINT},
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=VARCHAR},
       </if>
       <if test="pos != null">
         pos = #{pos,jdbcType=BIGINT},
       </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
-    update case_review_functional_case
-    set review_id = #{reviewId,jdbcType=VARCHAR},
-      case_id = #{caseId,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.CaseReviewModule">
+    update case_review_module
+    set project_id = #{projectId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      pos = #{pos,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=BIGINT},
-      create_user = #{createUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
-      pos = #{pos,jdbcType=BIGINT}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into case_review_functional_case
-    (id, review_id, case_id, `status`, create_time, create_user, update_time, pos)
+    insert into case_review_module
+    (id, project_id, `name`, parent_id, pos, create_time, update_time, create_user, update_user
+      )
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.reviewId,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, 
-        #{item.status,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.pos,jdbcType=BIGINT})
+      (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.parentId,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into case_review_functional_case (
+    insert into case_review_module (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>
@@ -278,26 +297,29 @@
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
         </if>
-        <if test="'review_id'.toString() == column.value">
-          #{item.reviewId,jdbcType=VARCHAR}
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
         </if>
-        <if test="'case_id'.toString() == column.value">
-          #{item.caseId,jdbcType=VARCHAR}
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
         </if>
-        <if test="'status'.toString() == column.value">
-          #{item.status,jdbcType=VARCHAR}
+        <if test="'parent_id'.toString() == column.value">
+          #{item.parentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
         </if>
-        <if test="'create_user'.toString() == column.value">
-          #{item.createUser,jdbcType=VARCHAR}
-        </if>
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
         </if>
-        <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=BIGINT}
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
         </if>
       </foreach>
       )
