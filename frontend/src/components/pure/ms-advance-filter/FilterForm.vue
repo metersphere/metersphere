@@ -46,9 +46,19 @@
               class="hidden-item"
               :rules="[{ required: true, message: t('advanceFilter.plaseSelectOperator') }]"
             >
-              <a-select v-model="item.operator" class="w-[100px]" :disabled="!item.dataIndex">
-                <a-option value="equal">{{ t('advanceFilter.operator.equal') }}</a-option>
-                <a-option value="notEqual">{{ t('advanceFilter.operator.notEqual') }}</a-option>
+              <a-select
+                v-model="item.operator"
+                class="w-[120px]"
+                :disabled="!item.dataIndex"
+                @change="(v) => operationChange(v, item.dataIndex as string, idx)"
+              >
+                <a-option
+                  v-for="option in getOperationOption(item.type as FilterType, item.dataIndex as string)"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ t(option.label as string) }}
+                </a-option>
               </a-select>
             </a-form-item>
           </div>
@@ -67,18 +77,27 @@
                 :disabled="!item.dataIndex"
                 :max-length="60"
               />
-              <a-select
+              <a-input-number
+                v-if="item.type === FilterType.NUMBER"
+                v-model:model-value="item.value"
+                class="w-full"
+                allow-clear
+                :disabled="!item.dataIndex"
+                :max-length="60"
+              />
+              <MsSelect
                 v-else-if="item.type === FilterType.SELECT"
                 v-model:model-value="item.value"
                 class="w-full"
                 allow-clear
                 allow-search
-                :option="item.options"
-                :placeholder="t('advanceFilter.pleaseSelect')"
+                :placeholder="t('common.pleaseSelect')"
                 :disabled="!item.dataIndex"
-              ></a-select>
+                :options="item.selectProps?.options || []"
+                v-bind="item.selectProps"
+              ></MsSelect>
               <a-date-picker
-                v-else-if="item.type === FilterType.DATE_PICKER"
+                v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== 'between'"
                 v-model:model-value="item.value"
                 class="w-full"
                 show-time
@@ -86,7 +105,7 @@
                 :disabled="!item.dataIndex"
               />
               <a-range-picker
-                v-else-if="item.type === FilterType.RANGE_PICKER"
+                v-else-if="item.type === FilterType.DATE_PICKER && item.operator === 'between'"
                 v-model:model-value="item.value"
                 class="w-full"
                 show-time
@@ -124,10 +143,13 @@
 <script lang="ts" setup>
   import { FormInstance } from '@arco-design/web-vue';
 
+  import MsSelect from '@/components/business/ms-select';
+
   import { useI18n } from '@/hooks/useI18n';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
 
+  import { OPERATOR_MAP } from './index';
   import { AccordBelowType, BackEndEnum, FilterFormItem, FilterResult, FilterType } from './type';
 
   const { t } = useI18n();
@@ -136,12 +158,39 @@
   const formModel = reactive<{ list: FilterFormItem[] }>({
     list: [],
   });
-  const props = defineProps<{ configList: FilterFormItem[]; visible: boolean; count: number }>();
+  const props = defineProps<{ configList: FilterFormItem[]; visible: boolean; count: number; rowCount: number }>();
   const emit = defineEmits<{
     (e: 'onSearch', value: FilterResult): void;
     (e: 'dataIndexChange', value: string): void;
-    (e: 'update:count', value: number): void;
+    (e: 'update:count', value: number): void; // 用于展示 FilterIcon 的数量
+    (e: 'update:rowCount', value: number): void; // 用于展示 MsBaseTable 的总行数
   }>();
+
+  const isMutipleSelect = (dataIndex: string) => {
+    const tmpObj = props.configList.find((item) => item.dataIndex === dataIndex);
+    if (tmpObj) {
+      return tmpObj.selectProps?.multiple;
+    }
+    return false;
+  };
+
+  const getOperationOption = (type: FilterType, dataIndex: string) => {
+    let result = [];
+    switch (type) {
+      case FilterType.NUMBER:
+        result = OPERATOR_MAP.number;
+        break;
+      case FilterType.DATE_PICKER:
+        result = OPERATOR_MAP.date;
+        break;
+      case FilterType.SELECT:
+        result = isMutipleSelect(dataIndex) ? OPERATOR_MAP.array : OPERATOR_MAP.string;
+        break;
+      default:
+        result = OPERATOR_MAP.string;
+    }
+    return result;
+  };
 
   // 获取当前可选的选项
   const getCurrentOptionArr = () => {
@@ -236,15 +285,17 @@
     formModel.list[idx].operator = '';
     formModel.list[idx].backendType = backendType;
     formModel.list[idx].type = type;
-    if (
-      formModel.list[idx].type === FilterType.RANGE_PICKER ||
-      formModel.list[idx].type === FilterType.MUTIPLE_SELECT
-    ) {
+    formModel.list[idx].value = isMutipleSelect(dataIndex as string) ? [] : '';
+
+    emit('dataIndexChange', dataIndex as string);
+  };
+
+  const operationChange = (v: SelectValue, dataIndex: string, idx: number) => {
+    if (v === 'between') {
       formModel.list[idx].value = [];
     } else {
-      formModel.list[idx].value = '';
+      formModel.list[idx].value = isMutipleSelect(dataIndex) ? [] : '';
     }
-    emit('dataIndexChange', dataIndex as string);
   };
 
   onBeforeMount(() => {

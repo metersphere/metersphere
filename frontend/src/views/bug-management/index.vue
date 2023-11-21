@@ -1,35 +1,13 @@
 <template>
   <MsCard simple>
-    <div class="flex flex-row justify-between">
-      <div class="flex gap-[12px]">
-        <a-button type="primary" @click="handleCreate">
-          {{ t('bugManagement.createBug') }}
-        </a-button>
-        <a-button type="outline" @click="handleSync">
-          {{ t('bugManagement.syncBug') }}
-        </a-button>
-      </div>
-      <div class="flex flex-row gap-[8px]">
-        <a-input-search
-          v-model="keyword"
-          :placeholder="t('system.user.searchUser')"
-          class="w-[240px]"
-          allow-clear
-          @press-enter="fetchData"
-          @search="fetchData"
-        ></a-input-search>
-        <FilterIcon v-model:visible="filterVisible" :count="filterCount" />
-      </div>
-    </div>
-    <FilterForm
-      v-show="filterVisible"
-      v-model:count="filterCount"
-      :visible="filterVisible"
-      :config-list="filterConfigList"
-      class="mt-[8px]"
-      @on-search="handleFilter"
-      @data-index-change="dataIndexChange"
-    />
+    <MsAdvanceFilter :filter-config-list="filterConfigList" :row-count="filterRowCount">
+      <template #left>
+        <div class="flex gap-[12px]">
+          <a-button type="primary" @click="handleCreate">{{ t('bugManagement.createBug') }} </a-button>
+          <a-button type="primary" @click="handleSync">{{ t('bugManagement.syncBug') }} </a-button>
+        </div>
+      </template>
+    </MsAdvanceFilter>
     <MsBaseTable v-bind="propsRes" v-on="propsEvent">
       <template #numberOfCase="{ record }">
         <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="jumpToTestPlan(record)">{{
@@ -53,7 +31,7 @@
 <script lang="ts" setup>
   import { Message } from '@arco-design/web-vue';
 
-  import { FilterForm, FilterIcon } from '@/components/pure/ms-advance-filter';
+  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -73,12 +51,11 @@
 
   const { t } = useI18n();
 
-  const keyword = ref('');
   const tableStore = useTableStore();
   const appStore = useAppStore();
   const projectId = computed(() => appStore.currentProjectId);
   const filterVisible = ref(false);
-  const filterCount = ref(0);
+  const filterRowCount = ref(0);
   const filterConfigList = reactive<FilterFormItem[]>([
     {
       title: 'bugManagement.ID',
@@ -89,13 +66,27 @@
       title: 'bugManagement.bugName',
       dataIndex: 'name',
       type: FilterType.SELECT,
+      selectProps: {
+        mode: 'static',
+      },
     },
     {
       title: 'bugManagement.severity',
       dataIndex: 'severity',
-      type: FilterType.MUTIPLE_SELECT,
+      type: FilterType.SELECT,
+      selectProps: {
+        mode: 'static',
+        multiple: true,
+      },
+    },
+    {
+      title: 'bugManagement.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
     },
   ]);
+
+  const heightUsed = computed(() => 286 + (filterVisible.value ? 160 + (filterRowCount.value - 1) * 60 : 0));
 
   const columns: MsTableColumn = [
     {
@@ -184,7 +175,7 @@
     }
   };
 
-  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(
+  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams, setProps } = useTable(
     postProjectTableByOrg,
     {
       tableKey: TableKeyEnum.BUG_MANAGEMENT,
@@ -198,8 +189,12 @@
     (record) => handleNameChange(record)
   );
 
-  const fetchData = async () => {
-    setKeyword(keyword.value);
+  watchEffect(() => {
+    setProps({ heightUsed: heightUsed.value });
+  });
+
+  const fetchData = async (v = '') => {
+    setKeyword(v);
     await loadList();
   };
 

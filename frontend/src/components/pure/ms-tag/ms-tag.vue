@@ -6,7 +6,7 @@
     :size="props.size"
     :style="{
       ...typeStyle,
-      'margin-right': tagMargin,
+      'margin-right': noMargin ? 0 : tagMargin,
       'min-width': props.width && `${props.width}ch`,
       'max-width': '144px',
     }"
@@ -33,11 +33,13 @@
       theme?: Theme; // tag主题
       selfStyle?: any; // 自定义样式
       width?: number; // tag宽度,不传入时绑定max-width
+      noMargin?: boolean; // tag之间是否有间距
     }>(),
     {
       type: 'default',
       theme: 'dark',
       size: 'medium',
+      noMargin: false,
     }
   );
 
