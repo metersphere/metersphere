@@ -140,7 +140,7 @@ export default {
       this.refreshTreeByCaseFilter();
     },
     refreshTree() {
-      this.getNodeTreeByPlanId();
+      this.getNodeTreeByPlanId(this.condition);
     },
     clearSelectNode() {
       this.selectNodeIds = [];
