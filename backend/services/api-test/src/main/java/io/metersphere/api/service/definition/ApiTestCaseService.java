@@ -364,9 +364,7 @@ public class ApiTestCaseService {
 
     public void batchMoveGc(ApiTestCaseBatchRequest request, String userId) {
         List<String> ids = doSelectIds(request, false);
-        if (CollectionUtils.isNotEmpty(ids)) {
-            batchDeleteToGc(ids, userId, request.getProjectId(), true);
-        }
+        batchDeleteToGc(ids, userId, request.getProjectId(), true);
     }
 
     public void batchDeleteToGc(List<String> ids, String userId, String projectId, boolean saveLog) {

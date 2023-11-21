@@ -499,9 +499,12 @@ public class ApiTestCaseControllerTests extends BaseTest {
         this.requestPost(BATCH_EDIT, request, ERROR_REQUEST_MATCHER);
         //ids为空的时候
         request.setTags(new LinkedHashSet<>(List.of("tag1")));
-        request.setSelectAll(false);
-        request.setSelectIds(List.of(apiTestCase.getId()));
-        request.setExcludeIds(List.of(apiTestCase.getId()));
+        request.setSelectAll(true);
+        List<ApiTestCase> caseList1 = apiTestCaseMapper.selectByExample(example);
+        //提取所有的id
+        List<String> apiIdList = caseList1.stream().map(ApiTestCase::getId).toList();
+        request.setSelectIds(apiIdList);
+        request.setExcludeIds(apiIdList);
         responsePost(BATCH_EDIT, request);
 
         initCaseData();
@@ -589,6 +592,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
         List<ApiTestCase> caseList = apiTestCaseMapper.selectByExample(example);
         caseList.forEach(apiTestCase -> Assertions.assertTrue(apiTestCase.getDeleted()));
 
+        request.setSelectAll(true);
+        request.setExcludeIds(new ArrayList<>());
+        request.setModuleIds(List.of("case-moduleId"));
+        responsePost(BATCH_MOVE_GC, request);
         //校验日志
         checkLog(apiTestCase.getId(), OperationLogType.DELETE);
         //校验权限
