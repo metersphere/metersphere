@@ -4,17 +4,18 @@
   <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.CaseReview">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="create_time" jdbcType="BIGINT" property="createTime" />
-    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="end_time" jdbcType="BIGINT" property="endTime" />
+    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="tags" jdbcType="VARCHAR" property="tags" />
-    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="review_pass_rule" jdbcType="VARCHAR" property="reviewPassRule" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.functional.domain.CaseReview">
-    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    <result column="start_time" jdbcType="BIGINT" property="startTime" />
+    <result column="end_time" jdbcType="BIGINT" property="endTime" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -75,28 +76,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `status`, create_time, update_time, end_time, project_id, tags, create_user, 
-    review_pass_rule
+    id, `name`, module_id, project_id, `status`, review_pass_rule, start_time, end_time, 
+    tags, description, create_time, create_user, update_time, update_user
   </sql>
-  <sql id="Blob_Column_List">
-    description
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.functional.domain.CaseReviewExample" resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from case_review
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.CaseReviewExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -111,11 +93,9 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from case_review
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -130,14 +110,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.CaseReview">
-    insert into case_review (id, `name`, `status`, 
-      create_time, update_time, end_time, 
-      project_id, tags, create_user, 
-      review_pass_rule, description)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, 
-      #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
-      #{reviewPassRule,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
+    insert into case_review (id, `name`, module_id, 
+      project_id, `status`, review_pass_rule, 
+      start_time, end_time, tags, 
+      description, create_time, create_user, 
+      update_time, update_user)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{reviewPassRule,jdbcType=VARCHAR}, 
+      #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{tags,jdbcType=VARCHAR}, 
+      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.CaseReview">
     insert into case_review
@@ -148,32 +130,41 @@
       <if test="name != null">
         `name`,
       </if>
-      <if test="status != null">
-        `status`,
-      </if>
-      <if test="createTime != null">
-        create_time,
-      </if>
-      <if test="updateTime != null">
-        update_time,
-      </if>
-      <if test="endTime != null">
-        end_time,
+      <if test="moduleId != null">
+        module_id,
       </if>
       <if test="projectId != null">
         project_id,
       </if>
-      <if test="tags != null">
-        tags,
-      </if>
-      <if test="createUser != null">
-        create_user,
+      <if test="status != null">
+        `status`,
       </if>
       <if test="reviewPassRule != null">
         review_pass_rule,
       </if>
+      <if test="startTime != null">
+        start_time,
+      </if>
+      <if test="endTime != null">
+        end_time,
+      </if>
+      <if test="tags != null">
+        tags,
+      </if>
       <if test="description != null">
         description,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="updateUser != null">
+        update_user,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -183,32 +174,41 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=BIGINT},
-      </if>
-      <if test="updateTime != null">
-        #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="endTime != null">
-        #{endTime,jdbcType=BIGINT},
+      <if test="moduleId != null">
+        #{moduleId,jdbcType=VARCHAR},
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="tags != null">
-        #{tags,jdbcType=VARCHAR},
-      </if>
-      <if test="createUser != null">
-        #{createUser,jdbcType=VARCHAR},
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
       </if>
       <if test="reviewPassRule != null">
         #{reviewPassRule,jdbcType=VARCHAR},
       </if>
+      <if test="startTime != null">
+        #{startTime,jdbcType=BIGINT},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=BIGINT},
+      </if>
+      <if test="tags != null">
+        #{tags,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
-        #{description,jdbcType=LONGVARCHAR},
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -227,51 +227,43 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
-      </if>
-      <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.endTime != null">
-        end_time = #{record.endTime,jdbcType=BIGINT},
+      <if test="record.moduleId != null">
+        module_id = #{record.moduleId,jdbcType=VARCHAR},
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
-      <if test="record.tags != null">
-        tags = #{record.tags,jdbcType=VARCHAR},
-      </if>
-      <if test="record.createUser != null">
-        create_user = #{record.createUser,jdbcType=VARCHAR},
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
       </if>
       <if test="record.reviewPassRule != null">
         review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR},
       </if>
+      <if test="record.startTime != null">
+        start_time = #{record.startTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.endTime != null">
+        end_time = #{record.endTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.tags != null">
+        tags = #{record.tags,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
-        description = #{record.description,jdbcType=LONGVARCHAR},
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
       </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update case_review
-    set id = #{record.id,jdbcType=VARCHAR},
-      `name` = #{record.name,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      end_time = #{record.endTime,jdbcType=BIGINT},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
-      tags = #{record.tags,jdbcType=VARCHAR},
-      create_user = #{record.createUser,jdbcType=VARCHAR},
-      review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -280,14 +272,18 @@
     update case_review
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      end_time = #{record.endTime,jdbcType=BIGINT},
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR},
+      start_time = #{record.startTime,jdbcType=BIGINT},
+      end_time = #{record.endTime,jdbcType=BIGINT},
       tags = #{record.tags,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      update_user = #{record.updateUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -298,74 +294,73 @@
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=BIGINT},
-      </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="endTime != null">
-        end_time = #{endTime,jdbcType=BIGINT},
+      <if test="moduleId != null">
+        module_id = #{moduleId,jdbcType=VARCHAR},
       </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="tags != null">
-        tags = #{tags,jdbcType=VARCHAR},
-      </if>
-      <if test="createUser != null">
-        create_user = #{createUser,jdbcType=VARCHAR},
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
       </if>
       <if test="reviewPassRule != null">
         review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR},
       </if>
+      <if test="startTime != null">
+        start_time = #{startTime,jdbcType=BIGINT},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=BIGINT},
+      </if>
+      <if test="tags != null">
+        tags = #{tags,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
-        description = #{description,jdbcType=LONGVARCHAR},
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.functional.domain.CaseReview">
-    update case_review
-    set `name` = #{name,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      end_time = #{endTime,jdbcType=BIGINT},
-      project_id = #{projectId,jdbcType=VARCHAR},
-      tags = #{tags,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR},
-      description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.CaseReview">
     update case_review
     set `name` = #{name,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      end_time = #{endTime,jdbcType=BIGINT},
+      module_id = #{moduleId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR},
+      start_time = #{startTime,jdbcType=BIGINT},
+      end_time = #{endTime,jdbcType=BIGINT},
       tags = #{tags,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
-      review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      update_user = #{updateUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into case_review
-    (id, `name`, `status`, create_time, update_time, end_time, project_id, tags, create_user, 
-      review_pass_rule, description)
+    (id, `name`, module_id, project_id, `status`, review_pass_rule, start_time, end_time, 
+      tags, description, create_time, create_user, update_time, update_user)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, 
-        #{item.projectId,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.reviewPassRule,jdbcType=VARCHAR}, #{item.description,jdbcType=LONGVARCHAR}
-        )
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.reviewPassRule,jdbcType=VARCHAR}, 
+        #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, #{item.tags,jdbcType=VARCHAR}, 
+        #{item.description,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -384,32 +379,41 @@
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}
         </if>
-        <if test="'status'.toString() == column.value">
-          #{item.status,jdbcType=VARCHAR}
-        </if>
-        <if test="'create_time'.toString() == column.value">
-          #{item.createTime,jdbcType=BIGINT}
-        </if>
-        <if test="'update_time'.toString() == column.value">
-          #{item.updateTime,jdbcType=BIGINT}
-        </if>
-        <if test="'end_time'.toString() == column.value">
-          #{item.endTime,jdbcType=BIGINT}
+        <if test="'module_id'.toString() == column.value">
+          #{item.moduleId,jdbcType=VARCHAR}
         </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
         </if>
-        <if test="'tags'.toString() == column.value">
-          #{item.tags,jdbcType=VARCHAR}
-        </if>
-        <if test="'create_user'.toString() == column.value">
-          #{item.createUser,jdbcType=VARCHAR}
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
         </if>
         <if test="'review_pass_rule'.toString() == column.value">
           #{item.reviewPassRule,jdbcType=VARCHAR}
         </if>
+        <if test="'start_time'.toString() == column.value">
+          #{item.startTime,jdbcType=BIGINT}
+        </if>
+        <if test="'end_time'.toString() == column.value">
+          #{item.endTime,jdbcType=BIGINT}
+        </if>
+        <if test="'tags'.toString() == column.value">
+          #{item.tags,jdbcType=VARCHAR}
+        </if>
         <if test="'description'.toString() == column.value">
-          #{item.description,jdbcType=LONGVARCHAR}
+          #{item.description,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

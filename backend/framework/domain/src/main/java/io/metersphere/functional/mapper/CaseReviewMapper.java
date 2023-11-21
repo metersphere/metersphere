@@ -16,21 +16,15 @@ public interface CaseReviewMapper {
 
     int insertSelective(CaseReview record);
 
-    List<CaseReview> selectByExampleWithBLOBs(CaseReviewExample example);
-
     List<CaseReview> selectByExample(CaseReviewExample example);
 
     CaseReview selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") CaseReview record, @Param("example") CaseReviewExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") CaseReview record, @Param("example") CaseReviewExample example);
-
     int updateByExample(@Param("record") CaseReview record, @Param("example") CaseReviewExample example);
 
     int updateByPrimaryKeySelective(CaseReview record);
-
-    int updateByPrimaryKeyWithBLOBs(CaseReview record);
 
     int updateByPrimaryKey(CaseReview record);
 

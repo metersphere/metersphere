@@ -3,14 +3,14 @@ package io.metersphere.functional.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CaseReviewFunctionalCaseExample {
+public class CaseReviewHistoryExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public CaseReviewFunctionalCaseExample() {
+    public CaseReviewHistoryExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -384,63 +384,73 @@ public class CaseReviewFunctionalCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIsNull() {
-            addCriterion("create_time is null");
+        public Criteria andNotifierIsNull() {
+            addCriterion("notifier is null");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIsNotNull() {
-            addCriterion("create_time is not null");
+        public Criteria andNotifierIsNotNull() {
+            addCriterion("notifier is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeEqualTo(Long value) {
-            addCriterion("create_time =", value, "createTime");
+        public Criteria andNotifierEqualTo(String value) {
+            addCriterion("notifier =", value, "notifier");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotEqualTo(Long value) {
-            addCriterion("create_time <>", value, "createTime");
+        public Criteria andNotifierNotEqualTo(String value) {
+            addCriterion("notifier <>", value, "notifier");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeGreaterThan(Long value) {
-            addCriterion("create_time >", value, "createTime");
+        public Criteria andNotifierGreaterThan(String value) {
+            addCriterion("notifier >", value, "notifier");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("create_time >=", value, "createTime");
+        public Criteria andNotifierGreaterThanOrEqualTo(String value) {
+            addCriterion("notifier >=", value, "notifier");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeLessThan(Long value) {
-            addCriterion("create_time <", value, "createTime");
+        public Criteria andNotifierLessThan(String value) {
+            addCriterion("notifier <", value, "notifier");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeLessThanOrEqualTo(Long value) {
-            addCriterion("create_time <=", value, "createTime");
+        public Criteria andNotifierLessThanOrEqualTo(String value) {
+            addCriterion("notifier <=", value, "notifier");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIn(List<Long> values) {
-            addCriterion("create_time in", values, "createTime");
+        public Criteria andNotifierLike(String value) {
+            addCriterion("notifier like", value, "notifier");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotIn(List<Long> values) {
-            addCriterion("create_time not in", values, "createTime");
+        public Criteria andNotifierNotLike(String value) {
+            addCriterion("notifier not like", value, "notifier");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeBetween(Long value1, Long value2) {
-            addCriterion("create_time between", value1, value2, "createTime");
+        public Criteria andNotifierIn(List<String> values) {
+            addCriterion("notifier in", values, "notifier");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotBetween(Long value1, Long value2) {
-            addCriterion("create_time not between", value1, value2, "createTime");
+        public Criteria andNotifierNotIn(List<String> values) {
+            addCriterion("notifier not in", values, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierBetween(String value1, String value2) {
+            addCriterion("notifier between", value1, value2, "notifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andNotifierNotBetween(String value1, String value2) {
+            addCriterion("notifier not between", value1, value2, "notifier");
             return (Criteria) this;
         }
 
@@ -514,123 +524,63 @@ public class CaseReviewFunctionalCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeIsNull() {
-            addCriterion("update_time is null");
+        public Criteria andCreateTimeIsNull() {
+            addCriterion("create_time is null");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeIsNotNull() {
-            addCriterion("update_time is not null");
+        public Criteria andCreateTimeIsNotNull() {
+            addCriterion("create_time is not null");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeEqualTo(Long value) {
-            addCriterion("update_time =", value, "updateTime");
+        public Criteria andCreateTimeEqualTo(Long value) {
+            addCriterion("create_time =", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeNotEqualTo(Long value) {
-            addCriterion("update_time <>", value, "updateTime");
+        public Criteria andCreateTimeNotEqualTo(Long value) {
+            addCriterion("create_time <>", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeGreaterThan(Long value) {
-            addCriterion("update_time >", value, "updateTime");
+        public Criteria andCreateTimeGreaterThan(Long value) {
+            addCriterion("create_time >", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("update_time >=", value, "updateTime");
+        public Criteria andCreateTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("create_time >=", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeLessThan(Long value) {
-            addCriterion("update_time <", value, "updateTime");
+        public Criteria andCreateTimeLessThan(Long value) {
+            addCriterion("create_time <", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeLessThanOrEqualTo(Long value) {
-            addCriterion("update_time <=", value, "updateTime");
+        public Criteria andCreateTimeLessThanOrEqualTo(Long value) {
+            addCriterion("create_time <=", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeIn(List<Long> values) {
-            addCriterion("update_time in", values, "updateTime");
+        public Criteria andCreateTimeIn(List<Long> values) {
+            addCriterion("create_time in", values, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeNotIn(List<Long> values) {
-            addCriterion("update_time not in", values, "updateTime");
+        public Criteria andCreateTimeNotIn(List<Long> values) {
+            addCriterion("create_time not in", values, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeBetween(Long value1, Long value2) {
-            addCriterion("update_time between", value1, value2, "updateTime");
+        public Criteria andCreateTimeBetween(Long value1, Long value2) {
+            addCriterion("create_time between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeNotBetween(Long value1, Long value2) {
-            addCriterion("update_time not between", value1, value2, "updateTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosIsNull() {
-            addCriterion("pos is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosIsNotNull() {
-            addCriterion("pos is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosEqualTo(Long value) {
-            addCriterion("pos =", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosNotEqualTo(Long value) {
-            addCriterion("pos <>", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosGreaterThan(Long value) {
-            addCriterion("pos >", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosGreaterThanOrEqualTo(Long value) {
-            addCriterion("pos >=", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosLessThan(Long value) {
-            addCriterion("pos <", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosLessThanOrEqualTo(Long value) {
-            addCriterion("pos <=", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosIn(List<Long> values) {
-            addCriterion("pos in", values, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosNotIn(List<Long> values) {
-            addCriterion("pos not in", values, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosBetween(Long value1, Long value2) {
-            addCriterion("pos between", value1, value2, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosNotBetween(Long value1, Long value2) {
-            addCriterion("pos not between", value1, value2, "pos");
+        public Criteria andCreateTimeNotBetween(Long value1, Long value2) {
+            addCriterion("create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
     }

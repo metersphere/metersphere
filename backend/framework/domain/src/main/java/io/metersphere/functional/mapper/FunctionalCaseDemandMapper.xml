@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.CaseReviewFunctionalCase">
+<mapper namespace="io.metersphere.functional.mapper.FunctionalCaseDemandMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCaseDemand">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="review_id" jdbcType="VARCHAR" property="reviewId" />
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="demand_id" jdbcType="VARCHAR" property="demandId" />
+    <result column="demand_name" jdbcType="VARCHAR" property="demandName" />
+    <result column="demand_url" jdbcType="VARCHAR" property="demandUrl" />
+    <result column="demand_platform" jdbcType="VARCHAR" property="demandPlatform" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
-    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,15 +70,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, review_id, case_id, `status`, create_time, create_user, update_time, pos
+    id, case_id, demand_id, demand_name, demand_url, demand_platform, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCaseExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseDemandExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from case_review_functional_case
+    from functional_case_demand
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,114 +89,114 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from case_review_functional_case
+    from functional_case_demand
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from case_review_functional_case
+    delete from functional_case_demand
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCaseExample">
-    delete from case_review_functional_case
+  <delete id="deleteByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseDemandExample">
+    delete from functional_case_demand
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
-    insert into case_review_functional_case (id, review_id, case_id, 
-      `status`, create_time, create_user, 
-      update_time, pos)
-    values (#{id,jdbcType=VARCHAR}, #{reviewId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=BIGINT})
+  <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseDemand">
+    insert into functional_case_demand (id, case_id, demand_id, 
+      demand_name, demand_url, demand_platform, 
+      create_time, update_time)
+    values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{demandId,jdbcType=VARCHAR}, 
+      #{demandName,jdbcType=VARCHAR}, #{demandUrl,jdbcType=VARCHAR}, #{demandPlatform,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
-    insert into case_review_functional_case
+  <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseDemand">
+    insert into functional_case_demand
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
       </if>
-      <if test="reviewId != null">
-        review_id,
-      </if>
       <if test="caseId != null">
         case_id,
       </if>
-      <if test="status != null">
-        `status`,
+      <if test="demandId != null">
+        demand_id,
+      </if>
+      <if test="demandName != null">
+        demand_name,
+      </if>
+      <if test="demandUrl != null">
+        demand_url,
+      </if>
+      <if test="demandPlatform != null">
+        demand_platform,
       </if>
       <if test="createTime != null">
         create_time,
       </if>
-      <if test="createUser != null">
-        create_user,
-      </if>
       <if test="updateTime != null">
         update_time,
-      </if>
-      <if test="pos != null">
-        pos,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="reviewId != null">
-        #{reviewId,jdbcType=VARCHAR},
-      </if>
       <if test="caseId != null">
         #{caseId,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
+      <if test="demandId != null">
+        #{demandId,jdbcType=VARCHAR},
+      </if>
+      <if test="demandName != null">
+        #{demandName,jdbcType=VARCHAR},
+      </if>
+      <if test="demandUrl != null">
+        #{demandUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="demandPlatform != null">
+        #{demandPlatform,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
-      <if test="createUser != null">
-        #{createUser,jdbcType=VARCHAR},
-      </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="pos != null">
-        #{pos,jdbcType=BIGINT},
-      </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCaseExample" resultType="java.lang.Long">
-    select count(*) from case_review_functional_case
+  <select id="countByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseDemandExample" resultType="java.lang.Long">
+    select count(*) from functional_case_demand
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update case_review_functional_case
+    update functional_case_demand
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.reviewId != null">
-        review_id = #{record.reviewId,jdbcType=VARCHAR},
-      </if>
       <if test="record.caseId != null">
         case_id = #{record.caseId,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
+      <if test="record.demandId != null">
+        demand_id = #{record.demandId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.demandName != null">
+        demand_name = #{record.demandName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.demandUrl != null">
+        demand_url = #{record.demandUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.demandPlatform != null">
+        demand_platform = #{record.demandPlatform,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
-      <if test="record.createUser != null">
-        create_user = #{record.createUser,jdbcType=VARCHAR},
-      </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=BIGINT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -204,69 +204,70 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update case_review_functional_case
+    update functional_case_demand
     set id = #{record.id,jdbcType=VARCHAR},
-      review_id = #{record.reviewId,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
+      demand_id = #{record.demandId,jdbcType=VARCHAR},
+      demand_name = #{record.demandName,jdbcType=VARCHAR},
+      demand_url = #{record.demandUrl,jdbcType=VARCHAR},
+      demand_platform = #{record.demandPlatform,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      create_user = #{record.createUser,jdbcType=VARCHAR},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      pos = #{record.pos,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
-    update case_review_functional_case
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.functional.domain.FunctionalCaseDemand">
+    update functional_case_demand
     <set>
-      <if test="reviewId != null">
-        review_id = #{reviewId,jdbcType=VARCHAR},
-      </if>
       <if test="caseId != null">
         case_id = #{caseId,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
+      <if test="demandId != null">
+        demand_id = #{demandId,jdbcType=VARCHAR},
+      </if>
+      <if test="demandName != null">
+        demand_name = #{demandName,jdbcType=VARCHAR},
+      </if>
+      <if test="demandUrl != null">
+        demand_url = #{demandUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="demandPlatform != null">
+        demand_platform = #{demandPlatform,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
-      <if test="createUser != null">
-        create_user = #{createUser,jdbcType=VARCHAR},
-      </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="pos != null">
-        pos = #{pos,jdbcType=BIGINT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
-    update case_review_functional_case
-    set review_id = #{reviewId,jdbcType=VARCHAR},
-      case_id = #{caseId,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.FunctionalCaseDemand">
+    update functional_case_demand
+    set case_id = #{caseId,jdbcType=VARCHAR},
+      demand_id = #{demandId,jdbcType=VARCHAR},
+      demand_name = #{demandName,jdbcType=VARCHAR},
+      demand_url = #{demandUrl,jdbcType=VARCHAR},
+      demand_platform = #{demandPlatform,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      pos = #{pos,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into case_review_functional_case
-    (id, review_id, case_id, `status`, create_time, create_user, update_time, pos)
+    insert into functional_case_demand
+    (id, case_id, demand_id, demand_name, demand_url, demand_platform, create_time, update_time
+      )
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.reviewId,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, 
-        #{item.status,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.pos,jdbcType=BIGINT})
+      (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.demandId,jdbcType=VARCHAR}, 
+        #{item.demandName,jdbcType=VARCHAR}, #{item.demandUrl,jdbcType=VARCHAR}, #{item.demandPlatform,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into case_review_functional_case (
+    insert into functional_case_demand (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>
@@ -278,26 +279,26 @@
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
         </if>
-        <if test="'review_id'.toString() == column.value">
-          #{item.reviewId,jdbcType=VARCHAR}
-        </if>
         <if test="'case_id'.toString() == column.value">
           #{item.caseId,jdbcType=VARCHAR}
         </if>
-        <if test="'status'.toString() == column.value">
-          #{item.status,jdbcType=VARCHAR}
+        <if test="'demand_id'.toString() == column.value">
+          #{item.demandId,jdbcType=VARCHAR}
+        </if>
+        <if test="'demand_name'.toString() == column.value">
+          #{item.demandName,jdbcType=VARCHAR}
+        </if>
+        <if test="'demand_url'.toString() == column.value">
+          #{item.demandUrl,jdbcType=VARCHAR}
+        </if>
+        <if test="'demand_platform'.toString() == column.value">
+          #{item.demandPlatform,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
         </if>
-        <if test="'create_user'.toString() == column.value">
-          #{item.createUser,jdbcType=VARCHAR}
-        </if>
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
-        </if>
-        <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=BIGINT}
         </if>
       </foreach>
       )

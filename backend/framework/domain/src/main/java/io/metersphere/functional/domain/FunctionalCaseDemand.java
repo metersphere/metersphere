@@ -9,28 +9,50 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class CaseReviewFunctionalCaseUser implements Serializable {
+public class FunctionalCaseDemand implements Serializable {
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_demand.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{functional_case_demand.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
+
     @Schema(description = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case_user.case_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{case_review_functional_case_user.case_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{functional_case_demand.case_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{functional_case_demand.case_id.length_range}", groups = {Created.class, Updated.class})
     private String caseId;
 
-    @Schema(description = "评审ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case_user.review_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{case_review_functional_case_user.review_id.length_range}", groups = {Created.class, Updated.class})
-    private String reviewId;
+    @Schema(description = "需求ID")
+    private String demandId;
 
-    @Schema(description = "评审人ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case_user.user_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{case_review_functional_case_user.user_id.length_range}", groups = {Created.class, Updated.class})
-    private String userId;
+    @Schema(description = "需求标题", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_demand.demand_name.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 64, message = "{functional_case_demand.demand_name.length_range}", groups = {Created.class, Updated.class})
+    private String demandName;
+
+    @Schema(description = "需求地址")
+    private String demandUrl;
+
+    @Schema(description = "需求所属平台", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_demand.demand_platform.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 64, message = "{functional_case_demand.demand_platform.length_range}", groups = {Created.class, Updated.class})
+    private String demandPlatform;
+
+    @Schema(description = "创建时间")
+    private Long createTime;
+
+    @Schema(description = "更新时间")
+    private Long updateTime;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
+        id("id", "id", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
-        reviewId("review_id", "reviewId", "VARCHAR", false),
-        userId("user_id", "userId", "VARCHAR", false);
+        demandId("demand_id", "demandId", "VARCHAR", false),
+        demandName("demand_name", "demandName", "VARCHAR", false),
+        demandUrl("demand_url", "demandUrl", "VARCHAR", false),
+        demandPlatform("demand_platform", "demandPlatform", "VARCHAR", false),
+        createTime("create_time", "createTime", "BIGINT", false),
+        updateTime("update_time", "updateTime", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

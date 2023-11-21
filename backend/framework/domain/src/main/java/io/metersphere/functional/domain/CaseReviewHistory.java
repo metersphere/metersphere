@@ -9,28 +9,49 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class CaseReviewFunctionalCaseUser implements Serializable {
-    @Schema(description = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case_user.case_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{case_review_functional_case_user.case_id.length_range}", groups = {Created.class, Updated.class})
-    private String caseId;
+public class CaseReviewHistory implements Serializable {
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{case_review_history.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{case_review_history.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
 
     @Schema(description = "评审ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case_user.review_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{case_review_functional_case_user.review_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{case_review_history.review_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{case_review_history.review_id.length_range}", groups = {Created.class, Updated.class})
     private String reviewId;
 
-    @Schema(description = "评审人ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{case_review_functional_case_user.user_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{case_review_functional_case_user.user_id.length_range}", groups = {Created.class, Updated.class})
-    private String userId;
+    @Schema(description = "用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{case_review_history.case_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{case_review_history.case_id.length_range}", groups = {Created.class, Updated.class})
+    private String caseId;
+
+    @Schema(description = "评审结果：通过/不通过")
+    private String status;
+
+    @Schema(description = "通知人")
+    private String notifier;
+
+    @Schema(description = "操作人")
+    private String createUser;
+
+    @Schema(description = "操作时间")
+    private Long createTime;
+
+    @Schema(description = "评审意见", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{case_review_history.content.not_blank}", groups = {Created.class})
+    private byte[] content;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
-        caseId("case_id", "caseId", "VARCHAR", false),
+        id("id", "id", "VARCHAR", false),
         reviewId("review_id", "reviewId", "VARCHAR", false),
-        userId("user_id", "userId", "VARCHAR", false);
+        caseId("case_id", "caseId", "VARCHAR", false),
+        status("status", "status", "VARCHAR", true),
+        notifier("notifier", "notifier", "VARCHAR", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
+        createTime("create_time", "createTime", "BIGINT", false),
+        content("content", "content", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
