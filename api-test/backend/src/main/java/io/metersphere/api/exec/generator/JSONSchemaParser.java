@@ -53,8 +53,10 @@ public class JSONSchemaParser {
                 && object.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.ARRAY)) {
             analyzeProperty(rootObj, PropertyConstant.MS_OBJECT, object, processMap);
         } else if (object.has(PropertyConstant.TYPE)
-                && !object.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.OBJECT)) {
+                && !object.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.OBJECT) && !(object instanceof JsonObject)) {
             analyzeProperty(rootObj, object.getAsString(), object, processMap);
+        } else if (object instanceof JsonObject){
+            analyzeProperty(rootObj, PropertyConstant.MS_OBJECT, object, processMap);
         }
     }
 
