@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.functional.mapper.ExtFunctionalCaseDemandMapper">
+
+    <select id="selectByKeyword" resultType="io.metersphere.functional.domain.FunctionalCaseDemand">
+        SELECT
+        *
+        FROM functional_case_demand
+        WHERE functional_case_demand.case_id = #{caseId}
+        <if test="keyword != null and keyword != ''">
+            AND (
+            functional_case_demand.demand_id = #{keyword} OR
+            (functional_case_demand.demand_name LIKE CONCAT('%', #{keyword}, '%'))
+            )
+
+        </if>
+        ORDER BY functional_case_demand.update_time DESC
+    </select>
+
+</mapper>
