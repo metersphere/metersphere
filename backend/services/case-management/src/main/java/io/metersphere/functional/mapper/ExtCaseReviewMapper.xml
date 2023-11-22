@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.functional.mapper.ExtCaseReviewMapper">
+
+    <select id="checkCaseByModuleIds" resultType="io.metersphere.functional.domain.CaseReview">
+        SELECT
+            id, name, module_id, create_user
+        FROM
+            case_review
+        WHERE
+            module_id IN
+        <foreach collection="moduleIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

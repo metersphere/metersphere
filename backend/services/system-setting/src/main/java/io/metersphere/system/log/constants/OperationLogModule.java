@@ -100,6 +100,9 @@ public class OperationLogModule {
     //用例
     public static final String FUNCTIONAL_CASE = "FUNCTIONAL_CASE";
 
+    public static final String CASE_REVIEW = "CASE_REVIEW";
+
+
     //接口调试
     public static final String API_DEBUG = "API_DEBUG";
     //接口管理-环境
