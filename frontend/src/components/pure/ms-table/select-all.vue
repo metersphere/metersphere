@@ -1,7 +1,13 @@
 <template>
   <div class="ms-table-select-all">
-    <a-checkbox v-model="checked" class="text-base" :indeterminate="indeterminate" @change="handleCheckChange" />
-    <a-dropdown position="bl" @select="handleSelect">
+    <a-checkbox
+      v-model="checked"
+      :disabled="props.disabled"
+      class="text-base"
+      :indeterminate="indeterminate"
+      @change="handleCheckChange"
+    />
+    <a-dropdown v-if="showSelectAll" :disable="props.disabled" position="bl" @select="handleSelect">
       <MsIcon type="icon-icon_down_outlined" class="dropdown-icon" />
       <template #content>
         <a-doption :value="SelectAllEnum.CURRENT">{{ t('msTable.current') }}</a-doption>
@@ -26,10 +32,15 @@
     (e: 'change', value: SelectAllEnum): void;
   }>();
 
-  const props = withDefaults(defineProps<{ current: number; total: number; type: 'checkbox' | 'radio' }>(), {
-    current: 0,
-    total: 0,
-  });
+  const props = withDefaults(
+    defineProps<{ current: number; total: number; showSelectAll: boolean; disabled: boolean }>(),
+    {
+      current: 0,
+      total: 0,
+      showSelectAll: true,
+      disabled: false,
+    }
+  );
 
   const checked = ref(false);
   const indeterminate = ref(false);

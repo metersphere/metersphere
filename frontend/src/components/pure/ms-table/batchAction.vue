@@ -15,7 +15,7 @@
         >{{ t(element.label as string) }}</a-button
       >
     </template>
-    <div v-if="props.actionConfig.moreAction" class="drop-down relative ml-[16px] inline-block">
+    <div v-if="moreAction?.length" class="drop-down relative ml-[16px] inline-block">
       <a-dropdown position="tr" @select="handleSelect">
         <a-button type="outline"><MsIcon type="icon-icon_more_outlined" /></a-button>
         <template #content>

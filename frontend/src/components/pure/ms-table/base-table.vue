@@ -19,10 +19,11 @@
       <template #columns>
         <a-table-column v-if="attrs.selectable && props.selectedKeys" :width="60">
           <template #title>
-            <select-all
+            <SelectALL
               :total="selectTotal"
               :current="selectCurrent"
-              :type="attrs.selectorType as ('checkbox' | 'radio')"
+              :show-select-all="(attrs.showPagination as boolean)"
+              :disabled="(attrs.data as []).length === 0"
               @change="handleSelectAllChange"
             />
           </template>
@@ -65,6 +66,13 @@
                 class="setting-icon"
                 @click="handleShowSetting"
               />
+              <slot v-else-if="item.filterConfig" :name="item.filterConfig.filterSlotName">
+                <DefaultFilter
+                  :options="item.filterConfig.options"
+                  :multiple="(item.filterConfig.multiple as boolean)"
+                  @handle-confirm="(v: (string | number)[]) => handleFilterConfirm(v, item.dataIndex as string)"
+                />
+              </slot>
             </div>
           </template>
           <template #cell="{ column, record, rowIndex }">
@@ -209,7 +217,8 @@
   import MsCheckbox from '../ms-checkbox/MsCheckbox.vue';
   import BatchAction from './batchAction.vue';
   import ColumnSelector from './columnSelector.vue';
-  import selectAll from './select-all.vue';
+  import DefaultFilter from './comp/defaultFilter.vue';
+  import SelectALL from './select-all.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore, useTableStore } from '@/store';
@@ -256,6 +265,7 @@
     (e: 'sorterChange', value: { [key: string]: string }): void;
     (e: 'expand', record: TableData): void | Promise<any>;
     (e: 'clearSelector'): void;
+    (e: 'filterChange', dataIndex: string, value: (string | number)[]): void;
   }>();
   const attrs = useAttrs();
   // 全选按钮-总条数
@@ -451,6 +461,10 @@
   }
   const handleShowSetting = () => {
     columnSelectorVisible.value = true;
+  };
+
+  const handleFilterConfirm = (value: (string | number)[], dataIndex: string) => {
+    emit('filterChange', dataIndex, value);
   };
 
   onMounted(async () => {
