@@ -14,6 +14,16 @@ export interface MsPaginationI {
   simple?: boolean;
 }
 
+export interface MsTableColumnFilterConfig {
+  filterSlotName?: string; // 筛选组件的slotName
+  multiple?: boolean; // 是否多选
+  // 筛选数据
+  options?: {
+    label: string;
+    value: string;
+  }[];
+}
+
 export interface MsTableColumnData extends TableColumnData {
   // 是否可排序
   showDrag?: boolean;
@@ -35,6 +45,8 @@ export interface MsTableColumnData extends TableColumnData {
   revokeDeletedSlot?: string;
   // 表格列排序字段
   sortIndex?: number;
+  // 筛选配置
+  filterConfig?: MsTableColumnFilterConfig;
 }
 
 export type MsTableErrorStatus = boolean | 'error' | 'empty';

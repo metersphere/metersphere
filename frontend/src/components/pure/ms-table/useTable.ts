@@ -301,7 +301,8 @@ export default function useTableProps<T>(
     },
 
     // 筛选触发
-    filterChange: (dataIndex: string, filteredValues: string[]) => {
+    filterChange: (dataIndex: string, filteredValues: (string | number)[]) => {
+      console.log('filterChange', dataIndex, filteredValues);
       filterItem.value = { [dataIndex]: filteredValues };
       loadList();
     },
@@ -311,12 +312,12 @@ export default function useTableProps<T>(
       await loadList();
     },
     // 修改每页显示条数
-    pageSizeChange: (pageSize: number) => {
+    pageSizeChange: async (pageSize: number) => {
       if (propsRes.value.msPagination && typeof propsRes.value.msPagination === 'object') {
         propsRes.value.msPagination.pageSize = pageSize;
         if (propsRes.value.tableKey) {
           // 如果表格设置了tableKey，缓存分页大小
-          tableStore.setPageSize(propsRes.value.tableKey, pageSize);
+          await tableStore.setPageSize(propsRes.value.tableKey, pageSize);
         }
       }
       loadList();
