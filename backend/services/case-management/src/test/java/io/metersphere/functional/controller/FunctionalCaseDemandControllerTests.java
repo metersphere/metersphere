@@ -7,9 +7,13 @@ import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.domain.OperationLog;
+import io.metersphere.sdk.domain.OperationLogExample;
+import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -36,7 +40,8 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
 
     @Resource
     private FunctionalCaseDemandMapper functionalCaseDemandMapper;
-
+    @Resource
+    private OperationLogMapper operationLogMapper;
 
     private static final String URL_DEMAND_PAGE = "/functional/case/demand/page";
     private static final String URL_DEMAND_ADD = "/functional/case/demand/add";
@@ -231,6 +236,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertTrue(CollectionUtils.isEmpty(functionalCaseDemands));
+        checkLog("DEMAND_TEST_FUNCTIONAL_CASE_ID", OperationLogType.DISASSOCIATE);
     }
 
     @Test
@@ -300,5 +306,23 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2").andDemandPlatformEqualTo("jira");
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertTrue(CollectionUtils.isEmpty(functionalCaseDemands));
+    }
+
+    @Test
+    @Order(12)
+    public void cancelDemandNoLog() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(URL_DEMAND_CANCEL+"DEMAND_TEST_FUNCTIONAL_CASE_X").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_X");
+        List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        Assertions.assertTrue(CollectionUtils.isEmpty(functionalCaseDemands));
+        OperationLogExample example = new OperationLogExample();
+        example.createCriteria().andSourceIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_X").andTypeEqualTo(OperationLogType.DISASSOCIATE.name());
+        List<OperationLog> operationLogs = operationLogMapper.selectByExample(example);
+        Assertions.assertTrue(CollectionUtils.isEmpty(operationLogs));
+
     }
 }

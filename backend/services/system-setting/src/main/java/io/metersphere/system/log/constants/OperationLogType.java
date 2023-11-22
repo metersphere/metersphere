@@ -15,7 +15,9 @@ public enum OperationLogType {
     LOGIN,
     SELECT,
     RECOVER,
-    LOGOUT;
+    LOGOUT,
+    DISASSOCIATE,
+    ARCHIVED;
 
     public boolean contains(OperationLogType keyword) {
         return this.name().contains(keyword.name());

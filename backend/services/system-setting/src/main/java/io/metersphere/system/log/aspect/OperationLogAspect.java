@@ -64,7 +64,8 @@ public class OperationLogAspect {
     private final ThreadLocal<String> localProjectId = new ThreadLocal<>();
 
     // 此方法随时补充类型，需要在内容变更前执行的类型都可以加入
-    private final OperationLogType[] beforeMethodNames = new OperationLogType[]{OperationLogType.UPDATE, OperationLogType.DELETE, OperationLogType.RECOVER};
+    private final OperationLogType[] beforeMethodNames = new OperationLogType[]{OperationLogType.UPDATE, OperationLogType.DELETE
+            , OperationLogType.RECOVER, OperationLogType.DISASSOCIATE, OperationLogType.ARCHIVED};
     // 需要后置执行合并内容的
     private final OperationLogType[] postMethodNames = new OperationLogType[]{OperationLogType.ADD, OperationLogType.UPDATE};
 
