@@ -181,17 +181,10 @@ public class FunctionalCaseService {
         //获取附件信息
         functionalCaseAttachmentService.getAttachmentInfo(functionalCaseDetailDTO);
 
-        handData(functionalCaseDetailDTO);
-
-
         return functionalCaseDetailDTO;
 
     }
 
-    private void handData(FunctionalCaseDetailDTO functionalCaseDetailDTO) {
-        FunctionalCaseModule caseModule = functionalCaseModuleMapper.selectByPrimaryKey(functionalCaseDetailDTO.getModuleId());
-        functionalCaseDetailDTO.setModuleName(caseModule.getName());
-    }
 
     private Boolean checkIsFollowCase(String caseId, String userId) {
         FunctionalCaseFollowerExample example = new FunctionalCaseFollowerExample();
