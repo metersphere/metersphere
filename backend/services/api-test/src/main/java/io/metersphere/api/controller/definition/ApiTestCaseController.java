@@ -112,7 +112,7 @@ public class ApiTestCaseController {
     public Pager<List<ApiTestCaseDTO>> page(@Validated @RequestBody ApiTestCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, apiTestCaseService.page(request));
+        return PageUtils.setPageInfo(page, apiTestCaseService.page(request, false));
     }
 
     @PostMapping("/batch/delete")
@@ -133,5 +133,13 @@ public class ApiTestCaseController {
         apiTestCaseService.batchEdit(request, SessionUtils.getUserId());
     }
 
+    @PostMapping(value = "/trash/page")
+    @Operation(summary = "接口测试-接口管理-接口用例-回收站-分页查询")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    public Pager<List<ApiTestCaseDTO>> pageTrash(@Validated @RequestBody ApiTestCasePageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, apiTestCaseService.page(request, true));
+    }
 
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 @Data
 public class ApiTestCaseAddRequest implements Serializable {
@@ -49,4 +50,8 @@ public class ApiTestCaseAddRequest implements Serializable {
     @Schema(description = "请求内容")
     @NotBlank
     private String request;
+
+    @Schema(description = "接口用例所需的所有文件资源ID")
+    private List<String> fileIds;
+
 }

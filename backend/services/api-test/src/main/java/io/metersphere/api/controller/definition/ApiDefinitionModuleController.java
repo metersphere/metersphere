@@ -30,7 +30,7 @@ public class ApiDefinitionModuleController {
     @Operation(summary = "接口测试-接口管理-模块-查找模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public List<BaseTreeNode> getTree(@RequestBody @Validated ApiModuleRequest request) {
-        return apiDefinitionModuleService.getTree(request);
+        return apiDefinitionModuleService.getTree(request, false);
     }
 
     @PostMapping("/add")
@@ -66,6 +66,20 @@ public class ApiDefinitionModuleController {
     @Operation(summary = "接口测试-接口管理-模块-统计模块数量")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public Map<String, Long> moduleCount(@Validated @RequestBody ApiModuleRequest request) {
-        return apiDefinitionModuleService.moduleCount(request);
+        return apiDefinitionModuleService.moduleCount(request, false);
+    }
+
+    @PostMapping("/trash/count")
+    @Operation(summary = "接口测试-接口管理-模块-统计回收站模块数量")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    public Map<String, Long> moduleCountTrash(@Validated @RequestBody ApiModuleRequest request) {
+        return apiDefinitionModuleService.moduleCount(request, true);
+    }
+
+    @PostMapping("/trash/tree")
+    @Operation(summary = "接口测试-接口管理-模块-查找模块")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    public List<BaseTreeNode> getTrashTree(@RequestBody @Validated ApiModuleRequest request) {
+        return apiDefinitionModuleService.getTree(request, true);
     }
 }

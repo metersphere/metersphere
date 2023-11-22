@@ -27,9 +27,9 @@ public interface ExtApiDefinitionModuleMapper {
 
     BaseModule selectModuleByParentIdAndPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
-    List<ApiTreeNode> selectApiDataByRequest(@Param("request") ApiModuleRequest request);
+    List<ApiTreeNode> selectApiDataByRequest(@Param("request") ApiModuleRequest request, @Param("deleted") boolean deleted);
 
-    List<ModuleCountDTO> countModuleIdByRequest(@Param("request") ApiModuleRequest request);
+    List<ModuleCountDTO> countModuleIdByRequest(@Param("request") ApiModuleRequest request, @Param("deleted") boolean deleted);
 
     List<BaseTreeNode> selectNodeByIds(@Param("ids") List<String> ids);
 }

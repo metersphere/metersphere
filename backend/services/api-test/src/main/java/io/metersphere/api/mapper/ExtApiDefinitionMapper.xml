@@ -5,7 +5,7 @@
 
     <update id="deleteApiToGc">
         update api_definition
-        set delete_user = #{userId},delete_time = #{time}, deleted = 1
+        set delete_user = #{userId},delete_time = #{time}, deleted = 1 , module_id = 'root'
         where ref_id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
@@ -39,7 +39,7 @@
         api_test_case t1
         LEFT JOIN api_report t2 ON t1.last_report_id = t2.id
         WHERE
-        t1.project_id = #{projectId} and  t1.deleted = 0
+        t1.project_id = #{projectId} and t1.deleted = 0
 
         GROUP BY
         t1.api_definition_id
@@ -55,7 +55,7 @@
         FROM api_definition
         WHERE project_id = #{projectId}
         ORDER BY pos DESC
-            LIMIT 1;
+        LIMIT 1;
     </select>
 
     <select id="getIds" resultType="java.lang.String">
@@ -79,16 +79,13 @@
         group by ref_id
     </select>
     <select id="getApiDefinitionByRefId" resultType="io.metersphere.api.dto.definition.ApiDefinitionVersionDTO">
-        SELECT
-            id,
-            `name`,
-            version_id,
-            ref_id,
-            project_id
-        FROM
-            api_definition
-        WHERE
-            ref_id = #{refId}
+        SELECT id,
+               `name`,
+               version_id,
+               ref_id,
+               project_id
+        FROM api_definition
+        WHERE ref_id = #{refId}
     </select>
     <select id="getTagsByIds" resultType="io.metersphere.api.domain.ApiDefinition">
         select id, tags from api_definition

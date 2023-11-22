@@ -135,12 +135,12 @@ public class EnvironmentService {
         if (CollectionUtils.isNotEmpty(sslFiles)) {
             sslFiles.forEach(sslFile -> {
                 FileRequest fileRequest = new FileRequest();
-                fileRequest.setFileName(sslFile.getName());
+                fileRequest.setFileName(sslFile.getOriginalFilename());
                 fileRequest.setFolder(DefaultRepositoryDir.getEnvSslDir(environment.getProjectId(), environment.getId()));
                 try {
                     minioRepository.saveFile(sslFile, fileRequest);
                 } catch (Exception e) {
-                    LogUtils.info("上传ssl文件失败:  文件名称:" + sslFile.getName(), e);
+                    LogUtils.info("上传ssl文件失败:  文件名称:" + sslFile.getOriginalFilename(), e);
                     throw new MSException(Translator.get("api_test_environment_ssl_file_upload_failed"));
                 }
             });

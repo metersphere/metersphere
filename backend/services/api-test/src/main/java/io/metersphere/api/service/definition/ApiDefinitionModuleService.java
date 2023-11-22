@@ -55,11 +55,11 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
     @Resource
     private ApiTestCaseService apiTestCaseService;
 
-    public List<BaseTreeNode> getTree(ApiModuleRequest request) {
+    public List<BaseTreeNode> getTree(ApiModuleRequest request, boolean deleted) {
         //接口的树结构是  模块：子模块+接口 接口为非delete状态的
         List<BaseTreeNode> fileModuleList = extApiDefinitionModuleMapper.selectBaseByRequest(request);
         List<BaseTreeNode> baseTreeNodes = super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_API));
-        List<ApiTreeNode> apiTreeNodeList = extApiDefinitionModuleMapper.selectApiDataByRequest(request);
+        List<ApiTreeNode> apiTreeNodeList = extApiDefinitionModuleMapper.selectApiDataByRequest(request, deleted);
         return apiDebugModuleService.getBaseTreeNodes(apiTreeNodeList, baseTreeNodes);
 
     }
@@ -245,10 +245,10 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
-    public Map<String, Long> moduleCount(ApiModuleRequest request) {
+    public Map<String, Long> moduleCount(ApiModuleRequest request, boolean deleted) {
         request.setModuleIds(null);
         //查找根据moduleIds查找模块下的接口数量 查非delete状态的
-        List<ModuleCountDTO> moduleCountDTOList = extApiDefinitionModuleMapper.countModuleIdByRequest(request);
+        List<ModuleCountDTO> moduleCountDTOList = extApiDefinitionModuleMapper.countModuleIdByRequest(request, deleted);
         long allCount = getAllCount(moduleCountDTOList);
         Map<String, Long> moduleCountMap = getModuleCountMap(request, moduleCountDTOList);
         moduleCountMap.put(DEBUG_MODULE_COUNT_ALL, allCount);

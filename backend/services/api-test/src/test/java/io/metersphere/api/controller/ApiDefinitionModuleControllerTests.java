@@ -52,6 +52,8 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     private static final String URL_MODULE_TREE = "/api/definition/module/tree";
     private static final String URL_MODULE_MOVE = "/api/definition/module/move";
     private static final String URL_FILE_MODULE_COUNT = "/api/definition/module/count";
+    private static final String URL_MODULE_TRASH_TREE = "/api/definition/module/trash/tree";
+    private static final String URL_MODULE_TRASH_COUNT = "/api/definition/module/trash/count";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static Project project;
@@ -762,7 +764,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     public void TestModuleCountError() throws Exception {
         ApiDebugRequest request = new ApiDebugRequest();
         request.setProtocol(null);
@@ -800,6 +802,35 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, String.format(URL_MODULE_DELETE, IDGenerator.nextNum()));
 
     }
+
+    @Test
+    @Order(11)
+    public void getModuleTrashTreeNode() throws Exception {
+        MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TRASH_TREE, new ApiModuleRequest() {{
+            this.setProtocol("HTTP");
+            this.setProjectId(project.getId());
+        }});
+        String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
+    }
+
+    @Test
+    @Order(12)
+    public void getModuleTrashTreeCount() throws Exception {
+        ApiModuleRequest request = new ApiModuleRequest() {{
+            this.setProtocol("HTTP");
+            this.setProjectId(project.getId());
+        }};
+        MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(URL_MODULE_TRASH_COUNT, request);
+        Map<String, Integer> moduleCountResult = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Map.class);
+        Assertions.assertTrue(moduleCountResult.containsKey("all"));
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, URL_MODULE_TRASH_COUNT, request);
+    }
+
 
     private List<BaseTreeNode> getModuleTreeNode() throws Exception {
         MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TREE, new ApiModuleRequest() {{

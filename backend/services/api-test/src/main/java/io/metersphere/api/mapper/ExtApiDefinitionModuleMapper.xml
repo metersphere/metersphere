@@ -117,7 +117,7 @@
 
     <sql id="api_request">
         <where>
-            api_definition.deleted = 0
+            api_definition.deleted = #{deleted}
             <if test="request.projectId != null and request.projectId != ''">
                 AND api_definition.project_id = #{request.projectId}
             </if>
