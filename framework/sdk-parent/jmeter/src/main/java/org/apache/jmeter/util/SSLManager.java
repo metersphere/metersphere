@@ -146,7 +146,23 @@ public abstract class SSLManager {
                     } else {
                         log.warn("Keystore file not found, loading empty keystore");
                         this.defaultpw = ""; // Ensure not null
-                        this.keyStore.load(null, "");
+                        try {
+                            // 重新加载认证文件
+                            JMeterContext threadContext = JMeterContextService.getContext();
+                            if (threadContext != null && threadContext.getCurrentSampler() != null) {
+                                String resourceId = threadContext.getCurrentSampler().getPropertyAsString("MS-RESOURCE-ID");
+                                log.info("重新加载认证文件{}", resourceId);
+                                if (StringUtils.isNotBlank(resourceId) && keyMap.containsKey(resourceId)) {
+                                    KeystoreDTO dto = keyMap.get(resourceId);
+                                    // 加载认证文件
+                                    InputStream in = new FileInputStream(new File(dto.getPath()));
+                                    this.keyStore.load(in, dto.getPwd());
+
+                                }
+                            }
+                        } catch (Exception e) {
+                            log.error("证书处理失败{}", e.getMessage());
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -357,18 +373,18 @@ public abstract class SSLManager {
         try {
             // 重新加载认证文件
             JMeterContext threadContext = JMeterContextService.getContext();
-            if (SSLManager.manager.keyStore == null && threadContext != null && threadContext.getCurrentSampler() != null) {
-
+            if (threadContext != null && threadContext.getCurrentSampler() != null) {
                 String resourceId = threadContext.getCurrentSampler().getPropertyAsString("MS-RESOURCE-ID");
                 log.info("重新加载认证文件{}", resourceId);
                 if (StringUtils.isNotBlank(resourceId) && keyMap.containsKey(resourceId)) {
                     KeystoreDTO dto = keyMap.get(resourceId);
+                    SSLManager.manager = new JsseSSLManager(null);
+                    SSLManager.manager.keyStore = null;
                     // 加载认证文件
                     InputStream in = new FileInputStream(new File(dto.getPath()));
                     SSLManager.manager.configureKeystore(Boolean.parseBoolean(dto.getPreload()), dto.getStartIndex(),
                             dto.getEndIndex(), dto.getClientCertAliasVarName(), in, dto.getPwd());
-                    keyMap.remove(resourceId);
-                    log.info("移除认证文件{}", resourceId);
+                    log.info("加载认证文件完成 {}", resourceId);
                 }
             }
         } catch (Exception e) {

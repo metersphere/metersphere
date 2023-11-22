@@ -123,10 +123,11 @@ public class KeystoreConfig extends ConfigTestElement implements TestBean, TestS
             dto.setPath(path);
             SSLManager.keyMap.put(resourceId, dto);
         }
-        SSLManager.getInstance().configureKeystore(Boolean.parseBoolean(preload),
+
+        /*SSLManager.getInstance().configureKeystore(Boolean.parseBoolean(preload),
                 startIndexAsInt,
                 endIndexAsInt,
-                clientCertAliasVarName, in, password);
+                clientCertAliasVarName, in, password);*/
 
     }
 
