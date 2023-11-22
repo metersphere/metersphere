@@ -6,6 +6,7 @@
     @close="close"
     direction="right"
     v-clickoutside="close"
+    :custom-z-index="9999"
     appendToBody>
     <template v-slot:header>
       <ms-instructions-icon :content="tip" />
