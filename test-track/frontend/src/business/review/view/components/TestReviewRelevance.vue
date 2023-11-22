@@ -42,7 +42,6 @@
           :enable-auto-height="true"
           pageKey="TEST_REVIEW_RELEVANCE_CASE"
         >
-          >
           <select-menu
             :data="projects"
             width="173px"
