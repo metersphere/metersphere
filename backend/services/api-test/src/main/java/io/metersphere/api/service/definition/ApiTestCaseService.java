@@ -1,24 +1,24 @@
 package io.metersphere.api.service.definition;
 
+import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.file.MinioRepository;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,37 +74,21 @@ public class ApiTestCaseService {
     private ApiTestCaseLogService apiTestCaseLogService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ApiFileResourceService apiFileResourceService;
 
-    public ApiTestCase addCase(ApiTestCaseAddRequest request, List<MultipartFile> files, String userId) {
-        ApiTestCase testCase = new ApiTestCase();
-        testCase.setId(IDGenerator.nextStr());
-        BeanUtils.copyBean(testCase, request);
-        ApiDefinition apiDefinition = getApiDefinition(request.getApiDefinitionId());
-        testCase.setNum(NumGenerator.nextNum(request.getProjectId() + "_" + apiDefinition.getNum(), ApplicationNumScope.API_TEST_CASE));
-        testCase.setApiDefinitionId(request.getApiDefinitionId());
-        testCase.setName(request.getName());
-        testCase.setPos(getNextOrder(request.getProjectId()));
-        testCase.setProjectId(request.getProjectId());
-        checkProjectExist(testCase.getProjectId());
-        checkNameExist(testCase);
-        testCase.setVersionId(apiDefinition.getVersionId());
-        testCase.setPriority(request.getPriority());
-        testCase.setStatus(request.getStatus());
-        testCase.setCreateUser(userId);
-        testCase.setUpdateUser(userId);
-        testCase.setCreateTime(System.currentTimeMillis());
-        testCase.setUpdateTime(System.currentTimeMillis());
-        if (CollectionUtils.isNotEmpty(request.getTags())) {
-            testCase.setTags(JSON.toJSONString(request.getTags()));
-        }
-        apiTestCaseMapper.insertSelective(testCase);
-
-        ApiTestCaseBlob caseBlob = new ApiTestCaseBlob();
-        caseBlob.setId(testCase.getId());
-        caseBlob.setRequest(request.getRequest().getBytes());
-        apiTestCaseBlobMapper.insert(caseBlob);
-        uploadBodyFile(files, testCase.getId(), request.getProjectId());
-        return testCase;
+    @NotNull
+    private static ApiFileResourceUpdateRequest getFileResourceRequest(ApiTestCase testCase, List<String> filed, List<String> addFiled) {
+        String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(testCase.getProjectId(), testCase.getId());
+        // 处理文件
+        ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
+        resourceUpdateRequest.setProjectId(testCase.getProjectId());
+        resourceUpdateRequest.setFileIds(filed);
+        resourceUpdateRequest.setAddFileIds(addFiled);
+        resourceUpdateRequest.setFolder(apiCaseDir);
+        resourceUpdateRequest.setResourceId(testCase.getId());
+        resourceUpdateRequest.setApiResourceType(ApiResourceType.API_CASE);
+        return resourceUpdateRequest;
     }
 
     private void checkProjectExist(String projectId) {
@@ -140,21 +125,40 @@ public class ApiTestCaseService {
         return (pos == null ? 0 : pos) + ORDER_STEP;
     }
 
-    public void uploadBodyFile(List<MultipartFile> files, String caseId, String projectId) {
-        if (CollectionUtils.isNotEmpty(files)) {
-            files.forEach(file -> {
-                FileRequest fileRequest = new FileRequest();
-                fileRequest.setFileName(file.getName());
-                fileRequest.setFolder(DefaultRepositoryDir.getApiCaseDir(projectId, caseId));
-                fileRequest.setStorage(StorageType.MINIO.name());
-                try {
-                    minioRepository.saveFile(file, fileRequest);
-                } catch (Exception e) {
-                    LogUtils.info("上传body文件失败:  文件名称:" + file.getName(), e);
-                    throw new MSException(Translator.get("file_upload_fail"));
-                }
-            });
+    public ApiTestCase addCase(ApiTestCaseAddRequest request, List<MultipartFile> files, String userId) {
+        ApiTestCase testCase = new ApiTestCase();
+        testCase.setId(IDGenerator.nextStr());
+        BeanUtils.copyBean(testCase, request);
+        ApiDefinition apiDefinition = getApiDefinition(request.getApiDefinitionId());
+        testCase.setNum(NumGenerator.nextNum(request.getProjectId() + "_" + apiDefinition.getNum(), ApplicationNumScope.API_TEST_CASE));
+        testCase.setApiDefinitionId(request.getApiDefinitionId());
+        testCase.setName(request.getName());
+        testCase.setPos(getNextOrder(request.getProjectId()));
+        testCase.setProjectId(request.getProjectId());
+        checkProjectExist(testCase.getProjectId());
+        checkNameExist(testCase);
+        testCase.setVersionId(apiDefinition.getVersionId());
+        testCase.setPriority(request.getPriority());
+        testCase.setStatus(request.getStatus());
+        testCase.setCreateUser(userId);
+        testCase.setUpdateUser(userId);
+        testCase.setCreateTime(System.currentTimeMillis());
+        testCase.setUpdateTime(System.currentTimeMillis());
+        if (CollectionUtils.isNotEmpty(request.getTags())) {
+            testCase.setTags(JSON.toJSONString(request.getTags()));
         }
+        apiTestCaseMapper.insertSelective(testCase);
+
+        ApiTestCaseBlob caseBlob = new ApiTestCaseBlob();
+        caseBlob.setId(testCase.getId());
+        caseBlob.setRequest(request.getRequest().getBytes());
+        apiTestCaseBlobMapper.insert(caseBlob);
+
+        // 处理文件
+        ApiFileResourceUpdateRequest resourceRequest =
+                getFileResourceRequest(testCase, request.getFileIds(), request.getFileIds());
+        apiFileResourceService.addFileResource(resourceRequest, files);
+        return testCase;
     }
 
     private ApiTestCase checkResourceExist(String id) {
@@ -183,6 +187,7 @@ public class ApiTestCaseService {
         List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
         apiTestCaseDTO.setFollow(CollectionUtils.isNotEmpty(followers));
         apiTestCaseDTO.setRequest(ApiDataUtils.parseObject(new String(testCaseBlob.getRequest()), AbstractMsTestElement.class));
+        apiTestCaseDTO.setFileIds(apiFileResourceService.getFileIdsByResourceId(id));
         return apiTestCaseDTO;
     }
 
@@ -240,7 +245,10 @@ public class ApiTestCaseService {
         apiTestCaseBlob.setId(request.getId());
         apiTestCaseBlob.setRequest(request.getRequest().getBytes());
         apiTestCaseBlobMapper.updateByPrimaryKeySelective(apiTestCaseBlob);
-        uploadBodyFile(files, request.getId(), testCase.getProjectId());
+
+        ApiFileResourceUpdateRequest resourceRequest =
+                getFileResourceRequest(testCase, request.getFileIds(), request.getAddFileIds());
+        apiFileResourceService.updateFileResource(resourceRequest, files);
         return testCase;
     }
 
@@ -254,8 +262,8 @@ public class ApiTestCaseService {
         apiTestCaseMapper.updateByPrimaryKeySelective(update);
     }
 
-    public List<ApiTestCaseDTO> page(ApiTestCasePageRequest request) {
-        List<ApiTestCaseDTO> apiCaseLists = extApiTestCaseMapper.listByRequest(request, false);
+    public List<ApiTestCaseDTO> page(ApiTestCasePageRequest request, boolean deleted) {
+        List<ApiTestCaseDTO> apiCaseLists = extApiTestCaseMapper.listByRequest(request, deleted);
         buildApiTestCaseDTO(apiCaseLists);
         return apiCaseLists;
     }
@@ -327,15 +335,10 @@ public class ApiTestCaseService {
         ApiTestCaseBlobExample blobExample = new ApiTestCaseBlobExample();
         blobExample.createCriteria().andIdIn(ids);
         apiTestCaseBlobMapper.deleteByExample(blobExample);
-        //删除body文件
-        FileRequest request = new FileRequest();
+        //删除文件关联关系
         ids.forEach(id -> {
-            try {
-                request.setFolder(DefaultRepositoryDir.getApiCaseDir(projectId, id));
-                minioRepository.deleteFolder(request);
-            } catch (Exception e) {
-                LogUtils.info("删除body文件失败:  文件名称:" + id, e);
-            }
+            String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(projectId, id);
+            apiFileResourceService.deleteByResourceId(apiCaseDir, id);
         });
         //记录删除日志
         apiTestCaseLogService.deleteBatchLog(caseLists, userId, projectId);

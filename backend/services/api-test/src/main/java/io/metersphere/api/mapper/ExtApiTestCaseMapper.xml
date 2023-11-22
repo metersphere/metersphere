@@ -33,10 +33,11 @@
         t1.update_user,
         t1.create_time,
         t1.update_time,
+        t1.delete_user,
+        t1.delete_time,
         t1.num,
         t1.last_report_status,
         t1.last_report_id,
-        t1.delete_time,
         t1.environment_id
         FROM
         api_test_case t1

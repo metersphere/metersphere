@@ -9,9 +9,11 @@ import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.mapper.ApiDebugModuleMapper;
 import io.metersphere.api.mapper.ExtApiDebugModuleMapper;
+import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.service.ModuleTreeService;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
@@ -52,6 +54,8 @@ public class ApiDebugModuleService extends ModuleTreeService {
     private ApiDebugBlobMapper apiDebugBlobMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ApiFileResourceService apiFileResourceService;
 
     public List<BaseTreeNode> getTree(String protocol, String userId) {
         List<BaseTreeNode> fileModuleList = extApiDebugModuleMapper.selectBaseByProtocolAndUser(protocol, userId);
@@ -198,6 +202,11 @@ public class ApiDebugModuleService extends ModuleTreeService {
             ApiDebugBlobExample blobExample = new ApiDebugBlobExample();
             blobExample.createCriteria().andIdIn(apiDebugIds);
             apiDebugBlobMapper.deleteByExample(blobExample);
+            //删除文件关联关系
+            apiDebugs.forEach(apiDebug -> {
+                String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(apiDebug.getProjectId(), apiDebug.getId());
+                apiFileResourceService.deleteByResourceId(apiDebugDir, apiDebug.getId());
+            });
             apiDebugModuleLogService.saveDeleteDataLog(apiDebugs, currentUser, projectId);
         }
 

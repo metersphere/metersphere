@@ -4,6 +4,7 @@ import io.metersphere.api.controller.param.ApiTestCaseAddRequestDefinition;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -62,6 +63,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String DELETE = BASE_PATH + "delete/";
     private static final String UPDATE = BASE_PATH + "update";
     private static final String PAGE = BASE_PATH + "page";
+    private static final String TRASH_PAGE = BASE_PATH + "trash/page";
     private static final String UPDATE_STATUS = BASE_PATH + "update-status";
     private static final String BATCH_EDIT = BASE_PATH + "batch/edit";
     private static final String BATCH_DELETE = BASE_PATH + "batch/delete";
@@ -83,6 +85,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private ApiTestCaseFollowerMapper apiTestCaseFollowerMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
+    @Resource
+    private ApiFileResourceService apiFileResourceService;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -180,6 +184,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setEnvironmentId(environments.get(0).getId());
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        request.setFileIds(List.of("fileId1"));
         LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         FileInputStream inputStream = new FileInputStream(new File(
@@ -267,6 +272,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
         copyApiDebugDTO.setFollow(CollectionUtils.isNotEmpty(followers));
         copyApiDebugDTO.setRequest(ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class));
+        copyApiDebugDTO.setFileIds(apiFileResourceService.getFileIdsByResourceId(apiTestCase.getId()));
         Assertions.assertEquals(apiDebugDTO, copyApiDebugDTO);
         this.requestGetWithOk(GET + anotherApiTestCase.getId())
                 .andReturn();
@@ -361,7 +367,14 @@ public class ApiTestCaseControllerTests extends BaseTest {
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
         LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        request.setFileIds(List.of("fileId1"));
+        request.setAddFileIds(List.of("fileId2"));
         paramMap.add("request", JSON.toJSONString(request));
+        FileInputStream inputStream = new FileInputStream(new File(
+                this.getClass().getClassLoader().getResource("file/file_upload.JPG")
+                        .getPath()));
+        MockMultipartFile file = new MockMultipartFile("file_upload.JPG", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap.add("files", List.of(file));
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(UPDATE, paramMap);
         // 校验请求成功数据
         ApiTestCase resultData = getResultData(mvcResult, ApiTestCase.class);
@@ -601,6 +614,57 @@ public class ApiTestCaseControllerTests extends BaseTest {
         //校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE, BATCH_MOVE_GC, request);
     }
+
+    @Test
+    @Order(12)
+    public void trashPage() throws Exception {
+        // @@请求成功
+        ApiTestCasePageRequest pageRequest = new ApiTestCasePageRequest();
+        pageRequest.setProjectId(DEFAULT_PROJECT_ID);
+        pageRequest.setPageSize(10);
+        pageRequest.setCurrent(1);
+        MvcResult mvcResult = responsePost(TRASH_PAGE, pageRequest);
+        Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        //返回值的页码和当前页码相同
+        Assertions.assertEquals(returnPager.getCurrent(), pageRequest.getCurrent());
+        //返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(((List<ApiTestCaseDTO>) returnPager.getList()).size() <= pageRequest.getPageSize());
+
+        //查询apiDefinitionId1的数据
+        pageRequest.setApiDefinitionId("apiDefinitionId1");
+        mvcResult = responsePost(TRASH_PAGE, pageRequest);
+        returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        //返回值的页码和当前页码相同
+        Assertions.assertEquals(returnPager.getCurrent(), pageRequest.getCurrent());
+
+        List<ApiTestCaseDTO> caseDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiTestCaseDTO.class);
+        caseDTOS.forEach(caseDTO -> Assertions.assertEquals(caseDTO.getApiDefinitionId(), "apiDefinitionId1"));
+
+        //查询模块为moduleId1的数据
+        pageRequest.setApiDefinitionId(null);
+        pageRequest.setModuleIds(List.of("moduleId1"));
+        mvcResult = responsePost(TRASH_PAGE, pageRequest);
+        returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        //返回值的页码和当前页码相同
+        Assertions.assertEquals(returnPager.getCurrent(), pageRequest.getCurrent());
+        caseDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiTestCaseDTO.class);
+        caseDTOS.forEach(caseDTO -> Assertions.assertEquals(apiDefinitionMapper.selectByPrimaryKey(caseDTO.getApiDefinitionId()).getModuleId(), "moduleId1"));
+
+        pageRequest.setModuleIds(null);
+        pageRequest.setSort(new HashMap<>() {{
+            put("createTime", "asc");
+        }});
+        responsePost(TRASH_PAGE, pageRequest);
+        //校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, TRASH_PAGE, pageRequest);
+    }
+
 
     @Test
     @Order(20)
