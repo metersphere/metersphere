@@ -470,6 +470,7 @@ public class FileMetadataService {
         //查出全部文件和我的文件的数量
         FileManagementQuery myFileCountDTO = new FileManagementQuery();
         myFileCountDTO.setProjectId(request.getProjectId());
+        myFileCountDTO.setStorage(null);
         long allCount = extFileMetadataMapper.fileCount(myFileCountDTO);
         myFileCountDTO.setOperator(operator);
         long myFileCount = extFileMetadataMapper.fileCount(myFileCountDTO);
