@@ -11,15 +11,15 @@ insert into user(id, name, email, password, create_time, update_time, language, 
 VALUES ('admin', 'Administrator', 'admin@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin',false);
 
 -- 初始化用户组
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('admin', '系统管理员', '拥有系统全部组织以及项目的操作权限', 1, 'SYSTEM', 1621224000000, 1621224000000, 'admin', 'global');
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('member', '系统成员', '系统内初始化的用户', 1, 'SYSTEM', 1621224000000, 1621224000000, 'admin', 'global');
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('org_admin', '组织管理员', '组织管理员', 1, 'ORGANIZATION', 1620674220007, 1620674220000, 'admin', 'global');
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('org_member', '组织成员', '组织成员', 1, 'ORGANIZATION', 1620674220008, 1620674220000, 'admin', 'global');
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_admin', '项目管理员', '项目管理员', 1, 'PROJECT', 1620674220004, 1620674220000, 'admin', 'global');
-INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_member', '项目成员', '项目成员', 1, 'PROJECT', 1620674220005, 1620674220000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('admin', '系统管理员', '拥有系统全部组织以及项目的操作权限', 1, 'SYSTEM', unix_timestamp() * 1000, unix_timestamp() * 1000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('member', '系统成员', '系统内初始化的用户', 1, 'SYSTEM', unix_timestamp() * 1000, unix_timestamp() * 1000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('org_admin', '组织管理员', '组织管理员', 1, 'ORGANIZATION', unix_timestamp() * 1000, unix_timestamp() * 1000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('org_member', '组织成员', '组织成员', 1, 'ORGANIZATION', unix_timestamp() * 1000, unix_timestamp() * 1000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_admin', '项目管理员', '项目管理员', 1, 'PROJECT', unix_timestamp() * 1000, unix_timestamp() * 1000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_member', '项目成员', '项目成员', 1, 'PROJECT', unix_timestamp() * 1000, unix_timestamp() * 1000, 'admin', 'global');
 
 -- 初始化用户和组的关系
-INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES (UUID_SHORT(), 'admin', 'admin', 'system', 'system', 1684747668375, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES (UUID_SHORT(), 'admin', 'admin', 'system', 'system', unix_timestamp() * 1000, 'admin');
 
 -- 初始化用户组权限
 -- 系统管理员拥有所有的权限，不用初始化
@@ -187,7 +187,7 @@ INSERT into system_parameter values('base.url', 'http://127.0.0.1:8081', 'text')
 INSERT into system_parameter values('base.prometheus.host', 'http://ms-prometheus:9090', 'text');
 
 -- 初始化资源池
-INSERT INTO test_resource_pool (id, name, type, description, enable, create_time, update_time, create_user, api_test, load_test, ui_test, all_org, deleted) VALUES (uuid_short(), 'LOCAL', 'Node', '系统初始化资源池', true, 1690440108595, 1690440110182, 'admin', true, true, true, true, false);
+INSERT INTO test_resource_pool (id, name, type, description, enable, create_time, update_time, create_user, api_test, load_test, ui_test, all_org, deleted) VALUES (uuid_short(), 'LOCAL', 'Node', '系统初始化资源池', true, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', true, true, true, true, false);
 INSERT INTO test_resource_pool_blob (id, configuration) VALUES ((select id from test_resource_pool where name = 'LOCAL'), 0x504B0304140008080800737E6857000000000000000000000000030000007A6970658EC18A02310C86DFA5E711479085ED751754583C79130F9D699C89B64949DBC322BEBB5199B9985BBE90FFFB6F26B0F307C86517DD00C6520DA199E1165C9A18B187FC87B9187BBC19546E8ACBD785542210D398C4A237F3D5B6AD6E91090B8B82EFD50BF44C7D15012AFB1A3BFDB0ABF67E6A5E496F43E12BD0AC73117272FDDCE9F3FFCD13FBC328E07C9EC885BB5F38A3FA91E73C0F29F0FF5E5327527123E8B5E0584AB2CB65860084352EC6DAD9B58E961E50FCCF8778DD189661F7341E4FF707504B0708E3B2FE88C400000044010000504B01021400140008080800737E6857E3B2FE88C4000000440100000300000000000000000000000000000000007A6970504B0506000000000100010031000000F50000000000);
 
 -- 初始化组织功能用例字段
