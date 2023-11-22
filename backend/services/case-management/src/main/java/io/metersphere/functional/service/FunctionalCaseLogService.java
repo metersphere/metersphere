@@ -1,8 +1,10 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseDemand;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
+import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.sdk.constants.HttpMethodConstants;
@@ -36,6 +38,8 @@ public class FunctionalCaseLogService {
     private FunctionalCaseService functionalCaseService;
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
+    @Resource
+    private FunctionalCaseDemandMapper functionalCaseDemandMapper;
 
 
     //TODO 日志(需要修改)
@@ -114,27 +118,6 @@ public class FunctionalCaseLogService {
         }
         return null;
     }
-
-    public void batchDelLog(List<FunctionalCase> functionalCases, String projectId) {
-        List<LogDTO> dtoList = new ArrayList<>();
-        functionalCases.forEach(item -> {
-            LogDTO dto = new LogDTO(
-                    projectId,
-                    "",
-                    item.getId(),
-                    item.getCreateUser(),
-                    OperationLogType.DELETE.name(),
-                    OperationLogModule.FUNCTIONAL_CASE,
-                    item.getName());
-
-            dto.setPath("/functional/case/module/delete/");
-            dto.setMethod(HttpMethodConstants.GET.name());
-            dto.setOriginalValue(JSON.toJSONBytes(item));
-            dtoList.add(dto);
-        });
-        operationLogService.batchAdd(dtoList);
-    }
-
 
     public List<LogDTO> batchDeleteFunctionalCaseLog(FunctionalCaseBatchRequest request) {
         List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
@@ -234,6 +217,37 @@ public class FunctionalCaseLogService {
             dto.setPath("/functional/case/trash/delete");
             dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+            return dto;
+        }
+        return null;
+    }
+
+
+    /**
+     * 取消关联
+     *
+     * @param id ID
+     * @return 日志详情
+     */
+    public LogDTO disassociateLog(String id) {
+        FunctionalCaseDemand functionalCaseDemand = functionalCaseDemandMapper.selectByPrimaryKey(id);
+        if (functionalCaseDemand == null) {
+            return null;
+        }
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(functionalCaseDemand.getCaseId());
+        if (functionalCase != null) {
+            LogDTO dto = new LogDTO(
+                    functionalCase.getProjectId(),
+                    null,
+                    functionalCase.getId(),
+                    functionalCase.getCreateUser(),
+                    OperationLogType.DISASSOCIATE.name(),
+                    OperationLogModule.FUNCTIONAL_CASE,
+                    functionalCase.getName());
+
+            dto.setPath("/functional/case/demand/cancel/");
+            dto.setMethod(HttpMethodConstants.GET.name());
+            dto.setOriginalValue(JSON.toJSONBytes(functionalCaseDemand));
             return dto;
         }
         return null;

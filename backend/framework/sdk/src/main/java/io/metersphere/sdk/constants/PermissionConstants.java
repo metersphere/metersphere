@@ -225,13 +225,9 @@ public class PermissionConstants {
     public static final String CASE_REVIEW_READ_ADD = "CASE_REVIEW:READ+ADD";
     public static final String CASE_REVIEW_READ_UPDATE = "CASE_REVIEW:READ+UPDATE";
     public static final String CASE_REVIEW_READ_DELETE = "CASE_REVIEW:READ+DELETE";
-    public static final String CASE_REVIEW_READ_COMMENT = "CASE_REVIEW:READ+COMMENT";
-    public static final String CASE_REVIEW_READ_EXPORT = "CASE_REVIEW:READ+EXPORT";
-    public static final String CASE_REVIEW_READ_IMPORT = "CASE_REVIEW:READ+IMPORT";
-
-
-
-    /*------ end: FUNCTIONAL_CASE ------*/
+    public static final String CASE_REVIEW_REVIEW = "CASE_REVIEW:READ+REVIEW";
+    public static final String CASE_REVIEW_RELEVANCE = "CASE_REVIEW:READ+RELEVANCE";
+    /*------ end: CASE_REVIEW ------*/
 
     /*------ start: API_DEBUG ------*/
     public static final String PROJECT_API_DEBUG_READ = "PROJECT_API_DEBUG:READ";
