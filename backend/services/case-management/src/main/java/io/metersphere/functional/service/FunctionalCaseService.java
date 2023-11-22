@@ -616,7 +616,7 @@ public class FunctionalCaseService {
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
         List<ModuleCountDTO> moduleCountDTOList = extFunctionalCaseMapper.countModuleIdByKeywordAndFileType(request, delete);
         Map<String, Long> moduleCountMap = functionalCaseModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
-        //查出全部文件和我的文件的数量
+        //查出全部用例数量
         long allCount = extFunctionalCaseMapper.caseCount(request, delete);
         moduleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
