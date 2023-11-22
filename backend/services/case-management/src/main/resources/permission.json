@@ -31,6 +31,32 @@
             "id": "FUNCTIONAL_CASE:READ+IMPORT"
           }
         ]
+      },
+      {
+        "id": "CASE_REVIEW",
+        "name": "permission.case_review.name",
+        "permissions": [
+          {
+            "id": "CASE_REVIEW:READ"
+          },
+          {
+            "id": "CASE_REVIEW:READ+ADD"
+          },
+          {
+            "id": "CASE_REVIEW:READ+UPDATE"
+          },
+          {
+            "id": "CASE_REVIEW:READ+DELETE"
+          },
+          {
+            "id": "CASE_REVIEW:READ+REVIEW",
+            "name": "permission.case_review.review"
+          },
+          {
+            "id": "CASE_REVIEW:READ+RELEVANCE",
+            "name": "permission.case_review.relevance"
+          }
+        ]
       }
     ]
   }
