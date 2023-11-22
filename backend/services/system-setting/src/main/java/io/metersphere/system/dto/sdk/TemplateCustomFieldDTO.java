@@ -27,4 +27,7 @@ public class TemplateCustomFieldDTO {
     @Schema(title = "选项值")
     private List<CustomFieldOption> options;
 
+    @Schema(title = "字段类型")
+    private String type;
+
 }

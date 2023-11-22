@@ -119,6 +119,7 @@ public class BaseTemplateService {
                     TemplateCustomFieldDTO templateCustomFieldDTO = new TemplateCustomFieldDTO();
                     BeanUtils.copyBean(templateCustomFieldDTO, i);
                     templateCustomFieldDTO.setFieldName(customField.getName());
+                    templateCustomFieldDTO.setType(customField.getType());
                     AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
                     Object defaultValue = null;
                     try {
