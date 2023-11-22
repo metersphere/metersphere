@@ -155,9 +155,9 @@ public abstract class SSLManager {
                                 if (StringUtils.isNotBlank(resourceId) && keyMap.containsKey(resourceId)) {
                                     KeystoreDTO dto = keyMap.get(resourceId);
                                     // 加载认证文件
-                                    InputStream in = new FileInputStream(new File(dto.getPath()));
-                                    this.keyStore.load(in, dto.getPwd());
-
+                                    try (InputStream in = new FileInputStream(new File(dto.getPath()))) {
+                                        this.keyStore.load(in, dto.getPwd());
+                                    }
                                 }
                             }
                         } catch (Exception e) {
