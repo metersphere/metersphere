@@ -247,6 +247,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         DemandDTO demandDTO2 = new DemandDTO();
         demandDTO2.setDemandId("100002");
         demandDTO2.setDemandName("手动加入Tapd1");
+        demandDTO2.setDemandUrl("https://www.tapd.cn/55049933/prong/stories/view/1155049933001012783");
         demandList.add(demandDTO2);
         DemandDTO demandDTO3 = new DemandDTO();
         demandDTO3.setDemandId("100003");

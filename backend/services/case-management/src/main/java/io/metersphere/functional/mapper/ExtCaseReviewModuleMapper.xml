@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.functional.mapper.ExtCaseReviewModuleMapper">
+    <select id="selectBaseByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT id, name, parent_id AS parentId, 'module' AS type
+        FROM case_review_module
+        WHERE project_id = #{projectId}
+        ORDER BY pos
+    </select>
+    <select id="selectBaseByIds" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT id, name, parent_id AS parentId, 'module' AS type
+        FROM case_review_module
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY pos
+    </select>
+    <select id="selectModuleByParentIdAndPosOperator"
+            parameterType="io.metersphere.project.dto.NodeSortQueryParam"
+            resultType="io.metersphere.system.dto.sdk.BaseModule">
+        SELECT id, name, pos, project_Id, parent_id
+        FROM case_review_module
+        WHERE parent_id = #{parentId}
+        <if test="operator == 'moreThan'">
+            AND pos &gt; #{pos}
+        </if>
+        <if test="operator == 'lessThan'">
+            AND pos &lt; #{pos}
+        </if>
+        ORDER BY pos
+        <if test="operator == 'lessThan' or operator == 'latest'">
+            DESC
+        </if>
+        LIMIT 1
+    </select>
+    <select id="selectChildrenIdsByParentIds" resultType="java.lang.String">
+        SELECT id FROM case_review_module WHERE parent_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+       </foreach>
+    </select>
+    <select id="getMaxPosByParentId" resultType="java.lang.Long">
+        SELECT max(pos)
+        FROM case_review_module
+        WHERE  parent_id = #{0}
+    </select>
+    <select id="selectChildrenIdsSortByPos" resultType="java.lang.String">
+        SELECT id FROM case_review_module WHERE parent_id  = #{0}
+        ORDER BY pos ASC
+    </select>
+
+    <select id="selectBaseModuleById" resultType="io.metersphere.system.dto.sdk.BaseModule">
+        SELECT id, name, pos, project_Id, parent_id
+        FROM case_review_module
+        WHERE id = #{0}
+    </select>
+
+    <select id="selectIdAndParentIdByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT id, parent_id AS parentId
+        FROM case_review_module
+        WHERE project_id = #{0}
+    </select>
+</mapper>
