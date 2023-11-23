@@ -27,7 +27,7 @@
         <dom4j.version>2.1.4</dom4j.version>
         <guava.version>32.0.1-jre</guava.version>
         <pagehelper.version>6.0.0</pagehelper.version>
-        <metersphere-jmeter-functions.version>1.5</metersphere-jmeter-functions.version>
+        <metersphere-jmeter-functions.version>3.0</metersphere-jmeter-functions.version>
         <quartz-starter.version>1.0.7</quartz-starter.version>
         <redisson-starter.version>3.23.5</redisson-starter.version>
         <guice.version>5.1.0</guice.version>
