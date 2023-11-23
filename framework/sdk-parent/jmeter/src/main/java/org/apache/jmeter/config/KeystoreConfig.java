@@ -27,11 +27,6 @@ import org.apache.jorphan.util.JMeterStopTestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 /**
  * Configure Keystore
  */
@@ -105,12 +100,6 @@ public class KeystoreConfig extends ConfigTestElement implements TestBean, TestS
         // 加载认证文件
         String path = this.getPropertyAsString("MS-KEYSTORE-FILE-PATH");
         String password = this.getPropertyAsString("MS-KEYSTORE-FILE-PASSWORD");
-        InputStream in = null;
-        try {
-            in = new FileInputStream(new File(path));
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
         // 获取请求上的资源ID
         String resourceId = this.getPropertyAsString("MS-RESOURCE-ID");
         if (StringUtils.isNotBlank(resourceId)) {
@@ -123,11 +112,6 @@ public class KeystoreConfig extends ConfigTestElement implements TestBean, TestS
             dto.setPath(path);
             SSLManager.keyMap.put(resourceId, dto);
         }
-
-        /*SSLManager.getInstance().configureKeystore(Boolean.parseBoolean(preload),
-                startIndexAsInt,
-                endIndexAsInt,
-                clientCertAliasVarName, in, password);*/
 
     }
 

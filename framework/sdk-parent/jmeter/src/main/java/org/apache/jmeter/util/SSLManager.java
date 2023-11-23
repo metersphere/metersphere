@@ -367,9 +367,6 @@ public abstract class SSLManager {
      * @return the singleton {@link SSLManager}
      */
     public static synchronized SSLManager getInstance() {
-        if (null == SSLManager.manager) {
-            SSLManager.manager = new JsseSSLManager(null);
-        }
         try {
             // 重新加载认证文件
             JMeterContext threadContext = JMeterContextService.getContext();
@@ -381,14 +378,20 @@ public abstract class SSLManager {
                     SSLManager.manager = new JsseSSLManager(null);
                     SSLManager.manager.keyStore = null;
                     // 加载认证文件
-                    InputStream in = new FileInputStream(new File(dto.getPath()));
-                    SSLManager.manager.configureKeystore(Boolean.parseBoolean(dto.getPreload()), dto.getStartIndex(),
-                            dto.getEndIndex(), dto.getClientCertAliasVarName(), in, dto.getPwd());
-                    log.info("加载认证文件完成 {}", resourceId);
+                    try (InputStream in = new FileInputStream(new File(dto.getPath()))) {
+                        SSLManager.manager.configureKeystore(Boolean.parseBoolean(dto.getPreload()), dto.getStartIndex(),
+                                dto.getEndIndex(), dto.getClientCertAliasVarName(), in, dto.getPwd());
+                        log.info("加载认证文件完成 {}", resourceId);
+                    }
                 }
             }
         } catch (Exception e) {
             log.error("证书处理失败{}", e.getMessage());
+        }
+
+        // 初始化证书对象
+        if (null == SSLManager.manager) {
+            SSLManager.manager = new JsseSSLManager(null);
         }
 
         return SSLManager.manager;
