@@ -32,7 +32,7 @@
   import { Message } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -220,16 +220,6 @@
   const handleDelete = (record: BugListItem) => {
     // eslint-disable-next-line no-console
     console.log('create', record);
-  };
-
-  const handleFilter = (filter: FilterResult) => {
-    // eslint-disable-next-line no-console
-    console.log('filter', filter);
-  };
-
-  const dataIndexChange = (dataIndex: string) => {
-    // eslint-disable-next-line no-console
-    console.log('dataIndexChange', dataIndex);
   };
 
   const jumpToTestPlan = (record: BugListItem) => {
