@@ -5,9 +5,11 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.enums.ApiDefinitionStatus;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.request.http.MsHTTPElement;
 import io.metersphere.sdk.util.BeanUtils;
@@ -16,15 +18,16 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseCondition;
+import io.metersphere.system.file.FileCenter;
+import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
@@ -32,7 +35,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -49,16 +51,23 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private final static String UPDATE = BASE_PATH + "update";
     private final static String BATCH_UPDATE = BASE_PATH + "batch-update";
     private final static String DELETE = BASE_PATH + "delete";
-    private final static String BATCH_DELETE= BASE_PATH + "batch-del";
-    private final static String COPY= BASE_PATH + "copy";
-    private final static String BATCH_MOVE= BASE_PATH + "batch-move";
+    private final static String BATCH_DELETE = BASE_PATH + "batch-del";
+    private final static String COPY = BASE_PATH + "copy";
+    private final static String BATCH_MOVE = BASE_PATH + "batch-move";
 
-    private final static String PAGE= BASE_PATH + "page";
+    private final static String RESTORE = BASE_PATH + "restore";
+    private final static String BATCH_RESTORE = BASE_PATH + "batch-restore";
+
+    private final static String RECYCLE_DEL = BASE_PATH + "recycle-del";
+    private final static String BATCH_RECYCLE_DEL = BASE_PATH + "batch-recycle-del";
+
+    private final static String PAGE = BASE_PATH + "page";
     private static final String GET = BASE_PATH + "get-detail/";
     private static final String FOLLOW = BASE_PATH + "follow/";
     private static final String VERSION = BASE_PATH + "version/";
 
     private static final String DEFAULT_MODULE_ID = "10001";
+    private static ApiDefinition apiDefinition;
 
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
@@ -74,6 +83,12 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
 
+    @Resource
+    private ApiFileResourceService apiFileResourceService;
+
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
+
 
     @Test
     @Order(1)
@@ -83,13 +98,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinitionAddRequest request = createApiDefinitionAddRequest();
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        List<HttpResponse> msHttpResponse = MsHTTPElementTest.getMsHttpResponse();
+        request.setResponse(ApiDataUtils.toJSONString(msHttpResponse));
         // 构造请求参数
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("request", JSON.toJSONString(request));
-        FileInputStream inputStream = new FileInputStream(new File(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_upload.JPG"))
-                        .getPath()));
-        MockMultipartFile file = new MockMultipartFile("file_upload.JPG", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_upload.JPG")).getPath()
+        );
+        request.setFileIds(List.of(IDGenerator.nextStr()));
         paramMap.add("files", List.of(file));
         paramMap.add("request", JSON.toJSONString(request));
 
@@ -97,14 +113,16 @@ public class ApiDefinitionControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(ADD, paramMap);
         // 校验请求成功数据
         ApiDefinition resultData = getResultData(mvcResult, ApiDefinition.class);
-        ApiDefinition apiDefinition = assertAddApiDefinition(request, msHttpElement, resultData.getId());
+        apiDefinition = assertAddApiDefinition(request, msHttpElement, resultData.getId(), request.getFileIds());
         // 再插入一条数据，便于修改时重名校验
-        request.setName("接口定义test-6");
+        request.setMethod("GET");
+        request.setPath("/api/admin/posts");
+        request.setFileIds(null);
         paramMap.clear();
         paramMap.add("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(ADD, paramMap);
         resultData = getResultData(mvcResult, ApiDefinition.class);
-        assertAddApiDefinition(request, msHttpElement, resultData.getId());
+        assertAddApiDefinition(request, msHttpElement, resultData.getId(), request.getFileIds());
 
         // @@重名校验异常
         assertErrorCode(this.requestMultipart(ADD, paramMap), ApiResultCode.API_DEFINITION_EXIST);
@@ -122,7 +140,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
         paramMap.clear();
-        request.setName("permission");
+        request.setName("permission-st-6");
+        request.setMethod("DELETE");
+        request.setPath("/api/admin/posts");
         paramMap.add("request", JSON.toJSONString(request));
         requestMultipartPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_ADD, ADD, paramMap);
     }
@@ -137,14 +157,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setMethod("POST");
         request.setPath("/api/admin/posts");
         request.setStatus(ApiDefinitionStatus.PREPARE.getValue());
-        request.setModuleId("root");
+        request.setModuleId("default");
         request.setVersionId(defaultVersion);
         request.setDescription("描述内容");
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
         return request;
     }
 
-    private ApiDefinition assertAddApiDefinition(Object request, MsHTTPElement msHttpElement, String id) {
+    private ApiDefinition assertAddApiDefinition(Object request, MsHTTPElement msHttpElement, String id, List<String> fileIds) throws Exception {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
         ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(id);
         ApiDefinition copyApiDefinition = BeanUtils.copyBean(new ApiDefinition(), apiDefinition);
@@ -154,6 +174,26 @@ public class ApiDefinitionControllerTests extends BaseTest {
         if(apiDefinitionBlob != null){
             Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
         }
+        if (fileIds != null) {
+            // 验证文件的关联关系，以及是否存入对象存储
+            List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
+            Assertions.assertEquals(apiFileResources.size(), fileIds.size());
+
+            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinition.getProjectId(), id);
+            FileRequest fileRequest = new FileRequest();
+            if (fileIds.size() > 0) {
+                for (ApiFileResource apiFileResource : apiFileResources) {
+                    Assertions.assertEquals(apiFileResource.getProjectId(), apiDefinition.getProjectId());
+                    fileRequest.setFolder(apiDefinitionDir + "/" + apiFileResource.getFileId());
+                    fileRequest.setFileName(apiFileResource.getFileName());
+                    Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
+                }
+                fileRequest.setFolder(apiDefinitionDir);
+            } else {
+                fileRequest.setFolder(apiDefinitionDir);
+                Assertions.assertTrue(CollectionUtils.isEmpty(FileCenter.getDefaultRepository().getFolderFileNames(fileRequest)));
+            }
+        }
         return apiDefinition;
     }
 
@@ -161,13 +201,15 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(2)
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void get() throws Exception {
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
+        if(apiDefinition == null){
+            apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
+        }
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOkAndReturn(GET + apiDefinition.getId());
         ApiDataUtils.setResolver(MsHTTPElement.class);
-        ApiDefinitionDTO apiDefinitionDTO = getResultData(mvcResult, ApiDefinitionDTO.class);
+        ApiDefinitionDTO apiDefinitionDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiDefinitionDTO.class);
         // 校验数据是否正确
-        ApiDefinitionDTO copyApiDefinitionDTO = BeanUtils.copyBean(new ApiDefinitionDTO(), apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId()));
+        ApiDefinitionDTO copyApiDefinitionDTO = BeanUtils.copyBean(new ApiDefinitionDTO(), apiDefinition);
         ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId());
         ApiDefinitionFollowerExample example = new ApiDefinitionFollowerExample();
         example.createCriteria().andApiDefinitionIdEqualTo(apiDefinition.getId()).andUserIdEqualTo("admin");
@@ -175,6 +217,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         copyApiDefinitionDTO.setFollow(CollectionUtils.isNotEmpty(followers));
         if(apiDefinitionBlob != null){
             copyApiDefinitionDTO.setRequest(ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
+            copyApiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(apiDefinitionBlob.getResponse()), HttpResponse.class));
         }
         Assertions.assertEquals(apiDefinitionDTO, copyApiDefinitionDTO);
 
@@ -189,7 +232,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testUpdate() throws Exception {
         LogUtils.info("update api test");
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
+        if(apiDefinition == null){
+            apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
+        }
         ApiDefinitionUpdateRequest request = new ApiDefinitionUpdateRequest();
         BeanUtils.copyBean(request, apiDefinition);
         request.setPath("test.com/admin/test");
@@ -198,14 +243,17 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setModuleId("default1");
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        List<HttpResponse> msHttpResponse = MsHTTPElementTest.getMsHttpResponse();
+        request.setResponse(ApiDataUtils.toJSONString(msHttpResponse));
 
         // 构造请求参数
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("request", JSON.toJSONString(request));
-        FileInputStream inputStream = new FileInputStream(new File(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_update_upload.JPG"))
-                        .getPath()));
-        MockMultipartFile file = new MockMultipartFile("file_update_upload.JPG", "file_update_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_update_upload.JPG")).getPath()
+        );
+        // 带文件的更新
+        request.setAddFileIds(List.of(IDGenerator.nextStr()));
+        request.setFileIds(request.getAddFileIds());
         paramMap.add("files", List.of(file));
         paramMap.add("request", JSON.toJSONString(request));
 
@@ -213,7 +261,36 @@ public class ApiDefinitionControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(UPDATE, paramMap);
         // 校验请求成功数据
         ApiDefinition resultData = getResultData(mvcResult, ApiDefinition.class);
-        apiDefinition = assertAddApiDefinition(request, msHttpElement, resultData.getId());
+        apiDefinition = assertAddApiDefinition(request, msHttpElement, resultData.getId(), request.getFileIds());
+
+        // 删除了上一次上传的文件，重新上传一个文件
+        request.setAddFileIds(List.of(IDGenerator.nextStr()));
+        request.setFileIds(request.getAddFileIds());
+        paramMap.clear();
+        paramMap.add("files", List.of(file));
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipartWithOk(UPDATE, paramMap);
+        assertAddApiDefinition(request, msHttpElement, request.getId(), request.getFileIds());
+
+        // 已有一个文件，再上传一个文件
+        request.setAddFileIds(List.of(IDGenerator.nextStr()));
+        List<String> fileIds = apiFileResourceService.getFileIdsByResourceId(request.getId());
+        fileIds.addAll(request.getAddFileIds());
+        request.setFileIds(fileIds);
+        paramMap.clear();
+        paramMap.add("files", List.of(file));
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipartWithOk(UPDATE, paramMap);
+        assertAddApiDefinition(request, msHttpElement, request.getId(), request.getFileIds());
+
+        // @@重名校验异常
+        request.setModuleId("default");
+        request.setPath("/api/admin/posts");
+        request.setMethod("GET");
+        paramMap.clear();
+        paramMap.add("request", JSON.toJSONString(request));
+        assertErrorCode(this.requestMultipart(UPDATE, paramMap), ApiResultCode.API_DEFINITION_EXIST);
+
         // 校验数据是否存在
         request.setId("111");
         request.setName("test123");
@@ -235,7 +312,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
         paramMap.clear();
-        request.setName("permission");
+        request.setName("permission-st-6");
         paramMap.add("request", JSON.toJSONString(request));
         requestMultipartPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, UPDATE, paramMap);
     }
@@ -334,6 +411,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setId(apiDefinition.getId());
         MvcResult mvcResult = this.requestPostWithOkAndReturn(COPY, request);
         ApiDefinition resultData = getResultData(mvcResult, ApiDefinition.class);
+        // @数据验证
+        Assertions.assertEquals("copy_" + apiDefinition.getName(), resultData.getName());
         // @@校验日志
         checkLog(resultData.getId(), OperationLogType.UPDATE);
         request.setId("121");
@@ -428,7 +507,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testDel() throws Exception {
         LogUtils.info("delete api test");
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
+        if(apiDefinition == null){
+            apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
+        }
         // @只存在一个版本
         ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
         apiDefinitionDeleteRequest.setId(apiDefinition.getId());
@@ -504,17 +585,16 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
 
         // 删除选中
-        request.setSelectIds(List.of("1001","1002","1005"));
-        request.setExcludeIds(List.of("1005"));
+        request.setSelectIds(List.of("1002","1004"));
         request.setDeleteAll(false);
         request.setSelectAll(false);
         this.requestPostWithOkAndReturn(BATCH_DELETE, request);
         // @@校验日志
-        checkLog("1001", OperationLogType.DELETE);
         checkLog("1002", OperationLogType.DELETE);
-        checkLog("1005", OperationLogType.DELETE);
+        checkLog("1004", OperationLogType.DELETE);
         // 删除全部 条件为关键字为st-6的数据
         request.setDeleteAll(true);
+        request.setExcludeIds(List.of("1005"));
         request.setSelectAll(true);
         BaseCondition baseCondition = new BaseCondition();
         baseCondition.setKeyword("st-6");
@@ -531,54 +611,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(11)
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getPage() throws Exception {
-        ApiDefinitionPageRequest request = new ApiDefinitionPageRequest();
-        request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setCurrent(1);
-        request.setPageSize(10);
-        this.requestPost(PAGE, request);
-        request.setSort(new HashMap<>() {{
-            put("createTime", "asc");
-        }});
-
-        // ALL 全部 KEYWORD 关键字 FILTER 筛选 COMBINE 自定义
-        String search = "KEYWORD";
-        Map<String, List<String>> filters = new HashMap<>();
-        Map<String, Object> map = new HashMap<>();
-        switch (search) {
-            case "ALL":
-                // Perform all search types
-                request.setKeyword("100");
-                filters.put("status", Arrays.asList("Underway", "Completed"));
-                filters.put("method", List.of("GET"));
-                filters.put("version_id", List.of("1005704995741369851"));
-                request.setFilter(filters);
-
-                map.put("name", Map.of("operator", "like", "value", "test-1"));
-                map.put("method", Map.of("operator", "in", "value", Arrays.asList("GET", "POST")));
-                request.setCombine(map);
-                break;
-            case "KEYWORD":
-                // 基础查询
-                request.setKeyword("100");
-                // 版本查询
-                request.setVersionId("100570499574136985");
-                break;
-            case "FILTER":
-                // 筛选
-                filters.put("status", Arrays.asList("Underway", "Completed"));
-                filters.put("method", List.of("GET"));
-                filters.put("version_id", List.of("1005704995741369851"));
-                request.setFilter(filters);
-                break;
-            case "COMBINE":
-                // 自定义字段 测试
-                map.put("name", Map.of("operator", "like", "value", "test-1"));
-                map.put("method", Map.of("operator", "in", "value", Arrays.asList("GET", "POST")));
-                request.setCombine(map);
-                break;
-            default:
-                break;
-        }
+        ApiDefinitionPageRequest request = createApiDefinitionPageRequest();
 
         MvcResult mvcResult = this.requestPostWithOkAndReturn(PAGE, request);
         // 获取返回值
@@ -593,6 +626,238 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
+    }
+
+    private ApiDefinitionPageRequest createApiDefinitionPageRequest() {
+        ApiDefinitionPageRequest request = new ApiDefinitionPageRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setSort(Map.of("createTime", "asc"));
+
+        String search = getRandomSearchType();
+        switch (search) {
+            case "ALL" -> configureAllSearch(request);
+            case "KEYWORD" -> configureKeywordSearch(request);
+            case "FILTER" -> configureFilterSearch(request);
+            case "COMBINE" -> configureCombineSearch(request);
+            default -> {}
+        }
+
+        return request;
+    }
+
+    private String getRandomSearchType() {
+        List<String> searchTypes = Arrays.asList("ALL", "KEYWORD", "FILTER", "COMBINE");
+        return searchTypes.get(new Random().nextInt(searchTypes.size()));
+    }
+
+    private void configureAllSearch(ApiDefinitionPageRequest request) {
+        request.setKeyword("100");
+        Map<String, List<String>> filters = new HashMap<>();
+        filters.put("status", Arrays.asList("Underway", "Completed"));
+        filters.put("method", List.of("GET"));
+        filters.put("version_id", List.of("1005704995741369851"));
+        request.setFilter(filters);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", Map.of("operator", "like", "value", "test-1"));
+        map.put("method", Map.of("operator", "in", "value", Arrays.asList("GET", "POST")));
+        request.setCombine(map);
+    }
+
+    private void configureKeywordSearch(ApiDefinitionPageRequest request) {
+        request.setKeyword("100");
+        request.setVersionId("100570499574136985");
+    }
+
+    private void configureFilterSearch(ApiDefinitionPageRequest request) {
+        Map<String, List<String>> filters = new HashMap<>();
+        filters.put("status", Arrays.asList("Underway", "Completed"));
+        filters.put("method", List.of("GET"));
+        filters.put("version_id", List.of("1005704995741369851"));
+        request.setFilter(filters);
+    }
+
+    private void configureCombineSearch(ApiDefinitionPageRequest request) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", Map.of("operator", "like", "value", "test-1"));
+        map.put("method", Map.of("operator", "in", "value", Arrays.asList("GET", "POST")));
+        request.setCombine(map);
+    }
+
+    @Test
+    @Order(12)
+    @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void testRestore() throws Exception {
+        LogUtils.info("restore api test");
+        if(apiDefinition == null){
+            apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
+        }
+        // @恢复一条数据
+        ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
+        apiDefinitionDeleteRequest.setId(apiDefinition.getId());
+        apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
+        // @@请求成功
+        this.requestPostWithOkAndReturn(RESTORE, apiDefinitionDeleteRequest);
+        checkLog(apiDefinition.getId(), OperationLogType.UPDATE);
+        ApiDefinition apiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
+        Assertions.assertFalse(apiDefinitionInfo.getDeleted());
+        Assertions.assertNull(apiDefinitionInfo.getDeleteUser());
+        Assertions.assertNull(apiDefinitionInfo.getDeleteTime());
+
+        // @查询恢复的数据版本是否为默认版本
+        String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(apiDefinition.getProjectId());
+        if(defaultVersion.equals(apiDefinition.getVersionId())){
+            // 需要处理此数据为最新标识
+            // 此数据不为最新版本，验证是否更新为最新版本
+            if(!apiDefinition.getLatest()){
+                Assertions.assertTrue(apiDefinitionInfo.getLatest());
+            }
+        }
+        // todo 效验 关联数据
+//        List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(Collections.singletonList(apiDefinition.getId()), false);
+//        if(!caseLists.isEmpty()) {
+//            caseLists.forEach(item -> {
+//                Assertions.assertFalse(item.getDeleted());
+//                Assertions.assertNull(item.getDeleteUser());
+//                Assertions.assertNull(item.getDeleteTime());
+//            });
+//        }
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, RESTORE, apiDefinitionDeleteRequest);
+    }
+
+    @Test
+    @Order(13)
+    @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void testRecycleDel() throws Exception {
+        LogUtils.info("recycleDel api test");
+        if(apiDefinition == null){
+            apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
+        }
+        if(!apiDefinition.getDeleted()){
+            testDel();
+        }
+        // @只存在一个版本
+        ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
+        apiDefinitionDeleteRequest.setId(apiDefinition.getId());
+        apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
+        apiDefinitionDeleteRequest.setDeleteAll(false);
+        // @@请求成功
+        this.requestPostWithOkAndReturn(RECYCLE_DEL, apiDefinitionDeleteRequest);
+        checkLog(apiDefinition.getId(), OperationLogType.DELETE);
+        // 验证数据
+        ApiDefinition apiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
+        Assertions.assertNull(apiDefinitionInfo);
+
+        // 文件是否删除
+        List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(apiDefinition.getId());
+        Assertions.assertEquals(0, apiFileResources.size());
+
+        // 效验 关联数据
+        List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(Collections.singletonList(apiDefinition.getId()), false);
+        Assertions.assertEquals(0, caseLists.size());
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, RECYCLE_DEL, apiDefinitionDeleteRequest);
+    }
+
+    @Test
+    @Order(14)
+    @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void testBatchRestore() throws Exception {
+        LogUtils.info("batch restore api test");
+        ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        // 恢复选中
+        request.setSelectIds(List.of("1002","1004","1005"));
+        request.setExcludeIds(List.of("1005"));
+        request.setSelectAll(false);
+        this.requestPostWithOkAndReturn(BATCH_RESTORE, request);
+
+        // 效验数据结果
+        ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+        apiDefinitionExample.createCriteria().andIdIn(request.getSelectIds());
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        if(!apiDefinitions.isEmpty()){
+            apiDefinitions.forEach(item -> {
+                Assertions.assertFalse(item.getDeleted());
+                Assertions.assertNull(item.getDeleteUser());
+                Assertions.assertNull(item.getDeleteTime());
+                // todo 效验 关联数据
+//                List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(Collections.singletonList(item.getId()), false);
+//                if(!caseLists.isEmpty()) {
+//                    caseLists.forEach(test -> {
+//                        Assertions.assertFalse(test.getDeleted());
+//                        Assertions.assertNull(test.getDeleteUser());
+//                        Assertions.assertNull(test.getDeleteTime());
+//                    });
+//                }
+            });
+        }
+
+
+        // @@校验日志
+        checkLog("1002", OperationLogType.UPDATE);
+        checkLog("1004", OperationLogType.UPDATE);
+        checkLog("1005", OperationLogType.UPDATE);
+
+        // 恢复全部 条件为关键字为st-6的数据
+        request.setSelectAll(true);
+        BaseCondition baseCondition = new BaseCondition();
+        baseCondition.setKeyword("st-6");
+        request.setCondition(baseCondition);
+        this.requestPostWithOkAndReturn(BATCH_RESTORE, request);
+
+        // @@校验日志
+        checkLog("1006", OperationLogType.UPDATE);
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, BATCH_RESTORE, request);
+    }
+
+    @Test
+    @Order(15)
+    @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void testBatchRecycleDel() throws Exception {
+        LogUtils.info("batch recycle delete api test");
+        testBatchDel();
+        ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+
+        // 删除选中
+        request.setSelectIds(List.of("1002","1004"));
+        request.setSelectAll(false);
+        this.requestPostWithOkAndReturn(BATCH_RECYCLE_DEL, request);
+        // 效验数据结果
+        ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+        apiDefinitionExample.createCriteria().andIdIn(request.getSelectIds());
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        Assertions.assertEquals(0, apiDefinitions.size());
+
+        request.getSelectIds().forEach(item -> {
+            // 文件是否删除
+            List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(item);
+            Assertions.assertEquals(0, apiFileResources.size());
+        });
+        // 效验 关联数据
+        List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(request.getSelectIds(), false);
+        Assertions.assertEquals(0, caseLists.size());
+
+        // @@校验日志
+        checkLog("1002", OperationLogType.DELETE);
+        checkLog("1004", OperationLogType.DELETE);
+        // 删除全部 条件为关键字为st-6的数据
+        request.setSelectAll(true);
+        request.setExcludeIds(List.of("1005"));
+        BaseCondition baseCondition = new BaseCondition();
+        baseCondition.setKeyword("st-6");
+        request.setCondition(baseCondition);
+        this.requestPostWithOkAndReturn(BATCH_RECYCLE_DEL, request);
+        // @@校验日志
+        checkLog("1006", OperationLogType.DELETE);
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, BATCH_RECYCLE_DEL, request);
     }
 
 }

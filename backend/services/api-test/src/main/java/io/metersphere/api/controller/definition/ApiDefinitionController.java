@@ -116,12 +116,41 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/page")
-    @Operation(summary = "接口测试-接口管理-接口列表")
+    @Operation(summary = "接口测试-接口管理-接口列表(deleted 状态为 0 时为回收站数据)")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public Pager<List<ApiDefinitionDTO>> getPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, apiDefinitionService.getApiDefinitionPage(request, false));
+        return PageUtils.setPageInfo(page, apiDefinitionService.getApiDefinitionPage(request));
+    }
+
+    @PostMapping(value = "/restore")
+    @Operation(summary = "接口测试-接口管理-恢复回收站接口定义")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.restoreLog(#request)", msClass = ApiDefinitionLogService.class)
+    public void restore(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
+        apiDefinitionService.restore(request, SessionUtils.getUserId());
+    }
+    @PostMapping(value = "/recycle-del")
+    @Operation(summary = "接口测试-接口管理-删除回收站接口定义")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.recycleDelLog(#request)", msClass = ApiDefinitionLogService.class)
+    public void recycleDel(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
+        apiDefinitionService.recycleDel(request, SessionUtils.getUserId());
+    }
+    @PostMapping(value = "/batch-restore")
+    @Operation(summary = "接口测试-接口管理-批量从回收站恢复接口定义")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchRestoreLog(#request)", msClass = ApiDefinitionLogService.class)
+    public void batchRestore(@Validated @RequestBody ApiDefinitionBatchRequest request) {
+        apiDefinitionService.batchRestore(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping(value = "/batch-recycle-del")
+    @Operation(summary = "接口测试-接口管理-批量从回收站删除接口定义")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
+    public void batchRecycleDel(@Validated @RequestBody ApiDefinitionBatchRequest request) {
+        apiDefinitionService.batchRecycleDel(request, SessionUtils.getUserId());
     }
 
 }

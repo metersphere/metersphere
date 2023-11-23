@@ -21,7 +21,7 @@
         api_definition.deleted, project_version.name as version_name
         from api_definition
         LEFT JOIN project_version ON project_version.id = api_definition.version_id
-        where deleted = #{deleted}
+        where deleted = #{request.deleted}
         <include refid="queryWhereCondition"/>
 
     </select>
@@ -62,6 +62,12 @@
         SELECT id
         FROM api_definition
         where project_id = #{projectId} AND protocol = #{protocol} and deleted = #{deleted}
+        <if test="request.moduleIds != null and request.moduleIds.size() != 0">
+            AND module_id IN
+            <foreach collection="request.moduleIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
         <include refid="queryWhereConditionByBaseQueryRequest"/>
     </select>
 
@@ -75,9 +81,22 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
-        and deleted = false
+        and deleted = #{deleted}
         group by ref_id
     </select>
+
+    <select id="getIdsByRefId" resultType="java.lang.String">
+        SELECT
+        id
+        FROM
+        api_definition
+        where ref_id in
+        <foreach collection="refIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and deleted = #{deleted}
+    </select>
+
     <select id="getApiDefinitionByRefId" resultType="io.metersphere.api.dto.definition.ApiDefinitionVersionDTO">
         SELECT id,
                `name`,
@@ -87,27 +106,55 @@
         FROM api_definition
         WHERE ref_id = #{refId}
     </select>
+
     <select id="getTagsByIds" resultType="io.metersphere.api.domain.ApiDefinition">
         select id, tags from api_definition
         where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
-        and deleted = false
+        and deleted = #{deleted}
     </select>
 
 
-    <update id="batchDelete">
+    <update id="batchDeleteByRefId">
         update api_definition
         set deleted = 1,
         delete_user = #{userId},
         delete_time = UNIX_TIMESTAMP()*1000
         where ref_id in
+        <foreach collection="refIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and deleted = false and project_id = #{projectId}
+    </update>
+
+    <update id="batchDeleteById">
+        update api_definition
+        set deleted = 1,
+        delete_user = #{userId},
+        delete_time = UNIX_TIMESTAMP()*1000
+        where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
-        and deleted = false
+        and deleted = false and project_id = #{projectId}
     </update>
+
+    <update id="batchRestoreById">
+        update api_definition
+        set deleted = 0,
+        delete_user = null,
+        delete_time = null,
+        update_user = #{userId},
+        update_time = UNIX_TIMESTAMP()*1000
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and deleted = true and project_id = #{projectId}
+    </update>
+
 
     <update id="batchMove">
         update api_definition
