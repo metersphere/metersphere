@@ -54,7 +54,7 @@
           :tooltip="item.tooltip"
         >
           <template #title>
-            <div class="flex flex-row flex-nowrap items-center">
+            <div class="flex w-full flex-row flex-nowrap items-center">
               <slot :name="item.titleSlotName">
                 <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
               </slot>
@@ -68,9 +68,10 @@
               />
               <slot v-else-if="item.filterConfig" :name="item.filterConfig.filterSlotName">
                 <DefaultFilter
+                  class="ml-[4px]"
                   :options="item.filterConfig.options"
                   :multiple="(item.filterConfig.multiple as boolean)"
-                  @handle-confirm="(v: (string | number)[]) => handleFilterConfirm(v, item.dataIndex as string)"
+                  @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string)"
                 />
               </slot>
             </div>
@@ -497,6 +498,9 @@
           }
         }
       }
+    }
+    :deep(.arco-table-th-title) {
+      width: 100%;
     }
     .setting-icon {
       margin-left: 16px;

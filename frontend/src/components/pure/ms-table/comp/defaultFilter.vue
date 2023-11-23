@@ -2,7 +2,7 @@
   <a-trigger v-model:popup-visible="visible" trigger="click">
     <a-button type="text" @click="visible = true">
       <template #icon>
-        <icon-filter />
+        <icon-filter class="text-[var(--color-text-4)]" />
       </template>
     </a-button>
     <template #content>
@@ -23,7 +23,7 @@
           <a-button size="mini" type="secondary" @click="handleFilterReset">
             {{ t('common.reset') }}
           </a-button>
-          <a-button size="mini" type="primary" @click="handleFilterSubmit(false)">
+          <a-button size="mini" type="primary" @click="handleFilterSubmit()">
             {{ t('common.confirm') }}
           </a-button>
         </div>
@@ -49,25 +49,22 @@
   const checkedList = ref<(string | number)[]>([]);
   const checkedValue = ref<string | number>('');
 
-  const handleFilterSubmit = (isReset = false) => {
-    if (props.multiple) {
-      emit('handleConfirm', checkedList.value);
-    } else {
-      emit('handleConfirm', [checkedValue.value]);
-    }
-    if (!isReset) {
-      checkedList.value = [];
-      checkedValue.value = '';
-    }
-    visible.value = false;
-  };
-
   const handleFilterReset = () => {
     if (props.multiple) {
       checkedList.value = [];
     } else {
       checkedValue.value = '';
     }
-    handleFilterSubmit(true);
+    emit('handleConfirm', []);
+    visible.value = false;
+  };
+
+  const handleFilterSubmit = () => {
+    if (props.multiple) {
+      emit('handleConfirm', checkedList.value);
+    } else {
+      emit('handleConfirm', checkedValue.value ? [checkedValue.value] : []);
+    }
+    visible.value = false;
   };
 </script>

@@ -302,8 +302,11 @@ export default function useTableProps<T>(
 
     // 筛选触发
     filterChange: (dataIndex: string, filteredValues: (string | number)[]) => {
-      console.log('filterChange', dataIndex, filteredValues);
-      filterItem.value = { [dataIndex]: filteredValues };
+      if (filteredValues.length > 0) {
+        filterItem.value = { [dataIndex]: filteredValues };
+      } else {
+        filterItem.value = {};
+      }
       loadList();
     },
     // 分页触发
