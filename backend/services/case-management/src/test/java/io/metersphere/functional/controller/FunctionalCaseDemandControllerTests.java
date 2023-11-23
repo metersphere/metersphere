@@ -10,6 +10,7 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -231,6 +232,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertTrue(CollectionUtils.isEmpty(functionalCaseDemands));
+        checkLog("DEMAND_TEST_FUNCTIONAL_CASE_ID", OperationLogType.DISASSOCIATE);
     }
 
     @Test
