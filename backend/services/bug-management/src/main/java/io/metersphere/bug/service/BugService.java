@@ -495,7 +495,7 @@ public class BugService {
         }
         if (CollectionUtils.isNotEmpty(request.getUnLinkRefIds())) {
             // 取消关联的附件, FILE_ASSOCIATION表
-            fileAssociationService.deleteBySourceId(request.getUnLinkRefIds(), createFileLogRecord(fileLogUrl, currentUser, request.getProjectId()));
+            fileAssociationService.deleteByIds(request.getUnLinkRefIds(), createFileLogRecord(fileLogUrl, currentUser, request.getProjectId()));
         }
 
         // 新本地上传的附件
@@ -526,7 +526,7 @@ public class BugService {
         }
         // 新关联的附件
         if (CollectionUtils.isNotEmpty(request.getLinkFileIds())) {
-            fileAssociationService.association(request.getId(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, request.getLinkFileIds(), false,
+            fileAssociationService.association(request.getId(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, request.getLinkFileIds(),
                     createFileLogRecord(fileLogUrl, currentUser, request.getProjectId()));
         }
     }

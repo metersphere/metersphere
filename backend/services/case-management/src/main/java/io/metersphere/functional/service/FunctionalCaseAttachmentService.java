@@ -197,7 +197,7 @@ public class FunctionalCaseAttachmentService {
      * @param projectId         projectId
      */
     public void association(List<String> relateFileMetaIds, String caseId, String userId, String logUrl, String projectId) {
-        fileAssociationService.association(caseId, FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE, relateFileMetaIds, false, createFileLogRecord(logUrl, userId, projectId));
+        fileAssociationService.association(caseId, FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE, relateFileMetaIds, createFileLogRecord(logUrl, userId, projectId));
     }
 
     private FileLogRecord createFileLogRecord(String logUrl, String operator, String projectId) {
@@ -220,7 +220,7 @@ public class FunctionalCaseAttachmentService {
      * @param projectId      projectId
      */
     public void unAssociation(List<String> unLinkFilesIds, String logUrl, String userId, String projectId) {
-        fileAssociationService.deleteBySourceId(unLinkFilesIds, createFileLogRecord(logUrl, userId, projectId));
+        fileAssociationService.deleteByIds(unLinkFilesIds, createFileLogRecord(logUrl, userId, projectId));
     }
 
 

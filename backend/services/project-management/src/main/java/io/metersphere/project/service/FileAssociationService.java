@@ -18,15 +18,15 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -131,18 +131,14 @@ public class FileAssociationService {
      * @param fileLogRecord   日志记录相关。包含操作人、日志所属模块、触发日志记录的请求路径和请求方法
      * @return  本次涉及到关联的关联表ID
      */
-    public List<String> association(String sourceId, String sourceType,  List<String> fileIds, boolean isOverWrite, @Validated FileLogRecord fileLogRecord) {
+    public List<String> association(String sourceId, String sourceType, List<String> fileIds, @Validated FileLogRecord fileLogRecord) {
         if (CollectionUtils.isEmpty(fileIds)) {
             throw new MSException(Translator.get("file.not.exist"));
         }
         FileAssociationSource source = extFileAssociationMapper.selectNameBySourceTableAndId(FileAssociationSourceUtil.getQuerySql(sourceType),sourceId);
         this.validateSourceName(source);
 
-
         List<FileMetadata> fileMetadataList = fileMetadataService.selectByList(fileIds);
-        if (fileMetadataList.size() != fileIds.size()) {
-            throw new MSException(Translator.get("file.some.not.exist"));
-        }
 
         //校验文件是否已经关联
         FileAssociationExample example = new FileAssociationExample();
@@ -150,24 +146,17 @@ public class FileAssociationService {
         List<FileAssociation> associationdList = fileAssociationMapper.selectByExample(example);
         Map<String,FileAssociation> refIdFileAssociationMap = associationdList.stream().collect(Collectors.toMap(FileAssociation::getFileRefId, item -> item));
 
-        Map<FileAssociation,FileMetadata> updateAssociationMap = new HashMap<>();
         List<FileMetadata> addFileList = new ArrayList<>();
         for (FileMetadata fileMetadata : fileMetadataList) {
             FileAssociation fileAssociation = refIdFileAssociationMap.get(fileMetadata.getRefId());
             if(fileAssociation == null){
                 addFileList.add(fileMetadata);
-            }else if(!StringUtils.equals(fileAssociation.getFileId(),fileMetadata.getId())){
-                updateAssociationMap.put(fileAssociation,fileMetadata);
             }
         }
-        List<String> associationId = new ArrayList<>();
-        associationId.addAll(this.createFileAssociation(addFileList,sourceId,source.getSourceName(),sourceType,fileLogRecord));
-        if(isOverWrite){
-            associationId.addAll(this.updateFileAssociation(updateAssociationMap,source.getSourceName(),fileLogRecord));
-        }
-        return associationId;
+        return this.createFileAssociation(addFileList, sourceId, source.getSourceName(), sourceType, fileLogRecord);
     }
-    private Collection<String> createFileAssociation(List<FileMetadata> addFileList, String sourceId, String sourceName,String sourceType, @Validated FileLogRecord logRecord) {
+
+    private List<String> createFileAssociation(List<FileMetadata> addFileList, String sourceId, String sourceName, String sourceType, @Validated FileLogRecord logRecord) {
         FileAssociationSourceUtil.validate(sourceType);
         if(CollectionUtils.isNotEmpty(addFileList)){
             List<FileAssociation> createFile = new ArrayList<>();
@@ -189,28 +178,6 @@ public class FileAssociationService {
             fileAssociationMapper.batchInsert(createFile);
             fileAssociationLogService.saveBatchInsertLog(sourceName,addFileList,logRecord);
             return createFile.stream().map(FileAssociation::getId).collect(Collectors.toList());
-        }else {
-            return new ArrayList<>();
-        }
-    }
-    private Collection<String> updateFileAssociation(Map<FileAssociation, FileMetadata> updateAssociationMap,String sourceName,@Validated FileLogRecord logRecord) {
-        if(MapUtils.isNotEmpty(updateAssociationMap)){
-            long operatorTime = System.currentTimeMillis();
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            FileAssociationMapper batchUpdateMapper = sqlSession.getMapper(FileAssociationMapper.class);
-            for (Map.Entry<FileAssociation, FileMetadata> entry : updateAssociationMap.entrySet()) {
-                FileAssociation association = entry.getKey();
-                FileMetadata metadata = entry.getValue();
-                association.setFileId(metadata.getId());
-                association.setFileVersion(metadata.getFileVersion());
-                association.setUpdateUser(logRecord.getOperator());
-                association.setUpdateTime(operatorTime);
-                batchUpdateMapper.updateByPrimaryKeySelective(association);
-            }
-            sqlSession.flushStatements();
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            fileAssociationLogService.saveBatchUpdateLog(sourceName,updateAssociationMap.values(),logRecord);
-            return updateAssociationMap.keySet().stream().map(FileAssociation::getId).collect(Collectors.toList());
         }else {
             return new ArrayList<>();
         }
@@ -257,17 +224,37 @@ public class FileAssociationService {
      * @param logRecord 日志记录相关
      * @return
      */
-    public int deleteBySourceId(List<String> idList, @Validated FileLogRecord logRecord){
+    public int deleteByIds(List<String> idList, @Validated FileLogRecord logRecord) {
         if(CollectionUtils.isEmpty(idList)){
             return 0;
         }
         FileAssociationExample example = new FileAssociationExample();
         example.createCriteria().andIdIn(idList);
+        return this.deleteAndSelectExample(example, logRecord);
+    }
+
+    /**
+     * 取消关联
+     *
+     * @param sourceIds 取消关联的资源id
+     * @param logRecord 日志记录相关
+     * @return
+     */
+    public int deleteBySourceIds(List<String> sourceIds, @Validated FileLogRecord logRecord) {
+        if (CollectionUtils.isEmpty(sourceIds)) {
+            return 0;
+        }
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria().andSourceIdIn(sourceIds);
+        return this.deleteAndSelectExample(example, logRecord);
+    }
+
+    private int deleteAndSelectExample(FileAssociationExample example, FileLogRecord logRecord) {
         List<FileAssociation> fileAssociationList = fileAssociationMapper.selectByExample(example);
-        Map<String,List<String>> sourceToFileNameMap = this.genSourceNameFileNameMap(fileAssociationList);
+        Map<String, List<String>> sourceToFileNameMap = this.genSourceNameFileNameMap(fileAssociationList);
         int deleteCount = fileAssociationMapper.deleteByExample(example);
-        if(MapUtils.isNotEmpty(sourceToFileNameMap)){
-            fileAssociationLogService.saveDeleteLog(sourceToFileNameMap,logRecord);
+        if (MapUtils.isNotEmpty(sourceToFileNameMap)) {
+            fileAssociationLogService.saveDeleteLog(sourceToFileNameMap, logRecord);
         }
         return deleteCount;
     }
@@ -317,7 +304,7 @@ public class FileAssociationService {
         String fileId = fileMetadataService.transferFile(fileName, fileLogRecord.getProjectId(), fileLogRecord.getOperator(),fileBytes);
         List<String> accociationList = new ArrayList<>();
         accociationList.add(fileId);
-        this.association(sourceId, sourceType, accociationList, false, fileLogRecord);
+        this.association(sourceId, sourceType, accociationList, fileLogRecord);
         fileAssociationLogService.saveTransferAssociationLog(sourceId,fileName,source.getSourceName(),fileLogRecord);
         return fileId;
     }
