@@ -1,5 +1,5 @@
 <template>
-  <relevance-dialog :width="width" :page-key="pageKey" :title="dialogTitle" ref="relevanceDialog" :full-screen="isFullScreen">
+  <relevance-dialog :width="width" :title="dialogTitle" ref="relevanceDialog" :full-screen="isFullScreen">
     <!-- todo -->
     <template slot="headerBtn" v-if="$slots.headerBtn">
       <div>
@@ -8,18 +8,18 @@
     </template>
     <template slot="title" slot-scope="{ title }" v-if="!$slots.headerBtn">
       <ms-dialog-header
-        :title="title"
-        :enable-cancel="false"
-        @confirm="save"
-        btn-size="mini"
-        :enable-full-screen="false"
-        @fullScreen="isFullScreen = !isFullScreen">
+          :title="title"
+          :enable-cancel="false"
+          @confirm="save"
+          btn-size="mini"
+          :enable-full-screen="false"
+          @fullScreen="isFullScreen = !isFullScreen">
         <template #other>
           <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px" />
 
           <div v-if="flag" style="margin: 5px; float: left">
             <el-checkbox v-model="checked" class="el-checkbox__label"
-              >{{ $t('test_track.sync_add_api_load') }}
+            >{{ $t('test_track.sync_add_api_load') }}
             </el-checkbox>
           </div>
         </template>
@@ -28,29 +28,29 @@
 
     <template v-slot:aside>
       <span v-if="isAcrossSpace" class="menu-title">{{
-        '[' + $t('project.version.checkout') + $t('commons.space') + ']'
-      }}</span>
+          '[' + $t('project.version.checkout') + $t('commons.space') + ']'
+        }}</span>
       <el-select
-        v-if="isAcrossSpace"
-        filterable
-        slot="prepend"
-        v-model="workspaceId"
-        @change="changeWorkspace"
-        class="ms-header-workspace"
-        size="small">
-        <el-option v-for="item in workspaceList" :key="item.id" :value="item.id" :title="item.name">
+          v-if="isAcrossSpace"
+          filterable
+          slot="prepend"
+          v-model="workspaceId"
+          @change="changeWorkspace"
+          class="ms-header-workspace"
+          size="small">
+        <el-option v-for="item in workspaceList" :label="item.name" :key="item.id" :value="item.id" :title="item.name">
           <div style="max-width: 450px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
             {{ item.name }}
           </div>
         </el-option>
       </el-select>
       <select-menu
-        :data="projects"
-        v-if="multipleProject"
-        width="155px"
-        :current-data="currentProject"
-        :title="$t('test_track.switch_project')"
-        @dataChange="changeProject" />
+          :data="projects"
+          v-if="multipleProject"
+          width="155px"
+          :current-data="currentProject"
+          :title="$t('test_track.switch_project')"
+          @dataChange="changeProject" />
       <slot name="aside"></slot>
     </template>
 
@@ -119,9 +119,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    pageKey: {
-      type: String,
-    },
   },
   methods: {
     refreshNode() {
@@ -165,7 +162,7 @@ export default {
           }
         } else {
           this.$message.warning(
-            this.$t('commons.current_workspace') + this.$t('commons.not_exist') + this.$t('commons.project') + '!'
+              this.$t('commons.current_workspace') + this.$t('commons.not_exist') + this.$t('commons.project') + '!'
           );
         }
       });
