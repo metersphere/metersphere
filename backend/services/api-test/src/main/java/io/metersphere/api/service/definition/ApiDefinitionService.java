@@ -534,34 +534,31 @@ public class ApiDefinitionService {
             }
         }
     }
+
     private void doRestore(List<String> apiIds, String userId, String projectId) {
-        // 恢复接口
-        if(CollectionUtils.isNotEmpty(apiIds)){
+        if (CollectionUtils.isNotEmpty(apiIds)) {
             extApiDefinitionMapper.batchRestoreById(apiIds, userId, projectId);
+
             apiIds.forEach(id -> {
                 // 恢复数据恢复最新标识
                 ApiDefinition apiDefinition = checkApiDefinition(id);
                 // 判断是否存在多个版本
                 List<ApiDefinitionVersionDTO> apiDefinitionVersions = extApiDefinitionMapper.getApiDefinitionByRefId(apiDefinition.getRefId());
-                if (apiDefinitionVersions != null) {
-                    if (apiDefinitionVersions.size() > 1) {
-                        String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(apiDefinition.getProjectId());
-                        // 清除所有最新标识
-                        clearLatestVersion(apiDefinition.getRefId(), apiDefinition.getProjectId());
 
-                        // 获取最新数据，恢复的数据最新标识，则最新数据，反之获取最新一条数据
-                        ApiDefinition latestData = apiDefinition.getLatest() ?
-                                apiDefinition : getLatestData(apiDefinition.getRefId(), apiDefinition.getProjectId());
+                if (CollectionUtils.isNotEmpty(apiDefinitionVersions) && apiDefinitionVersions.size() > 1) {
+                    String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(apiDefinition.getProjectId());
+                    // 清除所有最新标识
+                    clearLatestVersion(apiDefinition.getRefId(), apiDefinition.getProjectId());
 
-                        // 恢复的数据不为最新标识，同时接口版本为默认版本，则更新此数据为最新标识
-                        if (!latestData.getLatest()) {
-                            updateLatestVersion(latestData.getVersionId().equals(defaultVersion) ?
-                                    apiDefinition.getId() : latestData.getId(), latestData.getProjectId());
-                        }
+                    // 获取最新数据，恢复的数据最新标识，则最新数据，反之获取最新一条数据
+                    ApiDefinition latestData = apiDefinition.getLatest() ? apiDefinition : getLatestData(apiDefinition.getRefId(), apiDefinition.getProjectId());
+                    // 恢复的数据不为最新标识，同时接口版本为默认版本，则更新此数据为最新标识
+                    if (!latestData.getLatest() && latestData.getVersionId().equals(defaultVersion)) {
+                        updateLatestVersion(apiDefinition.getId(), apiDefinition.getProjectId());
                     }
                 }
             });
-            // 恢复接口关联用例
+            // 恢复接口关联数据
             recoverApiRelatedData(apiIds, userId, projectId);
         }
     }
