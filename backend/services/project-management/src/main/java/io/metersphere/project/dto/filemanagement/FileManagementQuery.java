@@ -3,10 +3,12 @@ package io.metersphere.project.dto.filemanagement;
 import io.metersphere.project.dto.filemanagement.request.FileBatchProcessRequest;
 import io.metersphere.project.dto.filemanagement.request.FileMetadataTableRequest;
 import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.util.JSON;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -18,6 +20,7 @@ public class FileManagementQuery {
     public String fileType;
     public String operator;
     public String storage = StorageType.MINIO.name();
+    public List<String> hiddenIds = new ArrayList<>();
 
     public FileManagementQuery(FileBatchProcessRequest batchProcessDTO) {
         this.projectId = batchProcessDTO.getProjectId();
@@ -45,6 +48,10 @@ public class FileManagementQuery {
             }
             if (batchProcessDTO.getCombine().get("storage") != null) {
                 this.storage = batchProcessDTO.getCombine().get("storage").toString();
+            }
+            if (batchProcessDTO.getCombine().get("hiddenIds") != null) {
+                this.hiddenIds = JSON.parseArray(
+                        JSON.toJSONString(batchProcessDTO.getCombine().get("hiddenIds")));
             }
         }
     }

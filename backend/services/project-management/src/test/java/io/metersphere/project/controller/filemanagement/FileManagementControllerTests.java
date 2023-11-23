@@ -1219,12 +1219,11 @@ public class FileManagementControllerTests extends BaseTest {
         this.saveSourceAssociationId("sty-file-association-bug-id-2", oldFileIdList);
 
         oldFileIdList = new ArrayList<>();
-        oldFileIdList.add(this.addFileAssociation("sty-file-association-bug-id-3", "BUG", fileAssociationOldFileId));
-        this.saveSourceAssociationId("sty-file-association-bug-id-3", oldFileIdList);
-
-        oldFileIdList = new ArrayList<>();
         oldFileIdList.add(this.addFileAssociation("sty-file-association-bug-id-4", "BUG", fileAssociationOldFileId));
         this.saveSourceAssociationId("sty-file-association-bug-id-4", oldFileIdList);
+
+        //文件关联展示接口测试
+        this.associationFileTableShow();
         //文件关联
         this.associationFile();
         //文件更新
@@ -1276,9 +1275,89 @@ public class FileManagementControllerTests extends BaseTest {
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andProjectIdEqualTo(project.getId());
         Assertions.assertEquals(fileMetadataMapper.countByExample(example), 0);
-        
+
+        //检查fileAssociation表中的数据是否被删除
+        FileAssociationExample fileAssociationExample = new FileAssociationExample();
+        fileAssociationExample.createCriteria().andFileIdIn(new ArrayList<>() {{
+            this.add(fileAssociationNewFilesOne);
+            this.add(fileAssociationNewFilesTwo);
+            this.add(fileAssociationNewFilesThree);
+            this.add(fileAssociationNewFilesFour);
+            this.add(fileAssociationNewFileId);
+            this.add(fileAssociationOldFileId);
+        }});
+        Assertions.assertEquals(fileAssociationMapper.countByExample(fileAssociationExample), 0);
+
         //重新上传，用于后续的测试
         this.fileUploadTestSuccess();
+    }
+
+    private void associationFileTableShow() throws Exception {
+        //从没关联过，则除了oldId都不展示
+        FileMetadataTableRequest tableRequest = new FileMetadataTableRequest() {{
+            this.setCurrent(1);
+            this.setPageSize(50);
+            this.setProjectId(project.getId());
+        }};
+        MvcResult pageResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, tableRequest);
+        String returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Pager<List<FileInformationResponse>> tableResult = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        List<String> hiddenIds = new ArrayList<>() {{
+            this.add(fileAssociationOldFileId);
+        }};
+        List<FileInformationResponse> list = JSON.parseArray(JSON.toJSONString(tableResult.getList()), FileInformationResponse.class);
+        for (FileInformationResponse fileInformationResponse : list) {
+            Assertions.assertFalse(hiddenIds.contains(fileInformationResponse.getId()));
+        }
+        //关联过oldFileID，则oldFileID和NewId都不展示
+        tableRequest = new FileMetadataTableRequest() {{
+            this.setCurrent(1);
+            this.setPageSize(50);
+            this.setProjectId(project.getId());
+            this.setCombine(new HashMap<>() {{
+                this.put("hiddenIds", new ArrayList<>() {{
+                    this.add(fileAssociationOldFileId);
+                }});
+            }});
+        }};
+        pageResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, tableRequest);
+        returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        tableResult = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        hiddenIds = new ArrayList<>() {{
+            this.add(fileAssociationOldFileId);
+            this.add(fileAssociationNewFileId);
+        }};
+        list = JSON.parseArray(JSON.toJSONString(tableResult.getList()), FileInformationResponse.class);
+        for (FileInformationResponse fileInformationResponse : list) {
+            Assertions.assertFalse(hiddenIds.contains(fileInformationResponse.getId()));
+        }
+        //关联过newId，则关联的newId和oldId都不展示
+        tableRequest = new FileMetadataTableRequest() {{
+            this.setCurrent(1);
+            this.setPageSize(50);
+            this.setProjectId(project.getId());
+            this.setCombine(new HashMap<>() {{
+                this.put("hiddenIds", new ArrayList<>() {{
+                    this.add(fileAssociationNewFilesOne);
+                    this.add(fileAssociationNewFilesTwo);
+                }});
+            }});
+        }};
+        pageResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, tableRequest);
+        returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        tableResult = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        hiddenIds = new ArrayList<>() {{
+            this.add(fileAssociationOldFileId);
+            this.add(fileAssociationNewFilesOne);
+            this.add(fileAssociationNewFilesTwo);
+        }};
+        list = JSON.parseArray(JSON.toJSONString(tableResult.getList()), FileInformationResponse.class);
+        for (FileInformationResponse fileInformationResponse : list) {
+            Assertions.assertFalse(hiddenIds.contains(fileInformationResponse.getId()));
+        }
     }
 
     private void fileAssociationControllerDelete() throws Exception {
@@ -1306,10 +1385,10 @@ public class FileManagementControllerTests extends BaseTest {
         this.requestPost(FileManagementRequestUtils.URL_FILE_ASSOCIATION_DELETE, deleteRequest).andExpect(status().isBadRequest());
 
 
-        FileAssociationDeleteRequest permisionRequest = new FileAssociationDeleteRequest();
-        permisionRequest.setAssociationIds(sourceAssociationFileMap.get("sty-file-association-bug-id-4"));
-        permisionRequest.setProjectId(DEFAULT_PROJECT_ID);
-        this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE, FileManagementRequestUtils.URL_FILE_ASSOCIATION_DELETE, permisionRequest);
+        FileAssociationDeleteRequest permissionRequest = new FileAssociationDeleteRequest();
+        permissionRequest.setAssociationIds(sourceAssociationFileMap.get("sty-file-association-bug-id-4"));
+        permissionRequest.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPostPermissionTest(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE, FileManagementRequestUtils.URL_FILE_ASSOCIATION_DELETE, permissionRequest);
     }
 
     private void fileAssociationControllerPage() throws Exception {
@@ -1359,8 +1438,8 @@ public class FileManagementControllerTests extends BaseTest {
     public void associationFile() {
         //关联id-1和id-3 （不覆盖）
         List<String> fileIdList = new ArrayList<>() {{
-            this.add(fileAssociationNewFileId);
             this.add(fileAssociationNewFilesOne);
+            this.add(fileAssociationNewFilesTwo);
         }};
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
@@ -1369,41 +1448,45 @@ public class FileManagementControllerTests extends BaseTest {
                 .operator("admin")
                 .projectId(project.getId())
                 .build();
-        List<String> associationIdList = fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, false, fileLogRecord);
-        this.checkFileAssociation("sty-file-association-bug-id-3", fileIdList, new ArrayList<>() {{
-            this.add(fileAssociationOldFileId);
-        }});
-        this.saveSourceAssociationId("sty-file-association-bug-id-3", associationIdList);
-        //关联id-3 （覆盖）
-        associationIdList = fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, true, fileLogRecord);
-        this.checkFileAssociation("sty-file-association-bug-id-3", fileIdList, null);
+        List<String> associationIdList = fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, fileLogRecord);
+        this.checkFileAssociation("sty-file-association-bug-id-3", fileIdList);
         this.saveSourceAssociationId("sty-file-association-bug-id-3", associationIdList);
         //重新关联（检查是否会重复插入数据）
-        associationIdList = fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, true, fileLogRecord);
-        this.checkFileAssociation("sty-file-association-bug-id-3", fileIdList, null);
+        associationIdList = fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, fileLogRecord);
+        this.checkFileAssociation("sty-file-association-bug-id-3", fileIdList);
         this.saveSourceAssociationId("sty-file-association-bug-id-3", associationIdList);
-        //关联id-2 关联所有正常文件
+
+        //关联id-3 关联旧文件
+        fileIdList = new ArrayList<>() {{
+            this.add(fileAssociationOldFileId);
+        }};
+        associationIdList = fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, fileLogRecord);
+        this.checkFileAssociation("sty-file-association-bug-id-3", fileIdList);
+        this.saveSourceAssociationId("sty-file-association-bug-id-3", associationIdList);
+
+        //关联id-2 （含有不存在的ID)
         List<String> bug2IdList = new ArrayList<>() {{
             this.add(fileAssociationNewFilesOne);
             this.add(fileAssociationNewFilesTwo);
             this.add(fileAssociationNewFilesThree);
+            this.add(IDGenerator.nextStr());
         }};
-        associationIdList = fileAssociationService.association("sty-file-association-bug-id-2", FileAssociationSourceUtil.SOURCE_TYPE_BUG, bug2IdList, true, fileLogRecord);
-        this.checkFileAssociation("sty-file-association-bug-id-2", bug2IdList, null);
+        associationIdList = fileAssociationService.association("sty-file-association-bug-id-2", FileAssociationSourceUtil.SOURCE_TYPE_BUG, bug2IdList, fileLogRecord);
+        Assertions.assertEquals(bug2IdList.size() - 1, associationIdList.size());
         this.saveSourceAssociationId("sty-file-association-bug-id-2", associationIdList);
 
         //反例：
         // 文件参数为空
         boolean error = false;
         try {
-            fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, null, true, fileLogRecord);
+            fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, null, fileLogRecord);
         } catch (Exception e) {
             error = true;
         }
         Assertions.assertTrue(error);
         error = false;
         try {
-            fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, new ArrayList<>(), true, fileLogRecord);
+            fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, new ArrayList<>(), fileLogRecord);
         } catch (Exception e) {
             error = true;
         }
@@ -1413,20 +1496,12 @@ public class FileManagementControllerTests extends BaseTest {
         try {
             fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, new ArrayList<>() {{
 
-            }}, true, fileLogRecord);
+            }}, fileLogRecord);
         } catch (Exception e) {
             error = true;
         }
         Assertions.assertTrue(error);
-        //文件数量对不上（含有不存在的文件ID）
-        error = false;
-        fileIdList.add(IDGenerator.nextStr());
-        try {
-            fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileIdList, true, fileLogRecord);
-        } catch (Exception e) {
-            error = true;
-        }
-        Assertions.assertTrue(error);
+
     }
 
     public void associationUpgrade() {
@@ -1557,18 +1632,30 @@ public class FileManagementControllerTests extends BaseTest {
                 .projectId(project.getId())
                 .build();
 
-        //1.正常删除 资源为bug-1
+        //1.正常删除  资源为bug-2
         FileAssociationExample example = new FileAssociationExample();
         example.clear();
-        example.createCriteria().andSourceIdEqualTo("sty-file-association-bug-id-1");
+        example.createCriteria().andSourceIdEqualTo("sty-file-association-bug-id-2");
         List<FileAssociation> bug1AssociationList = fileAssociationMapper.selectByExample(example);
         List<String> idList = bug1AssociationList.stream().map(FileAssociation::getId).collect(Collectors.toList());
-        int deleteCount = fileAssociationService.deleteBySourceId(idList, fileLogRecord);
+        int deleteCount = fileAssociationService.deleteByIds(idList, fileLogRecord);
         Assertions.assertEquals(idList.size(), deleteCount);
+        example.clear();
+        example.createCriteria().andIdIn(idList);
+        Assertions.assertEquals(fileAssociationMapper.countByExample(example), 0);
+
+        //删除完了重新关联，继续做测试
+        fileAssociationService.association("sty-file-association-bug-id-2", FileAssociationSourceUtil.SOURCE_TYPE_BUG, new ArrayList<>() {{
+            this.add(fileAssociationNewFilesOne);
+            this.add(fileAssociationNewFilesTwo);
+            this.add(fileAssociationNewFilesThree);
+            this.add(fileAssociationNewFilesFour);
+        }}, fileLogRecord);
+
         //2.入参集合为空
-        deleteCount = fileAssociationService.deleteBySourceId(new ArrayList<>(), fileLogRecord);
+        deleteCount = fileAssociationService.deleteByIds(new ArrayList<>(), fileLogRecord);
         Assertions.assertEquals(0, deleteCount);
-        deleteCount = fileAssociationService.deleteBySourceId(null, fileLogRecord);
+        deleteCount = fileAssociationService.deleteByIds(null, fileLogRecord);
         Assertions.assertEquals(0, deleteCount);
 
         //3.里面包含一条已经文件已经删除了的ID 资源为bug-2
@@ -1582,7 +1669,10 @@ public class FileManagementControllerTests extends BaseTest {
         idList = new ArrayList<>() {{
             this.add(association.getId());
         }};
-        fileAssociationService.deleteBySourceId(idList, fileLogRecord);
+        fileAssociationService.deleteByIds(idList, fileLogRecord);
+        example.clear();
+        example.createCriteria().andIdIn(idList);
+        Assertions.assertEquals(fileAssociationMapper.countByExample(example), 0);
 
         //4.入参集合包括1条不存在的关联ID 资源为bug-2
         example.clear();
@@ -1590,28 +1680,49 @@ public class FileManagementControllerTests extends BaseTest {
         List<FileAssociation> bug2AssociationList = fileAssociationMapper.selectByExample(example);
         idList = bug2AssociationList.stream().map(FileAssociation::getId).collect(Collectors.toList());
         idList.add(IDGenerator.nextStr());
-        deleteCount = fileAssociationService.deleteBySourceId(idList, fileLogRecord);
+        deleteCount = fileAssociationService.deleteByIds(idList, fileLogRecord);
         Assertions.assertEquals(idList.size() - 1, deleteCount);
+        example.clear();
+        example.createCriteria().andIdIn(idList);
+        Assertions.assertEquals(fileAssociationMapper.countByExample(example), 0);
+
+        //5.直接删除sourceId为bug-3的
+        List<String> bug2IdList = new ArrayList<>() {{
+            this.add(fileAssociationNewFilesOne);
+            this.add(fileAssociationNewFilesTwo);
+            this.add(fileAssociationNewFilesThree);
+            this.add(fileAssociationNewFilesFour);
+        }};
+        fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, bug2IdList, fileLogRecord);
+        fileAssociationService.association("sty-file-association-bug-id-2", FileAssociationSourceUtil.SOURCE_TYPE_BUG, bug2IdList, fileLogRecord);
+        example.clear();
+        example.createCriteria().andSourceIdEqualTo("sty-file-association-bug-id-3");
+        long beforeDelete = fileAssociationMapper.countByExample(example);
+        fileAssociationService.deleteBySourceIds(new ArrayList<>() {{
+            this.add("sty-file-association-bug-id-2");
+            this.add("sty-file-association-bug-id-3");
+        }}, fileLogRecord);
+        long afterDelete = fileAssociationMapper.countByExample(example);
+        Assertions.assertTrue(beforeDelete > afterDelete);
+        Assertions.assertEquals(afterDelete, 0);
+
+        //参数测试
+        Assertions.assertEquals(fileAssociationService.deleteBySourceIds(null, fileLogRecord), 0);
+        //重新关联，用来测试文件删除是否会级联删除。使用bug-3
+        fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, bug2IdList, fileLogRecord);
+        fileAssociationService.association("sty-file-association-bug-id-2", FileAssociationSourceUtil.SOURCE_TYPE_BUG, bug2IdList, fileLogRecord);
     }
 
 
     /**
      * @param sourceId   资源ID
      * @param fileIdList 关联的文件集合
-     * @param oldFileIds 检查关联的文件中是否有过期文件
      */
-    private void checkFileAssociation(String sourceId, List<String> fileIdList, List<String> oldFileIds) {
+    private void checkFileAssociation(String sourceId, List<String> fileIdList) {
         FileAssociationExample example = new FileAssociationExample();
         example.createCriteria().andSourceIdEqualTo(sourceId).andFileIdIn(fileIdList);
         long count = fileAssociationMapper.countByExample(example);
-        if (CollectionUtils.isEmpty(oldFileIds)) {
-            Assertions.assertEquals(count, fileIdList.size());
-        } else {
-            Assertions.assertEquals(count, fileIdList.size() - oldFileIds.size());
-            example.clear();
-            example.createCriteria().andSourceIdEqualTo(sourceId).andFileIdIn(oldFileIds);
-            Assertions.assertEquals(fileAssociationMapper.countByExample(example), oldFileIds.size());
-        }
+        Assertions.assertEquals(count, fileIdList.size());
     }
 
     private String addFileAssociation(String sourceId, String sourceType, String fileId) {
@@ -1630,26 +1741,6 @@ public class FileManagementControllerTests extends BaseTest {
         return fileAssociation.getId();
     }
 
-    @Test
-    @Order(31)
-    public void upgradeFileAssociationTest() throws Exception {
-        //预备：在fileAssociationTest中已经将【sty-file-association-bug-id-1】的文件关联过过期文件
-        //1.首先测试反例：手动修改过期文件所有的版本latest都为false。测试之后改过来
-        //2.升级id-3的
-        //3.升级id-1的
-
-        //反例：
-        //文件不存在
-    }
-
-    @Test
-    @Order(32)
-    public void deleteFileAssociationTest() throws Exception {
-        //删除id-1和id-2的
-        //参数校验：空集合
-        //集合里有个假文件id
-        //id-3里关联的文件数据里删除1条源文件数据
-    }
 
     @Test
     @Order(40)

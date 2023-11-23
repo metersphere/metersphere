@@ -77,6 +77,14 @@
             <if test="fileType != null and fileType != ''">
                 AND f.type = #{fileType}
             </if>
+            <if test="hiddenIds != null and hiddenIds.size()>0">
+                AND f.ref_id NOT IN
+                (SELECT ref_id FROM file_metadata WHERE id IN
+                <foreach collection="hiddenIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                )
+            </if>
             <if test="operator != null and operator != ''">
                 AND f.create_user = #{operator}
             </if>
