@@ -18,6 +18,7 @@ public class ApiTestControllerTests extends BaseTest {
 
     private static final String BASE_PATH = "/api/test/";
     protected static final String PROTOCOL_LIST = "protocol/{0}";
+    protected static final String MOCK = "mock/{0}";
 
     @Override
     protected String getBasePath() {
@@ -28,5 +29,11 @@ public class ApiTestControllerTests extends BaseTest {
     public void getProtocols() throws Exception {
         // @@请求成功
         this.requestGetWithOk(PROTOCOL_LIST, this.DEFAULT_ORGANIZATION_ID).andReturn();
+    }
+
+    @Test
+    public void getMock() throws Exception {
+        // @@请求成功
+        this.requestGetWithOk(MOCK, "@integer").andReturn();
     }
 }

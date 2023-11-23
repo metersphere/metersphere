@@ -1,6 +1,7 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.service.ApiTestService;
+import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.system.dto.ProtocolDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,5 +29,12 @@ public class ApiTestController {
     @Operation(summary = "获取协议插件的的协议列表")
     public List<ProtocolDTO> getProtocols(@PathVariable String organizationId) {
         return apiTestService.getProtocols(organizationId);
+    }
+
+
+    @GetMapping("/mock/{key}")
+    @Operation(summary = "获取mock数据")
+    public String mock(@PathVariable String key) {
+        return Mock.calculate(key).toString();
     }
 }
