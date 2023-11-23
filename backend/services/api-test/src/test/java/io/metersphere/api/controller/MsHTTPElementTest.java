@@ -1,5 +1,7 @@
 package io.metersphere.api.controller;
+import io.metersphere.sdk.dto.api.request.http.body.Body;
 
+import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.dto.api.request.http.*;
@@ -186,5 +188,39 @@ public class MsHTTPElementTest {
         msHTTPElement.setOtherConfig(msHTTPConfig);
 
         return msHTTPElement;
+    }
+
+    public static List<HttpResponse> getMsHttpResponse() {
+        List<HttpResponse> httpResponses = new ArrayList<>();
+        HttpResponse httpResponse = new HttpResponse();
+        httpResponse.setId(1);
+        httpResponse.setName("Response1");
+        httpResponse.setStatusCode("200");
+        httpResponse.setDefaultFlag(true);
+
+        Header header = new Header();
+        header.setEnable(false);
+        header.setValue("value");
+        header.setKey("key");
+        header.setDescription("desc");
+        httpResponse.setHeaders(List.of(header));
+
+        FormDataBody formDataBody = new FormDataBody();
+        FormDataKV formDataKV = new FormDataKV();
+        formDataKV.setEnable(false);
+        formDataKV.setContentType("text/plain");
+        formDataKV.setEncode(true);
+        formDataKV.setMaxLength(10);
+        formDataKV.setMinLength(8);
+        formDataKV.setParamType("text");
+        formDataKV.setDescription("test");
+        formDataKV.setRequired(true);
+        formDataKV.setValue("value");
+        formDataKV.setKey("key");
+        formDataBody.setFromValues(List.of(formDataKV));
+        httpResponse.setBody(formDataBody);
+
+        httpResponses.add(httpResponse);
+        return httpResponses;
     }
 }

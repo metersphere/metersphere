@@ -48,6 +48,12 @@ public class DefaultRepositoryDir {
     private static final String PROJECT_API_DEBUG_DIR = PROJECT_DIR + "/api-debug/%s";
     private static final String PROJECT_BUG_DIR = PROJECT_DIR + "/bug/%s";
 
+    /**
+     * 接口定义相关文件的存储目录
+     * project/{projectId}/api-definition/{apiId}
+     */
+    private static final String PROJECT_API_DEFINITION_DIR = PROJECT_DIR + "/api-definition/%s";
+
     /*------ end: 项目下资源目录 --------*/
 
 
@@ -81,5 +87,9 @@ public class DefaultRepositoryDir {
 
     public static String getApiDebugDir(String projectId, String apiDebugId) {
         return String.format(PROJECT_API_DEBUG_DIR, projectId, apiDebugId);
+    }
+
+    public static String getApiDefinitionDir(String projectId, String apiId) {
+        return String.format(PROJECT_API_DEFINITION_DIR, projectId, apiId);
     }
 }
