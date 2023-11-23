@@ -59,6 +59,6 @@ public class FileAssociationController {
                 .projectId(request.getProjectId())
                 .build();
 
-        return fileAssociationService.deleteBySourceId(request.getAssociationIds(),fileLogRecord);
+        return fileAssociationService.deleteByIds(request.getAssociationIds(), fileLogRecord);
     }
 }
