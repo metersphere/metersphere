@@ -4,7 +4,7 @@ import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.request.*;
-import io.metersphere.functional.result.FunctionalCaseResultCode;
+import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;
@@ -122,7 +122,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void testFunctionalCaseDetail() throws Exception {
-        assertErrorCode(this.requestGet(FUNCTIONAL_CASE_DETAIL_URL + "ERROR_TEST_FUNCTIONAL_CASE_ID"), FunctionalCaseResultCode.FUNCTIONAL_CASE_NOT_FOUND);
+        assertErrorCode(this.requestGet(FUNCTIONAL_CASE_DETAIL_URL + "ERROR_TEST_FUNCTIONAL_CASE_ID"), CaseManagementResultCode.FUNCTIONAL_CASE_NOT_FOUND);
         this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL_URL + "TEST_FUNCTIONAL_CASE_ID_1");
         MvcResult mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL_URL + "TEST_FUNCTIONAL_CASE_ID");
         // 获取返回值

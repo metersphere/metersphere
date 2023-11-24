@@ -13,6 +13,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -50,7 +51,7 @@ public class FunctionalCaseDemandController {
     @PostMapping("/update")
     @Operation(summary = "用例管理-功能用例-关联需求-更新需求")
     @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
-    public void updateDemand(@RequestBody @Validated FunctionalCaseDemandRequest request) {
+    public void updateDemand(@RequestBody @Validated({Updated.class}) FunctionalCaseDemandRequest request) {
         functionalCaseDemandService.updateDemand(request, SessionUtils.getUserId());
     }
 

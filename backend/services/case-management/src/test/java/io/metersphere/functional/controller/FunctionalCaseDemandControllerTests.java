@@ -185,6 +185,16 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandRequest.setDemandList(demandList);
         this.requestPost(URL_DEMAND_UPDATE, functionalCaseDemandRequest).andExpect(status().is5xxServerError());
 
+        functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
+        functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        demandList = new ArrayList<>();
+        demandDTO = new DemandDTO();
+        demandDTO.setDemandId("111");
+        demandDTO.setDemandName("手动执行2");
+        demandList.add(demandDTO);
+        functionalCaseDemandRequest.setDemandList(demandList);
+        this.requestPost(URL_DEMAND_UPDATE, functionalCaseDemandRequest).andExpect(status().is4xxClientError());
     }
 
     private String getId(String caseId) {
