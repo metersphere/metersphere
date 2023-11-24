@@ -14,4 +14,16 @@
         </foreach>
     </select>
 
+    <select id="getPos" resultType="java.lang.Long">
+        SELECT
+            pos
+        FROM
+            case_review
+        WHERE
+            project_id = #{projectId}
+        ORDER BY
+            pos DESC
+            LIMIT 1;
+    </select>
+
 </mapper>

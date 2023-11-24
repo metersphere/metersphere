@@ -12,5 +12,5 @@ public interface ExtCaseReviewMapper {
 
     List<CaseReview> checkCaseByModuleIds(@Param("moduleIds") List<String> deleteIds);
 
-
+    Long getPos(@Param("projectId") String projectId);
 }

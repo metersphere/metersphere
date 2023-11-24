@@ -56,4 +56,19 @@
         </if>
         limit 100
     </select>
+
+
+    <select id="getUserByPermission" resultType="io.metersphere.system.domain.User">
+        SELECT u.id, u.name, u.email
+        FROM user u
+        LEFT JOIN user_role_relation urr ON u.id = urr.user_id
+        WHERE urr.role_id IN (SELECT urp.role_id FROM user_role_permission urp WHERE urp.permission_id = #{permission})
+        AND urr.source_id = #{projectId}
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE concat('%', #{keyword}, '%') OR email LIKE concat('%', #{keyword}, '%'))
+        </if>
+        GROUP BY urr.user_id
+        limit 100
+    </select>
+
 </mapper>

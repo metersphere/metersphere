@@ -1,5 +1,6 @@
 package io.metersphere.functional.request;
 
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -12,10 +13,14 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class CaseReviewAddRequest implements Serializable {
+public class CaseReviewRequest implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case.id.not_blank}", groups = {Updated.class})
+    private String id;
 
     @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{case_review.project_id.not_blank}")
