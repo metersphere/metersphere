@@ -13,6 +13,7 @@ import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleRepositoryMapper;
 import io.metersphere.project.utils.FileDownloadUtils;
+import io.metersphere.project.utils.FileMetadataUtils;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
@@ -51,6 +52,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class FileMetadataService {
+
     private static final String JAR_FILE_PREFIX = "jar";
 
     @Resource
@@ -93,6 +95,7 @@ public class FileMetadataService {
 
     public List<FileInformationResponse> list(FileMetadataTableRequest request) {
         List<FileInformationResponse> returnList = new ArrayList<>();
+        FileMetadataUtils.transformRequestFileType(request);
         FileManagementQuery pageDTO = new FileManagementQuery(request);
         List<FileMetadata> fileMetadataList = extFileMetadataMapper.selectByKeywordAndFileType(pageDTO);
         fileMetadataList.forEach(fileMetadata -> {
@@ -129,15 +132,15 @@ public class FileMetadataService {
         }
     }
 
-    private void parseAndSetFileNameAndType(String filePath, @NotNull FileMetadata fileMetadata) {
+    private void parseAndSetFileNameType(String filePath, @NotNull FileMetadata fileMetadata) {
         String fileName = TempFileUtils.getFileNameByPath(filePath);
-        if (StringUtils.lastIndexOf(fileName, ".") > 0) {
+        if (FileMetadataUtils.isUnknownFile(fileName)) {
+            fileMetadata.setName(fileName);
+            fileMetadata.setType(StringUtils.EMPTY);
+        } else {
             //采用这种判断方式，可以避免将隐藏文件的后缀名作为文件类型
             fileMetadata.setName(StringUtils.substring(fileName, 0, fileName.lastIndexOf(".")));
             fileMetadata.setType(StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1));
-        } else {
-            fileMetadata.setName(fileName);
-            fileMetadata.setType(StringUtils.EMPTY);
         }
     }
 
@@ -146,7 +149,7 @@ public class FileMetadataService {
             throw new MSException(Translator.get("file.size.is.too.large"));
         }
         FileMetadata fileMetadata = new FileMetadata();
-        this.parseAndSetFileNameAndType(filePath, fileMetadata);
+        this.parseAndSetFileNameType(filePath, fileMetadata);
         //如果开启了开关，检查是否是jar文件
         if (enable) {
             this.checkEnableFile(fileMetadata.getType());
@@ -443,7 +446,7 @@ public class FileMetadataService {
         FileMetadata fileMetadata = new FileMetadata();
         // 解析新上传的文件名和文件类型
         String uploadFilePath = StringUtils.trim(uploadFile.getOriginalFilename());
-        this.parseAndSetFileNameAndType(uploadFilePath, fileMetadata);
+        this.parseAndSetFileNameType(uploadFilePath, fileMetadata);
         //部分文件信息内容要和旧版本的信息内容保持一致
         this.genNewFileVersionByOldFile(oldFile, fileMetadata, operator);
         // 存储文件
@@ -507,7 +510,9 @@ public class FileMetadataService {
     }
 
     public List<String> getFileType(String projectId, String storage) {
-        return extFileMetadataMapper.selectFileTypeByProjectId(projectId, storage);
+        List<String> fileTypes = extFileMetadataMapper.selectFileTypeByProjectId(projectId, storage);
+        FileMetadataUtils.transformEmptyFileType(fileTypes);
+        return fileTypes;
     }
 
     public void changeJarFileStatus(String fileId, boolean enable, String operator) {
