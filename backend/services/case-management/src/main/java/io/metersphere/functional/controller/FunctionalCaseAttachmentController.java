@@ -45,8 +45,6 @@ public class FunctionalCaseAttachmentController {
     private FileAssociationService fileAssociationService;
 
 
-    //TODO 附件操作：文件删除/文件下载/文件预览/文件转存/文件更新
-
     @PostMapping("/page")
     @Operation(summary = "用例管理-功能用例-附件-关联文件列表分页接口")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)

@@ -2319,5 +2319,6 @@ public class FileManagementControllerTests extends BaseTest {
     @Order(91)
     public void testQuery() throws Exception {
         fileAssociationService.getFiles("TEST", FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE);
+        fileAssociationService.getFileAssociations(Collections.singletonList("TEST"), FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE);
     }
 }

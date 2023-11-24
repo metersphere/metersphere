@@ -1,19 +1,24 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.*;
-import io.metersphere.functional.mapper.*;
+import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
+import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
+import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.FunctionalCaseResultCode;
+import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
-import io.metersphere.sdk.constants.FunctionalCaseReviewStatus;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
@@ -74,15 +79,13 @@ public class FunctionalCaseService {
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
 
     @Resource
-    private FunctionalCaseModuleMapper functionalCaseModuleMapper;
-
-    @Resource
     private FunctionalCaseModuleService functionalCaseModuleService;
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
     private static final String ADD_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/add";
     private static final String UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/update";
+    private static final String FUNCTIONAL_CASE_BATCH_COPY_FILE_LOG_URL = "/functional/case/batch/copy";
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
         String caseId = IDGenerator.nextStr();
@@ -97,9 +100,16 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), caseId, userId, ADD_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
-        //TODO 记录变更历史
+        saveHistory(Collections.singletonList(caseId));
 
         return functionalCase;
+    }
+
+    private void saveHistory(List<String> ids) {
+        FunctionalCaseHistoryService functionalCaseHistoryService = CommonBeanFactory.getBean(FunctionalCaseHistoryService.class);
+        if (functionalCaseHistoryService != null) {
+            functionalCaseHistoryService.saveHistoryLog(ids);
+        }
     }
 
     /**
@@ -172,7 +182,7 @@ public class FunctionalCaseService {
         BeanUtils.copyBean(functionalCaseDetailDTO, caseBlob);
 
         //模板校验 获取自定义字段
-        functionalCaseDetailDTO = checkTemplateCustomField(functionalCaseDetailDTO, functionalCase);
+        checkTemplateCustomField(functionalCaseDetailDTO, functionalCase);
 
         //是否关注用例
         Boolean isFollow = checkIsFollowCase(functionalCase.getId(), userId);
@@ -271,7 +281,7 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), request.getId(), userId, UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
-        //TODO 记录变更历史 addFunctionalCaseHistory
+        saveHistory(Collections.singletonList(request.getId()));
 
         return functionalCase;
 
@@ -458,7 +468,8 @@ public class FunctionalCaseService {
             Map<String, FunctionalCaseBlob> functionalCaseBlobMap = copyBlobInfo(ids);
             //附件 本地附件
             Map<String, List<FunctionalCaseAttachment>> attachmentMap = functionalCaseAttachmentService.getAttachmentByCaseIds(ids);
-            //TODO 文件库附件
+            //文件库附件
+            Map<String, List<FileAssociation>> fileAssociationMap = functionalCaseAttachmentService.getFileAssociationByCaseIds(ids);
             //自定义字段
             Map<String, List<FunctionalCaseCustomField>> customFieldMap = functionalCaseCustomFieldService.getCustomFieldMapByCaseIds(ids);
 
@@ -466,9 +477,12 @@ public class FunctionalCaseService {
             FunctionalCaseMapper mapper = sqlSession.getMapper(FunctionalCaseMapper.class);
             Long nextOrder = getNextOrder(request.getProjectId());
 
+            Map<String, String> idMaps = new HashMap<>(ids.size());
+
             try {
                 for (int i = 0; i < ids.size(); i++) {
                     String id = IDGenerator.nextStr();
+                    idMaps.put(ids.get(i), id);
                     FunctionalCase functionalCase = functionalCaseMap.get(ids.get(i));
                     FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMap.get(ids.get(i));
                     List<FunctionalCaseAttachment> caseAttachments = attachmentMap.get(ids.get(i));
@@ -514,6 +528,15 @@ public class FunctionalCaseService {
                     }
                 }
                 sqlSession.flushStatements();
+
+                idMaps.keySet().forEach(key -> {
+                    String copyId = idMaps.get(key);
+                    List<FileAssociation> fileAssociationList = fileAssociationMap.get(key);
+                    if (CollectionUtils.isNotEmpty(fileAssociationList)) {
+                        List<String> fileIds = fileAssociationList.stream().map(FileAssociation::getFileId).collect(Collectors.toList());
+                        functionalCaseAttachmentService.association(fileIds, copyId, userId, FUNCTIONAL_CASE_BATCH_COPY_FILE_LOG_URL, request.getProjectId());
+                    }
+                });
             } finally {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
@@ -557,6 +580,7 @@ public class FunctionalCaseService {
             handleTags(request, userId, ids);
             //自定义字段处理
             handleCustomFields(request, userId, ids);
+            saveHistory(ids);
         }
 
     }

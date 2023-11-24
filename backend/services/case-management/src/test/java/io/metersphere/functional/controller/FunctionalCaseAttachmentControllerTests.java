@@ -73,7 +73,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         FunctionalCaseFileRequest request = new FunctionalCaseFileRequest();
         request.setProjectId("WX_TEST_PROJECT_ID");
         request.setLocal(true);
-        request.setFileId("TEST_ATTACHMENT_FILE_ID");
+        request.setFileId("TEST_ATTACHMENT_ID");
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID");
         assertErrorCode(this.requestPost(ATTACHMENT_PREVIEW_URL, request), MsHttpResultCode.FAILED);
         this.requestPost(ATTACHMENT_PREVIEW_URL, request);
@@ -133,7 +133,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         //覆盖controller
         FunctionalCaseFileRequest request = new FunctionalCaseFileRequest();
         request.setProjectId("WX_TEST_PROJECT_ID");
-        request.setFileId("TEST_ATTACHMENT_FILE_ID");
+        request.setFileId("TEST_ATTACHMENT_ID");
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID");
         request.setLocal(true);
         this.downloadFile(ATTACHMENT_DOWNLOAD_URL, request);

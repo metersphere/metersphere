@@ -1,4 +1,4 @@
-package io.metersphere.sdk.constants;
+package io.metersphere.functional.constants;
 
 /**
  * @author wx
