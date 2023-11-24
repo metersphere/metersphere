@@ -14,6 +14,7 @@ import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,9 @@ public class ApiDefinitionLogService {
 
     @Resource
     private ProjectMapper projectMapper;
+
+    @Resource
+    private OperationLogService operationLogService;
 
     /**
      * 添加接口日志
@@ -303,10 +307,8 @@ public class ApiDefinitionLogService {
 
     /**
      * 删除回收站接口定义接口日志
-     *
-     * @return
      */
-    public List<LogDTO> recycleDelLog(List<ApiDefinition> apiDefinitions, String operator, Boolean isBatch) {
+    public void recycleDelLog(List<ApiDefinition> apiDefinitions, String operator, Boolean isBatch) {
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(apiDefinitions)) {
             apiDefinitions.forEach(item -> {
@@ -325,8 +327,7 @@ public class ApiDefinitionLogService {
                 dtoList.add(dto);
             });
         }
-
-        return dtoList;
+        operationLogService.batchAdd(dtoList);
     }
 
     // 获取批量操作选中的ID
