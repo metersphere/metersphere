@@ -8,7 +8,7 @@ public class SubListUtils {
     /**
      *  将较长的数组截断成较短的数组进行批处理
      */
-    public static void dealForSubList(List totalList, Integer batchSize, Consumer<List> subFunc) {
+    public static <T> void dealForSubList(List<T> totalList, Integer batchSize, Consumer<List<T>> subFunc) {
         int count = totalList.size();
         int iteratorCount = count / batchSize;
         for (int i = 0; i <= iteratorCount; i++) {
@@ -18,7 +18,7 @@ public class SubListUtils {
             if (endIndex == startIndex) {
                 break;
             }
-            List subList = totalList.subList(startIndex, endIndex);
+            List<T> subList = totalList.subList(startIndex, endIndex);
             subFunc.accept(subList);
         }
     }

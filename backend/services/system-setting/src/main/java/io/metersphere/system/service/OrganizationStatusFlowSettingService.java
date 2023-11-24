@@ -82,14 +82,14 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
             if (request.getEnable()) {
                 List<StatusDefinition> projectStatusDefinitions = subStatusItems.stream().map(statusItem -> {
                     StatusDefinition statusDefinition = new StatusDefinition();
-                    statusDefinition.setStatusId(((StatusItem) statusItem).getId());
+                    statusDefinition.setStatusId(statusItem.getId());
                     statusDefinition.setDefinitionId(request.getDefinitionId());
                     return statusDefinition;
                 }).toList();
                 baseStatusDefinitionService.batchAdd(projectStatusDefinitions);
             } else {
                 List<String> projectStatusIds = subStatusItems.stream()
-                        .map(statusItem -> ((StatusItem) statusItem).getId())
+                        .map(StatusItem::getId)
                         .toList();
                 baseStatusDefinitionService.deleteByStatusIdsAndDefinitionId(projectStatusIds, request.getDefinitionId());
             }
@@ -149,9 +149,9 @@ public class OrganizationStatusFlowSettingService extends BaseStatusFlowSettingS
     public void addRefProjectStatusItem(String orgId, StatusItem orgStatusItem) {
         List<String> projectIds = baseProjectMapper.getProjectIdByOrgId(orgId);
         SubListUtils.dealForSubList(projectIds, 200, (subProjectIds) -> {
-            List projectStatusItems = subProjectIds.stream().map(projectId -> {
+            List<StatusItem> projectStatusItems = subProjectIds.stream().map(projectId -> {
                 StatusItem statusItem = BeanUtils.copyBean(new StatusItem(), orgStatusItem);
-                statusItem.setScopeId((String) projectId);
+                statusItem.setScopeId(projectId);
                 statusItem.setRefId(orgStatusItem.getId());
                 statusItem.setScopeType(TemplateScopeType.PROJECT.name());
                 return statusItem;

@@ -19,6 +19,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -327,16 +328,15 @@ public class ApiDefinitionService {
     }
 
     private void checkUpdateExist(ApiDefinition apiDefinition, ApiDefinition originApiDefinition) {
-        if (StringUtils.isBlank(apiDefinition.getPath()) || StringUtils.isBlank(apiDefinition.getMethod())) {
-            return;
-        }
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria()
-                .andIdNotEqualTo(apiDefinition.getId()).andProtocolEqualTo(apiDefinition.getProtocol())
-                .andModuleIdEqualTo(apiDefinition.getModuleId() == null ? originApiDefinition.getModuleId() : apiDefinition.getModuleId())
-                .andPathEqualTo(apiDefinition.getPath()).andMethodEqualTo(apiDefinition.getMethod());
-        if (apiDefinitionMapper.countByExample(example) > 0) {
-            throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
+        if (StringUtils.isNotEmpty(apiDefinition.getPath()) && StringUtils.isNotEmpty(apiDefinition.getMethod())) {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria()
+                    .andIdNotEqualTo(apiDefinition.getId()).andProtocolEqualTo(apiDefinition.getProtocol())
+                    .andModuleIdEqualTo(apiDefinition.getModuleId() == null ? originApiDefinition.getModuleId() : apiDefinition.getModuleId())
+                    .andPathEqualTo(apiDefinition.getPath()).andMethodEqualTo(apiDefinition.getMethod());
+            if (apiDefinitionMapper.countByExample(example) > 0) {
+                throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
+            }
         }
     }
 
@@ -431,15 +431,10 @@ public class ApiDefinitionService {
             }
         } else {
             // 列表删除
-            // 选中的数据直接放入回收站
-            while (!ids.isEmpty()) {
-                if (ids.size() <= 2000) {
-                    doDelete(ids, userId, projectId);
-                    break;
-                }
-                List<String> subList = ids.subList(0, 2000);
-                doDelete(subList, userId, projectId);
-                ids.removeAll(subList);
+            if (!ids.isEmpty()) {
+                SubListUtils.dealForSubList(ids, 2000, subList -> {
+                    doDelete(subList, userId, projectId);
+                });
             }
         }
     }
@@ -514,15 +509,9 @@ public class ApiDefinitionService {
     }
     private void handleRestoreApiDefinition(List<String> ids, String userId, String projectId){
         if (CollectionUtils.isNotEmpty(ids)) {
-            while (!ids.isEmpty()) {
-                if (ids.size() <= 2000) {
-                    doRestore(ids, userId, projectId);
-                    break;
-                }
-                List<String> subList = ids.subList(0, 2000);
-                doRestore(ids, userId, projectId);
-                ids.removeAll(subList);
-            }
+            SubListUtils.dealForSubList(ids, 2000, subList -> {
+                doRestore(subList, userId, projectId);
+            });
         }
     }
 
@@ -584,15 +573,9 @@ public class ApiDefinitionService {
 
     private void handleRecycleDelApiDefinition(List<String> ids, String userId, String projectId, Boolean isBatch){
         if (CollectionUtils.isNotEmpty(ids)) {
-            while (!ids.isEmpty()) {
-                if (ids.size() <= 2000) {
-                    doRecycleDel(ids, userId, projectId, isBatch);
-                    break;
-                }
-                List<String> subList = ids.subList(0, 2000);
-                doRecycleDel(ids, userId, projectId, isBatch);
-                ids.removeAll(subList);
-            }
+            SubListUtils.dealForSubList(ids, 2000, subList -> {
+                doRecycleDel(subList, userId, projectId, isBatch);
+            });
         }
     }
 
