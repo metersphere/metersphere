@@ -7,7 +7,7 @@ import lombok.Data;
  * @CreateTime: 2023-11-06  16:59
  */
 @Data
-public class QueryParam extends KeyValueParam {
+public class QueryParam extends KeyValueEnableParam {
 
     /**
      * 参数类型

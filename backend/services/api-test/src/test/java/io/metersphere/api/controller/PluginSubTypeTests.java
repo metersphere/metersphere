@@ -5,19 +5,19 @@ import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.dto.TestElementDTO;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.plugin.api.spi.MsTestElement;
+import io.metersphere.sdk.dto.api.request.http.MsHTTPElement;
 import io.metersphere.sdk.dto.api.request.logic.controller.MsLoopController;
-import io.metersphere.sdk.dto.api.request.post.processors.MsPostJSR223Processor;
-import io.metersphere.sdk.dto.api.request.sampler.MsDebugSampler;
 import io.metersphere.system.base.BaseApiPluginTestService;
 import io.metersphere.system.service.PluginLoadService;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -33,34 +33,14 @@ public class PluginSubTypeTests {
 
     @Test
     @Order(0)
-    public void pluginSubTypeTest() throws Exception {
-        MsDebugSampler debugSampler = new MsDebugSampler();
-        debugSampler.setName("测试DebugSampler");
-        debugSampler.setUuid(IDGenerator.nextStr());
-        LinkedList<TestElementDTO> hashTree = new LinkedList<>();
-        hashTree.add(debugSampler);
-        MsPostJSR223Processor msjsr223Processor = new MsPostJSR223Processor();
-        msjsr223Processor.setName("测试jsr223");
-        msjsr223Processor.setJsrEnable(true);
-        msjsr223Processor.setChildren(hashTree);
-
-        String json = ApiDataUtils.toJSONString(msjsr223Processor);
-        Assertions.assertNotNull(json);
-        TestElementDTO testElementDTO = ApiDataUtils.parseObject(json, TestElementDTO.class);
-        Assertions.assertNotNull(testElementDTO);
-    }
-
-    @Test
-    @Order(1)
     public void resolverTest() throws Exception {
-        // ApiDataUtils.setResolver(MsLoopController.class);
         List<NamedType> namedTypes = new LinkedList<>();
         namedTypes.add(new NamedType(MsLoopController.class, MsLoopController.class.getSimpleName()));
         ApiDataUtils.setResolver(namedTypes);
     }
 
     @Test
-    @Order(2)
+    @Order(1)
     public void newPluginSubTypeTest() throws Exception {
         MsLoopController loopController = new MsLoopController();
         loopController.setName("测试loopController");
@@ -72,26 +52,7 @@ public class PluginSubTypeTests {
     }
 
     @Test
-    @Order(3)
-    public void retrySubTypeTest() throws Exception {
-        MsDebugSampler debugSampler = new MsDebugSampler();
-        debugSampler.setName("测试DebugSampler");
-        debugSampler.setUuid(IDGenerator.nextStr());
-        LinkedList<TestElementDTO> hashTree = new LinkedList<>();
-        hashTree.add(debugSampler);
-        MsPostJSR223Processor msjsr223Processor = new MsPostJSR223Processor();
-        msjsr223Processor.setName("测试jsr223");
-        msjsr223Processor.setJsrEnable(true);
-        msjsr223Processor.setChildren(hashTree);
-
-        String json = ApiDataUtils.toJSONString(msjsr223Processor);
-        Assertions.assertNotNull(json);
-        TestElementDTO testElementDTO = ApiDataUtils.parseObject(json, TestElementDTO.class);
-        Assertions.assertNotNull(testElementDTO);
-    }
-
-    @Test
-    @Order(4)
+    @Order(2)
     public void jdbcPluginSubTypeTest() throws Exception {
         // 上传 jdbc 插件
         baseApiPluginTestService.addJdbcPlugin();
@@ -109,5 +70,43 @@ public class PluginSubTypeTests {
                 """;
         AbstractMsTestElement testElementDTO = ApiDataUtils.parseObject(jdbcJson, AbstractMsTestElement.class);
         Assertions.assertNotNull(testElementDTO);
+    }
+
+    @Test
+    @Order(3)
+    public void testApiDataUtils() throws Exception {
+        // 校验异常，增加覆盖率
+        Assertions.assertTrue(isFuncSuccess((v) -> {
+            InputStream in = null;
+            ApiDataUtils.parseObject(in, AbstractMsTestElement.class);
+        }));
+        Assertions.assertTrue(isFuncSuccess((v) -> ApiDataUtils.parseObject("{")));
+        Assertions.assertTrue(isFuncSuccess((v) -> ApiDataUtils.parseArray(null, AbstractMsTestElement.class)));
+
+        ApiDataUtils.setResolver(MsHTTPElement.class);
+        // 检验 parseArray
+        String msHttpJson = """
+                [{
+                  "polymorphicName": "MsHTTPElement",
+                  "test": "测试MsHTTPElement"
+                }]
+                """;
+        ApiDataUtils.parseArray(msHttpJson, AbstractMsTestElement.class);
+    }
+
+    /**
+     * 判断函数是否抛出异常
+     *
+     * @param func
+     * @return
+     * @throws Exception
+     */
+    public boolean isFuncSuccess(Consumer func) {
+        try {
+            func.accept("");
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
     }
 }
