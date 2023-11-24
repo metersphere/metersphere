@@ -13,6 +13,7 @@ import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
+import io.metersphere.project.utils.FileMetadataUtils;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
@@ -479,7 +480,7 @@ public class FileManagementControllerTests extends BaseTest {
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
         FILE_ID_PATH.put(returnId, filePath);
-        uploadedFileTypes.add(StringUtils.EMPTY);
+        uploadedFileTypes.add(FileMetadataUtils.FILE_TYPE_EMPTY);
 
         //检查文件类型是不是为空
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(returnId);
@@ -509,9 +510,19 @@ public class FileManagementControllerTests extends BaseTest {
             Assertions.assertTrue(uploadedFileTypes.contains(fileType));
         }
 
-        //没后缀的文件 (同时上传到a1-a1节点)
+        /* 没后缀的文件和后缀是.unknown的文件 (同时上传到a1-a1节点) */
         filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/noSuffixFile")).getPath();
         file = new MockMultipartFile("file", "noSuffixFile", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(fileUploadRequest));
+        mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
+        returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
+        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        FILE_ID_PATH.put(returnId, filePath);
+
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/noSuffixFile.unknown")).getPath();
+        file = new MockMultipartFile("file", "noSuffixFile.unknown", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileManagementBaseUtils.getFileBytes(filePath));
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", file);
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
