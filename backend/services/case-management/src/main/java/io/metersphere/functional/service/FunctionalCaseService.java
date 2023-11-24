@@ -1,19 +1,24 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.*;
-import io.metersphere.functional.mapper.*;
+import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
+import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
+import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
+import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
-import io.metersphere.sdk.constants.FunctionalCaseReviewStatus;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
@@ -80,6 +85,7 @@ public class FunctionalCaseService {
 
     private static final String ADD_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/add";
     private static final String UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/update";
+    private static final String FUNCTIONAL_CASE_BATCH_COPY_FILE_LOG_URL = "/functional/case/batch/copy";
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
         String caseId = IDGenerator.nextStr();
@@ -94,9 +100,16 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), caseId, userId, ADD_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
-        //TODO 记录变更历史
+        saveHistory(Collections.singletonList(caseId));
 
         return functionalCase;
+    }
+
+    private void saveHistory(List<String> ids) {
+        FunctionalCaseHistoryService functionalCaseHistoryService = CommonBeanFactory.getBean(FunctionalCaseHistoryService.class);
+        if (functionalCaseHistoryService != null) {
+            functionalCaseHistoryService.saveHistoryLog(ids);
+        }
     }
 
     /**
@@ -169,7 +182,7 @@ public class FunctionalCaseService {
         BeanUtils.copyBean(functionalCaseDetailDTO, caseBlob);
 
         //模板校验 获取自定义字段
-        functionalCaseDetailDTO = checkTemplateCustomField(functionalCaseDetailDTO, functionalCase);
+        checkTemplateCustomField(functionalCaseDetailDTO, functionalCase);
 
         //是否关注用例
         Boolean isFollow = checkIsFollowCase(functionalCase.getId(), userId);
@@ -268,7 +281,7 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), request.getId(), userId, UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
-        //TODO 记录变更历史 addFunctionalCaseHistory
+        saveHistory(Collections.singletonList(request.getId()));
 
         return functionalCase;
 
@@ -455,64 +468,61 @@ public class FunctionalCaseService {
             Map<String, FunctionalCaseBlob> functionalCaseBlobMap = copyBlobInfo(ids);
             //附件 本地附件
             Map<String, List<FunctionalCaseAttachment>> attachmentMap = functionalCaseAttachmentService.getAttachmentByCaseIds(ids);
-            //TODO 文件库附件
+            //文件库附件
+            Map<String, List<FileAssociation>> fileAssociationMap = functionalCaseAttachmentService.getFileAssociationByCaseIds(ids);
             //自定义字段
             Map<String, List<FunctionalCaseCustomField>> customFieldMap = functionalCaseCustomFieldService.getCustomFieldMapByCaseIds(ids);
 
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            FunctionalCaseMapper mapper = sqlSession.getMapper(FunctionalCaseMapper.class);
             Long nextOrder = getNextOrder(request.getProjectId());
 
-            try {
-                for (int i = 0; i < ids.size(); i++) {
-                    String id = IDGenerator.nextStr();
-                    FunctionalCase functionalCase = functionalCaseMap.get(ids.get(i));
-                    FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMap.get(ids.get(i));
-                    List<FunctionalCaseAttachment> caseAttachments = attachmentMap.get(ids.get(i));
-                    List<FunctionalCaseCustomField> customFields = customFieldMap.get(ids.get(i));
+            for (int i = 0; i < ids.size(); i++) {
+                String id = IDGenerator.nextStr();
+                FunctionalCase functionalCase = functionalCaseMap.get(ids.get(i));
+                FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMap.get(ids.get(i));
+                List<FunctionalCaseAttachment> caseAttachments = attachmentMap.get(ids.get(i));
+                List<FileAssociation> fileAssociationList = fileAssociationMap.get(ids.get(i));
+                List<FunctionalCaseCustomField> customFields = customFieldMap.get(ids.get(i));
 
-                    Optional.ofNullable(functionalCase).ifPresent(functional -> {
-                        functional.setId(id);
-                        functional.setRefId(id);
-                        functional.setModuleId(request.getModuleId());
-                        functional.setNum(getNextNum(request.getProjectId()));
-                        functional.setName(getCopyName(functionalCase.getName()));
-                        functional.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
-                        functional.setPos(nextOrder + ORDER_STEP);
-                        functional.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
-                        functional.setCreateUser(userId);
-                        functional.setCreateTime(System.currentTimeMillis());
-                        functional.setUpdateTime(System.currentTimeMillis());
-                        mapper.insert(functional);
+                Optional.ofNullable(functionalCase).ifPresent(functional -> {
+                    functional.setId(id);
+                    functional.setRefId(id);
+                    functional.setModuleId(request.getModuleId());
+                    functional.setNum(getNextNum(request.getProjectId()));
+                    functional.setName(getCopyName(functionalCase.getName()));
+                    functional.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
+                    functional.setPos(nextOrder + ORDER_STEP);
+                    functional.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+                    functional.setCreateUser(userId);
+                    functional.setCreateTime(System.currentTimeMillis());
+                    functional.setUpdateTime(System.currentTimeMillis());
+                    functionalCaseMapper.insert(functional);
 
-                        functionalCaseBlob.setId(id);
-                        functionalCaseBlobMapper.insert(functionalCaseBlob);
+                    functionalCaseBlob.setId(id);
+                    functionalCaseBlobMapper.insert(functionalCaseBlob);
+                });
+
+                if (CollectionUtils.isNotEmpty(caseAttachments)) {
+                    caseAttachments.forEach(attachment -> {
+                        attachment.setId(IDGenerator.nextStr());
+                        attachment.setCaseId(id);
+                        attachment.setCreateUser(userId);
+                        attachment.setCreateTime(System.currentTimeMillis());
                     });
-
-                    if (CollectionUtils.isNotEmpty(caseAttachments)) {
-                        caseAttachments.forEach(attachment -> {
-                            attachment.setId(IDGenerator.nextStr());
-                            attachment.setCaseId(id);
-                            attachment.setCreateUser(userId);
-                            attachment.setCreateTime(System.currentTimeMillis());
-                        });
-                        functionalCaseAttachmentService.batchSaveAttachment(caseAttachments);
-                    }
-
-                    if (CollectionUtils.isNotEmpty(customFields)) {
-                        customFields.forEach(customField -> {
-                            customField.setCaseId(id);
-                        });
-                        functionalCaseCustomFieldService.batchSaveCustomField(customFields);
-                    }
-
-                    if (i % 50 == 0) {
-                        sqlSession.flushStatements();
-                    }
+                    functionalCaseAttachmentService.batchSaveAttachment(caseAttachments);
                 }
-                sqlSession.flushStatements();
-            } finally {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+
+                if (CollectionUtils.isNotEmpty(customFields)) {
+                    customFields.forEach(customField -> {
+                        customField.setCaseId(id);
+                    });
+                    functionalCaseCustomFieldService.batchSaveCustomField(customFields);
+                }
+
+                if (CollectionUtils.isNotEmpty(fileAssociationList)) {
+                    List<String> fileIds = fileAssociationList.stream().map(FileAssociation::getFileId).collect(Collectors.toList());
+                    functionalCaseAttachmentService.association(fileIds, id, userId, FUNCTIONAL_CASE_BATCH_COPY_FILE_LOG_URL, request.getProjectId());
+                }
+
             }
         }
     }
@@ -554,6 +564,7 @@ public class FunctionalCaseService {
             handleTags(request, userId, ids);
             //自定义字段处理
             handleCustomFields(request, userId, ids);
+            saveHistory(ids);
         }
 
     }

@@ -26,6 +26,12 @@ public class FunctionalCaseHistory implements Serializable {
     @Schema(description =  "变更记录批次号", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer num;
 
+    @Schema(description =  "变更类型;IMPORT/EDIT/ROLLBACK", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String type;
+
+    @Schema(description =  "回退来源")
+    private String rollbackSourceId;
+
     @Schema(description =  "操作人")
     private String createUser;
 
@@ -42,6 +48,8 @@ public class FunctionalCaseHistory implements Serializable {
         id("id", "id", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
         num("num", "num", "INTEGER", false),
+        type("type", "type", "VARCHAR", true),
+        rollbackSourceId("rollback_source_id", "rollbackSourceId", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         content("content", "content", "LONGVARBINARY", false);

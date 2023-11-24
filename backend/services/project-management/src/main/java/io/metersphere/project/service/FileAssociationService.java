@@ -326,4 +326,8 @@ public class FileAssociationService {
     public List<FileInfo> getFiles(String sourceId, String sourceType) {
         return extFileAssociationMapper.selectAssociationFileInfo(sourceId, sourceType);
     }
+
+    public List<FileAssociation> getFileAssociations(List<String> sourceIds, String sourceType) {
+        return extFileAssociationMapper.selectFileIdsBySourceId(sourceIds, sourceType);
+    }
 }
