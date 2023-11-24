@@ -92,7 +92,7 @@
         api_definition
         where ref_id in
         <foreach collection="refIds" item="id" open="(" separator="," close=")">
-            #{id}
+          #{id}
         </foreach>
         and deleted = #{deleted}
     </select>

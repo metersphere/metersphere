@@ -431,8 +431,8 @@ public class ApiDefinitionService {
             //全部删除  进入回收站
             List<String> refIds = extApiDefinitionMapper.getRefIds(ids, false);
             if(CollectionUtils.isNotEmpty(refIds)){
-                extApiDefinitionMapper.batchDeleteByRefId(refIds, userId, projectId);
                 List<String> delApiIds = extApiDefinitionMapper.getIdsByRefId(refIds, false);
+                extApiDefinitionMapper.batchDeleteByRefId(refIds, userId, projectId);
                 if(CollectionUtils.isNotEmpty(delApiIds)){
                     // 删除接口相关数据到回收站
                     deleteApiRelatedData(delApiIds, userId, projectId);
@@ -508,7 +508,7 @@ public class ApiDefinitionService {
         List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(apiIds, false);
         if(CollectionUtils.isNotEmpty(caseLists)){
             List<String> caseIds = caseLists.stream().map(ApiTestCase::getId).distinct().toList();
-            apiTestCaseService.batchDeleteToGc(caseIds, userId, projectId, false);
+            apiTestCaseService.batchDeleteToGc(caseIds, userId, projectId, true);
         }
         // todo 删除文档到回收站？
     }
