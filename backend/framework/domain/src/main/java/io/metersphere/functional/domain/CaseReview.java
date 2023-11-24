@@ -40,6 +40,10 @@ public class CaseReview implements Serializable {
     @Size(min = 1, max = 64, message = "{case_review.review_pass_rule.length_range}", groups = {Created.class, Updated.class})
     private String reviewPassRule;
 
+    @Schema(description = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{case_review.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
     @Schema(description = "评审开始时间")
     private Long startTime;
 
@@ -73,6 +77,7 @@ public class CaseReview implements Serializable {
         projectId("project_id", "projectId", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         reviewPassRule("review_pass_rule", "reviewPassRule", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false),
         startTime("start_time", "startTime", "BIGINT", false),
         endTime("end_time", "endTime", "BIGINT", false),
         tags("tags", "tags", "VARCHAR", false),

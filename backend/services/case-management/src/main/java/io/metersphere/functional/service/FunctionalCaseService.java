@@ -4,7 +4,7 @@ import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
-import io.metersphere.functional.result.FunctionalCaseResultCode;
+import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectTemplateService;
@@ -72,9 +72,6 @@ public class FunctionalCaseService {
 
     @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
-
-    @Resource
-    private FunctionalCaseModuleMapper functionalCaseModuleMapper;
 
     @Resource
     private FunctionalCaseModuleService functionalCaseModuleService;
@@ -204,7 +201,7 @@ public class FunctionalCaseService {
         functionalCaseExample.createCriteria().andIdEqualTo(functionalCaseId).andDeletedEqualTo(false);
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(functionalCaseId);
         if (functionalCase == null) {
-            throw new MSException(FunctionalCaseResultCode.FUNCTIONAL_CASE_NOT_FOUND);
+            throw new MSException(CaseManagementResultCode.FUNCTIONAL_CASE_NOT_FOUND);
         }
         return functionalCase;
     }
