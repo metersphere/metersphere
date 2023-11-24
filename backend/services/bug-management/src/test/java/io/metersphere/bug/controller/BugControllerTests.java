@@ -6,6 +6,7 @@ import io.metersphere.bug.dto.request.BugBatchRequest;
 import io.metersphere.bug.dto.request.BugBatchUpdateRequest;
 import io.metersphere.bug.dto.request.BugEditRequest;
 import io.metersphere.bug.dto.request.BugPageRequest;
+import io.metersphere.bug.utils.CustomFieldUtils;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -398,6 +399,12 @@ public class BugControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setIncludeBugIds(List.of("default-bug-id-single"));
         this.requestPost(BUG_BATCH_DELETE, request, status().isOk());
+    }
+
+    @Test
+    @Order(21)
+    void coverUtilsTest() throws Exception {
+        CustomFieldUtils.appendToMultipleCustomField(null, "test");
     }
 
     /**
