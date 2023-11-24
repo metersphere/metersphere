@@ -5,144 +5,145 @@
       :style="{ width: props.formWidth || '100%' }"
     >
       <a-scrollbar class="overflow-y-auto" :style="{ 'max-height': props.maxHeight }">
-        <Draggable
-          tag="div"
+        <VueDraggable
+          v-model="form.list"
           ghost-class="ghost"
           drag-class="dragChosenClass"
           :disabled="!props.isShowDrag"
-          :list="form.list"
-          item-key="dateIndex"
           :force-fallback="true"
         >
-          <template #item="{ element, index }">
-            <div class="draggableElement gap-[8px] py-[6px] pr-[8px]" :class="[props.isShowDrag ? 'cursor-move' : '']">
-              <div v-if="props.isShowDrag" class="ml-[8px] mr-[8px] pt-[8px]">
-                <MsIcon type="icon-icon_drag" class="block text-[16px] text-[var(--color-text-4)]"
-              /></div>
-              <a-form-item
-                v-for="model of props.models"
-                :key="`${model.filed}${index}`"
-                :field="`list[${index}].${model.filed}`"
-                :class="index > 0 ? 'hidden-item' : 'mb-0 flex-1'"
-                :rules="
-                  model.rules?.map((e) => {
-                    if (e.notRepeat === true) {
-                      return {
-                        validator: (val, callback) => fieldNotRepeat(val, callback, index, model.filed, e.message),
-                      };
-                    }
-                    return e;
-                  })
-                "
-                asterisk-position="end"
-                :hide-asterisk="model.hideAsterisk"
-                :hide-label="model.hideLabel"
-                :content-flex="model.type !== 'multiple'"
-                :merge-props="model.type !== 'multiple'"
-              >
-                <template #label>
-                  <div class="inline-flex flex-row">
-                    <div>{{ index === 0 && model.label ? t(model.label) : '' }}</div>
-                    <div v-if="model.hasRedStar" class="ml-[2px] flex items-center">
-                      <svg-icon width="6px" height="6px" name="form-star" class="text-[rgb(var(--danger-6))]" />
-                    </div>
+          <div
+            v-for="(element, index) in form.list"
+            :key="`${element.filed}${index}`"
+            class="draggableElement gap-[8px] py-[6px] pr-[8px]"
+            :class="[props.isShowDrag ? 'cursor-move' : '']"
+          >
+            <div v-if="props.isShowDrag" class="ml-[8px] mr-[8px] pt-[8px]">
+              <MsIcon type="icon-icon_drag" class="block text-[16px] text-[var(--color-text-4)]"
+            /></div>
+            <a-form-item
+              v-for="model of props.models"
+              :key="`${model.filed}${index}`"
+              :field="`list[${index}].${model.filed}`"
+              :class="index > 0 ? 'hidden-item' : 'mb-0 flex-1'"
+              :rules="
+                model.rules?.map((e) => {
+                  if (e.notRepeat === true) {
+                    return {
+                      validator: (val, callback) => fieldNotRepeat(val, callback, index, model.filed, e.message),
+                    };
+                  }
+                  return e;
+                })
+              "
+              asterisk-position="end"
+              :hide-asterisk="model.hideAsterisk"
+              :hide-label="model.hideLabel"
+              :content-flex="model.type !== 'multiple'"
+              :merge-props="model.type !== 'multiple'"
+            >
+              <template #label>
+                <div class="inline-flex flex-row">
+                  <div>{{ index === 0 && model.label ? t(model.label) : '' }}</div>
+                  <div v-if="model.hasRedStar" class="ml-[2px] flex items-center">
+                    <svg-icon width="6px" height="6px" name="form-star" class="text-[rgb(var(--danger-6))]" />
                   </div>
-                </template>
-                <a-input
-                  v-if="model.type === 'input'"
-                  v-model="element[model.filed]"
-                  class="flex-1"
-                  :placeholder="t(model.placeholder || '')"
-                  :max-length="model.maxLength || 250"
-                  allow-clear
-                />
-                <a-input-number
-                  v-if="model.type === 'inputNumber'"
-                  v-model="element[model.filed]"
-                  class="flex-1"
-                  :placeholder="t(model.placeholder || '')"
-                  :min="model.min"
-                  :max="model.max || 9999999"
-                  allow-clear
-                />
-                <MsTagsInput
-                  v-if="model.type === 'tagInput'"
-                  v-model:model-value="element[model.filed]"
-                  class="flex-1"
-                  :placeholder="t(model.placeholder || 'common.tagPlaceholder')"
-                  allow-clear
-                  unique-value
-                  retain-input-value
-                  :max-tag-count="2"
-                />
-                <a-select
-                  v-if="model.type === 'select'"
-                  v-model="element[model.filed]"
-                  class="flex-1"
-                  :placeholder="t(model.placeholder || '')"
-                  :options="model.options"
-                  :field-names="model.filedNames"
-                />
-                <div v-if="model.type === 'multiple'" class="flex flex-row gap-[4px]">
-                  <a-form-item
-                    v-for="(child, childIndex) in model.children"
-                    :key="`${child.filed}${childIndex}${index}`"
-                    :field="`list[${index}].${child.filed}`"
-                    :label="child.label ? t(child.label) : ''"
-                    asterisk-position="end"
-                    :hide-asterisk="child.hideAsterisk"
-                    :hide-label="child.hideLabel"
-                    class="hidden-item"
-                    :rules="child.rules"
-                  >
-                    <a-input
-                      v-if="child.type === 'input'"
-                      v-model="element[child.filed]"
-                      :class="child.className"
-                      :placeholder="t(child.placeholder || '')"
-                      :max-length="child.maxLength || 250"
-                      allow-clear
-                    />
-                    <a-select
-                      v-if="child.type === 'select'"
-                      v-model="element[child.filed]"
-                      :class="child.className"
-                      :placeholder="t(child.placeholder || '')"
-                      :options="child.options"
-                      :field-names="child.filedNames"
-                    />
-                  </a-form-item>
                 </div>
-              </a-form-item>
-              <div v-if="showEnable">
-                <a-switch
-                  v-model="element.enable"
-                  class="mt-[8px]"
-                  :style="{ 'margin-top': index === 0 && !props.isShowDrag ? '36px' : '' }"
-                  size="small"
-                />
+              </template>
+              <a-input
+                v-if="model.type === 'input'"
+                v-model="element[model.filed]"
+                class="flex-1"
+                :placeholder="t(model.placeholder || '')"
+                :max-length="model.maxLength || 250"
+                allow-clear
+              />
+              <a-input-number
+                v-if="model.type === 'inputNumber'"
+                v-model="element[model.filed]"
+                class="flex-1"
+                :placeholder="t(model.placeholder || '')"
+                :min="model.min"
+                :max="model.max || 9999999"
+                allow-clear
+              />
+              <MsTagsInput
+                v-if="model.type === 'tagInput'"
+                v-model:model-value="element[model.filed]"
+                class="flex-1"
+                :placeholder="t(model.placeholder || 'common.tagPlaceholder')"
+                allow-clear
+                unique-value
+                retain-input-value
+                :max-tag-count="2"
+              />
+              <a-select
+                v-if="model.type === 'select'"
+                v-model="element[model.filed]"
+                class="flex-1"
+                :placeholder="t(model.placeholder || '')"
+                :options="model.options"
+                :field-names="model.filedNames"
+              />
+              <div v-if="model.type === 'multiple'" class="flex flex-row gap-[4px]">
+                <a-form-item
+                  v-for="(child, childIndex) in model.children"
+                  :key="`${child.filed}${childIndex}${index}`"
+                  :field="`list[${index}].${child.filed}`"
+                  :label="child.label ? t(child.label) : ''"
+                  asterisk-position="end"
+                  :hide-asterisk="child.hideAsterisk"
+                  :hide-label="child.hideLabel"
+                  class="hidden-item"
+                  :rules="child.rules"
+                >
+                  <a-input
+                    v-if="child.type === 'input'"
+                    v-model="element[child.filed]"
+                    :class="child.className"
+                    :placeholder="t(child.placeholder || '')"
+                    :max-length="child.maxLength || 250"
+                    allow-clear
+                  />
+                  <a-select
+                    v-if="child.type === 'select'"
+                    v-model="element[child.filed]"
+                    :class="child.className"
+                    :placeholder="t(child.placeholder || '')"
+                    :options="child.options"
+                    :field-names="child.filedNames"
+                  />
+                </a-form-item>
               </div>
-              <div
-                v-show="form.list.length > 1"
-                class="minus"
-                :class="[
-                  'flex',
-                  'h-full',
-                  'w-[32px]',
-                  'cursor-pointer',
-                  'items-center',
-                  'justify-center',
-                  'text-[var(--color-text-4)]',
-                  'mt-[8px]',
-                ]"
+            </a-form-item>
+            <div v-if="showEnable">
+              <a-switch
+                v-model="element.enable"
+                class="mt-[8px]"
                 :style="{ 'margin-top': index === 0 && !props.isShowDrag ? '36px' : '' }"
-                @click="removeField(index)"
-              >
-                <icon-minus-circle />
-              </div>
+                size="small"
+              />
             </div>
-          </template>
-        </Draggable>
+            <div
+              v-show="form.list.length > 1"
+              class="minus"
+              :class="[
+                'flex',
+                'h-full',
+                'w-[32px]',
+                'cursor-pointer',
+                'items-center',
+                'justify-center',
+                'text-[var(--color-text-4)]',
+                'mt-[8px]',
+              ]"
+              :style="{ 'margin-top': index === 0 && !props.isShowDrag ? '36px' : '' }"
+              @click="removeField(index)"
+            >
+              <icon-minus-circle />
+            </div>
+          </div>
+        </VueDraggable>
       </a-scrollbar>
       <div v-if="props.formMode === 'create'" class="w-full">
         <a-button class="px-0" type="text" @click="addField">
@@ -166,7 +167,7 @@
 
   import type { FormItemModel, FormMode } from './types';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
-  import Draggable from 'vuedraggable';
+  import { VueDraggable } from 'vue-draggable-plus';
 
   const { t } = useI18n();
 

@@ -67,17 +67,15 @@
           t('msTable.columnSetting.nonSort')
         }}</span></a-divider
       >
-      <Draggable tag="div" :list="couldSortColumn" ghost-class="ghost" item-key="dateIndex" @change="handleDragChange">
-        <template #item="{ element }">
-          <div class="column-drag-item">
-            <div class="flex w-[90%] items-center">
-              <MsIcon type="icon-icon_drag" class="text-[16px] text-[var(--color-text-4)]" />
-              <span class="ml-[8px]">{{ t(element.title as string) }}</span>
-            </div>
-            <a-switch v-model="element.showInTable" size="small" @change="handleSwitchChange" />
+      <VueDraggable v-model="couldSortColumn" ghost-class="ghost">
+        <div v-for="element in couldSortColumn" :key="element.dataIndex" class="column-drag-item">
+          <div class="flex w-[90%] items-center">
+            <MsIcon type="icon-icon_drag" class="text-[16px] text-[var(--color-text-4)]" />
+            <span class="ml-[8px]">{{ t(element.title as string) }}</span>
           </div>
-        </template>
-      </Draggable>
+          <a-switch v-model="element.showInTable" size="small" @update="handleSwitchChange" />
+        </div>
+      </VueDraggable>
     </div>
   </MsDrawer>
 </template>
@@ -95,7 +93,7 @@
   import { TableOpenDetailMode } from '@/store/modules/components/ms-table/types';
 
   import { MsTableColumn } from './type';
-  import Draggable from 'vuedraggable';
+  import { VueDraggable } from 'vue-draggable-plus';
 
   const tableStore = useTableStore();
   const { t } = useI18n();

@@ -71,24 +71,20 @@
             <MsButton @click="clearHandler">{{ t('system.orgTemplate.clear') }}</MsButton>
           </div>
           <div class="selected-list p-4">
-            <Draggable tag="div" :list="selectedList" ghost-class="ghost" item-key="dateIndex">
-              <template #item="{ element }">
-                <div class="selected-item">
-                  <a-tooltip :content="element.name">
-                    <span>
-                      <MsIcon type="icon-icon_drag" class="mt-[3px] text-[16px] text-[var(--color-text-4)]"
-                    /></span>
-                    <span class="one-line-text ml-2 w-[270px]">{{ element.name }}</span>
-                  </a-tooltip>
-                  <icon-close
-                    v-if="!element.internal"
-                    :style="{ 'font-size': '14px' }"
-                    class="cursor-pointer text-[var(--color-text-3)]"
-                    @click="removeSelectedField(element.id)"
-                  />
-                </div>
-              </template>
-            </Draggable>
+            <VueDraggable v-model="selectedList" ghost-class="ghost">
+              <div v-for="element in selectedList" :key="element.dateIndex" class="selected-item">
+                <a-tooltip :content="element.name">
+                  <span> <MsIcon type="icon-icon_drag" class="mt-[3px] text-[16px] text-[var(--color-text-4)]" /></span>
+                  <span class="one-line-text ml-2 w-[270px]">{{ element.name }}</span>
+                </a-tooltip>
+                <icon-close
+                  v-if="!element.internal"
+                  :style="{ 'font-size': '14px' }"
+                  class="cursor-pointer text-[var(--color-text-3)]"
+                  @click="removeSelectedField(element.id)"
+                />
+              </div>
+            </VueDraggable>
           </div>
         </div>
       </div>
@@ -110,7 +106,7 @@
 
   import type { DefinedFieldItem } from '@/models/setting/template';
 
-  import Draggable from 'vuedraggable';
+  import { VueDraggable } from 'vue-draggable-plus';
 
   const { t } = useI18n();
 
