@@ -46,6 +46,6 @@ public class ApiDefinitionPageRequest extends BasePageRequest {
     @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
     private List<String> moduleIds;
 
-    @Schema(description = "删除状态(状态为 0 时为回收站数据)")
+    @Schema(description = "删除状态(状态为 1 时为回收站数据)")
     private Boolean deleted = false;
 }

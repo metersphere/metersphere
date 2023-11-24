@@ -611,7 +611,29 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(11)
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getPage() throws Exception {
-        ApiDefinitionPageRequest request = createApiDefinitionPageRequest();
+        doApiDefinitionPage("All");
+        doApiDefinitionPage("KEYWORD");
+        doApiDefinitionPage("FILTER");
+        doApiDefinitionPage("COMBINE");
+        doApiDefinitionPage("DELETED");
+    }
+
+    private void doApiDefinitionPage(String search) throws Exception {
+        ApiDefinitionPageRequest request = new ApiDefinitionPageRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setDeleted(false);
+        request.setSort(Map.of("createTime", "asc"));
+        // "ALL", "KEYWORD", "FILTER", "COMBINE", "DELETED"
+        switch (search) {
+            case "ALL" -> configureAllSearch(request);
+            case "KEYWORD" -> configureKeywordSearch(request);
+            case "FILTER" -> configureFilterSearch(request);
+            case "COMBINE" -> configureCombineSearch(request);
+            case "DELETED" -> configureDeleteSearch(request);
+            default -> {}
+        }
 
         MvcResult mvcResult = this.requestPostWithOkAndReturn(PAGE, request);
         // 获取返回值
@@ -626,30 +648,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
-    }
 
-    private ApiDefinitionPageRequest createApiDefinitionPageRequest() {
-        ApiDefinitionPageRequest request = new ApiDefinitionPageRequest();
-        request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setCurrent(1);
-        request.setPageSize(10);
-        request.setSort(Map.of("createTime", "asc"));
-
-        String search = getRandomSearchType();
-        switch (search) {
-            case "ALL" -> configureAllSearch(request);
-            case "KEYWORD" -> configureKeywordSearch(request);
-            case "FILTER" -> configureFilterSearch(request);
-            case "COMBINE" -> configureCombineSearch(request);
-            default -> {}
-        }
-
-        return request;
-    }
-
-    private String getRandomSearchType() {
-        List<String> searchTypes = Arrays.asList("ALL", "KEYWORD", "FILTER", "COMBINE");
-        return searchTypes.get(new Random().nextInt(searchTypes.size()));
     }
 
     private void configureAllSearch(ApiDefinitionPageRequest request) {
@@ -684,6 +683,12 @@ public class ApiDefinitionControllerTests extends BaseTest {
         map.put("name", Map.of("operator", "like", "value", "test-1"));
         map.put("method", Map.of("operator", "in", "value", Arrays.asList("GET", "POST")));
         request.setCombine(map);
+    }
+
+    private void configureDeleteSearch(ApiDefinitionPageRequest request) {
+        request.setKeyword("100");
+        request.setVersionId("100570499574136985");
+        request.setDeleted(true);
     }
 
     @Test
