@@ -1,7 +1,6 @@
 package io.metersphere.functional.request;
 
 import io.metersphere.functional.dto.DemandDTO;
-import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -17,7 +16,7 @@ import java.util.List;
 public class FunctionalCaseDemandRequest {
 
     @Schema(description = "功能用例需求关系ID")
-    @NotBlank(message = "{functional_case_demand.case_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{functional_case_demand.case_id.not_blank}")
     private String id;
 
     @Schema(description = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)

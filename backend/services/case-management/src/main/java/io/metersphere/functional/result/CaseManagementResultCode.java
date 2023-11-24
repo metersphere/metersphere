@@ -2,14 +2,16 @@ package io.metersphere.functional.result;
 
 import io.metersphere.sdk.exception.IResultCode;
 
-public enum FunctionalCaseResultCode implements IResultCode {
+public enum CaseManagementResultCode implements IResultCode {
 
-    FUNCTIONAL_CASE_NOT_FOUND(105001, "case_comment.case_is_null");
+    FUNCTIONAL_CASE_NOT_FOUND(105001, "case_comment.case_is_null"),
+
+    CASE_REVIEW_NOT_FOUND(105001, "case_review.not.exist");
 
     private final int code;
     private final String message;
 
-    FunctionalCaseResultCode(int code, String message) {
+    CaseManagementResultCode(int code, String message) {
         this.code = code;
         this.message = message;
     }
