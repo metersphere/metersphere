@@ -8,6 +8,9 @@
     <result column="secret_key" jdbcType="VARCHAR" property="secretKey" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="enable" jdbcType="BIT" property="enable" />
+    <result column="forever" jdbcType="BIT" property="forever" />
+    <result column="expire_time" jdbcType="BIGINT" property="expireTime" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,7 +71,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, create_user, access_key, secret_key, create_time, `enable`
+    id, create_user, access_key, secret_key, create_time, `enable`, forever, expire_time, 
+    description
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.UserKeyExample" resultMap="BaseResultMap">
     select
@@ -102,10 +106,12 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.UserKey">
     insert into user_key (id, create_user, access_key, 
-      secret_key, create_time, `enable`
+      secret_key, create_time, `enable`, 
+      forever, expire_time, description
       )
     values (#{id,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{accessKey,jdbcType=VARCHAR}, 
-      #{secretKey,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{enable,jdbcType=BIT}
+      #{secretKey,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{enable,jdbcType=BIT}, 
+      #{forever,jdbcType=BIT}, #{expireTime,jdbcType=BIGINT}, #{description,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.UserKey">
@@ -129,6 +135,15 @@
       <if test="enable != null">
         `enable`,
       </if>
+      <if test="forever != null">
+        forever,
+      </if>
+      <if test="expireTime != null">
+        expire_time,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -148,6 +163,15 @@
       </if>
       <if test="enable != null">
         #{enable,jdbcType=BIT},
+      </if>
+      <if test="forever != null">
+        #{forever,jdbcType=BIT},
+      </if>
+      <if test="expireTime != null">
+        #{expireTime,jdbcType=BIGINT},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -178,6 +202,15 @@
       <if test="record.enable != null">
         `enable` = #{record.enable,jdbcType=BIT},
       </if>
+      <if test="record.forever != null">
+        forever = #{record.forever,jdbcType=BIT},
+      </if>
+      <if test="record.expireTime != null">
+        expire_time = #{record.expireTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -190,7 +223,10 @@
       access_key = #{record.accessKey,jdbcType=VARCHAR},
       secret_key = #{record.secretKey,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      `enable` = #{record.enable,jdbcType=BIT}
+      `enable` = #{record.enable,jdbcType=BIT},
+      forever = #{record.forever,jdbcType=BIT},
+      expire_time = #{record.expireTime,jdbcType=BIGINT},
+      description = #{record.description,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -213,6 +249,15 @@
       <if test="enable != null">
         `enable` = #{enable,jdbcType=BIT},
       </if>
+      <if test="forever != null">
+        forever = #{forever,jdbcType=BIT},
+      </if>
+      <if test="expireTime != null">
+        expire_time = #{expireTime,jdbcType=BIGINT},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -222,16 +267,21 @@
       access_key = #{accessKey,jdbcType=VARCHAR},
       secret_key = #{secretKey,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      `enable` = #{enable,jdbcType=BIT}
+      `enable` = #{enable,jdbcType=BIT},
+      forever = #{forever,jdbcType=BIT},
+      expire_time = #{expireTime,jdbcType=BIGINT},
+      description = #{description,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into user_key
-    (id, create_user, access_key, secret_key, create_time, `enable`)
+    (id, create_user, access_key, secret_key, create_time, `enable`, forever, expire_time, 
+      description)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.accessKey,jdbcType=VARCHAR}, 
-        #{item.secretKey,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.enable,jdbcType=BIT}
+        #{item.secretKey,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.enable,jdbcType=BIT}, 
+        #{item.forever,jdbcType=BIT}, #{item.expireTime,jdbcType=BIGINT}, #{item.description,jdbcType=VARCHAR}
         )
     </foreach>
   </insert>
@@ -262,6 +312,15 @@
         </if>
         <if test="'enable'.toString() == column.value">
           #{item.enable,jdbcType=BIT}
+        </if>
+        <if test="'forever'.toString() == column.value">
+          #{item.forever,jdbcType=BIT}
+        </if>
+        <if test="'expire_time'.toString() == column.value">
+          #{item.expireTime,jdbcType=BIGINT}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=VARCHAR}
         </if>
       </foreach>
       )
