@@ -1,6 +1,6 @@
 package io.metersphere.functional.service;
 
-import io.metersphere.functional.request.CaseReviewAddRequest;
+import io.metersphere.functional.request.CaseReviewRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -22,7 +22,7 @@ public class CaseReviewLogService {
      * @param requests 页面参数
      * @return LogDTO
      */
-    public LogDTO addCaseReviewLog(CaseReviewAddRequest requests) {
+    public LogDTO addCaseReviewLog(CaseReviewRequest requests) {
         LogDTO dto = new LogDTO(
                 requests.getProjectId(),
                 null,
