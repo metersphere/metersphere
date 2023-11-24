@@ -54,6 +54,27 @@
             "id": "PROJECT_API_DEFINITION:READ+EXPORT"
           }
         ]
+      },
+      {
+        "id": "PROJECT_API_DEFINITION_CASE",
+        "name": "permission.api_case.name",
+        "permissions": [
+          {
+            "id": "PROJECT_API_DEFINITION_CASE:READ"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION_CASE:READ+ADD"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION_CASE:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION_CASE:READ+DELETE"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION_CASE:READ+EXECUTE"
+          }
+        ]
       }
     ]
   }

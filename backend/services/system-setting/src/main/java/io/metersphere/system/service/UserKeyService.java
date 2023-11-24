@@ -1,11 +1,22 @@
 package io.metersphere.system.service;
 
 
+import com.alibaba.excel.util.BooleanUtils;
+import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserKey;
 import io.metersphere.system.domain.UserKeyExample;
+import io.metersphere.system.dto.UserKeyDTO;
+import io.metersphere.system.dto.builder.LogDTOBuilder;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.UserKeyMapper;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
@@ -13,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import io.metersphere.system.uid.IDGenerator;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -24,6 +34,8 @@ public class UserKeyService {
 
     @Resource
     private UserLoginService userLoginService;
+    @Resource
+    private OperationLogService operationLogService;
 
     public List<UserKey> getUserKeysInfo(String userId) {
         UserKeyExample userKeysExample = new UserKeyExample();
@@ -32,7 +44,7 @@ public class UserKeyService {
         return userKeyMapper.selectByExample(userKeysExample);
     }
 
-    public UserKey generateUserKey(String userId) {
+    public void add(String userId) {
         if (userLoginService.getUserDTO(userId) == null) {
             throw new MSException(Translator.get("user_not_exist") + userId);
         }
@@ -51,15 +63,28 @@ public class UserKeyService {
         userKeys.setAccessKey(RandomStringUtils.randomAlphanumeric(16));
         userKeys.setSecretKey(RandomStringUtils.randomAlphanumeric(16));
         userKeys.setCreateTime(System.currentTimeMillis());
+        userKeys.setForever(true);
         userKeyMapper.insert(userKeys);
-        return userKeyMapper.selectByPrimaryKey(userKeys.getId());
+
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(OperationLogConstants.SYSTEM)
+                .organizationId(OperationLogConstants.SYSTEM)
+                .type(OperationLogType.ADD.name())
+                .module(OperationLogModule.PERSONAL_INFORMATION_APIKEYS)
+                .method(HttpMethodConstants.GET.name())
+                .path("/user/api/key/add")
+                .sourceId(userKeys.getId())
+                .content(userKeys.getAccessKey())
+                .originalValue(JSON.toJSONBytes(userKeys))
+                .build().getLogDTO();
+        operationLogService.add(dto);
     }
 
     public void deleteUserKey(String id) {
         userKeyMapper.deleteByPrimaryKey(id);
     }
 
-    public void activeUserKey(String id) {
+    public void enableUserKey(String id) {
         UserKey userKeys = new UserKey();
         userKeys.setId(id);
         userKeys.setEnable(true);
@@ -78,8 +103,29 @@ public class UserKeyService {
         userKeyExample.createCriteria().andAccessKeyEqualTo(accessKey).andEnableEqualTo(true);
         List<UserKey> userKeysList = userKeyMapper.selectByExample(userKeyExample);
         if (!CollectionUtils.isEmpty(userKeysList)) {
-            return userKeysList.get(0);
+            //校验是否过期
+            if (BooleanUtils.isTrue(userKeysList.get(0).getForever()) || userKeysList.get(0).getExpireTime() > System.currentTimeMillis()) {
+                return userKeysList.get(0);
+            } else {
+                throw new MSException(Translator.get("apikey_has_expired") + ": " + userKeysList.get(0).getAccessKey());
+            }
         }
         return null;
+    }
+
+    public void updateUserKey(UserKeyDTO userKeyDTO) {
+        UserKey userKeys = new UserKey();
+        userKeys.setId(userKeyDTO.getId());
+        userKeys.setForever(userKeyDTO.getForever());
+        if (BooleanUtils.isFalse(userKeyDTO.getForever())) {
+            if (userKeyDTO.getExpireTime() == null) {
+                throw new MSException(Translator.get("expire_time_not_null"));
+            }
+            userKeys.setExpireTime(userKeyDTO.getExpireTime());
+        } else {
+            userKeys.setExpireTime(null);
+        }
+        userKeys.setDescription(userKeyDTO.getDescription());
+        userKeyMapper.updateByPrimaryKeySelective(userKeys);
     }
 }
