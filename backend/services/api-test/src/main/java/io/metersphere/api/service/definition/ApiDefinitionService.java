@@ -265,15 +265,6 @@ public class ApiDefinitionService {
             item.setDeleteUserName(userMap.get(item.getDeleteUser()));
             item.setUpdateUserName(userMap.get(item.getUpdateUser()));
 
-            // Convert Blob
-            Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(item.getId()));
-            apiDefinitionBlobOptional.ifPresent(blob -> {
-                item.setRequest(ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class));
-                // blob.getResponse() 为 null 时不进行转换
-                if (blob.getResponse() != null) {
-                    item.setResponse(ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class));
-                }
-            });
             // Calculate API Case Metrics
             ApiCaseComputeDTO apiCaseComputeDTO = resultMap.get(item.getId());
             if (apiCaseComputeDTO != null) {
