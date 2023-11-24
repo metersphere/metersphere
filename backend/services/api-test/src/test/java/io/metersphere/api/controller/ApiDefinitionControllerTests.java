@@ -667,11 +667,13 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     private void configureKeywordSearch(ApiDefinitionPageRequest request) {
         request.setKeyword("100");
+        request.setSort(Map.of("status", "asc"));
         request.setVersionId("100570499574136985");
     }
 
     private void configureFilterSearch(ApiDefinitionPageRequest request) {
         Map<String, List<String>> filters = new HashMap<>();
+        request.setSort(Map.of("updateTime", "asc"));
         filters.put("status", Arrays.asList("Underway", "Completed"));
         filters.put("method", List.of("GET"));
         filters.put("version_id", List.of("1005704995741369851"));
@@ -729,6 +731,12 @@ public class ApiDefinitionControllerTests extends BaseTest {
 //                Assertions.assertNull(item.getDeleteTime());
 //            });
 //        }
+
+        // @恢复一条数据
+        apiDefinitionDeleteRequest.setId("111");
+        // @@请求成功
+        assertErrorCode(this.requestPost(RESTORE, apiDefinitionDeleteRequest), ApiResultCode.API_DEFINITION_NOT_EXIST);
+
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, RESTORE, apiDefinitionDeleteRequest);
     }
