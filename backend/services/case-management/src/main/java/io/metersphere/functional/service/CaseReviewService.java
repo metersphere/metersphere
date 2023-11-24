@@ -2,11 +2,11 @@ package io.metersphere.functional.service;
 
 
 import io.metersphere.functional.constants.CaseReviewStatus;
+import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.CaseReviewAddRequest;
 import io.metersphere.functional.result.CaseManagementResultCode;
-import io.metersphere.sdk.constants.FunctionalCaseReviewStatus;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.uid.IDGenerator;

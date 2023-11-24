@@ -181,7 +181,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
 
         //设置删除文件id
-        request.setDeleteFileMetaIds(Arrays.asList("delete_file_meta_id_1"));
+        request.setDeleteFileMetaIds(Arrays.asList("TEST_CASE_ATTACHMENT_ID_2"));
         request.setUnLinkFilesIds(Arrays.asList("relate_file_meta_id_1"));
         request.setRelateFileMetaIds(Arrays.asList("relate_file_meta_id_1", "relate_file_meta_id_2"));
         paramMap = new LinkedMultiValueMap<>();

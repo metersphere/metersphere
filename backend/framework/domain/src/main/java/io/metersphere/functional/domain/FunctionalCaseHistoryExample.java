@@ -304,6 +304,146 @@ public class FunctionalCaseHistoryExample {
             return (Criteria) this;
         }
 
+        public Criteria andTypeIsNull() {
+            addCriterion("`type` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeIsNotNull() {
+            addCriterion("`type` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeEqualTo(String value) {
+            addCriterion("`type` =", value, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeNotEqualTo(String value) {
+            addCriterion("`type` <>", value, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeGreaterThan(String value) {
+            addCriterion("`type` >", value, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("`type` >=", value, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeLessThan(String value) {
+            addCriterion("`type` <", value, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeLessThanOrEqualTo(String value) {
+            addCriterion("`type` <=", value, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeLike(String value) {
+            addCriterion("`type` like", value, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeNotLike(String value) {
+            addCriterion("`type` not like", value, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeIn(List<String> values) {
+            addCriterion("`type` in", values, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeNotIn(List<String> values) {
+            addCriterion("`type` not in", values, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeBetween(String value1, String value2) {
+            addCriterion("`type` between", value1, value2, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andTypeNotBetween(String value1, String value2) {
+            addCriterion("`type` not between", value1, value2, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdIsNull() {
+            addCriterion("rollback_source_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdIsNotNull() {
+            addCriterion("rollback_source_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdEqualTo(String value) {
+            addCriterion("rollback_source_id =", value, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdNotEqualTo(String value) {
+            addCriterion("rollback_source_id <>", value, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdGreaterThan(String value) {
+            addCriterion("rollback_source_id >", value, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdGreaterThanOrEqualTo(String value) {
+            addCriterion("rollback_source_id >=", value, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdLessThan(String value) {
+            addCriterion("rollback_source_id <", value, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdLessThanOrEqualTo(String value) {
+            addCriterion("rollback_source_id <=", value, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdLike(String value) {
+            addCriterion("rollback_source_id like", value, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdNotLike(String value) {
+            addCriterion("rollback_source_id not like", value, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdIn(List<String> values) {
+            addCriterion("rollback_source_id in", values, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdNotIn(List<String> values) {
+            addCriterion("rollback_source_id not in", values, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdBetween(String value1, String value2) {
+            addCriterion("rollback_source_id between", value1, value2, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRollbackSourceIdNotBetween(String value1, String value2) {
+            addCriterion("rollback_source_id not between", value1, value2, "rollbackSourceId");
+            return (Criteria) this;
+        }
+
         public Criteria andCreateUserIsNull() {
             addCriterion("create_user is null");
             return (Criteria) this;

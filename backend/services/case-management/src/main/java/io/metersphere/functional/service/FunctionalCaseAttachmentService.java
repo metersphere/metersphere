@@ -9,6 +9,7 @@ import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseFileRequest;
+import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.service.FileAssociationService;
@@ -140,10 +141,10 @@ public class FunctionalCaseAttachmentService {
      */
     public void deleteCaseAttachment(List<String> deleteFileMetaIds, String caseId, String projectId) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andFileIdIn(deleteFileMetaIds).andCaseIdEqualTo(caseId).andLocalEqualTo(true);
+        example.createCriteria().andIdIn(deleteFileMetaIds).andCaseIdEqualTo(caseId).andLocalEqualTo(true);
         List<FunctionalCaseAttachment> delAttachment = functionalCaseAttachmentMapper.selectByExample(example);
         example.clear();
-        example.createCriteria().andFileIdIn(deleteFileMetaIds).andCaseIdEqualTo(caseId);
+        example.createCriteria().andIdIn(deleteFileMetaIds);
         functionalCaseAttachmentMapper.deleteByExample(example);
         this.deleteMinioFile(delAttachment, projectId, caseId);
     }
@@ -237,7 +238,7 @@ public class FunctionalCaseAttachmentService {
             FunctionalCaseAttachment attachment = caseAttachments.get(0);
             FileRequest fileRequest = new FileRequest();
             fileRequest.setFileName(attachment.getFileName());
-            fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), request.getCaseId()) + "/" + request.getFileId());
+            fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), request.getCaseId()) + "/" + attachment.getFileId());
             fileRequest.setStorage(StorageType.MINIO.name());
             byte[] bytes = null;
             try {
@@ -275,11 +276,20 @@ public class FunctionalCaseAttachmentService {
 
     public FunctionalCaseAttachment getAttachment(FunctionalCaseFileRequest request) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andFileIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
+        example.createCriteria().andIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
             return caseAttachments.get(0);
         }
         return new FunctionalCaseAttachment();
+    }
+
+    public Map<String, List<FileAssociation>> getFileAssociationByCaseIds(List<String> ids) {
+        List<FileAssociation> fileAssociations = fileAssociationService.getFileAssociations(ids, FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE);
+        Map<String, List<FileAssociation>> fileAssociationMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(fileAssociations)) {
+            fileAssociationMap = fileAssociations.stream().collect(Collectors.groupingBy(FileAssociation::getSourceId));
+        }
+        return fileAssociationMap;
     }
 }

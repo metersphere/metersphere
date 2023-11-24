@@ -19,7 +19,7 @@
         SELECT
             file_association.id AS id,
             file_association.file_id AS fileId,
-            CONCAT( file_metadata.`name`, file_metadata.type ) AS fileName,
+            CONCAT( file_metadata.`name`, '.', file_metadata.type ) AS fileName,
             file_metadata.size AS size,
 	        'false' AS local,
 	        file_association.create_user AS createUser,
@@ -30,5 +30,12 @@
         WHERE
             file_association.source_id = #{sourceId}
           AND file_association.source_type = #{sourceType}
+    </select>
+
+    <select id="selectFileIdsBySourceId" resultType="io.metersphere.project.domain.FileAssociation">
+        select source_id, file_id from file_association where source_type = #{sourceType} and source_id in
+        <foreach collection="sourceIds" item="sourceId" open="(" separator="," close=")">
+            #{sourceId}
+        </foreach>
     </select>
 </mapper>

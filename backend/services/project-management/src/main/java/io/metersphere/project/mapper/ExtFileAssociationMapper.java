@@ -1,5 +1,6 @@
 package io.metersphere.project.mapper;
 
+import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.filemanagement.FileAssociationSource;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import org.apache.ibatis.annotations.Param;
@@ -15,4 +16,6 @@ public interface ExtFileAssociationMapper {
     List<FileAssociationSource> selectAssociationSourceBySourceTableAndIdList(@Param("querySql") String querySql, @Param("idList") List<String> sourceIdList);
 
     List<FileInfo> selectAssociationFileInfo(@Param("sourceId") String sourceId, @Param("sourceType") String sourceType);
+
+    List<FileAssociation> selectFileIdsBySourceId(@Param("sourceIds")List<String> sourceIds, @Param("sourceType")String sourceType);
 }

@@ -233,6 +233,8 @@ CREATE TABLE IF NOT EXISTS functional_case_history
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `case_id`     VARCHAR(50) NOT NULL COMMENT '用例ID',
     `num`         INT         NOT NULL COMMENT '变更记录批次号',
+    `type`        VARCHAR(64) NOT NULL COMMENT '变更类型;IMPORT/EDIT/ROLLBACK',
+    `rollback_source_id` VARCHAR(50)    COMMENT '回退来源',
     `content`     BLOB        NOT NULL COMMENT '修改内容',
     `create_user` VARCHAR(50) NOT NULL COMMENT '操作人',
     `create_time` BIGINT      NOT NULL COMMENT '操作时间',
