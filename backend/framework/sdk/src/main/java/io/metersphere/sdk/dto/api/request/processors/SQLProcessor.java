@@ -1,6 +1,7 @@
 package io.metersphere.sdk.dto.api.request.processors;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.metersphere.sdk.dto.api.request.http.KeyValueEnableParam;
 import io.metersphere.sdk.dto.api.request.http.KeyValueParam;
 import lombok.Data;
 
@@ -32,7 +33,7 @@ public class SQLProcessor extends MsProcessor {
     /**
      * 变量列表
      */
-    private List<KeyValueParam> variables;
+    private List<KeyValueEnableParam> variables;
     /**
      * 环境ID
      */
@@ -42,7 +43,7 @@ public class SQLProcessor extends MsProcessor {
      */
     private String dataSourceId;
     /**
-     * 是否启用
+     * 提取参数
      */
-    private Boolean enable;
+    private List<KeyValueParam> extractParams;
 }

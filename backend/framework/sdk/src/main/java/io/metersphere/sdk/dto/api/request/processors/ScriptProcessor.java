@@ -13,5 +13,4 @@ public class ScriptProcessor extends MsProcessor {
     private String script;
     private String scriptLanguage;
     private Boolean jsrEnable;
-    private Boolean enable;
 }

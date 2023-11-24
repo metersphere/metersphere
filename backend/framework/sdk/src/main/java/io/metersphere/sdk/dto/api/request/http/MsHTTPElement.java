@@ -1,9 +1,10 @@
 package io.metersphere.sdk.dto.api.request.http;
 
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.sdk.dto.api.request.assertion.MsAssertionConfig;
 import io.metersphere.sdk.dto.api.request.http.auth.HTTPAuth;
 import io.metersphere.sdk.dto.api.request.http.body.Body;
-import io.metersphere.sdk.dto.api.request.processors.MsProcessor;
+import io.metersphere.sdk.dto.api.request.processors.MsProcessorConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -51,12 +52,15 @@ public class MsHTTPElement extends AbstractMsTestElement {
      */
     private HTTPAuth authConfig;
     /**
-     * 前置处理器
+     * 前置处理器配置
      */
-    private List<MsProcessor> preProcessors;
+    private MsProcessorConfig preProcessorConfig;
     /**
-     * 后置处理器
+     * 后置处理器配置
      */
-    private List<MsProcessor> postProcessors;
-    // todo 断言和提取 待设计
+    private MsProcessorConfig postProcessorConfig;
+    /**
+     * 断言配置
+     */
+    private MsAssertionConfig assertionConfig;
 }

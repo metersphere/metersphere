@@ -7,6 +7,6 @@ import lombok.Data;
  * @CreateTime: 2023-11-06  16:59
  */
 @Data
-public class Header extends KeyValueParam {
+public class Header extends KeyValueEnableParam {
 
 }

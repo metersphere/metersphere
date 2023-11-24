@@ -7,13 +7,13 @@ import lombok.Data;
  * @CreateTime: 2023-11-06  17:27
  */
 @Data
-public class KeyValueParam {
+public class KeyValueEnableParam extends KeyValueParam {
     /**
-     * 键
+     * 是否启用
      */
-    private String key;
+    private Boolean enable = true;
     /**
-     * 值
+     * 描述
      */
-    private String value;
+    private String description;
 }

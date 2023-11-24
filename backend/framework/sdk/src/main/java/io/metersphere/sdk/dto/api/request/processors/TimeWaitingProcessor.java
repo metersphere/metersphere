@@ -11,5 +11,4 @@ import lombok.Data;
 @JsonTypeName("TIME_WAITING")
 public class TimeWaitingProcessor extends MsProcessor {
     private Integer delay;
-    private Boolean enable;
 }

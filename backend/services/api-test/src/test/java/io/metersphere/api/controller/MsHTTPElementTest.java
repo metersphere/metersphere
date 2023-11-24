@@ -4,15 +4,19 @@ import io.metersphere.sdk.dto.api.request.http.body.Body;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.sdk.constants.MsAssertionCondition;
+import io.metersphere.sdk.dto.api.request.assertion.*;
+import io.metersphere.sdk.dto.api.request.assertion.body.*;
 import io.metersphere.sdk.dto.api.request.http.*;
 import io.metersphere.sdk.dto.api.request.http.auth.BasicAuth;
 import io.metersphere.sdk.dto.api.request.http.auth.DigestAuth;
 import io.metersphere.sdk.dto.api.request.http.auth.HTTPAuth;
 import io.metersphere.sdk.dto.api.request.http.auth.NoAuth;
 import io.metersphere.sdk.dto.api.request.http.body.*;
-import io.metersphere.sdk.dto.api.request.processors.SQLProcessor;
-import io.metersphere.sdk.dto.api.request.processors.ScriptProcessor;
-import io.metersphere.sdk.dto.api.request.processors.TimeWaitingProcessor;
+import io.metersphere.sdk.dto.api.request.processors.*;
+import io.metersphere.sdk.dto.api.request.processors.extract.JSONPathExtract;
+import io.metersphere.sdk.dto.api.request.processors.extract.RegexExtract;
+import io.metersphere.sdk.dto.api.request.processors.extract.XPathExtract;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -127,7 +131,7 @@ public class MsHTTPElementTest {
         sqlProcessor.setScript("script");
         sqlProcessor.setEnable(true);
         sqlProcessor.setDataSourceId("dataSourceId");
-        KeyValueParam keyValueParam = new KeyValueParam();
+        KeyValueEnableParam keyValueParam = new KeyValueEnableParam();
         keyValueParam.setKey("key");
         keyValueParam.setValue("value");
         sqlProcessor.setVariables(List.of(keyValueParam));
@@ -141,8 +145,83 @@ public class MsHTTPElementTest {
         timeWaitingProcessor.setEnable(true);
         processors.add(timeWaitingProcessor);
 
-        msHTTPElement.setPreProcessors(processors);
-        msHTTPElement.setPostProcessors(processors);
+        CommonScriptProcessor commonScriptProcessor = new CommonScriptProcessor();
+        commonScriptProcessor.setEnable(true);
+        commonScriptProcessor.setScriptId("11111");
+        KeyValueParam commonScriptParam = new KeyValueParam();
+        commonScriptParam.setKey("11");
+        commonScriptParam.setValue("11");
+        commonScriptProcessor.setParams(List.of(commonScriptParam));
+        processors.add(commonScriptProcessor);
+
+        ExtractPostProcessor extractPostProcessor = new ExtractPostProcessor();
+        RegexExtract regexExtract = new RegexExtract();
+        regexExtract.setExpressionMatchingRule("");
+        JSONPathExtract jsonPathExtract = new JSONPathExtract();
+        jsonPathExtract.setExpression("");
+        XPathExtract xPathExtract = new XPathExtract();
+        xPathExtract.setExpression("");
+        extractPostProcessor.setExtractors(List.of(regexExtract, jsonPathExtract, xPathExtract));
+        processors.add(extractPostProcessor);
+
+        MsProcessorConfig msProcessorConfig = new MsProcessorConfig();
+        msProcessorConfig.setProcessors(processors);
+
+        msHTTPElement.setPreProcessorConfig(msProcessorConfig);
+        msHTTPElement.setPostProcessorConfig(msProcessorConfig);
+        String json = ApiDataUtils.toJSONString(msHTTPElement);
+        Assertions.assertNotNull(json);
+        Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
+    }
+
+    @Test
+    public void msAssertionTest() {
+
+        MsHTTPElement msHTTPElement = getMsHttpElement();
+
+        List assertions = new ArrayList<>();
+
+        ResponseCodeAssertion responseCodeAssertion = new ResponseCodeAssertion();
+        responseCodeAssertion.setCondition(MsAssertionCondition.EMPTY.name());
+        responseCodeAssertion.setValue("value");
+        responseCodeAssertion.setName("name");
+        assertions.add(responseCodeAssertion);
+
+        ResponseHeaderAssertion responseHeaderAssertion = new ResponseHeaderAssertion();
+        ResponseHeaderAssertion.ResponseHeaderAssertionItem responseHeaderAssertionItem = new ResponseHeaderAssertion.ResponseHeaderAssertionItem();
+        responseHeaderAssertionItem.setHeader("header");
+        responseHeaderAssertionItem.setValue("value");
+        responseHeaderAssertionItem.setCondition(MsAssertionCondition.EMPTY.name());
+        responseHeaderAssertion.setAssertions(List.of(responseHeaderAssertionItem));
+        assertions.add(responseHeaderAssertion);
+
+        ResponseBodyAssertion responseBodyAssertion = new ResponseBodyAssertion();
+        responseBodyAssertion.setAssertionType(MsBodyAssertionType.JSON_PATH.name());
+        RegexAssertion regexAssertion = new RegexAssertion();
+        regexAssertion.setAssertions(List.of(new RegexAssertionItem()));
+        responseBodyAssertion.setRegexAssertion(regexAssertion);
+        responseBodyAssertion.setDocumentAssertion(new DocumentAssertion());
+        responseBodyAssertion.setJsonPathAssertion(new JSONPathAssertion());
+        responseBodyAssertion.setXpathAssertion(new XPathAssertion());
+        assertions.add(responseBodyAssertion);
+
+        ResponseTimeAssertion responseTimeAssertion = new ResponseTimeAssertion();
+        responseTimeAssertion.setMaxResponseTime(1000L);
+        responseTimeAssertion.setEnable(true);
+        responseTimeAssertion.setName("aa");
+        assertions.add(responseTimeAssertion);
+
+        ScriptAssertion scriptAssertion = new ScriptAssertion();
+        scriptAssertion.setCommonScriptId("1111");
+        scriptAssertion.setContent("1111");
+        scriptAssertion.setDescription("1111");
+        scriptAssertion.setName("1111");
+        assertions.add(scriptAssertion);
+
+        MsAssertionConfig msAssertionConfig = new MsAssertionConfig();
+        msAssertionConfig.setEnableGlobal(false);
+        msAssertionConfig.setAssertions(assertions);
+        msHTTPElement.setAssertionConfig(msAssertionConfig);
         String json = ApiDataUtils.toJSONString(msHTTPElement);
         Assertions.assertNotNull(json);
         Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.type.CollectionType;
-import io.metersphere.sdk.dto.api.request.post.processors.MsPostJSR223Processor;
 import io.metersphere.sdk.dto.api.request.sampler.MsDebugSampler;
 import io.metersphere.sdk.exception.MSException;
 
@@ -32,7 +31,6 @@ public class ApiDataUtils {
 
     static {
         // 默认内置的子组件
-        namedTypes.add(new NamedType(MsPostJSR223Processor.class, MsPostJSR223Processor.class.getSimpleName()));
         namedTypes.add(new NamedType(MsDebugSampler.class, MsDebugSampler.class.getSimpleName()));
 
         setObjectMapper(objectMapper);

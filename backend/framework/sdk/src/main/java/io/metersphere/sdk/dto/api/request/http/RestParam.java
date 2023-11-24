@@ -7,7 +7,7 @@ import lombok.Data;
  * @CreateTime: 2023-11-06  16:59
  */
 @Data
-public class RestParam extends KeyValueParam {
+public class RestParam extends KeyValueEnableParam {
     /**
      * 参数类型
      * 默认string，可选integer、number、array

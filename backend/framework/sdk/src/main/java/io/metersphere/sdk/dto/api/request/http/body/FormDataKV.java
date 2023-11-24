@@ -1,6 +1,6 @@
 package io.metersphere.sdk.dto.api.request.http.body;
 
-import io.metersphere.sdk.dto.api.request.http.KeyValueParam;
+import io.metersphere.sdk.dto.api.request.http.KeyValueEnableParam;
 import lombok.Data;
 
 /**
@@ -8,7 +8,7 @@ import lombok.Data;
  * @CreateTime: 2023-11-06  18:11
  */
 @Data
-public class FormDataKV extends KeyValueParam {
+public class FormDataKV extends KeyValueEnableParam {
     private String paramType;
     private Boolean required = false;
     private Integer minLength;
