@@ -29,3 +29,56 @@ INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_
 
 INSERT INTO case_review_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('CASE_REVIEW_REAL_MODULE_ID', 'project-gyq-case-review-test', '用例评审所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
 
+INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
+                 last_project_id, create_user, update_user, deleted)
+VALUES ('gyq_review_test', 'gyq_review_test', 'PROJECT@fit2cloud.com', MD5('metersphere'),UNIX_TIMESTAMP() * 1000,UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false),
+       ('gyq_review_test2', 'default-Administrator-1', 'admin-default-user@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false);
+
+
+INSERT INTO user_role(id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUE
+    ('review-case-role-id-1', 'review-case-role-1', 'XXX', FALSE, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'project-gyq-case-review-test');
+INSERT INTO user_role(id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUE
+    ('review-case-role-id-2', 'review-case-role-2', 'XXX', FALSE, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'project-gyq-case-review-test');
+INSERT INTO user_role(id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUE
+    ('review-case-role-id-3', 'review-case-role-3', 'XXX', FALSE, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'project-gyq-case-review-test');
+INSERT INTO user_role(id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUE
+    ('review-case-role-id-4', 'review-case-role-4', 'XXX', FALSE, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'project-gyq-case-review-test');
+
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUE
+    (uuid(), 'review-case-role-id-3', 'CASE_REVIEW:READ+REVIEW');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUE
+    (UUID(), 'gyq_review_test', 'review-case-role-id-3', 'project-gyq-case-review-test', 'organization-gyq-case-review-test', UNIX_TIMESTAMP() * 1000, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUE
+    (UUID(), 'gyq_review_test2', 'review-case-role-id-3', 'project-gyq-case-review-test', 'organization-gyq-case-review-test', UNIX_TIMESTAMP() * 1000, 'admin');
+
+
+
+INSERT INTO project_robot(id, project_id, name, platform, webhook, type, app_key, app_secret, enable, create_user, create_time, update_user, update_time, description) VALUES ('test_case_review_message_robot1', 'project-gyq-case-review-test', '测试机器人1', 'IN_SITE', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
+
+
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-review_message0', 'CREATE', 'gyq_review_test', 'test_case_review_message_robot1', 'CASE_REVIEW_TASK', 'NONE', 'project-gyq-case-review-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_create');
+INSERT INTO message_task_blob(id, template) VALUES ('case-review_message0', 'message.case_review_task_create');
+
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-review_message1', 'UPDATE', 'CREATE_USER', 'test_case_review_message_robot1', 'CASE_REVIEW_TASK', 'NONE', 'project-gyq-case-review-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_update');
+INSERT INTO message_task_blob(id, template) VALUES ('case-review_message1', 'message.case_review_task_update');
+
+
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-review_message2', 'UPDATE', 'FOLLOW_PEOPLE', 'test_case_review_message_robot1', 'CASE_REVIEW_TASK', 'NONE', 'project-gyq-case-review-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_update');
+INSERT INTO message_task_blob(id, template) VALUES ('case-review_message2', 'message.case_review_task_update');
+
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-review_message5', 'UPDATE', 'gyq_review_test2', 'test_case_review_message_robot1', 'CASE_REVIEW_TASK', 'NONE', 'project-gyq-case-review-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_update');
+INSERT INTO message_task_blob(id, template) VALUES ('case-review_message5', 'message.case_review_task_update');
+
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-review_message3', 'DELETE', 'CREATE_USER', 'test_case_review_message_robot1', 'CASE_REVIEW_TASK', 'NONE', 'project-gyq-case-review-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES ('case-review_message3', 'message.case_review_task_delete');
+
+
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-review_message4', 'REVIEW_COMPLETED', 'CREATE_USER', 'test_case_review_message_robot1', 'CASE_REVIEW_TASK', 'NONE', 'project-gyq-case-review-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_review_completed');
+INSERT INTO message_task_blob(id, template) VALUES ('case-review_message4', 'message.case_review_task_review_completed');
+

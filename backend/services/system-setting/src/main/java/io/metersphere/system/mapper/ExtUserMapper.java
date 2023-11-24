@@ -22,4 +22,13 @@ public interface ExtUserMapper {
      * @return 用户列表
      */
     List<User> getRoleUserByParam(@Param("ids") List<String> ids, @Param("keyword") String keyword);
+
+    /**
+     * 获取某个项目下的固定权限的用户列表
+     * @param projectId 项目ID
+     * @param keyword 关键字
+     * @param permission 权限
+     * @return 用户列表
+     */
+    List<User>getUserByPermission(@Param("projectId") String projectId, @Param("keyword") String keyword,  @Param("permission") String permission);
 }
