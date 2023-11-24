@@ -503,6 +503,196 @@ public class UserKeyExample {
             addCriterion("`enable` not between", value1, value2, "enable");
             return (Criteria) this;
         }
+
+        public Criteria andForeverIsNull() {
+            addCriterion("forever is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverIsNotNull() {
+            addCriterion("forever is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverEqualTo(Boolean value) {
+            addCriterion("forever =", value, "forever");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverNotEqualTo(Boolean value) {
+            addCriterion("forever <>", value, "forever");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverGreaterThan(Boolean value) {
+            addCriterion("forever >", value, "forever");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("forever >=", value, "forever");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverLessThan(Boolean value) {
+            addCriterion("forever <", value, "forever");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverLessThanOrEqualTo(Boolean value) {
+            addCriterion("forever <=", value, "forever");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverIn(List<Boolean> values) {
+            addCriterion("forever in", values, "forever");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverNotIn(List<Boolean> values) {
+            addCriterion("forever not in", values, "forever");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverBetween(Boolean value1, Boolean value2) {
+            addCriterion("forever between", value1, value2, "forever");
+            return (Criteria) this;
+        }
+
+        public Criteria andForeverNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("forever not between", value1, value2, "forever");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeIsNull() {
+            addCriterion("expire_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeIsNotNull() {
+            addCriterion("expire_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeEqualTo(Long value) {
+            addCriterion("expire_time =", value, "expireTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeNotEqualTo(Long value) {
+            addCriterion("expire_time <>", value, "expireTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeGreaterThan(Long value) {
+            addCriterion("expire_time >", value, "expireTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("expire_time >=", value, "expireTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeLessThan(Long value) {
+            addCriterion("expire_time <", value, "expireTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeLessThanOrEqualTo(Long value) {
+            addCriterion("expire_time <=", value, "expireTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeIn(List<Long> values) {
+            addCriterion("expire_time in", values, "expireTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeNotIn(List<Long> values) {
+            addCriterion("expire_time not in", values, "expireTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeBetween(Long value1, Long value2) {
+            addCriterion("expire_time between", value1, value2, "expireTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpireTimeNotBetween(Long value1, Long value2) {
+            addCriterion("expire_time not between", value1, value2, "expireTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionIsNull() {
+            addCriterion("description is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionIsNotNull() {
+            addCriterion("description is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionEqualTo(String value) {
+            addCriterion("description =", value, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionNotEqualTo(String value) {
+            addCriterion("description <>", value, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionGreaterThan(String value) {
+            addCriterion("description >", value, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionGreaterThanOrEqualTo(String value) {
+            addCriterion("description >=", value, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionLessThan(String value) {
+            addCriterion("description <", value, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionLessThanOrEqualTo(String value) {
+            addCriterion("description <=", value, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionLike(String value) {
+            addCriterion("description like", value, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionNotLike(String value) {
+            addCriterion("description not like", value, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionIn(List<String> values) {
+            addCriterion("description in", values, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionNotIn(List<String> values) {
+            addCriterion("description not in", values, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionBetween(String value1, String value2) {
+            addCriterion("description between", value1, value2, "description");
+            return (Criteria) this;
+        }
+
+        public Criteria andDescriptionNotBetween(String value1, String value2) {
+            addCriterion("description not between", value1, value2, "description");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

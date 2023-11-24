@@ -290,5 +290,36 @@
         ]
       }
     ]
+  },
+  {
+    "id": "PERSONAL",
+    "name": "personal_settings",
+    "type": "PERSONAL",
+    "children": [
+      {
+        "id": "MY_SETTINGS",
+        "name": "my_settings",
+        "children": [
+          {
+            "id": "API_KEYS",
+            "name": "permission.project_member.read",
+            "permissions": [
+              {
+                "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+ADD"
+              },
+              {
+                "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ"
+              },
+              {
+                "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+UPDATE"
+              },
+              {
+                "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+DELETE"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]

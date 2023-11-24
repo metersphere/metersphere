@@ -270,14 +270,17 @@ CREATE TABLE IF NOT EXISTS user_role_permission
 CREATE INDEX idx_group_id ON user_role_permission (`role_id`);
 CREATE INDEX idx_permission_id ON user_role_permission (`permission_id`);
 
-CREATE TABLE IF NOT EXISTS user_key
+CREATE TABLE user_key
 (
     `id`          VARCHAR(50) NOT NULL COMMENT 'user_key ID',
     `create_user` VARCHAR(50) NOT NULL COMMENT '用户ID',
     `access_key`  VARCHAR(50) NOT NULL COMMENT 'access_key',
     `secret_key`  VARCHAR(50) NOT NULL COMMENT 'secret key',
     `create_time` BIGINT      NOT NULL COMMENT '创建时间',
-    `enable`      BIT         COMMENT '状态',
+    `enable`      BIT         NOT NULL DEFAULT 1 COMMENT '状态',
+    `forever`     BIT         NOT NULL DEFAULT 1 COMMENT '是否永久有效',
+    `expire_time` BIGINT COMMENT '到期时间',
+    `description` VARCHAR(255) COMMENT '描述',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
