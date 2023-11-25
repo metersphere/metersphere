@@ -12,13 +12,13 @@ import {
 } from '@/api/requrls/setting/member';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
-import type { AddorUpdateMemberModel, BatchAddProjectModel, LinkItem, MemberItem } from '@/models/setting/member';
+import type { AddOrUpdateMemberModel, BatchAddProjectModel, LinkItem, MemberItem } from '@/models/setting/member';
 // 获取成员列表
 export function getMemberList(data: TableQueryParams) {
   return MSR.post<CommonList<MemberItem>>({ url: GetMemberListUrl, data });
 }
 // 添加成员
-export function addOrUpdate(data: AddorUpdateMemberModel, type: string) {
+export function addOrUpdate(data: AddOrUpdateMemberModel, type: string) {
   if (type === 'add') {
     return MSR.post({ url: AddMemberUrl, data });
   }

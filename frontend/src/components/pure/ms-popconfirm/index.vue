@@ -116,7 +116,7 @@
     }
   );
   const emits = defineEmits<{
-    (e: 'confirm', isPass: boolean): void;
+    (e: 'confirm', formValue?: { field: string }, cancel?: () => void): void;
     (e: 'cancel'): void;
     (e: 'update:visible', visible: boolean): void;
   }>();
@@ -131,6 +131,11 @@
     isPass.value = isValidatePass;
   };
 
+  // 表单
+  const form = ref({
+    field: props.fieldConfig?.field || '',
+  });
+
   // 校验表单
   const validateForm = async () => {
     await formRef.value?.validate((errors) => {
@@ -141,16 +146,6 @@
       }
     });
   };
-
-  const handleConfirm = async () => {
-    await validateForm();
-    emits('confirm', isPass.value);
-  };
-
-  // 表单
-  const form = ref({
-    field: props.fieldConfig?.field || '',
-  });
 
   // 重置
   const reset = () => {
@@ -164,6 +159,14 @@
     reset();
   };
 
+  const handleConfirm = async () => {
+    await validateForm();
+    if (props.isDelete) {
+      emits('confirm');
+    } else {
+      emits('confirm', form.value, handleCancel);
+    }
+  };
   // 获取当前标题的样式
   const titleClass = computed(() => {
     return props.isDelete
@@ -208,6 +211,7 @@
 
   defineExpose({
     form,
+    isPass,
   });
 </script>
 

@@ -6,7 +6,7 @@
         {{ t('msBatchModal.batchModalSubTitle', { count: (props.selectData || []).length }) }}
       </div>
     </template>
-    <a-spin :loading="loading">
+    <a-spin :loading="loading" class="w-full">
       <a-alert v-if="props.action === 'batchAddProject'" class="mb-[16px]">
         {{ t('msBatchModal.batchModalTip') }}
       </a-alert>
@@ -19,8 +19,9 @@
           title: 'name',
           children: 'children',
           disabled: 'disabled',
-          isLeaf: 'isLeaf',
         }"
+        height="370px"
+        show-search
       />
     </a-spin>
     <template #footer>

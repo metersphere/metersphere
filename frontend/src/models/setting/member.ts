@@ -36,7 +36,7 @@ export interface MemberItem {
 // 成员列表
 export type MemberList = MemberItem[];
 // 添加成员
-export interface AddorUpdateMemberModel {
+export interface AddOrUpdateMemberModel {
   id?: string;
   organizationId?: string;
   memberIds?: string[];
