@@ -32,7 +32,7 @@
   const attrs = useAttrs();
 
   const filterTagList = computed(() => {
-    return props.tagList.filter((item: any) => item) || [];
+    return (props.tagList || []).filter((item: any) => item) || [];
   });
 
   const showTagList = computed(() => {

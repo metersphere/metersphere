@@ -135,7 +135,7 @@ export const MULTIPLE_INPUT = {
   title: '',
   value: [],
   props: {
-    placeholder: t('formCreate.PleaseSelect'),
+    placeholder: t('formCreate.PleaseEnter'),
   },
 };
 

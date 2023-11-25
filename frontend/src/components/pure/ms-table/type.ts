@@ -117,6 +117,7 @@ export interface BatchActionParams {
   eventTag?: string;
   isDivider?: boolean;
   danger?: boolean;
+  children?: BatchActionParams[];
 }
 export interface BatchActionConfig {
   baseAction: BatchActionParams[];

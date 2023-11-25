@@ -118,7 +118,6 @@
     () => props.cardItem,
     (val) => {
       if (val) {
-        debugger;
         templateCardInfo.value = { ...props.cardItem };
       }
     },

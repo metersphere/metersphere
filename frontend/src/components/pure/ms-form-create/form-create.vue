@@ -152,4 +152,3 @@
 </script>
 
 <style scoped></style>
-@/store/modules/form-create/form-create

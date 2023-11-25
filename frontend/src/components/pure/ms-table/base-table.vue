@@ -595,4 +595,9 @@
   :deep(.arco-table .arco-table-expand-btn:hover) {
     border-color: transparent;
   }
+  :deep(.arco-table-drag-handle) {
+    .arco-icon-drag-dot-vertical {
+      color: var(--color-text-brand);
+    }
+  }
 </style>

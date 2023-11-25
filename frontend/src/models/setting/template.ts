@@ -101,7 +101,8 @@ export interface CustomField {
   fieldId: string;
   required?: boolean; // 是否必填
   apiFieldId?: string; // api字段名
-  defaultValue: string | string[] | null | number; // 默认值
+  defaultValue?: string | string[] | null | number; // 默认值
+  [key: string]: any;
 }
 
 export interface ActionTemplateManage {

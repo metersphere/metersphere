@@ -25,9 +25,13 @@ export enum TableKeyEnum {
   ORGANIZATION_PROJECT_USER_DRAWER = 'organizationProjectUserDrawer',
   FILE_MANAGEMENT_FILE = 'fileManagementFile',
   FILE_MANAGEMENT_CASE = 'fileManagementCase',
+  FILE_MANAGEMENT_CASE_RECYCLE = 'fileManagementCaseRecycle',
   FILE_MANAGEMENT_VERSION = 'fileManagementVersion',
   PROJECT_MANAGEMENT_MENU_FALSE_ALERT = 'projectManagementMenuFalseAlert',
   ORGANIZATION_TEMPLATE_DEFECT_TABLE = 'organizationTemplateManagementDefect',
+  CASE_MANAGEMENT_TABLE = 'caseManagement',
+  CASE_MANAGEMENT_DETAIL_TABLE = 'caseManagementDetailTable',
+  CASE_MANAGEMENT_ASSOCIATED_TABLE = 'caseManagementAssociatedFileTable',
   BUG_MANAGEMENT = 'bugManagement',
 }
 

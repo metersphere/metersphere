@@ -164,4 +164,10 @@ export default {
   'system.orgTemplate.defectContentTip':
     'You can set the default value for the defect content and use it when creating',
   'system.orgTemplate.templateNameRules': 'Please enter a template name',
+  'system.orgTemplate.deleteProjectTemplateTip':
+    'The existing use cases of this template will inherit the default template after deleting it. Are you sure to delete it',
+  'system.orgTemplate.moduleRuleTip': 'Please select module',
+  'system.orgTemplate.modules': 'module',
+  'system.orgTemplate.tags': 'tags',
+  'system.orgTemplate.optionKeyValue': 'Option KEY value',
 };

@@ -4,7 +4,7 @@
     <template v-for="(element, idx) in baseAction" :key="element.label">
       <a-divider v-if="element.isDivider" class="divider mx-0 my-[6px]" />
       <a-button
-        v-else
+        v-if="!element.isDivider && !element.children"
         class="ml-[12px]"
         :class="{
           'arco-btn-outline--danger': element.danger,
@@ -14,6 +14,28 @@
         @click="handleSelect(element)"
         >{{ t(element.label as string) }}</a-button
       >
+      <!-- baseAction多菜单选择 -->
+      <a-dropdown v-if="!element.isDivider && element.children" position="tr" @select="handleSelect">
+        <a-button
+          class="ml-[12px]"
+          :class="{
+            'arco-btn-outline--danger': element.danger,
+            'ml-[16px]': idx === 0,
+          }"
+          type="outline"
+          @click="handleSelect"
+          >{{ t(element.label as string) }}</a-button
+        >
+        <template #content>
+          <template v-for="item in element.children" :key="item.label">
+            <a-divider v-if="element.isDivider" margin="4px" />
+            <a-doption v-else :value="item" :class="{ delete: item.danger }">
+              {{ t(item.label as string) }}
+            </a-doption>
+          </template>
+        </template>
+      </a-dropdown>
+      <!-- baseAction多菜单选择 -->
     </template>
     <div v-if="moreAction?.length" class="drop-down relative ml-[16px] inline-block">
       <a-dropdown position="tr" @select="handleSelect">

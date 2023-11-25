@@ -156,4 +156,9 @@ export default {
   'system.orgTemplate.defectNameTip': '可为缺陷名称设置默认值，创建时统一使用',
   'system.orgTemplate.defectContentTip': '可为缺陷内容设置默认值，创建时统一使用',
   'system.orgTemplate.templateNameRules': '请输入模板名称',
+  'system.orgTemplate.deleteProjectTemplateTip': '删除后，该模版已有的用例会继承默认模版，确认删除吗？',
+  'system.orgTemplate.moduleRuleTip': '请选择模块',
+  'system.orgTemplate.modules': '模块',
+  'system.orgTemplate.tags': '标签',
+  'system.orgTemplate.optionKeyValue': '选项KEY值',
 };

@@ -6,6 +6,230 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "38195845",
+      "name": "icon_text-wrap-overflow",
+      "font_class": "icon_text-wrap-overflow",
+      "unicode": "e78f",
+      "unicode_decimal": 59279
+    },
+    {
+      "icon_id": "38036023",
+      "name": "icon_template_filled",
+      "font_class": "icon_template_filled",
+      "unicode": "e78e",
+      "unicode_decimal": 59278
+    },
+    {
+      "icon_id": "38020820",
+      "name": "icon_laser_filled",
+      "font_class": "icon_laser_filled",
+      "unicode": "e78b",
+      "unicode_decimal": 59275
+    },
+    {
+      "icon_id": "38020819",
+      "name": "icon_stop_outlined",
+      "font_class": "icon_stop_outlined",
+      "unicode": "e78c",
+      "unicode_decimal": 59276
+    },
+    {
+      "icon_id": "38020817",
+      "name": "icon_card_filled",
+      "font_class": "icon_card_filled",
+      "unicode": "e78d",
+      "unicode_decimal": 59277
+    },
+    {
+      "icon_id": "38020824",
+      "name": "icon_community-tab_outlined",
+      "font_class": "icon_community-tab_outlined",
+      "unicode": "e77e",
+      "unicode_decimal": 59262
+    },
+    {
+      "icon_id": "38020833",
+      "name": "icon_play-round_filled",
+      "font_class": "icon_play-round_filled1",
+      "unicode": "e77f",
+      "unicode_decimal": 59263
+    },
+    {
+      "icon_id": "38020826",
+      "name": "icon_thumbdown_outlined",
+      "font_class": "icon_thumbdown_outlined",
+      "unicode": "e780",
+      "unicode_decimal": 59264
+    },
+    {
+      "icon_id": "38020832",
+      "name": "icon_file-doc_colorful",
+      "font_class": "icon_file-doc_colorful",
+      "unicode": "e781",
+      "unicode_decimal": 59265
+    },
+    {
+      "icon_id": "38020828",
+      "name": "icon-product-forum_filled",
+      "font_class": "icon-product-forum_filled",
+      "unicode": "e782",
+      "unicode_decimal": 59266
+    },
+    {
+      "icon_id": "38020827",
+      "name": "icon_file-add_colorful",
+      "font_class": "icon_file-add_colorful",
+      "unicode": "e783",
+      "unicode_decimal": 59267
+    },
+    {
+      "icon_id": "38020830",
+      "name": "icon_group_filled",
+      "font_class": "icon_group_filled",
+      "unicode": "e784",
+      "unicode_decimal": 59268
+    },
+    {
+      "icon_id": "38020829",
+      "name": "icon_send_colorful",
+      "font_class": "icon_send_colorful",
+      "unicode": "e785",
+      "unicode_decimal": 59269
+    },
+    {
+      "icon_id": "38020823",
+      "name": "icon-product-forum_colorful",
+      "font_class": "icon-product-forum_colorful",
+      "unicode": "e786",
+      "unicode_decimal": 59270
+    },
+    {
+      "icon_id": "38020822",
+      "name": "icon_nearby-group_outlined",
+      "font_class": "icon_nearby-group_outlined",
+      "unicode": "e787",
+      "unicode_decimal": 59271
+    },
+    {
+      "icon_id": "38020825",
+      "name": "icon_thumbdown_filled",
+      "font_class": "icon_thumbdown_filled",
+      "unicode": "e788",
+      "unicode_decimal": 59272
+    },
+    {
+      "icon_id": "38020821",
+      "name": "icon_thumbsup_filled",
+      "font_class": "icon_thumbsup_filled",
+      "unicode": "e789",
+      "unicode_decimal": 59273
+    },
+    {
+      "icon_id": "38020818",
+      "name": "icon_file-add_outlined",
+      "font_class": "icon_file-add_outlined",
+      "unicode": "e78a",
+      "unicode_decimal": 59274
+    },
+    {
+      "icon_id": "38020835",
+      "name": "icon_thumbsup_outlined",
+      "font_class": "icon_thumbsup_outlined",
+      "unicode": "e77b",
+      "unicode_decimal": 59259
+    },
+    {
+      "icon_id": "38020834",
+      "name": "icon-product-forum_outlined",
+      "font_class": "icon-product-forum_outlined",
+      "unicode": "e77c",
+      "unicode_decimal": 59260
+    },
+    {
+      "icon_id": "38020831",
+      "name": "icon_test-tracking_colorful",
+      "font_class": "icon_test-tracking_colorful",
+      "unicode": "e77d",
+      "unicode_decimal": 59261
+    },
+    {
+      "icon_id": "37903599",
+      "name": "icon_reply",
+      "font_class": "icon_reply",
+      "unicode": "e778",
+      "unicode_decimal": 59256
+    },
+    {
+      "icon_id": "37903597",
+      "name": "icon_comment_collapse_text_input",
+      "font_class": "icon_comment_collapse_text_input",
+      "unicode": "e779",
+      "unicode_decimal": 59257
+    },
+    {
+      "icon_id": "37903598",
+      "name": "icon_comment_expand_text_input",
+      "font_class": "icon_comment_expand_text_input",
+      "unicode": "e77a",
+      "unicode_decimal": 59258
+    },
+    {
+      "icon_id": "37878729",
+      "name": "icon_chart_graph",
+      "font_class": "icon_chart_graph",
+      "unicode": "e777",
+      "unicode_decimal": 59255
+    },
+    {
+      "icon_id": "37848043",
+      "name": "icon_share",
+      "font_class": "icon_share1",
+      "unicode": "e776",
+      "unicode_decimal": 59254
+    },
+    {
+      "icon_id": "37842152",
+      "name": "icon_text",
+      "font_class": "icon_text",
+      "unicode": "e775",
+      "unicode_decimal": 59253
+    },
+    {
+      "icon_id": "37841481",
+      "name": "icon_click",
+      "font_class": "icon_click",
+      "unicode": "e697",
+      "unicode_decimal": 59031
+    },
+    {
+      "icon_id": "37789808",
+      "name": "icon_feedback_outlined",
+      "font_class": "icon_feedback_outlined",
+      "unicode": "e773",
+      "unicode_decimal": 59251
+    },
+    {
+      "icon_id": "37789807",
+      "name": "icon_done_outlined",
+      "font_class": "icon_done_outlined",
+      "unicode": "e774",
+      "unicode_decimal": 59252
+    },
+    {
+      "icon_id": "37789689",
+      "name": "icon_dataset_outlined",
+      "font_class": "icon_dataset_outlined",
+      "unicode": "e772",
+      "unicode_decimal": 59250
+    },
+    {
+      "icon_id": "37715855",
+      "name": "icon_outer-borders_outlined",
+      "font_class": "icon_outer-borders_outlined",
+      "unicode": "e771",
+      "unicode_decimal": 59249
+    },
+    {
       "icon_id": "37662517",
       "name": "icon_checkbox",
       "font_class": "icon_checkbox",
@@ -1607,13 +1831,6 @@
       "font_class": "icon_new-item_outlined",
       "unicode": "e695",
       "unicode_decimal": 59029
-    },
-    {
-      "icon_id": "32849836",
-      "name": "icon_logs_outlined-1",
-      "font_class": "icon_logs_outlined-1",
-      "unicode": "e697",
-      "unicode_decimal": 59031
     },
     {
       "icon_id": "32849837",
