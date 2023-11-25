@@ -136,7 +136,7 @@
   import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
 
-  import type { AddorUpdateMemberModel, BatchAddProjectModel, LinkList, MemberItem } from '@/models/setting/member';
+  import type { AddOrUpdateMemberModel, BatchAddProjectModel, LinkList, MemberItem } from '@/models/setting/member';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const tableStore = useTableStore();
@@ -153,7 +153,7 @@
       showTooltip: true,
       ellipsis: true,
       sortIndex: 0,
-      showDrag: true,
+      showDrag: false,
     },
     {
       title: 'organization.member.tableColunmName',
@@ -243,7 +243,7 @@
   const addMemberVisible = ref<boolean>(false);
   const AddMemberRef = ref();
 
-  const addOrEditMember = (type: string, record: AddorUpdateMemberModel = {}) => {
+  const addOrEditMember = (type: string, record: AddOrUpdateMemberModel = {}) => {
     addMemberVisible.value = true;
     AddMemberRef.value.type = type;
     if (type === 'edit') {

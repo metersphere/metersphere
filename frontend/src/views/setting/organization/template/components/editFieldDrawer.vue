@@ -72,7 +72,7 @@
         >
           <div v-if="sceneType === 'BUG'" class="optionsKey">
             <a-checkbox v-model="fieldForm.enableOptionKey"
-              >选项KEY值
+              >{{ t('system.orgTemplate.optionKeyValue') }}
               <a-tooltip :content="t('system.orgTemplate.thirdPartyPlatforms')"
                 ><icon-question-circle
                   :style="{ 'font-size': '16px' }"

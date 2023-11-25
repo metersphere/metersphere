@@ -1,5 +1,5 @@
 <template>
-  <div class="sticky top-[0] z-[9999] mb-[8px] flex justify-between bg-white">
+  <div v-if="props.mode === 'remote'" class="sticky top-[0] z-[9999] mb-[8px] flex justify-between bg-white">
     <a-radio-group v-model:model-value="fileListTab" type="button" size="small">
       <a-radio value="all">{{ `${t('ms.upload.all')} (${innerFileList.length})` }}</a-radio>
       <a-radio value="waiting">{{ `${t('ms.upload.uploading')} (${totalWaitingFileList.length})` }}</a-radio>
@@ -105,15 +105,21 @@
   import { getFileEnum, getFileIcon } from './iconMap';
   import type { MsFileItem } from './types';
 
-  const props = defineProps<{
-    fileList: MsFileItem[];
-    uploadFunc: (params: any) => Promise<any>; // 上传文件时，自定义上传方法
-    requestParams?: Record<string, any>; // 上传文件时，额外的请求参数
-    route?: string; // 用于后台上传文件时，查看详情跳转的路由
-    routeQuery?: Record<string, string>; // 用于后台上传文件时，查看详情跳转的路由参数
-    handleDelete?: (item: MsFileItem) => void;
-    handleReupload?: (item: MsFileItem) => void;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      mode?: 'static' | 'remote'; // 静态|远程
+      fileList: MsFileItem[];
+      uploadFunc?: (params: any) => Promise<any>; // 上传文件时，自定义上传方法
+      requestParams?: Record<string, any>; // 上传文件时，额外的请求参数
+      route?: string; // 用于后台上传文件时，查看详情跳转的路由
+      routeQuery?: Record<string, string>; // 用于后台上传文件时，查看详情跳转的路由参数
+      handleDelete?: (item: MsFileItem) => void;
+      handleReupload?: (item: MsFileItem) => void;
+    }>(),
+    {
+      mode: 'remote',
+    }
+  );
   const emit = defineEmits<{
     (e: 'update:fileList', fileList: MsFileItem[]): void;
     (e: 'delete', item: MsFileItem): void;
@@ -179,8 +185,10 @@
    */
   function startUpload() {
     emit('start');
-    asyncTaskStore.setUploadFunc(props.uploadFunc, props.requestParams);
-    asyncTaskStore.startUpload(innerFileList.value, props.route, props.routeQuery);
+    if (props.mode === 'remote' && props.uploadFunc) {
+      asyncTaskStore.setUploadFunc(props.uploadFunc, props.requestParams);
+      asyncTaskStore.startUpload(innerFileList.value, props.route, props.routeQuery);
+    }
   }
 
   /**

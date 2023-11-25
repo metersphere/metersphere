@@ -79,17 +79,25 @@ export class MSAxios {
   /**
    * @description:  文件上传
    */
-  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams, customFileKey = ''): Promise<T> {
+  uploadFile<T = any>(
+    config: AxiosRequestConfig,
+    params: UploadFileParams,
+    customFileKey = '',
+    isMultiple = false
+  ): Promise<T> {
     const formData = new window.FormData();
-    const fileName = params.fileList.length === 1 ? 'file' : 'files';
-
+    const fileName = isMultiple ? 'files' : 'file';
     if (customFileKey !== '') {
       params.fileList.forEach((file: File) => {
         formData.append(customFileKey, file);
       });
-    } else {
+    } else if (!isMultiple && !customFileKey) {
       params.fileList.forEach((file: File) => {
         formData.append(fileName, file);
+      });
+    } else {
+      params.fileList.forEach((item: any) => {
+        formData.append(fileName, item.file, item.file.name);
       });
     }
     if (params.request) {

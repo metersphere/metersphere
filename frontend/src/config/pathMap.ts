@@ -337,4 +337,34 @@ export const pathMap: PathMapItem[] = [
       },
     ],
   },
+  {
+    key: 'FEATURE_TEST', // 功能测试
+    locale: 'menu.featureTest',
+    route: RouteEnum.FEATURE_TEST,
+    permission: [],
+    level: MENU_LEVEL[2],
+    children: [
+      {
+        key: 'FEATURE_TEST_CASE', // 功能测试-功能用例
+        locale: 'menu.featureTest.featureCase',
+        route: RouteEnum.FEATURE_TEST_CASE,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'FEATURE_TEST_CASE_DETAIL', // 功能测试-功能用例
+        locale: 'menu.featureTest.featureCaseDetail',
+        route: RouteEnum.FEATURE_TEST_CASE_DETAIL,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'FEATURE_TEST_CASE_RECYCLE', // 功能测试-功能用例-回收站
+        locale: 'menu.featureTest.featureCaseRecycle',
+        route: RouteEnum.FEATURE_TEST_CASE_RECYCLE,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+    ],
+  },
 ];

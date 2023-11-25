@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1697180140168') format('woff2'), url('iconfont.woff?t=1697180140168') format('woff'),
-    url('iconfont.ttf?t=1697180140168') format('truetype'), url('iconfont.svg?t=1697180140168#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1700905969825') format('woff2'), url('iconfont.woff?t=1700905969825') format('woff'),
+    url('iconfont.ttf?t=1700905969825') format('truetype'), url('iconfont.svg?t=1700905969825#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,102 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_text-wrap-overflow::before {
+  content: '\e78f';
+}
+.icon-icon_template_filled::before {
+  content: '\e78e';
+}
+.icon-icon_laser_filled::before {
+  content: '\e78b';
+}
+.icon-icon_stop_outlined::before {
+  content: '\e78c';
+}
+.icon-icon_card_filled::before {
+  content: '\e78d';
+}
+.icon-icon_community-tab_outlined::before {
+  content: '\e77e';
+}
+.icon-icon_play-round_filled1::before {
+  content: '\e77f';
+}
+.icon-icon_thumbdown_outlined::before {
+  content: '\e780';
+}
+.icon-icon_file-doc_colorful::before {
+  content: '\e781';
+}
+.icon-icon-product-forum_filled::before {
+  content: '\e782';
+}
+.icon-icon_file-add_colorful::before {
+  content: '\e783';
+}
+.icon-icon_group_filled::before {
+  content: '\e784';
+}
+.icon-icon_send_colorful::before {
+  content: '\e785';
+}
+.icon-icon-product-forum_colorful::before {
+  content: '\e786';
+}
+.icon-icon_nearby-group_outlined::before {
+  content: '\e787';
+}
+.icon-icon_thumbdown_filled::before {
+  content: '\e788';
+}
+.icon-icon_thumbsup_filled::before {
+  content: '\e789';
+}
+.icon-icon_file-add_outlined::before {
+  content: '\e78a';
+}
+.icon-icon_thumbsup_outlined::before {
+  content: '\e77b';
+}
+.icon-icon-product-forum_outlined::before {
+  content: '\e77c';
+}
+.icon-icon_test-tracking_colorful::before {
+  content: '\e77d';
+}
+.icon-icon_reply::before {
+  content: '\e778';
+}
+.icon-icon_comment_collapse_text_input::before {
+  content: '\e779';
+}
+.icon-icon_comment_expand_text_input::before {
+  content: '\e77a';
+}
+.icon-icon_chart_graph::before {
+  content: '\e777';
+}
+.icon-icon_share1::before {
+  content: '\e776';
+}
+.icon-icon_text::before {
+  content: '\e775';
+}
+.icon-icon_click::before {
+  content: '\e697';
+}
+.icon-icon_feedback_outlined::before {
+  content: '\e773';
+}
+.icon-icon_done_outlined::before {
+  content: '\e774';
+}
+.icon-icon_dataset_outlined::before {
+  content: '\e772';
+}
+.icon-icon_outer-borders_outlined::before {
+  content: '\e771';
 }
 .icon-icon_checkbox::before {
   content: '\e76e';

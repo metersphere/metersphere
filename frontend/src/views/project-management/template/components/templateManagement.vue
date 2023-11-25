@@ -211,9 +211,9 @@
     openModal({
       type: 'error',
       title: t('system.orgTemplate.deleteTemplateTitle', { name: characterLimit(record.name) }),
-      content: t('system.userGroup.beforeDeleteUserGroup'),
-      okText: t('system.userGroup.confirmDelete'),
-      cancelText: t('system.userGroup.cancel'),
+      content: t('system.orgTemplate.deleteProjectTemplateTip'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
       okButtonProps: {
         status: 'danger',
       },
