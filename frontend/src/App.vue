@@ -74,7 +74,6 @@
   };
   // 获取公钥
   const getPublicKey = async () => {
-    if (getLocalStorage('salt')) return;
     const publicKey = await getPublicKeyRequest();
     setLocalStorage('salt', publicKey);
   };
