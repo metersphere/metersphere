@@ -60,12 +60,12 @@
   async function save() {
     try {
       loading.value = true;
-      if (isEdit.value) {
+      if (route.params.mode === 'edit') {
         await updateCaseRequest(caseDetailInfo.value);
         Message.success(t('featureTest.featureCase.editSuccess'));
       } else {
         await createCaseRequest(caseDetailInfo.value);
-        Message.success(t('common.addSuccess'));
+        Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
       }
       router.push({ name: FeatureTestRouteEnum.FEATURE_TEST_CASE, query: { ...route.query } });
       featureCaseStore.setIsAlreadySuccess(true);
@@ -99,8 +99,10 @@
   }
 
   watchEffect(() => {
-    if (isEdit.value) {
+    if (route.params.mode === 'edit') {
       title.value = t('featureTest.featureCase.updateCase');
+    } else if (route.params.mode === 'copy') {
+      title.value = t('featureTest.featureCase.copyCase');
     } else {
       title.value = t('featureTest.featureCase.creatingCase');
     }

@@ -1,6 +1,8 @@
 export default {
   'featureTest.featureCase.creatingCase': 'Create Case',
   'featureTest.featureCase.importCase': 'Import Case',
+  'featureTest.featureCase.importExcel': 'Import Excel',
+  'featureTest.featureCase.importXmind': 'Import Xmind',
   'featureTest.featureCase.publicCase': 'Public of Cases',
   'featureTest.featureCase.allCase': 'All of Cases',
   'featureTest.featureCase.searchTip': 'Please enter a group name',
@@ -25,6 +27,7 @@ export default {
   'featureTest.featureCase.deleteSuccess': 'Delete Successfully',
   'featureTest.featureCase.addSuccess': 'Add Successfully',
   'featureTest.featureCase.addGroupTip': 'Please enter the group name and press enter to save',
+  'featureTest.featureCase.moduleMoveSuccess': 'Move successfully',
   'featureTest.featureCase.tableColumnID': 'ID',
   'featureTest.featureCase.tableColumnName': 'Case Name',
   'featureTest.featureCase.tableColumnLevel': 'Case Level',
@@ -105,4 +108,6 @@ export default {
   'featureTest.featureCase.cleanOutDeleteTip':
     'After deletion, the data will not be recovered, please operate with caution!',
   'featureTest.featureCase.pleaseEnterInputTags': 'Please enter content Enter add label',
+  'featureTest.featureCase.copy': 'Copy',
+  'featureTest.featureCase.copyCase': 'Copy case',
 };

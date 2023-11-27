@@ -5,7 +5,7 @@
     allow-clear
     class="mb-[16px]"
   ></a-input-search>
-  <a-spin class="w-full" :style="{ height: `calc(100vh - 356px)` }" :loading="loading">
+  <a-spin class="w-full" :style="{ height: `calc(100vh - 316px)` }" :loading="loading">
     <MsTree
       v-model:focus-node-key="focusNodeKey"
       :selected-keys="props.selectedKeys"
@@ -30,8 +30,10 @@
       @drop="handleDrag"
     >
       <template #title="nodeData">
-        <span class="text-[var(--color-text-1)]">{{ nodeData.name }}</span>
-        <span class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</span>
+        <div class="inline-flex w-full">
+          <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+          <div v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+        </div>
       </template>
       <template v-if="!props.isModal" #extra="nodeData">
         <MsPopConfirm
