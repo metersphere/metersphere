@@ -1,6 +1,7 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
+import io.metersphere.functional.constants.HistoryLogEnum;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
@@ -9,6 +10,7 @@ import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
+import io.metersphere.functional.util.ServiceUtils;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -46,7 +48,6 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class FunctionalCaseService {
 
-    public static final int ORDER_STEP = 5000;
 
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
@@ -100,15 +101,15 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), caseId, userId, ADD_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
-        saveHistory(Collections.singletonList(caseId));
+        saveHistory(Collections.singletonList(caseId), HistoryLogEnum.EDIT.name(), userId);
 
         return functionalCase;
     }
 
-    private void saveHistory(List<String> ids) {
+    private void saveHistory(List<String> ids, String type, String userId) {
         FunctionalCaseHistoryService functionalCaseHistoryService = CommonBeanFactory.getBean(FunctionalCaseHistoryService.class);
         if (functionalCaseHistoryService != null) {
-            functionalCaseHistoryService.saveHistoryLog(ids);
+            functionalCaseHistoryService.saveHistoryLog(ids, type, userId);
         }
     }
 
@@ -160,7 +161,7 @@ public class FunctionalCaseService {
 
     public Long getNextOrder(String projectId) {
         Long pos = extFunctionalCaseMapper.getPos(projectId);
-        return (pos == null ? 0 : pos) + ORDER_STEP;
+        return (pos == null ? 0 : pos) + ServiceUtils.POS_STEP;
     }
 
     public long getNextNum(String projectId) {
@@ -281,7 +282,7 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), request.getId(), userId, UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
-        saveHistory(Collections.singletonList(request.getId()));
+        saveHistory(Collections.singletonList(request.getId()), HistoryLogEnum.EDIT.name(), userId);
 
         return functionalCase;
 
@@ -490,7 +491,7 @@ public class FunctionalCaseService {
                     functional.setNum(getNextNum(request.getProjectId()));
                     functional.setName(getCopyName(functionalCase.getName()));
                     functional.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
-                    functional.setPos(nextOrder + ORDER_STEP);
+                    functional.setPos(nextOrder + ServiceUtils.POS_STEP);
                     functional.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
                     functional.setCreateUser(userId);
                     functional.setCreateTime(System.currentTimeMillis());
@@ -564,7 +565,7 @@ public class FunctionalCaseService {
             handleTags(request, userId, ids);
             //自定义字段处理
             handleCustomFields(request, userId, ids);
-            saveHistory(ids);
+            saveHistory(ids, HistoryLogEnum.EDIT.name(), userId);
         }
 
     }
@@ -629,5 +630,14 @@ public class FunctionalCaseService {
         moduleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
 
+    }
+
+    public void editPos(PosRequest request) {
+        ServiceUtils.updateOrderField(request,
+                FunctionalCase.class,
+                functionalCaseMapper::selectByPrimaryKey,
+                extFunctionalCaseMapper::getPrePos,
+                extFunctionalCaseMapper::getLastPos,
+                functionalCaseMapper::updateByPrimaryKeySelective);
     }
 }
