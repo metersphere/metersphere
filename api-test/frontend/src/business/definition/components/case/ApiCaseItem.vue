@@ -31,7 +31,7 @@
                 <i class="el-icon-edit" style="cursor: pointer" @click="showInput(apiCase)" />
               </span>
             </span>
-            <div v-if="apiCase.id" style="color: #999999; font-size: 12px;margin-top: 8px;">
+            <div v-if="apiCase.id" style="color: #999999; font-size: 12px; margin-top: 8px">
               <span style="margin-left: 10px">
                 {{ apiCase.updateTime | datetimeFormat }}
                 {{ apiCase.updateUser }}
@@ -676,7 +676,7 @@ export default {
         }
       }
     },
-    saveCase(row, hideAlert) {
+    saveCase(row, hideAlert, created) {
       this.isSave = true;
       let tmp = JSON.parse(JSON.stringify(row));
       this.isShowInput = false;
@@ -737,13 +737,16 @@ export default {
           if (!hideAlert) {
             this.$emit('refresh');
           }
+          if (created) {
+            this.$emit('addCase');
+          }
         },
         (error) => {
           this.isSave = false;
         }
       );
     },
-    saveTestCase(row, hideAlert) {
+    saveTestCase(row, hideAlert, created) {
       if (this.validate(row)) {
         return;
       }
@@ -762,7 +765,7 @@ export default {
           } else {
             this.api.source = 'editCase';
             if (!this.isSave) {
-              this.saveCase(row, hideAlert);
+              this.saveCase(row, hideAlert, created);
             }
           }
         }

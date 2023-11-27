@@ -16,7 +16,7 @@
         <el-col :span="9">
           <div class="variable-combine">{{ api.name }}</div>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="6">
           <div class="variable-combine" style="margin-left: 10px">
             {{ api.path === null ? ' ' : api.path }}
           </div>
@@ -30,7 +30,7 @@
             ref="environmentSelect"
             v-if="api.protocol === 'HTTP' || api.protocol === 'TCP'" />
         </el-col>
-        <el-col :span="2">
+        <el-col :span="4">
           <!-- 保存操作 -->
           <el-button
             v-if="!isXpack || !showUpdateRule"
@@ -38,16 +38,30 @@
             size="small"
             @click="saveTestCase()"
             v-prevent-re-click
-            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
+            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
+            style="margin-left: -20px">
             {{ saveButtonText }}
           </el-button>
+
+          <el-button
+            v-if="!isXpack || !showUpdateRule"
+            type="primary"
+            size="small"
+            @click="saveAndCreate()"
+            v-prevent-re-click
+            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
+            style="margin-left: 2px">
+            {{ $t('home.dashboard.api_case.save_and_create') }}
+          </el-button>
+
           <el-dropdown
             v-else
-            style="margin-left: -15px"
+            style="margin-left: -17px"
             v-permission="[
               'PROJECT_API_DEFINITION:READ+EDIT_CASE',
               'PROJECT_API_DEFINITION:READ+CREATE_CASE',
-              'PROJECT_API_DEFINITION:READ+COPY_CASE']"
+              'PROJECT_API_DEFINITION:READ+COPY_CASE',
+            ]"
             split-button
             type="primary"
             size="small"
@@ -158,6 +172,9 @@ export default {
     },
     saveTestCase() {
       this.$emit('saveCase');
+    },
+    saveAndCreate() {
+      this.$emit('saveCase', false, true);
     },
     handleCommand(command) {
       if (command === 'openSyncRule') {
