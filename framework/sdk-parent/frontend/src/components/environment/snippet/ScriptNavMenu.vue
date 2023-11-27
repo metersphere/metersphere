@@ -1,16 +1,22 @@
 <template>
-  <div style="line-height: 20px;">
+  <div style="line-height: 20px">
     <div class="template-title">
       <span class="nav-font">{{ $t('api_test.request.processor.code_template') }}</span>
-      <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
-               target="componentReferenceDoc" style="margin-left: 30px; margin-bottom: 3px;"
-               type="primary"><span style="font-size: 13px;">{{ $t('commons.reference_documentation') }}</span>
+      <el-link
+        href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+        target="componentReferenceDoc"
+        style="margin-left: 30px; margin-bottom: 3px"
+        type="primary"
+        ><span style="font-size: 13px">{{ $t('commons.reference_documentation') }}</span>
       </el-link>
     </div>
     <div v-for="(menu, index) in menus" :key="index">
       <span class="link-type" v-if="!menu.hideScript">
-        <i class="icon el-icon-arrow-right" style="font-weight: bold; margin-right: 2px;"
-           @click="active(menu)" :class="{'is-active': menu.open}"></i>
+        <i
+          class="icon el-icon-arrow-right"
+          style="font-weight: bold; margin-right: 2px"
+          @click="active(menu)"
+          :class="{ 'is-active': menu.open }"></i>
         <span @click="active(menu)" class="nav-menu-title nav-font">{{ menu.title }}</span>
       </span>
 
@@ -24,76 +30,87 @@
         </div>
       </el-collapse-transition>
     </div>
-    <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="handleCodeTemplate"/>
+    <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="handleCodeTemplate" />
     <!--接口列表-->
-    <api-func-relevance @save="apiSave" :is-test-plan="false" :is-script="true" @close="apiClose"
-                        ref="apiFuncRelevance"/>
+    <api-func-relevance
+      @save="apiSave"
+      :is-test-plan="false"
+      :is-script="true"
+      @close="apiClose"
+      ref="apiFuncRelevance" />
   </div>
-
 </template>
 
 <script>
-import ApiFuncRelevance from "./ApiFuncRelevance";
-import CustomFunctionRelate from "./CustomFunctionRelate";
-import {getCodeTemplate} from "./custom-function";
-import {SCRIPT_MENU} from "./script-menu";
+import ApiFuncRelevance from './ApiFuncRelevance';
+import CustomFunctionRelate from './CustomFunctionRelate';
+import { getCodeTemplate } from './custom-function';
+import { SCRIPT_MENU } from './script-menu';
 
 export default {
-  name: "ScriptNavMenu",
+  name: 'ScriptNavMenu',
   components: {
     ApiFuncRelevance,
-    CustomFunctionRelate
+    CustomFunctionRelate,
   },
   data() {
     return {
-      value: true
-    }
+      value: true,
+    };
   },
   props: {
     language: {
       type: String,
       default() {
-        return "beanshell"
-      }
+        return 'beanshell';
+      },
     },
     menus: {
       type: Array,
       default() {
-        return SCRIPT_MENU
-      }
-    }
+        return SCRIPT_MENU;
+      },
+    },
+  },
+  created() {
+    this.openMenus();
   },
   methods: {
+    openMenus() {
+      this.menus.forEach((menu) => {
+        this.$set(menu, 'open', true);
+      });
+    },
     apiSave(data, env) {
       // data：选中的多个接口定义或多个接口用例; env: 关联页面选中的环境
       let condition = env.config.httpConfig.conditions || [];
-      let protocol = "";
-      let host = "";
-      let domain = "";
-      let port = "";
+      let protocol = '';
+      let host = '';
+      let domain = '';
+      let port = '';
       if (condition && condition.length > 0) {
         // 如果有多个环境，取第一个
-        protocol = condition[0].protocol ? condition[0].protocol : "http";
+        protocol = condition[0].protocol ? condition[0].protocol : 'http';
         host = condition[0].socket;
         domain = condition[0].domain;
         port = condition[0].port;
       }
       if (data.length > 5) {
-        this.$warning("最多可以选择5个接口！");
+        this.$warning('最多可以选择5个接口！');
         return;
       }
-      let code = "";
+      let code = '';
       if (data.length > 0) {
         for (let dt of data) {
           // 过滤非HTTP接口API
-          if (dt.protocol !== "HTTP") {
+          if (dt.protocol !== 'HTTP') {
             if (!dt.request) {
               continue;
             } else {
               // 是否是HTTP接口CASE
               if (dt.request) {
                 let req = JSON.parse(dt.request);
-                if (req.protocol !== "HTTP") {
+                if (req.protocol !== 'HTTP') {
                   continue;
                 }
               }
@@ -111,17 +128,17 @@ export default {
       this.$refs.apiFuncRelevance.close();
     },
     handleCodeTemplate(code) {
-      this.$emit("handleCode", code);
+      this.$emit('handleCode', code);
     },
     _parseRequestObj(data) {
       let requestHeaders = new Map();
       let requestArguments = new Map();
       let requestRest = new Map();
-      let requestMethod = "";
-      let requestBody = "";
+      let requestMethod = '';
+      let requestBody = '';
       let requestBodyKvs = new Map();
-      let bodyType = "";
-      let requestPath = "";
+      let bodyType = '';
+      let requestPath = '';
       let request = JSON.parse(data.request);
       // 拼接发送请求需要的参数
       requestPath = request.path;
@@ -129,14 +146,14 @@ export default {
       let headers = request.headers;
       let rest = request.rest;
       if (rest && rest.length > 0) {
-        rest.forEach(r => {
+        rest.forEach((r) => {
           if (r.enable) {
             requestRest.set(r.name, r.value);
           }
-        })
+        });
       }
       if (headers && headers.length > 0) {
-        headers.forEach(header => {
+        headers.forEach((header) => {
           if (header.name) {
             requestHeaders.set(header.name, header.value);
           }
@@ -144,29 +161,29 @@ export default {
       }
       let args = request.arguments;
       if (args && args.length) {
-        args.forEach(arg => {
+        args.forEach((arg) => {
           if (arg.name) {
             requestArguments.set(arg.name, arg.value);
           }
-        })
+        });
       }
       let body = request.body;
       if (body.type === 'XML') {
         requestBody = body.raw;
-        bodyType = "xml";
+        bodyType = 'xml';
       } else if (body.type === 'Raw') {
         requestBody = body.raw;
-        bodyType = "raw";
+        bodyType = 'raw';
       } else if (body.json) {
         requestBody = body.raw;
-        bodyType = "json";
+        bodyType = 'json';
       } else if (body.kvs) {
-        bodyType = "kvs";
-        body.kvs.forEach(arg => {
+        bodyType = 'kvs';
+        body.kvs.forEach((arg) => {
           if (arg.name) {
             requestBodyKvs.set(arg.name, arg.value);
           }
-        })
+        });
       }
       return {
         requestPath,
@@ -176,14 +193,12 @@ export default {
         requestBodyKvs,
         bodyType,
         requestArguments,
-        requestRest
-      }
+        requestRest,
+      };
     },
-    apiClose() {
-
-    },
+    apiClose() {},
     handleClick(obj) {
-      let code = "";
+      let code = '';
       if (obj.command) {
         code = this._handleCommand(obj.command);
         if (!code) {
@@ -191,9 +206,13 @@ export default {
         }
       } else {
         if (this.language !== 'beanshell' && this.language !== 'groovy') {
-          if (obj.title === this.$t('api_test.request.processor.code_add_report_length') ||
-            obj.title === this.$t('api_test.request.processor.code_hide_report_length')) {
-            this.$warning(this.$t('commons.no_corresponding') + " " + this.language + " " + this.$t('commons.code_template') + "！");
+          if (
+            obj.title === this.$t('api_test.request.processor.code_add_report_length') ||
+            obj.title === this.$t('api_test.request.processor.code_hide_report_length')
+          ) {
+            this.$warning(
+              this.$t('commons.no_corresponding') + ' ' + this.language + ' ' + this.$t('commons.code_template') + '！'
+            );
             return;
           }
         }
@@ -205,33 +224,32 @@ export default {
       switch (command) {
         case 'custom_function':
           this.$refs.customFunctionRelate.open(this.language);
-          return "";
+          return '';
         case 'api_definition':
           this.$refs.apiFuncRelevance.open();
-          return "";
+          return '';
         case 'new_api_request': {
           // requestObj为空则生产默认模版
           let headers = new Map();
           headers.set('Content-type', 'application/json');
-          return getCodeTemplate(this.language, {requestHeaders: headers});
+          return getCodeTemplate(this.language, { requestHeaders: headers });
         }
         default:
-          return "";
+          return '';
       }
     },
     active(menu) {
       if (!menu.open) {
-        this.$set(menu, "open", true);
+        this.$set(menu, 'open', true);
       } else {
-        this.$set(menu, "open", !menu.open);
+        this.$set(menu, 'open', !menu.open);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .template-title {
   margin-bottom: 4px;
   font-weight: bold;
@@ -243,11 +261,11 @@ export default {
   margin-left: 18px;
 }
 
-.func-div :deep( .func-link ) {
+.func-div :deep(.func-link) {
   color: #935aa1;
 }
 
-.func-div :deep( .func-link:hover ) {
+.func-div :deep(.func-link:hover) {
   color: #935aa1;
 }
 
