@@ -26,6 +26,27 @@ const FeatureTest: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
+    // 创建用例&编辑用例
+    {
+      path: 'featureCaseDetail/:mode?',
+      name: FeatureTestRouteEnum.FEATURE_TEST_CASE_DETAIL,
+      component: () => import('@/views/case-management/caseManagementFeature/components/caseDetail.vue'),
+      meta: {
+        locale: 'menu.featureTest.featureCaseDetail',
+        roles: ['*'],
+        breadcrumbs: [
+          {
+            name: FeatureTestRouteEnum.FEATURE_TEST_CASE,
+            locale: 'menu.featureTest.featureCase',
+          },
+          {
+            name: FeatureTestRouteEnum.FEATURE_TEST_CASE_DETAIL,
+            editTag: 'id',
+            locale: 'menu.featureTest.featureCaseDetail',
+          },
+        ],
+      },
+    },
     // 功能用例回收站
     {
       path: 'featureCaseRecycle',
@@ -42,26 +63,6 @@ const FeatureTest: AppRouteRecordRaw = {
           {
             name: FeatureTestRouteEnum.FEATURE_TEST_CASE_RECYCLE,
             locale: 'menu.featureTest.featureCaseRecycle',
-          },
-        ],
-      },
-    },
-    // 创建用例&编辑用例
-    {
-      path: 'featureCaseDetail',
-      name: FeatureTestRouteEnum.FEATURE_TEST_CASE_DETAIL,
-      component: () => import('@/views/case-management/caseManagementFeature/components/caseDetail.vue'),
-      meta: {
-        locale: 'menu.featureTest.featureCaseDetail',
-        roles: ['*'],
-        breadcrumbs: [
-          {
-            name: FeatureTestRouteEnum.FEATURE_TEST_CASE,
-            locale: 'menu.featureTest.featureCase',
-          },
-          {
-            name: FeatureTestRouteEnum.FEATURE_TEST_CASE_DETAIL,
-            locale: 'menu.featureTest.featureCaseDetail',
           },
         ],
       },

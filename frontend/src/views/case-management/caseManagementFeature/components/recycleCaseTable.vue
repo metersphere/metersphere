@@ -3,21 +3,18 @@
     <MsSplitBox>
       <template #left>
         <div class="p-[24px]">
-          <div class="mb-4 flex items-center">
-            <div class="back" @click="handleBack"><icon-arrow-left /></div>
-            <div
-              >{{ t('featureTest.featureCase.recycle')
-              }}<span class="ml-1 text-[var(--color-text-4)]">({{ recycleModulesCount.all }})</span></div
-            >
-          </div>
-          <a-divider class="my-[4px]" />
-
+          <a-input-search
+            v-model:model-value="groupKeyword"
+            :placeholder="t('featureTest.featureCase.searchTip')"
+            allow-clear
+            class="mb-[16px]"
+          ></a-input-search>
           <div class="feature-case">
             <div class="case h-[38px]">
               <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
                 <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
                 <div class="folder-name mx-[4px]">{{ t('featureTest.featureCase.allCase') }}</div>
-                <div class="folder-count">({{ allCaseCount }})</div></div
+                <div class="folder-count">({{ recycleModulesCount.all }})</div></div
               >
               <div class="ml-auto flex items-center">
                 <a-tooltip
@@ -31,12 +28,7 @@
                 </a-tooltip>
               </div>
             </div>
-            <a-input-search
-              v-model:model-value="groupKeyword"
-              :placeholder="t('featureTest.featureCase.searchTip')"
-              allow-clear
-              class="mb-[16px]"
-            ></a-input-search>
+            <a-divider class="my-[8px]" />
             <a-spin class="w-full" :loading="loading">
               <MsTree
                 v-model:focus-node-key="focusNodeKey"
@@ -58,9 +50,9 @@
                 @select="caseNodeSelect"
               >
                 <template #title="nodeData">
-                  <div @click="setFocusKey(nodeData)">
-                    <span class="text-[var(--color-text-1)]">{{ nodeData.name }}</span>
-                    <span class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</span>
+                  <div class="inline-flex w-full" @click="setFocusKey(nodeData)">
+                    <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+                    <div class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
                   </div>
                 </template>
               </MsTree>
@@ -72,8 +64,8 @@
         <div class="p-[24px]">
           <div class="page-header mb-4 h-[34px]">
             <div class="text-[var(--color-text-1)]"
-              >{{ t('featureTest.featureCase.allCase') }}
-              <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount.all }})</span></div
+              >{{ currentModuleName }}
+              <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] }})</span></div
             >
             <div class="flex w-[80%] items-center justify-end">
               <a-select class="w-[240px]" :placeholder="t('featureTest.featureCase.versionPlaceholder')">
@@ -161,7 +153,7 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { characterLimit, findNodePathByKey, mapTree } from '@/utils';
+  import { characterLimit, findNodeByKey, findNodePathByKey, mapTree } from '@/utils';
 
   import type {
     BatchMoveOrCopyType,
@@ -170,8 +162,6 @@
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
-  import { StatusType } from '@/enums/caseEnum';
-  import { FeatureTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { getReviewStatusClass, getStatusText } from './utils';
@@ -181,10 +171,7 @@
   const featureCaseStore = useFeatureCaseStore();
 
   const { t } = useI18n();
-  const router = useRouter();
   const { openModal } = useModal();
-
-  const allCaseCount = ref<number>(0);
 
   const activeCaseType = ref<'folder' | 'module'>('folder'); // 激活用例类型
 
@@ -427,7 +414,7 @@
 
   const loading = ref(false);
   const caseTree = ref<ModuleTreeNode[]>([]);
-  const recycleModulesCount = ref<Record<string, number>>({});
+  const recycleModulesCount = ref<Record<string, any>>({});
   const groupKeyword = ref<string>('');
 
   /**
@@ -455,6 +442,12 @@
       loading.value = false;
     }
   }
+
+  const currentModuleName = computed(() => {
+    return activeFolder.value === 'all'
+      ? t('featureTest.featureCase.allCase')
+      : findNodeByKey<Record<string, any>>(caseTree.value, activeFolder.value, 'id')?.name;
+  });
 
   const keyword = ref<string>('');
 
@@ -618,12 +611,6 @@
         }
       },
       hideCancel: false,
-    });
-  }
-  // 返回
-  function handleBack() {
-    router.push({
-      name: FeatureTestRouteEnum.FEATURE_TEST_CASE,
     });
   }
 

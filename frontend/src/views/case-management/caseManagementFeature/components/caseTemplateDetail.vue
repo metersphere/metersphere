@@ -524,6 +524,7 @@
         break;
     }
   };
+
   // 总自定义字段
   const totalTemplateField = ref<DefinedFieldItem[]>([]);
 
@@ -589,7 +590,7 @@
   }
 
   const title = ref('');
-  const isEdit = computed(() => !!route.query.id);
+  const isEditOrCopy = computed(() => !!route.query.id);
   const attachmentsList = ref([]);
 
   // 后台传过来的local文件的item列表
@@ -638,6 +639,7 @@
     const { customFields, attachments, steps, tags } = detailResult;
     form.value = {
       ...detailResult,
+      name: route.params.mode === 'copy' ? `${detailResult.name}_copy` : detailResult.name,
       tags: JSON.parse(tags as string),
     };
     // 处理自定义字段
@@ -655,6 +657,7 @@
       });
     }
     attachmentsList.value = attachments;
+
     // 处理文件列表
     fileList.value = attachments
       .map((fileInfo: any) => {
@@ -685,12 +688,11 @@
   }
 
   watchEffect(() => {
-    if (isEdit.value) {
-      title.value = t('featureTest.featureCase.updateCase');
-      // 调用详情处理字段
+    if (route.params.mode === 'edit') {
+      getCaseInfo();
+    } else if (route.params.mode === 'copy') {
       getCaseInfo();
     } else {
-      title.value = t('featureTest.featureCase.creatingCase');
       initDefaultFields();
     }
   });
@@ -709,7 +711,7 @@
       if (val) {
         form.value.relateFileMetaIds = fileList.value.filter((item) => !item.local).map((item) => item.uid);
         params.value.fileList = fileList.value.filter((item) => item.local && item.status === 'init');
-        if (isEdit.value) {
+        if (isEditOrCopy.value) {
           getFilesParams();
         }
       }
@@ -794,11 +796,11 @@
             type: item.type,
             name: item.id,
             label: item.name,
-            value: isEdit.value ? JSON.parse(rule.value) : rule.value,
+            value: isEditOrCopy.value ? JSON.parse(rule.value) : rule.value,
             options: optionsItem,
             required: item.required,
             props: {
-              modelValue: isEdit.value ? JSON.parse(rule.value) : rule.value,
+              modelValue: isEditOrCopy.value ? JSON.parse(rule.value) : rule.value,
               options: optionsItem,
             },
           };

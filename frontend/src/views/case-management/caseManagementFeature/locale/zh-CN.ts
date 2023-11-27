@@ -1,6 +1,8 @@
 export default {
   'featureTest.featureCase.creatingCase': '创建用例',
   'featureTest.featureCase.importCase': '导入用例',
+  'featureTest.featureCase.importExcel': 'Excel导入',
+  'featureTest.featureCase.importXmind': 'Xmind导入',
   'featureTest.featureCase.publicCase': '公共用例库',
   'featureTest.featureCase.allCase': '全部用例',
   'featureTest.featureCase.searchTip': '请输入分组名称',
@@ -24,7 +26,7 @@ export default {
   'featureTest.featureCase.deleteSuccess': '删除成功',
   'featureTest.featureCase.addSuccess': '添加成功',
   'featureTest.featureCase.addGroupTip': '请输入分组名称，按回车键保存',
-  'featureTest.featureCase.moduleMoveSuccess': '请输入分组名称，按回车键保存',
+  'featureTest.featureCase.moduleMoveSuccess': '移动成功',
   'featureTest.featureCase.tableColumnID': 'ID',
   'featureTest.featureCase.tableColumnName': '用例名称',
   'featureTest.featureCase.tableColumnLevel': '用例等级',
@@ -104,4 +106,6 @@ export default {
   'featureTest.featureCase.recoveredSuccessfully': '恢复成功',
   'featureTest.featureCase.cleanOutDeleteTip': '删除后，数据将无法恢复，请谨慎操作！',
   'featureTest.featureCase.pleaseEnterInputTags': '请输入内容回车添加标签',
+  'featureTest.featureCase.copy': '复制',
+  'featureTest.featureCase.copyCase': '复制用例',
 };
