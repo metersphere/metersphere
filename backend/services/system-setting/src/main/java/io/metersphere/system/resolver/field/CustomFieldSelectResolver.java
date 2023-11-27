@@ -5,6 +5,7 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.dto.CustomFieldDao;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -19,6 +20,9 @@ public class CustomFieldSelectResolver extends AbstractCustomFieldResolver {
             return;
         }
         validateString(customField.getName(), value);
+        if (StringUtils.isBlank((String) value)) {
+            return;
+        }
         List<CustomFieldOption> options = getOptions(customField.getId());
         Set<String> values = options.stream().map(CustomFieldOption::getValue).collect(Collectors.toSet());
         if (!values.contains(value)) {

@@ -74,6 +74,7 @@ public class BaseCustomFieldTestService {
         emptyValueMap.put(CustomFieldType.MULTIPLE_MEMBER, List.of());
         emptyValueMap.put(CustomFieldType.INT, null);
         emptyValueMap.put(CustomFieldType.FLOAT, null);
+        emptyValueMap.put(CustomFieldType.SELECT, StringUtils.EMPTY);
         assertValidateError(emptyValueMap);
     }
 
@@ -100,6 +101,10 @@ public class BaseCustomFieldTestService {
         errorValueMap.put(CustomFieldType.INT, "dd");
         errorValueMap.put(CustomFieldType.FLOAT, "dd");
         assertValidateError(errorValueMap);
+
+        errorValueMap.clear();
+        errorValueMap.put(CustomFieldType.MULTIPLE_SELECT, "1");
+        errorValueMap.put(CustomFieldType.SELECT, "1");
     }
 
     public void testResolverParse() {

@@ -4,16 +4,21 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.request.TemplateSystemCustomFieldRequest;
+import io.metersphere.system.resolver.field.AbstractCustomFieldResolver;
+import io.metersphere.system.resolver.field.CustomFieldResolverFactory;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -98,15 +103,32 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
         // 同步创建项目级别模板
         List<Template> orgTemplates = baseTemplateService.getTemplates(organizationId, scene.name());
         List<String> orgTemplateIds = orgTemplates.stream().map(Template::getId).toList();
-        Map<String, List<TemplateCustomField>> customFieldMap = baseTemplateCustomFieldService.getByTemplateIds(orgTemplateIds)
+        Map<String, List<TemplateCustomField>> templateCustomFieldMap = baseTemplateCustomFieldService.getByTemplateIds(orgTemplateIds)
                 .stream()
                 .collect(Collectors.groupingBy(item -> item.getTemplateId()));
 
+        Map<String, CustomField> customFieldMap = baseCustomFieldService.getByScopeIdAndScene(organizationId, scene.name()).stream()
+                .collect(Collectors.toMap(CustomField::getId, Function.identity()));
+
         orgTemplates.forEach((template) -> {
-            List<TemplateCustomField> templateCustomFields = customFieldMap.get(template.getId());
+            List<TemplateCustomField> templateCustomFields = templateCustomFieldMap.get(template.getId());
             templateCustomFields = templateCustomFields == null ? List.of() : templateCustomFields;
             List<TemplateCustomFieldRequest> templateCustomFieldRequests = templateCustomFields.stream()
-                    .map(templateCustomField -> BeanUtils.copyBean(new TemplateCustomFieldRequest(), templateCustomField))
+                    .map(templateCustomField -> {
+                        TemplateCustomFieldRequest templateCustomFieldRequest = BeanUtils.copyBean(new TemplateCustomFieldRequest(), templateCustomField);
+                        CustomField customField = customFieldMap.get(templateCustomField.getFieldId());
+                        templateCustomFieldRequest.setDefaultValue(null);
+                        try {
+                            if (StringUtils.isNotBlank(templateCustomField.getDefaultValue())) {
+                                // 将字符串转成对应的对象，方便调用统一的创建方法
+                                AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
+                                templateCustomFieldRequest.setDefaultValue(customFieldResolver.parse2Value(templateCustomField.getDefaultValue()));
+                            }
+                        } catch (Exception e) {
+                            LogUtils.error(e);
+                        }
+                        return templateCustomFieldRequest;
+                    })
                     .toList();
             addRefProjectTemplate(projectId, template, templateCustomFieldRequests, null);
         });

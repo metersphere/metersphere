@@ -17,6 +17,9 @@ import io.metersphere.system.dto.request.DefaultFunctionalCustomField;
 import io.metersphere.system.dto.request.ProjectAddMemberRequest;
 import io.metersphere.system.dto.request.ProjectMemberRequest;
 import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
+import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
+import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.job.CleanProjectJob;
@@ -89,6 +92,10 @@ public class SystemProjectControllerTests extends BaseTest {
     private BaseTemplateService baseTemplateService;
     @Resource
     private BaseCustomFieldService baseCustomFieldService;
+    @Resource
+    private OrganizationCustomFieldService organizationCustomFieldService;
+    @Resource
+    private OrganizationTemplateService organizationTemplateService;
     @Resource
     private BaseStatusItemService baseStatusItemService;
     @Resource
@@ -303,6 +310,7 @@ public class SystemProjectControllerTests extends BaseTest {
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testAddProjectSuccess() throws Exception {
         initData();
+        addMultipleCustomField();
         AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"name", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
         ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
@@ -522,6 +530,41 @@ public class SystemProjectControllerTests extends BaseTest {
                     .findFirst().get();
             Assertions.assertNotNull(template);
         }
+    }
+
+    /**
+     * 添加多选的自定义字段
+     * 校验初始化项目模板时，数组类型的默认值是否正常转化
+     */
+    private void addMultipleCustomField() {
+        // 新建一个多选的自定义字段
+        String scene = TemplateScene.TEST_PLAN.name();
+        CustomField customField = new CustomField();
+        customField.setScene(scene);
+        customField.setName("test project default value");
+        customField.setType(CustomFieldType.MULTIPLE_SELECT.name());
+        customField.setScopeId(DEFAULT_ORGANIZATION_ID);
+        customField.setEnableOptionKey(true);
+        CustomFieldOptionRequest customFieldOptionRequest1 = new CustomFieldOptionRequest();
+        customFieldOptionRequest1.setValue("1");
+        customFieldOptionRequest1.setText("test1");
+        CustomFieldOptionRequest customFieldOptionRequest2 = new CustomFieldOptionRequest();
+        customFieldOptionRequest2.setValue("2");
+        customFieldOptionRequest2.setText("test2");
+        customField.setCreateUser("admin");
+        List<CustomFieldOptionRequest> optionRequests = Arrays.asList(customFieldOptionRequest1, customFieldOptionRequest2);
+        organizationCustomFieldService.add(customField, optionRequests);
+
+        // 关联模板
+        TemplateUpdateRequest request = new TemplateUpdateRequest();
+        Template template = baseTemplateService.getTemplates(DEFAULT_ORGANIZATION_ID, scene).get(0);
+        TemplateCustomFieldRequest templateCustomFieldRequest = new TemplateCustomFieldRequest();
+        templateCustomFieldRequest.setFieldId(customField.getId());
+        templateCustomFieldRequest.setRequired(false);
+        templateCustomFieldRequest.setDefaultValue(List.of("1", "2"));
+        request.setId(template.getId());
+        request.setCustomFields(List.of(templateCustomFieldRequest));
+        organizationTemplateService.update(request);
     }
 
     private void changeOrgTemplateEnable(boolean enable) {
