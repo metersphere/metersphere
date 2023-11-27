@@ -18,6 +18,7 @@ export default class JSR223PostProcessor extends PostProcessor {
     this.scriptLanguage = 'beanshell';
     this.parameters = [];
     this.filename = undefined;
+    this.active = true;
     this.cacheKey = true;
     this.enable = true;
     this.script = undefined;

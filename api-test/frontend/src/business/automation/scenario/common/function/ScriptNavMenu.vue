@@ -53,6 +53,9 @@ export default {
     ApiFuncRelevance,
     CustomFunctionRelate,
   },
+  created() {
+    this.openMenus();
+  },
   data() {
     return {
       value: true,
@@ -73,6 +76,11 @@ export default {
     },
   },
   methods: {
+    openMenus() {
+      this.menus.forEach((menu) => {
+        this.$set(menu, 'open', true);
+      });
+    },
     apiSave(data, env) {
       // data：选中的多个接口定义或多个接口用例; env: 关联页面选中的环境
       let condition = env.config.httpConfig.conditions || [];

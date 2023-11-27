@@ -9,7 +9,6 @@ import io.metersphere.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.entity.ContentType;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
@@ -57,7 +56,7 @@ public class JMeterBase {
         if (MapUtils.isNotEmpty(request.getExtendedParameters())) {
             arguments.addArgument(BackendListenerConstants.EPT.name(), JsonUtils.toJSONString(request.getExtendedParameters()));
         }
-        if (request.getKafkaConfig() != null && request.getKafkaConfig().size() > 0) {
+        if (request.getKafkaConfig() != null && !request.getKafkaConfig().isEmpty()) {
             arguments.addArgument(BackendListenerConstants.KAFKA_CONFIG.name(), JsonUtils.toJSONString(request.getKafkaConfig()));
         }
         backendListener.setArguments(arguments);
@@ -88,8 +87,7 @@ public class JMeterBase {
         requestResult.setError(result.getErrorCount());
         requestResult.setScenario(result.getScenario());
         requestResult.setFakeErrorMessage(result.getFakeError());
-        if (result instanceof HTTPSampleResult) {
-            HTTPSampleResult res = (HTTPSampleResult) result;
+        if (result instanceof HTTPSampleResult res) {
             requestResult.setCookies(res.getCookies());
         }
 
@@ -97,20 +95,14 @@ public class JMeterBase {
             requestResult.getSubRequestResults().add(getRequestResult(subResult, fakeErrorMap));
         }
         ResponseResult responseResult = requestResult.getResponseResult();
-        // 超过20M的文件不入库
-        long size = 1024 * 1024 * 20;
-        if (StringUtils.equals(ContentType.APPLICATION_OCTET_STREAM.getMimeType(), result.getContentType())
-                && StringUtils.isNotEmpty(result.getResponseDataAsString())
-                && result.getResponseDataAsString().length() > size) {
-            requestResult.setBody("");
-        } else {
-            //判断返回的类型是否是图片
-            LoggerUtil.info("返回内容类型为【" + result.getContentType() + "】");
-            if (StringUtils.isNotEmpty(result.getContentType()) && imageList.contains(result.getContentType())) {
-                responseResult.setImageUrl(result.getResponseData());
-           }
-            responseResult.setBody(result.getResponseDataAsString());
+
+        //判断返回的类型是否是图片
+        LoggerUtil.info("返回内容类型为【" + result.getContentType() + "】");
+        if (StringUtils.isNotEmpty(result.getContentType()) && imageList.contains(result.getContentType())) {
+            responseResult.setImageUrl(result.getResponseData());
         }
+        responseResult.setBody(result.getResponseDataAsString());
+
         responseResult.setContentType(result.getContentType());
         responseResult.setHeaders(result.getResponseHeaders());
         responseResult.setLatency(result.getLatency());
@@ -165,12 +157,12 @@ public class JMeterBase {
         ResponseAssertionResult responseAssertionResult = new ResponseAssertionResult();
 
         responseAssertionResult.setName(assertionResult.getName());
-        if (StringUtils.isNotEmpty(assertionResult.getName()) && assertionResult.getName().indexOf(SPLIT_EQ) != -1) {
-            if (assertionResult.getName().indexOf("JSR223") != -1) {
+        if (StringUtils.isNotEmpty(assertionResult.getName()) && assertionResult.getName().contains(SPLIT_EQ)) {
+            if (assertionResult.getName().contains("JSR223")) {
                 String[] array = assertionResult.getName().split(SPLIT_EQ, 3);
                 if (array.length > 2 && "JSR223".equals(array[0])) {
                     responseAssertionResult.setName(array[1]);
-                    if (array[2].indexOf(SPLIT_AND) != -1) {
+                    if (array[2].contains(SPLIT_AND)) {
                         String[] content = array[2].split(SPLIT_AND);
                         responseAssertionResult.setContent(content[0]);
                         if (content.length > 1) {
@@ -183,7 +175,7 @@ public class JMeterBase {
             } else {
                 String[] array = assertionResult.getName().split(SPLIT_EQ);
                 responseAssertionResult.setName(array[0]);
-                StringBuffer content = new StringBuffer();
+                StringBuilder content = new StringBuilder();
                 for (int i = 1; i < array.length; i++) {
                     content.append(array[i]);
                 }
@@ -222,9 +214,6 @@ public class JMeterBase {
 
     /**
      * 执行结果数据转化
-     *
-     * @param sampleResults
-     * @param dto
      */
     public static void resultFormatting(List<SampleResult> sampleResults, ResultDTO dto) {
         try {
