@@ -47,6 +47,16 @@ const FeatureTest: AppRouteRecordRaw = {
         ],
       },
     },
+    // 创建用例成功
+    {
+      path: 'featureCaseCreateSuccess',
+      name: FeatureTestRouteEnum.FEATURE_TEST_CASE_CREATE_SUCCESS,
+      component: () => import('@/views/case-management/caseManagementFeature/components/createSuccess.vue'),
+      meta: {
+        locale: 'menu.featureTest.featureCaseCreateSuccess',
+        roles: ['*'],
+      },
+    },
     // 功能用例回收站
     {
       path: 'featureCaseRecycle',

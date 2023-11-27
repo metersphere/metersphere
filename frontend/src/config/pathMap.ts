@@ -352,9 +352,16 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
       },
       {
-        key: 'FEATURE_TEST_CASE_DETAIL', // 功能测试-功能用例
+        key: 'FEATURE_TEST_CASE_DETAIL', // 功能测试-功能用例详情
         locale: 'menu.featureTest.featureCaseDetail',
         route: RouteEnum.FEATURE_TEST_CASE_DETAIL,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'FEATURE_TEST_CASE_CREATE_SUCCESS', // 功能测试-功能用例创建成功页面
+        locale: 'menu.featureTest.featureCaseCreateSuccess',
+        route: RouteEnum.FEATURE_TEST_CASE_CREATE_SUCCESS,
         permission: [],
         level: MENU_LEVEL[2],
       },
