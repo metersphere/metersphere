@@ -472,6 +472,20 @@ CREATE TABLE IF NOT EXISTS user_invite
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '用户邀请记录';
 
+CREATE TABLE user_local_config
+(
+    `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
+    `user_url`    VARCHAR(50) NOT NULL COMMENT '本地执行程序url',
+    `enable`      BIT         NOT NULL DEFAULT 0 COMMENT '本地执行优先',
+    `type`        VARCHAR(50) NOT NULL COMMENT 'API/UI',
+    `create_user` VARCHAR(50) NOT NULL COMMENT '创建人',
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '本地执行配置';
+CREATE INDEX idx_create_user ON user_local_config(`create_user`);
+CREATE INDEX idx_type ON user_local_config(`type`);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 
