@@ -238,7 +238,7 @@ public class JSONSchemaParser {
             JSONArray jsonArray = (JSONArray) root.get(PropertyConstant.MS_OBJECT);
             List<String> list = new LinkedList<>();
             toJsonString(jsonArray, list);
-            json = list.toString();
+            json = JSON.toJSONString(list);
         } else {
             json = JSON.toJSONString(JSON.toMap(root));
         }
