@@ -102,6 +102,7 @@
         <table tableName="status_definition"/>
         <table tableName="status_flow"/>
         <table tableName="organization_parameter"/>
+        <table tableName="user_local_config"/>
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">
