@@ -36,7 +36,7 @@
                 :data="caseTree"
                 :keyword="groupKeyword"
                 :expand-all="isExpandAll"
-                :empty-text="t('featureTest.featureCase.caseEmptyContent')"
+                :empty-text="t('featureTest.featureCase.caseEmptyRecycle')"
                 draggable
                 :virtual-list-props="virtualListProps"
                 block-node

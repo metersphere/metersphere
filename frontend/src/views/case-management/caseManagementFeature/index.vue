@@ -234,6 +234,12 @@
     });
   }
 
+  function test() {
+    router.push({
+      name: FeatureTestRouteEnum.FEATURE_TEST_CASE_CREATE_SUCCESS,
+    });
+  }
+
   // 设置默认选中状态
   router.beforeEach((to: any, from: any, next) => {
     const routeEnumValues = Object.values(FeatureTestRouteEnum);

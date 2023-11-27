@@ -38,6 +38,7 @@ export default {
     'menu.featureTest.featureCaseRecycle': '回收站',
     'menu.featureTest.featureCaseList': '用例列表',
     'menu.featureTest.featureCaseDetail': '创建用例',
+    'menu.featureTest.featureCaseCreateSuccess': '创建用例成功',
     'menu.projectManagement.projectPermission': '项目与权限',
     'menu.settings': '系统设置',
     'menu.settings.system': '系统',

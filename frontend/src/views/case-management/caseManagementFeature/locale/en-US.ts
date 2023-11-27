@@ -110,4 +110,12 @@ export default {
   'featureTest.featureCase.pleaseEnterInputTags': 'Please enter content Enter add label',
   'featureTest.featureCase.copy': 'Copy',
   'featureTest.featureCase.copyCase': 'Copy case',
+  'featureTest.featureCase.countDownTip': 'Seconds after back in case list, also can manually back in case list',
+  'featureTest.featureCase.caseDetail': 'Case details',
+  'featureTest.featureCase.addContinueCreate': 'Continue to create',
+  'featureTest.featureCase.backCaseList': 'Back',
+  'featureTest.featureCase.notNextTip': 'Next time no longer remind',
+  'featureTest.featureCase.mightWantTo': 'You might want to',
+  'featureTest.featureCase.createTestPlan': 'Create a test plan',
+  'featureTest.featureCase.createCaseReview': 'Create use case reviews',
 };

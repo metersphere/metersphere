@@ -27,6 +27,7 @@
 
   import { createCaseRequest, updateCaseRequest } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import useVisit from '@/hooks/useVisit';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { scrollIntoView } from '@/utils/dom';
 
@@ -37,7 +38,11 @@
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
+
   const featureCaseStore = useFeatureCaseStore();
+
+  const visitedKey = 'doNotNextTipCreateCase';
+  const { getIsVisited } = useVisit(visitedKey);
 
   const caseDetailInfo = ref<Record<string, any>>({
     request: {},
@@ -56,6 +61,7 @@
   const isEdit = computed(() => !!route.query.id);
 
   const isContinueFlag = ref(false);
+  const isShowTip = ref<boolean>(true);
 
   async function save() {
     try {
@@ -69,6 +75,12 @@
       }
       router.push({ name: FeatureTestRouteEnum.FEATURE_TEST_CASE, query: { ...route.query } });
       featureCaseStore.setIsAlreadySuccess(true);
+      isShowTip.value = !getIsVisited();
+      if (isShowTip.value) {
+        router.push({
+          name: FeatureTestRouteEnum.FEATURE_TEST_CASE_CREATE_SUCCESS,
+        });
+      }
     } catch (error) {
       console.log(error);
     } finally {
