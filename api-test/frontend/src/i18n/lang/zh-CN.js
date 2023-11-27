@@ -81,6 +81,7 @@ const message = {
         covered_rate: '接口覆盖率',
         executed_rate: '用例执行率',
         pass_rate: '用例通过率',
+        save_and_create: '保存并继续添加',
       },
       scenario: {
         title: '场景用例数量统计',

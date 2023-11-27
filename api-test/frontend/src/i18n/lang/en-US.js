@@ -85,6 +85,7 @@ const message = {
         covered_rate: 'Api covered rate',
         executed_rate: 'Executed rate',
         pass_rate: 'Pass rate',
+        save_and_create: 'Save and add',
       },
       scenario: {
         title: 'Scenario amount',
