@@ -1,8 +1,9 @@
+<!-- eslint-disable prefer-destructuring -->
 <template>
   <div class="page-header mb-4 h-[34px]">
     <div class="text-[var(--color-text-1)]"
-      >{{ t('featureTest.featureCase.allCase') }}
-      <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount.all }})</span></div
+      >{{ moduleNamePath }}
+      <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] }})</span></div
     >
     <div class="flex w-[80%] items-center justify-end">
       <a-select class="w-[240px]" :placeholder="t('featureTest.featureCase.versionPlaceholder')">
@@ -81,7 +82,8 @@
       </a-tooltip>
     </template>
     <template #operation="{ record }">
-      <MsButton @click="editCase(record)">{{ t('common.edit') }}</MsButton>
+      <MsButton @click="operateCase(record, 'edit')">{{ t('common.edit') }}</MsButton>
+      <MsButton @click="operateCase(record, 'copy')">{{ t('featureTest.featureCase.copy') }}</MsButton>
       <MsButton class="!mr-0" @click="deleteCase(record)">{{ t('common.delete') }}</MsButton>
     </template>
   </ms-base-table>
@@ -166,7 +168,7 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { characterLimit, findNodePathByKey } from '@/utils';
+  import { characterLimit, findNodeByKey, findNodePathByKey } from '@/utils';
 
   import type { CaseManagementTable, CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
@@ -358,6 +360,17 @@
       showDrag: true,
     },
     {
+      title: 'featureTest.featureCase.tableColumnUpdateTime',
+      slotName: 'updateTime',
+      dataIndex: 'updateTime',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+      },
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'featureTest.featureCase.tableColumnCreateUser',
       slotName: 'createUser',
       dataIndex: 'createUser',
@@ -376,30 +389,10 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnUpdateUser',
-      slotName: 'updateUser',
-      dataIndex: 'updateUser',
-      showInTable: true,
-      width: 200,
-      showDrag: true,
-    },
-    {
-      title: 'featureTest.featureCase.tableColumnUpdateTime',
-      slotName: 'updateTime',
-      dataIndex: 'updateTime',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-      },
-      showInTable: true,
-      width: 200,
-      showDrag: true,
-    },
-    {
       title: 'featureTest.featureCase.tableColumnActions',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 140,
       showInTable: true,
       showDrag: false,
     },
@@ -558,12 +551,15 @@
     emitTableParams();
   }
 
-  // 编辑
-  function editCase(record: CaseManagementTable) {
+  // 编辑&复制
+  function operateCase(record: CaseManagementTable, mode: string) {
     router.push({
       name: FeatureTestRouteEnum.FEATURE_TEST_CASE_DETAIL,
       query: {
         id: record.id,
+      },
+      params: {
+        mode,
       },
     });
   }
@@ -674,11 +670,15 @@
     showBatchMoveDrawer.value = true;
   }
 
+  const moduleNamePath = computed(() => {
+    return props.activeFolder === 'all'
+      ? t('featureTest.featureCase.allCase')
+      : findNodeByKey<Record<string, any>>(caseTreeData.value, featureCaseStore.moduleId[0], 'id')?.name;
+  });
   // 获取对应模块name
   function getModules(moduleIds: string) {
     const modules = findNodePathByKey(caseTreeData.value, moduleIds, undefined, 'id');
     const moduleName = (modules || []).treePath.map((item: any) => item.name);
-
     if (moduleName.length === 1) {
       return moduleName[0];
     }

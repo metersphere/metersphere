@@ -1,23 +1,16 @@
 <template>
   <div class="mb-[16px]">
-    <a-button type="primary" class="mr-[12px]" @click="caseDetail">
+    <a-button type="primary" @click="caseDetail">
       {{ t('featureTest.featureCase.creatingCase') }}
     </a-button>
-    <a-button type="outline"> {{ t('featureTest.featureCase.importCase') }} </a-button>
+    <a-button class="mx-3" type="outline"> {{ t('featureTest.featureCase.importExcel') }} </a-button>
+    <a-button type="outline"> {{ t('featureTest.featureCase.importXmind') }} </a-button>
   </div>
   <div class="pageWrap">
     <MsSplitBox>
       <template #left>
         <div class="p-[24px] pb-0">
           <div class="feature-case h-[100%]">
-            <div class="case h-[38px]">
-              <div class="flex items-center" :class="getActiveClass('public')">
-                <MsIcon type="icon-icon_folder_outlined-1" class="folder-icon" />
-                <div class="folder-name mx-[4px]">{{ t('featureTest.featureCase.publicCase') }}</div>
-                <div class="folder-count">({{ publicCaseCount }})</div></div
-              >
-              <div class="back"><icon-arrow-right /></div>
-            </div>
             <div class="case h-[38px]">
               <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
                 <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
@@ -190,7 +183,7 @@
       const params: CreateOrUpdateModule = {
         projectId: currentProjectId.value,
         name: field,
-        parentId: 'none',
+        parentId: 'NONE',
       };
       await createCaseModuleTree(params);
       Message.success(t('featureTest.featureCase.addSuccess'));
