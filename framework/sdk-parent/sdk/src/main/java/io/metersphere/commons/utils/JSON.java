@@ -127,6 +127,8 @@ public class JSON {
                 value = toMap((JSONObject) value);
             } else if (value instanceof JSONArray) {
                 value = toList((JSONArray) value);
+            } else if (value == JSONObject.NULL) {
+                value = null;
             }
             map.put(key, value);
         }

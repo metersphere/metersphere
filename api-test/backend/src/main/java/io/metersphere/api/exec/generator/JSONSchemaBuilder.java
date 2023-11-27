@@ -287,7 +287,7 @@ public class JSONSchemaBuilder {
             JSONArray jsonArray = (JSONArray) root.get(PropertyConstant.MS_OBJECT);
             List<String> list = new LinkedList<>();
             JSONSchemaParser.toJsonString(jsonArray, list);
-            return list.toString();
+            return JSON.toJSONString(list);
         }
         return JSON.toJSONString(JSON.toMap(root));
     }
