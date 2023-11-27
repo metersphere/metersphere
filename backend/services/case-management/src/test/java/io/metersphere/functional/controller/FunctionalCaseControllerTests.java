@@ -52,6 +52,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_BATCH_COPY_URL = "/functional/case/batch/copy";
     public static final String FUNCTIONAL_CASE_VERSION_URL = "/functional/case/version/";
     public static final String FUNCTIONAL_CASE_BATCH_EDIT_URL = "/functional/case/batch/edit";
+    public static final String FUNCTIONAL_CASE_POS_URL = "/functional/case/edit/pos";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -388,4 +389,20 @@ public class FunctionalCaseControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
     }
 
+
+
+    @Test
+    @Order(18)
+    public void testPos() throws Exception {
+        PosRequest posRequest = new PosRequest();
+        posRequest.setProjectId(DEFAULT_PROJECT_ID);
+        posRequest.setTargetId("TEST_FUNCTIONAL_CASE_ID_2");
+        posRequest.setMoveId("TEST_FUNCTIONAL_CASE_ID_6");
+        posRequest.setMoveMode("AFTER");
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_POS_URL, posRequest);
+
+        posRequest.setMoveMode("BEFORE");
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_POS_URL, posRequest);
+
+    }
 }

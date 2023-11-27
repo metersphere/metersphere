@@ -54,4 +54,8 @@ public interface ExtFunctionalCaseMapper {
 
     long caseCount(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
 
+    Long getPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
 }

@@ -125,7 +125,7 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody FunctionalCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, false));
     }
 
@@ -179,6 +179,14 @@ public class FunctionalCaseController {
     public void batchEditFunctionalCase(@Validated @RequestBody FunctionalCaseBatchEditRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.batchEditFunctionalCase(request, userId);
+    }
+
+
+    @PostMapping("edit/pos")
+    @Operation(summary = "用例管理-功能用例-拖拽排序")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    public void editPos(@Validated @RequestBody PosRequest request) {
+        functionalCaseService.editPos(request);
     }
 
 }
