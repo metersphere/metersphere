@@ -8,7 +8,7 @@ import io.metersphere.system.controller.handler.result.CommonResultCode;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.file.FileCenter;
 import io.metersphere.system.file.FileRequest;
-import io.metersphere.system.plugin.MsPluginManager;
+import io.metersphere.sdk.plugin.MsPluginManager;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.MsFileUtils;

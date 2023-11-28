@@ -1,4 +1,4 @@
-package io.metersphere.system.plugin;
+package io.metersphere.sdk.plugin;
 
 
 import io.metersphere.sdk.util.LogUtils;
@@ -45,7 +45,7 @@ public class JdbcDriverServiceProviderExtensionFinder extends ServiceProviderExt
         try {
             Enumeration<URL> urls = getClass().getClassLoader().getResources(EXTENSIONS_RESOURCE);
             if (urls.hasMoreElements()) {
-                collectExtensions(urls, bucket);
+                jdbcCollectExtensions(urls, bucket);
             } else {
                 LogUtils.debug("Cannot find '{}'", EXTENSIONS_RESOURCE);
             }
@@ -80,7 +80,7 @@ public class JdbcDriverServiceProviderExtensionFinder extends ServiceProviderExt
 
                 urls = ((PluginClassLoader) plugin.getPluginClassLoader()).findResources(EXTENSIONS_RESOURCE);
                 if (urls.hasMoreElements()) {
-                    collectExtensions(urls, bucket);
+                    jdbcCollectExtensions(urls, bucket);
                 } else {
                     LogUtils.debug("Cannot find '{}'", EXTENSIONS_RESOURCE);
                 }
@@ -96,15 +96,15 @@ public class JdbcDriverServiceProviderExtensionFinder extends ServiceProviderExt
         return result;
     }
 
-    private void collectExtensions(Enumeration<URL> urls, Set<String> bucket) throws URISyntaxException, IOException {
+    private void jdbcCollectExtensions(Enumeration<URL> urls, Set<String> bucket) throws URISyntaxException, IOException {
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
             LogUtils.debug("Read '{}'", url.getFile());
-            collectExtensions(url, bucket);
+            jdbcCollectExtensions(url, bucket);
         }
     }
 
-    private void collectExtensions(URL url, Set<String> bucket) throws URISyntaxException, IOException {
+    private void jdbcCollectExtensions(URL url, Set<String> bucket) throws URISyntaxException, IOException {
         Path extensionPath;
 
         if (url.toURI().getScheme().equals("jar")) {
@@ -114,13 +114,13 @@ public class JdbcDriverServiceProviderExtensionFinder extends ServiceProviderExt
         }
 
         try {
-            bucket.addAll(readExtensions(extensionPath));
+            bucket.addAll(jdbcReadExtensions(extensionPath));
         } finally {
             FileUtils.closePath(extensionPath);
         }
     }
 
-    private Set<String> readExtensions(Path extensionPath) throws IOException {
+    private Set<String> jdbcReadExtensions(Path extensionPath) throws IOException {
         final Set<String> result = new HashSet<>();
         Files.walkFileTree(extensionPath, Collections.<FileVisitOption>emptySet(), 1, new SimpleFileVisitor<Path>() {
 
