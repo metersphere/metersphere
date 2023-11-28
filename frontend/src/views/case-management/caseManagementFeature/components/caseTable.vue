@@ -6,12 +6,12 @@
       <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] }})</span></div
     >
     <div class="flex w-[80%] items-center justify-end">
-      <a-select class="w-[240px]" :placeholder="t('featureTest.featureCase.versionPlaceholder')">
+      <a-select class="w-[240px]" :placeholder="t('caseManagement.featureCase.versionPlaceholder')">
         <a-option v-for="version of versionOptions" :key="version.id" :value="version.id">{{ version.name }}</a-option>
       </a-select>
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('featureTest.featureCase.searchByNameAndId')"
+        :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
         allow-clear
         class="mx-[8px] w-[240px]"
         @search="searchList"
@@ -25,7 +25,7 @@
       >
         <span :class="!isExpandFilter ? 'text-[var(--color-text-4)]' : ''" @click="isExpandFilterHandler"
           ><icon-filter class="mr-[4px]" :style="{ 'font-size': '16px' }" />{{
-            t('featureTest.featureCase.filter')
+            t('caseManagement.featureCase.filter')
           }}</span
         >
       </MsTag>
@@ -83,7 +83,7 @@
     </template>
     <template #operation="{ record }">
       <MsButton @click="operateCase(record, 'edit')">{{ t('common.edit') }}</MsButton>
-      <MsButton @click="operateCase(record, 'copy')">{{ t('featureTest.featureCase.copy') }}</MsButton>
+      <MsButton @click="operateCase(record, 'copy')">{{ t('caseManagement.featureCase.copy') }}</MsButton>
       <MsButton class="!mr-0" @click="deleteCase(record)">{{ t('common.delete') }}</MsButton>
     </template>
   </ms-base-table>
@@ -96,8 +96,8 @@
     :ok-text="
       t(
         isMove
-          ? 'featureTest.featureCase.batchMoveSelectedModules'
-          : 'featureTest.featureCase.batchCopySelectedModules',
+          ? 'caseManagement.featureCase.batchMoveSelectedModules'
+          : 'caseManagement.featureCase.batchCopySelectedModules',
         {
           number: batchParams?.currentSelectCount || batchParams?.selectedIds?.length,
         }
@@ -111,9 +111,9 @@
     <template #title>
       <div class="flex w-full items-center justify-between">
         <div>
-          {{ isMove ? t('featureTest.featureCase.batchMoveTitle') : t('featureTest.featureCase.batchCopyTitle') }}
+          {{ isMove ? t('caseManagement.featureCase.batchMoveTitle') : t('caseManagement.featureCase.batchCopyTitle') }}
           <span class="ml-[4px] text-[var(--color-text-4)]">
-            {{ t('featureTest.featureCase.batchMove', { number: batchParams.currentSelectCount }) }}
+            {{ t('caseManagement.featureCase.batchMove', { number: batchParams.currentSelectCount }) }}
           </span>
         </div>
         <div class="mr-2">
@@ -172,7 +172,7 @@
 
   import type { CaseManagementTable, CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
-  import { FeatureTestRouteEnum } from '@/enums/routeEnum';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   import { getReviewStatusClass, getStatusText } from './utils';
@@ -276,7 +276,7 @@
 
   const columns: MsTableColumn = [
     {
-      title: 'featureTest.featureCase.tableColumnID',
+      title: 'caseManagement.featureCase.tableColumnID',
       dataIndex: 'id',
       width: 200,
       showInTable: true,
@@ -288,7 +288,7 @@
       showDrag: false,
     },
     {
-      title: 'featureTest.featureCase.tableColumnName',
+      title: 'caseManagement.featureCase.tableColumnName',
       slotName: 'name',
       dataIndex: 'name',
       showInTable: true,
@@ -302,7 +302,7 @@
       showDrag: false,
     },
     {
-      title: 'featureTest.featureCase.tableColumnLevel',
+      title: 'caseManagement.featureCase.tableColumnLevel',
       dataIndex: 'level',
       showInTable: true,
       width: 200,
@@ -311,7 +311,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnCaseState',
+      title: 'caseManagement.featureCase.tableColumnCaseState',
       dataIndex: 'caseState',
       showInTable: true,
       width: 200,
@@ -320,7 +320,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnReviewResult',
+      title: 'caseManagement.featureCase.tableColumnReviewResult',
       dataIndex: 'reviewStatus',
       slotName: 'reviewStatus',
       showInTable: true,
@@ -328,7 +328,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnExecutionResult',
+      title: 'caseManagement.featureCase.tableColumnExecutionResult',
       dataIndex: 'lastExecuteResult',
       slotName: 'lastExecuteResult',
       showInTable: true,
@@ -336,7 +336,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnVersion',
+      title: 'caseManagement.featureCase.tableColumnVersion',
       slotName: 'versionId',
       dataIndex: 'versionId',
       width: 300,
@@ -345,14 +345,14 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnModule',
+      title: 'caseManagement.featureCase.tableColumnModule',
       slotName: 'moduleId',
       showInTable: true,
       width: 300,
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnTag',
+      title: 'caseManagement.featureCase.tableColumnTag',
       slotName: 'tags',
       dataIndex: 'tags',
       showInTable: true,
@@ -360,7 +360,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnUpdateTime',
+      title: 'caseManagement.featureCase.tableColumnUpdateTime',
       slotName: 'updateTime',
       dataIndex: 'updateTime',
       sortable: {
@@ -371,14 +371,14 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnCreateUser',
+      title: 'caseManagement.featureCase.tableColumnCreateUser',
       slotName: 'createUser',
       dataIndex: 'createUser',
       showInTable: true,
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnCreateTime',
+      title: 'caseManagement.featureCase.tableColumnCreateTime',
       slotName: 'createTime',
       dataIndex: 'createTime',
       showInTable: true,
@@ -389,7 +389,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnActions',
+      title: 'caseManagement.featureCase.tableColumnActions',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
@@ -401,15 +401,15 @@
   const tableBatchActions = {
     baseAction: [
       {
-        label: 'featureTest.featureCase.export',
+        label: 'caseManagement.featureCase.export',
         eventTag: 'export',
         children: [
           {
-            label: 'featureTest.featureCase.exportExcel',
+            label: 'caseManagement.featureCase.exportExcel',
             eventTag: 'exportExcel',
           },
           {
-            label: 'featureTest.featureCase.exportXMind',
+            label: 'caseManagement.featureCase.exportXMind',
             eventTag: 'exportXMind',
           },
         ],
@@ -419,25 +419,25 @@
         eventTag: 'batchEdit',
       },
       {
-        label: 'featureTest.featureCase.moveTo',
+        label: 'caseManagement.featureCase.moveTo',
         eventTag: 'batchMoveTo',
       },
       {
-        label: 'featureTest.featureCase.copyTo',
+        label: 'caseManagement.featureCase.copyTo',
         eventTag: 'batchCopyTo',
       },
     ],
     moreAction: [
       {
-        label: 'featureTest.featureCase.associatedDemand',
+        label: 'caseManagement.featureCase.associatedDemand',
         eventTag: 'associatedDemand',
       },
       {
-        label: 'featureTest.featureCase.generatingDependencies',
+        label: 'caseManagement.featureCase.generatingDependencies',
         eventTag: 'generatingDependencies',
       },
       {
-        label: 'featureTest.featureCase.addToPublic',
+        label: 'caseManagement.featureCase.addToPublic',
         eventTag: 'addToPublic',
       },
       {
@@ -554,7 +554,7 @@
   // 编辑&复制
   function operateCase(record: CaseManagementTable, mode: string) {
     router.push({
-      name: FeatureTestRouteEnum.FEATURE_TEST_CASE_DETAIL,
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
       query: {
         id: record.id,
       },
@@ -568,8 +568,8 @@
   function deleteCase(record: CaseManagementTable) {
     openModal({
       type: 'error',
-      title: t('featureTest.featureCase.deleteCaseTitle', { name: characterLimit(record.name) }),
-      content: t('featureTest.featureCase.beforeDeleteCase'),
+      title: t('caseManagement.featureCase.deleteCaseTitle', { name: characterLimit(record.name) }),
+      content: t('caseManagement.featureCase.beforeDeleteCase'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
       okButtonProps: {
@@ -640,10 +640,10 @@
       };
       if (isMove.value) {
         await batchMoveToModules(params);
-        Message.success(t('featureTest.featureCase.batchMoveSuccess'));
+        Message.success(t('caseManagement.featureCase.batchMoveSuccess'));
       } else {
         await batchCopyToModules(params);
-        Message.success(t('featureTest.featureCase.batchCopySuccess'));
+        Message.success(t('caseManagement.featureCase.batchCopySuccess'));
       }
       isMove.value = false;
       emitTableParams();
@@ -672,7 +672,7 @@
 
   const moduleNamePath = computed(() => {
     return props.activeFolder === 'all'
-      ? t('featureTest.featureCase.allCase')
+      ? t('caseManagement.featureCase.allCase')
       : findNodeByKey<Record<string, any>>(caseTreeData.value, featureCaseStore.moduleId[0], 'id')?.name;
   });
   // 获取对应模块name
@@ -689,8 +689,8 @@
   async function batchDelete() {
     openModal({
       type: 'error',
-      title: t('featureTest.featureCase.batchDelete', { number: (selectData.value || []).length }),
-      content: t('featureTest.featureCase.beforeDeleteCase'),
+      title: t('caseManagement.featureCase.batchDelete', { number: (selectData.value || []).length }),
+      content: t('caseManagement.featureCase.beforeDeleteCase'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
       okButtonProps: {

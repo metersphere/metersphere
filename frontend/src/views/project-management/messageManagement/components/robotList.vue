@@ -24,10 +24,13 @@
               />
               <div class="flex flex-col">
                 <div class="font-medium text-[var(--color-text-1)]">{{ robot.name }}</div>
-                <div v-if="['IN_SITE', 'MAIL'].includes(robot.platform)" class="text-[12px] text-[var(--color-text-4)]">
+                <div
+                  v-if="['IN_SITE', 'MAIL'].includes(robot.platform)"
+                  class="text-[12px] leading-[16px] text-[var(--color-text-4)]"
+                >
                   {{ robot.description }}
                 </div>
-                <div v-else class="flex flex-wrap items-center text-[12px] text-[var(--color-text-4)]">
+                <div v-else class="flex flex-wrap items-center text-[12px] leading-[16px] text-[var(--color-text-4)]">
                   <div class="mr-[16px]">
                     <a-tooltip position="tl" mini :content="robot.createUser">{{ robot.createUser }}</a-tooltip>
                     {{
@@ -139,7 +142,7 @@
             <MsFormItemSub :text="t('project.messageManagement.dingTalkCustomTip')" :show-fill-icon="false">
               <MsButton
                 type="text"
-                class="ml-[8px] !text-[12px]"
+                class="ml-[8px] !text-[12px] leading-[16px]"
                 @click="openExternalLink('https://open.dingtalk.com/document/orgapp/custom-robot-access')"
               >
                 <MsIcon type="icon-icon_share" size="12" class="mr-[4px]" />
@@ -158,7 +161,7 @@
             <MsFormItemSub :text="t('project.messageManagement.dingTalkEnterpriseTip')" :show-fill-icon="false">
               <MsButton
                 type="text"
-                class="ml-[8px] !text-[12px]"
+                class="ml-[8px] !text-[12px] leading-[16px]"
                 @click="
                   openExternalLink(
                     'https://open.dingtalk.com/document/orgapp/the-creation-and-installation-of-the-application-robot-in-the'

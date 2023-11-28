@@ -6,12 +6,16 @@ export enum BugManagementRouteEnum {
   BUG_MANAGEMENT = 'bugManagement',
 }
 
-export enum FeatureTestRouteEnum {
-  FEATURE_TEST = 'featureTest',
-  FEATURE_TEST_CASE = 'featureTestCase',
-  FEATURE_TEST_CASE_CREATE_SUCCESS = 'featureTestCaseCreateSuccess',
-  FEATURE_TEST_CASE_RECYCLE = 'featureTestCaseRecycle',
-  FEATURE_TEST_CASE_DETAIL = 'featureTestCaseDetail',
+export enum CaseManagementRouteEnum {
+  CASE_MANAGEMENT = 'caseManagement',
+  CASE_MANAGEMENT_CASE = 'caseManagementCase',
+  CASE_MANAGEMENT_CASE_CREATE_SUCCESS = 'caseManagementCaseCreateSuccess',
+  CASE_MANAGEMENT_CASE_RECYCLE = 'caseManagementCaseRecycle',
+  CASE_MANAGEMENT_CASE_DETAIL = 'caseManagementCaseDetail',
+  CASE_MANAGEMENT_REVIEW = 'caseManagementReview',
+  CASE_MANAGEMENT_REVIEW_CREATE = 'caseManagementReviewCreate',
+  CASE_MANAGEMENT_REVIEW_DETAIL = 'caseManagementReviewDetail',
+  CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL = 'caseManagementReviewDetailCaseDetail',
 }
 
 export enum PerformanceTestRouteEnum {
@@ -79,7 +83,7 @@ export const RouteEnum = {
   ...ApiTestRouteEnum,
   ...SettingRouteEnum,
   ...BugManagementRouteEnum,
-  ...FeatureTestRouteEnum,
+  ...CaseManagementRouteEnum,
   ...PerformanceTestRouteEnum,
   ...ProjectManagementRouteEnum,
   ...TestPlanRouteEnum,

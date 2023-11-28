@@ -95,7 +95,7 @@
                   </a-button>
                 </MsUpload>
               </div>
-              <p class="text-[12px] text-[var(--color-text-4)]">{{ t('system.config.page.iconTip') }}</p>
+              <p class="text-[12px] leading-[16px] text-[var(--color-text-4)]">{{ t('system.config.page.iconTip') }}</p>
             </div>
             <div class="config-form-card">
               <div class="mb-[8px] flex items-center justify-between">
@@ -123,7 +123,9 @@
                   </a-button>
                 </MsUpload>
               </div>
-              <p class="text-[12px] text-[var(--color-text-4)]">{{ t('system.config.page.loginLogoTip') }}</p>
+              <p class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
+                {{ t('system.config.page.loginLogoTip') }}
+              </p>
             </div>
             <div class="config-form-card">
               <div class="mb-[8px] flex items-center justify-between">
@@ -151,7 +153,9 @@
                   </a-button>
                 </MsUpload>
               </div>
-              <p class="text-[12px] text-[var(--color-text-4)]">{{ t('system.config.page.loginBgTip') }}</p>
+              <p class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
+                {{ t('system.config.page.loginBgTip') }}
+              </p>
             </div>
             <a-form
               ref="loginConfigFormRef"
@@ -253,7 +257,9 @@
                   </a-button>
                 </MsUpload>
               </div>
-              <p class="text-[12px] text-[var(--color-text-4)]">{{ t('system.config.page.platformLogoTip') }}</p>
+              <p class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
+                {{ t('system.config.page.platformLogoTip') }}
+              </p>
             </div>
             <a-form
               ref="platformConfigFormRef"

@@ -2,8 +2,8 @@
   <MsDrawer
     v-model:visible="showDrawer"
     :mask="false"
-    :title="t('featureTest.featureCase.associatedFile')"
-    :ok-text="t('featureTest.featureCase.associated')"
+    :title="t('caseManagement.featureCase.associatedFile')"
+    :ok-text="t('caseManagement.featureCase.associated')"
     :ok-loading="drawerLoading"
     :width="960"
     unmount-on-close
@@ -17,7 +17,7 @@
           <a-option key="" value="">{{ t('common.all') }}</a-option>
           <a-option v-for="item of fileTypeList" :key="item" :value="item">{{ item }}</a-option>
           <template #prefix
-            ><span>{{ t('featureTest.featureCase.fileType') }}</span></template
+            ><span>{{ t('caseManagement.featureCase.fileType') }}</span></template
           >
         </a-select></div
       >
@@ -81,7 +81,7 @@
 
   const columns: MsTableColumn = [
     {
-      title: 'featureTest.featureCase.fileName',
+      title: 'caseManagement.featureCase.fileName',
       dataIndex: 'name',
       slotName: 'name',
       showInTable: true,
@@ -90,20 +90,20 @@
       width: 300,
     },
     {
-      title: 'featureTest.featureCase.description',
+      title: 'caseManagement.featureCase.description',
       dataIndex: 'description',
       showInTable: true,
       showTooltip: true,
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tags',
+      title: 'caseManagement.featureCase.tags',
       dataIndex: 'tags',
       isTag: true,
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnCreateUser',
+      title: 'caseManagement.featureCase.tableColumnCreateUser',
       dataIndex: 'createUser',
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -112,7 +112,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnUpdateUser',
+      title: 'caseManagement.featureCase.tableColumnUpdateUser',
       dataIndex: 'updateUser',
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -121,7 +121,7 @@
       showInTable: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnUpdateTime',
+      title: 'caseManagement.featureCase.tableColumnUpdateTime',
       dataIndex: 'updateTime',
       sortable: {
         sortDirections: ['ascend', 'descend'],

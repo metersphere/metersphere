@@ -16,6 +16,6 @@ export const NOT_FOUND = {
 export const REDIRECT_ROUTE_NAME = 'Redirect';
 
 // 首页路由
-export const DEFAULT_ROUTE_NAME = 'Workbench';
+export const DEFAULT_ROUTE_NAME = 'workbench';
 
 export const WHITE_LIST_NAME = WHITE_LIST.map((el) => el.name);

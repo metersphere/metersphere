@@ -113,7 +113,7 @@
             :placeholder="t('system.resourcePool.uiGridPlaceholder')"
             :max-length="250"
           ></a-input>
-          <div class="mt-[4px] text-[12px] text-[var(--color-text-4)]">
+          <div class="mt-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
             {{ t('system.resourcePool.uiGridExample', { grid: defaultGrid }) }}
           </div>
         </a-form-item>
@@ -164,7 +164,7 @@
               <div class="font-semibold text-[var(--color-text-1)]">
                 {{ t('system.resourcePool.changeAddTypePopTitle') }}
               </div>
-              <div class="mt-[8px] w-[290px] text-[12px] text-[var(--color-text-2)]">
+              <div class="mt-[8px] w-[290px] text-[12px] leading-[16px] text-[var(--color-text-2)]">
                 {{ t('system.resourcePool.changeAddTypeTip') }}
               </div>
             </template>
@@ -202,7 +202,7 @@
               </a-form-item>
             </template>
           </MsCodeEditor>
-          <div class="mb-[24px] text-[12px] text-[var(--color-text-4)]">
+          <div class="mb-[24px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
             {{ t('system.resourcePool.nodeConfigEditorTip') }}
           </div>
         </div>
@@ -220,7 +220,7 @@
             :placeholder="t('system.resourcePool.testResourceDTO.ipPlaceholder')"
             :max-length="250"
           ></a-input>
-          <div class="mt-[4px] text-[12px] text-[var(--color-text-4)]">
+          <div class="mt-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
             {{ t('system.resourcePool.testResourceDTO.ipSubTip', { ip: '100.0.0.100', domain: 'example.com' }) }}
           </div>
         </a-form-item>

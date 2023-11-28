@@ -5,7 +5,7 @@
         <div class="p-[24px]">
           <a-input-search
             v-model:model-value="groupKeyword"
-            :placeholder="t('featureTest.featureCase.searchTip')"
+            :placeholder="t('caseManagement.featureCase.searchTip')"
             allow-clear
             class="mb-[16px]"
           ></a-input-search>
@@ -13,7 +13,7 @@
             <div class="case h-[38px]">
               <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
                 <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-                <div class="folder-name mx-[4px]">{{ t('featureTest.featureCase.allCase') }}</div>
+                <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.allCase') }}</div>
                 <div class="folder-count">({{ recycleModulesCount.all }})</div></div
               >
               <div class="ml-auto flex items-center">
@@ -36,7 +36,7 @@
                 :data="caseTree"
                 :keyword="groupKeyword"
                 :expand-all="isExpandAll"
-                :empty-text="t('featureTest.featureCase.caseEmptyRecycle')"
+                :empty-text="t('caseManagement.featureCase.caseEmptyRecycle')"
                 draggable
                 :virtual-list-props="virtualListProps"
                 block-node
@@ -68,14 +68,14 @@
               <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] }})</span></div
             >
             <div class="flex w-[80%] items-center justify-end">
-              <a-select class="w-[240px]" :placeholder="t('featureTest.featureCase.versionPlaceholder')">
+              <a-select class="w-[240px]" :placeholder="t('caseManagement.featureCase.versionPlaceholder')">
                 <a-option v-for="version of versionOptions" :key="version.id" :value="version.id">{{
                   version.name
                 }}</a-option>
               </a-select>
               <a-input-search
                 v-model="keyword"
-                :placeholder="t('featureTest.featureCase.searchByNameAndId')"
+                :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
                 allow-clear
                 class="mx-[8px] w-[240px]"
                 @search="searchList"
@@ -112,9 +112,9 @@
               </a-tooltip>
             </template>
             <template #operation="{ record }">
-              <MsButton @click="recoverCase(record.id)">{{ t('featureTest.featureCase.batchRecover') }}</MsButton>
+              <MsButton @click="recoverCase(record.id)">{{ t('caseManagement.featureCase.batchRecover') }}</MsButton>
               <MsButton class="!mr-0" @click="handleBatchCleanOut(record)">{{
-                t('featureTest.featureCase.batchCleanOut')
+                t('caseManagement.featureCase.batchCleanOut')
               }}</MsButton>
             </template>
           </ms-base-table>
@@ -209,7 +209,7 @@
 
   const columns: MsTableColumn = [
     {
-      title: 'featureTest.featureCase.tableColumnID',
+      title: 'caseManagement.featureCase.tableColumnID',
       dataIndex: 'id',
       width: 200,
       showInTable: true,
@@ -221,7 +221,7 @@
       showDrag: false,
     },
     {
-      title: 'featureTest.featureCase.tableColumnName',
+      title: 'caseManagement.featureCase.tableColumnName',
       slotName: 'name',
       dataIndex: 'name',
       showInTable: true,
@@ -234,7 +234,7 @@
       showDrag: false,
     },
     {
-      title: 'featureTest.featureCase.tableColumnLevel',
+      title: 'caseManagement.featureCase.tableColumnLevel',
       dataIndex: 'level',
       showInTable: true,
       width: 200,
@@ -243,7 +243,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnCaseState',
+      title: 'caseManagement.featureCase.tableColumnCaseState',
       dataIndex: 'caseState',
       showInTable: true,
       width: 200,
@@ -252,7 +252,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnReviewResult',
+      title: 'caseManagement.featureCase.tableColumnReviewResult',
       dataIndex: 'reviewStatus',
       slotName: 'reviewStatus',
       showInTable: true,
@@ -260,7 +260,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnExecutionResult',
+      title: 'caseManagement.featureCase.tableColumnExecutionResult',
       dataIndex: 'lastExecuteResult',
       slotName: 'lastExecuteResult',
       showInTable: true,
@@ -268,7 +268,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnVersion',
+      title: 'caseManagement.featureCase.tableColumnVersion',
       slotName: 'versionId',
       dataIndex: 'versionId',
       width: 300,
@@ -277,14 +277,14 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnModule',
+      title: 'caseManagement.featureCase.tableColumnModule',
       slotName: 'moduleId',
       showInTable: true,
       width: 300,
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnTag',
+      title: 'caseManagement.featureCase.tableColumnTag',
       slotName: 'tags',
       dataIndex: 'tags',
       showInTable: true,
@@ -292,14 +292,14 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnCreateUser',
+      title: 'caseManagement.featureCase.tableColumnCreateUser',
       slotName: 'createUser',
       dataIndex: 'createUser',
       showInTable: true,
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnCreateTime',
+      title: 'caseManagement.featureCase.tableColumnCreateTime',
       slotName: 'createTime',
       dataIndex: 'createTime',
       showInTable: true,
@@ -310,7 +310,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnUpdateUser',
+      title: 'caseManagement.featureCase.tableColumnUpdateUser',
       slotName: 'updateUser',
       dataIndex: 'updateUser',
       showInTable: true,
@@ -318,7 +318,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnUpdateTime',
+      title: 'caseManagement.featureCase.tableColumnUpdateTime',
       slotName: 'updateTime',
       dataIndex: 'updateTime',
       sortable: {
@@ -329,7 +329,7 @@
       showDrag: true,
     },
     {
-      title: 'featureTest.featureCase.tableColumnActions',
+      title: 'caseManagement.featureCase.tableColumnActions',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
@@ -342,11 +342,11 @@
   const tableBatchActions = {
     baseAction: [
       {
-        label: 'featureTest.featureCase.batchRecover',
+        label: 'caseManagement.featureCase.batchRecover',
         eventTag: 'batchRecover',
       },
       {
-        label: 'featureTest.featureCase.batchCleanOut',
+        label: 'caseManagement.featureCase.batchCleanOut',
         eventTag: 'batchCleanOut',
         danger: true,
       },
@@ -445,7 +445,7 @@
 
   const currentModuleName = computed(() => {
     return activeFolder.value === 'all'
-      ? t('featureTest.featureCase.allCase')
+      ? t('caseManagement.featureCase.allCase')
       : findNodeByKey<Record<string, any>>(caseTree.value, activeFolder.value, 'id')?.name;
   });
 
@@ -495,7 +495,7 @@
   async function handleBatchRecover() {
     try {
       await restoreCaseList(getBatchParams());
-      Message.success(t('featureTest.featureCase.recoveredSuccessfully'));
+      Message.success(t('caseManagement.featureCase.recoveredSuccessfully'));
       loadList();
       resetSelector();
       initRecycleModulesCount();
@@ -507,8 +507,8 @@
   async function handleBatchDelete() {
     openModal({
       type: 'error',
-      title: t('featureTest.featureCase.batchDelete', { number: batchParams.value.currentSelectCount }),
-      content: t('featureTest.featureCase.cleanOutDeleteTip'),
+      title: t('caseManagement.featureCase.batchDelete', { number: batchParams.value.currentSelectCount }),
+      content: t('caseManagement.featureCase.cleanOutDeleteTip'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
       okButtonProps: {
@@ -580,7 +580,7 @@
   async function recoverCase(id: string) {
     try {
       await recoverRecycleCase(id);
-      Message.success(t('featureTest.featureCase.recoveredSuccessfully'));
+      Message.success(t('caseManagement.featureCase.recoveredSuccessfully'));
       loadList();
       resetSelector();
       initRecycleModulesCount();
@@ -593,8 +593,8 @@
   function handleBatchCleanOut(record: CaseManagementTable) {
     openModal({
       type: 'error',
-      title: t('featureTest.featureCase.deleteCaseTitle', { name: characterLimit(record.name) }),
-      content: t('featureTest.featureCase.cleanOutDeleteTip'),
+      title: t('caseManagement.featureCase.deleteCaseTitle', { name: characterLimit(record.name) }),
+      content: t('caseManagement.featureCase.cleanOutDeleteTip'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
       okButtonProps: {

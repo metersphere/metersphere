@@ -602,7 +602,7 @@
       title: 'system.config.auth.action',
       slotName: 'action',
       fixed: 'right',
-      width: 120,
+      width: 140,
       dataIndex: 'operation',
       showInTable: true,
     },

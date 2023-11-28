@@ -9,52 +9,52 @@ const statusIconMap = [
   {
     key: 'UN_REVIEWED',
     icon: StatusType.UN_REVIEWED,
-    statusText: t('featureTest.featureCase.notReviewed'),
+    statusText: t('caseManagement.featureCase.notReviewed'),
   },
   {
     key: 'UNDER_REVIEWED',
     icon: StatusType.UNDER_REVIEWED,
-    statusText: t('featureTest.featureCase.reviewing'),
+    statusText: t('caseManagement.featureCase.reviewing'),
   },
   {
     key: 'PASS',
     icon: StatusType.PASS,
-    statusText: t('featureTest.featureCase.passed'),
+    statusText: t('caseManagement.featureCase.passed'),
   },
   {
     key: 'UN_PASS',
     icon: StatusType.UN_PASS,
-    statusText: t('featureTest.featureCase.notPass'),
+    statusText: t('caseManagement.featureCase.notPass'),
   },
   {
     key: 'RE_REVIEWED',
     icon: StatusType.RE_REVIEWED,
-    statusText: t('featureTest.featureCase.retrial'),
+    statusText: t('caseManagement.featureCase.retrial'),
   },
   {
     key: 'UN_EXECUTED',
     icon: StatusType.UN_EXECUTED,
-    statusText: t('featureTest.featureCase.nonExecution'),
+    statusText: t('caseManagement.featureCase.nonExecution'),
   },
   {
     key: 'PASSED',
     icon: StatusType.PASSED,
-    statusText: t('featureTest.featureCase.passed'),
+    statusText: t('caseManagement.featureCase.passed'),
   },
   {
     key: 'FAILED',
     icon: StatusType.FAILED,
-    statusText: t('featureTest.featureCase.failure'),
+    statusText: t('caseManagement.featureCase.failure'),
   },
   {
     key: 'BLOCKED',
     icon: StatusType.BLOCKED,
-    statusText: t('featureTest.featureCase.chokeUp'),
+    statusText: t('caseManagement.featureCase.chokeUp'),
   },
   {
     key: 'SKIPPED',
     icon: StatusType.SKIPPED,
-    statusText: t('featureTest.featureCase.skip'),
+    statusText: t('caseManagement.featureCase.skip'),
   },
 ];
 

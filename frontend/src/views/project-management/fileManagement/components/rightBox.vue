@@ -103,7 +103,7 @@
   <MsDrawer v-model:visible="uploadDrawerVisible" :title="t('project.fileManagement.addFile')" :width="680">
     <div class="mb-[8px] flex items-center justify-between text-[var(--color-text-1)]">
       {{ t('project.fileManagement.fileType') }}
-      <div class="flex items-center text-[12px] text-[rgb(var(--warning-6))]">
+      <div class="flex items-center text-[12px] leading-[16px] text-[rgb(var(--warning-6))]">
         <icon-exclamation-circle class="mr-[2px]" />
         {{ t('project.fileManagement.fileTypeTip') }}
       </div>
@@ -476,6 +476,7 @@
       title: 'project.fileManagement.size',
       dataIndex: 'size',
       slotName: 'size',
+      width: 120,
     },
     {
       title: 'project.fileManagement.tag',
@@ -486,11 +487,13 @@
       title: 'project.fileManagement.creator',
       dataIndex: 'creator',
       showTooltip: true,
+      width: 120,
     },
     {
       title: 'project.fileManagement.updater',
       dataIndex: 'updateUser',
       showTooltip: true,
+      width: 120,
     },
     {
       title: 'project.fileManagement.updateTime',
@@ -607,12 +610,7 @@
       projectId: appStore.currentProjectId,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
-      combine:
-        props.activeFolder === 'my'
-          ? {
-              createUser: userStore.id,
-            }
-          : {},
+      combine: combine.value,
     });
   }
 
@@ -1207,6 +1205,7 @@
     .file-type-card-desc {
       font-size: 12px;
       color: var(--color-text-4);
+      line-height: 16px;
     }
   }
   .file-type-card--active {

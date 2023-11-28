@@ -29,6 +29,8 @@ export default {
   'system.log.operateType.select': 'Select',
   'system.log.operateType.recover': 'Recover',
   'system.log.operateType.logout': 'Logout',
+  'system.log.operateType.disassociate': 'Disassociate',
+  'system.log.operateType.archived': 'Archived',
   'system.log.log': 'Operation log',
   'system.log.time': 'Operation time',
   'system.log.content': 'in {module} under {range}',

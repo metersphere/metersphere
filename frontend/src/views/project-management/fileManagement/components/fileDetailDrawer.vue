@@ -62,7 +62,7 @@
               <a-spin class="h-full w-full" :loading="fileLoading">
                 <MsThumbnailCard
                   mode="hover"
-                  :type="detail?.fileType"
+                  :type="detail.fileType || ''"
                   :url="`${CompressImgUrl}/${userStore.id}/${detail.id}`"
                   :footer-text="t('project.fileManagement.replaceFile')"
                   @click="handleFileIconClick"
@@ -137,7 +137,7 @@
           </template>
         </div>
         <div class="file-relation">
-          <a-tabs v-model:active-key="activeTab" :disabled="loading" class="no-content">
+          <a-tabs v-model:active-key="activeTab" :disabled="loading" class="no-content" @change="() => loadTable()">
             <a-tab-pane key="case" :title="t('project.fileManagement.cases')" />
             <a-tab-pane key="version" :title="t('project.fileManagement.versionHistory')" />
           </a-tabs>
@@ -288,74 +288,6 @@
   const fileType = ref('unknown');
   const renameTitle = ref(''); // 重命名的文件名称
 
-  function loadedFile(detail: FileDetail) {
-    if (detail.fileType) {
-      fileType.value = getFileEnum(`/${detail.fileType.toLowerCase()}`);
-    }
-    renameTitle.value = detail.name;
-    fileDescriptions.value = [
-      {
-        label: t('project.fileManagement.name'),
-        value: detail.name,
-        key: 'name',
-      },
-      {
-        label: t('project.fileManagement.desc'),
-        value: detail.description,
-        key: 'desc',
-      },
-      {
-        label: t('project.fileManagement.type'),
-        value: detail.fileType,
-      },
-      {
-        label: t('project.fileManagement.size'),
-        value: formatFileSize(detail.size),
-      },
-      {
-        label: t('project.fileManagement.creator'),
-        value: detail.createUser,
-      },
-      {
-        label: t('project.fileManagement.fileModule'),
-        value: detail.moduleName,
-        key: 'fileModule',
-      },
-      {
-        label: t('project.fileManagement.tag'),
-        value: detail.tags,
-        isTag: true,
-        showTagAdd: true,
-        closable: true,
-        key: 'tag',
-      },
-      {
-        label: t('project.fileManagement.createTime'),
-        value: dayjs(detail.createTime).format('YYYY-MM-DD HH:mm:ss'),
-      },
-    ];
-    if (detail?.storage !== 'MINIO') {
-      fileDescriptions.value.splice(
-        3,
-        0,
-        ...[
-          {
-            label: t('project.fileManagement.gitBranch'),
-            value: detail.branch || '',
-          },
-          {
-            label: t('project.fileManagement.gitPath'),
-            value: detail.filePath || '',
-          },
-          {
-            label: t('project.fileManagement.gitVersion'),
-            value: detail.fileVersion || '',
-          },
-        ]
-      );
-    }
-  }
-
   const fileLoading = ref(false);
   watch(
     () => newFile.value,
@@ -430,7 +362,7 @@
     {
       title: 'project.fileManagement.id',
       dataIndex: 'id',
-      width: 100,
+      showTooltip: true,
     },
     {
       title: 'project.fileManagement.name',
@@ -538,20 +470,91 @@
     }
   );
 
-  watchEffect(() => {
-    if (innerVisible.value) {
-      if (activeTab.value === 'case') {
-        setLoadListParams({
-          id: props.fileId,
-        });
-        loadCaseList();
-      } else {
-        setVersionLoadListParams({
-          id: props.fileId,
-        });
-        loadVersionList();
-      }
+  function loadTable() {
+    if (activeTab.value === 'case') {
+      setLoadListParams({
+        id: props.fileId,
+      });
+      loadCaseList();
     } else {
+      setVersionLoadListParams({
+        id: props.fileId,
+      });
+      loadVersionList();
+    }
+  }
+
+  function loadedFile(detail: FileDetail) {
+    if (detail.fileType) {
+      fileType.value = getFileEnum(`/${detail.fileType.toLowerCase()}`);
+    }
+    renameTitle.value = detail.name;
+    fileDescriptions.value = [
+      {
+        label: t('project.fileManagement.name'),
+        value: detail.name,
+        key: 'name',
+      },
+      {
+        label: t('project.fileManagement.desc'),
+        value: detail.description,
+        key: 'desc',
+      },
+      {
+        label: t('project.fileManagement.type'),
+        value: detail.fileType,
+      },
+      {
+        label: t('project.fileManagement.size'),
+        value: formatFileSize(detail.size),
+      },
+      {
+        label: t('project.fileManagement.creator'),
+        value: detail.createUser,
+      },
+      {
+        label: t('project.fileManagement.fileModule'),
+        value: detail.moduleName,
+        key: 'fileModule',
+      },
+      {
+        label: t('project.fileManagement.tag'),
+        value: detail.tags,
+        isTag: true,
+        showTagAdd: true,
+        closable: true,
+        key: 'tag',
+      },
+      {
+        label: t('project.fileManagement.createTime'),
+        value: dayjs(detail.createTime).format('YYYY-MM-DD HH:mm:ss'),
+      },
+    ];
+    if (detail?.storage !== 'MINIO') {
+      fileDescriptions.value.splice(
+        3,
+        0,
+        ...[
+          {
+            label: t('project.fileManagement.gitBranch'),
+            value: detail.branch || '',
+          },
+          {
+            label: t('project.fileManagement.gitPath'),
+            value: detail.filePath || '',
+          },
+          {
+            label: t('project.fileManagement.gitVersion'),
+            value: detail.fileVersion || '',
+          },
+        ]
+      );
+    }
+    loadTable();
+  }
+
+  watchEffect(() => {
+    if (!innerVisible.value) {
       activeTab.value = 'case';
     }
   });

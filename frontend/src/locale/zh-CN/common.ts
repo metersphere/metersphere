@@ -67,4 +67,10 @@ export default {
   'common.batchModify': '批量修改',
   'common.pleaseSelect': '请选择',
   'common.quickAddMember': '快速添加成员',
+  'common.export': '导出',
+  'common.collapseAll': '展开全部',
+  'common.expandAll': '收起全部',
+  'common.copy': '复制',
+  'common.fork': '关注',
+  'common.more': '更多',
 };
