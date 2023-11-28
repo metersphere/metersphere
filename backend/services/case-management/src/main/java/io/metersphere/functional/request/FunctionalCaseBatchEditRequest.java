@@ -4,7 +4,6 @@ import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -12,7 +11,6 @@ import java.util.List;
  * @author wx
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class FunctionalCaseBatchEditRequest extends BaseFunctionalCaseBatchDTO {
 
 

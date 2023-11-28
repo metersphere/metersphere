@@ -5,7 +5,6 @@ import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -13,7 +12,6 @@ import java.util.List;
  * @author guoyuqi
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class FunctionalCaseDemandRequest {
 
     @Schema(description = "功能用例需求关系ID")

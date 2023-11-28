@@ -5,17 +5,18 @@ import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author wx
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class FunctionalCasePageRequest extends BasePageRequest {
+public class FunctionalCasePageRequest extends BasePageRequest implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)

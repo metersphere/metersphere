@@ -1,4 +1,4 @@
-package io.metersphere.functional.constants;
+package io.metersphere.system.dto.sdk.enums;
 
 /**
  * @author wx

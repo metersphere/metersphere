@@ -3,13 +3,11 @@ package io.metersphere.functional.request;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author wx
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class FunctionalCaseBatchRequest extends BaseFunctionalCaseBatchDTO {
 
 
