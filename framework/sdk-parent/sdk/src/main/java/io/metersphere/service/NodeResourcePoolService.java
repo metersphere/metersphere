@@ -41,6 +41,7 @@ public class NodeResourcePoolService {
         HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
         httpRequestFactory.setConnectionRequestTimeout(2000);
         httpRequestFactory.setConnectTimeout(2000);
+        httpRequestFactory.setReadTimeout(1000);
         restTemplateWithTimeOut.setRequestFactory(httpRequestFactory);
     }
 

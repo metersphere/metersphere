@@ -25,6 +25,19 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-jetty</artifactId>
                 </exclusion>
+                <!-- http2 配置-->
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-alpn-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-alpn-conscrypt-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.http2</groupId>
+                    <artifactId>http2-server</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-mail</artifactId>

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version>
+        <version>3.1.5</version>
         <relativePath/>
     </parent>
 
@@ -28,12 +28,12 @@
         <easyexcel.version>3.1.1</easyexcel.version>
         <dom4j.version>2.1.4</dom4j.version>
         <guava.version>32.0.1-jre</guava.version>
-        <pagehelper.version>6.0.0</pagehelper.version>
+        <pagehelper.version>5.3.2</pagehelper.version>
         <metersphere-jmeter-functions.version>1.5</metersphere-jmeter-functions.version>
         <quartz-starter.version>1.0.8</quartz-starter.version>
         <redisson-starter.version>3.23.3</redisson-starter.version>
         <guice.version>5.1.0</guice.version>
-        <mybatis-starter.version>3.0.3</mybatis-starter.version>
+        <mybatis-starter.version>3.0.2</mybatis-starter.version>
         <reflections.version>0.10.2</reflections.version>
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
         <commons-io.version>2.11.0</commons-io.version>
