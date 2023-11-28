@@ -162,6 +162,7 @@
         font-size: 24px;
         border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
         background-color: var(--color-text-n9);
+        line-height: 32px;
       }
       .hidden-item {
         margin-bottom: 24px;

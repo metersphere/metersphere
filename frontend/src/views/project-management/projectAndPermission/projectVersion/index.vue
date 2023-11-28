@@ -1,7 +1,7 @@
 <template>
   <a-spin v-if="!projectVersionStatus" :loading="loading" class="h-full w-full min-w-[930px]">
     <div class="flex h-full flex-col items-center p-[24px]">
-      <div class="mt-[200px] text-[16px] font-medium text-[var(--color-text-1)]">
+      <div class="mt-[200px] text-[16px] font-medium leading-[24px] text-[var(--color-text-1)]">
         {{ t('project.projectVersion.version') }}
       </div>
       <div class="mt-[16px] text-[var(--color-text-4)]">{{ t('project.projectVersion.tip') }}</div>
@@ -566,6 +566,7 @@
       margin-top: 4px;
       font-size: 12px;
       color: var(--color-text-4);
+      line-height: 16px;
     }
   }
   .statusTipContent {

@@ -134,7 +134,7 @@
     </template>
     <div v-if="importResult === 'success'" class="flex flex-col items-center justify-center">
       <icon-check-circle-fill class="text-[32px] text-[rgb(var(--success-6))]" />
-      <div class="mb-[8px] mt-[16px] text-[16px] font-medium text-[var(--color-text-000)]">
+      <div class="mb-[8px] mt-[16px] text-[16px] font-medium leading-[24px] text-[var(--color-text-000)]">
         {{ t('system.user.importSuccess') }}
       </div>
       <div class="sub-text">

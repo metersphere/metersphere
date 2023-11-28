@@ -2,8 +2,8 @@
   <MsDrawer
     v-model:visible="showDrawer"
     :mask="false"
-    :title="t('featureTest.featureCase.associatedFile')"
-    :ok-text="t('featureTest.featureCase.associated')"
+    :title="t('caseManagement.featureCase.associatedFile')"
+    :ok-text="t('caseManagement.featureCase.associated')"
     :ok-loading="drawerLoading"
     :width="480"
     unmount-on-close
@@ -12,13 +12,13 @@
     @cancel="handleDrawerCancel"
   >
     <div class="header mb-6 flex justify-between">
-      <span class="font-medium">{{ t('featureTest.featureCase.SelectExportRange') }}</span>
-      <span class="text-[rgb(var(--primary-5))]">{{ t('featureTest.featureCase.clear') }}</span>
+      <span class="font-medium">{{ t('caseManagement.featureCase.SelectExportRange') }}</span>
+      <span class="text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.clear') }}</span>
     </div>
     <div>
       <a-checkbox class="mb-4" :model-value="checkedAll" :indeterminate="indeterminate" @change="handleChangeAll"
         ><div class="flex items-center">
-          <span class="mr-1">{{ t('featureTest.featureCase.baseField') }}</span
+          <span class="mr-1">{{ t('caseManagement.featureCase.baseField') }}</span
           ><span
             ><icon-up
               v-if="foldBaseFields"
@@ -52,7 +52,7 @@
     <div>
       <a-checkbox class="mb-4" :model-value="checkedAll" :indeterminate="indeterminate" @change="handleChangeAll"
         ><div class="flex items-center">
-          <span class="mr-1">{{ t('featureTest.featureCase.customField') }}</span
+          <span class="mr-1">{{ t('caseManagement.featureCase.customField') }}</span
           ><span
             ><icon-up
               v-if="foldCustomFields"
@@ -87,9 +87,9 @@
       <a-checkbox class="mb-4" :model-value="checkedAll" :indeterminate="indeterminate" @change="handleChangeAll"
         ><div class="flex items-center">
           <span class="mr-1 flex items-center"
-            >{{ t('featureTest.featureCase.otherFields') }}<span></span>
+            >{{ t('caseManagement.featureCase.otherFields') }}<span></span>
             <a-tooltip
-              :content="t('featureTest.featureCase.otherFieldsToolTip')"
+              :content="t('caseManagement.featureCase.otherFieldsToolTip')"
               position="top"
               :mouse-enter-delay="500"
               mini

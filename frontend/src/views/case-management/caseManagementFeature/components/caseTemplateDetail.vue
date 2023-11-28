@@ -116,14 +116,14 @@
         <a-form-item
           v-if="form.caseEditType === 'TEXT'"
           field="remark"
-          :label="t('featureTest.featureCase.expectedResult')"
+          :label="t('caseManagement.featureCase.expectedResult')"
         >
           <MsRichText v-model:modelValue="form.expectedResult" />
         </a-form-item>
-        <a-form-item field="remark" :label="t('featureTest.featureCase.remark')">
+        <a-form-item field="remark" :label="t('caseManagement.featureCase.remark')">
           <MsRichText v-model:modelValue="form.description" />
         </a-form-item>
-        <a-form-item field="attachment" :label="t('featureTest.featureCase.addAttachment')">
+        <a-form-item field="attachment" :label="t('caseManagement.featureCase.addAttachment')">
           <div class="flex flex-col">
             <div class="mb-1">
               <a-dropdown position="tr" trigger="hover">
@@ -142,13 +142,13 @@
                   >
                     <template #upload-button>
                       <a-button type="text" class="!text-[var(--color-text-1)]">
-                        <icon-upload />{{ t('featureTest.featureCase.uploadFile') }}</a-button
+                        <icon-upload />{{ t('caseManagement.featureCase.uploadFile') }}</a-button
                       >
                     </template>
                   </a-upload>
                   <a-button type="text" class="!text-[var(--color-text-1)]" @click="associatedFile">
                     <MsIcon type="icon-icon_link-copy_outlined" size="16" />{{
-                      t('featureTest.featureCase.associatedFile')
+                      t('caseManagement.featureCase.associatedFile')
                     }}</a-button
                   >
                 </template>
@@ -167,19 +167,19 @@
             <!-- 本地文件 -->
             <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
               <MsButton type="button" status="danger" class="!mr-[4px]" @click="transferFile(item)">
-                {{ t('featureTest.featureCase.storage') }}
+                {{ t('caseManagement.featureCase.storage') }}
               </MsButton>
               <MsButton type="button" status="primary" class="!mr-[4px]" @click="downloadFile(item)">
-                {{ t('featureTest.featureCase.download') }}
+                {{ t('caseManagement.featureCase.download') }}
               </MsButton>
             </div>
             <!-- 关联文件 -->
             <div v-else class="flex flex-nowrap">
               <MsButton type="button" status="primary" class="!mr-[4px]" @click="cancelAssociated(item)">
-                {{ t('featureTest.featureCase.cancelLink') }}
+                {{ t('caseManagement.featureCase.cancelLink') }}
               </MsButton>
               <MsButton type="button" status="primary" class="!mr-[4px]" @click="downloadFile(item)">
-                {{ t('featureTest.featureCase.download') }}
+                {{ t('caseManagement.featureCase.download') }}
               </MsButton>
             </div>
           </template>
@@ -348,15 +348,15 @@
 
   const moreActions: ActionsItem[] = [
     {
-      label: 'featureTest.featureCase.copyStep',
+      label: 'caseManagement.featureCase.copyStep',
       eventTag: 'copyStep',
     },
     {
-      label: 'featureTest.featureCase.InsertStepsBefore',
+      label: 'caseManagement.featureCase.InsertStepsBefore',
       eventTag: 'InsertStepsBefore',
     },
     {
-      label: 'featureTest.featureCase.afterInsertingSteps',
+      label: 'caseManagement.featureCase.afterInsertingSteps',
       eventTag: 'afterInsertingSteps',
     },
     {

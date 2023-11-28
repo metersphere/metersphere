@@ -1,10 +1,10 @@
 <template>
   <div class="mb-[16px]">
     <a-button type="primary" @click="caseDetail">
-      {{ t('featureTest.featureCase.creatingCase') }}
+      {{ t('caseManagement.featureCase.creatingCase') }}
     </a-button>
-    <a-button class="mx-3" type="outline"> {{ t('featureTest.featureCase.importExcel') }} </a-button>
-    <a-button type="outline"> {{ t('featureTest.featureCase.importXmind') }} </a-button>
+    <a-button class="mx-3" type="outline"> {{ t('caseManagement.featureCase.importExcel') }} </a-button>
+    <a-button type="outline"> {{ t('caseManagement.featureCase.importXmind') }} </a-button>
   </div>
   <div class="pageWrap">
     <MsSplitBox>
@@ -14,7 +14,7 @@
             <div class="case h-[38px]">
               <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
                 <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-                <div class="folder-name mx-[4px]">{{ t('featureTest.featureCase.allCase') }}</div>
+                <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.allCase') }}</div>
                 <div class="folder-count">({{ modulesCount.all }})</div></div
               >
               <div class="ml-auto flex items-center">
@@ -31,12 +31,12 @@
                   ref="confirmRef"
                   v-model:visible="addSubVisible"
                   :is-delete="false"
-                  :title="t('featureTest.featureCase.addSubModule')"
+                  :title="t('caseManagement.featureCase.addSubModule')"
                   :all-names="rootModulesName"
                   :loading="confirmLoading"
                   :ok-text="t('common.confirm')"
                   :field-config="{
-                    placeholder: t('featureTest.featureCase.addGroupTip'),
+                    placeholder: t('caseManagement.featureCase.addGroupTip'),
                   }"
                   @confirm="confirmHandler"
                 >
@@ -66,7 +66,7 @@
               <div class="case h-[38px]">
                 <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
                   <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
-                  <div class="folder-name mx-[4px]">{{ t('featureTest.featureCase.recycle') }}</div>
+                  <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
                   <div class="folder-count">({{ recycleModulesCount.all }})</div></div
                 >
               </div>
@@ -109,7 +109,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import type { CaseModuleQueryParams, CreateOrUpdateModule } from '@/models/caseManagement/featureCase';
-  import { FeatureTestRouteEnum } from '@/enums/routeEnum';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import Message from '@arco-design/web-vue/es/message';
 
@@ -148,7 +148,7 @@
     }
     if (type === 'recycle') {
       router.push({
-        name: FeatureTestRouteEnum.FEATURE_TEST_CASE_RECYCLE,
+        name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_RECYCLE,
       });
     }
   };
@@ -186,7 +186,7 @@
         parentId: 'NONE',
       };
       await createCaseModuleTree(params);
-      Message.success(t('featureTest.featureCase.addSuccess'));
+      Message.success(t('caseManagement.featureCase.addSuccess'));
       caseTreeRef.value.initModules();
       addSubVisible.value = false;
     } catch (error) {
@@ -230,19 +230,19 @@
   // 创建用例
   function caseDetail() {
     router.push({
-      name: FeatureTestRouteEnum.FEATURE_TEST_CASE_DETAIL,
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
     });
   }
 
   function test() {
     router.push({
-      name: FeatureTestRouteEnum.FEATURE_TEST_CASE_CREATE_SUCCESS,
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
     });
   }
 
   // 设置默认选中状态
   router.beforeEach((to: any, from: any, next) => {
-    const routeEnumValues = Object.values(FeatureTestRouteEnum);
+    const routeEnumValues = Object.values(CaseManagementRouteEnum);
     if (!routeEnumValues.includes(to.name)) {
       // 当前路由不在枚举中，清空仓库的状态值
       featureCaseStore.setIsAlreadySuccess(false);

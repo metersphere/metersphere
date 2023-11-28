@@ -8,7 +8,7 @@
     @save-and-continue="saveHandler(true)"
   >
     <template #headerRight>
-      <a-select class="w-[240px]" :placeholder="t('featureTest.featureCase.versionPlaceholder')">
+      <a-select class="w-[240px]" :placeholder="t('caseManagement.featureCase.versionPlaceholder')">
         <a-option v-for="template of versionOptions" :key="template.id" :value="template.id">{{
           template.name
         }}</a-option>
@@ -31,7 +31,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { scrollIntoView } from '@/utils/dom';
 
-  import { FeatureTestRouteEnum } from '@/enums/routeEnum';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import Message from '@arco-design/web-vue/es/message';
 
@@ -68,17 +68,17 @@
       loading.value = true;
       if (route.params.mode === 'edit') {
         await updateCaseRequest(caseDetailInfo.value);
-        Message.success(t('featureTest.featureCase.editSuccess'));
+        Message.success(t('caseManagement.featureCase.editSuccess'));
       } else {
         await createCaseRequest(caseDetailInfo.value);
         Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
       }
-      router.push({ name: FeatureTestRouteEnum.FEATURE_TEST_CASE, query: { ...route.query } });
+      router.push({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, query: { ...route.query } });
       featureCaseStore.setIsAlreadySuccess(true);
       isShowTip.value = !getIsVisited();
       if (isShowTip.value) {
         router.push({
-          name: FeatureTestRouteEnum.FEATURE_TEST_CASE_CREATE_SUCCESS,
+          name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
         });
       }
     } catch (error) {
@@ -112,11 +112,11 @@
 
   watchEffect(() => {
     if (route.params.mode === 'edit') {
-      title.value = t('featureTest.featureCase.updateCase');
+      title.value = t('caseManagement.featureCase.updateCase');
     } else if (route.params.mode === 'copy') {
-      title.value = t('featureTest.featureCase.copyCase');
+      title.value = t('caseManagement.featureCase.copyCase');
     } else {
-      title.value = t('featureTest.featureCase.creatingCase');
+      title.value = t('caseManagement.featureCase.creatingCase');
     }
   });
 </script>

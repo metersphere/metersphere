@@ -12,7 +12,7 @@
         v-if="!props.isUpdatePreview"
         class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[16px]"
       >
-        <div class="text-[16px] font-medium text-[var(--color-text-1)]">
+        <div class="text-[16px] font-medium leading-[24px] text-[var(--color-text-1)]">
           {{ t('project.messageManagement') }}
         </div>
         <icon-close size="12" />
@@ -31,15 +31,19 @@
     v-else-if="props.robot.platform === 'MAIL'"
     class="preview-rounded w-[400px] bg-[var(--color-text-n9)] p-[12px] text-[14px]"
   >
-    <div class="mb-[4px] text-[16px] font-medium text-[var(--color-text-1)]">
+    <div class="mb-[4px] text-[16px] font-medium leading-[24px] text-[var(--color-text-1)]">
       {{ subject || '-' }}
     </div>
     <div class="mb-[8px] flex flex-col">
-      <div class="text-[12px] text-[var(--color-text-4)]">{{ t('project.messageManagement.emailSender') }}</div>
-      <div class="text-[12px] text-[var(--color-text-4)]">
+      <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
+        {{ t('project.messageManagement.emailSender') }}
+      </div>
+      <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
         {{ `${t('project.messageManagement.emailSendTime')}${dayjs().format('YYYY-MM-DD HH:mm:ss')}` }}
       </div>
-      <div class="text-[12px] text-[var(--color-text-4)]">{{ t('project.messageManagement.emailReceiver') }}</div>
+      <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
+        {{ t('project.messageManagement.emailReceiver') }}
+      </div>
     </div>
     <div class="preview-rounded bg-white p-[16px] text-[var(--color-text-2)]" v-html="template || '-'"> </div>
   </div>
@@ -133,7 +137,7 @@
         >
           {{ t('project.messageManagement.robot') }}
         </MsTag>
-        <div class="ml-[4px] text-[12px] text-[var(--color-text-4)]">
+        <div class="ml-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
           {{ t('project.messageManagement.larkRobotTip') }}
         </div>
       </div>

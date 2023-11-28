@@ -28,6 +28,61 @@ export interface PathMapItem {
  */
 export const pathMap: PathMapItem[] = [
   {
+    key: 'CASE_MANAGEMENT', // 功能测试
+    locale: 'menu.caseManagement',
+    route: RouteEnum.CASE_MANAGEMENT,
+    permission: [],
+    level: MENU_LEVEL[2],
+    children: [
+      {
+        key: 'CASE_MANAGEMENT_CASE', // 功能测试-功能用例
+        locale: 'menu.caseManagement.featureCase',
+        route: RouteEnum.CASE_MANAGEMENT_CASE,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      // {
+      //   key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例-创建用例
+      //   locale: 'menu.caseManagement.featureCaseDetail',
+      //   route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+      //   permission: [],
+      //   level: MENU_LEVEL[2],
+      // },
+      {
+        key: 'CASE_MANAGEMENT_REVIEW', // 功能测试-功能用例-用例评审
+        locale: 'menu.caseManagement.caseManagementReview',
+        route: RouteEnum.CASE_MANAGEMENT_REVIEW,
+        permission: [],
+        level: MENU_LEVEL[2],
+        children: [
+          {
+            key: 'CASE_MANAGEMENT_REVIEW_CREATE', // 功能测试-功能用例-创建评审
+            locale: 'menu.caseManagement.caseManagementReviewCreate',
+            route: RouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'CASE_MANAGEMENT_REVIEW_DETAIL', // 功能测试-功能用例-评审详情
+            locale: 'menu.caseManagement.caseManagementReviewDetail',
+            route: RouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
+            permission: [],
+            level: MENU_LEVEL[2],
+            children: [
+              {
+                key: 'CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL', // 功能测试-功能用例-评审详情-用例详情
+                locale: 'menu.caseManagement.caseManagementReviewDetailCaseDetail',
+                route: RouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL,
+                permission: [],
+                level: MENU_LEVEL[2],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
     key: 'SETTING', // 系统设置
     locale: 'menu.settings',
     route: RouteEnum.SETTING,
@@ -338,37 +393,37 @@ export const pathMap: PathMapItem[] = [
     ],
   },
   {
-    key: 'FEATURE_TEST', // 功能测试
-    locale: 'menu.featureTest',
-    route: RouteEnum.FEATURE_TEST,
+    key: 'CASE_MANAGEMENT', // 功能测试
+    locale: 'menu.caseManagement',
+    route: RouteEnum.CASE_MANAGEMENT,
     permission: [],
     level: MENU_LEVEL[2],
     children: [
       {
-        key: 'FEATURE_TEST_CASE', // 功能测试-功能用例
-        locale: 'menu.featureTest.featureCase',
-        route: RouteEnum.FEATURE_TEST_CASE,
+        key: 'CASE_MANAGEMENT_CASE', // 功能测试-功能用例
+        locale: 'menu.caseManagement.featureCase',
+        route: RouteEnum.CASE_MANAGEMENT_CASE,
         permission: [],
         level: MENU_LEVEL[2],
       },
       {
-        key: 'FEATURE_TEST_CASE_DETAIL', // 功能测试-功能用例详情
-        locale: 'menu.featureTest.featureCaseDetail',
-        route: RouteEnum.FEATURE_TEST_CASE_DETAIL,
+        key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例详情
+        locale: 'menu.caseManagement.featureCaseDetail',
+        route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
         permission: [],
         level: MENU_LEVEL[2],
       },
       {
-        key: 'FEATURE_TEST_CASE_CREATE_SUCCESS', // 功能测试-功能用例创建成功页面
-        locale: 'menu.featureTest.featureCaseCreateSuccess',
-        route: RouteEnum.FEATURE_TEST_CASE_CREATE_SUCCESS,
+        key: 'CASE_MANAGEMENT_CASE_CREATE_SUCCESS', // 功能测试-功能用例创建成功页面
+        locale: 'menu.caseManagement.featureCaseCreateSuccess',
+        route: RouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
         permission: [],
         level: MENU_LEVEL[2],
       },
       {
-        key: 'FEATURE_TEST_CASE_RECYCLE', // 功能测试-功能用例-回收站
-        locale: 'menu.featureTest.featureCaseRecycle',
-        route: RouteEnum.FEATURE_TEST_CASE_RECYCLE,
+        key: 'CASE_MANAGEMENT_CASE_RECYCLE', // 功能测试-功能用例-回收站
+        locale: 'menu.caseManagement.featureCaseRecycle',
+        route: RouteEnum.CASE_MANAGEMENT_CASE_RECYCLE,
         permission: [],
         level: MENU_LEVEL[2],
       },

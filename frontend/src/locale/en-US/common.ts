@@ -66,4 +66,11 @@ export default {
   'common.batchModify': 'Batch Edit',
   'common.pleaseSelect': 'please choose',
   'common.quickAddMember': 'Quickly add members',
+  'common.filter': 'Filter',
+  'common.export': 'Export',
+  'common.collapseAll': 'Collapse all',
+  'common.expandAll': 'Expand all',
+  'common.copy': 'Copy',
+  'common.fork': 'Fork',
+  'common.more': 'More',
 };

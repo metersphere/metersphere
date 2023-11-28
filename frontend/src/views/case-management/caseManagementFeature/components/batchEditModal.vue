@@ -2,13 +2,13 @@
   <MsDialog
     v-model:visible="isVisible"
     dialog-size="small"
-    :title="t('featureTest.featureCase.batchEdit', { number: props.batchParams.currentSelectCount })"
+    :title="t('caseManagement.featureCase.batchEdit', { number: props.batchParams.currentSelectCount })"
     ok-text="common.confirm"
     :confirm="confirmHandler"
     :close="closeHandler"
     :switch-props="{
-      switchName: t('featureTest.featureCase.appendTag'),
-      switchTooltip: t('featureTest.featureCase.enableTags'),
+      switchName: t('caseManagement.featureCase.appendTag'),
+      switchTooltip: t('caseManagement.featureCase.enableTags'),
       showSwitch: form.selectedAttrsId === 'systemTags' ? true : false,
       enable: form.append,
     }"
@@ -17,27 +17,27 @@
       <a-form ref="formRef" :model="form" size="large" layout="vertical">
         <a-form-item
           field="selectedAttrsId"
-          :label="t('featureTest.featureCase.selectAttrs')"
+          :label="t('caseManagement.featureCase.selectAttrs')"
           asterisk-position="end"
           :rules="[{ required: true, message: t('system.orgTemplate.stateNameNotNull') }]"
         >
-          <a-select v-model="form.selectedAttrsId" :placeholder="t('featureTest.featureCase.PleaseSelect')">
+          <a-select v-model="form.selectedAttrsId" :placeholder="t('caseManagement.featureCase.PleaseSelect')">
             <a-option v-for="item of totalAttrs" :key="item.fieldId" :value="item.fieldId">{{
               item.fieldName
             }}</a-option>
-            <a-option key="systemTags" value="systemTags">{{ t('featureTest.featureCase.tags') }}</a-option>
+            <a-option key="systemTags" value="systemTags">{{ t('caseManagement.featureCase.tags') }}</a-option>
           </a-select>
         </a-form-item>
         <a-form-item
           v-if="form.selectedAttrsId === 'systemTags'"
           field="tags"
-          :label="t('featureTest.featureCase.batchUpdate')"
+          :label="t('caseManagement.featureCase.batchUpdate')"
           asterisk-position="end"
-          :rules="[{ required: true, message: t('featureTest.featureCase.PleaseInputTags') }]"
+          :rules="[{ required: true, message: t('caseManagement.featureCase.PleaseInputTags') }]"
         >
           <a-input-tag
             v-model="form.tags"
-            :placeholder="t('featureTest.featureCase.pleaseEnterInputTags')"
+            :placeholder="t('caseManagement.featureCase.pleaseEnterInputTags')"
             allow-clear
           />
         </a-form-item>
@@ -101,7 +101,7 @@
   const initDefaultForm: FormItem = {
     type: 'SELECT',
     name: 'name',
-    label: 'featureTest.featureCase.batchUpdate',
+    label: 'caseManagement.featureCase.batchUpdate',
     value: '',
     options: [],
     props: {
@@ -143,7 +143,7 @@
           return {
             type: val,
             name: item.fieldId,
-            label: 'featureTest.featureCase.batchUpdate',
+            label: 'caseManagement.featureCase.batchUpdate',
             value: item.defaultValue,
             options: item.options,
             props: {
@@ -185,7 +185,7 @@
             customField,
           };
           await batchEditAttrs(params);
-          Message.success(t('featureTest.featureCase.editSuccess'));
+          Message.success(t('caseManagement.featureCase.editSuccess'));
           closeHandler();
           emits('success');
         } catch (e) {

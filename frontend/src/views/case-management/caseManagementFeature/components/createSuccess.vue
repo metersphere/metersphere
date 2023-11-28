@@ -3,22 +3,24 @@
     <div class="h-full">
       <div class="mt-8 text-center">
         <div class="flex justify-center"><svg-icon :width="'60px'" :height="'60px'" :name="'success'" /></div>
-        <div class="mb-2 mt-6 text-[20px] font-medium"> {{ t('featureTest.featureCase.editSuccess') }} </div>
+        <div class="mb-2 mt-6 text-[20px] font-medium"> {{ t('caseManagement.featureCase.editSuccess') }} </div>
         <div
           ><span class="mr-1 text-[rgb(var(--primary-5))]">{{ countDown }}</span
-          ><span class="text-[var(--color-text-4)]">{{ t('featureTest.featureCase.countDownTip') }}</span></div
+          ><span class="text-[var(--color-text-4)]">{{ t('caseManagement.featureCase.countDownTip') }}</span></div
         >
         <div class="my-6">
-          <a-button type="primary"> {{ t('featureTest.featureCase.caseDetail') }} </a-button>
+          <a-button type="primary"> {{ t('caseManagement.featureCase.caseDetail') }} </a-button>
           <a-button class="mx-3" type="outline" @click="continueCreate">
-            {{ t('featureTest.featureCase.addContinueCreate') }}
+            {{ t('caseManagement.featureCase.addContinueCreate') }}
           </a-button>
-          <a-button type="secondary" @click="backCaseList"> {{ t('featureTest.featureCase.backCaseList') }} </a-button>
+          <a-button type="secondary" @click="backCaseList">
+            {{ t('caseManagement.featureCase.backCaseList') }}
+          </a-button>
         </div>
-        <a-checkbox v-model="isNextTip" class="mb-6">{{ t('featureTest.featureCase.notNextTip') }}</a-checkbox>
+        <a-checkbox v-model="isNextTip" class="mb-6">{{ t('caseManagement.featureCase.notNextTip') }}</a-checkbox>
       </div>
       <div>
-        <div class="mb-4 font-medium">{{ t('featureTest.featureCase.mightWantTo') }}</div>
+        <div class="mb-4 font-medium">{{ t('caseManagement.featureCase.mightWantTo') }}</div>
         <MsCardList
           mode="static"
           :card-min-width="569"
@@ -39,7 +41,7 @@
                   <div class="ml-2"> {{ item.name }} </div>
                 </div>
 
-                <a-button type="outline"> {{ t('featureTest.featureCase.addContinueCreate') }} </a-button>
+                <a-button type="outline"> {{ t('caseManagement.featureCase.addContinueCreate') }} </a-button>
               </div>
             </div>
           </template>
@@ -59,7 +61,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
 
-  import { FeatureTestRouteEnum } from '@/enums/routeEnum';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   const { t } = useI18n();
 
@@ -70,11 +72,11 @@
   const cardList = ref([
     {
       key: 'testPlanTemplate',
-      name: t('featureTest.featureCase.createTestPlan'),
+      name: t('caseManagement.featureCase.createTestPlan'),
     },
     {
       key: 'caseReview',
-      name: t('featureTest.featureCase.createCaseReview'),
+      name: t('caseManagement.featureCase.createCaseReview'),
     },
   ]);
 
@@ -88,7 +90,7 @@
       } else {
         clearInterval(timer.value);
         router.push({
-          name: FeatureTestRouteEnum.FEATURE_TEST_CASE,
+          name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
         });
       }
     }, 1000);
@@ -103,14 +105,14 @@
   // 返回用例列表
   function backCaseList() {
     router.push({
-      name: FeatureTestRouteEnum.FEATURE_TEST_CASE,
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
     });
   }
 
   // 继续创建
   function continueCreate() {
     router.push({
-      name: FeatureTestRouteEnum.FEATURE_TEST_CASE_DETAIL,
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
     });
   }
 

@@ -1,7 +1,7 @@
 <template>
   <a-input-search
     v-model:model-value="groupKeyword"
-    :placeholder="t('featureTest.featureCase.searchTip')"
+    :placeholder="t('caseManagement.featureCase.searchTip')"
     allow-clear
     class="mb-[16px]"
   ></a-input-search>
@@ -13,7 +13,7 @@
       :keyword="groupKeyword"
       :node-more-actions="caseMoreActions"
       :expand-all="props.isExpandAll"
-      :empty-text="t('featureTest.featureCase.caseEmptyContent')"
+      :empty-text="t('caseManagement.featureCase.caseEmptyContent')"
       draggable
       :virtual-list-props="virtualListProps"
       block-node
@@ -40,10 +40,10 @@
           :visible="addSubVisible"
           :is-delete="false"
           :all-names="[]"
-          :title="t('featureTest.featureCase.addSubModule')"
+          :title="t('caseManagement.featureCase.addSubModule')"
           :ok-text="t('common.confirm')"
           :field-config="{
-            placeholder: t('featureTest.featureCase.addGroupTip'),
+            placeholder: t('caseManagement.featureCase.addGroupTip'),
           }"
           :loading="confirmLoading"
           @confirm="addSubModule"
@@ -54,7 +54,7 @@
           </MsButton>
         </MsPopConfirm>
         <MsPopConfirm
-          :title="t('featureTest.featureCase.rename')"
+          :title="t('caseManagement.featureCase.rename')"
           :all-names="[]"
           :is-delete="false"
           :ok-text="t('common.confirm')"
@@ -125,11 +125,11 @@
 
   const caseMoreActions: ActionsItem[] = [
     {
-      label: 'featureTest.featureCase.rename',
+      label: 'caseManagement.featureCase.rename',
       eventTag: 'rename',
     },
     {
-      label: 'featureTest.featureCase.delete',
+      label: 'caseManagement.featureCase.delete',
       eventTag: 'delete',
       danger: true,
     },
@@ -188,9 +188,9 @@
   const deleteHandler = (node: MsTreeNodeData) => {
     openModal({
       type: 'error',
-      title: t('featureTest.featureCase.deleteTipTitle', { name: node.name }),
-      content: t('featureTest.featureCase.deleteCaseTipContent'),
-      okText: t('featureTest.featureCase.deleteConfirm'),
+      title: t('caseManagement.featureCase.deleteTipTitle', { name: node.name }),
+      content: t('caseManagement.featureCase.deleteCaseTipContent'),
+      okText: t('caseManagement.featureCase.deleteConfirm'),
       okButtonProps: {
         status: 'danger',
       },
@@ -198,7 +198,7 @@
       onBeforeOk: async () => {
         try {
           await deleteCaseModuleTree(node.id);
-          Message.success(t('featureTest.featureCase.deleteSuccess'));
+          Message.success(t('caseManagement.featureCase.deleteSuccess'));
           initModules(selectedNodeKeys.value[0] === node.id);
         } catch (error) {
           console.log(error);
@@ -264,7 +264,7 @@
         dropNodeId: dropNode.id || '',
         dropPosition,
       });
-      Message.success(t('featureTest.featureCase.moduleMoveSuccess'));
+      Message.success(t('caseManagement.featureCase.moduleMoveSuccess'));
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -293,7 +293,7 @@
         parentId: focusNodeKey.value,
       };
       await createCaseModuleTree(params);
-      Message.success(t('featureTest.featureCase.addSuccess'));
+      Message.success(t('caseManagement.featureCase.addSuccess'));
       if (cancel) {
         cancel();
       }
@@ -314,7 +314,7 @@
         name: formValue?.field as string,
       };
       await updateCaseModuleTree(params);
-      Message.success(t('featureTest.featureCase.addSuccess'));
+      Message.success(t('caseManagement.featureCase.addSuccess'));
       if (cancel) {
         cancel();
       }

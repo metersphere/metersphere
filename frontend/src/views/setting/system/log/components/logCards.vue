@@ -400,6 +400,14 @@
       label: 'system.log.operateType.logout',
       value: 'LOGOUT',
     },
+    {
+      label: 'system.log.operateType.disassociate',
+      value: 'DISASSOCIATE',
+    },
+    {
+      label: 'system.log.operateType.archived',
+      value: 'ARCHIVED',
+    },
   ];
 
   function resetFilter() {
