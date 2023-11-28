@@ -1,12 +1,20 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.domain.ApiTestCaseBlob;
+import io.metersphere.api.domain.ApiTestCaseBlobExample;
+import io.metersphere.api.domain.ApiTestCaseExample;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseLogDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
+import io.metersphere.api.mapper.ApiTestCaseBlobMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.api.util.ApiDataUtils;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
@@ -19,6 +27,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ApiTestCaseLogService {
@@ -29,6 +39,8 @@ public class ApiTestCaseLogService {
     private ProjectMapper projectMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
 
     /**
      * 添加接口日志
@@ -47,7 +59,7 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_DEFINITION_CASE,
                 request.getName());
 
-        dto.setPath("/api/testCase/add");
+        dto.setPath("/api/case/add");
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
@@ -65,7 +77,7 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_DEFINITION_CASE,
                 apiTestCase.getName());
 
-        dto.setPath("/api/testCase/delete/" + id);
+        dto.setPath("/api/case/delete/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
@@ -83,7 +95,7 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_DEFINITION_CASE,
                 apiTestCase.getName());
 
-        dto.setPath("/api/testCase/move-gc/" + id);
+        dto.setPath("/api/case/move-gc/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
@@ -101,7 +113,7 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_DEFINITION_CASE,
                 apiTestCase.getName());
 
-        dto.setPath("/api/testCase/recover/" + id);
+        dto.setPath("/api/case/recover/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
@@ -119,7 +131,7 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_DEFINITION_CASE,
                 Translator.get("follow") + apiTestCase.getName());
 
-        dto.setPath("/api/testCase/follow/" + id);
+        dto.setPath("/api/case/follow/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
@@ -137,7 +149,7 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_DEFINITION_CASE,
                 Translator.get("unfollow") + apiTestCase.getName());
 
-        dto.setPath("/api/testCase/unfollow/" + id);
+        dto.setPath("/api/case/unfollow/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
@@ -145,6 +157,7 @@ public class ApiTestCaseLogService {
 
     public LogDTO updateLog(ApiTestCaseUpdateRequest request) {
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(request.getId());
+        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(request.getId());
         Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
         LogDTO dto = new LogDTO(
                 apiTestCase.getProjectId(),
@@ -155,14 +168,18 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_DEFINITION_CASE,
                 request.getName());
 
-        dto.setPath("/api/testCase/update");
+        dto.setPath("/api/case/update");
         dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(request));
+        ApiTestCaseLogDTO apiTestCaseDTO = new ApiTestCaseLogDTO();
+        BeanUtils.copyBean(apiTestCaseDTO, apiTestCase);
+        apiTestCaseDTO.setRequest(ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
+        dto.setOriginalValue(JSON.toJSONBytes(apiTestCaseDTO));
         return dto;
     }
 
     public LogDTO updateLog(String id) {
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(id);
+        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
         Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
         LogDTO dto = new LogDTO(
                 apiTestCase.getProjectId(),
@@ -173,9 +190,12 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_DEFINITION_CASE,
                 apiTestCase.getName());
 
-        dto.setPath("/api/testCase/update");
+        dto.setPath("/api/case/update");
         dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
+        ApiTestCaseLogDTO apiTestCaseDTO = new ApiTestCaseLogDTO();
+        BeanUtils.copyBean(apiTestCaseDTO, apiTestCase);
+        apiTestCaseDTO.setRequest(ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
+        dto.setOriginalValue(JSON.toJSONBytes(apiTestCaseDTO));
         return dto;
     }
 
@@ -189,7 +209,7 @@ public class ApiTestCaseLogService {
                             .type(OperationLogType.DELETE.name())
                             .module(OperationLogModule.API_DEFINITION_CASE)
                             .method(HttpMethodConstants.POST.name())
-                            .path("/api/testCase/batch/delete")
+                            .path("/api/case/batch/delete")
                             .sourceId(item.getId())
                             .content(item.getName())
                             .createUser(operator)
@@ -210,7 +230,7 @@ public class ApiTestCaseLogService {
                             .type(OperationLogType.DELETE.name())
                             .module(OperationLogModule.API_DEFINITION_CASE)
                             .method(HttpMethodConstants.POST.name())
-                            .path("/api/testCase/batch/move-gc")
+                            .path("/api/case/batch/move-gc")
                             .sourceId(item.getId())
                             .content(item.getName())
                             .createUser(operator)
@@ -223,18 +243,36 @@ public class ApiTestCaseLogService {
 
     public void batchEditLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
+        //取出apiTestCases所有的id为新的list
+        List<String> caseId = apiTestCases.stream().map(ApiTestCase::getId).distinct().toList();
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(caseId);
+        List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
+        //apiTestCaseList按id生成新的map key为id value为ApiTestCase
+        Map<String, ApiTestCase> caseMap = apiTestCaseList.stream().collect(Collectors.toMap(ApiTestCase::getId, a -> a));
+        ApiTestCaseBlobExample blobExample = new ApiTestCaseBlobExample();
+        blobExample.createCriteria().andIdIn(caseId);
+        List<ApiTestCaseBlob> blobList = apiTestCaseBlobMapper.selectByExampleWithBLOBs(blobExample);
+        //blobList按id生成新的map key为id value为ApiTestCaseBlob
+        Map<String, ApiTestCaseBlob> blobMap = blobList.stream().collect(Collectors.toMap(ApiTestCaseBlob::getId, a -> a));
         List<LogDTO> logs = new ArrayList<>();
         apiTestCases.forEach(item -> {
-                    LogDTO dto = LogDTOBuilder.builder()
+            ApiTestCaseLogDTO apiTestCaseDTO = new ApiTestCaseLogDTO();
+            BeanUtils.copyBean(apiTestCaseDTO, caseMap.get(item.getId()));
+            if (blobMap.get(item.getId()) != null) {
+                apiTestCaseDTO.setRequest(ApiDataUtils.parseObject(new String(blobMap.get(item.getId()).getRequest()), AbstractMsTestElement.class));
+            }
+            LogDTO dto = LogDTOBuilder.builder()
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
                             .type(OperationLogType.DELETE.name())
                             .module(OperationLogModule.API_DEFINITION_CASE)
                             .method(HttpMethodConstants.POST.name())
-                            .path("/api/testCase/batch/move-gc")
+                    .path("/api/case/batch/edit")
                             .sourceId(item.getId())
                             .content(item.getName())
                             .createUser(operator)
+                    .originalValue(JSON.toJSONBytes(apiTestCaseDTO))
                             .build().getLogDTO();
                     logs.add(dto);
                 }

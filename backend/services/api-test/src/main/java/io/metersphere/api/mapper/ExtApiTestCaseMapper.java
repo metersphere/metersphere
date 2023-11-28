@@ -29,4 +29,8 @@ public interface ExtApiTestCaseMapper {
     List<ApiTestCase> getCaseInfoByApiIds(@Param("ids") List<String> apiIds, @Param("deleted") boolean deleted);
 
     List<ApiTestCase> getCaseInfoByIds(@Param("ids") List<String> caseIds, @Param("deleted") boolean deleted);
+
+    Long getPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
 }

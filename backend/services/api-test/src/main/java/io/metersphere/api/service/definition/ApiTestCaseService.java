@@ -18,11 +18,13 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.file.MinioRepository;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -64,8 +66,6 @@ public class ApiTestCaseService {
     private ProjectMapper projectMapper;
     @Resource
     private ApiTestCaseFollowerMapper apiTestCaseFollowerMapper;
-    @Resource
-    private MinioRepository minioRepository;
     @Resource
     private UserLoginService userLoginService;
     @Resource
@@ -315,15 +315,9 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        while (!ids.isEmpty()) {
-            if (ids.size() <= 2000) {
-                deleteResourceByIds(ids, request.getProjectId(), userId);
-                break;
-            }
-            List<String> subList = ids.subList(0, 2000);
+        SubListUtils.dealForSubList(ids, 2000, subList -> {
             deleteResourceByIds(subList, request.getProjectId(), userId);
-            ids.removeAll(subList);
-        }
+        });
     }
 
     public void deleteResourceByIds(List<String> ids, String projectId, String userId) {
@@ -374,15 +368,9 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        while (!ids.isEmpty()) {
-            if (ids.size() <= 2000) {
-                batchMoveToGc(ids, userId, projectId, saveLog);
-                break;
-            }
-            List<String> subList = ids.subList(0, 2000);
+        SubListUtils.dealForSubList(ids, 2000, subList -> {
             batchMoveToGc(subList, userId, projectId, saveLog);
-            ids.removeAll(subList);
-        }
+        });
     }
 
     private void batchMoveToGc(List<String> ids, String userId, String projectId, boolean saveLog) {
@@ -398,15 +386,9 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        while (!ids.isEmpty()) {
-            if (ids.size() <= 2000) {
-                batchEditByType(request, ids, userId, request.getProjectId());
-                break;
-            }
-            List<String> subList = ids.subList(0, 2000);
+        SubListUtils.dealForSubList(ids, 2000, subList -> {
             batchEditByType(request, subList, userId, request.getProjectId());
-            ids.removeAll(subList);
-        }
+        });
     }
 
     private void batchEditByType(ApiCaseBatchEditRequest request, List<String> ids, String userId, String projectId) {
@@ -486,5 +468,14 @@ public class ApiTestCaseService {
         }
         updateCase.setPriority(priority);
         apiTestCaseMapper.updateByExampleSelective(updateCase, example);
+    }
+
+    public void editPos(PosRequest request) {
+        ServiceUtils.updatePosField(request,
+                ApiTestCase.class,
+                apiTestCaseMapper::selectByPrimaryKey,
+                extApiTestCaseMapper::getPrePos,
+                extApiTestCaseMapper::getLastPos,
+                apiTestCaseMapper::updateByPrimaryKeySelective);
     }
 }

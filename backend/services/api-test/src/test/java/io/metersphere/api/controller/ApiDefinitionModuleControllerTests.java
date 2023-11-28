@@ -5,16 +5,14 @@ import io.metersphere.api.dto.debug.ApiDebugRequest;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
-import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
-import io.metersphere.api.mapper.ApiDefinitionMapper;
-import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
-import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.api.request.http.MsHTTPElement;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -26,7 +24,11 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.*;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -70,7 +72,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     @Resource
     private ApiDefinitionModuleService apiDefinitionModuleService;
     @Resource
-    private ApiTestCaseMapper apiTestCaseMapper;
+    private SqlSessionFactory sqlSessionFactory;
 
     @Autowired
     public ApiDefinitionModuleControllerTests(ProjectServiceInvoker serviceInvoker) {
@@ -148,7 +150,10 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         apiDefinitionBlob.setResponse(new byte[0]);
         apiDefinitionBlobMapper.insertSelective(apiDefinitionBlob);
 
-        List<ApiTestCase> apiTestCasesList = new ArrayList<>();
+        MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiTestCaseMapper caseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        ApiTestCaseBlobMapper caseBlobMapper = sqlSession.getMapper(ApiTestCaseBlobMapper.class);
         for (int i = 0; i < 100; i++) {
             ApiTestCase apiTestCase = new ApiTestCase();
             apiTestCase.setId(IDGenerator.nextStr());
@@ -165,9 +170,14 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
             apiTestCase.setUpdateUser("admin");
             apiTestCase.setVersionId("1.0");
             apiTestCase.setDeleted(false);
-            apiTestCasesList.add(apiTestCase);
+            caseMapper.insert(apiTestCase);
+            ApiTestCaseBlob apiTestCaseBlob = new ApiTestCaseBlob();
+            apiTestCaseBlob.setId(apiTestCase.getId());
+            apiTestCaseBlob.setRequest(JSON.toJSONBytes(msHttpElement));
+            caseBlobMapper.insert(apiTestCaseBlob);
         }
-        apiTestCaseMapper.batchInsert(apiTestCasesList);
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
     @Test

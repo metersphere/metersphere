@@ -8,6 +8,7 @@ import io.metersphere.api.service.definition.ApiTestCaseLogService;
 import io.metersphere.api.service.definition.ApiTestCaseNoticeService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -28,7 +29,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping(value = "/api/testCase")
+@RequestMapping(value = "/api/case")
 @Tag(name = "接口测试-接口管理-接口用例")
 public class ApiTestCaseController {
     @Resource
@@ -141,5 +142,13 @@ public class ApiTestCaseController {
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, apiTestCaseService.page(request, true));
     }
+
+    @PostMapping("edit/pos")
+    @Operation(summary = "接口测试-接口管理-接口用例-拖拽排序")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    public void editPos(@Validated @RequestBody PosRequest request) {
+        apiTestCaseService.editPos(request);
+    }
+
 
 }
