@@ -2,7 +2,7 @@ package io.metersphere.functional.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.functional.domain.FunctionalCaseDemand;
+import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
 import io.metersphere.functional.service.FunctionalCaseDemandService;
@@ -36,7 +36,7 @@ public class FunctionalCaseDemandController {
     @PostMapping("/page")
     @Operation(summary = "用例管理-功能用例-关联需求-获取已关联的需求列表")
     @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ,PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
-    public Pager<List<FunctionalCaseDemand>> listFunctionalCaseDemands(@Validated @RequestBody QueryDemandListRequest request) {
+    public Pager<List<FunctionalDemandDTO>> listFunctionalCaseDemands(@Validated @RequestBody QueryDemandListRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
         return PageUtils.setPageInfo(page, functionalCaseDemandService.listFunctionalCaseDemands(request));
     }

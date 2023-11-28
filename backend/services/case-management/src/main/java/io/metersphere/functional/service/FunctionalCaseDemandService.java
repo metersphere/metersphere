@@ -2,11 +2,13 @@ package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.FunctionalCaseDemand;
 import io.metersphere.functional.dto.DemandDTO;
+import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseDemandMapper;
 import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -19,7 +21,10 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author guoyuqi
@@ -40,8 +45,25 @@ public class FunctionalCaseDemandService {
      * @param request QueryDemandListRequest
      * @return List<FunctionalCaseDemand>
      */
-    public List<FunctionalCaseDemand> listFunctionalCaseDemands(QueryDemandListRequest request) {
-        return extFunctionalCaseDemandMapper.selectByKeyword(request.getKeyword(), request.getCaseId());
+    public List<FunctionalDemandDTO> listFunctionalCaseDemands(QueryDemandListRequest request) {
+        List<FunctionalCaseDemand> functionalCaseDemands = extFunctionalCaseDemandMapper.selectGroupByKeyword(request.getKeyword(), request.getCaseId());
+        List<String> platforms = functionalCaseDemands.stream().map(FunctionalCaseDemand::getDemandPlatform).distinct().toList();
+        List<String> ids = functionalCaseDemands.stream().map(FunctionalCaseDemand::getId).distinct().toList();
+        List<FunctionalCaseDemand> functionalCaseDemandChildList = extFunctionalCaseDemandMapper.selectByKeyword(request.getKeyword(), request.getCaseId(), platforms, ids);
+        Map<String, List<FunctionalCaseDemand>> platformDemandMap = functionalCaseDemandChildList.stream().collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandPlatform));
+        List<FunctionalDemandDTO> list = new ArrayList<>();
+        for (FunctionalCaseDemand functionalCaseDemand : functionalCaseDemands) {
+            FunctionalDemandDTO functionalDemandDTO = new FunctionalDemandDTO();
+            BeanUtils.copyBean(functionalDemandDTO,functionalCaseDemand);
+            List<FunctionalCaseDemand> childrenDemands= platformDemandMap.get(functionalCaseDemand.getDemandPlatform());
+            if (CollectionUtils.isNotEmpty(childrenDemands)) {
+                functionalDemandDTO.setChildren(childrenDemands);
+            } else {
+                functionalDemandDTO.setChildren(new ArrayList<>());
+            }
+            list.add(functionalDemandDTO);
+        }
+        return list;
     }
 
     /**
