@@ -68,7 +68,6 @@ public class FileManagementService {
             deleteList.forEach(fileMetadata -> {
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(fileMetadata.getId());
-                fileRequest.setProjectId(fileMetadata.getProjectId());
                 fileRequest.setStorage(fileMetadata.getStorage());
                 try {
                     //删除存储容器中的文件
@@ -139,7 +138,6 @@ public class FileManagementService {
                 deleteList.forEach(fileMetadata -> {
                     FileRequest fileRequest = new FileRequest();
                     fileRequest.setFileName(fileMetadata.getId());
-                    fileRequest.setProjectId(fileMetadata.getProjectId());
                     fileRequest.setStorage(fileMetadata.getStorage());
                     try {
                         fileService.deleteFile(fileRequest);

@@ -45,7 +45,7 @@ public class FileCenterTests {
     private static FileRequest getFileRequest() {
         FileRequest request = new FileRequest();
         request.setFileName("test.txt");
-        request.setFolder("test-project/test-resource-id");
+        request.setFolder("system/test-project/test-resource-id");
         return request;
     }
 
@@ -77,7 +77,7 @@ public class FileCenterTests {
         // 创建一个FileRequest对象作为测试用的请求参数
         FileRequest request = new FileRequest();
         request.setFileName("test.txt");
-        request.setFolder("test-project");
+        request.setFolder("system/test-project");
         repository.saveFile(mockFile, request);
         Assertions.assertTrue(repository.saveFile(mockFile, request) != null);
         Assertions.assertTrue(repository.saveFile("Hello, World!".getBytes(), request) != null);
