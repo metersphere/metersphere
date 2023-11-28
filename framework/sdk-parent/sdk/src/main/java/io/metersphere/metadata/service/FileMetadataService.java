@@ -846,4 +846,11 @@ public class FileMetadataService {
             fileMetadataMapper.deleteByExample(example);
         }
     }
+
+    public boolean existByName(FileMetadataWithBLOBs request) {
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andNameEqualTo(request.getName()).andTypeEqualTo(request.getType());
+        List<FileMetadata> fileMetadata = fileMetadataMapper.selectByExample(example);
+        return CollectionUtils.isNotEmpty(fileMetadata);
+    }
 }
