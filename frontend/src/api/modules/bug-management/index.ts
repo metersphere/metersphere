@@ -2,7 +2,7 @@ import MSR from '@/api/http/index';
 import * as bugURL from '@/api/requrls/bug-management';
 
 import { BugListItem } from '@/models/bug-management';
-import { CommonList, TableQueryParams } from '@/models/common';
+import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
 
 /**
  * 表格的查询
@@ -33,8 +33,8 @@ export function deleteBatchBug(data: TableQueryParams) {
   return MSR.post({ url: bugURL.postBatchDeleteBugUrl, data });
 }
 
-export function getTemplageOption(data: TableQueryParams) {
-  return MSR.get({ url: bugURL.getTemplageOption, data });
+export function getTemplageOption(params: { projectId: string }) {
+  return MSR.get<TemplateOption[]>({ url: bugURL.getTemplageOption, params });
 }
 
 export function getTemplateById(data: TableQueryParams) {
