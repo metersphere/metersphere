@@ -1,10 +1,17 @@
 <script lang="ts" setup>
-  // import { unified } from 'unified';
-  // import rehypeParse from 'rehype-parse';
-  // import rehypeFormat from 'rehype-format';
-  // import rehypeStringify from 'rehype-stringify';
-  import { useLocalStorage } from '@vueuse/core';
-
+  /**
+   *
+   * @name: MsRichText.vue
+   * @param {string} modelValue v-model绑定的值
+   * @return {string} 返回编辑器内容
+   * @description: 富文本编辑器
+   * @example:
+   * import { unified } from 'unified';
+   * import rehypeParse from 'rehype-parse';
+   * import rehypeFormat from 'rehype-format';
+   * import rehypeStringify from 'rehype-stringify';
+   * return unified().use(rehypeParse).use(rehypeFormat).use(rehypeStringify).processSync(content.value);
+   */
   import useLocale from '@/locale/useLocale';
 
   import '@halo-dev/richtext-editor/dist/style.css';
@@ -57,7 +64,7 @@
   }>();
   const emit = defineEmits(['update:model-value']);
 
-  const content = useLocalStorage('content', '');
+  const content = ref('');
 
   const editor = useEditor({
     content: content.value,
@@ -122,22 +129,11 @@
     ],
     onUpdate: () => {
       content.value = `${editor.value?.getHTML()}`;
-      console.log(content.value);
     },
   });
 
-  // const formatContent = computed(() => {
-  //   return unified().use(rehypeParse).use(rehypeFormat).use(rehypeStringify).processSync(content.value);
-  // });
-
-  // watchEffect(() => {
-  //   console.log(String(formatContent.value));
-  // });
   const { currentLocale } = useLocale();
-
-  // const locale = useLocalStorage('locale', 'zh-CN');
   const locale = computed(() => currentLocale.value as 'zh-CN' | 'en-US');
-
   watch(
     () => props.modelValue,
     (val) => {
@@ -156,13 +152,19 @@
 </script>
 
 <template>
-  <div style="height: 140px" class="rich-wrapper flex w-full">
+  <div class="rich-wrapper flex w-full">
     <RichTextEditor v-if="editor" :editor="editor" :locale="locale" />
   </div>
 </template>
 
 <style scoped lang="less">
   .rich-wrapper {
+    position: relative;
     border: 1px solid var(--color-text-n8);
+    :deep(.halo-rich-text-editor .ProseMirror) {
+      p:first-child {
+        margin-top: 0;
+      }
+    }
   }
 </style>

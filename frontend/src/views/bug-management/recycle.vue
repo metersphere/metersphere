@@ -4,7 +4,7 @@
       <template #left>
         <div class="flex gap-[12px]">
           <a-button type="primary" @click="handleCreate">{{ t('bugManagement.createBug') }} </a-button>
-          <a-button type="outline" @click="handleSync">{{ t('bugManagement.syncBug') }} </a-button>
+          <a-button type="primary" @click="handleSync">{{ t('bugManagement.syncBug') }} </a-button>
         </div>
       </template>
     </MsAdvanceFilter>
@@ -199,9 +199,8 @@
   };
 
   const handleCreate = () => {
-    router.push({
-      name: 'bugManagementBugEdit',
-    });
+    // eslint-disable-next-line no-console
+    console.log('create');
   };
   const handleSync = () => {
     // eslint-disable-next-line no-console

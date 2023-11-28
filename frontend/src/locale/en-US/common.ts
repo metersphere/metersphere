@@ -73,4 +73,5 @@ export default {
   'common.copy': 'Copy',
   'common.fork': 'Fork',
   'common.more': 'More',
+  'common.recycle': 'Recycle Bin',
 };

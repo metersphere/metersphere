@@ -30,6 +30,12 @@ export interface CommonList<T> {
   list: T[];
 }
 
+export interface TemplateOption {
+  id: string;
+  name: string;
+  enableDefault: boolean;
+}
+
 export interface BatchApiParams {
   selectIds: string[]; // 已选 ID 集合，当 selectAll 为 false 时接口会使用该字段
   excludeIds?: string[]; // 需要忽略的用户 id 集合，当selectAll为 true 时接口会使用该字段

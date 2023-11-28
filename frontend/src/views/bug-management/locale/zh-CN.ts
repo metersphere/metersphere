@@ -1,5 +1,8 @@
 export default {
   bugManagement: {
+    index: '缺陷管理',
+    editBug: '编辑缺陷',
+    recycle: '回收站',
     createBug: '创建缺陷',
     syncBug: '同步缺陷',
     ID: 'ID',
@@ -14,5 +17,21 @@ export default {
     updateUser: '更新人',
     createTime: '创建时间',
     updateTime: '更新时间',
+    edit: {
+      defaultSystemTemplate: '默认为系统模板',
+      content: '缺陷内容',
+      file: '附件',
+      fileExtra: '支持任意类型文件，单个文件大小不超过 500MB',
+      pleaseInputBugName: '请输入缺陷名称',
+      nameIsRequired: '缺陷名称不能为空',
+      pleaseInputBugContent: '请输入缺陷内容',
+      tagPlaceholder: '输入内容后回车可直接添加标签',
+      handleManPlaceholder: '请选择处理人',
+      handleManIsRequired: '处理人不能为空',
+      statusPlaceholder: '请选择缺陷状态',
+      statusIsRequired: '状态不能为空',
+      severityPlaceholder: '请选择严重程度',
+      uploadFile: '添加附件',
+    },
   },
 };

@@ -26,7 +26,9 @@
           </div>
         </div>
       </a-scrollbar>
-      <a-divider v-if="!props.simple && !props.hideDivider" class="mb-[16px] mt-0" />
+      <div :class="{ 'px-[24px]': props.dividerHasPX }">
+        <a-divider v-if="!props.simple && !props.hideDivider" class="mb-[16px] mt-0" />
+      </div>
       <div class="ms-card-container">
         <a-scrollbar :class="props.noContentPadding ? '' : 'pr-[5px]'" :style="getComputedContentStyle">
           <div class="relative h-full w-full" :style="{ minWidth: `${props.minWidth || 1000}px` }">
@@ -86,6 +88,7 @@
         isFullscreen?: boolean; // 是否全屏
         hideDivider?: boolean; // 是否隐藏分割线
         handleBack: () => void; // 自定义返回按钮触发事件
+        dividerHasPX: boolean; // 分割线是否有左右padding;
       }>
     >(),
     {
@@ -99,6 +102,7 @@
       hasBreadcrumb: false,
       noContentPadding: false,
       noBottomRadius: false,
+      dividerHasPX: false,
     }
   );
 
