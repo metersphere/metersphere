@@ -3,6 +3,7 @@ package io.metersphere.functional.controller;
 import io.metersphere.functional.domain.FunctionalCaseDemand;
 import io.metersphere.functional.domain.FunctionalCaseDemandExample;
 import io.metersphere.functional.dto.DemandDTO;
+import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
@@ -67,6 +68,20 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertFalse(functionalCaseDemands.isEmpty());
+
+        functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
+        functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        demandList = new ArrayList<>();
+        demandDTO = new DemandDTO();
+        demandDTO.setDemandName("手动加入孩子");
+        demandList.add(demandDTO);
+        functionalCaseDemandRequest.setDemandList(demandList);
+        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
+        functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        Assertions.assertFalse(functionalCaseDemands.isEmpty());
     }
 
     @Test
@@ -82,6 +97,20 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertTrue(functionalCaseDemands.isEmpty());
+
+        functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
+        functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID3");
+        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        demandList = new ArrayList<>();
+        DemandDTO demandDTO = new DemandDTO();
+        demandDTO.setDemandName("手动加入3");
+        demandList.add(demandDTO);
+        functionalCaseDemandRequest.setDemandList(demandList);
+        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
+        functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID3");
+        functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        Assertions.assertFalse(functionalCaseDemands.isEmpty());
     }
 
     @Test
@@ -212,14 +241,17 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         queryDemandListRequest.setPageSize(5);
         queryDemandListRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_DEMAND_PAGE, queryDemandListRequest);
-        Pager<List<FunctionalCaseDemand>> tableData = JSON.parseObject(JSON.toJSONString(
+        Pager<List<FunctionalDemandDTO>> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Pager.class);
         //返回值的页码和当前页码相同
         Assertions.assertEquals(tableData.getCurrent(), queryDemandListRequest.getCurrent());
+        List<FunctionalDemandDTO> list = JSON.parseArray(JSON.toJSONString(tableData.getList()), FunctionalDemandDTO.class);
+        for (FunctionalDemandDTO functionalDemandDTO : list) {
+            Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalDemandDTO.getChildren()));
+        }
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(tableData.getList())).size() <= queryDemandListRequest.getPageSize());
-
         queryDemandListRequest = new QueryDemandListRequest();
         queryDemandListRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
         queryDemandListRequest.setCurrent(1);
@@ -232,20 +264,40 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         Assertions.assertEquals(tableData.getCurrent(), queryDemandListRequest.getCurrent());
         //返回的数据量为空
         Assertions.assertTrue(CollectionUtils.isEmpty(tableData.getList()));
+
+        queryDemandListRequest = new QueryDemandListRequest();
+        queryDemandListRequest.setCurrent(1);
+        queryDemandListRequest.setPageSize(5);
+        queryDemandListRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID3");
+        mvcResult = this.requestPostWithOkAndReturn(URL_DEMAND_PAGE, queryDemandListRequest);
+        tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        //返回值的页码和当前页码相同
+        Assertions.assertEquals(tableData.getCurrent(), queryDemandListRequest.getCurrent());
+        //返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(tableData.getList())).size() <= queryDemandListRequest.getPageSize());
+        List<FunctionalDemandDTO> list1 = JSON.parseArray(JSON.toJSONString(tableData.getList()), FunctionalDemandDTO.class);
+        for (FunctionalDemandDTO functionalDemandDTO : list1) {
+            Assertions.assertTrue(CollectionUtils.isEmpty(functionalDemandDTO.getChildren()));
+        }
     }
 
     @Test
     @Order(8)
     public void cancelDemand() throws Exception {
+        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        List<FunctionalCaseDemand> beforeList = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         String id = getId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         mockMvc.perform(MockMvcRequestBuilders.get(URL_DEMAND_CANCEL+id).header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
-        List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
-        Assertions.assertTrue(CollectionUtils.isEmpty(functionalCaseDemands));
+        List<FunctionalCaseDemand> after = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        Assertions.assertTrue(beforeList.size()>after.size());
         checkLog("DEMAND_TEST_FUNCTIONAL_CASE_ID", OperationLogType.DISASSOCIATE);
     }
 
