@@ -10,20 +10,8 @@ public class FileRequest {
 
     private String folder;
 
-    /**
-     * @Deprecated 月底移除
-     */
-    @Deprecated(since="3.x", forRemoval=true)
-    private String projectId;
-
     // 存储类型
     private String storage;
-
-    /**
-     * @Deprecated 月底移除
-     */
-    @Deprecated(since="3.x", forRemoval=true)
-    private String resourceId;
 
     // 文件名称
     private String fileName;

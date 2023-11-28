@@ -1,5 +1,6 @@
 package io.metersphere.system.file;
 
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.config.MinioConfig;
 import io.minio.*;
 import io.minio.messages.Item;
@@ -24,8 +25,10 @@ public class MinioRepository implements FileRepository {
     private static final int BUFFER_SIZE = 8192;
 
     private String getPath(FileRequest request) {
-        String folder = StringUtils.isNotEmpty(request.getFolder()) ? request.getFolder() : request.getProjectId();
-        //todo 后续要增加对folder起始路径的校验: system / project / organization
+        String folder = request.getFolder();
+        if (!StringUtils.startsWithAny(folder, "system", "project", "organization")) {
+            throw new MSException("file.folder.error");
+        }
         return StringUtils.join(folder, "/", request.getFileName());
     }
 
