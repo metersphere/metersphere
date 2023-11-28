@@ -230,7 +230,7 @@ public class FileAssociationService {
         }
         FileAssociationExample example = new FileAssociationExample();
         example.createCriteria().andIdIn(idList);
-        return this.deleteAndSelectExample(example, logRecord);
+        return this.deleteAndSaveLog(example, logRecord);
     }
 
     /**
@@ -246,10 +246,27 @@ public class FileAssociationService {
         }
         FileAssociationExample example = new FileAssociationExample();
         example.createCriteria().andSourceIdIn(sourceIds);
-        return this.deleteAndSelectExample(example, logRecord);
+        return this.deleteAndSaveLog(example, logRecord);
     }
 
-    private int deleteAndSelectExample(FileAssociationExample example, FileLogRecord logRecord) {
+    /**
+     * 取消关联
+     *
+     * @param sourceId  资源ID
+     * @param fileIds   文件ID
+     * @param logRecord 日志记录相关
+     * @return
+     */
+    public int deleteBySourceIdAndFileIds(String sourceId, List<String> fileIds, @Validated FileLogRecord logRecord) {
+        if (CollectionUtils.isEmpty(fileIds)) {
+            return 0;
+        }
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria().andSourceIdEqualTo(sourceId).andFileIdIn(fileIds);
+        return this.deleteAndSaveLog(example, logRecord);
+    }
+
+    private int deleteAndSaveLog(FileAssociationExample example, FileLogRecord logRecord) {
         List<FileAssociation> fileAssociationList = fileAssociationMapper.selectByExample(example);
         Map<String, List<String>> sourceToFileNameMap = this.genSourceNameFileNameMap(fileAssociationList);
         int deleteCount = fileAssociationMapper.deleteByExample(example);

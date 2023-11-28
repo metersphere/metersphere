@@ -11,6 +11,7 @@ import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileModuleService;
+import io.metersphere.project.service.FileService;
 import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
 import io.metersphere.project.utils.FileMetadataUtils;
@@ -23,6 +24,7 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.CommonProjectService;
@@ -1719,6 +1721,10 @@ public class FileManagementControllerTests extends BaseTest {
 
         //参数测试
         Assertions.assertEquals(fileAssociationService.deleteBySourceIds(null, fileLogRecord), 0);
+        Assertions.assertEquals(fileAssociationService.deleteBySourceIdAndFileIds(null, new ArrayList<>(), fileLogRecord), 0);
+        Assertions.assertEquals(fileAssociationService.deleteBySourceIdAndFileIds(IDGenerator.nextStr(), new ArrayList<>() {{
+            this.add(IDGenerator.nextStr());
+        }}, fileLogRecord), 0);
         //重新关联，用来测试文件删除是否会级联删除。使用bug-3
         fileAssociationService.association("sty-file-association-bug-id-3", FileAssociationSourceUtil.SOURCE_TYPE_BUG, bug2IdList, fileLogRecord);
         fileAssociationService.association("sty-file-association-bug-id-2", FileAssociationSourceUtil.SOURCE_TYPE_BUG, bug2IdList, fileLogRecord);
@@ -2326,10 +2332,27 @@ public class FileManagementControllerTests extends BaseTest {
         Assertions.assertEquals(fileMetadataMapper.countByExample(example), 0);
     }
 
+    @Resource
+    private FileService fileService;
+
     @Test
     @Order(91)
     public void testQuery() throws Exception {
         fileAssociationService.getFiles("TEST", FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE);
         fileAssociationService.getFileAssociations(Collections.singletonList("TEST"), FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE);
+
+
+        //测试FileRequest的folder判断
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFileName(IDGenerator.nextStr());
+        fileRequest.setStorage(StorageType.MINIO.name());
+        fileRequest.setFolder(IDGenerator.nextStr());
+        boolean error = false;
+        try {
+            fileService.deleteFile(fileRequest);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
     }
 }
