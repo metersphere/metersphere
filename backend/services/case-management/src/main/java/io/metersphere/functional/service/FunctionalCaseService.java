@@ -10,7 +10,6 @@ import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
-import io.metersphere.functional.util.ServiceUtils;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -24,8 +23,10 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -633,7 +634,7 @@ public class FunctionalCaseService {
     }
 
     public void editPos(PosRequest request) {
-        ServiceUtils.updateOrderField(request,
+        ServiceUtils.updatePosField(request,
                 FunctionalCase.class,
                 functionalCaseMapper::selectByPrimaryKey,
                 extFunctionalCaseMapper::getPrePos,

@@ -16,6 +16,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.utils.Pager;

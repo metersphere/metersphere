@@ -3,7 +3,6 @@ package io.metersphere.functional.dto;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,10 +11,7 @@ import java.util.List;
  * @author wx
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class BaseFunctionalCaseBatchDTO extends TableBatchProcessDTO implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     @Schema(description = "模块id")
     private List<String> moduleIds;

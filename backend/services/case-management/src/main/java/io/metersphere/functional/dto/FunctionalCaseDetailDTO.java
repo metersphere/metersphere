@@ -3,8 +3,8 @@ package io.metersphere.functional.dto;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,9 +12,9 @@ import java.util.List;
  * @author wx
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class FunctionalCaseDetailDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "ID")
