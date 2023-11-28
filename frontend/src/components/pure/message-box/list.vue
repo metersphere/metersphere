@@ -111,6 +111,7 @@
     .time-text {
       font-size: 12px;
       color: rgb(var(--gray-6));
+      line-height: 16px;
     }
     .arco-empty {
       @apply hidden;

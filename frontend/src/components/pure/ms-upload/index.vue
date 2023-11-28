@@ -248,6 +248,7 @@
       margin-bottom: 6px;
       font-size: 12px;
       color: var(--color-text-4);
+      line-height: 16px;
     }
   }
 </style>

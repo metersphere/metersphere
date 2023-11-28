@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1700905969825') format('woff2'), url('iconfont.woff?t=1700905969825') format('woff'),
-    url('iconfont.ttf?t=1700905969825') format('truetype'), url('iconfont.svg?t=1700905969825#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1700812414583') format('woff2'), url('iconfont.woff?t=1700812414583') format('woff'),
+    url('iconfont.ttf?t=1700812414583') format('truetype'), url('iconfont.svg?t=1700812414583#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -792,9 +792,6 @@
 }
 .icon-icon_new-item_outlined::before {
   content: '\e695';
-}
-.icon-icon_logs_outlined-1::before {
-  content: '\e697';
 }
 .icon-icon_refresh_outlined::before {
   content: '\e698';

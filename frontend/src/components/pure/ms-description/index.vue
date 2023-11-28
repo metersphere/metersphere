@@ -47,7 +47,7 @@
                     <icon-loading v-if="tagInputLoading" class="text-[rgb(var(--primary-5))]" />
                   </template>
                 </a-input>
-                <span v-if="tagInputError" class="text-[12px] text-[rgb(var(--danger-6))]">
+                <span v-if="tagInputError" class="text-[12px] leading-[16px] text-[rgb(var(--danger-6))]">
                   {{ t('ms.description.addTagRepeat') }}
                 </span>
               </template>

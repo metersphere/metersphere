@@ -279,7 +279,7 @@
     :active-file-index="activeFileIndex"
     :table-data="propsRes.data"
     :page-change="propsEvent.pageChange"
-    :pagination="propsRes.msPagination"
+    :pagination="propsRes.msPagination!"
   />
 </template>
 

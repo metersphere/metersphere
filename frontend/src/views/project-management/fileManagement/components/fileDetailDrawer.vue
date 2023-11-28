@@ -226,7 +226,7 @@
     fileId: string;
     activeFileIndex: number;
     tableData: any[];
-    pagination?: MsPaginationI;
+    pagination: MsPaginationI;
     pageChange: (page: number) => Promise<void>;
   }>();
 

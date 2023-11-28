@@ -11,15 +11,22 @@
         props.noBottomRadius ? 'ms-card--noBottomRadius' : '',
       ]"
     >
-      <div v-if="!props.simple" class="card-header">
-        <div v-if="!props.hideBack" class="back-btn" @click="back"><icon-arrow-left /></div>
-        <div class="font-medium text-[var(--color-text-000)]">{{ props.title }}</div>
-        <div class="text-[var(--color-text-4)]">{{ props.subTitle }}</div>
-        <div class="ml-auto">
-          <slot name="headerRight"></slot>
+      <a-scrollbar v-if="!props.simple" :style="{ overflow: 'auto' }">
+        <div class="card-header" :style="props.minWidth ? { minWidth: `${props.minWidth}px` } : {}">
+          <div v-if="!props.hideBack" class="back-btn" @click="back"><icon-arrow-left /></div>
+          <slot name="headerLeft">
+            <div class="font-medium text-[var(--color-text-000)]">{{ props.title }}</div>
+            <div class="text-[var(--color-text-4)]">{{ props.subTitle }}</div>
+          </slot>
+          <div class="ml-auto flex items-center">
+            <slot name="headerRight"></slot>
+          </div>
+          <div v-if="$slots.subHeader" class="basis-full">
+            <slot name="subHeader"></slot>
+          </div>
         </div>
-      </div>
-      <a-divider v-if="!props.simple" class="mb-[16px]" />
+      </a-scrollbar>
+      <a-divider v-if="!props.simple && !props.hideDivider" class="mb-[16px] mt-0" />
       <div class="ms-card-container">
         <a-scrollbar :class="props.noContentPadding ? '' : 'pr-[5px]'" :style="getComputedContentStyle">
           <div class="relative h-full w-full" :style="{ minWidth: `${props.minWidth || 1000}px` }">
@@ -77,6 +84,7 @@
         noContentPadding: boolean; // 内容区域是否有padding
         noBottomRadius?: boolean; // 底部是否有圆角
         isFullscreen?: boolean; // 是否全屏
+        hideDivider?: boolean; // 是否隐藏分割线
         handleBack: () => void; // 自定义返回按钮触发事件
       }>
     >(),
@@ -110,11 +118,11 @@
   const cardOverHeight = computed(() => {
     if (props.simple) {
       // 简单模式没有标题、没有底部
-      return props.noContentPadding ? 88 : 136 + _specialHeight;
+      return props.noContentPadding ? 88 + _specialHeight : 136 + _specialHeight;
     }
     if (props.hideFooter) {
       // 隐藏底部
-      return 192 + _specialHeight;
+      return props.noContentPadding ? 152 + _specialHeight : 192 + _specialHeight;
     }
     return 246 + _specialHeight;
   });
@@ -161,7 +169,7 @@
     &--noContentPadding {
       border-radius: var(--border-radius-large);
       .card-header {
-        padding: 24px 24px 0;
+        padding: 24px 24px 16px;
       }
       .arco-divider {
         @apply mb-0;
@@ -171,7 +179,9 @@
       border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
     }
     .card-header {
-      @apply flex items-center;
+      @apply flex flex-wrap items-center;
+
+      padding-bottom: 16px;
       .back-btn {
         @apply flex cursor-pointer items-center rounded-full;
 

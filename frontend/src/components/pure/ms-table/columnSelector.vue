@@ -215,6 +215,6 @@
   }
   .non-sort {
     font-size: 12px;
+    line-height: 16px;
   }
 </style>
-@/store/modules/components/ms-table/types

@@ -16,7 +16,7 @@
         {{ t('common.confirm') }}
       </a-button>
       <div
-        class="ml-[8px] flex h-[24px] w-[48px] cursor-pointer items-center justify-center rounded-[4px] border border-[var(--color-text-input-border)] px-[11px] text-[12px] text-[var(--color-text-1)] hover:bg-[rgb(var(--primary-1))]"
+        class="ml-[8px] flex h-[24px] w-[48px] cursor-pointer items-center justify-center rounded-[4px] border border-[var(--color-text-input-border)] px-[11px] text-[12px] leading-[16px] text-[var(--color-text-1)] hover:bg-[rgb(var(--primary-1))]"
         @click="handleCancel"
       >
         {{ t('common.cancel') }}

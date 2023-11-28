@@ -26,7 +26,7 @@
     <div class="handle" @mousedown="startResize">
       <icon-drag-dot-vertical class="absolute left-[-3px] top-[50%] w-[14px]" size="14" />
     </div>
-    <a-scrollbar class="overflow-y-auto" :style="{ height: `calc(100vh - ${contentExtraHeight}px)` }">
+    <a-scrollbar class="h-full overflow-y-auto">
       <div class="ms-drawer-body">
         <slot>
           <MsDescription
@@ -119,7 +119,7 @@
 
   const contentExtraHeight = computed(() => {
     // 默认有页脚、内边距时的额外高度146，内边距 30，页脚 60
-    return 146 - (props.noContentPadding ? 30 : 0) - (props.footer ? 0 : 60);
+    return 146 - (props.noContentPadding ? 24 : 0) - (props.footer ? 0 : 60);
   });
 
   const handleContinue = () => {
@@ -181,11 +181,15 @@
 <style lang="less">
   .arco-drawer {
     @apply bg-white;
+
+    max-width: 100vw;
     .arco-drawer-header {
       height: 56px;
       border-bottom: 1px solid var(--color-text-n8);
       .arco-drawer-title {
         @apply w-full;
+
+        line-height: 24px;
       }
       .arco-drawer-close-btn {
         @apply flex items-center;
@@ -224,5 +228,8 @@
     width: 8px;
     background-color: var(--color-neutral-3);
     cursor: col-resize;
+  }
+  .arco-scrollbar {
+    @apply h-full;
   }
 </style>

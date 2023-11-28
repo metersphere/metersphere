@@ -15,7 +15,7 @@
         v-if="pIndex != 0"
         :key="item"
         :disabled="commandDisabled"
-        class="priority-btn mr-[4px] h-[22px] w-[22px] rounded-[8px] pr-[5px] text-[12px]"
+        class="priority-btn mr-[4px] h-[22px] w-[22px] rounded-[8px] pr-[5px] text-[12px] leading-[16px]"
         :class="'priority-btn_' + pIndex"
         size="small"
         @click="execCommand(pIndex)"

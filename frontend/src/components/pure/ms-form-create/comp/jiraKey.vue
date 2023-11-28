@@ -5,7 +5,7 @@
     v-bind="attrs"
     @change="(v: string) => emit('update:modelValue', v)"
   />
-  <div class="flex flex-row items-center gap-[10px] text-[12px] leading-[20px]">
+  <div class="flex flex-row items-center gap-[10px] text-[12px] leading-[16px]">
     <span class="text-[var(--color-text-4)]">{{ t('project.menu.howGetJiraKey') }}</span>
     <a-popover position="rt">
       <template #title>

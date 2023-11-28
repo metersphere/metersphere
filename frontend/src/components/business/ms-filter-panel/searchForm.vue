@@ -1,15 +1,15 @@
 <template>
   <div class="filter-panel">
     <div class="mb-4 flex items-center justify-between">
-      <div class="condition-text">{{ t('featureTest.featureCase.setFilterCondition') }}</div>
+      <div class="condition-text">{{ t('caseManagement.featureCase.setFilterCondition') }}</div>
       <div>
-        <span class="condition-text">{{ t('featureTest.featureCase.followingCondition') }}</span>
+        <span class="condition-text">{{ t('caseManagement.featureCase.followingCondition') }}</span>
         <a-select v-model="filterConditions.unit" class="mx-4 w-[68px]" size="small">
           <a-option v-for="version of conditionOptions" :key="version.id" :value="version.value">{{
             version.name
           }}</a-option>
         </a-select>
-        <span class="condition-text">{{ t('featureTest.featureCase.condition') }}</span>
+        <span class="condition-text">{{ t('caseManagement.featureCase.condition') }}</span>
       </div>
     </div>
     <div v-for="(formItem, index) in formModels" :key="index" class="mb-[8px]">
