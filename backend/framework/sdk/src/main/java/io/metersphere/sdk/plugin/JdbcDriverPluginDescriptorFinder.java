@@ -1,4 +1,4 @@
-package io.metersphere.system.plugin;
+package io.metersphere.sdk.plugin;
 
 import org.apache.commons.io.IOUtils;
 import org.pf4j.ManifestPluginDescriptorFinder;

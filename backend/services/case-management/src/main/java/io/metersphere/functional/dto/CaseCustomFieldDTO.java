@@ -3,7 +3,6 @@ package io.metersphere.functional.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -12,7 +11,6 @@ import java.util.Objects;
  * @author wx
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class CaseCustomFieldDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
