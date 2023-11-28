@@ -134,4 +134,10 @@ public class FileMetadataController {
         return fileMetadataService.exists(fileIds);
     }
 
+    @PostMapping(value = "/exist")
+    @RequiresPermissions("PROJECT_FILE:READ")
+    public boolean existByName(@RequestBody FileMetadataWithBLOBs request) {
+        return fileMetadataService.existByName(request);
+    }
+
 }
