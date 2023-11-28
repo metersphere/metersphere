@@ -44,7 +44,7 @@ public class ApiDefinitionPageRequest extends BasePageRequest {
     private String refId;
 
     @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
-    private List<String> moduleIds;
+    private List<@NotBlank String> moduleIds;
 
     @Schema(description = "删除状态(状态为 1 时为回收站数据)")
     private Boolean deleted = false;

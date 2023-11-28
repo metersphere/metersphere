@@ -1,5 +1,7 @@
 package io.metersphere.system.controller;
 
+import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.domain.ProjectTestResourcePool;
@@ -18,6 +20,7 @@ import io.metersphere.system.dto.request.ProjectAddMemberRequest;
 import io.metersphere.system.dto.request.ProjectMemberRequest;
 import io.metersphere.system.dto.request.ProjectRequest;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.dto.user.UserExtendDTO;
@@ -28,7 +31,9 @@ import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.*;
+import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -109,6 +114,10 @@ public class SystemProjectControllerTests extends BaseTest {
     @Resource
     private CleanProjectJob cleanProjectJob;
     private final ProjectServiceInvoker serviceInvoker;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private ExtGetPosService extGetPosService;
 
     @Autowired
     public SystemProjectControllerTests(ProjectServiceInvoker serviceInvoker) {
@@ -1145,6 +1154,66 @@ public class SystemProjectControllerTests extends BaseTest {
         project.setName("updateName");
         project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
         this.requestPost(updateName, project, ERROR_REQUEST_MATCHER);
+    }
+
+
+    @Test
+    @Order(26)
+    public void test() throws Exception {
+        ApiTestCase apiTestCase = new ApiTestCase();
+        apiTestCase.setId("test-apiTestCaseId");
+        apiTestCase.setApiDefinitionId("apiDefinitionId");
+        apiTestCase.setProjectId(DEFAULT_PROJECT_ID);
+        apiTestCase.setName("test-apiTestCaseName");
+        apiTestCase.setPriority("P0");
+        apiTestCase.setStatus("Underway");
+        apiTestCase.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID + "_" + "100001", ApplicationNumScope.API_TEST_CASE));
+        apiTestCase.setPos(100L);
+        apiTestCase.setCreateTime(System.currentTimeMillis());
+        apiTestCase.setUpdateTime(System.currentTimeMillis());
+        apiTestCase.setCreateUser("admin");
+        apiTestCase.setUpdateUser("admin");
+        apiTestCase.setVersionId("1.0");
+        apiTestCase.setDeleted(false);
+        apiTestCaseMapper.insert(apiTestCase);
+        ApiTestCase anotherCase = new ApiTestCase();
+        anotherCase.setId("test-apiTestCaseId1");
+        anotherCase.setApiDefinitionId("apiDefinitionId");
+        anotherCase.setProjectId(DEFAULT_PROJECT_ID);
+        anotherCase.setName("test-apiTestCaseName1");
+        anotherCase.setPriority("P0");
+        anotherCase.setStatus("Underway");
+        anotherCase.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID + "_" + "100001", ApplicationNumScope.API_TEST_CASE));
+        anotherCase.setPos(120L);
+        anotherCase.setCreateTime(System.currentTimeMillis());
+        anotherCase.setUpdateTime(System.currentTimeMillis());
+        anotherCase.setCreateUser("admin");
+        anotherCase.setUpdateUser("admin");
+        anotherCase.setVersionId("1.0");
+        anotherCase.setDeleted(false);
+        apiTestCaseMapper.insert(anotherCase);
+        PosRequest request = new PosRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setTargetId(apiTestCase.getId());
+        request.setMoveId(anotherCase.getId());
+        request.setMoveMode("AFTER");
+
+        ServiceUtils.updatePosField(request,
+                ApiTestCase.class,
+                apiTestCaseMapper::selectByPrimaryKey,
+                extGetPosService::getPrePos,
+                extGetPosService::getLastPos,
+                apiTestCaseMapper::updateByPrimaryKeySelective);
+
+        request.setMoveMode("BEFORE");
+        ServiceUtils.updatePosField(request,
+                ApiTestCase.class,
+                apiTestCaseMapper::selectByPrimaryKey,
+                extGetPosService::getPrePos,
+                extGetPosService::getLastPos,
+                apiTestCaseMapper::updateByPrimaryKeySelective);
+        apiTestCaseMapper.deleteByPrimaryKey(apiTestCase.getId());
+        apiTestCaseMapper.deleteByPrimaryKey(anotherCase.getId());
     }
 
 }

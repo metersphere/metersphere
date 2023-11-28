@@ -20,14 +20,20 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.file.MinioRepository;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.*;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -53,7 +59,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ApiTestCaseControllerTests extends BaseTest {
-    private static final String BASE_PATH = "/api/testCase/";
+    private static final String BASE_PATH = "/api/case/";
     private static final String ADD = BASE_PATH + "add";
     private static final String GET = BASE_PATH + "get-detail/";
     private static final String MOVE_TO_GC = BASE_PATH + "move-gc/";
@@ -68,6 +74,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String BATCH_EDIT = BASE_PATH + "batch/edit";
     private static final String BATCH_DELETE = BASE_PATH + "batch/delete";
     private static final String BATCH_MOVE_GC = BASE_PATH + "batch/move-gc";
+    private static final String POS_URL = BASE_PATH + "/edit/pos";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static ApiTestCase apiTestCase;
@@ -87,6 +94,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private EnvironmentMapper environmentMapper;
     @Resource
     private ApiFileResourceService apiFileResourceService;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -142,7 +153,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
     public void initCaseData() {
         //2000条数据
-        List<ApiTestCase> apiTestCasesList = new ArrayList<>();
+        MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiTestCaseMapper caseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        ApiTestCaseBlobMapper caseBlobMapper = sqlSession.getMapper(ApiTestCaseBlobMapper.class);
         for (int i = 0; i < 2100; i++) {
             ApiTestCase apiTestCase = new ApiTestCase();
             apiTestCase.setId("apiTestCaseId" + i);
@@ -159,10 +173,14 @@ public class ApiTestCaseControllerTests extends BaseTest {
             apiTestCase.setUpdateUser("admin");
             apiTestCase.setVersionId("1.0");
             apiTestCase.setDeleted(false);
-            apiTestCasesList.add(apiTestCase);
+            caseMapper.insert(apiTestCase);
+            ApiTestCaseBlob apiTestCaseBlob = new ApiTestCaseBlob();
+            apiTestCaseBlob.setId(apiTestCase.getId());
+            apiTestCaseBlob.setRequest(JSON.toJSONBytes(msHttpElement));
+            caseBlobMapper.insert(apiTestCaseBlob);
         }
-        apiTestCaseMapper.batchInsert(apiTestCasesList);
-
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
 
@@ -408,6 +426,38 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
     @Test
     @Order(8)
+    public void testPos() throws Exception {
+        PosRequest posRequest = new PosRequest();
+        posRequest.setProjectId(DEFAULT_PROJECT_ID);
+        posRequest.setTargetId(apiTestCase.getId());
+        posRequest.setMoveId(anotherApiTestCase.getId());
+        posRequest.setMoveMode("AFTER");
+        this.requestPostWithOkAndReturn(POS_URL, posRequest);
+
+        posRequest.setMoveMode("BEFORE");
+        this.requestPostWithOkAndReturn(POS_URL, posRequest);
+
+    }
+
+    @Test
+    @Order(9)
+    public void test() throws Exception {
+        PosRequest request = new PosRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setTargetId(apiTestCase.getId());
+        request.setMoveId(anotherApiTestCase.getId());
+        request.setMoveMode("AFTER");
+
+        ServiceUtils.updatePosField(request,
+                ApiTestCase.class,
+                apiTestCaseMapper::selectByPrimaryKey,
+                extApiTestCaseMapper::getPrePos,
+                extApiTestCaseMapper::getLastPos,
+                apiTestCaseMapper::updateByPrimaryKeySelective);
+    }
+
+    @Test
+    @Order(10)
     public void page() throws Exception {
         // @@请求成功
         ApiTestCaseAddRequest request = new ApiTestCaseAddRequest();
@@ -469,7 +519,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(9)
+    @Order(11)
     public void updateStatus() throws Exception {
         // @@请求成功
         this.requestGetWithOk(UPDATE_STATUS + "/" + apiTestCase.getId() + "/Underway");
@@ -483,7 +533,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(10)
+    @Order(12)
     public void batchEdit() throws Exception {
         // 追加标签
         ApiCaseBatchEditRequest request = new ApiCaseBatchEditRequest();
@@ -586,7 +636,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(11)
+    @Order(13)
     public void batchMoveGc() throws Exception {
         // @@请求成功
         ApiTestCaseBatchRequest request = new ApiTestCaseBatchRequest();
@@ -616,7 +666,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(12)
+    @Order(14)
     public void trashPage() throws Exception {
         // @@请求成功
         ApiTestCasePageRequest pageRequest = new ApiTestCasePageRequest();

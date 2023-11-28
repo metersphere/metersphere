@@ -33,7 +33,7 @@ public class ApiTestCasePageRequest extends BasePageRequest {
     private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
 
     @Schema(description = "模块ID")
-    private List<String> moduleIds;
+    private List<@NotBlank String> moduleIds;
 
     @Schema(description = "版本fk")
     private String versionId;

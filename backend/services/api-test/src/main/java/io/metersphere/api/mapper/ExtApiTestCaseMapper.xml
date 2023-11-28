@@ -75,6 +75,23 @@
         </foreach>
     </select>
 
+    <select id="getPrePos" resultType="java.lang.Long">
+        select `pos` from api_test_case where project_id = #{projectId}
+        <if test="basePos != null">
+            and `pos` &lt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+
+
+    <select id="getLastPos" resultType="java.lang.Long">
+        select `pos` from api_test_case where project_id = #{projectId}
+        <if test="basePos != null">
+            and `pos` &gt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+
     <sql id="queryWhereConditionByBatch">
         <if test="request.protocol != null and request.protocol!=''">
             and a.protocol = #{request.protocol}
