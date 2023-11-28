@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-[4px] flex w-full items-center text-[12px] text-[var(--color-text-4)]">
+  <div class="mt-[4px] flex w-full items-center text-[12px] leading-[16px] text-[var(--color-text-4)]">
     {{ props.text }}
     <MsIcon
       v-if="props.showFillIcon"

@@ -113,6 +113,7 @@
       bottom: 0;
       padding: 2px 4px;
       font-size: 12px;
+      line-height: 16px;
       font-weight: 500;
       color: #ffffff;
       background-color: #00000050;

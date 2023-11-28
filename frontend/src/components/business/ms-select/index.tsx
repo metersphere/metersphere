@@ -95,11 +95,17 @@ export default defineComponent(
       }
     );
 
+    /**
+     * 搜索
+     * @param val 搜索值
+     * @param manual 是否手动触发
+     */
     async function handleSearch(val: string, manual = false) {
       if (isArcoFirstSearch.value && !manual) {
         isArcoFirstSearch.value = false;
         return;
       }
+      isArcoFirstSearch.value = false;
       try {
         loading.value = true;
         // 如果是远程模式，则请求接口数据
@@ -225,6 +231,16 @@ export default defineComponent(
       }
     );
 
+    function getOptionItemDisabled(item: SelectOptionData) {
+      return (
+        !!props.multiple &&
+        !!props.atLeastOne &&
+        Array.isArray(innerValue.value) &&
+        !!innerValue.value.find((e) => e[props.valueKey || 'value'] === item[props.valueKey || 'value']) &&
+        innerValue.value.length === 1
+      );
+    }
+
     const selectSlots = () => {
       const _slots: MsSearchSelectSlots = {
         default: () =>
@@ -238,13 +254,7 @@ export default defineComponent(
                     ? { closable: Array.isArray(innerValue.value) && innerValue.value.length > 1 }
                     : {}
                 }
-                disabled={
-                  props.multiple &&
-                  props.atLeastOne &&
-                  Array.isArray(innerValue.value) &&
-                  innerValue.value.find((e) => e[props.valueKey || 'value'] === item[props.valueKey || 'value']) &&
-                  innerValue.value.length === 1
-                }
+                disabled={getOptionItemDisabled(item)}
               >
                 <div class="one-line-text" style={getOptionComputedStyle.value}>
                   {optionItemLabelRender(item)}
@@ -333,10 +343,18 @@ export default defineComponent(
         popup-container={props.popupContainer || document.body}
         trigger-props={props.triggerProps}
         fallback-option={props.fallbackOption}
-        onUpdate:model-value={(value: ModelType) => emit('update:modelValue', value)}
+        onChange={(value: ModelType) => emit('update:modelValue', value)}
         onSearch={handleSearch}
         onPopupVisibleChange={(val: boolean) => emit('popupVisibleChange', val)}
         onRemove={(val: string | number | boolean | Record<string, any> | undefined) => emit('remove', val)}
+        onKeyup={(e: KeyboardEvent) => {
+          // 阻止组件在回车时自动触发的事件
+          if (e.code === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSearch('', true);
+          }
+        }}
       >
         {{
           prefix: props.prefix ? () => t(props.prefix || '') : null,

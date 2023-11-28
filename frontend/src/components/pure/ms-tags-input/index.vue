@@ -2,7 +2,7 @@
   <a-input-tag
     v-model:model-value="innerModelValue"
     v-model:input-value="innerInputValue"
-    :placeholder="t(props.placeholder || '')"
+    :placeholder="t(props.placeholder || 'ms.tagsInput.tagsInputPlaceholder')"
     :allow-clear="props.allowClear"
     :retain-input-value="props.retainInputValue"
     :unique-value="props.uniqueValue"

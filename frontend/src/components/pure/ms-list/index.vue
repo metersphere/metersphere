@@ -49,7 +49,7 @@
     <template v-if="$slots['empty'] || props.emptyText" #empty>
       <slot name="empty">
         <div
-          class="rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[8px] text-[12px] text-[var(--color-text-4)]"
+          class="rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
         >
           {{ props.emptyText }}
         </div>

@@ -14,7 +14,7 @@
   const props = withDefaults(
     defineProps<{
       type?: 'text' | 'icon' | 'button';
-      status?: 'primary' | 'danger' | 'secondary';
+      status?: 'primary' | 'danger' | 'secondary' | 'default';
       disabled?: boolean;
       loading?: boolean;
     }>(),
@@ -43,10 +43,9 @@
     padding: 0 4px;
     font-size: 14px;
     border-radius: var(--border-radius-mini);
-    line-height: 22px;
   }
   .ms-button--primary--disabled {
-    color: var(--color-text-4) !important;
+    color: rgb(var(--primary-3)) !important;
   }
   .ms-button--danger--disabled {
     color: rgb(var(--danger-2)) !important;
@@ -66,6 +65,12 @@
       .arco-icon {
         color: rgb(var(--primary-5));
       }
+    }
+  }
+  .ms-button--default {
+    color: var(--color-text-1);
+    &:not(.ms-button-text, .ms-button--disabled):hover {
+      background-color: var(--color-text-n8);
     }
   }
   .ms-button--secondary {

@@ -214,6 +214,8 @@ export default function useTableProps<T>(
       } catch (err) {
         setTableErrorStatus('error');
         propsRes.value.data = [];
+        // eslint-disable-next-line no-console
+        console.log(err);
       } finally {
         setLoading(false);
         // debug 模式下打印属性

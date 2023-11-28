@@ -336,6 +336,7 @@
       font-size: 16px;
       border-color: rgb(var(--gray-2));
       color: rgb(var(--gray-8));
+      line-height: 24px;
     }
     .trigger-btn,
     .ref-btn {
