@@ -1,5 +1,6 @@
 package io.metersphere.system.file;
 
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.MsFileUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -85,6 +86,11 @@ public class LocalFileRepository implements FileRepository {
     @Override
     public List<String> getFolderFileNames(FileRequest request) {
         return null;
+    }
+
+    @Override
+    public void copyFile(FileCopyRequest request) throws Exception {
+        throw new MSException("Not support copy file");
     }
 
     private String getFilePath(FileRequest request) {

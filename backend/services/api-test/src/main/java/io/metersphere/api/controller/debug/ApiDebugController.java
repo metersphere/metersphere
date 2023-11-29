@@ -14,6 +14,7 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -51,18 +52,23 @@ public class ApiDebugController {
     @Operation(summary = "创建接口调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDebugLogService.class)
-    public ApiDebug add(@Validated @RequestPart("request") ApiDebugAddRequest request,
-                        @RequestPart(value = "files", required = false) List<MultipartFile> files) {
-        return apiDebugService.add(request, files, SessionUtils.getUserId());
+    public ApiDebug add(@Validated @RequestBody ApiDebugAddRequest request) {
+        return apiDebugService.add(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/upload/temp/file")
+    @Operation(summary = "上传接口调试所需的文件资源，并返回文件ID")
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEBUG_ADD, PermissionConstants.PROJECT_API_DEBUG_UPDATE})
+    public String uploadTempFile(@RequestParam("file") MultipartFile file) {
+        return apiDebugService.uploadTempFile(file);
     }
 
     @PostMapping("/update")
     @Operation(summary = "更新接口调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDebugLogService.class)
-    public ApiDebug update(@Validated @RequestPart("request") ApiDebugUpdateRequest request,
-                           @RequestPart(value = "files", required = false) List<MultipartFile> files) {
-        return apiDebugService.update(request, files, SessionUtils.getUserId());
+    public ApiDebug update(@Validated @RequestBody ApiDebugUpdateRequest request) {
+        return apiDebugService.update(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/delete/{id}")
@@ -70,6 +76,6 @@ public class ApiDebugController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiDebugLogService.class)
     public void delete(@PathVariable String id) {
-        apiDebugService.delete(id);
+        apiDebugService.delete(id, SessionUtils.getUserId());
     }
 }

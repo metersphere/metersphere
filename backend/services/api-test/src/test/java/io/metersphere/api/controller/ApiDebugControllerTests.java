@@ -12,24 +12,31 @@ import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.dto.filemanagement.FileInfo;
+import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
+import io.metersphere.project.service.FileAssociationService;
+import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.request.http.MsHTTPElement;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.file.FileCenter;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.File;
 import java.util.List;
 
 import static io.metersphere.api.controller.result.ApiResultCode.API_DEBUG_EXIST;
@@ -39,12 +46,13 @@ import static io.metersphere.system.controller.handler.result.MsHttpResultCode.N
  * @author jianxing
  * @date : 2023-11-7
  */
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ApiDebugControllerTests extends BaseTest {
     private static final String BASE_PATH = "/api/debug/";
     protected static final String DEFAULT_LIST = "list/{0}";
+    protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String HTTP_PROTOCOL = "HTTP";
 
     @Resource
@@ -53,8 +61,13 @@ public class ApiDebugControllerTests extends BaseTest {
     private ApiDebugBlobMapper apiDebugBlobMapper;
     @Resource
     private ApiFileResourceService apiFileResourceService;
+    @Resource
+    private FileMetadataService fileMetadataService;
     private static ApiDebug addApiDebug;
     private static ApiDebug anotherAddApiDebug;
+    private static String fileMetadataId;
+    private static String uploadFileId;
+
     @Override
     protected String getBasePath() {
         return BASE_PATH;
@@ -65,10 +78,46 @@ public class ApiDebugControllerTests extends BaseTest {
     public void listEmpty() throws Exception {
         // @@校验没有数据的情况
         this.requestGetWithOk(DEFAULT_LIST, HTTP_PROTOCOL);
+        // 准备数据，上传文件管理文件
+        uploadFileMetadata();
     }
 
     @Test
     @Order(1)
+    public void uploadTempFile() throws Exception {
+        // @@请求成功
+        MockMultipartFile file = getMockMultipartFile();
+        String fileId = doUploadTempFile(file);
+
+        // 校验文件存在
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
+        fileRequest.setFileName(file.getOriginalFilename());
+        Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
+
+        requestUploadPermissionTest(PermissionConstants.PROJECT_API_DEBUG_ADD, UPLOAD_TEMP_FILE, file);
+        requestUploadPermissionTest(PermissionConstants.PROJECT_API_DEBUG_UPDATE, UPLOAD_TEMP_FILE, file);
+    }
+
+    private String doUploadTempFile(MockMultipartFile file) throws Exception {
+        return JSON.parseObject(requestUploadFileWithOkAndReturn(UPLOAD_TEMP_FILE, file)
+                        .getResponse()
+                        .getContentAsString(), ResultHolder.class)
+                .getData().toString();
+    }
+
+    private static MockMultipartFile getMockMultipartFile() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "file_upload.JPG",
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "Hello, World!".getBytes()
+        );
+        return file;
+    }
+
+    @Test
+    @Order(2)
     public void add() throws Exception {
         // @@请求成功
         ApiDebugAddRequest request = new ApiDebugAddRequest();
@@ -81,75 +130,57 @@ public class ApiDebugControllerTests extends BaseTest {
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
 
-        File bodyFile = new File(
-                this.getClass().getClassLoader().getResource("file/file_upload.JPG")
-                        .getPath()
-        );
-        request.setFileIds(List.of(IDGenerator.nextStr()));
-        MvcResult mvcResult = this.requestMultipartWithOkAndReturn(DEFAULT_ADD, getDefaultMultiPartParam(List.of(bodyFile), request));
+        uploadFileId = doUploadTempFile(getMockMultipartFile());
+        request.setUploadFileIds(List.of(uploadFileId));
+
+        request.setUploadFileIds(List.of(uploadFileId));
+        request.setLinkFileIds(List.of(fileMetadataId));
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         // 校验请求成功数据
         ApiDebug resultData = getResultData(mvcResult, ApiDebug.class);
-        this.addApiDebug = assertUpdateApiDebug(request, msHttpElement, resultData.getId(), request.getFileIds());
-
+        this.addApiDebug = assertUpdateApiDebug(request, msHttpElement, resultData.getId());
+        assertUploadFile(resultData.getId(), List.of(uploadFileId));
+        assertLinkFile(resultData.getId(), List.of(fileMetadataId));
 
         // 再插入一条数据，便于修改时重名校验
         request.setName("test1");
-        request.setFileIds(null);
-        mvcResult = this.requestMultipartWithOkAndReturn(DEFAULT_ADD, getDefaultMultiPartParam(List.of(bodyFile), request));
+        request.setUploadFileIds(null);
+        request.setLinkFileIds(null);
+        mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         resultData = getResultData(mvcResult, ApiDebug.class);
-        this.anotherAddApiDebug = assertUpdateApiDebug(request, msHttpElement, resultData.getId(),  request.getFileIds());
-
-        // 增加覆盖率
-        apiFileResourceService.uploadFileResource(null, null, null);
+        this.anotherAddApiDebug = assertUpdateApiDebug(request, msHttpElement, resultData.getId());
+        assertUploadFile(resultData.getId(), List.of());
+        assertLinkFile(resultData.getId(), List.of());
 
         // @@重名校验异常
-        assertErrorCode(this.requestMultipart(DEFAULT_ADD, getDefaultMultiPartParam(List.of(), request)), API_DEBUG_EXIST);
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), API_DEBUG_EXIST);
         // 校验项目是否存在
         request.setProjectId("111");
-        assertErrorCode(this.requestMultipart(DEFAULT_ADD, getDefaultMultiPartParam(List.of(), request)), NOT_FOUND);
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), NOT_FOUND);
 
         // @@校验日志
         checkLog(this.addApiDebug.getId(), OperationLogType.ADD);
         // @@校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
-        requestMultipartPermissionTest(PermissionConstants.PROJECT_API_DEBUG_ADD, DEFAULT_ADD, getDefaultMultiPartParam(List.of(), request));
+
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_ADD, DEFAULT_ADD, request);
     }
 
-    private ApiDebug assertUpdateApiDebug(Object request, MsHTTPElement msHttpElement, String id, List<String> fileIds) throws Exception {
-        ApiDebug apiDebug = apiDebugMapper.selectByPrimaryKey(id);
-        ApiDebugBlob apiDebugBlob = apiDebugBlobMapper.selectByPrimaryKey(id);
-        ApiDebug copyApiDebug = BeanUtils.copyBean(new ApiDebug(), apiDebug);
-        copyApiDebug = BeanUtils.copyBean(copyApiDebug, request);
-        Assertions.assertEquals(apiDebug, copyApiDebug);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
-        Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class));
-
-        if (fileIds != null) {
-            // 验证文件的关联关系，以及是否存入对象存储
-            List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
-            Assertions.assertEquals(apiFileResources.size(), fileIds.size());
-
-            String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(apiDebug.getProjectId(), id);
-            FileRequest fileRequest = new FileRequest();
-            if (fileIds.size() > 0) {
-                for (ApiFileResource apiFileResource : apiFileResources) {
-                    Assertions.assertEquals(apiFileResource.getProjectId(), apiDebug.getProjectId());
-                    fileRequest.setFolder(apiDebugDir + "/" + apiFileResource.getFileId());
-                    fileRequest.setFileName(apiFileResource.getFileName());
-                    Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
-                }
-                fileRequest.setFolder(apiDebugDir);
-            } else {
-                fileRequest.setFolder(apiDebugDir);
-                Assertions.assertTrue(CollectionUtils.isEmpty(FileCenter.getDefaultRepository().getFolderFileNames(fileRequest)));
-            }
-        }
-
-        return apiDebug;
+    /**
+     * 文件管理插入一条数据
+     * 便于测试关联文件
+     */
+    private void uploadFileMetadata() throws Exception {
+        FileUploadRequest fileUploadRequest = new FileUploadRequest();
+        fileUploadRequest.setProjectId(DEFAULT_PROJECT_ID);
+        //导入正常文件
+        MockMultipartFile file = new MockMultipartFile("file", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        fileMetadataId = fileMetadataService.upload(fileUploadRequest, "admin", file);
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     public void update() throws Exception {
         // @@请求成功
         ApiDebugUpdateRequest request = new ApiDebugUpdateRequest();
@@ -163,50 +194,121 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
 
         // 不带文件的更新
-        this.requestMultipartWithOk(DEFAULT_UPDATE, getDefaultMultiPartParam(null, request));
+        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setDeleteFileIds(List.of(uploadFileId));
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
         // 校验请求成功数据
-        assertUpdateApiDebug(request, msHttpElement, request.getId(), request.getFileIds());
-
-        File bodyFile = new File(
-                this.getClass().getClassLoader().getResource("file/file_upload.JPG")
-                        .getPath()
-        );
+        assertUpdateApiDebug(request, msHttpElement, request.getId());
+        assertUploadFile(addApiDebug.getId(), List.of());
+        assertLinkFile(addApiDebug.getId(), List.of());
 
         // 带文件的更新
-        request.setAddFileIds(List.of(IDGenerator.nextStr()));
-        request.setFileIds(request.getAddFileIds());
-        this.requestMultipartWithOk(DEFAULT_UPDATE, getDefaultMultiPartParam(List.of(bodyFile), request));
+        String fileId = doUploadTempFile(getMockMultipartFile());
+        request.setUploadFileIds(List.of(fileId));
+        request.setLinkFileIds(List.of(fileMetadataId));
+        request.setDeleteFileIds(null);
+        request.setUnLinkRefIds(null);
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
         // 校验请求成功数据
-        assertUpdateApiDebug(request, msHttpElement, request.getId(), request.getFileIds());
+        assertUpdateApiDebug(request, msHttpElement, request.getId());
+        assertUploadFile(addApiDebug.getId(), List.of(fileId));
+        assertLinkFile(addApiDebug.getId(), List.of(fileMetadataId));
 
         // 删除了上一次上传的文件，重新上传一个文件
-        request.setAddFileIds(List.of(IDGenerator.nextStr()));
-        request.setFileIds(request.getAddFileIds());
-        this.requestMultipartWithOk(DEFAULT_UPDATE, getDefaultMultiPartParam(List.of(bodyFile), request));
-        assertUpdateApiDebug(request, msHttpElement, request.getId(), request.getFileIds());
+        request.setDeleteFileIds(List.of(fileId));
+        String newFileId1 = doUploadTempFile(getMockMultipartFile());
+        request.setUploadFileIds(List.of(newFileId1));
+        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setLinkFileIds(List.of(fileMetadataId));
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
+        assertUpdateApiDebug(request, msHttpElement, request.getId());
+        assertUploadFile(addApiDebug.getId(), List.of(newFileId1));
+        assertLinkFile(addApiDebug.getId(), List.of(fileMetadataId));
 
         // 已有一个文件，再上传一个文件
-        request.setAddFileIds(List.of(IDGenerator.nextStr()));
-        List<String> fileIds = apiFileResourceService.getFileIdsByResourceId(request.getId());
-        fileIds.addAll(request.getAddFileIds());
-        request.setFileIds(fileIds);
-        this.requestMultipartWithOk(DEFAULT_UPDATE, getDefaultMultiPartParam(List.of(bodyFile), request));
-        assertUpdateApiDebug(request, msHttpElement, request.getId(), request.getFileIds());
-
+        String newFileId2 = doUploadTempFile(getMockMultipartFile());
+        request.setUploadFileIds(List.of(newFileId2));
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
         // 校验请求成功数据
-        assertUpdateApiDebug(request, msHttpElement, request.getId(), request.getFileIds());
+        assertUpdateApiDebug(request, msHttpElement, request.getId());
+        assertUploadFile(addApiDebug.getId(), List.of(newFileId1, newFileId2));
+        assertLinkFile(addApiDebug.getId(), List.of(fileMetadataId));
 
         // @@重名校验异常
         request.setModuleId("default");
-        assertErrorCode(this.requestMultipart(DEFAULT_UPDATE, getDefaultMultiPartParam(List.of(), request)), API_DEBUG_EXIST);
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), API_DEBUG_EXIST);
 
         // @@校验日志
         checkLog(request.getId(), OperationLogType.UPDATE);
         // @@校验权限
-        requestMultipartPermissionTest(PermissionConstants.PROJECT_API_DEBUG_UPDATE, DEFAULT_UPDATE, getDefaultMultiPartParam(List.of(), request));
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_UPDATE, DEFAULT_UPDATE, request);
     }
+
+    /**
+     * 校验更新数据
+     *
+     * @param request
+     * @param msHttpElement
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    private ApiDebug assertUpdateApiDebug(Object request, MsHTTPElement msHttpElement, String id) {
+        ApiDebug apiDebug = apiDebugMapper.selectByPrimaryKey(id);
+        ApiDebugBlob apiDebugBlob = apiDebugBlobMapper.selectByPrimaryKey(id);
+        ApiDebug copyApiDebug = BeanUtils.copyBean(new ApiDebug(), apiDebug);
+        copyApiDebug = BeanUtils.copyBean(copyApiDebug, request);
+        Assertions.assertEquals(apiDebug, copyApiDebug);
+        ApiDataUtils.setResolver(MsHTTPElement.class);
+        Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class));
+        return apiDebug;
+    }
+
+    /**
+     * 校验上传的文件
+     * @param id
+     * @param fileIds 全部的文件ID
+     */
+    public static void assertUploadFile(String id, List<String> fileIds) throws Exception {
+        if (fileIds != null) {
+            ApiFileResourceService apiFileResourceService = CommonBeanFactory.getBean(ApiFileResourceService.class);
+            // 验证文件的关联关系，以及是否存入对象存储
+            List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
+            Assertions.assertEquals(apiFileResources.size(), fileIds.size());
+
+            String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(DEFAULT_PROJECT_ID, id);
+            FileRequest fileRequest = new FileRequest();
+            if (fileIds.size() > 0) {
+                for (ApiFileResource apiFileResource : apiFileResources) {
+                    Assertions.assertEquals(apiFileResource.getProjectId(), DEFAULT_PROJECT_ID);
+                    fileRequest.setFolder(apiDebugDir + "/" + apiFileResource.getFileId());
+                    fileRequest.setFileName(apiFileResource.getFileName());
+                    Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
+                }
+                fileRequest.setFolder(apiDebugDir);
+            } else {
+                fileRequest.setFolder(apiDebugDir);
+                Assertions.assertTrue(CollectionUtils.isEmpty(FileCenter.getDefaultRepository().getFolderFileNames(fileRequest)));
+            }
+        }
+    }
+
+    /**
+     * 校验上传的文件
+     * @param id
+     * @param fileIds 全部的文件ID
+     */
+    private static void assertLinkFile(String id, List<String> fileIds) {
+        FileAssociationService fileAssociationService = CommonBeanFactory.getBean(FileAssociationService.class);
+        List<String> linkFileIds = fileAssociationService.getFiles(id, FileAssociationSourceUtil.SOURCE_TYPE_API_DEBUG)
+                .stream()
+                .map(FileInfo::getFileId)
+                .toList();
+        Assertions.assertEquals(fileIds, linkFileIds);
+    }
+
     @Test
-    @Order(3)
+    @Order(4)
     public void list() throws Exception {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(DEFAULT_LIST, HTTP_PROTOCOL)
@@ -225,7 +327,7 @@ public class ApiDebugControllerTests extends BaseTest {
 
 
     @Test
-    @Order(4)
+    @Order(5)
     public void get() throws Exception {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(DEFAULT_GET, addApiDebug.getId())
@@ -236,14 +338,13 @@ public class ApiDebugControllerTests extends BaseTest {
         ApiDebugDTO copyApiDebugDTO = BeanUtils.copyBean(new ApiDebugDTO(), apiDebugMapper.selectByPrimaryKey(addApiDebug.getId()));
         ApiDebugBlob apiDebugBlob = apiDebugBlobMapper.selectByPrimaryKey(addApiDebug.getId());
         copyApiDebugDTO.setRequest(ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class));
-        copyApiDebugDTO.setFileIds(apiFileResourceService.getFileIdsByResourceId(addApiDebug.getId()));
         Assertions.assertEquals(apiDebugDTO, copyApiDebugDTO);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEBUG_READ, DEFAULT_GET, apiDebugDTO.getId());
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void delete() throws Exception {
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addApiDebug.getId());

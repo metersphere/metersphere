@@ -1,9 +1,7 @@
 package io.metersphere.api.service.definition;
 
-import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.enums.ApiReportStatus;
 import io.metersphere.api.mapper.*;
@@ -133,17 +131,17 @@ public class ApiDefinitionService {
         apiDefinitionBlob.setResponse(request.getResponse().getBytes());
         apiDefinitionBlobMapper.insertSelective(apiDefinitionBlob);
 
-        // 处理文件
+        // 处理文件 todo
         if (CollectionUtils.isNotEmpty(request.getFileIds()) && CollectionUtils.isNotEmpty(bodyFiles)) {
-            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), apiDefinition.getId());
-            ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
-            resourceUpdateRequest.setProjectId(apiDefinition.getProjectId());
-            resourceUpdateRequest.setFileIds(request.getFileIds());
-            resourceUpdateRequest.setAddFileIds(request.getFileIds());
-            resourceUpdateRequest.setFolder(apiDefinitionDir);
-            resourceUpdateRequest.setResourceId(apiDefinition.getId());
-            resourceUpdateRequest.setApiResourceType(ApiResourceType.API);
-            apiFileResourceService.addFileResource(resourceUpdateRequest, bodyFiles);
+//            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), apiDefinition.getId());
+//            ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
+//            resourceUpdateRequest.setProjectId(apiDefinition.getProjectId());
+//            resourceUpdateRequest.setFileIds(request.getFileIds());
+//            resourceUpdateRequest.setAddFileIds(request.getFileIds());
+//            resourceUpdateRequest.setFolder(apiDefinitionDir);
+//            resourceUpdateRequest.setResourceId(apiDefinition.getId());
+//            resourceUpdateRequest.setApiResourceType(ApiResourceType.API);
+//            apiFileResourceService.addFileResource(resourceUpdateRequest, bodyFiles);
         }
         return apiDefinition;
     }
@@ -170,16 +168,16 @@ public class ApiDefinitionService {
         apiDefinitionBlob.setResponse(request.getResponse().getBytes());
         apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
 
-        // 处理文件
-        String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(originApiDefinition.getProjectId(), apiDefinition.getId());
-        ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
-        resourceUpdateRequest.setProjectId(originApiDefinition.getProjectId());
-        resourceUpdateRequest.setFileIds(request.getFileIds());
-        resourceUpdateRequest.setAddFileIds(request.getAddFileIds());
-        resourceUpdateRequest.setFolder(apiDefinitionDir);
-        resourceUpdateRequest.setResourceId(apiDefinition.getId());
-        resourceUpdateRequest.setApiResourceType(ApiResourceType.API);
-        apiFileResourceService.updateFileResource(resourceUpdateRequest, bodyFiles);
+        // 处理文件 todo
+//        String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(originApiDefinition.getProjectId(), apiDefinition.getId());
+//        ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
+//        resourceUpdateRequest.setProjectId(originApiDefinition.getProjectId());
+//        resourceUpdateRequest.setFileIds(request.getFileIds());
+//        resourceUpdateRequest.setAddFileIds(request.getAddFileIds());
+//        resourceUpdateRequest.setFolder(apiDefinitionDir);
+//        resourceUpdateRequest.setResourceId(apiDefinition.getId());
+//        resourceUpdateRequest.setApiResourceType(ApiResourceType.API);
+//        apiFileResourceService.updateFileResource(resourceUpdateRequest, bodyFiles);
 
         return apiDefinition;
     }
@@ -593,7 +591,7 @@ public class ApiDefinitionService {
             // 删除上传的文件
             ids.forEach(id -> {
                 String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, id);
-                apiFileResourceService.deleteByResourceId(apiDefinitionDir, id);
+                apiFileResourceService.deleteByResourceId(apiDefinitionDir, id, projectId, userId);
             });
 
             // 删除接口关联数据

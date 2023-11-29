@@ -1,8 +1,6 @@
 package io.metersphere.api.service.definition;
 
-import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
@@ -32,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,19 +74,19 @@ public class ApiTestCaseService {
     @Resource
     private ApiFileResourceService apiFileResourceService;
 
-    @NotNull
-    private static ApiFileResourceUpdateRequest getFileResourceRequest(ApiTestCase testCase, List<String> filed, List<String> addFiled) {
-        String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(testCase.getProjectId(), testCase.getId());
-        // 处理文件
-        ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
-        resourceUpdateRequest.setProjectId(testCase.getProjectId());
-        resourceUpdateRequest.setFileIds(filed);
-        resourceUpdateRequest.setAddFileIds(addFiled);
-        resourceUpdateRequest.setFolder(apiCaseDir);
-        resourceUpdateRequest.setResourceId(testCase.getId());
-        resourceUpdateRequest.setApiResourceType(ApiResourceType.API_CASE);
-        return resourceUpdateRequest;
-    }
+//    @NotNull todo
+//    private static ApiFileResourceUpdateRequest getFileResourceRequest(ApiTestCase testCase, List<String> filed, List<String> addFiled) {
+//        String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(testCase.getProjectId(), testCase.getId());
+//        // 处理文件
+//        ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
+//        resourceUpdateRequest.setProjectId(testCase.getProjectId());
+//        resourceUpdateRequest.setFileIds(filed);
+//        resourceUpdateRequest.setAddFileIds(addFiled);
+//        resourceUpdateRequest.setFolder(apiCaseDir);
+//        resourceUpdateRequest.setResourceId(testCase.getId());
+//        resourceUpdateRequest.setApiResourceType(ApiResourceType.API_CASE);
+//        return resourceUpdateRequest;
+//    }
 
     private void checkProjectExist(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
@@ -154,10 +151,10 @@ public class ApiTestCaseService {
         caseBlob.setRequest(request.getRequest().getBytes());
         apiTestCaseBlobMapper.insert(caseBlob);
 
-        // 处理文件
-        ApiFileResourceUpdateRequest resourceRequest =
-                getFileResourceRequest(testCase, request.getFileIds(), request.getFileIds());
-        apiFileResourceService.addFileResource(resourceRequest, files);
+        // 处理文件 todo
+//        ApiFileResourceUpdateRequest resourceRequest =
+//                getFileResourceRequest(testCase, request.getFileIds(), request.getFileIds());
+//        apiFileResourceService.addFileResource(resourceRequest, files);
         return testCase;
     }
 
@@ -246,9 +243,10 @@ public class ApiTestCaseService {
         apiTestCaseBlob.setRequest(request.getRequest().getBytes());
         apiTestCaseBlobMapper.updateByPrimaryKeySelective(apiTestCaseBlob);
 
-        ApiFileResourceUpdateRequest resourceRequest =
-                getFileResourceRequest(testCase, request.getFileIds(), request.getAddFileIds());
-        apiFileResourceService.updateFileResource(resourceRequest, files);
+        // todo
+//        ApiFileResourceUpdateRequest resourceRequest =
+//                getFileResourceRequest(testCase, request.getFileIds(), request.getAddFileIds());
+//        apiFileResourceService.updateFileResource(resourceRequest, files);
         return testCase;
     }
 
@@ -332,7 +330,7 @@ public class ApiTestCaseService {
         //删除文件关联关系
         ids.forEach(id -> {
             String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(projectId, id);
-            apiFileResourceService.deleteByResourceId(apiCaseDir, id);
+            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, userId);
         });
         //记录删除日志
         apiTestCaseLogService.deleteBatchLog(caseLists, userId, projectId);

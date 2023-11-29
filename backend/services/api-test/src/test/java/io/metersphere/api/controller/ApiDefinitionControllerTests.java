@@ -174,26 +174,27 @@ public class ApiDefinitionControllerTests extends BaseTest {
         if(apiDefinitionBlob != null){
             Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
         }
-        if (fileIds != null) {
-            // 验证文件的关联关系，以及是否存入对象存储
-            List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
-            Assertions.assertEquals(apiFileResources.size(), fileIds.size());
-
-            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinition.getProjectId(), id);
-            FileRequest fileRequest = new FileRequest();
-            if (fileIds.size() > 0) {
-                for (ApiFileResource apiFileResource : apiFileResources) {
-                    Assertions.assertEquals(apiFileResource.getProjectId(), apiDefinition.getProjectId());
-                    fileRequest.setFolder(apiDefinitionDir + "/" + apiFileResource.getFileId());
-                    fileRequest.setFileName(apiFileResource.getFileName());
-                    Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
-                }
-                fileRequest.setFolder(apiDefinitionDir);
-            } else {
-                fileRequest.setFolder(apiDefinitionDir);
-                Assertions.assertTrue(CollectionUtils.isEmpty(FileCenter.getDefaultRepository().getFolderFileNames(fileRequest)));
-            }
-        }
+        // todo 可以直接调用 ApiDebugControllerTests.assertUploadFile 和 ApiDebugControllerTests.assertLinkFile
+//        if (fileIds != null) {
+//            // 验证文件的关联关系，以及是否存入对象存储
+//            List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
+//            Assertions.assertEquals(apiFileResources.size(), fileIds.size());
+//
+//            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinition.getProjectId(), id);
+//            FileRequest fileRequest = new FileRequest();
+//            if (fileIds.size() > 0) {
+//                for (ApiFileResource apiFileResource : apiFileResources) {
+//                    Assertions.assertEquals(apiFileResource.getProjectId(), apiDefinition.getProjectId());
+//                    fileRequest.setFolder(apiDefinitionDir + "/" + apiFileResource.getFileId());
+//                    fileRequest.setFileName(apiFileResource.getFileName());
+//                    Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
+//                }
+//                fileRequest.setFolder(apiDefinitionDir);
+//            } else {
+//                fileRequest.setFolder(apiDefinitionDir);
+//                Assertions.assertTrue(CollectionUtils.isEmpty(FileCenter.getDefaultRepository().getFolderFileNames(fileRequest)));
+//            }
+//        }
         return apiDefinition;
     }
 

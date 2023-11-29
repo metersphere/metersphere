@@ -278,18 +278,18 @@ public class OperationLogAspect {
     }
 
 
-    protected String getPath() {
+    public static String getPath() {
         HttpServletRequest httpRequest = getHttpRequest();
         String path = httpRequest == null ? StringUtils.EMPTY : httpRequest.getRequestURI();
         return path.length() > 255 ? path.substring(0, 255) : path;
     }
 
-    protected String getMethod() {
+    public static String getMethod() {
         HttpServletRequest httpRequest = getHttpRequest();
         return httpRequest == null ? StringUtils.EMPTY : httpRequest.getMethod();
     }
 
-    private HttpServletRequest getHttpRequest() {
+    private static HttpServletRequest getHttpRequest() {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes == null) {
             return null;

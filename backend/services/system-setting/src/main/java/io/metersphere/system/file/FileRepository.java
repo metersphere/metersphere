@@ -88,4 +88,11 @@ public interface FileRepository {
      * @throws Exception
      */
     List<String> getFolderFileNames(FileRequest request) throws Exception;
+
+    /**
+     * 复制文件到指定目录
+     * @param request
+     * @throws Exception
+     */
+    void copyFile(FileCopyRequest request) throws Exception;
 }

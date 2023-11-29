@@ -6,6 +6,7 @@ import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
+import io.metersphere.system.log.aspect.OperationLogAspect;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
@@ -39,8 +40,8 @@ public class FileAssociationLogService {
                     .organizationId(project.getOrganizationId())
                     .type(OperationLogType.ADD.name())
                     .module(fileLogRecord.getLogModule())
-                    .method(fileLogRecord.getRequestMethod())
-                    .path(fileLogRecord.getRequestUrl())
+                    .method(OperationLogAspect.getMethod())
+                    .path(OperationLogAspect.getPath())
                     .createUser(fileLogRecord.getOperator())
                     .sourceId(fileMetadata.getId())
                     .content(sourceName + StringUtils.SPACE + Translator.get("file.log.association") + ":" + fileMetadata.getName())
@@ -72,8 +73,8 @@ public class FileAssociationLogService {
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.UPDATE.name())
                 .module(fileLogRecord.getLogModule())
-                .method(fileLogRecord.getRequestMethod())
-                .path(fileLogRecord.getRequestUrl())
+                .method(OperationLogAspect.getMethod())
+                .path(OperationLogAspect.getPath())
                 .createUser(fileLogRecord.getOperator())
                 .sourceId(fileMetadata.getId())
                 .content(sourceName + StringUtils.SPACE + Translator.get("file.log.association.update") + ":" + fileMetadata.getName())
@@ -91,8 +92,8 @@ public class FileAssociationLogService {
                     .organizationId(project.getOrganizationId())
                     .type(OperationLogType.DELETE.name())
                     .module(fileLogRecord.getLogModule())
-                    .method(fileLogRecord.getRequestMethod())
-                    .path(fileLogRecord.getRequestUrl())
+                    .method(OperationLogAspect.getMethod())
+                    .path(OperationLogAspect.getPath())
                     .createUser(fileLogRecord.getOperator())
                     .sourceId(IDGenerator.nextStr())
                     .content(sourceName + StringUtils.SPACE + Translator.get("file.log.association.delete") + ":" + StringUtils.join(fileNameList, ","))
@@ -109,8 +110,8 @@ public class FileAssociationLogService {
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.ADD.name())
                 .module(fileLogRecord.getLogModule())
-                .method(fileLogRecord.getRequestMethod())
-                .path(fileLogRecord.getRequestUrl())
+                .method(OperationLogAspect.getMethod())
+                .path(OperationLogAspect.getPath())
                 .createUser(fileLogRecord.getOperator())
                 .sourceId(sourceId)
                 .content(sourceName + StringUtils.SPACE + Translator.get("file.log.transfer.association") + ":" + fileName)

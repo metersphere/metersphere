@@ -1456,8 +1456,6 @@ public class FileManagementControllerTests extends BaseTest {
         }};
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
-                .requestMethod(HttpMethodConstants.POST.name())
-                .requestUrl("/project/file/association/test")
                 .operator("admin")
                 .projectId(project.getId())
                 .build();
@@ -1520,8 +1518,6 @@ public class FileManagementControllerTests extends BaseTest {
     public void associationUpgrade() {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
-                .requestMethod(HttpMethodConstants.POST.name())
-                .requestUrl("/project/file/association/upgrade-test")
                 .operator("admin")
                 .projectId(project.getId())
                 .build();
@@ -1590,8 +1586,6 @@ public class FileManagementControllerTests extends BaseTest {
     public void transferAndAssociation() throws Exception {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
-                .requestMethod(HttpMethodConstants.POST.name())
-                .requestUrl("/project/file/association/transferAndAssociation-test")
                 .operator("admin")
                 .projectId(project.getId())
                 .build();
@@ -1639,8 +1633,6 @@ public class FileManagementControllerTests extends BaseTest {
     public void associationDelete() {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
-                .requestMethod(HttpMethodConstants.POST.name())
-                .requestUrl("/project/file/association/delete-test")
                 .operator("admin")
                 .projectId(project.getId())
                 .build();
