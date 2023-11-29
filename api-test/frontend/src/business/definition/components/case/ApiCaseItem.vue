@@ -623,10 +623,10 @@ export default {
         data.method = data.protocol;
       }
     },
-    addModule(row) {
-      this.saveApi(row, 'default-module');
+    addModule(row, created) {
+      this.saveApi(row, 'default-module', created);
     },
-    saveApi(row, module) {
+    saveApi(row, module, created) {
       let data = this.api;
       data.name = this.apiCase.name;
       data.moduleId = module;
@@ -638,6 +638,9 @@ export default {
           this.api.saved = false;
           row.apiDefinitionId = data.id;
           this.saveCase(row);
+        }
+        if (created) {
+          this.$emit('addCase');
         }
       });
     },
@@ -761,7 +764,7 @@ export default {
         if (this.compare.indexOf(row.id) === -1) {
           this.compare.push(row.id);
           if (this.api.saved) {
-            this.addModule(row);
+            this.addModule(row, created);
           } else {
             this.api.source = 'editCase';
             if (!this.isSave) {
