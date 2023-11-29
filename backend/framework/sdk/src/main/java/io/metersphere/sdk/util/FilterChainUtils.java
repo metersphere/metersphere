@@ -75,10 +75,4 @@ public class FilterChainUtils {
         return filterChainDefinitionMap;
     }
 
-    public static Map<String, String> totpFilterChain() {
-        Map<String, String> filterChainDefinitionMap = new HashMap<>();
-        // 执行机下载执行资源需要验证totp
-        filterChainDefinitionMap.put("/jmeter/download/**", "totp");
-        return filterChainDefinitionMap;
-    }
 }
