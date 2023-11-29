@@ -181,7 +181,7 @@
     await fApi.value?.submit(async (formData: FormData) => {
       try {
         okLoading.value = true;
-        await postSaveDefectSync({ ...form, BUG_PLATFORM_CONFIG: formData }, currentProjectId.value);
+        await postSaveDefectSync({ ...form, BUG_PLATFORM_CONFIG: JSON.stringify(formData) }, currentProjectId.value);
         Message.success(t('common.createSuccess'));
         handleCancel(true);
       } catch (error) {
