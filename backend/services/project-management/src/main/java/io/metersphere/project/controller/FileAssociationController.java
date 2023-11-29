@@ -4,7 +4,6 @@ import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.dto.filemanagement.request.FileAssociationDeleteRequest;
 import io.metersphere.project.dto.filemanagement.response.FileAssociationResponse;
 import io.metersphere.project.service.FileAssociationService;
-import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.utils.SessionUtils;
@@ -38,8 +37,6 @@ public class FileAssociationController {
     public String upgrade(@PathVariable String projectId,@PathVariable String id) {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
-                .requestMethod(HttpMethodConstants.GET.name())
-                .requestUrl("/project/file/association/upgrade/{projectId}/{id}")
                 .operator(SessionUtils.getUserId())
                 .projectId(projectId)
                 .build();
@@ -53,8 +50,6 @@ public class FileAssociationController {
     public int delete(@RequestBody @Validated FileAssociationDeleteRequest request) {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
-                .requestMethod(HttpMethodConstants.POST.name())
-                .requestUrl("/project/file/association/delete")
                 .operator(SessionUtils.getUserId())
                 .projectId(request.getProjectId())
                 .build();

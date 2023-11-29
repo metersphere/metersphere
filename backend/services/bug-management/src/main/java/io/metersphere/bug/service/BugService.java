@@ -88,9 +88,6 @@ public class BugService {
     @Resource
     private BugFollowerMapper bugFollowerMapper;
 
-    public static final String ADD_BUG_FILE_LOG_URL = "/bug/add";
-    public static final String UPDATE_BUG_FILE_LOG_URL = "/bug/update";
-
     /**
      * 缺陷列表查询
      *
@@ -145,7 +142,7 @@ public class BugService {
         // 自定义字段
         handleAndSaveCustomFields(request, false, false);
         // 附件
-        handleAndSaveAttachments(request, files, currentUser, ADD_BUG_FILE_LOG_URL);
+        handleAndSaveAttachments(request, files, currentUser);
     }
 
     /**
@@ -167,7 +164,7 @@ public class BugService {
         // 自定义字段
         handleAndSaveCustomFields(request, true, false);
         // 附件
-        handleAndSaveAttachments(request, files, currentUser, UPDATE_BUG_FILE_LOG_URL);
+        handleAndSaveAttachments(request, files, currentUser);
     }
 
     /**
@@ -473,7 +470,7 @@ public class BugService {
      * @param request 请求参数
      * @param files 上传附件集合
      */
-    private void handleAndSaveAttachments(BugEditRequest request, List<MultipartFile> files, String currentUser, String fileLogUrl) {
+    private void handleAndSaveAttachments(BugEditRequest request, List<MultipartFile> files, String currentUser) {
         /*
          * 附件处理逻辑
          * 1. 先处理删除, 及取消关联的附件
@@ -495,7 +492,7 @@ public class BugService {
         }
         if (CollectionUtils.isNotEmpty(request.getUnLinkRefIds())) {
             // 取消关联的附件, FILE_ASSOCIATION表
-            fileAssociationService.deleteByIds(request.getUnLinkRefIds(), createFileLogRecord(fileLogUrl, currentUser, request.getProjectId()));
+            fileAssociationService.deleteByIds(request.getUnLinkRefIds(), createFileLogRecord(currentUser, request.getProjectId()));
         }
 
         // 新本地上传的附件
@@ -527,7 +524,7 @@ public class BugService {
         // 新关联的附件
         if (CollectionUtils.isNotEmpty(request.getLinkFileIds())) {
             fileAssociationService.association(request.getId(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, request.getLinkFileIds(),
-                    createFileLogRecord(fileLogUrl, currentUser, request.getProjectId()));
+                    createFileLogRecord(currentUser, request.getProjectId()));
         }
     }
 
@@ -627,11 +624,9 @@ public class BugService {
 //        return template;
 //    }
 
-    private FileLogRecord createFileLogRecord(String logUrl, String operator, String projectId){
+    private FileLogRecord createFileLogRecord(String operator, String projectId){
         return FileLogRecord.builder()
                 .logModule(OperationLogModule.BUG_MANAGEMENT)
-                .requestMethod(HttpMethodConstants.POST.name())
-                .requestUrl(logUrl)
                 .operator(operator)
                 .projectId(projectId)
                 .build();

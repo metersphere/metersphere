@@ -26,6 +26,12 @@ public class DefaultRepositoryDir {
      * 插件存储目录
      */
     private static final String SYSTEM_PLUGIN_DIR = SYSTEM_ROOT_DIR + "/plugin";
+    /**
+     * 系统临时文件的存放目录
+     * system/temp
+     * 会定时清理
+     */
+    private static final String SYSTEM_TEMP_DIR = SYSTEM_ROOT_DIR + "/temp";
 
     /*------ end: 系统下资源目录 --------*/
 
@@ -91,5 +97,9 @@ public class DefaultRepositoryDir {
 
     public static String getApiDefinitionDir(String projectId, String apiId) {
         return String.format(PROJECT_API_DEFINITION_DIR, projectId, apiId);
+    }
+
+    public static String getSystemTempDir() {
+        return SYSTEM_TEMP_DIR;
     }
 }

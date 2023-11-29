@@ -46,13 +46,15 @@ public class ApiDebugAddRequest implements Serializable {
     @Schema(description = "请求内容")
     @NotBlank
     private String request;
-
     /**
-     * 文件ID列表
-     * 需要和上传的文件顺序保持一致
-     * 为了解决文件名称重复的问题，需要把文件和ID一一对应
+     * 新上传的文件ID
      * 创建时先按ID创建目录，再把文件放入目录
      */
-    @Schema(description = "接口所需的所有文件资源ID，与上传的文件顺序保持一致")
-    private List<String> fileIds;
+    @Schema(description = "新上传的文件ID")
+    private List<String> uploadFileIds;
+    /**
+     * 新关联的文件ID
+     */
+    @Schema(description = "关联文件ID")
+    private List<String> linkFileIds;
 }
