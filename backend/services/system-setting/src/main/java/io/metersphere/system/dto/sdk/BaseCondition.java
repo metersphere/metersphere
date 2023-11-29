@@ -11,9 +11,9 @@ public class BaseCondition {
     @Schema(description =  "关键字")
     private String keyword;
 
-    @Schema(description =  "过滤字段")
+    @Schema(description = "过滤字段")
     private Map<String, List<String>> filter;
 
-    @Schema(description =  "高级搜索")
+    @Schema(description = "高级搜索")
     private Map<String, Object> combine;
 }

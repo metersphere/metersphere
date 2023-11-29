@@ -17,6 +17,7 @@ import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,16 @@ public class BugCommentService {
         BugCommentExample example = new BugCommentExample();
         example.createCriteria().andBugIdEqualTo(bugId);
         List<BugComment> bugComments = bugCommentMapper.selectByExample(example);
+        return this.generateCommentDTOs(bugComments);
+    }
+
+    /**
+     * 生成缺陷评论DTO
+     *
+     * @param bugComments 缺陷评论集合
+     * @return 缺陷评论DTO
+     */
+    private List<BugCommentDTO> generateCommentDTOs(List<BugComment> bugComments) {
         if (CollectionUtils.isEmpty(bugComments)) {
             return new ArrayList<>();
         }
@@ -73,6 +84,23 @@ public class BugCommentService {
             parentComment.setChildComments(childComments);
         });
         return parentComments;
+    }
+
+
+    /**
+     * 批量获取缺陷ID
+     */
+    public Map<String, List<BugCommentDTO>> getComments(@NotEmpty List<String> bugIds) {
+        BugCommentExample example = new BugCommentExample();
+        example.createCriteria().andBugIdIn(bugIds);
+        List<BugComment> bugComments = bugCommentMapper.selectByExample(example);
+        Map<String, List<BugComment>> bugCommentByBugId = bugComments.stream().collect(Collectors.groupingBy(BugComment::getBugId));
+
+        Map<String, List<BugCommentDTO>> returnMap = new HashMap<>();
+        for (Map.Entry<String, List<BugComment>> entry : bugCommentByBugId.entrySet()) {
+            returnMap.put(entry.getKey(), generateCommentDTOs(entry.getValue()));
+        }
+        return returnMap;
     }
 
     /**

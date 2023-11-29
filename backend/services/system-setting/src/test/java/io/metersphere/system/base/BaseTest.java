@@ -146,6 +146,25 @@ public abstract class BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
+    protected MvcResult requestGetDownloadFile(String url, MediaType contentType, Object... uriVariables) throws Exception {
+        if (contentType == null) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM;
+        }
+        return mockMvc.perform(getRequestBuilder(url, uriVariables))
+                .andExpect(content().contentType(contentType))
+                .andExpect(status().isOk()).andReturn();
+    }
+
+    protected MvcResult requestPostDownloadFile(String url, MediaType contentType, Object param) throws Exception {
+        if (contentType == null) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM;
+        }
+        return mockMvc.perform(getPostRequestBuilder(url, param))
+                .andExpect(content().contentType(contentType))
+                .andExpect(status().isOk()).andReturn();
+    }
+
+
     protected MvcResult requestPostAndReturn(String url, Object param, Object... uriVariables) throws Exception {
         return this.requestPost(url, param, uriVariables).andReturn();
     }

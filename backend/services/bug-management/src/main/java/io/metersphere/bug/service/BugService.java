@@ -1,17 +1,16 @@
 package io.metersphere.bug.service;
 
+import io.metersphere.bug.constants.BugExportColumns;
 import io.metersphere.bug.domain.*;
 import io.metersphere.bug.dto.BugCustomFieldDTO;
 import io.metersphere.bug.dto.BugDTO;
 import io.metersphere.bug.dto.BugRelateCaseCountDTO;
 import io.metersphere.bug.dto.BugTagEditDTO;
-import io.metersphere.bug.dto.request.BugBatchRequest;
-import io.metersphere.bug.dto.request.BugBatchUpdateRequest;
-import io.metersphere.bug.dto.request.BugEditRequest;
-import io.metersphere.bug.dto.request.BugPageRequest;
+import io.metersphere.bug.dto.request.*;
 import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.mapper.*;
 import io.metersphere.bug.utils.CustomFieldUtils;
+import io.metersphere.bug.utils.ExportUtils;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileService;
@@ -39,6 +38,9 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -87,6 +89,8 @@ public class BugService {
     private BaseTemplateService baseTemplateService;
     @Resource
     private BugFollowerMapper bugFollowerMapper;
+    @Resource
+    private BugExportService bugExportService;
 
     public static final String ADD_BUG_FILE_LOG_URL = "/bug/add";
     public static final String UPDATE_BUG_FILE_LOG_URL = "/bug/update";
@@ -217,6 +221,14 @@ public class BugService {
         }
     }
 
+    private List<BugDTO> selectByBatchRequest(BugBatchRequest request) {
+        BugPageRequest bugPageRequest = new BugPageRequest();
+        BeanUtils.copyBean(bugPageRequest, request);
+        bugPageRequest.setUseTrash(false);
+        CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(bugPageRequest);
+        return extBugMapper.list(bugPageRequest);
+    }
+
     /**
      * 批量删除缺陷
      * @param request 请求参数
@@ -225,11 +237,7 @@ public class BugService {
         // 非Local直接删除, Local移入回收站
         if (request.isSelectAll()) {
             // 全选
-            BugPageRequest bugPageRequest = new BugPageRequest();
-            BeanUtils.copyBean(bugPageRequest, request);
-            bugPageRequest.setUseTrash(false);
-            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(bugPageRequest);
-            List<BugDTO> bugs = extBugMapper.list(bugPageRequest);
+            List<BugDTO> bugs = this.selectByBatchRequest(request);
             if (CollectionUtils.isNotEmpty(bugs)) {
                 List<String> deleteIds = bugs.stream().filter(bug -> !StringUtils.equals(BugPlatform.LOCAL.getName(), bug.getPlatform())).map(BugDTO::getId).toList();
                 if (CollectionUtils.isNotEmpty(deleteIds)) {
@@ -643,5 +651,25 @@ public class BugService {
         fileRequest.setFileName(StringUtils.isEmpty(fileName) ? null : fileName);
         fileRequest.setStorage(StorageType.MINIO.name());
         return fileRequest;
+    }
+
+    public ResponseEntity<byte[]> export(BugExportRequest request) throws Exception {
+        List<BugDTO> bugs = this.selectByBatchRequest(request);
+        if (CollectionUtils.isEmpty(bugs)) {
+            throw new MSException(Translator.get("no_bug_select"));
+        }
+        ExportUtils exportUtils = new ExportUtils(bugs, request.getExportColumns());
+        byte[] bytes = exportUtils.exportToZipFile(bugExportService::generateExcelFiles);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"bug-export.zip\"")
+                .body(bytes);
+    }
+
+
+    public BugExportColumns getExportColumns(String projectId) {
+        BugExportColumns bugExportColumns = new BugExportColumns();
+        //todo 等待Scc提供自定义字段的查询方法
+        return bugExportColumns;
     }
 }
