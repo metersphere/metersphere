@@ -17,6 +17,11 @@ export default {
     updateUser: '更新人',
     createTime: '创建时间',
     updateTime: '更新时间',
+    sync: '同步',
+    syncBugTipRowOne: '将第三方的缺陷同步到缺陷管理中，',
+    syncBugTipRowTwo: '新增缺陷和更新已有的缺陷？',
+    bugAutoSync: '系统 {name} 自动同步',
+    syncTime: '同步时间',
     edit: {
       defaultSystemTemplate: '默认为系统模板',
       content: '缺陷内容',

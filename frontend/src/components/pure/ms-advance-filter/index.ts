@@ -10,7 +10,7 @@ const GE = { label: 'advanceFilter.operator.ge', value: 'ge' };
 const LT = { label: 'advanceFilter.operator.lt', value: 'lt' };
 const LE = { label: 'advanceFilter.operator.le', value: 'le' };
 const EQUAL = { label: 'advanceFilter.operator.equal', value: 'equal' };
-const NOT_EQUAL = { label: 'advanceFilter.operator.notEqual', value: 'notEqual' };
+const NOT_EQUAL = { label: 'advanceFilter.operator.notEqual', value: 'not_equal' };
 const BETWEEN = { label: 'advanceFilter.operator.between', value: 'between' };
 
 export const OPERATOR_MAP = {
@@ -19,3 +19,5 @@ export const OPERATOR_MAP = {
   date: [GT, GE, LT, LE, EQUAL, NOT_EQUAL, BETWEEN],
   array: [IN, NOT_IN],
 };
+
+export const timeSelectOptions = [GE, LE];
