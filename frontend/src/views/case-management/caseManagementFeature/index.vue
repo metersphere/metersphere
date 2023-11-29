@@ -1,91 +1,94 @@
 <template>
-  <div class="mb-[16px]">
-    <a-button type="primary" @click="caseDetail">
-      {{ t('caseManagement.featureCase.creatingCase') }}
-    </a-button>
-    <a-button class="mx-3" type="outline"> {{ t('caseManagement.featureCase.importExcel') }} </a-button>
-    <a-button type="outline"> {{ t('caseManagement.featureCase.importXmind') }} </a-button>
-  </div>
-  <div class="pageWrap">
-    <MsSplitBox>
-      <template #left>
-        <div class="p-[24px] pb-0">
-          <div class="feature-case h-[100%]">
-            <div class="case h-[38px]">
-              <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
-                <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-                <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.allCase') }}</div>
-                <div class="folder-count">({{ modulesCount.all }})</div></div
-              >
-              <div class="ml-auto flex items-center">
-                <a-tooltip
-                  :content="
-                    isExpandAll ? t('project.fileManagement.collapseAll') : t('project.fileManagement.expandAll')
-                  "
-                >
-                  <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
-                    <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
-                  </MsButton>
-                </a-tooltip>
-                <MsPopConfirm
-                  ref="confirmRef"
-                  v-model:visible="addSubVisible"
-                  :is-delete="false"
-                  :title="t('caseManagement.featureCase.addSubModule')"
-                  :all-names="rootModulesName"
-                  :loading="confirmLoading"
-                  :ok-text="t('common.confirm')"
-                  :field-config="{
-                    placeholder: t('caseManagement.featureCase.addGroupTip'),
-                  }"
-                  @confirm="confirmHandler"
-                >
-                  <MsButton type="icon" class="!mr-0 p-[2px]">
-                    <MsIcon
-                      type="icon-icon_create_planarity"
-                      size="18"
-                      class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
-                    />
-                  </MsButton>
-                </MsPopConfirm>
-              </div>
-            </div>
-            <a-divider class="my-[8px]" />
-            <FeatureCaseTree
-              ref="caseTreeRef"
-              v-model:selected-keys="selectedKeys"
-              :all-names="rootModulesName"
-              :active-folder="activeFolder"
-              :is-expand-all="isExpandAll"
-              :modules-count="modulesCount"
-              @case-node-select="caseNodeSelect"
-              @init="setRootModules"
-            ></FeatureCaseTree>
-            <div class="b-0 absolute w-[88%]">
-              <a-divider class="!my-0 !mb-2" />
+  <div class="rounded-2xl bg-white">
+    <div class="p-[24px] pb-[16px]">
+      <a-button type="primary" @click="caseDetail">
+        {{ t('caseManagement.featureCase.creatingCase') }}
+      </a-button>
+      <a-button class="mx-3" type="outline"> {{ t('caseManagement.featureCase.importExcel') }} </a-button>
+      <a-button type="outline"> {{ t('caseManagement.featureCase.importXmind') }} </a-button>
+    </div>
+    <a-divider class="!my-0" />
+    <div class="pageWrap">
+      <MsSplitBox>
+        <template #left>
+          <div class="p-[24px] pb-0">
+            <div class="feature-case h-[100%]">
               <div class="case h-[38px]">
-                <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
-                  <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
-                  <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
-                  <div class="folder-count">({{ recycleModulesCount.all }})</div></div
+                <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
+                  <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
+                  <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.allCase') }}</div>
+                  <div class="folder-count">({{ modulesCount.all || 0 }})</div></div
                 >
+                <div class="ml-auto flex items-center">
+                  <a-tooltip
+                    :content="
+                      isExpandAll ? t('project.fileManagement.collapseAll') : t('project.fileManagement.expandAll')
+                    "
+                  >
+                    <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
+                      <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
+                    </MsButton>
+                  </a-tooltip>
+                  <MsPopConfirm
+                    ref="confirmRef"
+                    v-model:visible="addSubVisible"
+                    :is-delete="false"
+                    :title="t('caseManagement.featureCase.addSubModule')"
+                    :all-names="rootModulesName"
+                    :loading="confirmLoading"
+                    :ok-text="t('common.confirm')"
+                    :field-config="{
+                      placeholder: t('caseManagement.featureCase.addGroupTip'),
+                    }"
+                    @confirm="confirmHandler"
+                  >
+                    <MsButton type="icon" class="!mr-0 p-[2px]">
+                      <MsIcon
+                        type="icon-icon_create_planarity"
+                        size="18"
+                        class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+                      />
+                    </MsButton>
+                  </MsPopConfirm>
+                </div>
+              </div>
+              <a-divider class="my-[8px]" />
+              <FeatureCaseTree
+                ref="caseTreeRef"
+                v-model:selected-keys="selectedKeys"
+                :all-names="rootModulesName"
+                :active-folder="activeFolder"
+                :is-expand-all="isExpandAll"
+                :modules-count="modulesCount"
+                @case-node-select="caseNodeSelect"
+                @init="setRootModules"
+              ></FeatureCaseTree>
+              <div class="b-0 absolute w-[88%]">
+                <a-divider class="!my-0 !mb-2" />
+                <div class="case h-[38px]">
+                  <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
+                    <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
+                    <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
+                    <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div></div
+                  >
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </template>
-      <template #right>
-        <div class="p-[24px]">
-          <CaseTable
-            :active-folder="activeFolder"
-            :offspring-ids="offspringIds"
-            :active-folder-type="activeCaseType"
-            :modules-count="modulesCount"
-            @init="initModulesCount"
-          ></CaseTable>
-        </div>
-      </template>
-    </MsSplitBox>
+        </template>
+        <template #right>
+          <div class="p-[24px]">
+            <CaseTable
+              :active-folder="activeFolder"
+              :offspring-ids="offspringIds"
+              :active-folder-type="activeCaseType"
+              :modules-count="modulesCount"
+              @init="initModulesCount"
+            ></CaseTable>
+          </div>
+        </template>
+      </MsSplitBox>
+    </div>
   </div>
 </template>
 
@@ -234,12 +237,6 @@
     });
   }
 
-  function test() {
-    router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
-    });
-  }
-
   // 设置默认选中状态
   router.beforeEach((to: any, from: any, next) => {
     const routeEnumValues = Object.values(CaseManagementRouteEnum);
@@ -260,7 +257,7 @@
 <style scoped lang="less">
   .pageWrap {
     min-width: 1000px;
-    height: calc(100vh - 136px);
+    height: calc(100vh - 166px);
     border-radius: var(--border-radius-large);
     @apply bg-white;
     .case {

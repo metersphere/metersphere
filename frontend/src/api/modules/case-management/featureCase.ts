@@ -1,10 +1,13 @@
 import MSR from '@/api/http/index';
 import {
+  AddDemandUrl,
+  BatchAssociationDemandUrl,
   BatchCopyCaseUrl,
   BatchDeleteCaseUrl,
   BatchDeleteRecycleCaseListUrl,
   BatchEditCaseUrl,
   BatchMoveCaseUrl,
+  CancelAssociationDemandUrl,
   CreateCaseModuleTreeUrl,
   CreateCaseUrl,
   DeleteCaseModuleTreeUrl,
@@ -16,6 +19,7 @@ import {
   GetCaseModulesCountUrl,
   GetCaseModuleTreeUrl,
   GetDefaultTemplateFieldsUrl,
+  GetDemandListUrl,
   GetRecycleCaseListUrl,
   GetRecycleCaseModulesCountUrl,
   GetTrashCaseModuleTreeUrl,
@@ -24,6 +28,7 @@ import {
   RestoreCaseListUrl,
   UpdateCaseModuleTreeUrl,
   UpdateCaseUrl,
+  UpdateDemandUrl,
 } from '@/api/requrls/case-management/featureCase';
 
 import type {
@@ -33,8 +38,10 @@ import type {
   BatchMoveOrCopyType,
   CaseManagementTable,
   CaseModuleQueryParams,
+  CreateOrUpdateDemand,
   CreateOrUpdateModule,
   DeleteCaseType,
+  DemandItem,
   ModulesTreeType,
   MoveModules,
   UpdateModule,
@@ -146,4 +153,31 @@ export function recoverRecycleCase(id: string) {
 export function deleteRecycleCaseList(id: string) {
   return MSR.get({ url: `${DeleteRecycleCaseListUrl}/${id}` });
 }
+
+// 关联需求
+
+// 已关联需求列表
+export function getDemandList(data: TableQueryParams) {
+  return MSR.post<CommonList<DemandItem[]>>({ url: GetDemandListUrl, data });
+}
+
+// 添加需求
+export function addDemandRequest(data: CreateOrUpdateDemand) {
+  return MSR.post({ url: AddDemandUrl, data });
+}
+
+// 更新需求
+export function updateDemand(data: CreateOrUpdateDemand) {
+  return MSR.post({ url: UpdateDemandUrl, data });
+}
+// 批量关联需求
+export function batchAssociationDemand(data: CreateOrUpdateDemand) {
+  return MSR.post({ url: BatchAssociationDemandUrl, data });
+}
+
+// 取消关联
+export function cancelAssociationDemand(id: string) {
+  return MSR.get({ url: `${CancelAssociationDemandUrl}/${id}` });
+}
+
 export default {};

@@ -233,7 +233,7 @@
     </div>
     <!-- 自定义字段结束 -->
   </div>
-  <div class=" ">
+  <div>
     <MsUpload
       v-model:file-list="fileList"
       accept="none"

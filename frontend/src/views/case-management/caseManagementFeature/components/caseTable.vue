@@ -3,7 +3,7 @@
   <div class="page-header mb-4 h-[34px]">
     <div class="text-[var(--color-text-1)]"
       >{{ moduleNamePath }}
-      <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] }})</span></div
+      <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span></div
     >
     <div class="flex w-[80%] items-center justify-end">
       <a-select class="w-[240px]" :placeholder="t('caseManagement.featureCase.versionPlaceholder')">
@@ -57,8 +57,8 @@
     v-on="propsEvent"
     @batch-action="handleTableBatch"
   >
-    <template #name="{ record }">
-      <a-button type="text" class="px-0" @click="showCaseDetail(record.id)">{{ record.name }}</a-button>
+    <template #name="{ record, rowIndex }">
+      <a-button type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.name }}</a-button>
     </template>
     <template #reviewStatus="{ record }">
       <MsIcon
@@ -135,6 +135,14 @@
   </a-modal>
   <ExportExcelDrawer v-model:visible="showExportExcelVisible" />
   <BatchEditModal v-model:visible="showEditModel" :batch-params="batchParams" @success="successHandler" />
+  <CaseDetailDrawer
+    v-model:visible="showDetailDrawer"
+    :detail-id="activeDetailId"
+    :detail-index="activeCaseIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="propsRes.msPagination!"
+  />
 </template>
 
 <script setup lang="ts">
@@ -152,6 +160,7 @@
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import FilterPanel from '@/components/business/ms-filter-panel/searchForm.vue';
   import BatchEditModal from './batchEditModal.vue';
+  import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
   import ExportExcelDrawer from './exportExcelDrawer.vue';
 
@@ -429,6 +438,10 @@
     ],
     moreAction: [
       {
+        label: 'featureTest.featureCase.addDemand',
+        eventTag: 'addDemand',
+      },
+      {
         label: 'caseManagement.featureCase.associatedDemand',
         eventTag: 'associatedDemand',
       },
@@ -495,7 +508,7 @@
       scroll: { x: 3200 },
       selectable: true,
       showSetting: true,
-      heightUsed: 340,
+      heightUsed: 374,
       enableDrag: true,
     },
     (record) => ({
@@ -714,6 +727,11 @@
     });
   }
 
+  // 添加需求
+  function addDemand() {}
+  // 关联需求
+  function handleAssociatedDemand() {}
+
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     batchParams.value = params;
     if (event.eventTag === 'exportExcel') {
@@ -728,6 +746,10 @@
     } else if (event.eventTag === 'batchCopyTo') {
       batchMoveOrCopy();
       isMove.value = false;
+    } else if (event.eventTag === 'addDemand') {
+      addDemand();
+    } else if (event.eventTag === 'associatedDemand') {
+      handleAssociatedDemand();
     }
   }
 
@@ -741,9 +763,15 @@
     emitTableParams();
     resetSelector();
   }
-
+  const showDetailDrawer = ref(false);
+  const activeDetailId = ref<string>('');
+  const activeCaseIndex = ref<number>(0);
   // 详情
-  function showCaseDetail(id: string) {}
+  function showCaseDetail(id: string, index: number) {
+    showDetailDrawer.value = true;
+    activeDetailId.value = id;
+    activeCaseIndex.value = index;
+  }
 
   watch(
     () => showType.value,

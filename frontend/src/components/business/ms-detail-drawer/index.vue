@@ -9,7 +9,12 @@
   >
     <template #title>
       <div class="flex w-full items-center">
-        {{ props.title }}
+        <a-tooltip :content="props.title" position="bottom">
+          <div class="one-line-text max-w-[300px]">
+            {{ props.title }}
+          </div>
+        </a-tooltip>
+
         <MsPrevNextButton
           ref="prevNextButtonRef"
           v-model:loading="loading"

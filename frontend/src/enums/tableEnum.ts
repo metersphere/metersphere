@@ -33,6 +33,7 @@ export enum TableKeyEnum {
   CASE_MANAGEMENT_DETAIL_TABLE = 'caseManagementDetailTable',
   CASE_MANAGEMENT_ASSOCIATED_TABLE = 'caseManagementAssociatedFileTable',
   BUG_MANAGEMENT = 'bugManagement',
+  CASE_MANAGEMENT_DEMAND = 'caseManagementDemand',
   CASE_MANAGEMENT_REVIEW = 'caseManagementReview',
   CASE_MANAGEMENT_REVIEW_CASE = 'caseManagementReviewCase',
 }

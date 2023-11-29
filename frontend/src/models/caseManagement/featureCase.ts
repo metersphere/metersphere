@@ -176,9 +176,41 @@ export interface CaseModuleQueryParams extends TableQueryParams {
   projectId: string;
 }
 
-// export interface BatchParams extends BatchMoveOrCopyType {
-//   selectIds: string[];
-//   selectAll: boolean;
-//   moduleIds: string[];
-//   projectId: string;
-// }
+export interface TabItemType {
+  key: string;
+  title: string;
+  enable: boolean;
+}
+
+// 需求
+export interface DemandItem {
+  id: string;
+  caseId: string; // 功能用例ID
+  demandId: string; // 需求ID
+  demandName: string; // 需求标题
+  demandUrl: string; // 需求地址
+  demandPlatform: string; // 需求所属平台
+  createTime: string;
+  updateTime: string;
+  createUser: string;
+  updateUser: string;
+  children: DemandItem[]; // 平台下对应的需求
+}
+
+// 平台需求列表
+export interface DemandFormList {
+  demandId: string;
+  demandName: string;
+  demandUrl: string;
+}
+
+// 创建需求&编辑需求
+export interface CreateOrUpdateDemand {
+  id?: string;
+  caseId: string;
+  demandPlatform: string;
+  demandList?: DemandFormList[];
+  [key: string]: any;
+}
+
+export type DemandList = DemandItem[];

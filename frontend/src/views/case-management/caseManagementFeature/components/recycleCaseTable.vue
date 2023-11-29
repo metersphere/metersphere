@@ -14,7 +14,7 @@
               <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
                 <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
                 <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.allCase') }}</div>
-                <div class="folder-count">({{ recycleModulesCount.all }})</div></div
+                <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div></div
               >
               <div class="ml-auto flex items-center">
                 <a-tooltip
@@ -29,7 +29,7 @@
               </div>
             </div>
             <a-divider class="my-[8px]" />
-            <a-spin class="w-full" :loading="loading">
+            <a-spin class="w-full" :style="{ height: `calc(100vh - 274px)` }" :loading="loading">
               <MsTree
                 v-model:focus-node-key="focusNodeKey"
                 :selected-keys="selectedKeys"
@@ -65,7 +65,7 @@
           <div class="page-header mb-4 h-[34px]">
             <div class="text-[var(--color-text-1)]"
               >{{ currentModuleName }}
-              <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] }})</span></div
+              <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] || 0 }})</span></div
             >
             <div class="flex w-[80%] items-center justify-end">
               <a-select class="w-[240px]" :placeholder="t('caseManagement.featureCase.versionPlaceholder')">
@@ -129,7 +129,6 @@
    * @description 功能用例-回收站
    */
   import { computed, ref } from 'vue';
-  import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -408,7 +407,7 @@
 
   const virtualListProps = computed(() => {
     return {
-      height: 'calc(100vh - 316px)',
+      height: 'calc(100vh - 270px)',
     };
   });
 
@@ -645,7 +644,7 @@
 <style scoped lang="less">
   .pageWrap {
     min-width: 1000px;
-    height: calc(100vh - 136px);
+    height: calc(100vh - 126px);
     border-radius: var(--border-radius-large);
     @apply bg-white;
     .back {

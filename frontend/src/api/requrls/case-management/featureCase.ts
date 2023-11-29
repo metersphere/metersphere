@@ -59,4 +59,17 @@ export const RecoverRecycleCaseListUrl = '/functional/case/trash/recover';
 // 删除回收站单个用例
 export const DeleteRecycleCaseListUrl = '/functional/case/trash/delete';
 
+// 关联需求
+
+// 已关联需求列表
+export const GetDemandListUrl = '/functional/case/demand/page';
+// 添加需求
+export const AddDemandUrl = '/functional/case/demand/add';
+// 更新需求
+export const UpdateDemandUrl = '/functional/case/demand/update';
+// 批量关联需求
+export const BatchAssociationDemandUrl = '/functional/case/demand/batch/relevance';
+// 取消关联
+export const CancelAssociationDemandUrl = '/functional/case/demand/cancel';
+
 export default {};

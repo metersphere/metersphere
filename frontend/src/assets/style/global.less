@@ -95,3 +95,47 @@ body {
     background: rgb(var(--primary-6));
   }
 }
+// 用例数量小圆标签样式
+.round-label {
+  width: 14px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  background: var(--color-text-brand);
+  @apply relative ml-3 inline-block text-xs text-white;
+  &.active::before {
+    background: rgb(var(--primary-5));
+  }
+  &.active::after {
+    background: rgb(var(--primary-5));
+  }
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background: var(--color-text-brand);
+  }
+  &::before {
+    left: -6px;
+    border-radius: 16px 0 0 16px;
+  }
+  &::after {
+    right: -6px;
+    border-radius: 0 16px 16px 0;
+  }
+  .label {
+    position: absolute;
+    top: 1px;
+    right: 0;
+    left: -1px;
+    z-index: 9;
+    margin: auto;
+    height: 16px;
+  }
+  &.active {
+    background: rgb(var(--primary-5)) !important;
+  }
+}
