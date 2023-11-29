@@ -221,27 +221,18 @@ public class ApiTestCaseLogService {
     }
 
     public void batchToGcLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        Project project = projectMapper.selectByPrimaryKey(projectId);
-        List<LogDTO> logs = new ArrayList<>();
-        apiTestCases.forEach(item -> {
-                    LogDTO dto = LogDTOBuilder.builder()
-                            .projectId(project.getId())
-                            .organizationId(project.getOrganizationId())
-                            .type(OperationLogType.DELETE.name())
-                            .module(OperationLogModule.API_DEFINITION_CASE)
-                            .method(HttpMethodConstants.POST.name())
-                            .path("/api/case/batch/move-gc")
-                            .sourceId(item.getId())
-                            .content(item.getName())
-                            .createUser(operator)
-                            .build().getLogDTO();
-                    logs.add(dto);
-                }
-        );
-        operationLogService.batchAdd(logs);
+        saveBatchLog(projectId, apiTestCases, "/api/case/batch/move-gc", operator, OperationLogType.DELETE.name());
     }
 
     public void batchEditLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
+        saveBatchLog(projectId, apiTestCases, "/api/case/batch/edit", operator, OperationLogType.UPDATE.name());
+    }
+
+    public void batchRecoverLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
+        saveBatchLog(projectId, apiTestCases, "/api/case/recover", operator, OperationLogType.RECOVER.name());
+    }
+
+    private void saveBatchLog(String projectId, List<ApiTestCase> apiTestCases, String path, String operator, String operationType) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         //取出apiTestCases所有的id为新的list
         List<String> caseId = apiTestCases.stream().map(ApiTestCase::getId).distinct().toList();
@@ -257,22 +248,22 @@ public class ApiTestCaseLogService {
         Map<String, ApiTestCaseBlob> blobMap = blobList.stream().collect(Collectors.toMap(ApiTestCaseBlob::getId, a -> a));
         List<LogDTO> logs = new ArrayList<>();
         apiTestCases.forEach(item -> {
-            ApiTestCaseLogDTO apiTestCaseDTO = new ApiTestCaseLogDTO();
-            BeanUtils.copyBean(apiTestCaseDTO, caseMap.get(item.getId()));
-            if (blobMap.get(item.getId()) != null) {
-                apiTestCaseDTO.setRequest(ApiDataUtils.parseObject(new String(blobMap.get(item.getId()).getRequest()), AbstractMsTestElement.class));
-            }
-            LogDTO dto = LogDTOBuilder.builder()
+                    ApiTestCaseLogDTO apiTestCaseDTO = new ApiTestCaseLogDTO();
+                    BeanUtils.copyBean(apiTestCaseDTO, caseMap.get(item.getId()));
+                    if (blobMap.get(item.getId()) != null) {
+                        apiTestCaseDTO.setRequest(ApiDataUtils.parseObject(new String(blobMap.get(item.getId()).getRequest()), AbstractMsTestElement.class));
+                    }
+                    LogDTO dto = LogDTOBuilder.builder()
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
-                            .type(OperationLogType.DELETE.name())
+                            .type(operationType)
                             .module(OperationLogModule.API_DEFINITION_CASE)
                             .method(HttpMethodConstants.POST.name())
-                    .path("/api/case/batch/edit")
+                            .path(path)
                             .sourceId(item.getId())
                             .content(item.getName())
                             .createUser(operator)
-                    .originalValue(JSON.toJSONBytes(apiTestCaseDTO))
+                            .originalValue(JSON.toJSONBytes(apiTestCaseDTO))
                             .build().getLogDTO();
                     logs.add(dto);
                 }

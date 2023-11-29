@@ -7,6 +7,10 @@ import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.dto.filemanagement.FileInfo;
+import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
+import io.metersphere.project.service.FileAssociationService;
+import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -17,10 +21,12 @@ import io.metersphere.sdk.dto.api.request.http.MsHTTPElement;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.file.FileCenter;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.file.MinioRepository;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -29,6 +35,7 @@ import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -40,12 +47,10 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.util.LinkedMultiValueMap;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,6 +80,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String BATCH_DELETE = BASE_PATH + "batch/delete";
     private static final String BATCH_MOVE_GC = BASE_PATH + "batch/move-gc";
     private static final String POS_URL = BASE_PATH + "/edit/pos";
+    private static final String UPLOAD_TEMP_FILE = BASE_PATH + "/upload/temp/file";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static ApiTestCase apiTestCase;
@@ -92,12 +98,14 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private ApiTestCaseFollowerMapper apiTestCaseFollowerMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
-    @Resource
-    private ApiFileResourceService apiFileResourceService;
+    private static String fileMetadataId;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    private static String uploadFileId;
+    @Resource
+    private FileMetadataService fileMetadataService;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -183,9 +191,112 @@ public class ApiTestCaseControllerTests extends BaseTest {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
+    private static MockMultipartFile getMockMultipartFile() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "file_upload.JPG",
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "Hello, World!".getBytes()
+        );
+        return file;
+    }
+
+    /**
+     * 校验上传的文件
+     *
+     * @param id
+     * @param fileIds 全部的文件ID
+     */
+    public static void assertUploadFile(String id, List<String> fileIds) throws Exception {
+        if (fileIds != null) {
+            ApiFileResourceService apiFileResourceService = CommonBeanFactory.getBean(ApiFileResourceService.class);
+            // 验证文件的关联关系，以及是否存入对象存储
+            List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
+            Assertions.assertEquals(apiFileResources.size(), fileIds.size());
+
+            String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(DEFAULT_PROJECT_ID, id);
+            FileRequest fileRequest = new FileRequest();
+            if (fileIds.size() > 0) {
+                for (ApiFileResource apiFileResource : apiFileResources) {
+                    Assertions.assertEquals(apiFileResource.getProjectId(), DEFAULT_PROJECT_ID);
+                    fileRequest.setFolder(apiDebugDir + "/" + apiFileResource.getFileId());
+                    fileRequest.setFileName(apiFileResource.getFileName());
+                    Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
+                }
+                fileRequest.setFolder(apiDebugDir);
+            } else {
+                fileRequest.setFolder(apiDebugDir);
+                Assertions.assertTrue(CollectionUtils.isEmpty(FileCenter.getDefaultRepository().getFolderFileNames(fileRequest)));
+            }
+        }
+    }
+
+    /**
+     * 校验上传的文件
+     *
+     * @param id
+     * @param fileIds 全部的文件ID
+     */
+    private static void assertLinkFile(String id, List<String> fileIds) {
+        FileAssociationService fileAssociationService = CommonBeanFactory.getBean(FileAssociationService.class);
+        List<String> linkFileIds = fileAssociationService.getFiles(id, FileAssociationSourceUtil.SOURCE_TYPE_API_TEST_CASE)
+                .stream()
+                .map(FileInfo::getFileId)
+                .toList();
+        Assertions.assertEquals(fileIds, linkFileIds);
+    }
+
+    @Test
+    @Order(0)
+    /**
+     * 文件管理插入一条数据
+     * 便于测试关联文件
+     */
+    public void uploadFileMetadata() throws Exception {
+        FileUploadRequest fileUploadRequest = new FileUploadRequest();
+        fileUploadRequest.setProjectId(DEFAULT_PROJECT_ID);
+        //导入正常文件
+        MockMultipartFile file = new MockMultipartFile("file", "case_file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        fileMetadataId = fileMetadataService.upload(fileUploadRequest, "admin", file);
+    }
 
     @Test
     @Order(1)
+    public void uploadTempFile() throws Exception {
+        // @@请求成功
+        MockMultipartFile file = getMockMultipartFile();
+        String fileId = doUploadTempFile(file);
+
+        // 校验文件存在
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
+        fileRequest.setFileName(file.getOriginalFilename());
+        Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
+
+        requestUploadPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, UPLOAD_TEMP_FILE, file);
+        requestUploadPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, UPLOAD_TEMP_FILE, file);
+    }
+
+    private ApiTestCase assertUpdateApiDebug(Object request, MsHTTPElement msHttpElement, String id) {
+        ApiTestCase apiCase = apiTestCaseMapper.selectByPrimaryKey(id);
+        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
+        ApiTestCase copyApiDebug = BeanUtils.copyBean(new ApiTestCase(), apiCase);
+        BeanUtils.copyBean(copyApiDebug, request);
+        Assertions.assertEquals(apiCase, copyApiDebug);
+        ApiDataUtils.setResolver(MsHTTPElement.class);
+        Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
+        return apiCase;
+    }
+
+    private String doUploadTempFile(MockMultipartFile file) throws Exception {
+        return JSON.parseObject(requestUploadFileWithOkAndReturn(UPLOAD_TEMP_FILE, file)
+                        .getResponse()
+                        .getContentAsString(), ResultHolder.class)
+                .getData().toString();
+    }
+
+    @Test
+    @Order(2)
     public void add() throws Exception {
         initApiData();
         EnvironmentExample environmentExample = new EnvironmentExample();
@@ -202,44 +313,41 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setEnvironmentId(environments.get(0).getId());
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
-        request.setFileIds(List.of("fileId1"));
-        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("request", JSON.toJSONString(request));
-        FileInputStream inputStream = new FileInputStream(new File(
-                this.getClass().getClassLoader().getResource("file/file_upload.JPG")
-                        .getPath()));
-        MockMultipartFile file = new MockMultipartFile("file_upload.JPG", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
-        paramMap.add("files", List.of(file));
-        MvcResult mvcResult = this.requestMultipartWithOkAndReturn(ADD, paramMap);
+
+        uploadFileId = doUploadTempFile(getMockMultipartFile());
+        request.setUploadFileIds(List.of(uploadFileId));
+
+        request.setLinkFileIds(List.of(fileMetadataId));
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(ADD, request);
         // 校验请求成功数据
         ApiTestCase resultData = getResultData(mvcResult, ApiTestCase.class);
         apiTestCase = assertUpdateApiDebug(request, msHttpElement, resultData.getId());
-
+        assertUploadFile(resultData.getId(), List.of(uploadFileId));
+        assertLinkFile(resultData.getId(), List.of(fileMetadataId));
         // 再插入一条数据，便于修改时重名校验
         request.setName("test1");
         request.setTags(new LinkedHashSet<>());
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        mvcResult = this.requestMultipartWithOkAndReturn(ADD, paramMap);
+        request.setUploadFileIds(null);
+        request.setLinkFileIds(null);
+        mvcResult = this.requestPostWithOkAndReturn(ADD, request);
         resultData = getResultData(mvcResult, ApiTestCase.class);
         anotherApiTestCase = apiTestCaseMapper.selectByPrimaryKey(resultData.getId());
         assertUpdateApiDebug(request, msHttpElement, resultData.getId());
+        assertUploadFile(resultData.getId(), List.of());
+        assertLinkFile(resultData.getId(), List.of());
 
         // @@重名校验异常
-        this.requestMultipart(ADD, paramMap).andExpect(ERROR_REQUEST_MATCHER);
+        this.requestPost(ADD, request).andExpect(ERROR_REQUEST_MATCHER);
         // 校验接口是否存在
         request.setApiDefinitionId("111");
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipart(ADD, paramMap).andExpect(ERROR_REQUEST_MATCHER);
+        this.requestPost(ADD, request).andExpect(ERROR_REQUEST_MATCHER);
 
         // 校验项目是否存在
         request.setProjectId("111");
         request.setApiDefinitionId("apiDefinitionId");
         request.setName("test123");
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipart(ADD, paramMap).andExpect(ERROR_REQUEST_MATCHER);
+        this.requestPost(ADD, request).andExpect(ERROR_REQUEST_MATCHER);
 
         // @@校验日志
         checkLog(apiTestCase.getId(), OperationLogType.ADD);
@@ -247,26 +355,14 @@ public class ApiTestCaseControllerTests extends BaseTest {
         createdGroupParamValidateTest(ApiTestCaseAddRequestDefinition.class, ADD);
         // @@校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
-        paramMap.clear();
         request.setName("permission");
-        paramMap.add("request", JSON.toJSONString(request));
-        requestMultipartPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, ADD, paramMap);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, ADD, request);
 
     }
 
-    private ApiTestCase assertUpdateApiDebug(Object request, MsHTTPElement msHttpElement, String id) {
-        ApiTestCase apiCase = apiTestCaseMapper.selectByPrimaryKey(id);
-        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
-        ApiTestCase copyApiDebug = BeanUtils.copyBean(new ApiTestCase(), apiCase);
-        BeanUtils.copyBean(copyApiDebug, request);
-        Assertions.assertEquals(apiCase, copyApiDebug);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
-        Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
-        return apiCase;
-    }
 
     @Test
-    @Order(2)
+    @Order(3)
     public void get() throws Exception {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(GET + apiTestCase.getId())
@@ -290,7 +386,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
         List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
         copyApiDebugDTO.setFollow(CollectionUtils.isNotEmpty(followers));
         copyApiDebugDTO.setRequest(ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class));
-        copyApiDebugDTO.setFileIds(apiFileResourceService.getFileIdsByResourceId(apiTestCase.getId()));
         Assertions.assertEquals(apiDebugDTO, copyApiDebugDTO);
         this.requestGetWithOk(GET + anotherApiTestCase.getId())
                 .andReturn();
@@ -302,7 +397,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void moveToGC() throws Exception {
         // @@请求成功
         this.requestGetWithOk(MOVE_TO_GC + apiTestCase.getId());
@@ -318,10 +413,18 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void recover() throws Exception {
         // @@请求成功
-        this.requestGetWithOk(RECOVER + apiTestCase.getId());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(RECOVER + apiTestCase.getId());
+        requestBuilder
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN")
+                .header(SessionConstants.CURRENT_PROJECT, DEFAULT_PROJECT_ID);
+        mockMvc.perform(requestBuilder)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
         ApiTestCase apiCase = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
         Assertions.assertFalse(apiCase.getDeleted());
         // @@校验日志
@@ -340,7 +443,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
     //关注
     @Test
-    @Order(5)
+    @Order(6)
     public void follow() throws Exception {
         // @@请求成功
         this.requestGetWithOk(FOLLOW + apiTestCase.getId());
@@ -356,7 +459,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void unfollow() throws Exception {
         // @@请求成功
         this.requestGetWithOk(UNFOLLOW + apiTestCase.getId());
@@ -372,7 +475,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     public void update() throws Exception {
         // @@请求成功
         ApiTestCaseUpdateRequest request = new ApiTestCaseUpdateRequest();
@@ -384,48 +487,70 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setEnvironmentId(null);
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
-        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        request.setFileIds(List.of("fileId1"));
-        request.setAddFileIds(List.of("fileId2"));
-        paramMap.add("request", JSON.toJSONString(request));
-        FileInputStream inputStream = new FileInputStream(new File(
-                this.getClass().getClassLoader().getResource("file/file_upload.JPG")
-                        .getPath()));
-        MockMultipartFile file = new MockMultipartFile("file_upload.JPG", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
-        paramMap.add("files", List.of(file));
-        MvcResult mvcResult = this.requestMultipartWithOkAndReturn(UPDATE, paramMap);
+        // 不带文件的更新
+        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setDeleteFileIds(List.of(uploadFileId));
+        this.requestPostWithOk(UPDATE, request);
         // 校验请求成功数据
+        assertUpdateApiDebug(request, msHttpElement, request.getId());
+        assertUploadFile(apiTestCase.getId(), List.of());
+        assertLinkFile(apiTestCase.getId(), List.of());
+        // 校验请求成功数据
+        request.setTags(new ArrayList<>());
+        MvcResult mvcResult = this.responsePost(UPDATE, request);
         ApiTestCase resultData = getResultData(mvcResult, ApiTestCase.class);
         assertUpdateApiDebug(request, msHttpElement, resultData.getId());
-        request.setTags(new ArrayList<>());
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        mvcResult = this.requestMultipartWithOkAndReturn(UPDATE, paramMap);
-        resultData = getResultData(mvcResult, ApiTestCase.class);
-        assertUpdateApiDebug(request, msHttpElement, resultData.getId());
+
+        // 带文件的更新
+        String fileId = doUploadTempFile(getMockMultipartFile());
+        request.setUploadFileIds(List.of(fileId));
+        request.setLinkFileIds(List.of(fileMetadataId));
+        request.setDeleteFileIds(null);
+        request.setUnLinkRefIds(null);
+        this.requestPostWithOk(UPDATE, request);
+        // 校验请求成功数据
+        assertUpdateApiDebug(request, msHttpElement, request.getId());
+        assertUploadFile(apiTestCase.getId(), List.of(fileId));
+        assertLinkFile(apiTestCase.getId(), List.of(fileMetadataId));
+
+        // 删除了上一次上传的文件，重新上传一个文件
+        request.setDeleteFileIds(List.of(fileId));
+        String newFileId1 = doUploadTempFile(getMockMultipartFile());
+        request.setUploadFileIds(List.of(newFileId1));
+        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setLinkFileIds(List.of(fileMetadataId));
+        this.requestPostWithOk(UPDATE, request);
+        assertUpdateApiDebug(request, msHttpElement, request.getId());
+        assertUploadFile(apiTestCase.getId(), List.of(newFileId1));
+        assertLinkFile(apiTestCase.getId(), List.of(fileMetadataId));
+
+        // 已有一个文件，再上传一个文件
+        String newFileId2 = doUploadTempFile(getMockMultipartFile());
+        request.setUploadFileIds(List.of(newFileId2));
+        this.requestPostWithOk(UPDATE, request);
+        // 校验请求成功数据
+        assertUpdateApiDebug(request, msHttpElement, request.getId());
+        assertUploadFile(apiTestCase.getId(), List.of(newFileId1, newFileId2));
+        assertLinkFile(apiTestCase.getId(), List.of(fileMetadataId));
 
         // @@重名校验异常
         request.setName("update");
         request.setId(anotherApiTestCase.getId());
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipart(UPDATE, paramMap).andExpect(ERROR_REQUEST_MATCHER);
+        this.requestPost(UPDATE, request).andExpect(ERROR_REQUEST_MATCHER);
         // 校验接口是否存在
         request.setId("111");
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipart(UPDATE, paramMap).andExpect(ERROR_REQUEST_MATCHER);
+        this.requestPost(UPDATE, request).andExpect(ERROR_REQUEST_MATCHER);
 
         // @@校验日志
         checkLog(apiTestCase.getId(), OperationLogType.UPDATE);
         // @@异常参数校验
         createdGroupParamValidateTest(ApiTestCaseUpdateRequest.class, UPDATE);
         // @@校验权限
-        requestMultipartPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, UPDATE, paramMap);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, UPDATE, request);
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     public void testPos() throws Exception {
         PosRequest posRequest = new PosRequest();
         posRequest.setProjectId(DEFAULT_PROJECT_ID);
@@ -440,7 +565,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     public void test() throws Exception {
         PosRequest request = new PosRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
@@ -457,7 +582,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     public void page() throws Exception {
         // @@请求成功
         ApiTestCaseAddRequest request = new ApiTestCaseAddRequest();
@@ -469,9 +594,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
-        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipartWithOkAndReturn(ADD, paramMap);
+        this.requestPost(ADD, request);
         ApiTestCasePageRequest pageRequest = new ApiTestCasePageRequest();
         pageRequest.setProjectId(DEFAULT_PROJECT_ID);
         pageRequest.setPageSize(10);
@@ -519,7 +642,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(11)
+    @Order(12)
     public void updateStatus() throws Exception {
         // @@请求成功
         this.requestGetWithOk(UPDATE_STATUS + "/" + apiTestCase.getId() + "/Underway");
@@ -533,7 +656,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(12)
+    @Order(13)
     public void batchEdit() throws Exception {
         // 追加标签
         ApiCaseBatchEditRequest request = new ApiCaseBatchEditRequest();
@@ -636,7 +759,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(13)
+    @Order(14)
     public void batchMoveGc() throws Exception {
         // @@请求成功
         ApiTestCaseBatchRequest request = new ApiTestCaseBatchRequest();
@@ -666,7 +789,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(14)
+    @Order(15)
     public void trashPage() throws Exception {
         // @@请求成功
         ApiTestCasePageRequest pageRequest = new ApiTestCasePageRequest();

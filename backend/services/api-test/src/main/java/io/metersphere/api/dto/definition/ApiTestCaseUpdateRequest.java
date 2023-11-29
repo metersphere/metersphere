@@ -45,15 +45,29 @@ public class ApiTestCaseUpdateRequest implements Serializable {
     @NotBlank
     private String request;
 
-    @Schema(description = "接口用例所需的所有文件资源ID")
-    private List<String> fileIds;
-
     /**
      * 新上传的文件ID
-     * 为了解决文件名称重复的问题，需要把文件和ID一一对应
      * 创建时先按ID创建目录，再把文件放入目录
      */
-    @Schema(description = "新上传的文件ID，与上传的文件顺序保持一致")
-    private List<String> addFileIds;
+    @Schema(description = "新上传的文件ID")
+    private List<String> uploadFileIds;
+
+    /**
+     * 新关联文件管理的文件ID
+     */
+    @Schema(description = "关联文件ID")
+    private List<String> linkFileIds;
+
+    /**
+     * 删除本地上传的文件ID
+     */
+    @Schema(description = "删除的文件ID")
+    private List<String> deleteFileIds;
+
+    /**
+     * 删除关联的文件ID
+     */
+    @Schema(description = "取消关联文件ID")
+    private List<String> unLinkRefIds;
 
 }
