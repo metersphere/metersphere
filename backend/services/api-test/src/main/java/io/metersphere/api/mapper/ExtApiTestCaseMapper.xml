@@ -58,7 +58,9 @@
     </select>
     <select id="getCaseInfoByApiIds" resultType="io.metersphere.api.domain.ApiTestCase">
         SELECT id,
-        name
+        name,
+        api_definition_id,
+        project_id
         FROM api_test_case
         WHERE deleted = #{deleted} and api_definition_id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">

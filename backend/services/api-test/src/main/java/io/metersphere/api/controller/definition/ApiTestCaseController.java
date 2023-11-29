@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,8 +41,8 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiTestCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_CREATE, target = "#targetClass.getCaseDTO(#request)", targetClass = ApiTestCaseNoticeService.class)
-    public ApiTestCase add(@Validated @RequestPart("request") ApiTestCaseAddRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
-        return apiTestCaseService.addCase(request, files, SessionUtils.getUserId());
+    public ApiTestCase add(@Validated @RequestBody ApiTestCaseAddRequest request) {
+        return apiTestCaseService.addCase(request, SessionUtils.getUserId());
     }
 
     @GetMapping(value = "/get-detail/{id}")
@@ -64,7 +65,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER)
     @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#id)", msClass = ApiTestCaseLogService.class)
     public void recover(@PathVariable String id) {
-        apiTestCaseService.recover(id);
+        apiTestCaseService.recover(id, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
 
     @GetMapping("follow/{id}")
@@ -95,8 +96,8 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-更新")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiTestCaseLogService.class)
-    public ApiTestCase update(@Validated @RequestPart("request") ApiTestCaseUpdateRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
-        return apiTestCaseService.update(request, files, SessionUtils.getUserId());
+    public ApiTestCase update(@Validated @RequestBody ApiTestCaseUpdateRequest request) {
+        return apiTestCaseService.update(request, SessionUtils.getUserId());
     }
 
     @GetMapping(value = "/update-status/{id}/{status}")
@@ -150,5 +151,11 @@ public class ApiTestCaseController {
         apiTestCaseService.editPos(request);
     }
 
+    @PostMapping("/upload/temp/file")
+    @Operation(summary = "上传接口调试所需的文件资源，并返回文件ID")
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE})
+    public String uploadTempFile(@RequestParam("file") MultipartFile file) {
+        return apiTestCaseService.uploadTempFile(file);
+    }
 
 }
