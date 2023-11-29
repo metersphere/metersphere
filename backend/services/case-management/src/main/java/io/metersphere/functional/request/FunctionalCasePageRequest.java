@@ -32,10 +32,6 @@ public class FunctionalCasePageRequest extends BasePageRequest implements Serial
     @Schema(description = "模块id")
     private List<String> moduleIds;
 
-    @Schema(description = "匹配模式 所有/任一", allowableValues = {"AND", "OR"})
-    private String searchMode = "AND";
-
-
     @Schema(description = "关联用例")
     private AssociationDTO associationCase;
 

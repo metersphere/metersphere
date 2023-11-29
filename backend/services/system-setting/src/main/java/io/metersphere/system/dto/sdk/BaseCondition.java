@@ -11,6 +11,9 @@ public class BaseCondition {
     @Schema(description =  "关键字")
     private String keyword;
 
+    @Schema(description = "匹配模式 所有/任一", allowableValues = {"AND", "OR"})
+    private String searchMode = "AND";
+
     @Schema(description =  "过滤字段")
     private Map<String, List<String>> filter;
 
