@@ -42,18 +42,6 @@
             style="margin-left: -20px">
             {{ saveButtonText }}
           </el-button>
-
-          <el-button
-            v-if="!isXpack || !showUpdateRule"
-            type="primary"
-            size="small"
-            @click="saveAndCreate()"
-            v-prevent-re-click
-            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
-            style="margin-left: 2px">
-            {{ $t('home.dashboard.api_case.save_and_create') }}
-          </el-button>
-
           <el-dropdown
             v-else
             style="margin-left: -17px"
@@ -75,6 +63,17 @@
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
+
+          <el-button
+            v-if="!isXpack || !showUpdateRule"
+            type="primary"
+            size="small"
+            @click="saveAndCreate()"
+            v-prevent-re-click
+            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
+            style="margin-left: 2px">
+            {{ $t('home.dashboard.api_case.save_and_create') }}
+          </el-button>
         </el-col>
       </el-row>
     </el-card>
