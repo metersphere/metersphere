@@ -77,6 +77,12 @@
         <if test="request.moduleId != null and request.moduleId !=''">
             AND file_metadata.module_id = #{request.moduleId}
         </if>
+        <if test="request.unSelectIds != null and request.unSelectIds.size() > 0">
+            AND file_metadata.id not in
+            <foreach collection="request.unSelectIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
         <if test="request.filters != null and request.filters.size() > 0">
             <foreach collection="request.filters.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
