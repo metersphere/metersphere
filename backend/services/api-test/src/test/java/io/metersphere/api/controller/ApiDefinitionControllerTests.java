@@ -8,13 +8,15 @@ import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.dto.filemanagement.FileInfo;
+import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.service.FileAssociationService;
+import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.request.http.MsHTTPElement;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseCondition;
@@ -28,6 +30,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
@@ -58,13 +62,15 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private final static String RESTORE = BASE_PATH + "restore";
     private final static String BATCH_RESTORE = BASE_PATH + "batch-restore";
 
-    private final static String RECYCLE_DEL = BASE_PATH + "recycle-del";
-    private final static String BATCH_RECYCLE_DEL = BASE_PATH + "batch-recycle-del";
+    private final static String TRASH_DEL = BASE_PATH + "trash-del";
+    private final static String BATCH_TRASH_DEL = BASE_PATH + "batch-trash-del";
 
     private final static String PAGE = BASE_PATH + "page";
+    private final static String PAGE_DOC = BASE_PATH + "page-doc";
     private static final String GET = BASE_PATH + "get-detail/";
     private static final String FOLLOW = BASE_PATH + "follow/";
     private static final String VERSION = BASE_PATH + "version/";
+    private static final String UPLOAD_TEMP_FILE = BASE_PATH + "/upload/temp/file";
 
     private static final String DEFAULT_MODULE_ID = "10001";
     private static ApiDefinition apiDefinition;
@@ -89,6 +95,45 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
 
+    @Resource
+    private FileMetadataService fileMetadataService;
+    private static String fileMetadataId;
+    private static String uploadFileId;
+
+    @Test
+    @Order(0)
+    public void uploadTempFile() throws Exception {
+        // 准备数据，上传文件管理文件
+        uploadFileMetadata();
+        // @@请求成功
+        MockMultipartFile file = getMockMultipartFile("file_upload.JPG");
+        String fileId = doUploadTempFile(file);
+
+        // 校验文件存在
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
+        fileRequest.setFileName(file.getOriginalFilename());
+        Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
+
+        requestUploadPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_ADD, UPLOAD_TEMP_FILE, file);
+        requestUploadPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, UPLOAD_TEMP_FILE, file);
+    }
+
+    private String doUploadTempFile(MockMultipartFile file) throws Exception {
+        return JSON.parseObject(requestUploadFileWithOkAndReturn(UPLOAD_TEMP_FILE, file)
+                        .getResponse()
+                        .getContentAsString(), ResultHolder.class)
+                .getData().toString();
+    }
+
+    private static MockMultipartFile getMockMultipartFile(String fileName) {
+        return new MockMultipartFile(
+                "file",
+                fileName,
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "Hello, World!".getBytes()
+        );
+    }
 
     @Test
     @Order(1)
@@ -100,38 +145,33 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
         List<HttpResponse> msHttpResponse = MsHTTPElementTest.getMsHttpResponse();
         request.setResponse(ApiDataUtils.toJSONString(msHttpResponse));
-        // 构造请求参数
-        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        File file = new File(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_upload.JPG")).getPath()
-        );
-        request.setFileIds(List.of(IDGenerator.nextStr()));
-        paramMap.add("files", List.of(file));
-        paramMap.add("request", JSON.toJSONString(request));
+
+        uploadFileId = doUploadTempFile(getMockMultipartFile("file_upload.JPG"));
+        request.setUploadFileIds(List.of(uploadFileId));
+        request.setLinkFileIds(List.of(fileMetadataId));
 
         // 执行方法调用
-        MvcResult mvcResult = this.requestMultipartWithOkAndReturn(ADD, paramMap);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(ADD, request);
         // 校验请求成功数据
         ApiDefinition resultData = getResultData(mvcResult, ApiDefinition.class);
-        apiDefinition = assertAddApiDefinition(request, msHttpElement, resultData.getId(), request.getFileIds());
+        apiDefinition = assertAddApiDefinition(request, msHttpElement, resultData.getId());
+        assertUploadFile(apiDefinition.getId(), List.of(uploadFileId));
+        assertLinkFile(apiDefinition.getId(), List.of(fileMetadataId));
         // 再插入一条数据，便于修改时重名校验
         request.setMethod("GET");
         request.setPath("/api/admin/posts");
-        request.setFileIds(null);
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        mvcResult = this.requestMultipartWithOkAndReturn(ADD, paramMap);
+        request.setUploadFileIds(null);
+        request.setLinkFileIds(null);
+        mvcResult = this.requestPostWithOkAndReturn(ADD, request);
         resultData = getResultData(mvcResult, ApiDefinition.class);
-        assertAddApiDefinition(request, msHttpElement, resultData.getId(), request.getFileIds());
+        assertAddApiDefinition(request, msHttpElement, resultData.getId());
 
         // @@重名校验异常
-        assertErrorCode(this.requestMultipart(ADD, paramMap), ApiResultCode.API_DEFINITION_EXIST);
+        assertErrorCode(this.requestPost(ADD, request), ApiResultCode.API_DEFINITION_EXIST);
         // 校验项目是否存在
         request.setProjectId("111");
         request.setName("test123");
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        assertErrorCode(this.requestMultipart(ADD, paramMap), NOT_FOUND);
+        assertErrorCode(this.requestPost(ADD, request), NOT_FOUND);
 
         // @@校验日志
         checkLog(apiDefinition.getId(), OperationLogType.ADD);
@@ -139,12 +179,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
         createdGroupParamValidateTest(ApiDefinitionAddRequest.class, ADD);
         // @@校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
-        paramMap.clear();
         request.setName("permission-st-6");
         request.setMethod("DELETE");
         request.setPath("/api/admin/posts");
-        paramMap.add("request", JSON.toJSONString(request));
-        requestMultipartPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_ADD, ADD, paramMap);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_ADD, ADD, request);
     }
 
     private ApiDefinitionAddRequest createApiDefinitionAddRequest() {
@@ -164,7 +202,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         return request;
     }
 
-    private ApiDefinition assertAddApiDefinition(Object request, MsHTTPElement msHttpElement, String id, List<String> fileIds) throws Exception {
+    private ApiDefinition assertAddApiDefinition(Object request, MsHTTPElement msHttpElement, String id) {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
         ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(id);
         ApiDefinition copyApiDefinition = BeanUtils.copyBean(new ApiDefinition(), apiDefinition);
@@ -174,27 +212,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         if(apiDefinitionBlob != null){
             Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
         }
-        // todo 可以直接调用 ApiDebugControllerTests.assertUploadFile 和 ApiDebugControllerTests.assertLinkFile
-//        if (fileIds != null) {
-//            // 验证文件的关联关系，以及是否存入对象存储
-//            List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
-//            Assertions.assertEquals(apiFileResources.size(), fileIds.size());
-//
-//            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinition.getProjectId(), id);
-//            FileRequest fileRequest = new FileRequest();
-//            if (fileIds.size() > 0) {
-//                for (ApiFileResource apiFileResource : apiFileResources) {
-//                    Assertions.assertEquals(apiFileResource.getProjectId(), apiDefinition.getProjectId());
-//                    fileRequest.setFolder(apiDefinitionDir + "/" + apiFileResource.getFileId());
-//                    fileRequest.setFileName(apiFileResource.getFileName());
-//                    Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
-//                }
-//                fileRequest.setFolder(apiDefinitionDir);
-//            } else {
-//                fileRequest.setFolder(apiDefinitionDir);
-//                Assertions.assertTrue(CollectionUtils.isEmpty(FileCenter.getDefaultRepository().getFolderFileNames(fileRequest)));
-//            }
-//        }
         return apiDefinition;
     }
 
@@ -247,64 +264,68 @@ public class ApiDefinitionControllerTests extends BaseTest {
         List<HttpResponse> msHttpResponse = MsHTTPElementTest.getMsHttpResponse();
         request.setResponse(ApiDataUtils.toJSONString(msHttpResponse));
 
-        // 构造请求参数
-        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        File file = new File(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_update_upload.JPG")).getPath()
-        );
-        // 带文件的更新
-        request.setAddFileIds(List.of(IDGenerator.nextStr()));
-        request.setFileIds(request.getAddFileIds());
-        paramMap.add("files", List.of(file));
-        paramMap.add("request", JSON.toJSONString(request));
-
-        // 执行方法调用
-        MvcResult mvcResult = this.requestMultipartWithOkAndReturn(UPDATE, paramMap);
+        // 清除文件的更新
+        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setDeleteFileIds(List.of(uploadFileId));
+        this.requestPostWithOk(UPDATE, request);
         // 校验请求成功数据
-        ApiDefinition resultData = getResultData(mvcResult, ApiDefinition.class);
-        apiDefinition = assertAddApiDefinition(request, msHttpElement, resultData.getId(), request.getFileIds());
+        apiDefinition = assertAddApiDefinition(request, msHttpElement, request.getId());
+        assertUploadFile(apiDefinition.getId(), List.of());
+        assertLinkFile(apiDefinition.getId(), List.of());
+
+        // 带文件的更新
+        String fileId = doUploadTempFile(getMockMultipartFile("file_upload.JPG"));
+        request.setUploadFileIds(List.of(fileId));
+        request.setLinkFileIds(List.of(fileMetadataId));
+        request.setDeleteFileIds(null);
+        request.setUnLinkRefIds(null);
+        this.requestPostWithOk(UPDATE, request);
+        // 校验请求成功数据
+        apiDefinition = assertAddApiDefinition(request, msHttpElement, request.getId());
+        assertUploadFile(apiDefinition.getId(), List.of(fileId));
+        assertLinkFile(apiDefinition.getId(), List.of(fileMetadataId));
 
         // 删除了上一次上传的文件，重新上传一个文件
-        request.setAddFileIds(List.of(IDGenerator.nextStr()));
-        request.setFileIds(request.getAddFileIds());
-        paramMap.clear();
-        paramMap.add("files", List.of(file));
-        paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipartWithOk(UPDATE, paramMap);
-        assertAddApiDefinition(request, msHttpElement, request.getId(), request.getFileIds());
+        request.setDeleteFileIds(List.of(fileId));
+        String newFileId1 = doUploadTempFile(getMockMultipartFile("file_upload.JPG"));
+        request.setUploadFileIds(List.of(newFileId1));
+        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setLinkFileIds(List.of(fileMetadataId));
+        this.requestPostWithOk(UPDATE, request);
+        apiDefinition = assertAddApiDefinition(request, msHttpElement, request.getId());
+        assertUploadFile(apiDefinition.getId(), List.of(newFileId1));
+        assertLinkFile(apiDefinition.getId(), List.of(fileMetadataId));
 
         // 已有一个文件，再上传一个文件
-        request.setAddFileIds(List.of(IDGenerator.nextStr()));
-        List<String> fileIds = apiFileResourceService.getFileIdsByResourceId(request.getId());
-        fileIds.addAll(request.getAddFileIds());
-        request.setFileIds(fileIds);
-        paramMap.clear();
-        paramMap.add("files", List.of(file));
-        paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipartWithOk(UPDATE, paramMap);
-        assertAddApiDefinition(request, msHttpElement, request.getId(), request.getFileIds());
+        String newFileId2 = doUploadTempFile(getMockMultipartFile("file_update_upload.JPG"));
+        request.setUploadFileIds(List.of(newFileId2));
+        request.setUnLinkRefIds(null);
+        request.setDeleteFileIds(null);
+        request.setLinkFileIds(null);
+        this.requestPostWithOk(UPDATE, request);
+        apiDefinition = assertAddApiDefinition(request, msHttpElement, request.getId());
+        assertUploadFile(apiDefinition.getId(), List.of(newFileId1, newFileId2));
+        assertLinkFile(apiDefinition.getId(), List.of(fileMetadataId));
 
         // @@重名校验异常
         request.setModuleId("default");
         request.setPath("/api/admin/posts");
         request.setMethod("GET");
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        assertErrorCode(this.requestMultipart(UPDATE, paramMap), ApiResultCode.API_DEFINITION_EXIST);
+        request.setUploadFileIds(null);
+        request.setLinkFileIds(null);
+        request.setDeleteFileIds(null);
+        request.setUnLinkRefIds(null);
+        assertErrorCode(this.requestPost(UPDATE, request), ApiResultCode.API_DEFINITION_EXIST);
 
         // 校验数据是否存在
         request.setId("111");
         request.setName("test123");
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        assertErrorCode(this.requestMultipart(UPDATE, paramMap), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(UPDATE, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
 
         // 校验项目是否存在
         request.setProjectId("111");
         request.setName("test123");
-        paramMap.clear();
-        paramMap.add("request", JSON.toJSONString(request));
-        assertErrorCode(this.requestMultipart(UPDATE, paramMap), NOT_FOUND);
+        assertErrorCode(this.requestPost(UPDATE, request), NOT_FOUND);
 
         // @@校验日志
         checkLog(apiDefinition.getId(), OperationLogType.UPDATE);
@@ -312,10 +333,63 @@ public class ApiDefinitionControllerTests extends BaseTest {
         createdGroupParamValidateTest(ApiDefinitionUpdateRequest.class, UPDATE);
         // @@校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
-        paramMap.clear();
         request.setName("permission-st-6");
-        paramMap.add("request", JSON.toJSONString(request));
-        requestMultipartPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, UPDATE, paramMap);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, UPDATE, request);
+    }
+
+    /**
+     * 文件管理插入一条数据
+     * 便于测试关联文件
+     */
+    private void uploadFileMetadata() throws Exception {
+        FileUploadRequest fileUploadRequest = new FileUploadRequest();
+        fileUploadRequest.setProjectId(DEFAULT_PROJECT_ID);
+        //导入正常文件
+        MockMultipartFile file = new MockMultipartFile("file", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        fileMetadataId = fileMetadataService.upload(fileUploadRequest, "admin", file);
+    }
+
+    /**
+     * 校验上传的文件
+     * @param id
+     * @param fileIds 全部的文件ID
+     */
+    public static void assertUploadFile(String id, List<String> fileIds) throws Exception {
+        if (fileIds != null) {
+            ApiFileResourceService apiFileResourceService = CommonBeanFactory.getBean(ApiFileResourceService.class);
+            // 验证文件的关联关系，以及是否存入对象存储
+            List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
+            Assertions.assertEquals(apiFileResources.size(), fileIds.size());
+
+            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(DEFAULT_PROJECT_ID, id);
+            FileRequest fileRequest = new FileRequest();
+            if (!fileIds.isEmpty()) {
+                for (ApiFileResource apiFileResource : apiFileResources) {
+                    Assertions.assertEquals(apiFileResource.getProjectId(), DEFAULT_PROJECT_ID);
+                    fileRequest.setFolder(apiDefinitionDir + "/" + apiFileResource.getFileId());
+                    fileRequest.setFileName(apiFileResource.getFileName());
+                    Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
+                }
+                fileRequest.setFolder(apiDefinitionDir);
+            } else {
+                fileRequest.setFolder(apiDefinitionDir);
+                Assertions.assertTrue(CollectionUtils.isEmpty(FileCenter.getDefaultRepository().getFolderFileNames(fileRequest)));
+            }
+        }
+    }
+
+    /**
+     * 校验上传的文件
+     * @param id
+     * @param fileIds 全部的文件ID
+     */
+    private static void assertLinkFile(String id, List<String> fileIds) {
+        FileAssociationService fileAssociationService = CommonBeanFactory.getBean(FileAssociationService.class);
+        List<String> linkFileIds = fileAssociationService.getFiles(id, FileAssociationSourceUtil.SOURCE_TYPE_API_DEFINITION)
+                .stream()
+                .map(FileInfo::getFileId)
+                .toList();
+        Assertions.assertEquals(fileIds, linkFileIds);
     }
 
     @Test
@@ -612,14 +686,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(11)
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getPage() throws Exception {
-        doApiDefinitionPage("All");
-        doApiDefinitionPage("KEYWORD");
-        doApiDefinitionPage("FILTER");
-        doApiDefinitionPage("COMBINE");
-        doApiDefinitionPage("DELETED");
+        doApiDefinitionPage("All", PAGE);
+        doApiDefinitionPage("KEYWORD", PAGE);
+        doApiDefinitionPage("FILTER", PAGE);
+        doApiDefinitionPage("COMBINE", PAGE);
+        doApiDefinitionPage("DELETED", PAGE);
     }
 
-    private void doApiDefinitionPage(String search) throws Exception {
+    private void doApiDefinitionPage(String search, String url) throws Exception {
         ApiDefinitionPageRequest request = new ApiDefinitionPageRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setCurrent(1);
@@ -636,7 +710,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             default -> {}
         }
 
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(PAGE, request);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(url, request);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -723,15 +797,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
                 Assertions.assertTrue(apiDefinitionInfo.getLatest());
             }
         }
-        // todo 效验 关联数据
-//        List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(Collections.singletonList(apiDefinition.getId()), false);
-//        if(!caseLists.isEmpty()) {
-//            caseLists.forEach(item -> {
-//                Assertions.assertFalse(item.getDeleted());
-//                Assertions.assertNull(item.getDeleteUser());
-//                Assertions.assertNull(item.getDeleteTime());
-//            });
-//        }
+        // 效验 关联数据
+        List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(Collections.singletonList(apiDefinition.getId()), false);
+        if(!caseLists.isEmpty()) {
+            caseLists.forEach(item -> {
+                Assertions.assertNull(item.getDeleteUser());
+                Assertions.assertNull(item.getDeleteTime());
+            });
+        }
 
         // @恢复一条数据
         apiDefinitionDeleteRequest.setId("111");
@@ -745,13 +818,23 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Test
     @Order(13)
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
-    public void testRecycleDel() throws Exception {
-        LogUtils.info("recycleDel api test");
+    public void testTrashDel() throws Exception {
+        LogUtils.info("trashDel api test");
         if(apiDefinition == null){
             apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         }
         if(!apiDefinition.getDeleted()){
-            testDel();
+            ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
+            apiDefinitionDeleteRequest.setId(apiDefinition.getId());
+            apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
+            apiDefinitionDeleteRequest.setDeleteAll(false);
+            // @@请求成功
+            this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);
+            checkLog(apiDefinition.getId(), OperationLogType.DELETE);
+            apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
+            Assertions.assertTrue(apiDefinition.getDeleted());
+            Assertions.assertEquals("admin", apiDefinition.getDeleteUser());
+            Assertions.assertNotNull(apiDefinition.getDeleteTime());
         }
         // @只存在一个版本
         ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
@@ -759,7 +842,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
         apiDefinitionDeleteRequest.setDeleteAll(false);
         // @@请求成功
-        this.requestPostWithOkAndReturn(RECYCLE_DEL, apiDefinitionDeleteRequest);
+        this.requestPostWithOk(TRASH_DEL, apiDefinitionDeleteRequest);
         checkLog(apiDefinition.getId(), OperationLogType.DELETE);
         // 验证数据
         ApiDefinition apiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
@@ -774,7 +857,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(0, caseLists.size());
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, RECYCLE_DEL, apiDefinitionDeleteRequest);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, TRASH_DEL, apiDefinitionDeleteRequest);
     }
 
     @Test
@@ -788,7 +871,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setSelectIds(List.of("1002","1004","1005"));
         request.setExcludeIds(List.of("1005"));
         request.setSelectAll(false);
-        this.requestPostWithOkAndReturn(BATCH_RESTORE, request);
+        this.requestPostWithOk(BATCH_RESTORE, request);
 
         // 效验数据结果
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
@@ -799,15 +882,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
                 Assertions.assertFalse(item.getDeleted());
                 Assertions.assertNull(item.getDeleteUser());
                 Assertions.assertNull(item.getDeleteTime());
-                // todo 效验 关联数据
-//                List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(Collections.singletonList(item.getId()), false);
-//                if(!caseLists.isEmpty()) {
-//                    caseLists.forEach(test -> {
-//                        Assertions.assertFalse(test.getDeleted());
-//                        Assertions.assertNull(test.getDeleteUser());
-//                        Assertions.assertNull(test.getDeleteTime());
-//                    });
-//                }
+                // 效验 关联数据
+                List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(Collections.singletonList(item.getId()), false);
+                if(!caseLists.isEmpty()) {
+                    caseLists.forEach(test -> {
+                        Assertions.assertNull(test.getDeleteUser());
+                        Assertions.assertNull(test.getDeleteTime());
+                    });
+                }
             });
         }
 
@@ -822,7 +904,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         BaseCondition baseCondition = new BaseCondition();
         baseCondition.setKeyword("st-6");
         request.setCondition(baseCondition);
-        this.requestPostWithOkAndReturn(BATCH_RESTORE, request);
+        this.requestPostWithOk(BATCH_RESTORE, request);
 
         // @@校验日志
         checkLog("1006", OperationLogType.UPDATE);
@@ -842,7 +924,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 删除选中
         request.setSelectIds(List.of("1002","1004"));
         request.setSelectAll(false);
-        this.requestPostWithOkAndReturn(BATCH_RECYCLE_DEL, request);
+        this.requestPostWithOk(BATCH_TRASH_DEL, request);
         // 效验数据结果
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
         apiDefinitionExample.createCriteria().andIdIn(request.getSelectIds());
@@ -867,11 +949,22 @@ public class ApiDefinitionControllerTests extends BaseTest {
         BaseCondition baseCondition = new BaseCondition();
         baseCondition.setKeyword("st-6");
         request.setCondition(baseCondition);
-        this.requestPostWithOkAndReturn(BATCH_RECYCLE_DEL, request);
+        this.requestPostWithOk(BATCH_TRASH_DEL, request);
         // @@校验日志
         checkLog("1006", OperationLogType.DELETE);
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, BATCH_RECYCLE_DEL, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, BATCH_TRASH_DEL, request);
+    }
+
+    @Test
+    @Order(16)
+    @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void getPageDoc() throws Exception {
+        doApiDefinitionPage("All", PAGE_DOC);
+        doApiDefinitionPage("KEYWORD", PAGE_DOC);
+        doApiDefinitionPage("FILTER", PAGE_DOC);
+        doApiDefinitionPage("COMBINE", PAGE_DOC);
+        doApiDefinitionPage("DELETED", PAGE_DOC);
     }
 
 }

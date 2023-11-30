@@ -16,6 +16,7 @@ import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -93,6 +94,7 @@ public class ApiDebugService {
         resourceUpdateRequest.setResourceId(sourceId);
         resourceUpdateRequest.setApiResourceType(ApiResourceType.API_DEBUG);
         resourceUpdateRequest.setOperator(operator);
+        resourceUpdateRequest.setLogModule(OperationLogModule.API_DEBUG);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEBUG);
         return resourceUpdateRequest;
     }
@@ -125,7 +127,7 @@ public class ApiDebugService {
         ApiDebug apiDebug = apiDebugMapper.selectByPrimaryKey(id);
         checkResourceExist(id);
         String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(apiDebug.getProjectId(), apiDebug.getId());
-        apiFileResourceService.deleteByResourceId(apiDebugDir, id, apiDebug.getProjectId(), operator);
+        apiFileResourceService.deleteByResourceId(apiDebugDir, id, apiDebug.getProjectId(), operator, OperationLogModule.API_DEBUG);
         apiDebugMapper.deleteByPrimaryKey(id);
         apiDebugBlobMapper.deleteByPrimaryKey(id);
     }

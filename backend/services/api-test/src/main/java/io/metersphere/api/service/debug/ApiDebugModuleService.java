@@ -19,6 +19,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -197,7 +198,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
         example.createCriteria().andModuleIdIn(deleteIds);
         List<ApiDebug> apiDebugs = apiDebugMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(apiDebugs)) {
-            List<String> apiDebugIds = apiDebugs.stream().map(ApiDebug::getId).collect(Collectors.toList());
+            List<String> apiDebugIds = apiDebugs.stream().map(ApiDebug::getId).toList();
             apiDebugMapper.deleteByExample(example);
             ApiDebugBlobExample blobExample = new ApiDebugBlobExample();
             blobExample.createCriteria().andIdIn(apiDebugIds);
@@ -205,7 +206,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
             //删除文件关联关系
             apiDebugs.forEach(apiDebug -> {
                 String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(apiDebug.getProjectId(), apiDebug.getId());
-                apiFileResourceService.deleteByResourceId(apiDebugDir, apiDebug.getId(), projectId, currentUser);
+                apiFileResourceService.deleteByResourceId(apiDebugDir, apiDebug.getId(), projectId, currentUser, OperationLogModule.API_DEBUG);
             });
             apiDebugModuleLogService.saveDeleteDataLog(apiDebugs, currentUser, projectId);
         }

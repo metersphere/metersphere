@@ -15,6 +15,7 @@ public class FileAssociationSourceUtil {
     public static final String SOURCE_TYPE_FUNCTIONAL_CASE = "FUNCTIONAL_CASE";
     public static final String SOURCE_TYPE_API_DEBUG = "API_DEBUG";
     public static final String SOURCE_TYPE_API_TEST_CASE = "API_TEST_CASE";
+    public static final String SOURCE_TYPE_API_DEFINITION = "API_DEFINITION";
     public static final Map<String, String> QUERY_SQL = new HashMap<>();
 
     static {
@@ -22,6 +23,7 @@ public class FileAssociationSourceUtil {
         QUERY_SQL.put(SOURCE_TYPE_FUNCTIONAL_CASE, "SELECT id AS sourceId,name AS sourceName FROM functional_case");
         QUERY_SQL.put(SOURCE_TYPE_API_DEBUG, "SELECT id AS sourceId,name AS sourceName FROM api_debug");
         QUERY_SQL.put(SOURCE_TYPE_API_TEST_CASE, "SELECT id AS sourceId,name AS sourceName FROM api_test_case");
+        QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION, "SELECT id AS sourceId,name AS sourceName FROM api_definition");
     }
 
     public static void validate(String type) {

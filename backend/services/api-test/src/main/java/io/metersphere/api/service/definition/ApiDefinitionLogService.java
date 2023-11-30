@@ -4,17 +4,15 @@ import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionExample;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
-import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -31,13 +29,10 @@ public class ApiDefinitionLogService {
     private ApiDefinitionMapper apiDefinitionMapper;
 
     @Resource
-    private ExtApiDefinitionMapper extApiDefinitionMapper;
-
-    @Resource
     private ProjectMapper projectMapper;
 
     @Resource
-    private OperationLogService operationLogService;
+    private ApiDefinitionService apiDefinitionService;
 
     /**
      * 添加接口日志
@@ -68,7 +63,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public LogDTO updateLog(ApiDefinitionUpdateRequest request) {
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(request.getId());
+        ApiDefinition apiDefinition = apiDefinitionService.get(request.getId(), SessionUtils.getUserId());
         if(apiDefinition != null){
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
@@ -94,7 +89,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public LogDTO delLog(ApiDefinitionDeleteRequest request) {
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(request.getId());
+        ApiDefinition apiDefinition = apiDefinitionService.get(request.getId(), SessionUtils.getUserId());
         if(apiDefinition != null){
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
@@ -120,7 +115,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public List<LogDTO> batchDelLog(ApiDefinitionBatchRequest request) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
+        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
             ApiDefinitionExample example = new ApiDefinitionExample();
@@ -152,7 +147,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public List<LogDTO> batchUpdateLog(ApiDefinitionBatchUpdateRequest request) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
+        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
             ApiDefinitionExample example = new ApiDefinitionExample();
@@ -178,7 +173,7 @@ public class ApiDefinitionLogService {
     }
 
     public LogDTO copyLog(ApiDefinitionCopyRequest request) {
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(request.getId());
+        ApiDefinition apiDefinition = apiDefinitionService.get(request.getId(), SessionUtils.getUserId());
         if(apiDefinition != null){
             LogDTO dto = new LogDTO(
                     apiDefinition.getProjectId(),
@@ -198,7 +193,7 @@ public class ApiDefinitionLogService {
     }
 
     public List<LogDTO> batchMoveLog(ApiDefinitionBatchMoveRequest request) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
+        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
             ApiDefinitionExample example = new ApiDefinitionExample();
@@ -224,7 +219,7 @@ public class ApiDefinitionLogService {
     }
 
     public LogDTO followLog(String id) {
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
+        ApiDefinition apiDefinition = apiDefinitionService.get(id, SessionUtils.getUserId());
         if(apiDefinition != null){
             Project project = projectMapper.selectByPrimaryKey(apiDefinition.getProjectId());
             LogDTO dto = new LogDTO(
@@ -251,7 +246,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public LogDTO restoreLog(ApiDefinitionDeleteRequest request) {
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(request.getId());
+        ApiDefinition apiDefinition = apiDefinitionService.get(request.getId(), SessionUtils.getUserId());
         if(apiDefinition != null){
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
@@ -278,7 +273,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public List<LogDTO> batchRestoreLog(ApiDefinitionBatchRequest request) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
+        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
             ApiDefinitionExample example = new ApiDefinitionExample();
@@ -308,40 +303,55 @@ public class ApiDefinitionLogService {
     /**
      * 删除回收站接口定义接口日志
      */
-    public void recycleDelLog(List<ApiDefinition> apiDefinitions, String operator, Boolean isBatch) {
+    public LogDTO trashDelLog(ApiDefinitionDeleteRequest request) {
+        ApiDefinition apiDefinition = apiDefinitionService.get(request.getId(), SessionUtils.getUserId());
+        if(apiDefinition != null){
+            LogDTO dto = new LogDTO(
+                    request.getProjectId(),
+                    null,
+                    request.getId(),
+                    null,
+                    OperationLogType.DELETE.name(),
+                    OperationLogModule.API_DEFINITION,
+                    apiDefinition.getName());
+
+            dto.setPath("/api/definition/trash-del");
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
+            return dto;
+        }
+
+        return null;
+    }
+
+    /**
+     * 删除回收站接口定义接口日志
+     */
+    public List<LogDTO> batchTrashDelLog(ApiDefinitionBatchRequest request) {
+        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
         List<LogDTO> dtoList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(apiDefinitions)) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(ids).andDeletedEqualTo(true);
+            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
             apiDefinitions.forEach(item -> {
                 LogDTO dto = new LogDTO(
                         item.getProjectId(),
                         "",
                         item.getId(),
-                        operator,
+                        item.getCreateUser(),
                         OperationLogType.DELETE.name(),
                         OperationLogModule.API_DEFINITION,
                         item.getName());
-                String path = isBatch ? "/api/definition/batch-recycle-del" : "/api/definition/recycle-del";
-                dto.setPath(path);
+
+                dto.setPath("/api/definition/batch-trash-del");
                 dto.setMethod(HttpMethodConstants.POST.name());
                 dto.setOriginalValue(JSON.toJSONBytes(item));
                 dtoList.add(dto);
             });
         }
-        operationLogService.batchAdd(dtoList);
-    }
 
-    // 获取批量操作选中的ID
-    public <T> List<String> getBatchApiIds(T dto, String projectId, String protocol, boolean deleted) {
-        TableBatchProcessDTO request = (TableBatchProcessDTO) dto;
-        if (request.isSelectAll()) {
-            List<String> ids = extApiDefinitionMapper.getIds(request, projectId, protocol, deleted);
-            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                ids.removeAll(request.getExcludeIds());
-            }
-            return ids;
-        } else {
-            return request.getSelectIds();
-        }
+        return dtoList;
     }
 
 }
