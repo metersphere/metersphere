@@ -8,7 +8,7 @@ public class LocalRepositoryDir {
     /**
      * 本地存储文件的根目录
      */
-    private static final String ROOT_DIR = "/opt/metersphere/data/app";
+    private static final String ROOT_DIR = "/tmp/metersphere";
     /**
      * 系统级别资源的根目录
      */
