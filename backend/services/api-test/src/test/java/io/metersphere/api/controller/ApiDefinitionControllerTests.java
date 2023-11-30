@@ -345,7 +345,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         FileUploadRequest fileUploadRequest = new FileUploadRequest();
         fileUploadRequest.setProjectId(DEFAULT_PROJECT_ID);
         //导入正常文件
-        MockMultipartFile file = new MockMultipartFile("file", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        MockMultipartFile file = new MockMultipartFile("file", "file_update_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
         fileMetadataId = fileMetadataService.upload(fileUploadRequest, "admin", file);
     }
 
@@ -365,7 +365,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             FileRequest fileRequest = new FileRequest();
             if (!fileIds.isEmpty()) {
                 for (ApiFileResource apiFileResource : apiFileResources) {
-                    Assertions.assertEquals(apiFileResource.getProjectId(), DEFAULT_PROJECT_ID);
+                    Assertions.assertEquals(DEFAULT_PROJECT_ID, apiFileResource.getProjectId());
                     fileRequest.setFolder(apiDefinitionDir + "/" + apiFileResource.getFileId());
                     fileRequest.setFileName(apiFileResource.getFileName());
                     Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
