@@ -18,6 +18,7 @@ public interface ExtBugMapper {
      */
     List<BugDTO> list(@Param("request") BugPageRequest request);
 
+    List<BugDTO> listByIds(@Param("ids") List<String> ids);
     /**
      * 获取缺陷业务ID
      *

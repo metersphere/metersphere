@@ -692,7 +692,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.fileReUploadTestSuccess();
         }
         for (String fileMetadataId : FILE_ID_PATH.keySet()) {
-            MvcResult mvcResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_DOWNLOAD, fileMetadataId));
+            MvcResult mvcResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_DOWNLOAD, fileMetadataId), null);
             byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
 
             //通过MD5判断是否是同一个文件
@@ -844,7 +844,7 @@ public class FileManagementControllerTests extends BaseTest {
         batchProcessDTO.setSelectAll(false);
         batchProcessDTO.setProjectId(project.getId());
         batchProcessDTO.setSelectIds(new ArrayList<>(FILE_ID_PATH.keySet()));
-        MvcResult mvcResult = this.batchDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, batchProcessDTO);
+        MvcResult mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, null, batchProcessDTO);
         byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
         Assertions.assertTrue(fileBytes.length > 0);
 
@@ -852,7 +852,7 @@ public class FileManagementControllerTests extends BaseTest {
         batchProcessDTO = new FileBatchProcessRequest();
         batchProcessDTO.setSelectAll(true);
         batchProcessDTO.setProjectId(project.getId());
-        mvcResult = this.batchDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, batchProcessDTO);
+        mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, null, batchProcessDTO);
         fileBytes = mvcResult.getResponse().getContentAsByteArray();
         Assertions.assertTrue(fileBytes.length > 0);
 
@@ -930,13 +930,13 @@ public class FileManagementControllerTests extends BaseTest {
         List<FileInformationResponse> fileList = JSON.parseArray(JSON.toJSONString(pageResult.getList()), FileInformationResponse.class);
 
         for (FileInformationResponse fileDTO : fileList) {
-            MvcResult originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()));
+            MvcResult originalResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()), null);
             Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
             MvcResult compressedResult;
             if (StringUtils.equalsIgnoreCase(fileDTO.getFileType(), "svg")) {
-                compressedResult = this.downloadSvgFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+                compressedResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()), MediaType.valueOf("image/svg+xml"));
             } else {
-                compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+                compressedResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()), null);
             }
 
             byte[] fileBytes = compressedResult.getResponse().getContentAsByteArray();
@@ -953,14 +953,14 @@ public class FileManagementControllerTests extends BaseTest {
         }
         //测试重复获取
         for (FileInformationResponse fileDTO : fileList) {
-            MvcResult originalResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()));
+            MvcResult originalResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()), null);
             Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
 
             MvcResult compressedResult;
             if (StringUtils.equalsIgnoreCase(fileDTO.getFileType(), "svg")) {
-                compressedResult = this.downloadSvgFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+                compressedResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()), MediaType.valueOf("image/svg+xml"));
             } else {
-                compressedResult = this.downloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()));
+                compressedResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()), null);
             }
             byte[] fileBytes = compressedResult.getResponse().getContentAsByteArray();
             if (TempFileUtils.isImage(fileDTO.getFileType())) {
@@ -2178,24 +2178,6 @@ public class FileManagementControllerTests extends BaseTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
-    }
-
-    protected MvcResult downloadSvgFile(String url, Object... uriVariables) throws Exception {
-        return mockMvc.perform(getRequestBuilder(url, uriVariables))
-                .andExpect(content().contentType(MediaType.valueOf("image/svg+xml")))
-                .andExpect(status().isOk()).andReturn();
-    }
-
-    protected MvcResult downloadFile(String url, Object... uriVariables) throws Exception {
-        return mockMvc.perform(getRequestBuilder(url, uriVariables))
-                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
-                .andExpect(status().isOk()).andReturn();
-    }
-
-    protected MvcResult batchDownloadFile(String url, Object param) throws Exception {
-        return mockMvc.perform(getPostRequestBuilder(url, param))
-                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
-                .andExpect(status().isOk()).andReturn();
     }
 
     private List<BaseTreeNode> getFileModuleTreeNode() throws Exception {

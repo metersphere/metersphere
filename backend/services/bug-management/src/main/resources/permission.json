@@ -19,6 +19,9 @@
           },
           {
             "id": "BUG:READ+DELETE"
+          },
+          {
+            "id": "PROJECT_BUG:READ+EXPORT"
           }
         ]
       }

@@ -2,11 +2,9 @@ package io.metersphere.bug.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.bug.constants.BugExportColumns;
 import io.metersphere.bug.dto.BugDTO;
-import io.metersphere.bug.dto.request.BugBatchRequest;
-import io.metersphere.bug.dto.request.BugBatchUpdateRequest;
-import io.metersphere.bug.dto.request.BugEditRequest;
-import io.metersphere.bug.dto.request.BugPageRequest;
+import io.metersphere.bug.dto.request.*;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
 import io.metersphere.project.service.ProjectTemplateService;
@@ -23,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -116,4 +115,19 @@ public class BugController {
     public void unfollow(@PathVariable String id) {
         bugService.unfollow(id, SessionUtils.getUserId());
     }
+
+    @GetMapping("/export/columns/{projectId}")
+    @Operation(summary = "缺陷管理-获取导出字段配置")
+    @RequiresPermissions(PermissionConstants.BUG_EXPORT)
+    public BugExportColumns getExportColumns(@PathVariable String projectId) {
+        return bugService.getExportColumns(projectId);
+    }
+
+    @PostMapping("/export")
+    @Operation(summary = "缺陷管理-批量导出缺陷")
+    @RequiresPermissions(PermissionConstants.BUG_EXPORT)
+    public ResponseEntity<byte[]> export(@Validated @RequestBody BugExportRequest request) throws Exception {
+        return bugService.export(request);
+    }
+
 }

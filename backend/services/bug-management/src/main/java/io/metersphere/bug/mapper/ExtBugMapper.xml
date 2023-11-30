@@ -7,6 +7,28 @@
         <include refid="queryWhereCondition"/>
     </select>
 
+    <select id="listByIds" resultType="io.metersphere.bug.dto.BugDTO">
+        select b.id,
+        b.num,
+        b.title,
+        b.handle_user,
+        b.create_user,
+        b.create_time,
+        b.update_time,
+        b.delete_time,
+        b.delete_user,
+        b.project_id,
+        b.template_id,
+        b.platform,
+        b.status,
+        bc.description
+        from bug b
+        left join bug_content bc on b.id = bc.bug_id
+        WHERE b.id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
     <select id="getMaxNum" resultType="java.lang.Long">
         select max(num) from bug where project_id = #{projectId}
     </select>

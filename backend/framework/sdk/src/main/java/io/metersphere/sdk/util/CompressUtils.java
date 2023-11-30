@@ -1,6 +1,5 @@
 package io.metersphere.sdk.util;
 
-import io.metersphere.sdk.exception.MSException;
 import org.apache.commons.codec.binary.Base64;
 
 import java.io.*;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.zip.*;
 
 public class CompressUtils {
-    private final static String ZIP_PATH = "/opt/metersphere/data/tmp/";
 
     /***
      * Zip压缩
@@ -40,12 +38,12 @@ public class CompressUtils {
     }
 
 
-    private static File getFile(String fileName) throws IOException {
+    private static File getFile(String filePath) throws IOException {
         // 创建文件对象
         File file;
-        file = new File(ZIP_PATH, fileName);
+        file = new File(filePath);
         if (!file.exists() && !file.createNewFile()) {
-            throw new MSException("创建文件失败");
+            file.createNewFile();
         }
         // 返回文件
         return file;
@@ -93,20 +91,18 @@ public class CompressUtils {
 
     /**
      * 将多个文件压缩
-     *
-     * @param fileList    待压缩的文件列表
-     * @param zipFileName 压缩文件名
-     * @return 返回压缩好的文件
+     * @param zipFilePath   压缩文件所在路径
+     * @param fileList      要压缩的文件
+     * @return
      * @throws IOException
      */
-    public static File zipFiles(String zipFileName, List<File> fileList) throws IOException {
-        File zipFile = getFile(zipFileName);
+    public static File zipFiles(String zipFilePath, List<File> fileList) throws IOException {
+        File zipFile = getFile(zipFilePath);
         // 文件输出流
         FileOutputStream outputStream = getFileStream(zipFile);
         // 压缩流
         ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
 
-        int size = fileList.size();
         // 压缩列表中的文件
         for (File file : fileList) {
             zipFile(file, zipOutputStream);
