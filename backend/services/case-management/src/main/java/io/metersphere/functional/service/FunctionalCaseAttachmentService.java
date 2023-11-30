@@ -7,7 +7,8 @@ import io.metersphere.functional.domain.FunctionalCaseAttachmentExample;
 import io.metersphere.functional.dto.FunctionalCaseAttachmentDTO;
 import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
-import io.metersphere.functional.request.FunctionalCaseAddRequest;
+import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
+import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
 import io.metersphere.functional.request.FunctionalCaseFileRequest;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.filemanagement.FileInfo;
@@ -24,6 +25,7 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +54,9 @@ public class FunctionalCaseAttachmentService {
     @Resource
     private FileAssociationService fileAssociationService;
 
+    private static final String UPLOAD_FILE = "/attachment/upload/file";
+    private static final String DELETED_FILE = "/attachment/delete/file";
+
     /**
      * 保存本地上传文件和用例关联关系
      *
@@ -70,16 +75,16 @@ public class FunctionalCaseAttachmentService {
     /**
      * 功能用例上传附件
      *
-     * @param request request
-     * @param files   files
+     * @param projectId projectId
+     * @param files     files
      */
-    public void uploadFile(FunctionalCaseAddRequest request, String caseId, List<MultipartFile> files, Boolean isLocal, String userId) {
+    public void uploadFile(String projectId, String caseId, List<MultipartFile> files, Boolean isLocal, String userId) {
         if (CollectionUtils.isNotEmpty(files)) {
             files.forEach(file -> {
                 String fileId = IDGenerator.nextStr();
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(file.getOriginalFilename());
-                fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), caseId) + "/" + fileId);
+                fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(projectId, caseId) + "/" + fileId);
                 fileRequest.setStorage(StorageType.MINIO.name());
                 try {
                     fileService.upload(file, fileRequest);
@@ -288,5 +293,22 @@ public class FunctionalCaseAttachmentService {
             fileAssociationMap = fileAssociations.stream().collect(Collectors.groupingBy(FileAssociation::getSourceId));
         }
         return fileAssociationMap;
+    }
+
+    public void uploadOrAssociationFile(FunctionalCaseAssociationFileRequest request, MultipartFile file, String userId) {
+        Optional.ofNullable(file).ifPresent(item -> this.uploadFile(request.getProjectId(), request.getCaseId(), Arrays.asList(file), Boolean.TRUE, userId));
+
+        if (CollectionUtils.isNotEmpty(request.getFileIds())) {
+            this.association(request.getFileIds(), request.getCaseId(), userId, UPLOAD_FILE, request.getProjectId());
+        }
+    }
+
+    public void deleteFile(FunctionalCaseDeleteFileRequest request, String userId) {
+        if (BooleanUtils.isTrue(request.getAttachment().getLocal())) {
+            this.deleteCaseAttachment(Arrays.asList(request.getAttachment().getId()), request.getCaseId(), userId);
+        }
+        if (BooleanUtils.isFalse(request.getAttachment().getLocal())) {
+            this.unAssociation(Arrays.asList(request.getAttachment().getId()), DELETED_FILE, userId, request.getProjectId());
+        }
     }
 }

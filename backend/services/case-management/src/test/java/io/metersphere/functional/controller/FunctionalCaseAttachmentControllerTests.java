@@ -1,5 +1,8 @@
 package io.metersphere.functional.controller;
 
+import io.metersphere.functional.dto.FunctionalCaseAttachmentDTO;
+import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
+import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
 import io.metersphere.functional.request.FunctionalCaseFileRequest;
 import io.metersphere.functional.utils.FileBaseUtils;
 import io.metersphere.project.dto.filemanagement.request.FileMetadataTableRequest;
@@ -23,6 +26,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -50,6 +54,9 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
     public static final String ATTACHMENT_CHECK_UPDATE_URL = "/attachment/check-update";
     public static final String ATTACHMENT_UPDATE_URL = "/attachment/update/";
     public static final String ATTACHMENT_TRANSFER_URL = "/attachment/transfer";
+    public static final String UPLOAD_FILE_URL = "/attachment/upload/file";
+    public static final String DELETE_FILE_URL = "/attachment/delete/file";
+
 
     @Test
     @Order(1)
@@ -171,4 +178,49 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         this.requestPost(ATTACHMENT_TRANSFER_URL, request);
 
     }
+
+
+    @Test
+    @Order(7)
+    public void testUploadFile() throws Exception {
+        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.JPG")).getPath();
+        MockMultipartFile file = new MockMultipartFile("file", "file_re-upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath));
+        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        FunctionalCaseAssociationFileRequest request = new FunctionalCaseAssociationFileRequest();
+        request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
+        request.setProjectId("WX_TEST_PROJECT_ID");
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        this.requestMultipart(UPLOAD_FILE_URL, paramMap);
+
+        request.setFileIds(Arrays.asList("wx_test_file_association_1"));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        this.requestMultipart(UPLOAD_FILE_URL, paramMap);
+
+    }
+
+    @Test
+    @Order(8)
+    public void testDeleteFile() throws Exception {
+        FunctionalCaseDeleteFileRequest request = new FunctionalCaseDeleteFileRequest();
+        FunctionalCaseAttachmentDTO attachmentDTO = new FunctionalCaseAttachmentDTO();
+        //覆盖率
+        request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
+        request.setProjectId("WX_TEST_PROJECT_ID");
+        request.setAttachment(attachmentDTO);
+        this.requestPost(DELETE_FILE_URL, request);
+
+
+        attachmentDTO.setId("wx_test_file_association_1");
+        attachmentDTO.setLocal(false);
+        this.requestPost(DELETE_FILE_URL, request);
+
+        attachmentDTO.setId("TEST_ATTACHMENT_ID");
+        attachmentDTO.setLocal(true);
+        this.requestPost(DELETE_FILE_URL, request);
+    }
+
+
 }
