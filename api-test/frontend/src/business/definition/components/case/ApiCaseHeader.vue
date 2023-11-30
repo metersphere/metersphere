@@ -1,27 +1,28 @@
 <template>
-  <el-header style="width: 100%; padding: 0px">
+  <el-header style="width: 100%; padding: 0">
     <el-card>
-      <el-row>
-        <el-col :span="1">
-          <el-tag
-            size="mini"
-            :style="{
-              'background-color': getColor(true, api.method),
-              border: getColor(true, api.method),
-            }"
-            class="api-el-tag">
-            {{ api.method }}
-          </el-tag>
-        </el-col>
-        <el-col :span="9">
-          <div class="variable-combine">{{ api.name }}</div>
-        </el-col>
-        <el-col :span="6">
-          <div class="variable-combine" style="margin-left: 10px">
-            {{ api.path === null ? ' ' : api.path }}
-          </div>
-        </el-col>
-        <el-col :span="4">
+      <div style="display: flex">
+        <el-tag
+          size="small"
+          style="margin-top: 5px; margin-right: 5px"
+          :style="{
+            'background-color': getColor(true, api.method),
+            border: getColor(true, api.method),
+          }"
+          class="api-el-tag">
+          {{ api.method }}
+        </el-tag>
+        <el-row style="width: 60%">
+          <el-col :span="12">
+            <div class="ellipsis-text">{{ api.name }}</div>
+          </el-col>
+          <el-col :span="12">
+            <div class="ellipsis-text" style="margin-left: 10px">
+              {{ api.path === null ? ' ' : api.path }}
+            </div>
+          </el-col>
+        </el-row>
+        <div style="width: 200px; margin-left: auto">
           <ms-environment-select
             :project-id="projectId"
             :is-read-only="isReadOnly"
@@ -29,8 +30,8 @@
             @setEnvironment="setEnvironment"
             ref="environmentSelect"
             v-if="api.protocol === 'HTTP' || api.protocol === 'TCP'" />
-        </el-col>
-        <el-col :span="4">
+        </div>
+        <div style="width: 240px; margin-right: 20px">
           <!-- 保存操作 -->
           <el-button
             v-if="!isXpack || !showUpdateRule"
@@ -38,13 +39,11 @@
             size="small"
             @click="saveTestCase()"
             v-prevent-re-click
-            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
-            style="margin-left: -20px">
+            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
             {{ saveButtonText }}
           </el-button>
           <el-dropdown
             v-else
-            style="margin-left: -17px"
             v-permission="[
               'PROJECT_API_DEFINITION:READ+EDIT_CASE',
               'PROJECT_API_DEFINITION:READ+CREATE_CASE',
@@ -65,17 +64,16 @@
           </el-dropdown>
 
           <el-button
-            v-if="!isXpack || !showUpdateRule"
-            type="primary"
+            v-if="!loaded"
             size="small"
             @click="saveAndCreate()"
             v-prevent-re-click
             v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
-            style="margin-left: 2px">
+            style="background: #ededf1; color: #323233">
             {{ $t('home.dashboard.api_case.save_and_create') }}
           </el-button>
-        </el-col>
-      </el-row>
+        </div>
+      </div>
     </el-card>
   </el-header>
 </template>
@@ -107,6 +105,12 @@ export default {
     useEnvironment: String,
     isCaseEdit: Boolean,
     buttonText: String,
+    loaded: {
+      type: Boolean,
+      default() {
+        return false;
+      },
+    },
     condition: {
       type: Object,
       default() {
@@ -202,13 +206,12 @@ export default {
   margin-left: 30px;
 }
 
-.variable-combine {
+.ellipsis-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 10px;
+  min-width: 100px; /* 设置最小宽度 */
 }
-
 .el-col {
   height: 32px;
   line-height: 32px;
