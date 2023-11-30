@@ -95,7 +95,7 @@ public class FunctionalCaseService {
         FunctionalCase functionalCase = addCase(caseId, request, userId);
 
         //上传文件
-        functionalCaseAttachmentService.uploadFile(request, caseId, files, true, userId);
+        functionalCaseAttachmentService.uploadFile(request.getProjectId(), caseId, files, true, userId);
 
         //关联附件
         if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
@@ -275,7 +275,7 @@ public class FunctionalCaseService {
         }
 
         //上传新文件
-        functionalCaseAttachmentService.uploadFile(request, request.getId(), files, true, userId);
+        functionalCaseAttachmentService.uploadFile(request.getProjectId(), request.getId(), files, true, userId);
 
         //关联新附件
         if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {

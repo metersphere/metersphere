@@ -19,3 +19,7 @@ INSERT INTO functional_case_attachment(id, case_id, file_id, file_name, size, lo
 
 INSERT INTO file_association(id, source_type, source_id, file_id, file_ref_id, file_version, create_time, update_user, update_time, create_user) VALUES ('wx_test_file_association', 'functional_case', 'WX_TEST_FUNCTIONAL_CASE_ID', 'wx_file_id', '1', '1', 1698983271536, 'admin', 1698983271536, 'admin');
 INSERT INTO file_metadata(id, name, type, size, create_time, update_time, project_id, storage, create_user, update_user, tags, description, module_id, path, latest, ref_id, file_version) VALUES ('wx_file_id', 'formItem', 'ts', 2502, 1698058347559, 1698058347559, '100001100001', 'MINIO', 'admin', 'admin', NULL, NULL, 'root', '100001100001/1127016598347779', b'1', '1127016598347779', '1127016598347779');
+
+
+INSERT INTO file_association(id, source_type, source_id, file_id, file_ref_id, file_version, create_time, update_user, update_time, create_user) VALUES ('wx_test_file_association_1', 'functional_case', 'WX_TEST_FUNCTIONAL_CASE_ID', 'wx_file_id_1', '1', '1', 1698983271536, 'admin', 1698983271536, 'admin');
+INSERT INTO file_metadata(id, name, type, size, create_time, update_time, project_id, storage, create_user, update_user, tags, description, module_id, path, latest, ref_id, file_version) VALUES ('wx_file_id_1', 'formItem', 'ts', 2502, 1698058347559, 1698058347559, '100001100001', 'MINIO', 'admin', 'admin', NULL, NULL, 'root', '100001100001/1127016598347779', b'1', '1127016598347779', '1127016598347779');

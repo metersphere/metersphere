@@ -1,6 +1,8 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCaseAttachment;
+import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
+import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
 import io.metersphere.functional.request.FunctionalCaseFileRequest;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
@@ -22,6 +24,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -122,6 +125,23 @@ public class FunctionalCaseAttachmentController {
         }
         return fileId;
 
+    }
+
+
+    @PostMapping("/upload/file")
+    @Operation(summary = "用例管理-功能用例-上传文件并关联用例")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    public void uploadFile(@Validated @RequestPart("request") FunctionalCaseAssociationFileRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        String userId = SessionUtils.getUserId();
+        functionalCaseAttachmentService.uploadOrAssociationFile(request, file, userId);
+    }
+
+    @PostMapping("/delete/file")
+    @Operation(summary = "用例管理-功能用例-删除文件并取消关联用例")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    public void deleteFile(@Validated @RequestBody FunctionalCaseDeleteFileRequest request) {
+        String userId = SessionUtils.getUserId();
+        functionalCaseAttachmentService.deleteFile(request, userId);
     }
 
 }
