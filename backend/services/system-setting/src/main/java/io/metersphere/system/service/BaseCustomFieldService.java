@@ -1,18 +1,20 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.CustomFieldType;
-import io.metersphere.system.dto.request.DefaultFunctionalCustomField;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
-import io.metersphere.system.dto.sdk.CustomFieldDTO;
-import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.CustomFieldOption;
+import io.metersphere.system.domain.TemplateCustomFieldExample;
+import io.metersphere.system.dto.request.DefaultFunctionalCustomField;
+import io.metersphere.system.dto.sdk.CustomFieldDTO;
+import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.mapper.CustomFieldMapper;
+import io.metersphere.system.mapper.TemplateCustomFieldMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -45,6 +47,8 @@ public class BaseCustomFieldService {
     protected BaseCustomFieldOptionService baseCustomFieldOptionService;
     @Resource
     protected BaseOrganizationParameterService baseOrganizationParameterService;
+    @Resource
+    protected TemplateCustomFieldMapper templateCustomFieldMapper;
 
     public List<CustomFieldDTO> list(String scopeId, String scene) {
         checkScene(scene);
@@ -165,6 +169,13 @@ public class BaseCustomFieldService {
     public void delete(String id) {
         customFieldMapper.deleteByPrimaryKey(id);
         baseCustomFieldOptionService.deleteByFieldId(id);
+        deleteTemplateCustomField(id);
+    }
+
+    public void deleteTemplateCustomField(String id) {
+        TemplateCustomFieldExample example = new TemplateCustomFieldExample();
+        example.createCriteria().andFieldIdEqualTo(id);
+        templateCustomFieldMapper.deleteByExample(example);
     }
 
     protected void checkInternal(CustomField customField) {

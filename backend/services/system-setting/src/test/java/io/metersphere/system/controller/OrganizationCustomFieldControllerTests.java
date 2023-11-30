@@ -4,19 +4,17 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
-import io.metersphere.system.domain.CustomField;
-import io.metersphere.system.domain.CustomFieldExample;
-import io.metersphere.system.domain.CustomFieldOption;
-import io.metersphere.system.domain.OrganizationParameter;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
+import io.metersphere.system.mapper.TemplateCustomFieldMapper;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
 import io.metersphere.system.service.OrganizationCustomFieldService;
@@ -29,10 +27,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
@@ -65,6 +60,8 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
     private ProjectMapper projectMapper;
     @Resource
     private OrganizationCustomFieldService organizationCustomFieldService;
+    @Resource
+    private TemplateCustomFieldMapper templateCustomFieldMapper;
     private static CustomField addCustomField;
     private static CustomField anotherAddCustomField;
 
@@ -274,6 +271,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         this.requestGetWithOk(DEFAULT_DELETE, addCustomField.getId());
         Assertions.assertNull(customFieldMapper.selectByPrimaryKey(addCustomField.getId()));
         Assertions.assertTrue(CollectionUtils.isEmpty(baseCustomFieldOptionService.getByFieldId(addCustomField.getId())));
+        Assertions.assertTrue(CollectionUtils.isEmpty(getTemplateCustomField(addCustomField.getId())));
 
         // @@校验内置字段删除异常
         CustomFieldExample example = new CustomFieldExample();
@@ -289,6 +287,13 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         checkLog(addCustomField.getId(), OperationLogType.DELETE);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_DELETE, DEFAULT_DELETE, addCustomField.getId());
+    }
+
+    private List<TemplateCustomField> getTemplateCustomField(String id) {
+        TemplateCustomFieldExample example = new TemplateCustomFieldExample();
+        example.createCriteria()
+                .andFieldIdEqualTo(id);
+        return templateCustomFieldMapper.selectByExample(example);
     }
 
     /**
