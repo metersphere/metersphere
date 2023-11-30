@@ -32,13 +32,30 @@ public class ApiFileResourceUpdateRequest implements Serializable {
      */
     private String folder;
     /**
-     * 接口所需的所有文件资源ID
-     */
-    private List<String> fileIds;
-
-    /**
      * 新上传的文件ID
-     * 更新时记录新上传的文件ID，与上传的文件顺序保持一致
+     * 创建时先按ID创建目录，再把文件放入目录
      */
-    private List<String> addFileIds;
+    private List<String> uploadFileIds;
+    /**
+     * 新关联文件管理的文件ID
+     */
+    private List<String> linkFileIds;
+    /**
+     * 删除本地上传的文件ID
+     */
+    private List<String> deleteFileIds;
+    /**
+     * 删除关联的文件ID
+     */
+    private List<String> unLinkRefIds;
+    /**
+     * 文件关联的sourceType
+     * @see io.metersphere.sdk.util.FileAssociationSourceUtil
+     */
+    private String FileAssociationSourceType;
+    /**
+     * 操作人
+     * 记录文件相关操作日志
+     */
+    private String operator;
 }

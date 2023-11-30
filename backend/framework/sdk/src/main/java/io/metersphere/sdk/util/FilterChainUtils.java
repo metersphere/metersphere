@@ -24,7 +24,6 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/favicon.ico", "anon");
         filterChainDefinitionMap.put("/base-display/**", "anon");
         filterChainDefinitionMap.put("/jmeter/ping", "anon");
-        filterChainDefinitionMap.put("/jmeter/ready/**", "totp");
         filterChainDefinitionMap.put("/authsource/list/allenable", "anon");
         filterChainDefinitionMap.put("/sso/callback/**", "anon");
         filterChainDefinitionMap.put("/license/validate", "anon");
@@ -75,10 +74,4 @@ public class FilterChainUtils {
         return filterChainDefinitionMap;
     }
 
-    public static Map<String, String> totpFilterChain() {
-        Map<String, String> filterChainDefinitionMap = new HashMap<>();
-        // 执行机下载执行资源需要验证totp
-        filterChainDefinitionMap.put("/jmeter/download/**", "totp");
-        return filterChainDefinitionMap;
-    }
 }

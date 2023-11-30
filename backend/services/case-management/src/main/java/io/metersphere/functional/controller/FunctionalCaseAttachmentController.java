@@ -8,7 +8,6 @@ import io.metersphere.project.dto.filemanagement.request.FileMetadataTableReques
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
-import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
@@ -95,8 +94,6 @@ public class FunctionalCaseAttachmentController {
     public String update(@PathVariable String projectId, @PathVariable String id) {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.FUNCTIONAL_CASE)
-                .requestMethod(HttpMethodConstants.GET.name())
-                .requestUrl("/attachment/update/" + projectId + "/" + id)
                 .operator(SessionUtils.getUserId())
                 .projectId(projectId)
                 .build();
@@ -112,8 +109,6 @@ public class FunctionalCaseAttachmentController {
         FunctionalCaseAttachment attachment = functionalCaseAttachmentService.getAttachment(request);
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.FUNCTIONAL_CASE)
-                .requestMethod(HttpMethodConstants.POST.name())
-                .requestUrl("/attachment/transfer")
                 .operator(SessionUtils.getUserId())
                 .projectId(request.getProjectId())
                 .build();

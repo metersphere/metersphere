@@ -1,5 +1,6 @@
 package io.metersphere.system.file;
 
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.utils.GitRepositoryUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,5 +75,10 @@ public class GitRepository implements FileRepository {
     @Override
     public List<String> getFolderFileNames(FileRequest request) throws Exception {
         return null;
+    }
+
+    @Override
+    public void copyFile(FileCopyRequest request) throws Exception {
+        throw new MSException("Not support copy file");
     }
 }

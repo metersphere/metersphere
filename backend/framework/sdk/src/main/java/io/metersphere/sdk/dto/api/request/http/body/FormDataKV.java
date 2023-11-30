@@ -20,4 +20,9 @@ public class FormDataKV extends KeyValueEnableParam {
      * 生成脚本时，通过 fileId + value(文件名) 获取文件路径
      */
     private String fileId;
+    /**
+     * 文件存储方式
+     * 对象存储和引用(FILE_REF)
+     */
+    private String storage;
 }

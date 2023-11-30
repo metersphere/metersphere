@@ -15,6 +15,7 @@ import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -56,11 +57,10 @@ public class ApiDebugService {
         BeanUtils.copyBean(apiDebugDTO, apiDebug);
         apiDebugDTO.setRequest(ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class));
         apiDebugDTO.setResponse(apiDebugDTO.getResponse());
-        apiDebugDTO.setFileIds(apiFileResourceService.getFileIdsByResourceId(id));
         return apiDebugDTO;
     }
 
-    public ApiDebug add(ApiDebugAddRequest request, List<MultipartFile> files, String createUser) {
+    public ApiDebug add(ApiDebugAddRequest request, String createUser) {
         ProjectService.checkResourceExist(request.getProjectId());
         ApiDebug apiDebug = new ApiDebug();
         BeanUtils.copyBean(apiDebug, request);
@@ -78,20 +78,26 @@ public class ApiDebugService {
         apiDebugBlobMapper.insert(apiDebugBlob);
 
         // 处理文件
-        String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(request.getProjectId(), apiDebug.getId());
-        ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
-        resourceUpdateRequest.setProjectId(apiDebug.getProjectId());
-        resourceUpdateRequest.setFileIds(request.getFileIds());
-        resourceUpdateRequest.setAddFileIds(request.getFileIds());
-        resourceUpdateRequest.setFolder(apiDebugDir);
-        resourceUpdateRequest.setResourceId(apiDebug.getId());
-        resourceUpdateRequest.setApiResourceType(ApiResourceType.API_DEBUG);
-        apiFileResourceService.addFileResource(resourceUpdateRequest, files);
+        ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(apiDebug.getId(), apiDebug.getProjectId(), createUser);
+        resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
+        resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
+        apiFileResourceService.addFileResource(resourceUpdateRequest);
         return apiDebug;
     }
 
+    private static ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {
+        String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(projectId, sourceId);
+        ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
+        resourceUpdateRequest.setProjectId(projectId);
+        resourceUpdateRequest.setFolder(apiDebugDir);
+        resourceUpdateRequest.setResourceId(sourceId);
+        resourceUpdateRequest.setApiResourceType(ApiResourceType.API_DEBUG);
+        resourceUpdateRequest.setOperator(operator);
+        resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEBUG);
+        return resourceUpdateRequest;
+    }
 
-    public ApiDebug update(ApiDebugUpdateRequest request, List<MultipartFile> files, String updateUser) {
+    public ApiDebug update(ApiDebugUpdateRequest request, String updateUser) {
         checkResourceExist(request.getId());
         ApiDebug apiDebug = BeanUtils.copyBean(new ApiDebug(), request);
         ApiDebug originApiDebug = apiDebugMapper.selectByPrimaryKey(request.getId());
@@ -106,27 +112,22 @@ public class ApiDebugService {
         apiDebugBlob.setRequest(request.getRequest().getBytes());
         apiDebugBlobMapper.updateByPrimaryKeySelective(apiDebugBlob);
 
-        String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(originApiDebug.getProjectId(), originApiDebug.getId());
-
-        // 处理文件
-        ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
-        resourceUpdateRequest.setProjectId(originApiDebug.getProjectId());
-        resourceUpdateRequest.setFileIds(request.getFileIds());
-        resourceUpdateRequest.setAddFileIds(request.getAddFileIds());
-        resourceUpdateRequest.setFolder(apiDebugDir);
-        resourceUpdateRequest.setResourceId(apiDebug.getId());
-        resourceUpdateRequest.setApiResourceType(ApiResourceType.API_DEBUG);
-        apiFileResourceService.updateFileResource(resourceUpdateRequest, files);
+        ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(originApiDebug.getId(), originApiDebug.getProjectId(), updateUser);
+        resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
+        resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
+        resourceUpdateRequest.setUnLinkRefIds(request.getUnLinkRefIds());
+        resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
+        apiFileResourceService.updateFileResource(resourceUpdateRequest);
         return apiDebug;
     }
 
-    public void delete(String id) {
+    public void delete(String id, String operator) {
         ApiDebug apiDebug = apiDebugMapper.selectByPrimaryKey(id);
         checkResourceExist(id);
+        String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(apiDebug.getProjectId(), apiDebug.getId());
+        apiFileResourceService.deleteByResourceId(apiDebugDir, id, apiDebug.getProjectId(), operator);
         apiDebugMapper.deleteByPrimaryKey(id);
         apiDebugBlobMapper.deleteByPrimaryKey(id);
-        String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(apiDebug.getProjectId(), apiDebug.getId());
-        apiFileResourceService.deleteByResourceId(apiDebugDir, id);
     }
 
     private void checkAddExist(ApiDebug apiDebug) {
@@ -154,5 +155,9 @@ public class ApiDebugService {
     }
     private ApiDebug checkResourceExist(String id) {
         return ServiceUtils.checkResourceExist(apiDebugMapper.selectByPrimaryKey(id), "permission.system_api_debug.name");
+    }
+
+    public String uploadTempFile(MultipartFile file) {
+        return apiFileResourceService.uploadTempFile(file);
     }
 }

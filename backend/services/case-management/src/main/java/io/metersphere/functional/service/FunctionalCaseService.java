@@ -227,7 +227,7 @@ public class FunctionalCaseService {
      *
      * @param functionalCase functionalCase
      */
-    private FunctionalCaseDetailDTO checkTemplateCustomField(FunctionalCaseDetailDTO functionalCaseDetailDTO, FunctionalCase functionalCase) {
+    private void checkTemplateCustomField(FunctionalCaseDetailDTO functionalCaseDetailDTO, FunctionalCase functionalCase) {
         TemplateDTO templateDTO = projectTemplateService.getTemplateDTOById(functionalCase.getTemplateId(), functionalCase.getProjectId(), TemplateScene.FUNCTIONAL.name());
         if (CollectionUtils.isNotEmpty(templateDTO.getCustomFields())) {
             List<TemplateCustomFieldDTO> customFields = templateDTO.getCustomFields();
@@ -240,7 +240,6 @@ public class FunctionalCaseService {
             });
             functionalCaseDetailDTO.setCustomFields(customFields);
         }
-        return functionalCaseDetailDTO;
     }
 
 
@@ -477,13 +476,13 @@ public class FunctionalCaseService {
 
             Long nextOrder = getNextOrder(request.getProjectId());
 
-            for (int i = 0; i < ids.size(); i++) {
+            for (String s : ids) {
                 String id = IDGenerator.nextStr();
-                FunctionalCase functionalCase = functionalCaseMap.get(ids.get(i));
-                FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMap.get(ids.get(i));
-                List<FunctionalCaseAttachment> caseAttachments = attachmentMap.get(ids.get(i));
-                List<FileAssociation> fileAssociationList = fileAssociationMap.get(ids.get(i));
-                List<FunctionalCaseCustomField> customFields = customFieldMap.get(ids.get(i));
+                FunctionalCase functionalCase = functionalCaseMap.get(s);
+                FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMap.get(s);
+                List<FunctionalCaseAttachment> caseAttachments = attachmentMap.get(s);
+                List<FileAssociation> fileAssociationList = fileAssociationMap.get(s);
+                List<FunctionalCaseCustomField> customFields = customFieldMap.get(s);
 
                 Optional.ofNullable(functionalCase).ifPresent(functional -> {
                     functional.setId(id);

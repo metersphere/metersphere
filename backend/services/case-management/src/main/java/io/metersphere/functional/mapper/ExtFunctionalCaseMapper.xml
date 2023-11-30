@@ -266,6 +266,28 @@
         </if>
     </sql>
 
+    <sql id="queryVersionConditionByBaseQueryRequest">
+        <if test="request.versionId != null">
+            ${versionTable}.version_id = #{request.versionId}
+            <include refid="queryType">
+                <property name="searchMode" value="request.condition.searchMode"/>
+            </include>
+        </if>
+        <if test="request.refId != null">
+            ${versionTable}.ref_id = #{request.refId}
+            <include refid="queryType">
+                <property name="searchMode" value="request.condition.searchMode"/>
+            </include>
+        </if>
+        <if test="request.versionId == null and request.refId == null">
+            ${versionTable}.latest = 1
+            <include refid="queryType">
+                <property name="searchMode" value="request.condition.searchMode"/>
+            </include>
+        </if>
+        1 = 1
+    </sql>
+
     <sql id="queryVersionCondition">
         <if test="request.versionId != null">
             ${versionTable}.version_id = #{request.versionId}
@@ -382,10 +404,10 @@
             functional_case.project_id = #{projectId}
             and functional_case.deleted = #{deleted}
         <choose>
-            <when test='request.searchMode == "AND"'>
+            <when test='request.condition.searchMode == "AND"'>
                 AND <include refid="queryWhereConditionByBaseQueryRequest"/>
             </when>
-            <when test='request.searchMode == "OR"'>
+            <when test='request.condition.searchMode == "OR"'>
                 and (
                 <include refid="queryWhereConditionByBaseQueryRequest"/>
                 )
@@ -400,7 +422,7 @@
                 #{moduleId}
             </foreach>
             <include refid="queryType">
-                <property name="searchMode" value="request.searchMode"/>
+                <property name="searchMode" value="request.condition.searchMode"/>
             </include>
         </if>
         <if test="request.condition.keyword != null">
@@ -410,7 +432,7 @@
             or JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
             )
             <include refid="queryType">
-                <property name="searchMode" value="request.searchMode"/>
+                <property name="searchMode" value="request.condition.searchMode"/>
             </include>
         </if>
         <include refid="filters">
@@ -421,7 +443,7 @@
                 <property name="condition" value="request.condition.combine"/>
             </include>
         </if>
-        <include refid="queryVersionCondition">
+        <include refid="queryVersionConditionByBaseQueryRequest">
             <property name="versionTable" value="functional_case"/>
         </include>
     </sql>

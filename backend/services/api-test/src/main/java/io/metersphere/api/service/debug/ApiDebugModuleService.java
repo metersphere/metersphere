@@ -205,7 +205,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
             //删除文件关联关系
             apiDebugs.forEach(apiDebug -> {
                 String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(apiDebug.getProjectId(), apiDebug.getId());
-                apiFileResourceService.deleteByResourceId(apiDebugDir, apiDebug.getId());
+                apiFileResourceService.deleteByResourceId(apiDebugDir, apiDebug.getId(), projectId, currentUser);
             });
             apiDebugModuleLogService.saveDeleteDataLog(apiDebugs, currentUser, projectId);
         }

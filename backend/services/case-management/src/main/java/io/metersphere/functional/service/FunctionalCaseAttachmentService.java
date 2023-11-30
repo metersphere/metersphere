@@ -15,7 +15,6 @@ import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -204,8 +203,6 @@ public class FunctionalCaseAttachmentService {
     private FileLogRecord createFileLogRecord(String logUrl, String operator, String projectId) {
         return FileLogRecord.builder()
                 .logModule(OperationLogModule.FUNCTIONAL_CASE)
-                .requestMethod(HttpMethodConstants.POST.name())
-                .requestUrl(logUrl)
                 .operator(operator)
                 .projectId(projectId)
                 .build();

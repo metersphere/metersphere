@@ -216,11 +216,34 @@ public abstract class BaseTest {
         return this.requestMultipartWithOk(url, paramMap, uriVariables).andReturn();
     }
 
+    protected ResultActions requestUploadFile(String url, MockMultipartFile file, Object... uriVariables) throws Exception {
+        return mockMvc.perform(getUploadRequestBuilder(url, file, uriVariables))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    protected ResultActions requestUploadFileWithOk(String url, MockMultipartFile file) throws Exception {
+        return requestUploadFile(url, file)
+                .andExpect(status().isOk());
+    }
+
+    protected MvcResult requestUploadFileWithOkAndReturn(String url, MockMultipartFile file) throws Exception {
+        return requestUploadFileWithOk(url, file)
+                .andReturn();
+    }
+
     private MockHttpServletRequestBuilder getPermissionMultipartRequestBuilder(String roleId, String url,
                                                                                MultiValueMap<String, Object> paramMap,
                                                                                Object[] uriVariables) {
         AuthInfo authInfo = getPermissionAuthInfo(roleId);
         MockMultipartHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilderWithParam(url, paramMap, uriVariables);
+        return setRequestBuilderHeader(requestBuilder, authInfo);
+    }
+
+    private MockHttpServletRequestBuilder getPermissionUploadRequestBuilder(String roleId, String url,
+                                                                               MockMultipartFile file,
+                                                                               Object[] uriVariables) {
+        AuthInfo authInfo = getPermissionAuthInfo(roleId);
+        MockMultipartHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.multipart(getBasePath() + url, uriVariables).file(file);
         return setRequestBuilderHeader(requestBuilder, authInfo);
     }
 
@@ -231,6 +254,12 @@ public abstract class BaseTest {
         return setRequestBuilderHeader(requestBuilder, adminAuthInfo)
                 .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
                 .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken());
+    }
+
+    private MockMultipartHttpServletRequestBuilder getUploadRequestBuilder(String url, MockMultipartFile file, Object[] uriVariables) {
+        MockMultipartHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.multipart(getBasePath() + url, uriVariables).file(file);
+        setRequestBuilderHeader(requestBuilder, adminAuthInfo);
+        return requestBuilder;
     }
 
     /**
@@ -571,6 +600,10 @@ public abstract class BaseTest {
 
     protected void requestMultipartPermissionTest(String permissionId, String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
         requestPermissionTest(permissionId, url, () -> getPermissionMultipartRequestBuilder(permissionId.split("_")[0], url, paramMap, uriVariables));
+    }
+
+    protected void requestUploadPermissionTest(String permissionId, String url, MockMultipartFile file, Object... uriVariables) throws Exception {
+        requestPermissionTest(permissionId, url, () -> getPermissionUploadRequestBuilder(permissionId.split("_")[0], url, file, uriVariables));
     }
 
     protected void requestPostPermissionsTest(List<String> permissionIds, String url, Object param, Object... uriVariables) throws Exception {

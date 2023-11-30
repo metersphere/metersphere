@@ -84,6 +84,4 @@ public class ApiTestCaseDTO {
     @Schema(description = "请求内容")
     private AbstractMsTestElement request;
 
-    @Schema(description = "接口用例所关联的文件ID列表，修改时需要作为参数传入")
-    private List<String> fileIds;
 }

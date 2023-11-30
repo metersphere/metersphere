@@ -81,6 +81,20 @@ public class MinioRepository implements FileRepository {
         return listObjects(MinioConfig.BUCKET, getPath(request));
     }
 
+    @Override
+    public void copyFile(FileCopyRequest request) throws Exception {
+        String sourcePath = StringUtils.join(request.getCopyFolder(), "/", request.getCopyfileName());
+        String targetPath = getPath(request);
+        client.copyObject(CopyObjectArgs.builder()
+                .bucket(MinioConfig.BUCKET)
+                .object(targetPath)
+                .source(CopySource.builder()
+                        .bucket(MinioConfig.BUCKET)
+                        .object(sourcePath)
+                        .build())
+                .build());
+    }
+
     private void removeObject(String bucketName, String objectName) throws Exception {
         client.removeObject(RemoveObjectArgs.builder()
                 .bucket(bucketName) // 存储桶
