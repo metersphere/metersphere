@@ -667,7 +667,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag3", "tag4")));
         responsePost(BATCH_EDIT, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andDeletedEqualTo(false);
+        List<String> ids = extApiTestCaseMapper.getIds(request, false);
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andDeletedEqualTo(false).andIdIn(ids);
         apiTestCaseMapper.selectByExample(example).forEach(apiTestCase -> {
             Assertions.assertTrue(apiTestCase.getTags().contains("tag1"));
             Assertions.assertTrue(apiTestCase.getTags().contains("tag3"));
