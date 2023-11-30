@@ -2,16 +2,15 @@ package io.metersphere.bug.controller;
 
 import io.metersphere.bug.dto.BugCustomFieldDTO;
 import io.metersphere.bug.dto.BugDTO;
-import io.metersphere.bug.dto.request.BugBatchRequest;
-import io.metersphere.bug.dto.request.BugBatchUpdateRequest;
-import io.metersphere.bug.dto.request.BugEditRequest;
-import io.metersphere.bug.dto.request.BugPageRequest;
+import io.metersphere.bug.dto.request.*;
 import io.metersphere.bug.utils.CustomFieldUtils;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -44,6 +43,8 @@ public class BugControllerTests extends BaseTest {
     public static final String BUG_BATCH_UPDATE = "/bug/batch-update";
     public static final String BUG_FOLLOW = "/bug/follow";
     public static final String BUG_UN_FOLLOW = "/bug/unfollow";
+    public static final String BUG_EXPORT_COLUMNS = "/bug/export/columns/%s";
+    public static final String BUG_EXPORT = "/bug/export";
 
     @Test
     @Order(0)
@@ -94,6 +95,7 @@ public class BugControllerTests extends BaseTest {
         bugPageRequest.setCurrent(1);
         bugPageRequest.setPageSize(10);
         bugPageRequest.setKeyword("default-x");
+        bugPageRequest.setProjectId("default-project-for-bug");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -340,6 +342,68 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(12)
+    void testExportColumns() throws Exception {
+        this.requestGetWithOkAndReturn(String.format(BUG_EXPORT_COLUMNS, "default-project-for-bug"));
+        //校验权限
+        this.requestGetPermissionTest(PermissionConstants.BUG_EXPORT, String.format(BUG_EXPORT_COLUMNS, DEFAULT_PROJECT_ID));
+    }
+
+    @Test
+    @Order(13)
+    void testExportBugs() throws Exception {
+        BugExportRequest request = new BugExportRequest();
+        request.setProjectId("default-project-for-bug");
+        request.setSelectAll(true);
+        List<BugExportColumn> exportColumns = new ArrayList<>();
+        exportColumns.add(new BugExportColumn("name", "名称", "system"));
+        exportColumns.add(new BugExportColumn("id", "ID", "system"));
+        exportColumns.add(new BugExportColumn("content", "缺内容", "system"));
+        exportColumns.add(new BugExportColumn("status", "陷状态", "system"));
+        exportColumns.add(new BugExportColumn("handleUser", "处理人儿", "system"));
+        exportColumns.add(new BugExportColumn("createUser", "创建人儿", "other"));
+        exportColumns.add(new BugExportColumn("createTime", "搞定时间", "other"));
+        exportColumns.add(new BugExportColumn("caseCount", "用例量", "other"));
+        exportColumns.add(new BugExportColumn("comment", "评论", "other"));
+        exportColumns.add(new BugExportColumn("platform", "平台", "other"));
+        request.setExportColumns(exportColumns);
+
+        MvcResult result = this.requestPostDownloadFile(BUG_EXPORT, null, request);
+        byte[] bytes = result.getResponse().getContentAsByteArray();
+        Assertions.assertTrue(bytes.length > 0);
+
+        // 非Local的缺陷导出
+        request.setProjectId("default-project-for-bug-no-local");
+        result = this.requestPostDownloadFile(BUG_EXPORT, null, request);
+        bytes = result.getResponse().getContentAsByteArray();
+        Assertions.assertTrue(bytes.length > 0);
+
+        // 勾选部分
+        request.setSelectAll(false);
+        request.setIncludeBugIds(List.of("default-bug-id-single"));
+        result = this.requestPostDownloadFile(BUG_EXPORT, null, request);
+        bytes = result.getResponse().getContentAsByteArray();
+        Assertions.assertTrue(bytes.length > 0);
+
+        //不存在的ID
+        request.setIncludeBugIds(List.of(IDGenerator.nextStr()));
+        this.requestPost(BUG_EXPORT, request).andExpect(status().is5xxServerError());
+
+        //没有数据
+        request = new BugExportRequest();
+        request.setProjectId("default-project-for-bug");
+        request.setSelectAll(false);
+        request.setExportColumns(exportColumns);
+        this.requestPost(BUG_EXPORT, request).andExpect(status().is5xxServerError());
+
+        //测试权限
+        request = new BugExportRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(true);
+        request.setExportColumns(exportColumns);
+        this.requestPostPermissionTest(PermissionConstants.BUG_EXPORT, BUG_EXPORT, request);
+    }
+    @Test
+    @Order(90)
     void testDeleteBugSuccess() throws Exception {
         this.requestGet(BUG_DELETE + "/default-bug-id", status().isOk());
         // 非Local缺陷
@@ -347,13 +411,13 @@ public class BugControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(13)
+    @Order(91)
     void testDeleteBugError() throws Exception {
         this.requestGet(BUG_DELETE + "/default-bug-id-not-exist", status().is5xxServerError());
     }
 
     @Test
-    @Order(14)
+    @Order(92)
     void testBatchDeleteEmptyBugSuccess() throws Exception {
         BugBatchRequest request = new BugBatchRequest();
         request.setProjectId("default-project-for-bug");
@@ -367,7 +431,7 @@ public class BugControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(15)
+    @Order(93)
     void testFollowBug() throws Exception {
         // 关注的缺陷存在
         this.requestGet(BUG_FOLLOW + "/default-bug-id-single", status().isOk());
@@ -376,7 +440,7 @@ public class BugControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(16)
+    @Order(94)
     void testUnFollowBug() throws Exception {
         // 取消关注的缺陷存在
         this.requestGet(BUG_UN_FOLLOW + "/default-bug-id-single", status().isOk());
@@ -385,7 +449,7 @@ public class BugControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(20)
+    @Order(95)
     void testBatchDeleteBugSuccess() throws Exception {
         BugBatchRequest request = new BugBatchRequest();
         request.setProjectId("default-project-for-bug");
@@ -402,7 +466,7 @@ public class BugControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(21)
+    @Order(96)
     void coverUtilsTest() throws Exception {
         CustomFieldUtils.appendToMultipleCustomField(null, "test");
     }
