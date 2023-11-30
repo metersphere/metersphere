@@ -1,7 +1,9 @@
 package io.metersphere.api.service.definition;
 
+import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.enums.ApiReportStatus;
 import io.metersphere.api.mapper.*;
@@ -14,10 +16,9 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.sdk.util.*;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -70,8 +71,6 @@ public class ApiDefinitionService {
     @Resource
     private ApiTestCaseService apiTestCaseService;
 
-    @Resource
-    private ApiDefinitionLogService apiDefinitionLogService;
 
     @Resource
     private ApiFileResourceService apiFileResourceService;
@@ -82,6 +81,36 @@ public class ApiDefinitionService {
             processApiDefinitions(list, request.getProjectId());
         }
         return list;
+    }
+
+    public List<ApiDefinitionDTO> getDocPage(ApiDefinitionPageRequest request){
+        List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
+        if (!CollectionUtils.isEmpty(list)) {
+            processApiDefinitionsDoc(list);
+        }
+        return list;
+    }
+
+    private void processApiDefinitionsDoc(List<ApiDefinitionDTO> list){
+        Set<String> userIds = extractUserIds(list);
+        Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
+
+        list.forEach(item -> {
+            // Convert User IDs to Names
+            item.setCreateUserName(userMap.get(item.getCreateUser()));
+            item.setDeleteUserName(userMap.get(item.getDeleteUser()));
+            item.setUpdateUserName(userMap.get(item.getUpdateUser()));
+
+            // Convert Blob
+            Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(item.getId()));
+            apiDefinitionBlobOptional.ifPresent(blob -> {
+                item.setRequest(ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class));
+                // blob.getResponse() 为 null 时不进行转换
+                if (blob.getResponse() != null) {
+                    item.setResponse(ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class));
+                }
+            });
+        });
     }
 
     public ApiDefinitionDTO get(String id, String userId){
@@ -105,7 +134,7 @@ public class ApiDefinitionService {
         return apiDefinitionDTO;
     }
 
-    public ApiDefinition create(ApiDefinitionAddRequest request, List<MultipartFile> bodyFiles, String userId) {
+    public ApiDefinition create(ApiDefinitionAddRequest request, String userId) {
         ProjectService.checkResourceExist(request.getProjectId());
         ApiDefinition apiDefinition = new ApiDefinition();
         BeanUtils.copyBean(apiDefinition, request);
@@ -131,28 +160,35 @@ public class ApiDefinitionService {
         apiDefinitionBlob.setResponse(request.getResponse().getBytes());
         apiDefinitionBlobMapper.insertSelective(apiDefinitionBlob);
 
-        // 处理文件 todo
-        if (CollectionUtils.isNotEmpty(request.getFileIds()) && CollectionUtils.isNotEmpty(bodyFiles)) {
-//            String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), apiDefinition.getId());
-//            ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
-//            resourceUpdateRequest.setProjectId(apiDefinition.getProjectId());
-//            resourceUpdateRequest.setFileIds(request.getFileIds());
-//            resourceUpdateRequest.setAddFileIds(request.getFileIds());
-//            resourceUpdateRequest.setFolder(apiDefinitionDir);
-//            resourceUpdateRequest.setResourceId(apiDefinition.getId());
-//            resourceUpdateRequest.setApiResourceType(ApiResourceType.API);
-//            apiFileResourceService.addFileResource(resourceUpdateRequest, bodyFiles);
-        }
+        // 处理文件
+        ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(apiDefinition.getId(), apiDefinition.getProjectId(), userId);
+        resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
+        resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
+        apiFileResourceService.addFileResource(resourceUpdateRequest);
+
         return apiDefinition;
     }
 
-    public ApiDefinition update(ApiDefinitionUpdateRequest request, List<MultipartFile> bodyFiles, String userId) {
+    private static ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {
+        String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, sourceId);
+        ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
+        resourceUpdateRequest.setProjectId(projectId);
+        resourceUpdateRequest.setFolder(apiDefinitionDir);
+        resourceUpdateRequest.setResourceId(sourceId);
+        resourceUpdateRequest.setApiResourceType(ApiResourceType.API);
+        resourceUpdateRequest.setOperator(operator);
+        resourceUpdateRequest.setLogModule(OperationLogModule.API_DEFINITION);
+        resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEFINITION);
+        return resourceUpdateRequest;
+    }
+
+    public ApiDefinition update(ApiDefinitionUpdateRequest request, String userId) {
         ProjectService.checkResourceExist(request.getProjectId());
         ApiDefinition originApiDefinition = checkApiDefinition(request.getId());
         ApiDefinition apiDefinition = new ApiDefinition();
         BeanUtils.copyBean(apiDefinition, request);
         if(request.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)){
-            checkUpdateExist(apiDefinition, originApiDefinition);
+            checkUpdateExist(apiDefinition);
         }
         apiDefinition.setStatus(request.getStatus());
         apiDefinition.setUpdateUser(userId);
@@ -168,23 +204,20 @@ public class ApiDefinitionService {
         apiDefinitionBlob.setResponse(request.getResponse().getBytes());
         apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
 
-        // 处理文件 todo
-//        String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(originApiDefinition.getProjectId(), apiDefinition.getId());
-//        ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
-//        resourceUpdateRequest.setProjectId(originApiDefinition.getProjectId());
-//        resourceUpdateRequest.setFileIds(request.getFileIds());
-//        resourceUpdateRequest.setAddFileIds(request.getAddFileIds());
-//        resourceUpdateRequest.setFolder(apiDefinitionDir);
-//        resourceUpdateRequest.setResourceId(apiDefinition.getId());
-//        resourceUpdateRequest.setApiResourceType(ApiResourceType.API);
-//        apiFileResourceService.updateFileResource(resourceUpdateRequest, bodyFiles);
+        // 处理文件
+        ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(originApiDefinition.getId(), originApiDefinition.getProjectId(), userId);
+        resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
+        resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
+        resourceUpdateRequest.setUnLinkRefIds(request.getUnLinkRefIds());
+        resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
+        apiFileResourceService.updateFileResource(resourceUpdateRequest);
 
         return apiDefinition;
     }
 
     public void batchUpdate(ApiDefinitionBatchUpdateRequest request, String userId) {
         ProjectService.checkResourceExist(request.getProjectId());
-        List<String> ids = apiDefinitionLogService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
         if (CollectionUtils.isNotEmpty(ids)) {
             if (request.getType().equals("tags")) {
                 handleTags(request, userId, ids);
@@ -235,14 +268,14 @@ public class ApiDefinitionService {
     }
 
     public void batchDelete(ApiDefinitionBatchRequest request, String userId) {
-        List<String> ids = apiDefinitionLogService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
         if (CollectionUtils.isNotEmpty(ids)) {
             handleDeleteApiDefinition(ids, request.getDeleteAll(), request.getProjectId(), userId);
         }
     }
 
     public void batchMove(ApiDefinitionBatchMoveRequest request, String userId) {
-        List<String> ids = apiDefinitionLogService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
         if (!ids.isEmpty()) {
             List<String> refIds = extApiDefinitionMapper.getRefIds(ids, false);
             if (!refIds.isEmpty()) {
@@ -305,7 +338,7 @@ public class ApiDefinitionService {
     /**
      * 校验接口是否存在
      *
-     * @param apiId
+     * @param apiId 接口id
      */
     private ApiDefinition checkApiDefinition(String apiId) {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiId);
@@ -319,18 +352,17 @@ public class ApiDefinitionService {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria()
                 .andPathEqualTo(apiDefinition.getPath()).andMethodEqualTo(apiDefinition.getMethod())
-                .andModuleIdEqualTo(apiDefinition.getModuleId()).andProtocolEqualTo(apiDefinition.getProtocol());
+                .andProtocolEqualTo(apiDefinition.getProtocol());
         if (CollectionUtils.isNotEmpty(apiDefinitionMapper.selectByExample(example))) {
             throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
         }
     }
 
-    private void checkUpdateExist(ApiDefinition apiDefinition, ApiDefinition originApiDefinition) {
+    private void checkUpdateExist(ApiDefinition apiDefinition) {
         if (StringUtils.isNotEmpty(apiDefinition.getPath()) && StringUtils.isNotEmpty(apiDefinition.getMethod())) {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria()
                     .andIdNotEqualTo(apiDefinition.getId()).andProtocolEqualTo(apiDefinition.getProtocol())
-                    .andModuleIdEqualTo(apiDefinition.getModuleId() == null ? originApiDefinition.getModuleId() : apiDefinition.getModuleId())
                     .andPathEqualTo(apiDefinition.getPath()).andMethodEqualTo(apiDefinition.getMethod());
             if (apiDefinitionMapper.countByExample(example) > 0) {
                 throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
@@ -347,8 +379,7 @@ public class ApiDefinitionService {
     /**
      * 根据接口id 获取接口是否存在多个版本
      *
-     * @param apiId
-     * @return
+     * @param apiId 接口id
      */
     public List<ApiDefinitionVersionDTO> getApiDefinitionVersion(String apiId) {
         ApiDefinition apiDefinition = checkApiDefinition(apiId);
@@ -415,24 +446,26 @@ public class ApiDefinitionService {
         return copyName;
     }
 
-    private void handleDeleteApiDefinition(List<String> ids, Boolean deleteAll, String projectId, String userId) {
+    private void handleDeleteApiDefinition(List<String> ids, boolean deleteAll, String projectId, String userId) {
         if (deleteAll) {
             //全部删除  进入回收站
             List<String> refIds = extApiDefinitionMapper.getRefIds(ids, false);
             if(CollectionUtils.isNotEmpty(refIds)){
-                List<String> delApiIds = extApiDefinitionMapper.getIdsByRefId(refIds, false);
-                extApiDefinitionMapper.batchDeleteByRefId(refIds, userId, projectId);
-                if(CollectionUtils.isNotEmpty(delApiIds)){
-                    // 删除接口相关数据到回收站
-                    deleteApiRelatedData(delApiIds, userId, projectId);
-                }
+                SubListUtils.dealForSubList(refIds, 2000, subRefIds -> {
+                extApiDefinitionMapper.batchDeleteByRefId(subRefIds, userId, projectId);
+                    List<String> delApiIds = extApiDefinitionMapper.getIdsByRefId(subRefIds, false);
+                    SubListUtils.dealForSubList(delApiIds, 2000, subList -> {
+                        if(CollectionUtils.isNotEmpty(delApiIds)){
+                            // 删除接口相关数据到回收站
+                            deleteApiRelatedData(subList, userId, projectId);
+                        }
+                    });
+                });
             }
         } else {
             // 列表删除
             if (!ids.isEmpty()) {
-                SubListUtils.dealForSubList(ids, 2000, subList -> {
-                    doDelete(subList, userId, projectId);
-                });
+                SubListUtils.dealForSubList(ids, 2000, subList -> doDelete(subList, userId, projectId));
             }
         }
     }
@@ -494,7 +527,6 @@ public class ApiDefinitionService {
             List<String> caseIds = caseLists.stream().map(ApiTestCase::getId).distinct().toList();
             apiTestCaseService.batchDeleteToGc(caseIds, userId, projectId, true);
         }
-        // todo 删除文档到回收站？
     }
 
     private void deleteFollower(String apiId, String userId) {
@@ -507,9 +539,7 @@ public class ApiDefinitionService {
     }
     private void handleRestoreApiDefinition(List<String> ids, String userId, String projectId){
         if (CollectionUtils.isNotEmpty(ids)) {
-            SubListUtils.dealForSubList(ids, 2000, subList -> {
-                doRestore(subList, userId, projectId);
-            });
+            SubListUtils.dealForSubList(ids, 2000, subList -> doRestore(subList, userId, projectId));
         }
     }
 
@@ -543,62 +573,54 @@ public class ApiDefinitionService {
 
     private void recoverApiRelatedData(List<String> apiIds, String userId, String projectId){
         // 是否存在 case 恢复 case
-        List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(apiIds, false);
+        List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(apiIds, true);
         if(CollectionUtils.isNotEmpty(caseLists)) {
-            List<String> caseIds = caseLists.stream().map(ApiTestCase::getId).distinct().toList();
-            // todo case 批量恢复方法
-            LogUtils.info("caseIds" + JSON.toJSONString(caseIds));
-            // todo 恢复文档?
+            apiTestCaseService.batchRecover(caseLists, userId, projectId);
         }
     }
-    public void recycleDel(ApiDefinitionDeleteRequest request, String userId) {
-        handleRecycleDelApiDefinition(Collections.singletonList(request.getId()), userId, request.getProjectId(), false);
+    public void trashDel(ApiDefinitionDeleteRequest request, String userId) {
+        handleTrashDelApiDefinition(Collections.singletonList(request.getId()), userId, request.getProjectId());
     }
 
     public void batchRestore(ApiDefinitionBatchRequest request, String userId) {
-        List<String> ids = apiDefinitionLogService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), true);
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), true);
         if (CollectionUtils.isNotEmpty(ids)) {
             handleRestoreApiDefinition(ids, userId, request.getProjectId());
         }
     }
 
-    public void batchRecycleDel(ApiDefinitionBatchRequest request, String userId) {
-        List<String> ids = apiDefinitionLogService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), true);
+    public void batchTrashDel(ApiDefinitionBatchRequest request, String userId) {
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), true);
         if (CollectionUtils.isNotEmpty(ids)) {
-            handleRecycleDelApiDefinition(ids, userId, request.getProjectId(), true);
+            handleTrashDelApiDefinition(ids, userId, request.getProjectId());
         }
     }
 
-    private void handleRecycleDelApiDefinition(List<String> ids, String userId, String projectId, Boolean isBatch){
+    private void handleTrashDelApiDefinition(List<String> ids, String userId, String projectId){
         if (CollectionUtils.isNotEmpty(ids)) {
-            SubListUtils.dealForSubList(ids, 2000, subList -> {
-                doRecycleDel(subList, userId, projectId, isBatch);
-            });
+            SubListUtils.dealForSubList(ids, 2000, subList -> doTrashDel(subList, userId, projectId));
         }
     }
 
-    private void doRecycleDel(List<String> ids, String userId, String projectId, Boolean isBatch){
+    private void doTrashDel(List<String> ids, String userId, String projectId){
         if(CollectionUtils.isNotEmpty(ids)){
-            ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
-            apiDefinitionExample.createCriteria().andIdIn(ids).andDeletedEqualTo(true).andProjectIdEqualTo(projectId);
-            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
-            // 删除接口
-            apiDefinitionMapper.deleteByExample(apiDefinitionExample);
+            // 删除上传的文件
+            ids.forEach(id -> {
+                String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, id);
+                apiFileResourceService.deleteByResourceId(apiDefinitionDir, id, projectId, userId, OperationLogModule.API_DEFINITION);
+            });
             // 删除接口关注人
             ApiDefinitionFollowerExample apiDefinitionFollowerExample = new ApiDefinitionFollowerExample();
             apiDefinitionFollowerExample.createCriteria().andApiDefinitionIdIn(ids).andUserIdEqualTo(userId);
             apiDefinitionFollowerMapper.deleteByExample(apiDefinitionFollowerExample);
-            // 删除上传的文件
-            ids.forEach(id -> {
-                String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, id);
-                apiFileResourceService.deleteByResourceId(apiDefinitionDir, id, projectId, userId);
-            });
 
             // 删除接口关联数据
             recycleDelApiRelatedData(ids, userId, projectId);
 
-            // 写入删除日志
-            apiDefinitionLogService.recycleDelLog(apiDefinitions, userId, isBatch);
+            // 删除接口
+            ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+            apiDefinitionExample.createCriteria().andIdIn(ids).andDeletedEqualTo(true).andProjectIdEqualTo(projectId);
+            apiDefinitionMapper.deleteByExample(apiDefinitionExample);
         }
     }
 
@@ -609,8 +631,25 @@ public class ApiDefinitionService {
             List<String> caseIds = caseLists.stream().map(ApiTestCase::getId).distinct().toList();
             // case 批量删除回收站
             apiTestCaseService.deleteResourceByIds(caseIds, projectId, userId);
-            // todo 删除文档?
 
         }
+    }
+
+    // 获取批量操作选中的ID
+    public <T> List<String> getBatchApiIds(T dto, String projectId, String protocol, boolean deleted) {
+        TableBatchProcessDTO request = (TableBatchProcessDTO) dto;
+        if (request.isSelectAll()) {
+            List<String> ids = extApiDefinitionMapper.getIds(request, projectId, protocol, deleted);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
+    }
+
+    public String uploadTempFile(MultipartFile file) {
+        return apiFileResourceService.uploadTempFile(file);
     }
 }

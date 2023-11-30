@@ -15,7 +15,6 @@ import io.metersphere.system.file.FileCenter;
 import io.metersphere.system.file.FileCopyRequest;
 import io.metersphere.system.file.FileRepository;
 import io.metersphere.system.file.FileRequest;
-import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @Author: jianxing
@@ -125,7 +123,7 @@ public class ApiFileResourceService {
                 apiFileResource.setFileName(fileName);
                 addFileMap.put(fileId, fileName);
                 return apiFileResource;
-            }).collect(Collectors.toList());
+            }).toList();
             apiFileResourceMapper.batchInsert(apiFileResources);
 
             // 上传文件到对象存储
@@ -135,13 +133,13 @@ public class ApiFileResourceService {
         // 处理关联文件
         if (CollectionUtils.isNotEmpty(resourceUpdateRequest.getLinkFileIds())) {
             fileAssociationService.association(resourceId, resourceUpdateRequest.getFileAssociationSourceType(), resourceUpdateRequest.getLinkFileIds(),
-                    createFileLogRecord(resourceUpdateRequest.getOperator(), projectId));
+                    createFileLogRecord(resourceUpdateRequest.getOperator(), projectId, resourceUpdateRequest.getLogModule()));
         }
     }
 
-    private FileLogRecord createFileLogRecord(String operator, String projectId) {
+    private FileLogRecord createFileLogRecord(String operator, String projectId, String logModule) {
         return FileLogRecord.builder()
-                .logModule(OperationLogModule.API_DEBUG)
+                .logModule(logModule)
                 .operator(operator)
                 .projectId(projectId)
                 .build();
@@ -184,7 +182,7 @@ public class ApiFileResourceService {
         List<String> unLinkRefIds = resourceUpdateRequest.getUnLinkRefIds();
         if (CollectionUtils.isNotEmpty(unLinkRefIds)) {
             fileAssociationService.deleteBySourceIdAndFileIds(resourceUpdateRequest.getResourceId(), unLinkRefIds,
-                    createFileLogRecord(resourceUpdateRequest.getOperator(), resourceUpdateRequest.getProjectId()));
+                    createFileLogRecord(resourceUpdateRequest.getOperator(), resourceUpdateRequest.getProjectId(), resourceUpdateRequest.getLogModule()));
         }
     }
 
@@ -195,7 +193,7 @@ public class ApiFileResourceService {
      * @param projectId
      * @param operator
      */
-    public void deleteByResourceId(String apiDebugDir, String resourceId, String projectId, String operator) {
+    public void deleteByResourceId(String apiDebugDir, String resourceId, String projectId, String operator, String logModule) {
         // 处理本地上传的文件
         ApiFileResourceExample example = new ApiFileResourceExample();
         example.createCriteria()
@@ -211,7 +209,7 @@ public class ApiFileResourceService {
 
         // 处理关联文件
         FileLogRecord fileLogRecord = FileLogRecord.builder()
-                .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
+                .logModule(logModule)
                 .operator(operator)
                 .projectId(projectId)
                 .build();
@@ -228,7 +226,7 @@ public class ApiFileResourceService {
     public List<String> getFileIdsByResourceId(String resourceId) {
         return getByResourceId(resourceId).stream()
                 .map(ApiFileResource::getFileId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

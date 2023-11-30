@@ -18,6 +18,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -115,6 +116,7 @@ public class ApiTestCaseService {
         resourceUpdateRequest.setResourceId(sourceId);
         resourceUpdateRequest.setApiResourceType(ApiResourceType.API_CASE);
         resourceUpdateRequest.setOperator(operator);
+        resourceUpdateRequest.setLogModule(OperationLogModule.API_DEFINITION_CASE);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_TEST_CASE);
         return resourceUpdateRequest;
     }
@@ -318,9 +320,7 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        SubListUtils.dealForSubList(ids, 2000, subList -> {
-            deleteResourceByIds(subList, request.getProjectId(), userId);
-        });
+        SubListUtils.dealForSubList(ids, 2000, subList -> deleteResourceByIds(subList, request.getProjectId(), userId));
     }
 
     public void deleteResourceByIds(List<String> ids, String projectId, String userId) {
@@ -329,7 +329,7 @@ public class ApiTestCaseService {
         //删除文件关联关系
         ids.forEach(id -> {
             String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(projectId, id);
-            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, userId);
+            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, userId, OperationLogModule.API_DEFINITION_CASE);
         });
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
@@ -371,9 +371,7 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        SubListUtils.dealForSubList(ids, 2000, subList -> {
-            batchMoveToGc(subList, userId, projectId, saveLog);
-        });
+        SubListUtils.dealForSubList(ids, 2000, subList -> batchMoveToGc(subList, userId, projectId, saveLog));
     }
 
     private void batchMoveToGc(List<String> ids, String userId, String projectId, boolean saveLog) {
@@ -389,9 +387,7 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        SubListUtils.dealForSubList(ids, 2000, subList -> {
-            batchEditByType(request, subList, userId, request.getProjectId());
-        });
+        SubListUtils.dealForSubList(ids, 2000, subList -> batchEditByType(request, subList, userId, request.getProjectId()));
     }
 
     private void batchEditByType(ApiCaseBatchEditRequest request, List<String> ids, String userId, String projectId) {

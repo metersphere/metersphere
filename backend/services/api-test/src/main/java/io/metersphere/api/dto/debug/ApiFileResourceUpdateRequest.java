@@ -3,6 +3,7 @@ package io.metersphere.api.dto.debug;
 import io.metersphere.api.constants.ApiResourceType;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @Data
 public class ApiFileResourceUpdateRequest implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -58,4 +60,10 @@ public class ApiFileResourceUpdateRequest implements Serializable {
      * 记录文件相关操作日志
      */
     private String operator;
+
+    /**
+     * 记录日志模块
+     * 记录文件相关操作日志
+     */
+    private String logModule;
 }

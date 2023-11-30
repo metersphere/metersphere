@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,9 +39,8 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_ADD)
     // 添加接口Log示例
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDefinitionLogService.class)
-    public ApiDefinition add(@Validated @RequestPart("request") ApiDefinitionAddRequest request,
-                             @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
-        return apiDefinitionService.create(request, bodyFiles, SessionUtils.getUserId());
+    public ApiDefinition add(@Validated @RequestBody ApiDefinitionAddRequest request) {
+        return apiDefinitionService.create(request, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/update")
@@ -48,9 +48,8 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
     // 添加修改Log示例
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDefinitionLogService.class)
-    public ApiDefinition update(@Validated @RequestPart("request") ApiDefinitionUpdateRequest request,
-                                   @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
-        return apiDefinitionService.update(request, bodyFiles, SessionUtils.getUserId());
+    public ApiDefinition update(@Validated @RequestBody ApiDefinitionUpdateRequest request) {
+        return apiDefinitionService.update(request, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/batch-update")
@@ -116,7 +115,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/page")
-    @Operation(summary = "接口测试-接口管理-接口列表(deleted 状态为 0 时为回收站数据)")
+    @Operation(summary = "接口测试-接口管理-接口列表(deleted 状态为 1 时为回收站数据)")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public Pager<List<ApiDefinitionDTO>> getPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -131,12 +130,12 @@ public class ApiDefinitionController {
     public void restore(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
         apiDefinitionService.restore(request, SessionUtils.getUserId());
     }
-    @PostMapping(value = "/recycle-del")
+    @PostMapping(value = "/trash-del")
     @Operation(summary = "接口测试-接口管理-删除回收站接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.recycleDelLog(#request)", msClass = ApiDefinitionLogService.class)
-    public void recycleDel(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
-        apiDefinitionService.recycleDel(request, SessionUtils.getUserId());
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.trashDelLog(#request)", msClass = ApiDefinitionLogService.class)
+    public void trashDel(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
+        apiDefinitionService.trashDel(request, SessionUtils.getUserId());
     }
     @PostMapping(value = "/batch-restore")
     @Operation(summary = "接口测试-接口管理-批量从回收站恢复接口定义")
@@ -146,11 +145,28 @@ public class ApiDefinitionController {
         apiDefinitionService.batchRestore(request, SessionUtils.getUserId());
     }
 
-    @PostMapping(value = "/batch-recycle-del")
+    @PostMapping(value = "/batch-trash-del")
     @Operation(summary = "接口测试-接口管理-批量从回收站删除接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
-    public void batchRecycleDel(@Validated @RequestBody ApiDefinitionBatchRequest request) {
-        apiDefinitionService.batchRecycleDel(request, SessionUtils.getUserId());
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchTrashDelLog(#request)", msClass = ApiDefinitionLogService.class)
+    public void batchTrashDel(@Validated @RequestBody ApiDefinitionBatchRequest request) {
+        apiDefinitionService.batchTrashDel(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/page-doc")
+    @Operation(summary = "接口测试-接口管理-接口文档列表")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    public Pager<List<ApiDefinitionDTO>> getDocPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, apiDefinitionService.getDocPage(request));
+    }
+
+    @PostMapping("/upload/temp/file")
+    @Operation(summary = "上传接口定义所需的文件资源，并返回文件ID")
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_ADD, PermissionConstants.PROJECT_API_DEFINITION_UPDATE})
+    public String uploadTempFile(@RequestParam("file") MultipartFile file) {
+        return apiDefinitionService.uploadTempFile(file);
     }
 
 }
