@@ -19,6 +19,7 @@
           :useEnvironment="environment"
           :is-case-edit="isCaseEdit"
           :button-text="saveButtonText"
+          :loaded="loaded"
           ref="header"
           v-if="refreshHeader" />
       </template>
@@ -620,6 +621,9 @@ export default {
     },
     copyCase(data) {
       data.type = 'AddCase';
+      if (!this.api.request) {
+        this.api.request = data.request;
+      }
       this.apiCaseList.unshift(data);
     },
 
