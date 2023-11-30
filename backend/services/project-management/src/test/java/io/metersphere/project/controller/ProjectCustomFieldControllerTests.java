@@ -1,19 +1,17 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.sdk.constants.*;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
-import io.metersphere.system.domain.CustomField;
-import io.metersphere.system.domain.CustomFieldExample;
-import io.metersphere.system.domain.CustomFieldOption;
-import io.metersphere.system.domain.OrganizationParameter;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
+import io.metersphere.system.mapper.TemplateCustomFieldMapper;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
 import io.metersphere.system.service.UserLoginService;
@@ -57,6 +55,8 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
     private UserLoginService userLoginService;
     @Resource
     private OrganizationParameterMapper organizationParameterMapper;
+    @Resource
+    private TemplateCustomFieldMapper templateCustomFieldMapper;
     private static CustomField addCustomField;
     private static CustomField anotherAddCustomField;
 
@@ -266,6 +266,7 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         this.requestGetWithOk(DEFAULT_DELETE, addCustomField.getId());
         Assertions.assertNull(customFieldMapper.selectByPrimaryKey(addCustomField.getId()));
         Assertions.assertTrue(CollectionUtils.isEmpty(baseCustomFieldOptionService.getByFieldId(addCustomField.getId())));
+        Assertions.assertTrue(CollectionUtils.isEmpty(getTemplateCustomField(addCustomField.getId())));
 
         // @@校验内置字段删除异常
         CustomFieldExample example = new CustomFieldExample();
@@ -296,5 +297,12 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
                 organizationParameterMapper.insert(organizationParameter);
             }
         }
+    }
+
+    private List<TemplateCustomField> getTemplateCustomField(String id) {
+        TemplateCustomFieldExample example = new TemplateCustomFieldExample();
+        example.createCriteria()
+                .andFieldIdEqualTo(id);
+        return templateCustomFieldMapper.selectByExample(example);
     }
 }
