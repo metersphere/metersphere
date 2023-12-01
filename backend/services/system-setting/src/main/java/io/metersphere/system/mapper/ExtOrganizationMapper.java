@@ -1,11 +1,11 @@
 package io.metersphere.system.mapper;
 
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.*;
 import io.metersphere.system.dto.request.OrganizationDeleteRequest;
 import io.metersphere.system.dto.request.OrganizationRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -107,4 +107,11 @@ public interface ExtOrganizationMapper {
      * @return 组织下拉选项
      */
     List<OptionDTO> getOptionsByIds(@Param("ids") List<String> ids);
+
+    /**
+     * 获取用户关联组织ID
+     * @param userId 用户ID
+     * @return 用户ID集合
+     */
+    List<String> getRelatedOrganizationIds(@Param("userId") String userId);
 }
