@@ -118,6 +118,8 @@
     } else {
       title.value = t('caseManagement.featureCase.creatingCase');
     }
+    const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
+    console.log(gatewayAddress);
   });
 </script>
 

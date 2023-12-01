@@ -2,14 +2,14 @@
   <MsDrawer
     v-model:visible="showSettingVisible"
     :mask="false"
-    :title="t('caseManagement.featureCase.displaySetting')"
+    :title="t('caseManagement.featureCase.detailDisplaySetting')"
     :width="480"
     unmount-on-close
     :footer="false"
   >
     <div class="header mb-1 flex h-[22px] items-center justify-between">
       <div class="flex items-center text-[var(--color-text-4)]"
-        >{{ t('caseManagement.featureCase.displaySetting') }}
+        >{{ t('caseManagement.featureCase.detailDisplaySetting') }}
 
         <a-tooltip>
           <template #content>
