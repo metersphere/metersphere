@@ -26,4 +26,271 @@
             LIMIT 1;
     </select>
 
+    <select id="list" resultType="io.metersphere.functional.dto.CaseReviewDTO">
+        SELECT
+         *
+        FROM
+        case_review
+        where case_review.project_id = #{request.projectId}
+        <choose>
+            <when test='request.searchMode == "AND"'>
+                AND <include refid="queryWhereCondition"/>
+            </when>
+            <when test='request.searchMode == "OR"'>
+                and (
+                <include refid="queryWhereCondition"/>
+                )
+            </when>
+        </choose>
+        1 = 1
+    </select>
+
+    <sql id="queryWhereCondition">
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            case_review.module_id in
+            <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
+                #{moduleId}
+            </foreach>
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
+        </if>
+        <if test="request.keyword != null">
+            (
+            case_review.name like concat('%', #{request.keyword},'%')
+            or case_review.num like concat('%', #{request.keyword},'%')
+            )
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+        <include refid="combine">
+            <property name="condition" value="request.combine"/>
+            <property name="name" value="request.name"/>
+            <property name="ObjectTags" value="request.combine.tags"/>
+            <property name="ObjectReviewers" value="request.combine.reviewers"/>
+            <property name="ObjectModuleIds" value="request.combine.moduleIds"/>
+        </include>
+    </sql>
+
+    <sql id="queryType">
+        <choose>
+            <when test='${searchMode} == "AND"'>
+                AND
+            </when>
+            <when test='${searchMode} == "OR"'>
+                OR
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            case_review.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
+                        </when>
+                        <when test="key=='review_pass_rule'">
+                            case_review.review_pass_rule in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
+                        </when>
+                        <when test="key=='create_user'">
+                            case_review.create_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
+                        </when>
+                        <when test="key=='case_reviewer'">
+                            case_review.id in (
+                            select case_review_user.review_id from case_review_user where case_review_user.user_id in
+                            in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                            )
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="combine">
+        <if test="request.combine != null">
+            <if test='${condition}.name != null'>
+                case_review.name
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.name"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
+            <if test='${condition}.id != null'>
+                case_review.num
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.id"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
+            <if test="${condition}.updateTime != null">
+                case_review.update_time
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.updateTime"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
+            <if test="${condition}.createTime != null">
+                case_review.create_time
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.createTime"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
+            <if test="${condition}.startTime != null">
+                case_review.start_time
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.startTime"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
+            <if test="${condition}.createTime != null">
+                case_review.end_time
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.endTime"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
+            <if test='${condition}.tags != null and ${ObjectTags}.operator == "not like"'>
+                (api_definition.tags is null or api_definition.tags
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.tags"/>
+                </include>
+                )
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
+            <if test='${condition}.tags != null and ${ObjectTags}.operator == "like"'>
+                api_definition.tags
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.tags"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+            <if test="${condition}.caseCount != null">
+                case_review.case_count
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.caseCount"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+            <if test="${condition}.passRate != null">
+                case_review.pass_rate
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.passRate"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+            <if test='${condition}.reviewers != null and ${condition}.reviewers.size() > 0 and ${ObjectReviewers}.operator == "in"'>
+                case_review.id
+                <include refid="condition">
+                    <property name="object" value="${condition}.reviewers"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+            <if test='${condition}.reviewers != null and ${condition}.reviewers.size() > 0 and ${ObjectReviewers}.operator == "not in"'>
+                case_review.id
+                <include refid="condition">
+                    <property name="object" value="${condition}.reviewers"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+            <if test='${condition}.moduleIds != null and ${condition}.moduleIds.size() > 0 and ${ObjectModuleIds}.operator == "in"'>
+                case_review.module_id
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.reviewers"/>
+                </include>
+
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+            <if test='${condition}.moduleIds != null and ${condition}.moduleIds.size() > 0 and ${ObjectModuleIds}.operator == "not in"'>
+                case_review.module_id
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.reviewers"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+        </if>
+    </sql>
+
+    <sql id="condition">
+        <choose>
+
+            <when test='${object}.operator == "in"'>
+                in ( select review_id from case_review_user where case_review_user.user_id in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+                )
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                ( select review_id from case_review_user where case_review_user.user_id in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+                )
+            </when>
+
+        </choose>
+    </sql>
+
 </mapper>

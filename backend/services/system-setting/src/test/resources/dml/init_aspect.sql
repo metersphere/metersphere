@@ -43,6 +43,7 @@ VALUES ('aspect_gyq_api_scenario_one', 'api_scenario', 'p1', 'test-api-status', 
 INSERT INTO test_plan(id, project_id, parent_id, name, status, stage, tags, create_time, create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, actual_end_time, description)
 VALUES ('aspect_gyq_test_plan_one','100001100001', 'NONE', 'test_plan', 'test-api-status', 'Smock', null, UNIX_TIMESTAMP() * 1000, 'admin',   UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 2000, UNIX_TIMESTAMP() * 3000 ,UNIX_TIMESTAMP() * 2000, UNIX_TIMESTAMP() * 3000,null);
 
-INSERT INTO case_review(id, name, module_id, project_id, start_time, end_time, tags, description, create_time, create_user, update_time, update_user)
-VALUES ('aspect_gyq_case_review_one','case_review','module_id', '100001100001', null, null, null, null, UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin');
+INSERT INTO case_review(id, num, name, module_id, project_id, status, review_pass_rule, pos, start_time, end_time, tags, description, create_time, create_user, update_time, update_user)
+VALUES ('aspect_gyq_case_review_one','10001','case_review','module_id', '100001100001','PREPARED','SINGLE','0', null, null, null, null, UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin');
+
 
