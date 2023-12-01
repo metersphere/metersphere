@@ -63,8 +63,8 @@ public class ApiDefinitionLogService {
      * @return
      */
     public LogDTO updateLog(ApiDefinitionUpdateRequest request) {
-        ApiDefinition apiDefinition = apiDefinitionService.get(request.getId(), SessionUtils.getUserId());
-        if(apiDefinition != null){
+        ApiDefinitionDTO apiDefinition = apiDefinitionService.getInfo(request.getId(), SessionUtils.getUserId());
+        if(apiDefinition.getId() != null){
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
                     null,
@@ -89,8 +89,8 @@ public class ApiDefinitionLogService {
      * @return
      */
     public LogDTO delLog(ApiDefinitionDeleteRequest request) {
-        ApiDefinition apiDefinition = apiDefinitionService.get(request.getId(), SessionUtils.getUserId());
-        if(apiDefinition != null){
+        ApiDefinitionDTO apiDefinition = apiDefinitionService.getInfo(request.getId(), SessionUtils.getUserId());
+        if(apiDefinition.getId() != null){
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
                     null,
@@ -173,8 +173,8 @@ public class ApiDefinitionLogService {
     }
 
     public LogDTO copyLog(ApiDefinitionCopyRequest request) {
-        ApiDefinition apiDefinition = apiDefinitionService.get(request.getId(), SessionUtils.getUserId());
-        if(apiDefinition != null){
+        ApiDefinitionDTO apiDefinition = apiDefinitionService.getInfo(request.getId(), SessionUtils.getUserId());
+        if(apiDefinition.getId() != null){
             LogDTO dto = new LogDTO(
                     apiDefinition.getProjectId(),
                     null,
@@ -219,8 +219,8 @@ public class ApiDefinitionLogService {
     }
 
     public LogDTO followLog(String id) {
-        ApiDefinition apiDefinition = apiDefinitionService.get(id, SessionUtils.getUserId());
-        if(apiDefinition != null){
+        ApiDefinitionDTO apiDefinition = apiDefinitionService.getInfo(id, SessionUtils.getUserId());
+        if(apiDefinition.getId() != null){
             Project project = projectMapper.selectByPrimaryKey(apiDefinition.getProjectId());
             LogDTO dto = new LogDTO(
                     apiDefinition.getProjectId(),
@@ -246,8 +246,8 @@ public class ApiDefinitionLogService {
      * @return
      */
     public LogDTO restoreLog(ApiDefinitionDeleteRequest request) {
-        ApiDefinition apiDefinition = apiDefinitionService.get(request.getId(), SessionUtils.getUserId());
-        if(apiDefinition != null){
+        ApiDefinitionDTO apiDefinition = apiDefinitionService.getInfo(request.getId(), SessionUtils.getUserId());
+        if(apiDefinition.getId() != null){
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
                     null,
@@ -304,8 +304,8 @@ public class ApiDefinitionLogService {
      * 删除回收站接口定义接口日志
      */
     public LogDTO trashDelLog(ApiDefinitionDeleteRequest request) {
-        ApiDefinition apiDefinition = apiDefinitionService.get(request.getId(), SessionUtils.getUserId());
-        if(apiDefinition != null){
+        ApiDefinitionDTO apiDefinition = apiDefinitionService.getInfo(request.getId(), SessionUtils.getUserId());
+        if(apiDefinition.getId() != null){
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
                     null,

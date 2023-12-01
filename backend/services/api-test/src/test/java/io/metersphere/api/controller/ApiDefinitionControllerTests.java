@@ -23,7 +23,6 @@ import io.metersphere.system.dto.sdk.BaseCondition;
 import io.metersphere.system.file.FileCenter;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -35,10 +34,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -647,6 +643,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
             });
         }
         checkLog(apiDefinitionDeleteRequest.getId(), OperationLogType.DELETE);
+        apiDefinitionDeleteRequest.setId("121");
+        apiDefinitionDeleteRequest.setDeleteAll(false);
+        assertErrorCode(this.requestPost(DELETE, apiDefinitionDeleteRequest), ApiResultCode.API_DEFINITION_NOT_EXIST);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, DELETE, apiDefinitionDeleteRequest);
     }
